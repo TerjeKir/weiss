@@ -77,6 +77,7 @@ static void ClearForSearch(S_BOARD *pos, S_SEARCHINFO *info) {
 
 	info->stopped = 0;
 	info->nodes = 0;
+	info->seldepth =0;
 	info->fh = 0;
 	info->fhf = 0;
 }
@@ -86,10 +87,14 @@ static int Quiescence(int alpha, int beta, S_BOARD *pos, S_SEARCHINFO *info) {
 
 	ASSERT(CheckBoard(pos));
 	ASSERT(beta > alpha);
+
 	if ((info->nodes & 2047) == 0)
 		CheckUp(info);
 
 	info->nodes++;
+
+	if (pos->ply > info->seldepth)
+		info->seldepth = pos->ply;
 
 	if (IsRepetition(pos) || pos->fiftyMove >= 100)
 		return 0;
@@ -153,20 +158,23 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 	ASSERT(depth >= 0);
 
 	// Quiescence at the end of search
-	if (depth == 0) {
+	if (depth == 0)
 		return Quiescence(alpha, beta, pos, info);
-	}
 
 	// Check for time
-	if ((info->nodes & 2047) == 0) {
+	if ((info->nodes & 2047) == 0)
 		CheckUp(info);
-	}
 
 	info->nodes++;
+
+	if (pos->ply > info->seldepth)
+		info->seldepth = pos->ply;
+
 	// Repetition reached
 	if ((IsRepetition(pos) || pos->fiftyMove >= 100) && pos->ply) {
 		return 0;
 	}
+
 	// Max Depth reached
 	if (pos->ply > MAXDEPTH - 1) {
 		return EvalPosition(pos);
@@ -238,12 +246,13 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 		if (info->stopped) {
 			return 0;
 		}
+
 		if (Score > BestScore) {
 			BestScore = Score;
 			BestMove = list->moves[MoveNum].move;
 			if (Score > alpha) {
 				if (Score >= beta) {
-					if (Legal == 1) {
+					if (Legal) {
 						info->fhf++;
 					}
 					info->fh++;
@@ -266,7 +275,7 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 		}
 	}
 
-	if (Legal == 0) {
+	if (!Legal) {
 		if (InCheck) {
 			return -INFINITE + pos->ply;
 		} else {
@@ -294,6 +303,9 @@ void SearchPosition(S_BOARD *pos, S_SEARCHINFO *info) {
 	int pvMoves = 0;
 	int pvNum = 0;
 
+	int timeElapsed;
+	long nps;
+
 	ClearForSearch(pos, info);
 
 	if (EngineOptions->UseBook) {
@@ -304,19 +316,27 @@ void SearchPosition(S_BOARD *pos, S_SEARCHINFO *info) {
 
 	// iterative deepening
 	if (bestMove == NOMOVE) {
+
 		for (currentDepth = 1; currentDepth <= info->depth; ++currentDepth) {
+
+			if (currentDepth > info->seldepth) info->seldepth = currentDepth;
+
 			rootDepth = currentDepth;
 			bestScore = AlphaBeta(-INFINITE, INFINITE, currentDepth, pos, info, TRUE);
 
-			if (info->stopped) {
-				break;
-			}
+			if (info->stopped) break;
 
 			pvMoves = GetPvLine(currentDepth, pos);
 			bestMove = pos->PvArray[0];
+
 			if (info->GAME_MODE == UCIMODE) {
-				printf("info score cp %d depth %d nodes %ld time %d ",
-					   bestScore, currentDepth, info->nodes, GetTimeMs() - info->starttime);
+				timeElapsed = GetTimeMs() - info->starttime;
+				printf("info score cp %d depth %d seldepth %d nodes %ld time %d ",
+					   bestScore, currentDepth, info->seldepth, info->nodes, timeElapsed);
+				if (timeElapsed > 0) {
+					nps = (info->nodes / timeElapsed) * 1000;
+					printf("nps %ld ", nps);
+				}
 			} else if (info->GAME_MODE == XBOARDMODE && info->POST_THINKING) {
 				printf("%d %d %d %ld ",
 					   currentDepth, bestScore, (GetTimeMs() - info->starttime) / 10, info->nodes);
@@ -324,6 +344,7 @@ void SearchPosition(S_BOARD *pos, S_SEARCHINFO *info) {
 				printf("score:%d depth:%d nodes:%ld time:%d(ms) ",
 					   bestScore, currentDepth, info->nodes, GetTimeMs() - info->starttime);
 			}
+
 			if (info->GAME_MODE == UCIMODE || info->POST_THINKING) {
 				pvMoves = GetPvLine(currentDepth, pos);
 				if (!info->GAME_MODE == XBOARDMODE) {

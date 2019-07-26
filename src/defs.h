@@ -137,6 +137,7 @@ typedef struct {
 	int starttime;
 	int stoptime;
 	int depth;
+	int seldepth;
 	int timeset;
 	int movestogo;
 
