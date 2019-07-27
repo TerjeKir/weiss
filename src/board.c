@@ -65,9 +65,8 @@ int CheckBoard(const S_BOARD *pos) {
 		t_material[colour] += PieceVal[t_piece];
 	}
 
-	for (t_piece = wP; t_piece <= bK; ++t_piece) {
+	for (t_piece = wP; t_piece <= bK; ++t_piece)
 		ASSERT(t_pceNum[t_piece] == pos->pceNum[t_piece]);
-	}
 
 	// check bitboards count
 	pcount = CNT(t_pawns[WHITE]);
@@ -231,73 +230,73 @@ int ParseFen(char *fen, S_BOARD *pos) {
 	while ((rank >= RANK_1) && *fen) {
 		count = 1;
 		switch (*fen) {
-		case 'p':
-			piece = bP;
-			break;
-		case 'r':
-			piece = bR;
-			break;
-		case 'n':
-			piece = bN;
-			break;
-		case 'b':
-			piece = bB;
-			break;
-		case 'k':
-			piece = bK;
-			break;
-		case 'q':
-			piece = bQ;
-			break;
-		case 'P':
-			piece = wP;
-			break;
-		case 'R':
-			piece = wR;
-			break;
-		case 'N':
-			piece = wN;
-			break;
-		case 'B':
-			piece = wB;
-			break;
-		case 'K':
-			piece = wK;
-			break;
-		case 'Q':
-			piece = wQ;
-			break;
+			case 'p':
+				piece = bP;
+				break;
+			case 'r':
+				piece = bR;
+				break;
+			case 'n':
+				piece = bN;
+				break;
+			case 'b':
+				piece = bB;
+				break;
+			case 'k':
+				piece = bK;
+				break;
+			case 'q':
+				piece = bQ;
+				break;
+			case 'P':
+				piece = wP;
+				break;
+			case 'R':
+				piece = wR;
+				break;
+			case 'N':
+				piece = wN;
+				break;
+			case 'B':
+				piece = wB;
+				break;
+			case 'K':
+				piece = wK;
+				break;
+			case 'Q':
+				piece = wQ;
+				break;
 
-		case '1':
-		case '2':
-		case '3':
-		case '4':
-		case '5':
-		case '6':
-		case '7':
-		case '8':
-			piece = EMPTY;
-			count = *fen - '0';
-			break;
+			case '1':
+			case '2':
+			case '3':
+			case '4':
+			case '5':
+			case '6':
+			case '7':
+			case '8':
+				piece = EMPTY;
+				count = *fen - '0';
+				break;
 
-		case '/':
-		case ' ':
-			rank--;
-			file = FILE_A;
-			fen++;
-			continue;
+			case '/':
+			case ' ':
+				rank--;
+				file = FILE_A;
+				fen++;
+				continue;
 
-		default:
-			printf("FEN error \n");
-			return -1;
+			default:
+				printf("FEN error \n");
+				return -1;
 		}
 
 		for (i = 0; i < count; i++) {
 			sq64 = rank * 8 + file;
 			sq120 = SQ120(sq64);
-			if (piece != EMPTY) {
+			if (piece != EMPTY)
 				pos->pieces[sq120] = piece;
-			}
+
 			file++;
 		}
 		fen++;
@@ -309,24 +308,25 @@ int ParseFen(char *fen, S_BOARD *pos) {
 	fen += 2;
 
 	for (i = 0; i < 4; i++) {
-		if (*fen == ' ') {
+
+		if (*fen == ' ')
 			break;
-		}
+
 		switch (*fen) {
-		case 'K':
-			pos->castlePerm |= WKCA;
-			break;
-		case 'Q':
-			pos->castlePerm |= WQCA;
-			break;
-		case 'k':
-			pos->castlePerm |= BKCA;
-			break;
-		case 'q':
-			pos->castlePerm |= BQCA;
-			break;
-		default:
-			break;
+			case 'K':
+				pos->castlePerm |= WKCA;
+				break;
+			case 'Q':
+				pos->castlePerm |= WQCA;
+				break;
+			case 'k':
+				pos->castlePerm |= BKCA;
+				break;
+			case 'q':
+				pos->castlePerm |= BQCA;
+				break;
+			default:
+				break;
 		}
 		fen++;
 	}
@@ -356,9 +356,8 @@ void ResetBoard(S_BOARD *pos) {
 
 	int index = 0;
 
-	for (index = 0; index < BRD_SQ_NUM; ++index) {
+	for (index = 0; index < BRD_SQ_NUM; ++index)
 		pos->pieces[index] = OFFBOARD;
-	}
 
 	for (index = 0; index < 64; ++index)
 		pos->pieces[SQ120(index)] = EMPTY;
@@ -442,9 +441,8 @@ void MirrorBoard(S_BOARD *pos) {
 		tempEnPas = SQ120(Mirror64[SQ64(pos->enPas)]);
 	}
 
-	for (sq = 0; sq < 64; sq++) {
+	for (sq = 0; sq < 64; sq++)
 		tempPiecesArray[sq] = pos->pieces[SQ120(Mirror64[sq])];
-	}
 
 	ResetBoard(pos);
 
