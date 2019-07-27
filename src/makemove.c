@@ -42,16 +42,60 @@ static void ClearPiece(const int sq, S_BOARD *pos) {
 	pos->pieces[sq] = EMPTY;
 	pos->material[col] -= PieceVal[pce];
 
+	// Piece lists and old bitboards
 	if (PieceBig[pce]) {
 		pos->bigPce[col]--;
-		if (PieceMaj[pce]) {
+		if (PieceMaj[pce])
 			pos->majPce[col]--;
-		} else {
+		else
 			pos->minPce[col]--;
-		}
+
 	} else {
 		CLRBIT(pos->pawns[col], SQ64(sq));
 		CLRBIT(pos->pawns[BOTH], SQ64(sq));
+	}
+
+	// Bitboards
+	switch (pce) {
+		case wP:
+			CLRBIT(pos->pieceBBs[PAWN], SQ64(sq));
+			CLRBIT(pos->colors[WHITE], SQ64(sq));
+		case wN:
+			CLRBIT(pos->pieceBBs[KNIGHT], SQ64(sq));
+			CLRBIT(pos->colors[WHITE], SQ64(sq));
+		case wB:
+			CLRBIT(pos->pieceBBs[BISHOP], SQ64(sq));
+			CLRBIT(pos->colors[WHITE], SQ64(sq));
+		case wR:
+			CLRBIT(pos->pieceBBs[ROOK], SQ64(sq));
+			CLRBIT(pos->colors[WHITE], SQ64(sq));
+		case wQ:
+			CLRBIT(pos->pieceBBs[QUEEN], SQ64(sq));
+			CLRBIT(pos->colors[WHITE], SQ64(sq));
+		case wK:
+			CLRBIT(pos->pieceBBs[KING], SQ64(sq));
+			CLRBIT(pos->colors[WHITE], SQ64(sq));
+		case bP:
+			CLRBIT(pos->pieceBBs[PAWN], SQ64(sq));
+			CLRBIT(pos->colors[BLACK], SQ64(sq));
+		case bN:
+			CLRBIT(pos->pieceBBs[KNIGHT], SQ64(sq));
+			CLRBIT(pos->colors[BLACK], SQ64(sq));
+		case bB:
+			CLRBIT(pos->pieceBBs[BISHOP], SQ64(sq));
+			CLRBIT(pos->colors[BLACK], SQ64(sq));
+		case bR:
+			CLRBIT(pos->pieceBBs[ROOK], SQ64(sq));
+			CLRBIT(pos->colors[BLACK], SQ64(sq));
+		case bQ:
+			CLRBIT(pos->pieceBBs[QUEEN], SQ64(sq));
+			CLRBIT(pos->colors[BLACK], SQ64(sq));
+		case bK:
+			CLRBIT(pos->pieceBBs[KING], SQ64(sq));
+			CLRBIT(pos->colors[BLACK], SQ64(sq));
+		default:
+			ASSERT(FALSE);
+			break;
 	}
 
 	for (index = 0; index < pos->pceNum[pce]; ++index) {
@@ -81,6 +125,7 @@ static void AddPiece(const int sq, S_BOARD *pos, const int pce) {
 
 	pos->pieces[sq] = pce;
 
+	// Piece lists and old bitboards
 	if (PieceBig[pce]) {
 		pos->bigPce[col]++;
 		if (PieceMaj[pce]) {
@@ -91,6 +136,49 @@ static void AddPiece(const int sq, S_BOARD *pos, const int pce) {
 	} else {
 		SETBIT(pos->pawns[col], SQ64(sq));
 		SETBIT(pos->pawns[BOTH], SQ64(sq));
+	}
+
+	// Bitboards
+	switch (pce) {
+		case wP:
+			SETBIT(pos->pieceBBs[PAWN], SQ64(sq));
+			SETBIT(pos->colors[WHITE], SQ64(sq));
+		case wN:
+			SETBIT(pos->pieceBBs[KNIGHT], SQ64(sq));
+			SETBIT(pos->colors[WHITE], SQ64(sq));
+		case wB:
+			SETBIT(pos->pieceBBs[BISHOP], SQ64(sq));
+			SETBIT(pos->colors[WHITE], SQ64(sq));
+		case wR:
+			SETBIT(pos->pieceBBs[ROOK], SQ64(sq));
+			SETBIT(pos->colors[WHITE], SQ64(sq));
+		case wQ:
+			SETBIT(pos->pieceBBs[QUEEN], SQ64(sq));
+			SETBIT(pos->colors[WHITE], SQ64(sq));
+		case wK:
+			SETBIT(pos->pieceBBs[KING], SQ64(sq));
+			SETBIT(pos->colors[WHITE], SQ64(sq));
+		case bP:
+			SETBIT(pos->pieceBBs[PAWN], SQ64(sq));
+			SETBIT(pos->colors[BLACK], SQ64(sq));
+		case bN:
+			SETBIT(pos->pieceBBs[KNIGHT], SQ64(sq));
+			SETBIT(pos->colors[BLACK], SQ64(sq));
+		case bB:
+			SETBIT(pos->pieceBBs[BISHOP], SQ64(sq));
+			SETBIT(pos->colors[BLACK], SQ64(sq));
+		case bR:
+			SETBIT(pos->pieceBBs[ROOK], SQ64(sq));
+			SETBIT(pos->colors[BLACK], SQ64(sq));
+		case bQ:
+			SETBIT(pos->pieceBBs[QUEEN], SQ64(sq));
+			SETBIT(pos->colors[BLACK], SQ64(sq));
+		case bK:
+			SETBIT(pos->pieceBBs[KING], SQ64(sq));
+			SETBIT(pos->colors[BLACK], SQ64(sq));
+		default:
+			ASSERT(FALSE);
+			break;
 	}
 
 	pos->material[col] += PieceVal[pce];
@@ -125,6 +213,73 @@ static void MovePiece(const int from, const int to, S_BOARD *pos) {
 		SETBIT(pos->pawns[BOTH], SQ64(to));
 	}
 
+	// Bitboards
+	switch (pce) {
+		case wP:
+			CLRBIT(pos->pieceBBs[PAWN], SQ64(from));
+			CLRBIT(pos->colors[WHITE], SQ64(from));
+			SETBIT(pos->pieceBBs[PAWN], SQ64(to));
+			SETBIT(pos->colors[WHITE], SQ64(to));
+		case wN:
+			CLRBIT(pos->pieceBBs[KNIGHT], SQ64(from));
+			CLRBIT(pos->colors[WHITE], SQ64(from));
+			SETBIT(pos->pieceBBs[KNIGHT], SQ64(to));
+			SETBIT(pos->colors[WHITE], SQ64(to));
+		case wB:
+			CLRBIT(pos->pieceBBs[BISHOP], SQ64(from));
+			CLRBIT(pos->colors[WHITE], SQ64(from));
+			SETBIT(pos->pieceBBs[BISHOP], SQ64(to));
+			SETBIT(pos->colors[WHITE], SQ64(to));
+		case wR:
+			CLRBIT(pos->pieceBBs[ROOK], SQ64(from));
+			CLRBIT(pos->colors[WHITE], SQ64(from));
+			SETBIT(pos->pieceBBs[ROOK], SQ64(to));
+			SETBIT(pos->colors[WHITE], SQ64(to));
+		case wQ:
+			CLRBIT(pos->pieceBBs[QUEEN], SQ64(from));
+			CLRBIT(pos->colors[WHITE], SQ64(from));
+			SETBIT(pos->pieceBBs[QUEEN], SQ64(to));
+			SETBIT(pos->colors[WHITE], SQ64(to));
+		case wK:
+			CLRBIT(pos->pieceBBs[KING], SQ64(from));
+			CLRBIT(pos->colors[WHITE], SQ64(from));
+			SETBIT(pos->pieceBBs[KING], SQ64(to));
+			SETBIT(pos->colors[WHITE], SQ64(to));
+		case bP:
+			CLRBIT(pos->pieceBBs[PAWN], SQ64(from));
+			CLRBIT(pos->colors[BLACK], SQ64(from));
+			SETBIT(pos->pieceBBs[PAWN], SQ64(to));
+			SETBIT(pos->colors[BLACK], SQ64(to));
+		case bN:
+			CLRBIT(pos->pieceBBs[KNIGHT], SQ64(from));
+			CLRBIT(pos->colors[BLACK], SQ64(from));
+			SETBIT(pos->pieceBBs[KNIGHT], SQ64(to));
+			SETBIT(pos->colors[BLACK], SQ64(to));
+		case bB:
+			CLRBIT(pos->pieceBBs[BISHOP], SQ64(from));
+			CLRBIT(pos->colors[BLACK], SQ64(from));
+			SETBIT(pos->pieceBBs[BISHOP], SQ64(to));
+			SETBIT(pos->colors[BLACK], SQ64(to));
+		case bR:
+			CLRBIT(pos->pieceBBs[ROOK], SQ64(from));
+			CLRBIT(pos->colors[BLACK], SQ64(from));
+			SETBIT(pos->pieceBBs[ROOK], SQ64(to));
+			SETBIT(pos->colors[BLACK], SQ64(to));
+		case bQ:
+			CLRBIT(pos->pieceBBs[QUEEN], SQ64(from));
+			CLRBIT(pos->colors[BLACK], SQ64(from));
+			SETBIT(pos->pieceBBs[QUEEN], SQ64(to));
+			SETBIT(pos->colors[BLACK], SQ64(to));
+		case bK:
+			CLRBIT(pos->pieceBBs[KING], SQ64(from));
+			CLRBIT(pos->colors[BLACK], SQ64(from));
+			SETBIT(pos->pieceBBs[KING], SQ64(to));
+			SETBIT(pos->colors[BLACK], SQ64(to));
+		default:
+			ASSERT(FALSE);
+			break;
+	}
+
 	for (index = 0; index < pos->pceNum[pce]; ++index) {
 		if (pos->pList[pce][index] == from) {
 			pos->pList[pce][index] = to;
@@ -155,28 +310,28 @@ int MakeMove(S_BOARD *pos, int move) {
 	pos->history[pos->hisPly].posKey = pos->posKey;
 
 	if (move & MOVE_FLAG_ENPAS) {
-		if (side == WHITE) {
+		if (side == WHITE)
 			ClearPiece(to - 10, pos);
-		} else {
+		else
 			ClearPiece(to + 10, pos);
-		}
+
 	} else if (move & MOVE_FLAG_CASTLE) {
 		switch (to) {
-		case C1:
-			MovePiece(A1, D1, pos);
-			break;
-		case C8:
-			MovePiece(A8, D8, pos);
-			break;
-		case G1:
-			MovePiece(H1, F1, pos);
-			break;
-		case G8:
-			MovePiece(H8, F8, pos);
-			break;
-		default:
-			ASSERT(FALSE);
-			break;
+			case C1:
+				MovePiece(A1, D1, pos);
+				break;
+			case C8:
+				MovePiece(A8, D8, pos);
+				break;
+			case G1:
+				MovePiece(H1, F1, pos);
+				break;
+			case G8:
+				MovePiece(H8, F8, pos);
+				break;
+			default:
+				ASSERT(FALSE);
+				break;
 		}
 	}
 
@@ -233,9 +388,9 @@ int MakeMove(S_BOARD *pos, int move) {
 		AddPiece(to, pos, prPce);
 	}
 
-	if (PieceKing[pos->pieces[to]]) {
+	if (PieceKing[pos->pieces[to]])
 		pos->KingSq[pos->side] = to;
-	}
+
 
 	pos->side ^= 1;
 	HASH_SIDE;
@@ -283,28 +438,28 @@ void TakeMove(S_BOARD *pos) {
 	HASH_SIDE;
 
 	if (MOVE_FLAG_ENPAS & move) {
-		if (pos->side == WHITE) {
+		if (pos->side == WHITE)
 			AddPiece(to - 10, pos, bP);
-		} else {
+		else
 			AddPiece(to + 10, pos, wP);
-		}
+
 	} else if (move & MOVE_FLAG_CASTLE) {
 		switch (to) {
-		case C1:
-			MovePiece(D1, A1, pos);
-			break;
-		case C8:
-			MovePiece(D8, A8, pos);
-			break;
-		case G1:
-			MovePiece(F1, H1, pos);
-			break;
-		case G8:
-			MovePiece(F8, H8, pos);
-			break;
-		default:
-			ASSERT(FALSE);
-			break;
+			case C1:
+				MovePiece(D1, A1, pos);
+				break;
+			case C8:
+				MovePiece(D8, A8, pos);
+				break;
+			case G1:
+				MovePiece(F1, H1, pos);
+				break;
+			case G8:
+				MovePiece(F8, H8, pos);
+				break;
+			default:
+				ASSERT(FALSE);
+				break;
 		}
 	}
 

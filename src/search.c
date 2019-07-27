@@ -159,8 +159,8 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 	ASSERT(beta > alpha);
 	ASSERT(depth >= 0);
 	
-	// unsigned tbresult;
-	// int val;
+	unsigned tbresult;
+	int val;
 
 	// Quiescence at the end of search
 	if (depth == 0)
@@ -180,17 +180,17 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 		return 0;
 
 	// Syzygy
-	// if ((tbresult = probeWDL(pos, depth)) != TB_RESULT_FAILED) {
+	if ((tbresult = probeWDL(pos, depth)) != TB_RESULT_FAILED) {
 
-	// 	info->tbhits++; // Increment tbhits counter
+		info->tbhits++; // Increment tbhits counter
 
-	// 	// Convert the WDL value to a score. We consider blessed losses
-	// 	// and cursed wins to be a draw, and thus set value to zero.
-	// 	val = tbresult == TB_LOSS ? -INFINITE + MAXDEPTH + pos->ply + 1
-	// 		  : tbresult == TB_WIN  ?  INFINITE - MAXDEPTH - pos->ply - 1 : 0;
+		// Convert the WDL value to a score. We consider blessed losses
+		// and cursed wins to be a draw, and thus set value to zero.
+		val = tbresult == TB_LOSS ? -INFINITE + MAXDEPTH + pos->ply + 1
+			  : tbresult == TB_WIN  ?  INFINITE - MAXDEPTH - pos->ply - 1 : 0;
 
-	// 	return val;
-	// }
+		return val;
+	}
 
 	// Max Depth reached
 	if (pos->ply > MAXDEPTH - 1)
