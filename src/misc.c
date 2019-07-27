@@ -2,8 +2,9 @@
 
 #include "stdio.h"
 #include "defs.h"
+#include "io.h"
 
-#ifdef WIN32
+#ifdef _WIN32
 #include "windows.h"
 #else
 #include "sys/time.h"
