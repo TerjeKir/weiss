@@ -180,7 +180,7 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 		return 0;
 
 	// Syzygy
-	if ((tbresult = tablebasesProbeWDL(pos, depth)) != TB_RESULT_FAILED) {
+	if ((tbresult = probeWDL(pos, depth)) != TB_RESULT_FAILED) {
 
 		info->tbhits++; // Increment tbhits counter
 
