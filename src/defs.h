@@ -27,7 +27,7 @@ typedef unsigned long long U64;
 
 #define MAXGAMEMOVES 512
 #define MAXPOSITIONMOVES 256
-#define MAXDEPTH 64
+#define MAXDEPTH 128
 #define MAXHASH 1024
 
 #define START_FEN  "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
@@ -35,7 +35,8 @@ typedef unsigned long long U64;
 #define INFINITE 30000
 #define ISMATE (INFINITE - MAXDEPTH)
 
-enum { EMPTY, wP, wN, wB, wR, wQ, wK, bP, bN, bB, bR, bQ, bK  };
+enum { EMPTY, wP, wN, wB, wR, wQ, wK, bP, bN, bB, bR, bQ, bK };
+enum { PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING };
 enum { FILE_A, FILE_B, FILE_C, FILE_D, FILE_E, FILE_F, FILE_G, FILE_H, FILE_NONE };
 enum { RANK_1, RANK_2, RANK_3, RANK_4, RANK_5, RANK_6, RANK_7, RANK_8, RANK_NONE };
 enum { WHITE, BLACK, BOTH };
@@ -99,6 +100,8 @@ typedef struct {
 
 	int pieces[BRD_SQ_NUM];
 	U64 pawns[3];
+	U64 colors[2];
+	U64 pieces[6];
 
 	int KingSq[2];
 
@@ -142,6 +145,7 @@ typedef struct {
 	int movestogo;
 
 	long nodes;
+	unsigned long long tbhits;
 
 	int quit;
 	int stopped;
