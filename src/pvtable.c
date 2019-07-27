@@ -88,28 +88,27 @@ int ProbeHashEntry(S_BOARD *pos, int *move, int *score, int alpha, int beta, int
 			else if (*score < -ISMATE)
 				*score += pos->ply;
 
+			ASSERT(*score >= -INFINITE && *score <= INFINITE);
+			
 			switch (pos->HashTable->pTable[index].flags) {
-
-				ASSERT(*score >= -INFINITE && *score <= INFINITE);
-
-			case HFALPHA:
-				if (*score <= alpha) {
-					*score = alpha;
+				case HFALPHA:
+					if (*score <= alpha) {
+						*score = alpha;
+						return TRUE;
+					}
+					break;
+				case HFBETA:
+					if (*score >= beta) {
+						*score = beta;
+						return TRUE;
+					}
+					break;
+				case HFEXACT:
 					return TRUE;
-				}
-				break;
-			case HFBETA:
-				if (*score >= beta) {
-					*score = beta;
-					return TRUE;
-				}
-				break;
-			case HFEXACT:
-				return TRUE;
-				break;
-			default:
-				ASSERT(FALSE);
-				break;
+					break;
+				default:
+					ASSERT(FALSE);
+					break;
 			}
 		}
 	}
