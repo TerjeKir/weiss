@@ -262,7 +262,7 @@ void XBoard_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 
 void Console_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 
-	printf("weiss started in console mode\n");
+	printf("\nweiss started in console mode\n");
 	printf("Type help for commands\n\n");
 
 	info->GAME_MODE = CONSOLEMODE;

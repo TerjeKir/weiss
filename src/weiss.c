@@ -29,7 +29,7 @@ int main(int argc, char *argv[]) {
 		}
 	}
 
-	printf("Welcome to weiss! Type 'weiss' for console mode...\n");
+	printf("Welcome to weiss! Type 'weiss' for console mode...\n> ");
 
 	char line[256];
 	while (TRUE) {
