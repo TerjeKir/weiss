@@ -121,6 +121,7 @@ void Uci_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 	printf("id author LoliSquad\n");
 	printf("option name Hash type spin default 64 min 4 max %d\n", MAXHASH);
 	printf("option name Book type check default true\n");
+	printf("option name SyzygyPath type string default <empty>\n");
 	printf("uciok\n");
 
 	int MB = 64;
@@ -170,6 +171,9 @@ void Uci_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 			} else {
 				EngineOptions->UseBook = FALSE;
 			}
+		} else if (!strncmp(line, "setoption name SyzygyPath value ", 32)) {
+			char *ptr = line + strlen("setoption name SyzygyPath value ");
+			tb_init(ptr); printf("info string set SyzygyPath to %s\n", ptr);
 		}
 		if (info->quit)
 			break;
