@@ -2,6 +2,7 @@
 
 #include "stdio.h"
 #include "defs.h"
+#include "fathom/tbprobe.h"
 
 int rootDepth;
 
@@ -70,16 +71,17 @@ static void ClearForSearch(S_BOARD *pos, S_SEARCHINFO *info) {
 		}
 	}
 
-	pos->HashTable->overWrite = 0;
+	pos->ply = 0;
 	pos->HashTable->hit = 0;
 	pos->HashTable->cut = 0;
-	pos->ply = 0;
+	pos->HashTable->overWrite = 0;
 
-	info->stopped = 0;
-	info->nodes = 0;
-	info->seldepth =0;
 	info->fh = 0;
 	info->fhf = 0;
+	info->nodes = 0;
+	info->tbhits = 0;
+	info->stopped = 0;
+	info->seldepth = 0;
 }
 
 // Quiescence
@@ -156,6 +158,9 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 	ASSERT(CheckBoard(pos));
 	ASSERT(beta > alpha);
 	ASSERT(depth >= 0);
+	
+	unsigned tbresult;
+	int val;
 
 	// Quiescence at the end of search
 	if (depth == 0)
@@ -171,20 +176,30 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 		info->seldepth = pos->ply;
 
 	// Repetition reached
-	if ((IsRepetition(pos) || pos->fiftyMove >= 100) && pos->ply) {
+	if ((IsRepetition(pos) || pos->fiftyMove >= 100) && pos->ply)
 		return 0;
+
+	// Syzygy
+	if ((tbresult = tablebasesProbeWDL(pos, depth)) != TB_RESULT_FAILED) {
+
+		info->tbhits++; // Increment tbhits counter
+
+		// Convert the WDL value to a score. We consider blessed losses
+		// and cursed wins to be a draw, and thus set value to zero.
+		val = tbresult == TB_LOSS ? -INFINITE + MAXDEPTH + pos->ply + 1
+			  : tbresult == TB_WIN  ?  INFINITE - MAXDEPTH - pos->ply - 1 : 0;
+
+		return val;
 	}
 
 	// Max Depth reached
-	if (pos->ply > MAXDEPTH - 1) {
+	if (pos->ply > MAXDEPTH - 1)
 		return EvalPosition(pos);
-	}
 
 	// Extend search if in check
 	int InCheck = SqAttacked(pos->KingSq[pos->side], pos->side ^ 1, pos);
-	if (InCheck) {
+	if (InCheck)
 		depth++;
-	}
 
 	int Score = -INFINITE;
 	int PvMove = NOMOVE;
