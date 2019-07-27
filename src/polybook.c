@@ -42,7 +42,7 @@ void InitPolyBook() {
 
 		size_t returnValue;
 		returnValue = fread(entries, sizeof(S_POLY_BOOK_ENTRY), NumEntries, pFile);
-		printf("fread() %ld Entries Read in from file\n", returnValue);
+		printf("fread() %I64d Entries Read in from file\n", returnValue);
 
 		// Uncomment to use books by default
 		// if(NumEntries > 0) {
@@ -184,7 +184,6 @@ int ConvertPolyMoveToInternalMove(unsigned short polyMove, S_BOARD *board) {
 }
 
 int GetBookMove(S_BOARD *board) {
-	int index = 0;
 	S_POLY_BOOK_ENTRY *entry;
 	unsigned short move;
 	const int MAXBOOKMOVES = 32;
