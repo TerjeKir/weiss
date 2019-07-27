@@ -102,7 +102,7 @@ typedef struct {
 	int pieces[BRD_SQ_NUM];
 	U64 pawns[3];
 	U64 colors[2];
-	U64 pieces[6];
+	U64 pieceBBs[6];
 
 	int KingSq[2];
 
@@ -334,7 +334,10 @@ extern void Console_Loop(S_BOARD *pos, S_SEARCHINFO *info);
 // polybook.c
 extern int GetBookMove(S_BOARD *board);
 extern void CleanPolyBook();
-extern void InitPolyBook() ;
+extern void InitPolyBook();
+
+// syzygy.c
+extern unsigned int probeWDL(S_BOARD *pos, int depth);
 
 #endif
 

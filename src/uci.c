@@ -3,6 +3,7 @@
 #include "stdio.h"
 #include "defs.h"
 #include "string.h"
+#include "fathom/tbprobe.h"
 
 #define INPUTBUFFER 400 * 6
 
@@ -18,33 +19,26 @@ void ParseGo(char *line, S_SEARCHINFO *info, S_BOARD *pos) {
 		;
 	}
 
-	if ((ptr = strstr(line, "binc")) && pos->side == BLACK) {
+	if ((ptr = strstr(line, "binc")) && pos->side == BLACK)
 		inc = atoi(ptr + 5);
-	}
 
-	if ((ptr = strstr(line, "winc")) && pos->side == WHITE) {
+	if ((ptr = strstr(line, "winc")) && pos->side == WHITE)
 		inc = atoi(ptr + 5);
-	}
 
-	if ((ptr = strstr(line, "wtime")) && pos->side == WHITE) {
+	if ((ptr = strstr(line, "wtime")) && pos->side == WHITE)
 		time = atoi(ptr + 6);
-	}
 
-	if ((ptr = strstr(line, "btime")) && pos->side == BLACK) {
+	if ((ptr = strstr(line, "btime")) && pos->side == BLACK)
 		time = atoi(ptr + 6);
-	}
 
-	if ((ptr = strstr(line, "movestogo"))) {
+	if ((ptr = strstr(line, "movestogo")))
 		movestogo = atoi(ptr + 10);
-	}
 
-	if ((ptr = strstr(line, "movetime"))) {
+	if ((ptr = strstr(line, "movetime")))
 		movetime = atoi(ptr + 9);
-	}
 
-	if ((ptr = strstr(line, "depth"))) {
+	if ((ptr = strstr(line, "depth")))
 		depth = atoi(ptr + 6);
-	}
 
 	if (movetime != -1) {
 		time = movetime;
@@ -61,9 +55,7 @@ void ParseGo(char *line, S_SEARCHINFO *info, S_BOARD *pos) {
 		info->stoptime = info->starttime + time + inc;
 	}
 
-	if (depth == -1) {
-		info->depth = MAXDEPTH;
-	}
+	if (depth == -1) info->depth = MAXDEPTH;
 
 	printf("time:%d start:%d stop:%d depth:%d timeset:%d\n",
 		   time, info->starttime, info->stoptime, info->depth, info->timeset);
