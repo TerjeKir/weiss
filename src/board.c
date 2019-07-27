@@ -151,6 +151,68 @@ void UpdateListsMaterial(S_BOARD *pos) {
 	}
 }
 
+// Update bitboards
+void UpdateBitboards(S_BOARD *pos) {
+
+	int piece, sq, index;
+
+	for (index = 0; index < BRD_SQ_NUM; ++index) {
+
+		sq = index;
+		piece = pos->pieces[index];
+		ASSERT(PceValidEmptyOffbrd(piece));
+
+		if (piece != OFFBOARD && piece != EMPTY) {
+
+			// Pawns
+			if (piece == wP) {
+				SETBIT(pos->colors[WHITE], SQ64(sq));
+				SETBIT(pos->pieceBBs[PAWN],  SQ64(sq));
+			} else if (piece == bP) {
+				SETBIT(pos->colors[BLACK], SQ64(sq));
+				SETBIT(pos->pieceBBs[PAWN],  SQ64(sq));
+			// Knights
+			} else if (piece == wN) {
+				SETBIT(pos->colors[WHITE],  SQ64(sq));
+				SETBIT(pos->pieceBBs[KNIGHT], SQ64(sq));
+			} else if (piece == bN) {
+				SETBIT(pos->colors[BLACK],  SQ64(sq));
+				SETBIT(pos->pieceBBs[KNIGHT], SQ64(sq));
+			// Bishops
+			} else if (piece == wB) {
+				SETBIT(pos->colors[WHITE],  SQ64(sq));
+				SETBIT(pos->pieceBBs[BISHOP], SQ64(sq));
+			} else if (piece == bB) {
+				SETBIT(pos->colors[BLACK],  SQ64(sq));
+				SETBIT(pos->pieceBBs[BISHOP], SQ64(sq));
+			// Rooks
+			} else if (piece == wR) {
+				SETBIT(pos->colors[WHITE], SQ64(sq));
+				SETBIT(pos->pieceBBs[ROOK],  SQ64(sq));
+			} else if (piece == bR) {
+				SETBIT(pos->colors[BLACK], SQ64(sq));
+				SETBIT(pos->pieceBBs[ROOK],  SQ64(sq));
+			// Queens
+			} else if (piece == wQ) {
+				SETBIT(pos->colors[WHITE], SQ64(sq));
+				SETBIT(pos->pieceBBs[QUEEN], SQ64(sq));
+			} else if (piece == bQ) {
+				SETBIT(pos->colors[BLACK], SQ64(sq));
+				SETBIT(pos->pieceBBs[QUEEN], SQ64(sq));
+			// Kings
+			} else if (piece == wK) {
+				SETBIT(pos->colors[WHITE], SQ64(sq));
+				SETBIT(pos->pieceBBs[KING],  SQ64(sq));
+			} else if (piece == bK) {
+				SETBIT(pos->colors[BLACK], SQ64(sq));
+				SETBIT(pos->pieceBBs[KING],  SQ64(sq));
+			}
+		}
+	}
+}
+
+
+
 int ParseFen(char *fen, S_BOARD *pos) {
 
 	ASSERT(fen != NULL);
@@ -285,6 +347,7 @@ int ParseFen(char *fen, S_BOARD *pos) {
 	pos->posKey = GeneratePosKey(pos);
 
 	UpdateListsMaterial(pos);
+	UpdateBitboards(pos);
 
 	return 0;
 }
@@ -348,14 +411,14 @@ void PrintBoard(const S_BOARD *pos) {
 		printf("%3c", 'a' + file);
 
 	printf("\n");
-	printf("side:%c\n", SideChar[pos->side]);
-	printf("enPas:%d\n", pos->enPas);
-	printf("castle:%c%c%c%c\n",
+	printf("side: %c\n", SideChar[pos->side]);
+	printf("enPas: %d\n", pos->enPas);
+	printf("castle: %c%c%c%c\n",
 		   pos->castlePerm & WKCA ? 'K' : '-',
 		   pos->castlePerm & WQCA ? 'Q' : '-',
 		   pos->castlePerm & BKCA ? 'k' : '-',
 		   pos->castlePerm & BQCA ? 'q' : '-');
-	printf("PosKey:%llX\n", pos->posKey);
+	printf("PosKey: %llX\n", pos->posKey);
 }
 
 void MirrorBoard(S_BOARD *pos) {
@@ -397,6 +460,7 @@ void MirrorBoard(S_BOARD *pos) {
 	pos->posKey = GeneratePosKey(pos);
 
 	UpdateListsMaterial(pos);
+	UpdateBitboards(pos);
 
 	ASSERT(CheckBoard(pos));
 }
