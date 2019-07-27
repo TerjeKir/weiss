@@ -113,6 +113,7 @@ int CheckBoard(const S_BOARD *pos) {
 	return TRUE;
 }
 
+// Update material lists to match pos->pieces[]
 void UpdateListsMaterial(S_BOARD *pos) {
 
 	int piece, sq, index, colour;
@@ -296,9 +297,8 @@ void ResetBoard(S_BOARD *pos) {
 		pos->pieces[index] = OFFBOARD;
 	}
 
-	for (index = 0; index < 64; ++index) {
+	for (index = 0; index < 64; ++index)
 		pos->pieces[SQ120(index)] = EMPTY;
-	}
 
 	for (index = 0; index < 2; ++index) {
 		pos->bigPce[index] = 0;
@@ -307,13 +307,11 @@ void ResetBoard(S_BOARD *pos) {
 		pos->material[index] = 0;
 	}
 
-	for (index = 0; index < 3; ++index) {
+	for (index = 0; index < 3; ++index)
 		pos->pawns[index] = 0ULL;
-	}
 
-	for (index = 0; index < 13; ++index) {
+	for (index = 0; index < 13; ++index)
 		pos->pceNum[index] = 0;
-	}
 
 	pos->KingSq[WHITE] = pos->KingSq[BLACK] = NO_SQ;
 
@@ -328,6 +326,7 @@ void ResetBoard(S_BOARD *pos) {
 
 	pos->posKey = 0ULL;
 }
+
 void PrintBoard(const S_BOARD *pos) {
 
 	int sq, file, rank, piece;
@@ -345,9 +344,9 @@ void PrintBoard(const S_BOARD *pos) {
 	}
 
 	printf("\n   ");
-	for (file = FILE_A; file <= FILE_H; file++) {
+	for (file = FILE_A; file <= FILE_H; file++)
 		printf("%3c", 'a' + file);
-	}
+
 	printf("\n");
 	printf("side:%c\n", SideChar[pos->side]);
 	printf("enPas:%d\n", pos->enPas);
