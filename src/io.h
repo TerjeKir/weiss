@@ -1,5 +1,7 @@
 // io.c
 
+#pragma once
+
 #include "defs.h"
 
 extern char *PrMove(const int move);

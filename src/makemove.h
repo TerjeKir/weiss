@@ -1,5 +1,7 @@
 // makemove.c
 
+#pragma once
+
 #include "defs.h"
 
 extern int MakeMove(S_BOARD *pos, int move);

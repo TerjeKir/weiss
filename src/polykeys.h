@@ -1,3 +1,7 @@
+// polykeys.h
+
+#pragma once
+
 #ifndef POLYKEYS_H
 #define POLYKEYS_H
 

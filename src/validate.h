@@ -1,5 +1,7 @@
 //validate.c
 
+#pragma once
+
 #include "defs.h"
 
 extern int SqOnBoard(const int sq);

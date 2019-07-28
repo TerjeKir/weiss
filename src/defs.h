@@ -1,3 +1,7 @@
+// defs.h
+
+#pragma once
+
 #ifndef DEFS_H
 #define DEFS_H
 

@@ -1,5 +1,7 @@
 // hashkeys.c
 
+#pragma once
+
 #include "types.h"
 #include "defs.h"
 

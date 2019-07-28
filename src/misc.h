@@ -1,5 +1,7 @@
 // misc.c
 
+#pragma once
+
 #include "defs.h"
 
 extern int GetTimeMs();

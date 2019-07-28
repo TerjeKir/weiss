@@ -1,5 +1,7 @@
 // movegen.c
 
+#pragma once
+
 #include "defs.h"
 
 extern void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list);

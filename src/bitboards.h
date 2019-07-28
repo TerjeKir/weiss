@@ -1,5 +1,7 @@
 // bitboards.h
 
+#pragma once
+
 #include "types.h"
 
 #define POP(b) PopBit(b)

@@ -1,5 +1,7 @@
 // board.h
 
+#pragma once
+
 #include "defs.h"
 
 extern void ResetBoard(S_BOARD *pos);

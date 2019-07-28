@@ -1,5 +1,7 @@
 // pvtable.c
 
+#pragma once
+
 #include "defs.h"
 
 extern void InitHashTable(S_HASHTABLE *table, const int MB);
