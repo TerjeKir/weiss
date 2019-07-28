@@ -1,5 +1,7 @@
 // bitboards.c
 
+
+#include <stdint.h>
 #include "stdio.h"
 #include "defs.h"
 
@@ -13,17 +15,40 @@ const int BitTable[64] = {
 	 7, 39, 48, 24, 59, 14, 12, 55,
 	38, 28, 58, 20, 37, 17, 36,  8};
 
+const uint64_t m1  = 0x5555555555555555;
+const uint64_t m2  = 0x3333333333333333;
+const uint64_t m4  = 0x0f0f0f0f0f0f0f0f;
+const uint64_t h01 = 0x0101010101010101;
+
+
+int PopCount(uint64_t x) {
+
+    //// Best for slow multiplication
+    x -= (x >> 1) & m1;              //put count of each 2 bits into those 2 bits
+    x = (x & m2) + ((x >> 2) & m2);  //put count of each 4 bits into those 4 bits 
+    x = (x + (x >> 4)) & m4;         //put count of each 8 bits into those 8 bits 
+    x += x >>  8;                    //put count of each 16 bits into their lowest 8 bits
+    x += x >> 16;                    //put count of each 32 bits into their lowest 8 bits
+    x += x >> 32;                    //put count of each 64 bits into their lowest 8 bits
+    
+    return x & 0x7f;
+
+    //// Best for fast multiplication
+    // x -= (x >> 1) & m1;                 //put count of each 2 bits into those 2 bits
+    // x = (x & m2) + ((x >> 2) & m2);     //put count of each 4 bits into those 4 bits 
+    // x = (x + (x >> 4)) & m4;            //put count of each 8 bits into those 8 bits 
+
+    // return (x * h01) >> 56;             //returns left 8 bits of x + (x<<8) + (x<<16) + (x<<24) + ... 
+
+    //// Built-in
+    // return __builtin_popcount(x);
+}
+
 int PopBit(U64 *bb) {
 	U64 b = *bb ^ (*bb - 1);
 	unsigned int fold = (unsigned)((b & 0xffffffff) ^ (b >> 32));
 	*bb &= (*bb - 1);
 	return BitTable[(fold * 0x783a9b23) >> 26];
-}
-
-int CountBits(U64 b) {
-	int r;
-	for (r = 0; b; r++, b &= b - 1);
-	return r;
 }
 
 void PrintBitBoard(U64 bb) {

@@ -195,7 +195,7 @@ typedef struct {
 #define SQ64(sq120) (Sq120ToSq64[(sq120)])
 #define SQ120(sq64) (Sq64ToSq120[(sq64)])
 #define POP(b) PopBit(b)
-#define CNT(b) CountBits(b)
+#define CNT(b) PopCount(b)
 #define CLRBIT(bb, sq) ((bb) &= ClearMask[(sq)])
 #define SETBIT(bb, sq) ((bb) |= SetMask[(sq)])
 
@@ -255,7 +255,7 @@ extern void AllInit();
 // bitboards.c
 extern void PrintBitBoard(U64 bb);
 extern int PopBit(U64 *bb);
-extern int CountBits(U64 b);
+extern int PopCount(U64 x);
 
 // hashkeys.c
 extern U64 GeneratePosKey(const S_BOARD *pos);
