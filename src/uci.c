@@ -149,10 +149,8 @@ void Uci_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 			break;
 		} else if (!strncmp(line, "setoption name Hash value ", 26)) {
 			sscanf(line, "%*s %*s %*s %*s %d", &MB);
-			if (MB < 4)
-				MB = 4;
-			if (MB > MAXHASH)
-				MB = MAXHASH;
+			if (MB < 4) MB = 4;
+			if (MB > MAXHASH) MB = MAXHASH;
 			printf("Set Hash to %d MB\n", MB);
 			InitHashTable(pos->HashTable, MB);
 		} else if (!strncmp(line, "setoption name Book value ", 26)) {
@@ -165,9 +163,9 @@ void Uci_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 			}
 		} else if (!strncmp(line, "setoption name SyzygyPath value ", 32)) {
 			char *ptr = line + strlen("setoption name SyzygyPath value ");
-			tb_init(ptr); printf("info string set SyzygyPath to %s\n", ptr);
+			tb_init(ptr); 
+			printf("info string set SyzygyPath to %s\n", ptr);
 		}
-		if (info->quit)
-			break;
+		if (info->quit) break;
 	}
 }

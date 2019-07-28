@@ -346,8 +346,8 @@ void SearchPosition(S_BOARD *pos, S_SEARCHINFO *info) {
 
 			if (info->GAME_MODE == UCIMODE) {
 				timeElapsed = GetTimeMs() - info->starttime;
-				printf("info score cp %d depth %d seldepth %d nodes %ld time %d ",
-					   bestScore, currentDepth, info->seldepth, info->nodes, timeElapsed);
+				printf("info score cp %d depth %d seldepth %d nodes %ld tbhits %I64d time %d ",
+					   bestScore, currentDepth, info->seldepth, info->nodes, info->tbhits, timeElapsed);
 				if (timeElapsed > 0) {
 					nps = (info->nodes / timeElapsed) * 1000;
 					printf("nps %ld ", nps);

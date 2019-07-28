@@ -417,7 +417,7 @@ void PrintBoard(const S_BOARD *pos) {
 		   pos->castlePerm & WQCA ? 'Q' : '-',
 		   pos->castlePerm & BKCA ? 'k' : '-',
 		   pos->castlePerm & BQCA ? 'q' : '-');
-	printf("PosKey: %llX\n", pos->posKey);
+	printf("PosKey: %I64d\n", pos->posKey);
 }
 
 void MirrorBoard(S_BOARD *pos) {

@@ -4,7 +4,7 @@ EXE		= weiss
 VER		= 0.1.1
 
 #WFLAGS = -std=gnu11 -Wall -Wextra -Wshadow
-WFLAGS = -std=gnu11 -Wall
+WFLAGS = -std=gnu11
 
 all:
 	gcc $(WFLAGS) $(SRC) -o "$(OUT)$(EXE)$(VER).exe"
