@@ -2,6 +2,7 @@
 
 #include "stdio.h"
 #include "defs.h"
+#include "movegen.h"
 
 char *PrSq(const int sq) {
 

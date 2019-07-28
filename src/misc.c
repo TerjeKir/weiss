@@ -3,6 +3,7 @@
 #include "stdio.h"
 #include "defs.h"
 #include "io.h"
+#include "polybook.h"
 
 #ifdef _WIN32
 #include "windows.h"

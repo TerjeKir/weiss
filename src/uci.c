@@ -3,7 +3,14 @@
 #include "stdio.h"
 #include "defs.h"
 #include "string.h"
+#include "board.h"
 #include "fathom/tbprobe.h"
+#include "makemove.h"
+#include "io.h"
+#include "validate.h"
+#include "misc.h"
+#include "pvtable.h"
+#include "search.h"
 
 #define INPUTBUFFER 400 * 6
 

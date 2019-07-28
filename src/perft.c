@@ -2,6 +2,11 @@
 
 #include "defs.h"
 #include "stdio.h"
+#include "board.h"
+#include "io.h"
+#include "makemove.h"
+#include "movegen.h"
+#include "misc.h"
 
 long leafNodes;
 

@@ -3,6 +3,8 @@
 #include "defs.h"
 #include "stdio.h"
 #include "stdlib.h"
+#include "movegen.h"
+#include "polybook.h"
 
 #define RAND_64 ((U64)rand() |	   \
 				 (U64)rand() << 15 | \
@@ -179,7 +181,7 @@ void InitSq120To64() {
 	}
 }
 
-void AllInit() {
+void InitAll() {
 	InitSq120To64();
 	InitBitMasks();
 	InitHashKeys();

@@ -2,6 +2,10 @@
 
 #include "stdio.h"
 #include "defs.h"
+#include "bitboards.h"
+#include "board.h"
+#include "hashkeys.h"
+#include "validate.h"
 
 // Check piece list is ok
 int PceListOk(const S_BOARD *pos) {

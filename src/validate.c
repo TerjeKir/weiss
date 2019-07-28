@@ -3,6 +3,12 @@
 #include "defs.h"
 #include "stdio.h"
 #include "string.h"
+#include "board.h"
+#include "evaluate.h"
+#include "validate.h"
+#include "misc.h"
+#include "pvtable.h"
+#include "search.h"
 
 int MoveListOk(const S_MOVELIST *list, const S_BOARD *pos) {
 	if (list->count < 0 || list->count >= MAXPOSITIONMOVES) {

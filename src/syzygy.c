@@ -1,6 +1,7 @@
 // syzygy.c
 
 #include "defs.h"
+#include "bitboards.h"
 #include "fathom/tbprobe.h"
 
 #define TB_PROBE_DEPTH 4

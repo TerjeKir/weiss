@@ -1,9 +1,9 @@
 // bitboards.c
 
-
-#include <stdint.h>
-#include "stdio.h"
 #include "defs.h"
+#include "types.h"
+#include "stdio.h"
+#include "bitboards.h"
 
 const int BitTable[64] = {
 	63, 30,  3, 32, 25, 41, 22, 33,

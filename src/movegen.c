@@ -2,6 +2,9 @@
 
 #include "stdio.h"
 #include "defs.h"
+#include "attack.h"
+#include "makemove.h"
+#include "movegen.h"
 
 #define MOVE(f, t, ca, pro, fl) ((f) | ((t) << 7) | ((ca) << 14) | ((pro) << 20) | (fl))
 #define SQOFFBOARD(sq) (FilesBrd[(sq)] == OFFBOARD)

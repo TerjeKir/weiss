@@ -3,11 +3,21 @@
 #include "stdio.h"
 #include "defs.h"
 #include "fathom/tbprobe.h"
+#include "attack.h"
+#include "board.h"
+#include "evaluate.h"
+#include "io.h"
+#include "movegen.h"
+#include "makemove.h"
+#include "polybook.h"
+#include "misc.h"
+#include "pvtable.h"
 
 int rootDepth;
 
 // Check if time up, or interrupt from GUI
 static void CheckUp(S_SEARCHINFO *info) {
+	
 	if (info->timeset && GetTimeMs() > info->stoptime) {
 		info->stopped = TRUE;
 	}

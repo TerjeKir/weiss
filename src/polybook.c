@@ -1,5 +1,6 @@
 #include "defs.h"
 #include "polykeys.h"
+#include "io.h"
 
 typedef struct
 {
