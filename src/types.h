@@ -4,8 +4,6 @@
 
 #include <stdint.h>
 
-typedef unsigned long long U64;
-
 enum { WHITE, BLACK, BOTH };
 
 enum { PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING };

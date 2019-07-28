@@ -11,6 +11,6 @@
 #define U64_POLY(u) (u##ULL)
 #endif
 
-extern const U64 Random64Poly[781];
+extern const uint64_t Random64Poly[781];
 
 #endif

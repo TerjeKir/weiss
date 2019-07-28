@@ -44,16 +44,16 @@ int PopCount(uint64_t x) {
     // return __builtin_popcount(x);
 }
 
-int PopBit(U64 *bb) {
-	U64 b = *bb ^ (*bb - 1);
+int PopBit(uint64_t *bb) {
+	uint64_t b = *bb ^ (*bb - 1);
 	unsigned int fold = (unsigned)((b & 0xffffffff) ^ (b >> 32));
 	*bb &= (*bb - 1);
 	return BitTable[(fold * 0x783a9b23) >> 26];
 }
 
-void PrintBitBoard(U64 bb) {
+void PrintBitBoard(uint64_t bb) {
 
-	U64 shiftMe = 1ULL;
+	uint64_t shiftMe = 1ULL;
 
 	int rank = 0;
 	int file = 0;

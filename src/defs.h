@@ -50,7 +50,7 @@ typedef struct {
 
 
 typedef struct {
-	U64 posKey;
+	uint64_t posKey;
 	int move;
 	int score;
 	int depth;
@@ -72,16 +72,16 @@ typedef struct {
 	int castlePerm;
 	int enPas;
 	int fiftyMove;
-	U64 posKey;
+	uint64_t posKey;
 
 } S_UNDO;
 
 typedef struct {
 
 	int pieces[BRD_SQ_NUM];
-	U64 pawns[3];
-	U64 colors[2];
-	U64 pieceBBs[6];
+	uint64_t pawns[3];
+	uint64_t colors[2];
+	uint64_t pieceBBs[6];
 
 	int KingSq[2];
 
@@ -94,7 +94,7 @@ typedef struct {
 
 	int castlePerm;
 
-	U64 posKey;
+	uint64_t posKey;
 
 	int pceNum[13];
 	int bigPce[2];
@@ -188,11 +188,11 @@ typedef struct {
 
 extern int Sq120ToSq64[BRD_SQ_NUM];
 extern int Sq64ToSq120[64];
-extern U64 SetMask[64];
-extern U64 ClearMask[64];
-extern U64 PieceKeys[13][120];
-extern U64 SideKey;
-extern U64 CastleKeys[16];
+extern uint64_t SetMask[64];
+extern uint64_t ClearMask[64];
+extern uint64_t PieceKeys[13][120];
+extern uint64_t SideKey;
+extern uint64_t CastleKeys[16];
 extern char PceChar[];
 extern char SideChar[];
 extern char RankChar[];
@@ -216,12 +216,12 @@ extern int PieceSlides[13];
 
 extern int Mirror64[64];
 
-extern U64 FileBBMask[8];
-extern U64 RankBBMask[8];
+extern uint64_t FileBBMask[8];
+extern uint64_t RankBBMask[8];
 
-extern U64 BlackPassedMask[64];
-extern U64 WhitePassedMask[64];
-extern U64 IsolatedMask[64];
+extern uint64_t BlackPassedMask[64];
+extern uint64_t WhitePassedMask[64];
+extern uint64_t IsolatedMask[64];
 
 extern S_OPTIONS EngineOptions[1];
 

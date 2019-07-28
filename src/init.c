@@ -6,31 +6,31 @@
 #include "movegen.h"
 #include "polybook.h"
 
-#define RAND_64 ((U64)rand() |	   \
-				 (U64)rand() << 15 | \
-				 (U64)rand() << 30 | \
-				 (U64)rand() << 45 | \
-				 ((U64)rand() & 0xf) << 60)
+#define RAND_64 ((uint64_t)rand() |	   \
+				 (uint64_t)rand() << 15 | \
+				 (uint64_t)rand() << 30 | \
+				 (uint64_t)rand() << 45 | \
+				 ((uint64_t)rand() & 0xf) << 60)
 
 int Sq120ToSq64[BRD_SQ_NUM];
 int Sq64ToSq120[64];
 
-U64 SetMask[64];
-U64 ClearMask[64];
+uint64_t SetMask[64];
+uint64_t ClearMask[64];
 
-U64 PieceKeys[13][120];
-U64 SideKey;
-U64 CastleKeys[16];
+uint64_t PieceKeys[13][120];
+uint64_t SideKey;
+uint64_t CastleKeys[16];
 
 int FilesBrd[BRD_SQ_NUM];
 int RanksBrd[BRD_SQ_NUM];
 
-U64 FileBBMask[8];
-U64 RankBBMask[8];
+uint64_t FileBBMask[8];
+uint64_t RankBBMask[8];
 
-U64 BlackPassedMask[64];
-U64 WhitePassedMask[64];
-U64 IsolatedMask[64];
+uint64_t BlackPassedMask[64];
+uint64_t WhitePassedMask[64];
+uint64_t IsolatedMask[64];
 
 S_OPTIONS EngineOptions[1];
 

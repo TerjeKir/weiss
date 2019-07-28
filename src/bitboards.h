@@ -7,6 +7,6 @@
 #define POP(b) PopBit(b)
 #define CNT(b) PopCount(b)
 
-extern void PrintBitBoard(U64 bb);
-extern int PopBit(U64 *bb);
-extern int PopCount(U64 x);
+extern void PrintBitBoard(uint64_t bb);
+extern int PopBit(uint64_t *bb);
+extern int PopCount(uint64_t x);
