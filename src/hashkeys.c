@@ -2,10 +2,10 @@
 #include "stdio.h"
 #include "defs.h"
 
-U64 GeneratePosKey(const S_BOARD *pos) {
+uint64_t GeneratePosKey(const S_BOARD *pos) {
 
 	int sq = 0;
-	U64 finalKey = 0;
+	uint64_t finalKey = 0;
 	int piece = EMPTY;
 
 	// pieces

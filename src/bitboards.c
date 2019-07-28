@@ -1,9 +1,9 @@
 // bitboards.c
 
-
-#include <stdint.h>
-#include "stdio.h"
 #include "defs.h"
+#include "types.h"
+#include "stdio.h"
+#include "bitboards.h"
 
 const int BitTable[64] = {
 	63, 30,  3, 32, 25, 41, 22, 33,
@@ -40,20 +40,23 @@ int PopCount(uint64_t x) {
 
     // return (x * h01) >> 56;             //returns left 8 bits of x + (x<<8) + (x<<16) + (x<<24) + ... 
 
-    //// Built-in
+    //// Built-in fastest in clang?
     // return __builtin_popcount(x);
 }
 
-int PopBit(U64 *bb) {
-	U64 b = *bb ^ (*bb - 1);
+int PopBit(uint64_t *bb) {
+
+	uint64_t b = *bb ^ (*bb - 1);
+
 	unsigned int fold = (unsigned)((b & 0xffffffff) ^ (b >> 32));
 	*bb &= (*bb - 1);
+
 	return BitTable[(fold * 0x783a9b23) >> 26];
 }
 
-void PrintBitBoard(U64 bb) {
+void PrintBitBoard(uint64_t bb) {
 
-	U64 shiftMe = 1ULL;
+	uint64_t shiftMe = 1ULL;
 
 	int rank = 0;
 	int file = 0;

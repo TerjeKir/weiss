@@ -2,6 +2,10 @@
 
 #include "stdio.h"
 #include "defs.h"
+#include "makemove.h"
+#include "io.h"
+#include "movegen.h"
+#include "pvtable.h"
 
 int GetPvLine(const int depth, S_BOARD *pos) {
 

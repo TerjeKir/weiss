@@ -3,6 +3,15 @@
 #include "stdio.h"
 #include "defs.h"
 #include "string.h"
+#include "attack.h"
+#include "board.h"
+#include "evaluate.h"
+#include "io.h"
+#include "makemove.h"
+#include "movegen.h"
+#include "misc.h"
+#include "pvtable.h"
+#include "search.h"
 
 int ThreeFoldRep(const S_BOARD *pos) {
 

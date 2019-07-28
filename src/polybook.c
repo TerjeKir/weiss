@@ -1,9 +1,11 @@
 #include "defs.h"
 #include "polykeys.h"
+#include "io.h"
+#include "types.h"
 
 typedef struct
 {
-	U64 key;
+	uint64_t key;
 	unsigned short move;
 	unsigned short weight;
 	unsigned int learn;
@@ -74,10 +76,10 @@ int HasPawnForCapture(const S_BOARD *board) {
 	return FALSE;
 }
 
-U64 PolyKeyFromBoard(const S_BOARD *board) {
+uint64_t PolyKeyFromBoard(const S_BOARD *board) {
 
 	int sq = 0, rank = 0, file = 0;
-	U64 finalKey = 0;
+	uint64_t finalKey = 0;
 	int piece = EMPTY;
 	int polyPiece = 0;
 	int offset = 0;
@@ -132,7 +134,7 @@ unsigned int endian_swap_u32(unsigned int x) {
 	return x;
 }
 
-U64 endian_swap_u64(U64 x) {
+uint64_t endian_swap_u64(uint64_t x) {
 	x = (x >> 56) |
 		((x << 40) & 0x00FF000000000000) |
 		((x << 24) & 0x0000FF0000000000) |
@@ -191,7 +193,7 @@ int GetBookMove(S_BOARD *board) {
 	int tempMove = NOMOVE;
 	int count = 0;
 
-	U64 polyKey = PolyKeyFromBoard(board);
+	uint64_t polyKey = PolyKeyFromBoard(board);
 
 	for (entry = entries; entry < entries + NumEntries; entry++) {
 		if (polyKey == endian_swap_u64(entry->key)) {
