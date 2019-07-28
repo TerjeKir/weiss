@@ -40,14 +40,17 @@ int PopCount(uint64_t x) {
 
     // return (x * h01) >> 56;             //returns left 8 bits of x + (x<<8) + (x<<16) + (x<<24) + ... 
 
-    //// Built-in
+    //// Built-in fastest in clang?
     // return __builtin_popcount(x);
 }
 
 int PopBit(uint64_t *bb) {
+
 	uint64_t b = *bb ^ (*bb - 1);
+
 	unsigned int fold = (unsigned)((b & 0xffffffff) ^ (b >> 32));
 	*bb &= (*bb - 1);
+
 	return BitTable[(fold * 0x783a9b23) >> 26];
 }
 
