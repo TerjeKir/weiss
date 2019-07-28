@@ -18,9 +18,8 @@ int rootDepth;
 // Check if time up, or interrupt from GUI
 static void CheckUp(S_SEARCHINFO *info) {
 	
-	if (info->timeset && GetTimeMs() > info->stoptime) {
+	if (info->timeset && GetTimeMs() > info->stoptime)
 		info->stopped = TRUE;
-	}
 
 	ReadInput(info);
 }
@@ -177,7 +176,7 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 		return Quiescence(alpha, beta, pos, info);
 
 	// Check for time
-	if ((info->nodes & 2047) == 0)
+	if ((info->nodes & 4095) == 0)
 		CheckUp(info);
 
 	info->nodes++;
