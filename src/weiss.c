@@ -34,7 +34,7 @@ int main(int argc, char *argv[]) {
 		}
 	}
 
-	printf("Welcome to weiss! Type 'weiss' for console mode...\n> ");
+	printf("Welcome to weiss! Type 'weiss' for console mode.\n> ");
 
 	char line[256];
 	while (TRUE) {
@@ -42,8 +42,6 @@ int main(int argc, char *argv[]) {
 
 		fflush(stdout);
 		if (!fgets(line, 256, stdin))
-			continue;
-		if (line[0] == '\n')
 			continue;
 		if (!strncmp(line, "uci", 3)) {
 			Uci_Loop(pos, info);
@@ -62,6 +60,8 @@ int main(int argc, char *argv[]) {
 			continue;
 		} else if (!strncmp(line, "quit", 4)) {
 			break;
+		} else {
+			printf("Invalid command. Type 'weiss' for console mode.\n> ");
 		}
 	}
 
