@@ -12,6 +12,7 @@
 #include "misc.h"
 #include "pvtable.h"
 #include "search.h"
+#include "perft.h"
 
 int ThreeFoldRep(const S_BOARD *pos) {
 
@@ -287,6 +288,9 @@ void Console_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 	engineSide = BLACK;
 	ParseFen(START_FEN, pos);
 
+	S_BOARD board[1];
+	int perftDepth = 3;
+
 	while (TRUE) {
 
 		fflush(stdout);
@@ -414,6 +418,13 @@ void Console_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 
 		if (!strcmp(command, "go")) {
 			engineSide = pos->side;
+			continue;
+		}
+
+		if (!strcmp(command, "perft")) {
+			sscanf(inBuf, "perft %d", &perftDepth);
+			ParseFen(PERFT_FEN, board);
+			PerftTest(perftDepth, board);
 			continue;
 		}
 
