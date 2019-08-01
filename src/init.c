@@ -5,6 +5,7 @@
 #include "stdlib.h"
 #include "movegen.h"
 #include "polybook.h"
+#include "attack.h"
 
 #define RAND_64 ((uint64_t)rand() |	   \
 				 (uint64_t)rand() << 15 | \
@@ -182,6 +183,9 @@ void InitSq120To64() {
 }
 
 void InitAll() {
+
+	InitAttacks();
+
 	InitSq120To64();
 	InitBitMasks();
 	InitHashKeys();
