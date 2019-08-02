@@ -358,26 +358,15 @@ int MakeMove(S_BOARD *pos, int move) {
 
 	} else if (move & MOVE_FLAG_CASTLE) {
 		switch (to) {
-			case C1:
-				MovePiece(A1, D1, pos);
-				break;
-			case C8:
-				MovePiece(A8, D8, pos);
-				break;
-			case G1:
-				MovePiece(H1, F1, pos);
-				break;
-			case G8:
-				MovePiece(H8, F8, pos);
-				break;
-			default:
-				ASSERT(FALSE);
-				break;
+			case C1: MovePiece(A1, D1, pos); break;
+			case C8: MovePiece(A8, D8, pos); break;
+			case G1: MovePiece(H1, F1, pos); break;
+			case G8: MovePiece(H8, F8, pos); break;
+			default: ASSERT(FALSE); break;
 		}
 	}
 
-	if (pos->enPas != NO_SQ)
-		HASH_EP;
+	if (pos->enPas != NO_SQ) HASH_EP;
 	HASH_CA;
 
 	pos->history[pos->hisPly].move = move;
@@ -392,8 +381,7 @@ int MakeMove(S_BOARD *pos, int move) {
 	HASH_CA;
 
 	int captured = CAPTURED(move);
-	pos->fiftyMove++;
-
+	
 	if (captured != EMPTY) {
 		ASSERT(PieceValid(captured));
 		ClearPiece(to, pos);
@@ -402,6 +390,7 @@ int MakeMove(S_BOARD *pos, int move) {
 
 	pos->hisPly++;
 	pos->ply++;
+	pos->fiftyMove++;
 
 	ASSERT(pos->hisPly >= 0 && pos->hisPly < MAXGAMEMOVES);
 	ASSERT(pos->ply >= 0 && pos->ply < MAXDEPTH);
@@ -463,16 +452,14 @@ void TakeMove(S_BOARD *pos) {
 	ASSERT(SqOnBoard(from));
 	ASSERT(SqOnBoard(to));
 
-	if (pos->enPas != NO_SQ)
-		HASH_EP;
+	if (pos->enPas != NO_SQ) HASH_EP;
 	HASH_CA;
 
 	pos->castlePerm = pos->history[pos->hisPly].castlePerm;
 	pos->fiftyMove = pos->history[pos->hisPly].fiftyMove;
 	pos->enPas = pos->history[pos->hisPly].enPas;
 
-	if (pos->enPas != NO_SQ)
-		HASH_EP;
+	if (pos->enPas != NO_SQ) HASH_EP;
 	HASH_CA;
 
 	pos->side ^= 1;
@@ -486,29 +473,18 @@ void TakeMove(S_BOARD *pos) {
 
 	} else if (move & MOVE_FLAG_CASTLE) {
 		switch (to) {
-			case C1:
-				MovePiece(D1, A1, pos);
-				break;
-			case C8:
-				MovePiece(D8, A8, pos);
-				break;
-			case G1:
-				MovePiece(F1, H1, pos);
-				break;
-			case G8:
-				MovePiece(F8, H8, pos);
-				break;
-			default:
-				ASSERT(FALSE);
-				break;
+			case C1: MovePiece(D1, A1, pos); break;
+			case C8: MovePiece(D8, A8, pos); break;
+			case G1: MovePiece(F1, H1, pos); break;
+			case G8: MovePiece(F8, H8, pos); break;
+			default: ASSERT(FALSE); break;
 		}
 	}
 
 	MovePiece(to, from, pos);
 
-	if (PieceKing[pos->pieces[from]]) {
+	if (PieceKing[pos->pieces[from]])
 		pos->KingSq[pos->side] = from;
-	}
 
 	int captured = CAPTURED(move);
 	if (captured != EMPTY) {
@@ -533,8 +509,7 @@ void MakeNullMove(S_BOARD *pos) {
 	pos->ply++;
 	pos->history[pos->hisPly].posKey = pos->posKey;
 
-	if (pos->enPas != NO_SQ)
-		HASH_EP;
+	if (pos->enPas != NO_SQ) HASH_EP;
 
 	pos->history[pos->hisPly].move = NOMOVE;
 	pos->history[pos->hisPly].fiftyMove = pos->fiftyMove;
@@ -551,7 +526,7 @@ void MakeNullMove(S_BOARD *pos) {
 	ASSERT(pos->ply >= 0 && pos->ply < MAXDEPTH);
 
 	return;
-} // MakeNullMove
+}
 
 void TakeNullMove(S_BOARD *pos) {
 	ASSERT(CheckBoard(pos));
@@ -559,15 +534,14 @@ void TakeNullMove(S_BOARD *pos) {
 	pos->hisPly--;
 	pos->ply--;
 
-	if (pos->enPas != NO_SQ)
-		HASH_EP;
+	if (pos->enPas != NO_SQ) HASH_EP;
 
 	pos->castlePerm = pos->history[pos->hisPly].castlePerm;
 	pos->fiftyMove = pos->history[pos->hisPly].fiftyMove;
 	pos->enPas = pos->history[pos->hisPly].enPas;
 
-	if (pos->enPas != NO_SQ)
-		HASH_EP;
+	if (pos->enPas != NO_SQ) HASH_EP;
+
 	pos->side ^= 1;
 	HASH_SIDE;
 
