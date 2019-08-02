@@ -1,8 +1,10 @@
 // attack.c
 
 #include <stdio.h>
+
 #include "defs.h"
 #include "attack.h"
+#include "bitboards.h"
 
 const int KnDir[8] = {-8, -19, -21, -12, 8, 19, 21, 12};
 const int RkDir[4] = {-1, -10, 1, 10};
@@ -30,23 +32,23 @@ void InitKingAttacks() {
 
         if (square <= 55) {
             if ((square % 8) != 7)
-                king_attacks[square] ^= (bitmask << 9);
-            king_attacks[square] ^= (bitmask << 8);
+                king_attacks[square] |= (bitmask << 9);
+            king_attacks[square] |= (bitmask << 8);
             if ((square % 8) != 0)
-                king_attacks[square] ^= (bitmask << 7);
+                king_attacks[square] |= (bitmask << 7);
         }
 
         if ((square % 8) != 7)
-            king_attacks[square] ^= (bitmask << 1);
+            king_attacks[square] |= (bitmask << 1);
         if ((square % 8) != 0)
-            king_attacks[square] ^= (bitmask >> 1);
+            king_attacks[square] |= (bitmask >> 1);
 
         if (square >= 8) {
             if ((square % 8) != 7)
-                king_attacks[square] ^= (bitmask >> 7);
-            king_attacks[square] ^= (bitmask >> 8);
+                king_attacks[square] |= (bitmask >> 7);
+            king_attacks[square] |= (bitmask >> 8);
             if ((square % 8) != 0)
-                king_attacks[square] ^= (bitmask >> 9);
+                king_attacks[square] |= (bitmask >> 9);
         }
     }
 }
@@ -61,27 +63,27 @@ void InitKnightAttacks() {
 
         if (square <= 47) {
             if ((square % 8) < 7)
-                knight_attacks[square] ^= (bitmask << 17);
+                knight_attacks[square] |= (bitmask << 17);
             if ((square % 8) > 0)
-                knight_attacks[square] ^= (bitmask << 15);
+                knight_attacks[square] |= (bitmask << 15);
         }
         if (square <= 55) {
             if ((square % 8) < 6)
-                knight_attacks[square] ^= (bitmask << 10);
+                knight_attacks[square] |= (bitmask << 10);
             if ((square % 8) > 1)
-                knight_attacks[square] ^= (bitmask << 6);
+                knight_attacks[square] |= (bitmask << 6);
         }
         if (square >= 8) {
             if ((square % 8) < 6)
-                knight_attacks[square] ^= (bitmask >> 6);
+                knight_attacks[square] |= (bitmask >> 6);
             if ((square % 8) > 1)
-                knight_attacks[square] ^= (bitmask >> 10);
+                knight_attacks[square] |= (bitmask >> 10);
         }
         if (square >= 16) {
             if ((square % 8) < 7)
-                knight_attacks[square] ^= (bitmask >> 15);
+                knight_attacks[square] |= (bitmask >> 15);
             if ((square % 8) > 0)
-                knight_attacks[square] ^= (bitmask >> 17);
+                knight_attacks[square] |= (bitmask >> 17);
         }
     }
 }
@@ -93,17 +95,16 @@ void InitPawnAttacks() {
     int square;
 
     // No point going further as all their attacks would be off board
-    for (square = 0; square < 56; square++, bitmask = bitmask << 1) {
+    for (square = 0; square < 64; square++, bitmask = bitmask << 1) {
 
+        // White
         if ((square % 8) != 0)
             pawn_attacks[WHITE][square] |= bitmask << 7;
-
         if ((square % 8) != 7)
             pawn_attacks[WHITE][square] |= bitmask << 9;
-
+        // Black
         if ((square % 8) != 7)
             pawn_attacks[BLACK][square] |= bitmask >> 7;
-
         if ((square % 8) != 0)
             pawn_attacks[BLACK][square] |= bitmask >> 9;
     }
@@ -120,11 +121,15 @@ int SqAttacked(const int sq, const int side, const S_BOARD *pos) {
 	ASSERT(CheckBoard(pos));
 
 	// pawns
-	if (pawn_attacks[side][sq64] & pos->pieceBBs[PAWN] & pos->colors[side])
+	if (pawn_attacks[!side][sq64] & pos->pieceBBs[PAWN] & pos->colors[side])
 		return TRUE;
 
 	// knights
-	if (pawn_attacks[side][sq64] & pos->pieceBBs[KNIGHT] & pos->colors[side])
+	if (knight_attacks[sq64] & pos->pieceBBs[KNIGHT] & pos->colors[side])
+		return TRUE;
+
+    // kings
+	if (king_attacks[sq64] & pos->pieceBBs[KING] & pos->colors[side])
 		return TRUE;
 
 	// rooks, queens
@@ -171,10 +176,6 @@ int SqAttacked(const int sq, const int side, const S_BOARD *pos) {
 			pce = pos->pieces[t_sq];
 		}
 	}
-	
-	// kings
-	if (pawn_attacks[side][sq64] & pos->pieceBBs[KING] & pos->colors[side])
-		return TRUE;
 
 	return FALSE;
 }
