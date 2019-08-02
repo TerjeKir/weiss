@@ -4,6 +4,8 @@
 
 #include "defs.h"
 #include "movegen.h"
+#include "board.h"
+#include "validate.h"
 
 char *PrSq(const int sq) {
 

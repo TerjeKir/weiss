@@ -7,6 +7,7 @@
 #include "movegen.h"
 #include "polybook.h"
 #include "attack.h"
+#include "validate.h"
 
 #define RAND_64 ((uint64_t)rand() |	   \
 				 (uint64_t)rand() << 15 | \

@@ -3,6 +3,7 @@
 #include <stdio.h>
 
 #include "defs.h"
+#include "validate.h"
 
 uint64_t GeneratePosKey(const S_BOARD *pos) {
 

@@ -3,6 +3,7 @@
 #include "defs.h"
 #include "bitboards.h"
 #include "fathom/tbprobe.h"
+#include "board.h"
 
 #define TB_PROBE_DEPTH 4
 #define TB_LARGEST 6

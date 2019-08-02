@@ -8,7 +8,7 @@
 #include "types.h"
 
 
-// #define DEBUG
+#define DEBUG
 
 
 #ifndef DEBUG

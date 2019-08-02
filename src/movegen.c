@@ -6,6 +6,8 @@
 #include "attack.h"
 #include "makemove.h"
 #include "movegen.h"
+#include "validate.h"
+#include "board.h"
 
 #define MOVE(f, t, ca, pro, fl) ((f) | ((t) << 7) | ((ca) << 14) | ((pro) << 20) | (fl))
 #define SQOFFBOARD(sq) (FilesBrd[(sq)] == OFFBOARD)

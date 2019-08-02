@@ -3,6 +3,8 @@
 #include <stdio.h>
 
 #include "defs.h"
+#include "validate.h"
+#include "board.h"
 
 const int PawnPassed[8] = {0, 5, 10, 20, 35, 60, 100, 0};
 const int PawnIsolated = -10;
