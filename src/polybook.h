@@ -1,4 +1,4 @@
-// polybook.c
+// polybook.h
 
 #pragma once
 

@@ -1,5 +1,7 @@
 // hashkeys.c
-#include "stdio.h"
+
+#include <stdio.h>
+
 #include "defs.h"
 
 uint64_t GeneratePosKey(const S_BOARD *pos) {

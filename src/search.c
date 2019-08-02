@@ -1,6 +1,7 @@
 // search.c
 
-#include "stdio.h"
+#include <stdio.h>
+
 #include "defs.h"
 #include "fathom/tbprobe.h"
 #include "attack.h"
@@ -55,9 +56,8 @@ static int IsRepetition(const S_BOARD *pos) {
 
 	for (index = pos->hisPly - pos->fiftyMove; index < pos->hisPly - 1; ++index) {
 		ASSERT(index >= 0 && index < MAXGAMEMOVES);
-		if (pos->posKey == pos->history[index].posKey) {
+		if (pos->posKey == pos->history[index].posKey)
 			return TRUE;
-		}
 	}
 	return FALSE;
 }
@@ -68,17 +68,13 @@ static void ClearForSearch(S_BOARD *pos, S_SEARCHINFO *info) {
 	int index = 0;
 	int index2 = 0;
 
-	for (index = 0; index < 13; ++index) {
-		for (index2 = 0; index2 < BRD_SQ_NUM; ++index2) {
+	for (index = 0; index < 13; ++index)
+		for (index2 = 0; index2 < BRD_SQ_NUM; ++index2)
 			pos->searchHistory[index][index2] = 0;
-		}
-	}
 
-	for (index = 0; index < 2; ++index) {
-		for (index2 = 0; index2 < MAXDEPTH; ++index2) {
+	for (index = 0; index < 2; ++index)
+		for (index2 = 0; index2 < MAXDEPTH; ++index2)
 			pos->searchKillers[index][index2] = 0;
-		}
-	}
 
 	pos->ply = 0;
 	pos->HashTable->hit = 0;
@@ -146,9 +142,9 @@ static int Quiescence(int alpha, int beta, S_BOARD *pos, S_SEARCHINFO *info) {
 
 		if (Score > alpha) {
 			if (Score >= beta) {
-				if (Legal == 1) {
+				if (Legal == 1)
 					info->fhf++;
-				}
+
 				info->fh++;
 				return beta;
 			}
@@ -276,7 +272,7 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 			BestMove = list->moves[MoveNum].move;
 			if (Score > alpha) {
 				if (Score >= beta) {
-					if (Legal) {
+					if (Legal == 1) {
 						info->fhf++;
 					}
 					info->fh++;
@@ -299,7 +295,7 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 		}
 	}
 
-	if (!Legal) {
+	if (Legal == 0) {
 		if (InCheck) {
 			return -INFINITE + pos->ply;
 		} else {
@@ -336,8 +332,6 @@ void SearchPosition(S_BOARD *pos, S_SEARCHINFO *info) {
 		bestMove = GetBookMove(pos);
 	}
 
-	//printf("Search depth:%d\n", info->depth);
-
 	// iterative deepening
 	if (bestMove == NOMOVE) {
 
@@ -371,7 +365,7 @@ void SearchPosition(S_BOARD *pos, S_SEARCHINFO *info) {
 
 			if (info->GAME_MODE == UCIMODE || info->POST_THINKING) {
 				pvMoves = GetPvLine(currentDepth, pos);
-				if ((!info->GAME_MODE) == XBOARDMODE) {
+				if (!info->GAME_MODE == XBOARDMODE) {
 					printf("pv");
 				}
 				for (pvNum = 0; pvNum < pvMoves; ++pvNum) {

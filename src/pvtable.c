@@ -1,6 +1,7 @@
 // pvtable.c
 
-#include "stdio.h"
+#include <stdio.h>
+
 #include "defs.h"
 #include "makemove.h"
 #include "io.h"

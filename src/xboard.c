@@ -1,8 +1,9 @@
 // xboard.c
 
-#include "stdio.h"
+#include <stdio.h>
+#include <string.h>
+
 #include "defs.h"
-#include "string.h"
 #include "attack.h"
 #include "board.h"
 #include "evaluate.h"

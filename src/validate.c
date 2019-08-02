@@ -1,8 +1,9 @@
 // validate.c
 
+#include <stdio.h>
+#include <string.h>
+
 #include "defs.h"
-#include "stdio.h"
-#include "string.h"
 #include "board.h"
 #include "evaluate.h"
 #include "validate.h"

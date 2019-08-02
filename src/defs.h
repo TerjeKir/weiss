@@ -2,12 +2,11 @@
 
 #pragma once
 
-#ifndef DEFS_H
-#define DEFS_H
+#include <stdlib.h>
+#include <stdio.h>
 
-#include "stdlib.h"
-#include "stdio.h"
 #include "types.h"
+
 
 // #define DEBUG
 
@@ -224,45 +223,3 @@ extern uint64_t WhitePassedMask[64];
 extern uint64_t IsolatedMask[64];
 
 extern S_OPTIONS EngineOptions[1];
-
-#endif
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

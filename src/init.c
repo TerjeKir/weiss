@@ -1,8 +1,9 @@
 // init.c
 
+#include <stdio.h>
+#include <stdlib.h>
+
 #include "defs.h"
-#include "stdio.h"
-#include "stdlib.h"
 #include "movegen.h"
 #include "polybook.h"
 #include "attack.h"

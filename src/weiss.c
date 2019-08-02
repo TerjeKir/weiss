@@ -1,9 +1,10 @@
 // weiss.c
 
-#include "stdio.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 #include "defs.h"
-#include "stdlib.h"
-#include "string.h"
 #include "init.h"
 #include "polybook.h"
 #include "pvtable.h"

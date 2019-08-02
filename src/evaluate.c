@@ -1,6 +1,7 @@
 // evaluate.c
 
-#include "stdio.h"
+#include <stdio.h>
+
 #include "defs.h"
 
 const int PawnPassed[8] = {0, 5, 10, 20, 35, 60, 100, 0};
