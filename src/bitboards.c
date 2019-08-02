@@ -1,8 +1,8 @@
 // bitboards.c
 
-#include "defs.h"
+#include <stdio.h>
+
 #include "types.h"
-#include "stdio.h"
 #include "bitboards.h"
 
 const int BitTable[64] = {
@@ -54,27 +54,20 @@ int PopBit(uint64_t *bb) {
 	return BitTable[(fold * 0x783a9b23) >> 26];
 }
 
-void PrintBitBoard(uint64_t bb) {
+// Prints a bitboard
+void PrintBB(uint64_t bb) {
+    
+    uint64_t bitmask = 1;
+    int rank, file;
 
-	uint64_t shiftMe = 1ULL;
-
-	int rank = 0;
-	int file = 0;
-	int sq = 0;
-	int sq64 = 0;
-
-	printf("\n");
-	for (rank = RANK_8; rank >= RANK_1; --rank) {
-		for (file = FILE_A; file <= FILE_H; ++file) {
-			sq = FR2SQ(file, rank); // 120 based
-			sq64 = SQ64(sq);		// 64 based
-
-			if ((shiftMe << sq64) & bb)
-				printf("X");
-			else
-				printf("-");
-		}
-		printf("\n");
-	}
-	printf("\n\n");
+    for (rank = 7; rank >= 0; rank--) {
+        for (file = 0; file <= 7; file++) {
+            if (bb & (bitmask << ((rank * 8) + file))) {
+                printf("1");
+            } else {
+                printf("0");
+            }
+        }
+        printf("\n");
+    }
 }
