@@ -1,14 +1,15 @@
 // perft.c
 
+#include <stdio.h>
+
 #include "defs.h"
-#include "stdio.h"
 #include "board.h"
 #include "io.h"
 #include "makemove.h"
 #include "movegen.h"
 #include "misc.h"
 
-long leafNodes;
+uint64_t leafNodes;
 
 void Perft(int depth, S_BOARD *pos) {
 
@@ -53,14 +54,14 @@ void PerftTest(int depth, S_BOARD *pos) {
 		if (!MakeMove(pos, move)) {
 			continue;
 		}
-		long cumnodes = leafNodes;
+		uint64_t cumnodes = leafNodes;
 		Perft(depth - 1, pos);
 		TakeMove(pos);
-		long oldnodes = leafNodes - cumnodes;
-		printf("move %d : %s : %ld\n", MoveNum + 1, PrMove(move), oldnodes);
+		uint64_t oldnodes = leafNodes - cumnodes;
+		printf("move %d : %s : %I64d\n", MoveNum + 1, PrMove(move), oldnodes);
 	}
 
-	printf("\nTest Complete : %ld nodes visited in %dms\n", leafNodes, GetTimeMs() - start);
+	printf("\nTest Complete : %I64d nodes visited in %dms\n", leafNodes, GetTimeMs() - start);
 
 	return;
 }
