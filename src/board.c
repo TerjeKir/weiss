@@ -215,8 +215,6 @@ void UpdateBitboards(S_BOARD *pos) {
 	}
 }
 
-
-
 int ParseFen(char *fen, S_BOARD *pos) {
 
 	ASSERT(fen != NULL);
@@ -379,6 +377,13 @@ void ResetBoard(S_BOARD *pos) {
 
 	for (index = 0; index < 13; ++index)
 		pos->pceNum[index] = 0;
+
+	// Bitboards
+	for (index = 0; index < 2; index++)
+		pos->colors[index] = 0ULL;
+	
+	for (index = 0; index < 6; index++)
+		pos->pieceBBs[index] = 0ULL;
 
 	pos->KingSq[WHITE] = pos->KingSq[BLACK] = NO_SQ;
 
