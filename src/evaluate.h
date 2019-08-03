@@ -4,5 +4,5 @@
 
 #include "defs.h"
 
-extern int EvalPosition(const S_BOARD *pos);
-extern void MirrorEvalTest(S_BOARD *pos) ;
+int EvalPosition(const S_BOARD *pos);
+void MirrorEvalTest(S_BOARD *pos) ;

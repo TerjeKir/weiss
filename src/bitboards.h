@@ -8,5 +8,5 @@
 #define CNT(b) PopCount(b)
 
 void PrintBB(uint64_t bb);
-extern int PopBit(uint64_t *bb);
-extern int PopCount(uint64_t x);
+int PopBit(uint64_t *bb);
+int PopCount(uint64_t x);

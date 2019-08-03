@@ -2,4 +2,4 @@
 
 #pragma once
 
-extern void InitAll();
+void InitAll();

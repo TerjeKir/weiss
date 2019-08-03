@@ -5,4 +5,4 @@
 #include "types.h"
 #include "defs.h"
 
-extern uint64_t GeneratePosKey(const S_BOARD *pos);
+uint64_t GeneratePosKey(const S_BOARD *pos);
