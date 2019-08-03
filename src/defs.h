@@ -2,16 +2,19 @@
 
 #pragma once
 
+
+#define NDEBUG
+#include <assert.h>
+
 #include <stdlib.h>
 #include <stdio.h>
 
 #include "types.h"
 
-
-#define NDEBUG
-#include <assert.h>
+/* DEFINITIONS */
 
 #define NAME "weiss 0.1"
+
 #define BRD_SQ_NUM 120
 
 #define MAXGAMEMOVES 512
@@ -24,6 +27,34 @@
 #define INFINITE 30000
 #define ISMATE (INFINITE - MAXDEPTH)
 
+#define MOVE_FLAG_ENPAS 0x40000
+#define MOVE_FLAG_PAWNSTART 0x80000
+#define MOVE_FLAG_CASTLE 0x1000000
+#define MOVE_FLAG_CAP 0x7C000
+#define MFLAGPROM 0xF00000
+
+#define NOMOVE 0
+
+/* MACROS */
+
+#define FR2SQ(f, r) ( (21 + (f)) + ( (r) * 10))
+#define SQ64(sq120) (Sq120ToSq64[(sq120)])
+#define SQ120(sq64) (Sq64ToSq120[(sq64)])
+
+#define CLRBIT(bb, sq) ((bb) &= ClearMask[(sq)])
+#define SETBIT(bb, sq) ((bb) |= SetMask[(sq)])
+
+#define IsBQ(p) (PieceBishopQueen[(p)])
+#define IsRQ(p) (PieceRookQueen[(p)])
+#define IsKn(p) (PieceKnight[(p)])
+#define IsKi(p) (PieceKing[(p)])
+
+#define FROMSQ(m) ((m) & 0x7F)
+#define TOSQ(m) (((m)>>7) & 0x7F)
+#define CAPTURED(m) (((m)>>14) & 0xF)
+#define PROMOTED(m) (((m)>>20) & 0xF)
+
+#define MIRROR64(sq) (Mirror64[(sq)])
 
 /* GAME MOVE 
 0000 0000 0000 0000 0000 0111 1111 -> From 0x7F
@@ -34,6 +65,9 @@
 0000 1111 0000 0000 0000 0000 0000 -> Promoted Piece >> 20, 0xF
 0001 0000 0000 0000 0000 0000 0000 -> Castle 0x1000000
 */
+
+/* STRUCTS */
+
 typedef struct {
 	int move;
 	int score;
@@ -139,35 +173,6 @@ typedef struct {
 typedef struct {
 	char syzygyPath[256];
 } S_OPTIONS;
-
-#define MOVE_FLAG_ENPAS 0x40000
-#define MOVE_FLAG_PAWNSTART 0x80000
-#define MOVE_FLAG_CASTLE 0x1000000
-#define MOVE_FLAG_CAP 0x7C000
-#define MFLAGPROM 0xF00000
-
-#define NOMOVE 0
-
-/* MACROS */
-
-#define FR2SQ(f, r) ( (21 + (f)) + ( (r) * 10))
-#define SQ64(sq120) (Sq120ToSq64[(sq120)])
-#define SQ120(sq64) (Sq64ToSq120[(sq64)])
-
-#define CLRBIT(bb, sq) ((bb) &= ClearMask[(sq)])
-#define SETBIT(bb, sq) ((bb) |= SetMask[(sq)])
-
-#define IsBQ(p) (PieceBishopQueen[(p)])
-#define IsRQ(p) (PieceRookQueen[(p)])
-#define IsKn(p) (PieceKnight[(p)])
-#define IsKi(p) (PieceKing[(p)])
-
-#define FROMSQ(m) ((m) & 0x7F)
-#define TOSQ(m) (((m)>>7) & 0x7F)
-#define CAPTURED(m) (((m)>>14) & 0xF)
-#define PROMOTED(m) (((m)>>20) & 0xF)
-
-#define MIRROR64(sq) (Mirror64[(sq)])
 
 /* GLOBALS */
 
