@@ -342,29 +342,60 @@ void SearchPosition(S_BOARD *pos, S_SEARCHINFO *info) {
 			pvMoves = GetPvLine(currentDepth, pos);
 			bestMove = pos->PvArray[0];
 
+			timeElapsed = GetTimeMs() - info->starttime;
+
+			// Print thinking
+			// UCI mode
 			if (info->GAME_MODE == UCIMODE) {
-				timeElapsed = GetTimeMs() - info->starttime;
-				printf("info score cp %d depth %d seldepth %d nodes %I64d tbhits %I64d time %d ",
-					   bestScore, currentDepth, info->seldepth, info->nodes, info->tbhits, timeElapsed);
+
+				printf("info score ");
+
+				// Score or mate
+				if (bestScore > ISMATE)
+					printf("mate %d ", ((INFINITE - bestScore) / 2) + 1);
+				else if (bestScore < -ISMATE)
+					printf("mate -%d ", (INFINITE + bestScore) / 2);
+				else
+					printf("cp %d ", bestScore);
+
+				// Basic info
+				printf("depth %d seldepth %d nodes %I64d tbhits %I64d time %d ",
+					   currentDepth, info->seldepth, info->nodes, info->tbhits, timeElapsed);
+
+				// Nodes per second
 				if (timeElapsed > 0) {
 					nps = (info->nodes / timeElapsed) * 1000;
 					printf("nps %ld ", nps);
 				}
+				// Principal variation
+				printf("pv");
+				pvMoves = GetPvLine(currentDepth, pos);
+				for (pvNum = 0; pvNum < pvMoves; ++pvNum) {
+					printf(" %s", PrMove(pos->PvArray[pvNum]));
+				}
+				printf("\n");
+			// CLI mode
 			} else if (info->POST_THINKING) {
+				// Basic info
 				printf("score:%d depth:%d nodes:%I64d time:%d(ms) ",
-					   bestScore, currentDepth, info->nodes, GetTimeMs() - info->starttime);
+					   bestScore, currentDepth, info->nodes, timeElapsed);
+
+				// Principal variation
+				printf("pv");
+				pvMoves = GetPvLine(currentDepth, pos);
+				for (pvNum = 0; pvNum < pvMoves; ++pvNum) {
+					printf(" %s", PrMove(pos->PvArray[pvNum]));
+				}
+				printf("\n");
 			}
 
-			pvMoves = GetPvLine(currentDepth, pos);
-			for (pvNum = 0; pvNum < pvMoves; ++pvNum) {
-				printf("pv %s\n", PrMove(pos->PvArray[pvNum]));
-			}
+			
 
 			//printf("Hits:%d Overwrite:%d NewWrite:%d Cut:%d\nOrdering %.2f NullCut:%d\n", pos->HashTable->hit,
 			//	pos->HashTable->overWrite, pos->HashTable->newWrite, pos->HashTable->cut, (info->fhf/info->fh)*100, info->nullCut);
 		}
 	}
-
+	// Print the move chosen after searching
 	if (info->GAME_MODE == UCIMODE) {
 		printf("bestmove %s\n", PrMove(bestMove));
 	} else {
