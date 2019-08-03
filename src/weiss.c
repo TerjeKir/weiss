@@ -8,7 +8,7 @@
 #include "init.h"
 #include "pvtable.h"
 #include "uci.h"
-#include "xboard.h"
+#include "cli.h"
 
 int main(int argc, char *argv[]) {
 
@@ -42,11 +42,6 @@ int main(int argc, char *argv[]) {
 			continue;
 		if (!strncmp(line, "uci", 3)) {
 			Uci_Loop(pos, info);
-			if (info->quit)
-				break;
-			continue;
-		} else if (!strncmp(line, "xboard", 6)) {
-			XBoard_Loop(pos, info);
 			if (info->quit)
 				break;
 			continue;

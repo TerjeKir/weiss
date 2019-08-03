@@ -350,23 +350,14 @@ void SearchPosition(S_BOARD *pos, S_SEARCHINFO *info) {
 					nps = (info->nodes / timeElapsed) * 1000;
 					printf("nps %ld ", nps);
 				}
-			} else if (info->GAME_MODE == XBOARDMODE && info->POST_THINKING) {
-				printf("%d %d %d %I64d ",
-					   currentDepth, bestScore, (GetTimeMs() - info->starttime) / 10, info->nodes);
 			} else if (info->POST_THINKING) {
 				printf("score:%d depth:%d nodes:%I64d time:%d(ms) ",
 					   bestScore, currentDepth, info->nodes, GetTimeMs() - info->starttime);
 			}
 
-			if (info->GAME_MODE == UCIMODE || info->POST_THINKING) {
-				pvMoves = GetPvLine(currentDepth, pos);
-				if (!(info->GAME_MODE == XBOARDMODE)) {
-					printf("pv");
-				}
-				for (pvNum = 0; pvNum < pvMoves; ++pvNum) {
-					printf(" %s", PrMove(pos->PvArray[pvNum]));
-				}
-				printf("\n");
+			pvMoves = GetPvLine(currentDepth, pos);
+			for (pvNum = 0; pvNum < pvMoves; ++pvNum) {
+				printf("pv %s\n", PrMove(pos->PvArray[pvNum]));
 			}
 
 			//printf("Hits:%d Overwrite:%d NewWrite:%d Cut:%d\nOrdering %.2f NullCut:%d\n", pos->HashTable->hit,
@@ -376,9 +367,6 @@ void SearchPosition(S_BOARD *pos, S_SEARCHINFO *info) {
 
 	if (info->GAME_MODE == UCIMODE) {
 		printf("bestmove %s\n", PrMove(bestMove));
-	} else if (info->GAME_MODE == XBOARDMODE) {
-		printf("move %s\n", PrMove(bestMove));
-		MakeMove(pos, bestMove);
 	} else {
 		printf("\n\n***!! weiss makes move %s !!***\n\n", PrMove(bestMove));
 		MakeMove(pos, bestMove);
