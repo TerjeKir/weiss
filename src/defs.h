@@ -137,7 +137,7 @@ typedef struct {
 } S_SEARCHINFO;
 
 typedef struct {
-	int UseBook;
+	char syzygyPath[256];
 } S_OPTIONS;
 
 #define MOVE_FLAG_ENPAS 0x40000

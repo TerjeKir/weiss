@@ -5,7 +5,6 @@
 
 #include "defs.h"
 #include "movegen.h"
-#include "polybook.h"
 #include "attack.h"
 #include "validate.h"
 
@@ -194,5 +193,4 @@ void InitAll() {
 	InitFilesRanksBrd();
 	InitEvalMasks();
 	InitMvvLva();
-	InitPolyBook();
 }

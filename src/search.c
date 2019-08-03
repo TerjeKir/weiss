@@ -10,7 +10,6 @@
 #include "io.h"
 #include "movegen.h"
 #include "makemove.h"
-#include "polybook.h"
 #include "misc.h"
 #include "pvtable.h"
 
@@ -327,10 +326,6 @@ void SearchPosition(S_BOARD *pos, S_SEARCHINFO *info) {
 	long nps;
 
 	ClearForSearch(pos, info);
-
-	if (EngineOptions->UseBook) {
-		bestMove = GetBookMove(pos);
-	}
 
 	// iterative deepening
 	if (bestMove == NOMOVE) {

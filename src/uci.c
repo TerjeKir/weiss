@@ -120,7 +120,6 @@ void Uci_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 	printf("id name %s\n", NAME);
 	printf("id author LoliSquad\n");
 	printf("option name Hash type spin default 64 min 4 max %d\n", MAXHASH);
-	printf("option name Book type check default true\n");
 	printf("option name SyzygyPath type string default <empty>\n");
 	printf("uciok\n");
 
@@ -161,14 +160,14 @@ void Uci_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 			if (MB > MAXHASH) MB = MAXHASH;
 			printf("Set Hash to %d MB\n", MB);
 			InitHashTable(pos->HashTable, MB);
-		} else if (!strncmp(line, "setoption name Book value ", 26)) {
-			char *ptrTrue = NULL;
-			ptrTrue = strstr(line, "true");
-			if (ptrTrue != NULL) {
-				EngineOptions->UseBook = TRUE;
-			} else {
-				EngineOptions->UseBook = FALSE;
-			}
+		// } else if (!strncmp(line, "setoption name Book value ", 26)) {
+		// 	char *ptrTrue = NULL;
+		// 	ptrTrue = strstr(line, "true");
+		// 	if (ptrTrue != NULL) {
+		// 		EngineOptions->UseBook = TRUE;
+		// 	} else {
+		// 		EngineOptions->UseBook = FALSE;
+		// 	}
 		} else if (!strncmp(line, "setoption name SyzygyPath value ", 32)) {
 			char *ptr = line + strlen("setoption name SyzygyPath value ");
 			tb_init(ptr); 

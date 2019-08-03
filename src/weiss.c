@@ -6,7 +6,6 @@
 
 #include "defs.h"
 #include "init.h"
-#include "polybook.h"
 #include "pvtable.h"
 #include "uci.h"
 #include "xboard.h"
@@ -26,10 +25,10 @@ int main(int argc, char *argv[]) {
 	int ArgNum = 0;
 
 	for (ArgNum = 0; ArgNum < argc; ++ArgNum) {
-		if (strncmp(argv[ArgNum], "NoBook", 6) == 0) {
-			EngineOptions->UseBook = FALSE;
-			printf("Book Off\n");
-		}
+		// if (strncmp(argv[ArgNum], "NoBook", 6) == 0) {
+		// 	EngineOptions->UseBook = FALSE;
+		// 	printf("Book Off\n");
+		// }
 	}
 
 	printf("Welcome to weiss! Type 'weiss' for console mode.\n> ");
@@ -64,6 +63,5 @@ int main(int argc, char *argv[]) {
 	}
 
 	free(pos->HashTable->pTable);
-	CleanPolyBook();
 	return 0;
 }
