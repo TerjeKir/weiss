@@ -78,7 +78,7 @@ const int KingE[64] = {
 //8/6R1/2k5/6P1/8/8/4nP2/6K1 w - - 1 41
 int MaterialDraw(const S_BOARD *pos) {
 
-	ASSERT(CheckBoard(pos));
+	assert(CheckBoard(pos));
 
 	if (!pos->pceNum[wR] && !pos->pceNum[bR] && !pos->pceNum[wQ] && !pos->pceNum[bQ]) {
 		if (!pos->pceNum[bB] && !pos->pceNum[wB]) {
@@ -116,7 +116,7 @@ int MaterialDraw(const S_BOARD *pos) {
 
 int EvalPosition(const S_BOARD *pos) {
 
-	ASSERT(CheckBoard(pos));
+	assert(CheckBoard(pos));
 
 	int pce;
 	int pceNum;
@@ -130,8 +130,8 @@ int EvalPosition(const S_BOARD *pos) {
 	pce = wP;
 	for (pceNum = 0; pceNum < pos->pceNum[pce]; ++pceNum) {
 		sq = pos->pList[pce][pceNum];
-		ASSERT(SqOnBoard(sq));
-		ASSERT(SQ64(sq) >= 0 && SQ64(sq) <= 63);
+		assert(SqOnBoard(sq));
+		assert(SQ64(sq) >= 0 && SQ64(sq) <= 63);
 		score += PawnTable[SQ64(sq)];
 
 		if ((IsolatedMask[SQ64(sq)] & pos->pawns[WHITE]) == 0) {
@@ -148,8 +148,8 @@ int EvalPosition(const S_BOARD *pos) {
 	pce = bP;
 	for (pceNum = 0; pceNum < pos->pceNum[pce]; ++pceNum) {
 		sq = pos->pList[pce][pceNum];
-		ASSERT(SqOnBoard(sq));
-		ASSERT(MIRROR64(SQ64(sq)) >= 0 && MIRROR64(SQ64(sq)) <= 63);
+		assert(SqOnBoard(sq));
+		assert(MIRROR64(SQ64(sq)) >= 0 && MIRROR64(SQ64(sq)) <= 63);
 		score -= PawnTable[MIRROR64(SQ64(sq))];
 
 		if ((IsolatedMask[SQ64(sq)] & pos->pawns[BLACK]) == 0) {
@@ -166,43 +166,43 @@ int EvalPosition(const S_BOARD *pos) {
 	pce = wN;
 	for (pceNum = 0; pceNum < pos->pceNum[pce]; ++pceNum) {
 		sq = pos->pList[pce][pceNum];
-		ASSERT(SqOnBoard(sq));
-		ASSERT(SQ64(sq) >= 0 && SQ64(sq) <= 63);
+		assert(SqOnBoard(sq));
+		assert(SQ64(sq) >= 0 && SQ64(sq) <= 63);
 		score += KnightTable[SQ64(sq)];
 	}
 
 	pce = bN;
 	for (pceNum = 0; pceNum < pos->pceNum[pce]; ++pceNum) {
 		sq = pos->pList[pce][pceNum];
-		ASSERT(SqOnBoard(sq));
-		ASSERT(MIRROR64(SQ64(sq)) >= 0 && MIRROR64(SQ64(sq)) <= 63);
+		assert(SqOnBoard(sq));
+		assert(MIRROR64(SQ64(sq)) >= 0 && MIRROR64(SQ64(sq)) <= 63);
 		score -= KnightTable[MIRROR64(SQ64(sq))];
 	}
 
 	pce = wB;
 	for (pceNum = 0; pceNum < pos->pceNum[pce]; ++pceNum) {
 		sq = pos->pList[pce][pceNum];
-		ASSERT(SqOnBoard(sq));
-		ASSERT(SQ64(sq) >= 0 && SQ64(sq) <= 63);
+		assert(SqOnBoard(sq));
+		assert(SQ64(sq) >= 0 && SQ64(sq) <= 63);
 		score += BishopTable[SQ64(sq)];
 	}
 
 	pce = bB;
 	for (pceNum = 0; pceNum < pos->pceNum[pce]; ++pceNum) {
 		sq = pos->pList[pce][pceNum];
-		ASSERT(SqOnBoard(sq));
-		ASSERT(MIRROR64(SQ64(sq)) >= 0 && MIRROR64(SQ64(sq)) <= 63);
+		assert(SqOnBoard(sq));
+		assert(MIRROR64(SQ64(sq)) >= 0 && MIRROR64(SQ64(sq)) <= 63);
 		score -= BishopTable[MIRROR64(SQ64(sq))];
 	}
 
 	pce = wR;
 	for (pceNum = 0; pceNum < pos->pceNum[pce]; ++pceNum) {
 		sq = pos->pList[pce][pceNum];
-		ASSERT(SqOnBoard(sq));
-		ASSERT(SQ64(sq) >= 0 && SQ64(sq) <= 63);
+		assert(SqOnBoard(sq));
+		assert(SQ64(sq) >= 0 && SQ64(sq) <= 63);
 		score += RookTable[SQ64(sq)];
 
-		ASSERT(FileRankValid(FilesBrd[sq]));
+		assert(FileRankValid(FilesBrd[sq]));
 
 		if (!(pos->pawns[BOTH] & FileBBMask[FilesBrd[sq]])) {
 			score += RookOpenFile;
@@ -214,10 +214,10 @@ int EvalPosition(const S_BOARD *pos) {
 	pce = bR;
 	for (pceNum = 0; pceNum < pos->pceNum[pce]; ++pceNum) {
 		sq = pos->pList[pce][pceNum];
-		ASSERT(SqOnBoard(sq));
-		ASSERT(MIRROR64(SQ64(sq)) >= 0 && MIRROR64(SQ64(sq)) <= 63);
+		assert(SqOnBoard(sq));
+		assert(MIRROR64(SQ64(sq)) >= 0 && MIRROR64(SQ64(sq)) <= 63);
 		score -= RookTable[MIRROR64(SQ64(sq))];
-		ASSERT(FileRankValid(FilesBrd[sq]));
+		assert(FileRankValid(FilesBrd[sq]));
 		if (!(pos->pawns[BOTH] & FileBBMask[FilesBrd[sq]])) {
 			score -= RookOpenFile;
 		} else if (!(pos->pawns[BLACK] & FileBBMask[FilesBrd[sq]])) {
@@ -228,9 +228,9 @@ int EvalPosition(const S_BOARD *pos) {
 	pce = wQ;
 	for (pceNum = 0; pceNum < pos->pceNum[pce]; ++pceNum) {
 		sq = pos->pList[pce][pceNum];
-		ASSERT(SqOnBoard(sq));
-		ASSERT(SQ64(sq) >= 0 && SQ64(sq) <= 63);
-		ASSERT(FileRankValid(FilesBrd[sq]));
+		assert(SqOnBoard(sq));
+		assert(SQ64(sq) >= 0 && SQ64(sq) <= 63);
+		assert(FileRankValid(FilesBrd[sq]));
 		if (!(pos->pawns[BOTH] & FileBBMask[FilesBrd[sq]])) {
 			score += QueenOpenFile;
 		} else if (!(pos->pawns[WHITE] & FileBBMask[FilesBrd[sq]])) {
@@ -241,9 +241,9 @@ int EvalPosition(const S_BOARD *pos) {
 	pce = bQ;
 	for (pceNum = 0; pceNum < pos->pceNum[pce]; ++pceNum) {
 		sq = pos->pList[pce][pceNum];
-		ASSERT(SqOnBoard(sq));
-		ASSERT(SQ64(sq) >= 0 && SQ64(sq) <= 63);
-		ASSERT(FileRankValid(FilesBrd[sq]));
+		assert(SqOnBoard(sq));
+		assert(SQ64(sq) >= 0 && SQ64(sq) <= 63);
+		assert(FileRankValid(FilesBrd[sq]));
 		if (!(pos->pawns[BOTH] & FileBBMask[FilesBrd[sq]])) {
 			score -= QueenOpenFile;
 		} else if (!(pos->pawns[BLACK] & FileBBMask[FilesBrd[sq]])) {
@@ -253,8 +253,8 @@ int EvalPosition(const S_BOARD *pos) {
 	//8/p6k/6p1/5p2/P4K2/8/5pB1/8 b - - 2 62
 	pce = wK;
 	sq = pos->pList[pce][0];
-	ASSERT(SqOnBoard(sq));
-	ASSERT(SQ64(sq) >= 0 && SQ64(sq) <= 63);
+	assert(SqOnBoard(sq));
+	assert(SQ64(sq) >= 0 && SQ64(sq) <= 63);
 
 	if ((pos->material[BLACK] <= ENDGAME_MAT)) {
 		score += KingE[SQ64(sq)];
@@ -264,8 +264,8 @@ int EvalPosition(const S_BOARD *pos) {
 
 	pce = bK;
 	sq = pos->pList[pce][0];
-	ASSERT(SqOnBoard(sq));
-	ASSERT(MIRROR64(SQ64(sq)) >= 0 && MIRROR64(SQ64(sq)) <= 63);
+	assert(SqOnBoard(sq));
+	assert(MIRROR64(SQ64(sq)) >= 0 && MIRROR64(SQ64(sq)) <= 63);
 
 	if ((pos->material[WHITE] <= ENDGAME_MAT)) {
 		score -= KingE[MIRROR64(SQ64(sq))];

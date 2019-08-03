@@ -12,7 +12,7 @@ unsigned int probeWDL(S_BOARD *pos, int depth) {
 
     int cardinality = CNT(pos->colors[WHITE] | pos->colors[BLACK]);
 
-    ASSERT(CheckBoard(pos));
+    assert(CheckBoard(pos));
 
     if (    (pos->ply == 0)
         ||  (pos->enPas != NO_SQ)

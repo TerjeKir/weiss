@@ -17,7 +17,7 @@
 
 int ThreeFoldRep(const S_BOARD *pos) {
 
-	ASSERT(CheckBoard(pos));
+	assert(CheckBoard(pos));
 
 	int i = 0, r = 0;
 	for (i = 0; i < pos->hisPly; ++i) {
@@ -29,7 +29,7 @@ int ThreeFoldRep(const S_BOARD *pos) {
 }
 
 int DrawMaterial(const S_BOARD *pos) {
-	ASSERT(CheckBoard(pos));
+	assert(CheckBoard(pos));
 
 	if (pos->pceNum[wP] || pos->pceNum[bP])
 		return FALSE;
@@ -48,7 +48,7 @@ int DrawMaterial(const S_BOARD *pos) {
 }
 
 int checkresult(S_BOARD *pos) {
-	ASSERT(CheckBoard(pos));
+	assert(CheckBoard(pos));
 
 	if (pos->fiftyMove > 100) {
 		printf("1/2-1/2 {fifty move rule (claimed by weiss)}\n");

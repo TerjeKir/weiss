@@ -52,7 +52,7 @@ int CheckBoard(const S_BOARD *pos) {
 	for (t_piece = wP; t_piece <= bK; ++t_piece) {
 		for (t_pce_num = 0; t_pce_num < pos->pceNum[t_piece]; ++t_pce_num) {
 			sq120 = pos->pList[t_piece][t_pce_num];
-			ASSERT(pos->pieces[sq120] == t_piece);
+			assert(pos->pieces[sq120] == t_piece);
 		}
 	}
 
@@ -71,48 +71,48 @@ int CheckBoard(const S_BOARD *pos) {
 	}
 
 	for (t_piece = wP; t_piece <= bK; ++t_piece)
-		ASSERT(t_pceNum[t_piece] == pos->pceNum[t_piece]);
+		assert(t_pceNum[t_piece] == pos->pceNum[t_piece]);
 
 	// check bitboards count
 	pcount = CNT(t_pawns[WHITE]);
-	ASSERT(pcount == pos->pceNum[wP]);
+	assert(pcount == pos->pceNum[wP]);
 	pcount = CNT(t_pawns[BLACK]);
-	ASSERT(pcount == pos->pceNum[bP]);
+	assert(pcount == pos->pceNum[bP]);
 	pcount = CNT(t_pawns[BOTH]);
-	ASSERT(pcount == (pos->pceNum[bP] + pos->pceNum[wP]));
+	assert(pcount == (pos->pceNum[bP] + pos->pceNum[wP]));
 
 	// check bitboards squares
 	while (t_pawns[WHITE]) {
 		sq64 = POP(&t_pawns[WHITE]);
-		ASSERT(pos->pieces[SQ120(sq64)] == wP);
+		assert(pos->pieces[SQ120(sq64)] == wP);
 	}
 
 	while (t_pawns[BLACK]) {
 		sq64 = POP(&t_pawns[BLACK]);
-		ASSERT(pos->pieces[SQ120(sq64)] == bP);
+		assert(pos->pieces[SQ120(sq64)] == bP);
 	}
 
 	while (t_pawns[BOTH]) {
 		sq64 = POP(&t_pawns[BOTH]);
-		ASSERT((pos->pieces[SQ120(sq64)] == bP) || (pos->pieces[SQ120(sq64)] == wP));
+		assert((pos->pieces[SQ120(sq64)] == bP) || (pos->pieces[SQ120(sq64)] == wP));
 	}
 
-	ASSERT(t_material[WHITE] == pos->material[WHITE] && t_material[BLACK] == pos->material[BLACK]);
-	ASSERT(t_minPce[WHITE] == pos->minPce[WHITE] && t_minPce[BLACK] == pos->minPce[BLACK]);
-	ASSERT(t_majPce[WHITE] == pos->majPce[WHITE] && t_majPce[BLACK] == pos->majPce[BLACK]);
-	ASSERT(t_bigPce[WHITE] == pos->bigPce[WHITE] && t_bigPce[BLACK] == pos->bigPce[BLACK]);
+	assert(t_material[WHITE] == pos->material[WHITE] && t_material[BLACK] == pos->material[BLACK]);
+	assert(t_minPce[WHITE] == pos->minPce[WHITE] && t_minPce[BLACK] == pos->minPce[BLACK]);
+	assert(t_majPce[WHITE] == pos->majPce[WHITE] && t_majPce[BLACK] == pos->majPce[BLACK]);
+	assert(t_bigPce[WHITE] == pos->bigPce[WHITE] && t_bigPce[BLACK] == pos->bigPce[BLACK]);
 
-	ASSERT(pos->side == WHITE || pos->side == BLACK);
-	ASSERT(GeneratePosKey(pos) == pos->posKey);
+	assert(pos->side == WHITE || pos->side == BLACK);
+	assert(GeneratePosKey(pos) == pos->posKey);
 
-	ASSERT(pos->enPas == NO_SQ || (RanksBrd[pos->enPas] == RANK_6 && pos->side == WHITE) || (RanksBrd[pos->enPas] == RANK_3 && pos->side == BLACK));
+	assert(pos->enPas == NO_SQ || (RanksBrd[pos->enPas] == RANK_6 && pos->side == WHITE) || (RanksBrd[pos->enPas] == RANK_3 && pos->side == BLACK));
 
-	ASSERT(pos->pieces[pos->KingSq[WHITE]] == wK);
-	ASSERT(pos->pieces[pos->KingSq[BLACK]] == bK);
+	assert(pos->pieces[pos->KingSq[WHITE]] == wK);
+	assert(pos->pieces[pos->KingSq[BLACK]] == bK);
 
-	ASSERT(pos->castlePerm >= 0 && pos->castlePerm <= 15);
+	assert(pos->castlePerm >= 0 && pos->castlePerm <= 15);
 
-	ASSERT(PceListOk(pos));
+	assert(PceListOk(pos));
 
 	return TRUE;
 }
@@ -125,10 +125,10 @@ void UpdateListsMaterial(S_BOARD *pos) {
 	for (index = 0; index < BRD_SQ_NUM; ++index) {
 		sq = index;
 		piece = pos->pieces[index];
-		ASSERT(PceValidEmptyOffbrd(piece));
+		assert(PceValidEmptyOffbrd(piece));
 		if (piece != OFFBOARD && piece != EMPTY) {
 			colour = PieceCol[piece];
-			ASSERT(SideValid(colour));
+			assert(SideValid(colour));
 
 			if (PieceBig[piece]) pos->bigPce[colour]++;
 			if (PieceMin[piece]) pos->minPce[colour]++;
@@ -136,7 +136,7 @@ void UpdateListsMaterial(S_BOARD *pos) {
 
 			pos->material[colour] += PieceVal[piece];
 
-			ASSERT(pos->pceNum[piece] < 10 && pos->pceNum[piece] >= 0);
+			assert(pos->pceNum[piece] < 10 && pos->pceNum[piece] >= 0);
 
 			pos->pList[piece][pos->pceNum[piece]] = sq;
 			pos->pceNum[piece]++;
@@ -164,7 +164,7 @@ void UpdateBitboards(S_BOARD *pos) {
 
 		sq = index;
 		piece = pos->pieces[index];
-		ASSERT(PceValidEmptyOffbrd(piece));
+		assert(PceValidEmptyOffbrd(piece));
 
 		if (piece != OFFBOARD && piece != EMPTY) {
 
@@ -217,8 +217,8 @@ void UpdateBitboards(S_BOARD *pos) {
 
 int ParseFen(char *fen, S_BOARD *pos) {
 
-	ASSERT(fen != NULL);
-	ASSERT(pos != NULL);
+	assert(fen != NULL);
+	assert(pos != NULL);
 
 	int rank = RANK_8;
 	int file = FILE_A;
@@ -305,7 +305,7 @@ int ParseFen(char *fen, S_BOARD *pos) {
 		fen++;
 	}
 
-	ASSERT(*fen == 'w' || *fen == 'b');
+	assert(*fen == 'w' || *fen == 'b');
 
 	pos->side = (*fen == 'w') ? WHITE : BLACK;
 	fen += 2;
@@ -335,14 +335,14 @@ int ParseFen(char *fen, S_BOARD *pos) {
 	}
 	fen++;
 
-	ASSERT(pos->castlePerm >= 0 && pos->castlePerm <= 15);
+	assert(pos->castlePerm >= 0 && pos->castlePerm <= 15);
 
 	if (*fen != '-') {
 		file = fen[0] - 'a';
 		rank = fen[1] - '1';
 
-		ASSERT(file >= FILE_A && file <= FILE_H);
-		ASSERT(rank >= RANK_1 && rank <= RANK_8);
+		assert(file >= FILE_A && file <= FILE_H);
+		assert(rank >= RANK_1 && rank <= RANK_8);
 
 		pos->enPas = FR2SQ(file, rank);
 	}
@@ -470,5 +470,5 @@ void MirrorBoard(S_BOARD *pos) {
 	UpdateListsMaterial(pos);
 	UpdateBitboards(pos);
 
-	ASSERT(CheckBoard(pos));
+	assert(CheckBoard(pos));
 }

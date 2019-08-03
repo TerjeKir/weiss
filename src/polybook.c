@@ -89,7 +89,7 @@ uint64_t PolyKeyFromBoard(const S_BOARD *board) {
 	for (sq = 0; sq < BRD_SQ_NUM; ++sq) {
 		piece = board->pieces[sq];
 		if (piece != NO_SQ && piece != EMPTY && piece != OFFBOARD) {
-			ASSERT(piece >= wP && piece <= bK);
+			assert(piece >= wP && piece <= bK);
 			polyPiece = PolyKindOfPiece[piece];
 			rank = RanksBrd[sq];
 			file = FilesBrd[sq];

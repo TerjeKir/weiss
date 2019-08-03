@@ -40,9 +40,9 @@ static void PickNextMove(int moveNum, S_MOVELIST *list) {
 		}
 	}
 
-	ASSERT(moveNum >= 0 && moveNum < list->count);
-	ASSERT(bestNum >= 0 && bestNum < list->count);
-	ASSERT(bestNum >= moveNum);
+	assert(moveNum >= 0 && moveNum < list->count);
+	assert(bestNum >= 0 && bestNum < list->count);
+	assert(bestNum >= moveNum);
 
 	temp = list->moves[moveNum];
 	list->moves[moveNum] = list->moves[bestNum];
@@ -55,7 +55,7 @@ static int IsRepetition(const S_BOARD *pos) {
 	int index = 0;
 
 	for (index = pos->hisPly - pos->fiftyMove; index < pos->hisPly - 1; ++index) {
-		ASSERT(index >= 0 && index < MAXGAMEMOVES);
+		assert(index >= 0 && index < MAXGAMEMOVES);
 		if (pos->posKey == pos->history[index].posKey)
 			return TRUE;
 	}
@@ -92,8 +92,8 @@ static void ClearForSearch(S_BOARD *pos, S_SEARCHINFO *info) {
 // Quiescence
 static int Quiescence(int alpha, int beta, S_BOARD *pos, S_SEARCHINFO *info) {
 
-	ASSERT(CheckBoard(pos));
-	ASSERT(beta > alpha);
+	assert(CheckBoard(pos));
+	assert(beta > alpha);
 
 	if ((info->nodes & 2047) == 0)
 		CheckUp(info);
@@ -111,7 +111,7 @@ static int Quiescence(int alpha, int beta, S_BOARD *pos, S_SEARCHINFO *info) {
 
 	int Score = EvalPosition(pos);
 
-	ASSERT(Score > -INFINITE && Score < INFINITE);
+	assert(Score > -INFINITE && Score < INFINITE);
 
 	if (Score >= beta)
 		return beta;
@@ -152,7 +152,7 @@ static int Quiescence(int alpha, int beta, S_BOARD *pos, S_SEARCHINFO *info) {
 		}
 	}
 
-	//ASSERT(alpha >= OldAlpha);
+	//assert(alpha >= OldAlpha);
 
 	return alpha;
 }
@@ -160,9 +160,9 @@ static int Quiescence(int alpha, int beta, S_BOARD *pos, S_SEARCHINFO *info) {
 // Alpha Beta
 static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO *info, int DoNull) {
 
-	ASSERT(CheckBoard(pos));
-	ASSERT(beta > alpha);
-	ASSERT(depth >= 0);
+	assert(CheckBoard(pos));
+	assert(beta > alpha);
+	assert(depth >= 0);
 	
 	// unsigned tbresult;
 	// int val;
@@ -303,7 +303,7 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 		}
 	}
 
-	ASSERT(alpha >= OldAlpha);
+	assert(alpha >= OldAlpha);
 
 	if (alpha != OldAlpha) {
 		StoreHashEntry(pos, BestMove, BestScore, HFEXACT, depth);

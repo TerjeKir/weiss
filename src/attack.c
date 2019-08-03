@@ -116,9 +116,9 @@ int SqAttacked(const int sq, const int side, const S_BOARD *pos) {
 	int pce, index, t_sq, dir;
 	int sq64 = SQ64(sq);
 
-	ASSERT(SqOnBoard(sq));
-	ASSERT(SideValid(side));
-	ASSERT(CheckBoard(pos));
+	assert(SqOnBoard(sq));
+	assert(SideValid(side));
+	assert(CheckBoard(pos));
 
 	// pawns
 	if (pawn_attacks[!side][sq64] & pos->pieceBBs[PAWN] & pos->colors[side])
@@ -137,10 +137,10 @@ int SqAttacked(const int sq, const int side, const S_BOARD *pos) {
 
 		dir = RkDir[index];
 		t_sq = sq + dir;
-		ASSERT(SqIs120(t_sq));
+		assert(SqIs120(t_sq));
 
 		pce = pos->pieces[t_sq];
-		ASSERT(PceValidEmptyOffbrd(pce));
+		assert(PceValidEmptyOffbrd(pce));
 
 		while (pce != OFFBOARD) {
 			if (pce != EMPTY) {
@@ -150,7 +150,7 @@ int SqAttacked(const int sq, const int side, const S_BOARD *pos) {
 				break;
 			}
 			t_sq += dir;
-			ASSERT(SqIs120(t_sq));
+			assert(SqIs120(t_sq));
 			pce = pos->pieces[t_sq];
 		}
 	}
@@ -160,10 +160,10 @@ int SqAttacked(const int sq, const int side, const S_BOARD *pos) {
 
 		dir = BiDir[index];
 		t_sq = sq + dir;
-		ASSERT(SqIs120(t_sq));
+		assert(SqIs120(t_sq));
 
 		pce = pos->pieces[t_sq];
-		ASSERT(PceValidEmptyOffbrd(pce));
+		assert(PceValidEmptyOffbrd(pce));
 
 		while (pce != OFFBOARD) {
 			if (pce != EMPTY) {
@@ -172,7 +172,7 @@ int SqAttacked(const int sq, const int side, const S_BOARD *pos) {
 				break;
 			}
 			t_sq += dir;
-			ASSERT(SqIs120(t_sq));
+			assert(SqIs120(t_sq));
 			pce = pos->pieces[t_sq];
 		}
 	}

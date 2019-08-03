@@ -13,7 +13,7 @@ uint64_t leafNodes;
 
 void Perft(int depth, S_BOARD *pos) {
 
-	ASSERT(CheckBoard(pos));
+	assert(CheckBoard(pos));
 
 	if (depth == 0) {
 		leafNodes++;
@@ -38,7 +38,7 @@ void Perft(int depth, S_BOARD *pos) {
 
 void PerftTest(int depth, S_BOARD *pos) {
 
-	ASSERT(CheckBoard(pos));
+	assert(CheckBoard(pos));
 
 	PrintBoard(pos);
 	printf("\nStarting Test To Depth:%d\n", depth);

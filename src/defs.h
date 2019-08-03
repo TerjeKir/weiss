@@ -8,21 +8,8 @@
 #include "types.h"
 
 
-// #define DEBUG
-
-
-#ifndef DEBUG
-#define ASSERT(n)
-#else
-#define ASSERT(n) \
-if(!(n)) { \
-printf("%s - Failed", #n); \
-printf("On %s ", __DATE__); \
-printf("At %s ", __TIME__); \
-printf("In File %s ", __FILE__); \
-printf("At Line %d\n", __LINE__); \
-exit(1);}
-#endif
+#define NDEBUG
+#include <assert.h>
 
 #define NAME "weiss 0.1"
 #define BRD_SQ_NUM 120
@@ -37,6 +24,16 @@ exit(1);}
 #define INFINITE 30000
 #define ISMATE (INFINITE - MAXDEPTH)
 
+
+/* GAME MOVE 
+0000 0000 0000 0000 0000 0111 1111 -> From 0x7F
+0000 0000 0000 0011 1111 1000 0000 -> To >> 7, 0x7F
+0000 0000 0011 1100 0000 0000 0000 -> Captured >> 14, 0xF
+0000 0000 0100 0000 0000 0000 0000 -> EP 0x40000
+0000 0000 1000 0000 0000 0000 0000 -> Pawn Start 0x80000
+0000 1111 0000 0000 0000 0000 0000 -> Promoted Piece >> 20, 0xF
+0001 0000 0000 0000 0000 0000 0000 -> Castle 0x1000000
+*/
 typedef struct {
 	int move;
 	int score;
@@ -46,6 +43,16 @@ typedef struct {
 	S_MOVE moves[MAXPOSITIONMOVES];
 	int count;
 } S_MOVELIST;
+
+typedef struct {
+
+	int move;
+	int castlePerm;
+	int enPas;
+	int fiftyMove;
+	uint64_t posKey;
+
+} S_UNDO;
 
 
 typedef struct {
@@ -65,15 +72,6 @@ typedef struct {
 	int cut;
 } S_HASHTABLE;
 
-typedef struct {
-
-	int move;
-	int castlePerm;
-	int enPas;
-	int fiftyMove;
-	uint64_t posKey;
-
-} S_UNDO;
 
 typedef struct {
 
@@ -123,8 +121,8 @@ typedef struct {
 	int timeset;
 	int movestogo;
 
-	long nodes;
-	unsigned long long tbhits;
+	uint32_t nodes;
+	uint64_t tbhits;
 
 	int quit;
 	int stopped;
@@ -142,22 +140,6 @@ typedef struct {
 	int UseBook;
 } S_OPTIONS;
 
-
-/* GAME MOVE 
-0000 0000 0000 0000 0000 0111 1111 -> From 0x7F
-0000 0000 0000 0011 1111 1000 0000 -> To >> 7, 0x7F
-0000 0000 0011 1100 0000 0000 0000 -> Captured >> 14, 0xF
-0000 0000 0100 0000 0000 0000 0000 -> EP 0x40000
-0000 0000 1000 0000 0000 0000 0000 -> Pawn Start 0x80000
-0000 1111 0000 0000 0000 0000 0000 -> Promoted Piece >> 20, 0xF
-0001 0000 0000 0000 0000 0000 0000 -> Castle 0x1000000
-*/
-
-#define FROMSQ(m) ((m) & 0x7F)
-#define TOSQ(m) (((m)>>7) & 0x7F)
-#define CAPTURED(m) (((m)>>14) & 0xF)
-#define PROMOTED(m) (((m)>>20) & 0xF)
-
 #define MOVE_FLAG_ENPAS 0x40000
 #define MOVE_FLAG_PAWNSTART 0x80000
 #define MOVE_FLAG_CASTLE 0x1000000
@@ -165,7 +147,6 @@ typedef struct {
 #define MFLAGPROM 0xF00000
 
 #define NOMOVE 0
-
 
 /* MACROS */
 
@@ -180,6 +161,11 @@ typedef struct {
 #define IsRQ(p) (PieceRookQueen[(p)])
 #define IsKn(p) (PieceKnight[(p)])
 #define IsKi(p) (PieceKing[(p)])
+
+#define FROMSQ(m) ((m) & 0x7F)
+#define TOSQ(m) (((m)>>7) & 0x7F)
+#define CAPTURED(m) (((m)>>14) & 0xF)
+#define PROMOTED(m) (((m)>>20) & 0xF)
 
 #define MIRROR64(sq) (Mirror64[(sq)])
 
