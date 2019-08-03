@@ -8,6 +8,18 @@
 #include "movegen.h"
 #include "pvtable.h"
 
+static int ProbePvMove(const S_BOARD *pos) {
+
+	int index = pos->posKey % pos->HashTable->numEntries;
+	assert(index >= 0 && index <= pos->HashTable->numEntries - 1);
+
+	if (pos->HashTable->pTable[index].posKey == pos->posKey) {
+		return pos->HashTable->pTable[index].move;
+	}
+
+	return NOMOVE;
+}
+
 int GetPvLine(const int depth, S_BOARD *pos) {
 
 	assert(depth < MAXDEPTH && depth >= 1);
@@ -147,16 +159,4 @@ void StoreHashEntry(S_BOARD *pos, const int move, int score, const int flags, co
 	pos->HashTable->pTable[index].flags = flags;
 	pos->HashTable->pTable[index].score = score;
 	pos->HashTable->pTable[index].depth = depth;
-}
-
-int ProbePvMove(const S_BOARD *pos) {
-
-	int index = pos->posKey % pos->HashTable->numEntries;
-	assert(index >= 0 && index <= pos->HashTable->numEntries - 1);
-
-	if (pos->HashTable->pTable[index].posKey == pos->posKey) {
-		return pos->HashTable->pTable[index].move;
-	}
-
-	return NOMOVE;
 }

@@ -27,7 +27,7 @@ int GetTimeMs()
 }
 
 // http://home.arcor.de/dreamlike/chess/
-int InputWaiting()
+static int InputWaiting()
 {
 #ifndef WIN32
     fd_set readfds;

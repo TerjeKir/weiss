@@ -74,9 +74,8 @@ const int KingE[64] = {
 	-10,   0, 10, 10, 10, 10,   0, -10,
 	-50, -10, 0,   0,  0, 0,  -10, -50};
 
-// sjeng 11.2
-//8/6R1/2k5/6P1/8/8/4nP2/6K1 w - - 1 41
-int MaterialDraw(const S_BOARD *pos) {
+
+static int MaterialDraw(const S_BOARD *pos) {
 
 	assert(CheckBoard(pos));
 

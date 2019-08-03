@@ -354,7 +354,7 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 	assert(MoveListOk(list, pos));
 }
 
-void GenerateAllCaps(const S_BOARD *pos, S_MOVELIST *list) {
+void GenerateAllCaptures(const S_BOARD *pos, S_MOVELIST *list) {
 
 	assert(CheckBoard(pos));
 

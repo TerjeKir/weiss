@@ -37,7 +37,7 @@ uint64_t IsolatedMask[64];
 
 S_OPTIONS EngineOptions[1];
 
-void InitEvalMasks() {
+static void InitEvalMasks() {
 
 	int sq, tsq, r, f;
 
@@ -108,7 +108,7 @@ void InitEvalMasks() {
 	}
 }
 
-void InitFilesRanksBrd() {
+static void InitFilesRanksBrd() {
 
 	int index = 0;
 	int file = FILE_A;
@@ -129,7 +129,7 @@ void InitFilesRanksBrd() {
 	}
 }
 
-void InitHashKeys() {
+static void InitHashKeys() {
 
 	int index = 0;
 	int index2 = 0;
@@ -144,7 +144,7 @@ void InitHashKeys() {
 	}
 }
 
-void InitBitMasks() {
+static void InitBitMasks() {
 	int index = 0;
 
 	for (index = 0; index < 64; index++) {
@@ -158,7 +158,7 @@ void InitBitMasks() {
 	}
 }
 
-void InitSq120To64() {
+static void InitSq120To64() {
 
 	int index = 0;
 	int file = FILE_A;

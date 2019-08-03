@@ -120,7 +120,7 @@ static int Quiescence(int alpha, int beta, S_BOARD *pos, S_SEARCHINFO *info) {
 		alpha = Score;
 
 	S_MOVELIST list[1];
-	GenerateAllCaps(pos, list);
+	GenerateAllCaptures(pos, list);
 
 	int MoveNum = 0;
 	int Legal = 0;

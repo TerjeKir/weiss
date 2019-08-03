@@ -15,15 +15,9 @@ uint64_t king_attacks[64];
 uint64_t knight_attacks[64];
 uint64_t pawn_attacks[2][64];
 
-// Initializes all attack bitboards
-void InitAttacks() {
-    InitKingAttacks();
-    InitKnightAttacks();
-    InitPawnAttacks();
-}
 
 // Inits the king attack bitboards
-void InitKingAttacks() {
+static void InitKingAttacks() {
 
     uint64_t bitmask = 1ULL;
     int square;
@@ -54,7 +48,7 @@ void InitKingAttacks() {
 }
 
 // Inits the knight attack bitboards
-void InitKnightAttacks() {
+static void InitKnightAttacks() {
 
     uint64_t bitmask = 1ULL;
     int square;
@@ -89,7 +83,7 @@ void InitKnightAttacks() {
 }
 
 // Inits the pawn attack bitboards
-void InitPawnAttacks() {
+static void InitPawnAttacks() {
 
     uint64_t bitmask = 1ULL;
     int square;
@@ -108,6 +102,13 @@ void InitPawnAttacks() {
         if ((square % 8) != 0)
             pawn_attacks[BLACK][square] |= bitmask >> 9;
     }
+}
+
+// Initializes all attack bitboards
+void InitAttacks() {
+    InitKingAttacks();
+    InitKnightAttacks();
+    InitPawnAttacks();
 }
 
 // Returns TRUE if sq is attacked by side

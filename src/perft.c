@@ -11,7 +11,7 @@
 
 uint64_t leafNodes;
 
-void Perft(int depth, S_BOARD *pos) {
+static void Perft(int depth, S_BOARD *pos) {
 
 	assert(CheckBoard(pos));
 

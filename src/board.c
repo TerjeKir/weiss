@@ -8,6 +8,149 @@
 #include "hashkeys.h"
 #include "validate.h"
 
+// Update material lists to match pos->pieces[]
+static void UpdateListsMaterial(S_BOARD *pos) {
+
+	int piece, sq, index, colour;
+
+	for (index = 0; index < BRD_SQ_NUM; ++index) {
+		sq = index;
+		piece = pos->pieces[index];
+		assert(PceValidEmptyOffbrd(piece));
+		if (piece != OFFBOARD && piece != EMPTY) {
+			colour = PieceCol[piece];
+			assert(SideValid(colour));
+
+			if (PieceBig[piece]) pos->bigPce[colour]++;
+			if (PieceMin[piece]) pos->minPce[colour]++;
+			if (PieceMaj[piece]) pos->majPce[colour]++;
+
+			pos->material[colour] += PieceVal[piece];
+
+			assert(pos->pceNum[piece] < 10 && pos->pceNum[piece] >= 0);
+
+			pos->pList[piece][pos->pceNum[piece]] = sq;
+			pos->pceNum[piece]++;
+
+			if (piece == wK) pos->KingSq[WHITE] = sq;
+			if (piece == bK) pos->KingSq[BLACK] = sq;
+
+			if (piece == wP) {
+				SETBIT(pos->pawns[WHITE], SQ64(sq));
+				SETBIT(pos->pawns[BOTH], SQ64(sq));
+			} else if (piece == bP) {
+				SETBIT(pos->pawns[BLACK], SQ64(sq));
+				SETBIT(pos->pawns[BOTH], SQ64(sq));
+			}
+		}
+	}
+}
+
+// Update bitboards
+static void UpdateBitboards(S_BOARD *pos) {
+
+	int piece, sq, index;
+
+	for (index = 0; index < BRD_SQ_NUM; ++index) {
+
+		sq = index;
+		piece = pos->pieces[index];
+		assert(PceValidEmptyOffbrd(piece));
+
+		if (piece != OFFBOARD && piece != EMPTY) {
+
+			// Pawns
+			if (piece == wP) {
+				SETBIT(pos->colors[WHITE], SQ64(sq));
+				SETBIT(pos->pieceBBs[PAWN],  SQ64(sq));
+			} else if (piece == bP) {
+				SETBIT(pos->colors[BLACK], SQ64(sq));
+				SETBIT(pos->pieceBBs[PAWN],  SQ64(sq));
+			// Knights
+			} else if (piece == wN) {
+				SETBIT(pos->colors[WHITE],  SQ64(sq));
+				SETBIT(pos->pieceBBs[KNIGHT], SQ64(sq));
+			} else if (piece == bN) {
+				SETBIT(pos->colors[BLACK],  SQ64(sq));
+				SETBIT(pos->pieceBBs[KNIGHT], SQ64(sq));
+			// Bishops
+			} else if (piece == wB) {
+				SETBIT(pos->colors[WHITE],  SQ64(sq));
+				SETBIT(pos->pieceBBs[BISHOP], SQ64(sq));
+			} else if (piece == bB) {
+				SETBIT(pos->colors[BLACK],  SQ64(sq));
+				SETBIT(pos->pieceBBs[BISHOP], SQ64(sq));
+			// Rooks
+			} else if (piece == wR) {
+				SETBIT(pos->colors[WHITE], SQ64(sq));
+				SETBIT(pos->pieceBBs[ROOK],  SQ64(sq));
+			} else if (piece == bR) {
+				SETBIT(pos->colors[BLACK], SQ64(sq));
+				SETBIT(pos->pieceBBs[ROOK],  SQ64(sq));
+			// Queens
+			} else if (piece == wQ) {
+				SETBIT(pos->colors[WHITE], SQ64(sq));
+				SETBIT(pos->pieceBBs[QUEEN], SQ64(sq));
+			} else if (piece == bQ) {
+				SETBIT(pos->colors[BLACK], SQ64(sq));
+				SETBIT(pos->pieceBBs[QUEEN], SQ64(sq));
+			// Kings
+			} else if (piece == wK) {
+				SETBIT(pos->colors[WHITE], SQ64(sq));
+				SETBIT(pos->pieceBBs[KING],  SQ64(sq));
+			} else if (piece == bK) {
+				SETBIT(pos->colors[BLACK], SQ64(sq));
+				SETBIT(pos->pieceBBs[KING],  SQ64(sq));
+			}
+		}
+	}
+}
+
+// Resets the board
+static void ResetBoard(S_BOARD *pos) {
+
+	int index = 0;
+
+	for (index = 0; index < BRD_SQ_NUM; ++index)
+		pos->pieces[index] = OFFBOARD;
+
+	for (index = 0; index < 64; ++index)
+		pos->pieces[SQ120(index)] = EMPTY;
+
+	for (index = 0; index < 2; ++index) {
+		pos->bigPce[index] = 0;
+		pos->majPce[index] = 0;
+		pos->minPce[index] = 0;
+		pos->material[index] = 0;
+	}
+
+	for (index = 0; index < 3; ++index)
+		pos->pawns[index] = 0ULL;
+
+	for (index = 0; index < 13; ++index)
+		pos->pceNum[index] = 0;
+
+	// Bitboards
+	for (index = 0; index < 2; index++)
+		pos->colors[index] = 0ULL;
+	
+	for (index = 0; index < 6; index++)
+		pos->pieceBBs[index] = 0ULL;
+
+	pos->KingSq[WHITE] = pos->KingSq[BLACK] = NO_SQ;
+
+	pos->side = BOTH;
+	pos->enPas = NO_SQ;
+	pos->fiftyMove = 0;
+
+	pos->ply = 0;
+	pos->hisPly = 0;
+
+	pos->castlePerm = 0;
+
+	pos->posKey = 0ULL;
+}
+
 // Check piece list is ok
 int PceListOk(const S_BOARD *pos) {
 
@@ -118,104 +261,6 @@ int CheckBoard(const S_BOARD *pos) {
 	assert(PceListOk(pos));
 
 	return TRUE;
-}
-
-// Update material lists to match pos->pieces[]
-void UpdateListsMaterial(S_BOARD *pos) {
-
-	int piece, sq, index, colour;
-
-	for (index = 0; index < BRD_SQ_NUM; ++index) {
-		sq = index;
-		piece = pos->pieces[index];
-		assert(PceValidEmptyOffbrd(piece));
-		if (piece != OFFBOARD && piece != EMPTY) {
-			colour = PieceCol[piece];
-			assert(SideValid(colour));
-
-			if (PieceBig[piece]) pos->bigPce[colour]++;
-			if (PieceMin[piece]) pos->minPce[colour]++;
-			if (PieceMaj[piece]) pos->majPce[colour]++;
-
-			pos->material[colour] += PieceVal[piece];
-
-			assert(pos->pceNum[piece] < 10 && pos->pceNum[piece] >= 0);
-
-			pos->pList[piece][pos->pceNum[piece]] = sq;
-			pos->pceNum[piece]++;
-
-			if (piece == wK) pos->KingSq[WHITE] = sq;
-			if (piece == bK) pos->KingSq[BLACK] = sq;
-
-			if (piece == wP) {
-				SETBIT(pos->pawns[WHITE], SQ64(sq));
-				SETBIT(pos->pawns[BOTH], SQ64(sq));
-			} else if (piece == bP) {
-				SETBIT(pos->pawns[BLACK], SQ64(sq));
-				SETBIT(pos->pawns[BOTH], SQ64(sq));
-			}
-		}
-	}
-}
-
-// Update bitboards
-void UpdateBitboards(S_BOARD *pos) {
-
-	int piece, sq, index;
-
-	for (index = 0; index < BRD_SQ_NUM; ++index) {
-
-		sq = index;
-		piece = pos->pieces[index];
-		assert(PceValidEmptyOffbrd(piece));
-
-		if (piece != OFFBOARD && piece != EMPTY) {
-
-			// Pawns
-			if (piece == wP) {
-				SETBIT(pos->colors[WHITE], SQ64(sq));
-				SETBIT(pos->pieceBBs[PAWN],  SQ64(sq));
-			} else if (piece == bP) {
-				SETBIT(pos->colors[BLACK], SQ64(sq));
-				SETBIT(pos->pieceBBs[PAWN],  SQ64(sq));
-			// Knights
-			} else if (piece == wN) {
-				SETBIT(pos->colors[WHITE],  SQ64(sq));
-				SETBIT(pos->pieceBBs[KNIGHT], SQ64(sq));
-			} else if (piece == bN) {
-				SETBIT(pos->colors[BLACK],  SQ64(sq));
-				SETBIT(pos->pieceBBs[KNIGHT], SQ64(sq));
-			// Bishops
-			} else if (piece == wB) {
-				SETBIT(pos->colors[WHITE],  SQ64(sq));
-				SETBIT(pos->pieceBBs[BISHOP], SQ64(sq));
-			} else if (piece == bB) {
-				SETBIT(pos->colors[BLACK],  SQ64(sq));
-				SETBIT(pos->pieceBBs[BISHOP], SQ64(sq));
-			// Rooks
-			} else if (piece == wR) {
-				SETBIT(pos->colors[WHITE], SQ64(sq));
-				SETBIT(pos->pieceBBs[ROOK],  SQ64(sq));
-			} else if (piece == bR) {
-				SETBIT(pos->colors[BLACK], SQ64(sq));
-				SETBIT(pos->pieceBBs[ROOK],  SQ64(sq));
-			// Queens
-			} else if (piece == wQ) {
-				SETBIT(pos->colors[WHITE], SQ64(sq));
-				SETBIT(pos->pieceBBs[QUEEN], SQ64(sq));
-			} else if (piece == bQ) {
-				SETBIT(pos->colors[BLACK], SQ64(sq));
-				SETBIT(pos->pieceBBs[QUEEN], SQ64(sq));
-			// Kings
-			} else if (piece == wK) {
-				SETBIT(pos->colors[WHITE], SQ64(sq));
-				SETBIT(pos->pieceBBs[KING],  SQ64(sq));
-			} else if (piece == bK) {
-				SETBIT(pos->colors[BLACK], SQ64(sq));
-				SETBIT(pos->pieceBBs[KING],  SQ64(sq));
-			}
-		}
-	}
 }
 
 int ParseFen(char *fen, S_BOARD *pos) {
@@ -356,50 +401,6 @@ int ParseFen(char *fen, S_BOARD *pos) {
 	UpdateBitboards(pos);
 
 	return 0;
-}
-
-void ResetBoard(S_BOARD *pos) {
-
-	int index = 0;
-
-	for (index = 0; index < BRD_SQ_NUM; ++index)
-		pos->pieces[index] = OFFBOARD;
-
-	for (index = 0; index < 64; ++index)
-		pos->pieces[SQ120(index)] = EMPTY;
-
-	for (index = 0; index < 2; ++index) {
-		pos->bigPce[index] = 0;
-		pos->majPce[index] = 0;
-		pos->minPce[index] = 0;
-		pos->material[index] = 0;
-	}
-
-	for (index = 0; index < 3; ++index)
-		pos->pawns[index] = 0ULL;
-
-	for (index = 0; index < 13; ++index)
-		pos->pceNum[index] = 0;
-
-	// Bitboards
-	for (index = 0; index < 2; index++)
-		pos->colors[index] = 0ULL;
-	
-	for (index = 0; index < 6; index++)
-		pos->pieceBBs[index] = 0ULL;
-
-	pos->KingSq[WHITE] = pos->KingSq[BLACK] = NO_SQ;
-
-	pos->side = BOTH;
-	pos->enPas = NO_SQ;
-	pos->fiftyMove = 0;
-
-	pos->ply = 0;
-	pos->hisPly = 0;
-
-	pos->castlePerm = 0;
-
-	pos->posKey = 0ULL;
 }
 
 void PrintBoard(const S_BOARD *pos) {

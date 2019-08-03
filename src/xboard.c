@@ -15,7 +15,7 @@
 #include "search.h"
 #include "perft.h"
 
-int ThreeFoldRep(const S_BOARD *pos) {
+static int ThreeFoldRep(const S_BOARD *pos) {
 
 	assert(CheckBoard(pos));
 
@@ -28,7 +28,7 @@ int ThreeFoldRep(const S_BOARD *pos) {
 	return r;
 }
 
-int DrawMaterial(const S_BOARD *pos) {
+static int DrawMaterial(const S_BOARD *pos) {
 	assert(CheckBoard(pos));
 
 	if (pos->pceNum[wP] || pos->pceNum[bP])
@@ -47,7 +47,7 @@ int DrawMaterial(const S_BOARD *pos) {
 	return TRUE;
 }
 
-int checkresult(S_BOARD *pos) {
+static int checkresult(S_BOARD *pos) {
 	assert(CheckBoard(pos));
 
 	if (pos->fiftyMove > 100) {
@@ -100,7 +100,7 @@ int checkresult(S_BOARD *pos) {
 	return FALSE;
 }
 
-void PrintOptions() {
+static void PrintOptions() {
 	printf("feature ping=1 setboard=1 colors=0 usermove=1 memory=1\n");
 	printf("feature done=1\n");
 }
