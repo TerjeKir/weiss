@@ -40,7 +40,7 @@ int CheckBoard(const S_BOARD *pos) {
 	int t_minPce[2] = {0, 0};
 	int t_material[2] = {0, 0};
 
-	int sq64, t_piece, t_pce_num, sq120, colour, pcount;
+	int sq64, t_piece, t_pce_num, sq120, colour;
 
 	uint64_t t_pawns[3] = {0ULL, 0ULL, 0ULL};
 
@@ -74,12 +74,15 @@ int CheckBoard(const S_BOARD *pos) {
 		assert(t_pceNum[t_piece] == pos->pceNum[t_piece]);
 
 	// check bitboards count
+#ifndef NDEBUG
+	int pcount;
 	pcount = CNT(t_pawns[WHITE]);
 	assert(pcount == pos->pceNum[wP]);
 	pcount = CNT(t_pawns[BLACK]);
 	assert(pcount == pos->pceNum[bP]);
 	pcount = CNT(t_pawns[BOTH]);
 	assert(pcount == (pos->pceNum[bP] + pos->pceNum[wP]));
+#endif
 
 	// check bitboards squares
 	while (t_pawns[WHITE]) {

@@ -71,7 +71,7 @@ int InputWaiting()
 
 void ReadInput(S_SEARCHINFO *info) {
 
-    char input[256] = "", *endc;
+    char input[256] = "";
 
     if (InputWaiting()) {
         info->stopped = TRUE;

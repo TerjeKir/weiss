@@ -349,23 +349,23 @@ void SearchPosition(S_BOARD *pos, S_SEARCHINFO *info) {
 
 			if (info->GAME_MODE == UCIMODE) {
 				timeElapsed = GetTimeMs() - info->starttime;
-				printf("info score cp %d depth %d seldepth %d nodes %ld tbhits %I64d time %d ",
+				printf("info score cp %d depth %d seldepth %d nodes %I64d tbhits %I64d time %d ",
 					   bestScore, currentDepth, info->seldepth, info->nodes, info->tbhits, timeElapsed);
 				if (timeElapsed > 0) {
 					nps = (info->nodes / timeElapsed) * 1000;
 					printf("nps %ld ", nps);
 				}
 			} else if (info->GAME_MODE == XBOARDMODE && info->POST_THINKING) {
-				printf("%d %d %d %ld ",
+				printf("%d %d %d %I64d ",
 					   currentDepth, bestScore, (GetTimeMs() - info->starttime) / 10, info->nodes);
 			} else if (info->POST_THINKING) {
-				printf("score:%d depth:%d nodes:%ld time:%d(ms) ",
+				printf("score:%d depth:%d nodes:%I64d time:%d(ms) ",
 					   bestScore, currentDepth, info->nodes, GetTimeMs() - info->starttime);
 			}
 
 			if (info->GAME_MODE == UCIMODE || info->POST_THINKING) {
 				pvMoves = GetPvLine(currentDepth, pos);
-				if (!info->GAME_MODE == XBOARDMODE) {
+				if (!(info->GAME_MODE == XBOARDMODE)) {
 					printf("pv");
 				}
 				for (pvNum = 0; pvNum < pvMoves; ++pvNum) {

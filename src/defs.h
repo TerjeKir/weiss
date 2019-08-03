@@ -121,7 +121,7 @@ typedef struct {
 	int timeset;
 	int movestogo;
 
-	uint32_t nodes;
+	uint64_t nodes;
 	uint64_t tbhits;
 
 	int quit;
