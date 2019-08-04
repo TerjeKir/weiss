@@ -22,7 +22,7 @@ static void InitKingAttacks() {
     uint64_t bitmask = 1ULL;
     int square;
 
-    for (square = 0; square < 64; square++, bitmask = bitmask << 1) {
+    for (square = 0; square < 64; square++, bitmask <<= 1) {
 
         if (square <= 55) {
             if ((square % 8) != 7)
@@ -53,7 +53,7 @@ static void InitKnightAttacks() {
     uint64_t bitmask = 1ULL;
     int square;
 
-    for (square = 0; square < 64; square++, bitmask = bitmask << 1) {
+    for (square = 0; square < 64; square++, bitmask <<= 1) {
 
         if (square <= 47) {
             if ((square % 8) < 7)
@@ -89,7 +89,7 @@ static void InitPawnAttacks() {
     int square;
 
     // No point going further as all their attacks would be off board
-    for (square = 0; square < 64; square++, bitmask = bitmask << 1) {
+    for (square = 0; square < 64; square++, bitmask <<= 1) {
 
         // White
         if ((square % 8) != 0)
