@@ -39,11 +39,12 @@ static void Perft(int depth, S_BOARD *pos) {
 void PerftTest(int depth, S_BOARD *pos) {
 
 	assert(CheckBoard(pos));
-
-	PrintBoard(pos);
+	
 	printf("\nStarting Test To Depth:%d\n", depth);
-	leafNodes = 0;
+
 	int start = GetTimeMs();
+
+	leafNodes = 0;
 	S_MOVELIST list[1];
 	GenerateAllMoves(pos, list);
 
@@ -61,7 +62,9 @@ void PerftTest(int depth, S_BOARD *pos) {
 		printf("move %d : %s : %I64d\n", MoveNum + 1, PrMove(move), oldnodes);
 	}
 
-	printf("\nTest Complete : %I64d nodes visited in %dms\n", leafNodes, GetTimeMs() - start);
+	int timeElapsed = GetTimeMs() - start;
+	printf("\nPerft Complete : %I64d nodes visited in %dms\n", leafNodes, timeElapsed);
+	printf("               : %.0f nps\n", leafNodes / ((double) timeElapsed / 1000));
 
 	return;
 }
