@@ -14,8 +14,7 @@
 #include "string.h"
 #endif
 
-int GetTimeMs()
-{
+int GetTimeMs() {
 #ifdef WIN32
     return GetTickCount();
 #else
@@ -26,8 +25,7 @@ int GetTimeMs()
 }
 
 // http://home.arcor.de/dreamlike/chess/
-static int InputWaiting()
-{
+static int InputWaiting() {
 #ifndef WIN32
     fd_set readfds;
     struct timeval tv;
@@ -43,25 +41,21 @@ static int InputWaiting()
     static HANDLE inh;
     DWORD dw;
 
-    if (!init)
-    {
+    if (!init) {
         init = 1;
         inh = GetStdHandle(STD_INPUT_HANDLE);
         pipe = !GetConsoleMode(inh, &dw);
-        if (!pipe)
-        {
+        if (!pipe) {
             SetConsoleMode(inh, dw & ~(ENABLE_MOUSE_INPUT | ENABLE_WINDOW_INPUT));
             FlushConsoleInputBuffer(inh);
         }
     }
-    if (pipe)
-    {
+
+    if (pipe) {
         if (!PeekNamedPipe(inh, NULL, 0, NULL, &dw, NULL))
             return 1;
         return dw;
-    }
-    else
-    {
+    } else {
         GetNumberOfConsoleInputEvents(inh, &dw);
         return dw <= 1 ? 0 : dw;
     }
@@ -77,11 +71,10 @@ void ReadInput(S_SEARCHINFO *info) {
 
         gets(input);
 
-        if (strlen(input) > 0) {
-            if (!strncmp(input, "quit", 4)) {
+        if (strlen(input) > 0)
+            if (!strncmp(input, "quit", 4))
                 info->quit = TRUE;
-            }
-        }
+
         return;
     }
 }
