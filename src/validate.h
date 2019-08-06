@@ -13,4 +13,3 @@ void MirrorEvalTest(S_BOARD *pos);
 int SqIs120(const int sq);
 int PceValidEmptyOffbrd(const int pce);
 int MoveListOk(const S_MOVELIST *list,  const S_BOARD *pos);
-void DebugAnalysisTest(S_BOARD *pos, S_SEARCHINFO *info);
