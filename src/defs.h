@@ -112,7 +112,7 @@ typedef struct {
 	int pieces[BRD_SQ_NUM];
 	uint64_t pawns[3];
 	uint64_t colors[2];
-	uint64_t pieceBBs[6];
+	uint64_t pieceBBs[6]; // 0 Pawn 1 Knight 2 Bishop 3 Rook 4 Queen 5 King
 
 	int KingSq[2];
 
