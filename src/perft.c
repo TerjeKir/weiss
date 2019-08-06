@@ -23,12 +23,11 @@ static void RecursivePerft(int depth, S_BOARD *pos) {
 	S_MOVELIST list[1];
 	GenerateAllMoves(pos, list);
 
-	int MoveNum = 0;
-	for (MoveNum = 0; MoveNum < list->count; ++MoveNum) {
+	for (int MoveNum = 0; MoveNum < list->count; ++MoveNum) {
 
-		if (!MakeMove(pos, list->moves[MoveNum].move)) {
+		if (!MakeMove(pos, list->moves[MoveNum].move))
 			continue;
-		}
+
 		RecursivePerft(depth - 1, pos);
 		TakeMove(pos);
 	}
@@ -39,7 +38,7 @@ static void RecursivePerft(int depth, S_BOARD *pos) {
 void Perft(int depth, S_BOARD *pos) {
 
 	assert(CheckBoard(pos));
-	
+
 	printf("\nStarting Test To Depth:%d\n\n", depth);
 
 	int start = GetTimeMs();
@@ -49,17 +48,18 @@ void Perft(int depth, S_BOARD *pos) {
 	GenerateAllMoves(pos, list);
 
 	int move;
-	int MoveNum = 0;
-	for (MoveNum = 0; MoveNum < list->count; ++MoveNum) {
+	for (int MoveNum = 0; MoveNum < list->count; ++MoveNum) {
 		move = list->moves[MoveNum].move;
-		if (!MakeMove(pos, move)) {
+
+		if (!MakeMove(pos, move))
 			continue;
-		}
+
 		uint64_t oldCount = leafNodes;
 		RecursivePerft(depth - 1, pos);
-		TakeMove(pos);
 		uint64_t newNodes = leafNodes - oldCount;
 		printf("move %d : %s : %I64d\n", MoveNum + 1, PrMove(move), newNodes);
+
+		TakeMove(pos);
 	}
 
 	int timeElapsed = GetTimeMs() - start;
