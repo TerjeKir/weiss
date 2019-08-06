@@ -192,14 +192,8 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 
 	list->count = 0;
 
-	int pce = EMPTY;
+	int pce, sq, t_sq, pceNum, dir, index, pceIndex;
 	int side = pos->side;
-	int sq = 0;
-	int t_sq = 0;
-	int pceNum = 0;
-	int dir = 0;
-	int index = 0;
-	int pceIndex = 0;
 
 	if (side == WHITE) {
 
@@ -209,43 +203,34 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 
 			if (pos->pieces[sq + 10] == EMPTY) {
 				AddWhitePawnMove(pos, sq, sq + 10, list);
-				if (RanksBrd[sq] == RANK_2 && pos->pieces[sq + 20] == EMPTY) {
+				if (RanksBrd[sq] == RANK_2 && pos->pieces[sq + 20] == EMPTY)
 					AddQuietMove(pos, MOVE(sq, (sq + 20), EMPTY, EMPTY, MOVE_FLAG_PAWNSTART), list);
-				}
 			}
 
-			if (!SQOFFBOARD(sq + 9) && PieceCol[pos->pieces[sq + 9]] == BLACK) {
+			if (!SQOFFBOARD(sq + 9) && PieceCol[pos->pieces[sq + 9]] == BLACK)
 				AddWhitePawnCapMove(pos, sq, sq + 9, pos->pieces[sq + 9], list);
-			}
-			if (!SQOFFBOARD(sq + 11) && PieceCol[pos->pieces[sq + 11]] == BLACK) {
+
+			if (!SQOFFBOARD(sq + 11) && PieceCol[pos->pieces[sq + 11]] == BLACK)
 				AddWhitePawnCapMove(pos, sq, sq + 11, pos->pieces[sq + 11], list);
-			}
 
 			if (pos->enPas != NO_SQ) {
-				if (sq + 9 == pos->enPas) {
+				if (sq + 9 == pos->enPas)
 					AddEnPassantMove(pos, MOVE(sq, sq + 9, EMPTY, EMPTY, MOVE_FLAG_ENPAS), list);
-				}
-				if (sq + 11 == pos->enPas) {
+				if (sq + 11 == pos->enPas)
 					AddEnPassantMove(pos, MOVE(sq, sq + 11, EMPTY, EMPTY, MOVE_FLAG_ENPAS), list);
-				}
 			}
 		}
 
-		if (pos->castlePerm & WKCA) {
-			if (pos->pieces[F1] == EMPTY && pos->pieces[G1] == EMPTY) {
-				if (!SqAttacked(E1, BLACK, pos) && !SqAttacked(F1, BLACK, pos)) {
+		if (pos->castlePerm & WKCA)
+			if (pos->pieces[F1] == EMPTY && pos->pieces[G1] == EMPTY)
+				if (!SqAttacked(E1, BLACK, pos) && !SqAttacked(F1, BLACK, pos))
 					AddQuietMove(pos, MOVE(E1, G1, EMPTY, EMPTY, MOVE_FLAG_CASTLE), list);
-				}
-			}
-		}
 
-		if (pos->castlePerm & WQCA) {
-			if (pos->pieces[D1] == EMPTY && pos->pieces[C1] == EMPTY && pos->pieces[B1] == EMPTY) {
-				if (!SqAttacked(E1, BLACK, pos) && !SqAttacked(D1, BLACK, pos)) {
+		if (pos->castlePerm & WQCA)
+			if (pos->pieces[D1] == EMPTY && pos->pieces[C1] == EMPTY && pos->pieces[B1] == EMPTY)
+				if (!SqAttacked(E1, BLACK, pos) && !SqAttacked(D1, BLACK, pos))
 					AddQuietMove(pos, MOVE(E1, C1, EMPTY, EMPTY, MOVE_FLAG_CASTLE), list);
-				}
-			}
-		}
+
 	} else {
 
 		for (pceNum = 0; pceNum < pos->pceNum[bP]; ++pceNum) {
@@ -268,26 +253,21 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 			if (pos->enPas != NO_SQ) {
 				if (sq - 9 == pos->enPas)
 					AddEnPassantMove(pos, MOVE(sq, sq - 9, EMPTY, EMPTY, MOVE_FLAG_ENPAS), list);
-
 				if (sq - 11 == pos->enPas)
 					AddEnPassantMove(pos, MOVE(sq, sq - 11, EMPTY, EMPTY, MOVE_FLAG_ENPAS), list);
 			}
 		}
 
 		// castling
-		if (pos->castlePerm & BKCA) {
-			if (pos->pieces[F8] == EMPTY && pos->pieces[G8] == EMPTY) {
+		if (pos->castlePerm & BKCA)
+			if (pos->pieces[F8] == EMPTY && pos->pieces[G8] == EMPTY)
 				if (!SqAttacked(E8, WHITE, pos) && !SqAttacked(F8, WHITE, pos))
 					AddQuietMove(pos, MOVE(E8, G8, EMPTY, EMPTY, MOVE_FLAG_CASTLE), list);
-			}
-		}
 
-		if (pos->castlePerm & BQCA) {
-			if (pos->pieces[D8] == EMPTY && pos->pieces[C8] == EMPTY && pos->pieces[B8] == EMPTY) {
+		if (pos->castlePerm & BQCA)
+			if (pos->pieces[D8] == EMPTY && pos->pieces[C8] == EMPTY && pos->pieces[B8] == EMPTY)
 				if (!SqAttacked(E8, WHITE, pos) && !SqAttacked(D8, WHITE, pos))
 					AddQuietMove(pos, MOVE(E8, C8, EMPTY, EMPTY, MOVE_FLAG_CASTLE), list);
-			}
-		}
 	}
 
 	/* Loop for slide pieces */
@@ -336,9 +316,8 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 				dir = PceDir[pce][index];
 				t_sq = sq + dir;
 
-				if (SQOFFBOARD(t_sq)) {
+				if (SQOFFBOARD(t_sq))
 					continue;
-				}
 
 				// BLACK ^ 1 == WHITE	   WHITE ^ 1 == BLACK
 				if (pos->pieces[t_sq] != EMPTY) {
@@ -386,7 +365,6 @@ void GenerateAllCaptures(const S_BOARD *pos, S_MOVELIST *list) {
 			if (pos->enPas != NO_SQ) {
 				if (sq + 9 == pos->enPas)
 					AddEnPassantMove(pos, MOVE(sq, sq + 9, EMPTY, EMPTY, MOVE_FLAG_ENPAS), list);
-
 				if (sq + 11 == pos->enPas)
 					AddEnPassantMove(pos, MOVE(sq, sq + 11, EMPTY, EMPTY, MOVE_FLAG_ENPAS), list);
 			}
@@ -406,7 +384,6 @@ void GenerateAllCaptures(const S_BOARD *pos, S_MOVELIST *list) {
 			if (pos->enPas != NO_SQ) {
 				if (sq - 9 == pos->enPas)
 					AddEnPassantMove(pos, MOVE(sq, sq - 9, EMPTY, EMPTY, MOVE_FLAG_ENPAS), list);
-
 				if (sq - 11 == pos->enPas)
 					AddEnPassantMove(pos, MOVE(sq, sq - 11, EMPTY, EMPTY, MOVE_FLAG_ENPAS), list);
 			}
