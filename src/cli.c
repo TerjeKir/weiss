@@ -6,6 +6,7 @@
 #include "defs.h"
 #include "attack.h"
 #include "board.h"
+#include "bitboards.h"
 #include "evaluate.h"
 #include "io.h"
 #include "makemove.h"
@@ -31,17 +32,17 @@ static int ThreeFoldRep(const S_BOARD *pos) {
 static int DrawMaterial(const S_BOARD *pos) {
 	assert(CheckBoard(pos));
 
-	if (pos->pceNum[wP] || pos->pceNum[bP])
+	if (pos->pieceBBs[0])
 		return FALSE;
-	if (pos->pceNum[wQ] || pos->pceNum[bQ] || pos->pceNum[wR] || pos->pceNum[bR])
+	if (pos->pieceBBs[4] || pos->pieceBBs[5])
 		return FALSE;
-	if (pos->pceNum[wB] > 1 || pos->pceNum[bB] > 1)
+	if (PopCount(pos->colors[WHITE] & pos->pieceBBs[1]) > 1 || PopCount(pos->colors[BLACK] & pos->pieceBBs[1]) > 1)
 		return FALSE;
-	if (pos->pceNum[wN] > 1 || pos->pceNum[bN] > 1)
+	if (PopCount(pos->colors[WHITE] & pos->pieceBBs[2]) > 1 || PopCount(pos->colors[BLACK] & pos->pieceBBs[2]) > 1)
 		return FALSE;
-	if (pos->pceNum[wN] && pos->pceNum[wB])
+	if ((pos->colors[WHITE] & pos->pieceBBs[1]) && (pos->colors[WHITE] & pos->pieceBBs[2]))
 		return FALSE;
-	if (pos->pceNum[bN] && pos->pceNum[bB])
+	if ((pos->colors[BLACK] & pos->pieceBBs[1]) && (pos->colors[BLACK] & pos->pieceBBs[2]))
 		return FALSE;
 
 	return TRUE;
