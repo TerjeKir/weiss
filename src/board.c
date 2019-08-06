@@ -46,7 +46,7 @@ static void UpdateListsMaterial(S_BOARD *pos) {
 	}
 }
 
-// Update bitboards
+// Update bitboards -- will be deprecated?
 static void UpdateBitboards(S_BOARD *pos) {
 
 	int piece, sq, index;
@@ -151,28 +151,6 @@ static void ResetBoard(S_BOARD *pos) {
 	pos->posKey = 0ULL;
 }
 
-// Check piece list is ok
-int PceListOk(const S_BOARD *pos) {
-
-	int pce, sq, num;
-
-	for (pce = wP; pce <= bK; ++pce)
-		if (pos->pceNum[pce] < 0 || pos->pceNum[pce] >= 10)
-			return FALSE;
-
-	if (pos->pceNum[wK] != 1 || pos->pceNum[bK] != 1)
-		return FALSE;
-
-	for (pce = wP; pce <= bK; ++pce) {
-		for (num = 0; num < pos->pceNum[pce]; ++num) {
-			sq = pos->pList[pce][num];
-			if (!SqOnBoard(sq))
-				return FALSE;
-		}
-	}
-	return TRUE;
-}
-
 // Check board state makes sense
 int CheckBoard(const S_BOARD *pos) {
 
@@ -214,7 +192,7 @@ int CheckBoard(const S_BOARD *pos) {
 	for (t_piece = wP; t_piece <= bK; ++t_piece)
 		assert(t_pceNum[t_piece] == pos->pceNum[t_piece]);
 
-	// check bitboard counts
+	// check bitboard counts -- will be removed
 #ifndef NDEBUG
 	int pcount;
 	pcount = CNT(t_pawns[WHITE]);
@@ -225,7 +203,7 @@ int CheckBoard(const S_BOARD *pos) {
 	assert(pcount == (pos->pceNum[bP] + pos->pceNum[wP]));
 #endif
 
-	// check bitboard squares
+	// check bitboard squares -- will be removed
 	while (t_pawns[WHITE]) {
 		sq64 = POP(&t_pawns[WHITE]);
 		assert(pos->pieces[SQ120(sq64)] == wP);
@@ -256,8 +234,6 @@ int CheckBoard(const S_BOARD *pos) {
 
 	assert(pos->castlePerm >= 0 && pos->castlePerm <= 15);
 
-	assert(PceListOk(pos));
-
 	return TRUE;
 }
 
@@ -276,6 +252,7 @@ int ParseFen(char *fen, S_BOARD *pos) {
 
 	ResetBoard(pos);
 
+	// Piece locations
 	while ((rank >= RANK_1) && *fen) {
 		count = 1;
 		switch (*fen) {
@@ -327,11 +304,13 @@ int ParseFen(char *fen, S_BOARD *pos) {
 		fen++;
 	}
 
+	// Side to move
 	assert(*fen == 'w' || *fen == 'b');
 
 	pos->side = (*fen == 'w') ? WHITE : BLACK;
 	fen += 2;
 
+	// Castling rights
 	for (i = 0; i < 4; i++) {
 
 		if (*fen == ' ')
@@ -350,6 +329,7 @@ int ParseFen(char *fen, S_BOARD *pos) {
 
 	assert(pos->castlePerm >= 0 && pos->castlePerm <= 15);
 
+	// En passant square
 	if (*fen != '-') {
 		file = fen[0] - 'a';
 		rank = fen[1] - '1';
@@ -360,10 +340,11 @@ int ParseFen(char *fen, S_BOARD *pos) {
 		pos->enPas = FR2SQ(file, rank);
 	}
 
+	// Position Key
 	pos->posKey = GeneratePosKey(pos);
 
-	UpdateListsMaterial(pos);
-	UpdateBitboards(pos);
+	UpdateListsMaterial(pos); // Will be removed
+	UpdateBitboards(pos); // Shouldn't be needed
 
 	return 0;
 }
