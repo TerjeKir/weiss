@@ -156,10 +156,9 @@ int PceListOk(const S_BOARD *pos) {
 
 	int pce, sq, num;
 
-	for (pce = wP; pce <= bK; ++pce) {
+	for (pce = wP; pce <= bK; ++pce)
 		if (pos->pceNum[pce] < 0 || pos->pceNum[pce] >= 10)
 			return FALSE;
-	}
 
 	if (pos->pceNum[wK] != 1 || pos->pceNum[bK] != 1)
 		return FALSE;
@@ -192,12 +191,11 @@ int CheckBoard(const S_BOARD *pos) {
 	t_pawns[BOTH] = pos->pawns[BOTH];
 
 	// check piece lists
-	for (t_piece = wP; t_piece <= bK; ++t_piece) {
+	for (t_piece = wP; t_piece <= bK; ++t_piece)
 		for (t_pce_num = 0; t_pce_num < pos->pceNum[t_piece]; ++t_pce_num) {
 			sq120 = pos->pList[t_piece][t_pce_num];
 			assert(pos->pieces[sq120] == t_piece);
 		}
-	}
 
 	// check piece count and other counters
 	for (sq64 = 0; sq64 < 64; ++sq64) {
@@ -216,7 +214,7 @@ int CheckBoard(const S_BOARD *pos) {
 	for (t_piece = wP; t_piece <= bK; ++t_piece)
 		assert(t_pceNum[t_piece] == pos->pceNum[t_piece]);
 
-	// check bitboards count
+	// check bitboard counts
 #ifndef NDEBUG
 	int pcount;
 	pcount = CNT(t_pawns[WHITE]);
@@ -227,7 +225,7 @@ int CheckBoard(const S_BOARD *pos) {
 	assert(pcount == (pos->pceNum[bP] + pos->pceNum[wP]));
 #endif
 
-	// check bitboards squares
+	// check bitboard squares
 	while (t_pawns[WHITE]) {
 		sq64 = POP(&t_pawns[WHITE]);
 		assert(pos->pieces[SQ120(sq64)] == wP);
@@ -281,42 +279,18 @@ int ParseFen(char *fen, S_BOARD *pos) {
 	while ((rank >= RANK_1) && *fen) {
 		count = 1;
 		switch (*fen) {
-			case 'p':
-				piece = bP;
-				break;
-			case 'r':
-				piece = bR;
-				break;
-			case 'n':
-				piece = bN;
-				break;
-			case 'b':
-				piece = bB;
-				break;
-			case 'k':
-				piece = bK;
-				break;
-			case 'q':
-				piece = bQ;
-				break;
-			case 'P':
-				piece = wP;
-				break;
-			case 'R':
-				piece = wR;
-				break;
-			case 'N':
-				piece = wN;
-				break;
-			case 'B':
-				piece = wB;
-				break;
-			case 'K':
-				piece = wK;
-				break;
-			case 'Q':
-				piece = wQ;
-				break;
+			case 'p': piece = bP; break;
+			case 'r': piece = bR; break;
+			case 'n': piece = bN; break;
+			case 'b': piece = bB; break;
+			case 'k': piece = bK; break;
+			case 'q': piece = bQ; break;
+			case 'P': piece = wP; break;
+			case 'R': piece = wR; break;
+			case 'N': piece = wN; break;
+			case 'B': piece = wB; break;
+			case 'K': piece = wK; break;
+			case 'Q': piece = wQ; break;
 
 			case '1':
 			case '2':
@@ -364,20 +338,11 @@ int ParseFen(char *fen, S_BOARD *pos) {
 			break;
 
 		switch (*fen) {
-			case 'K':
-				pos->castlePerm |= WKCA;
-				break;
-			case 'Q':
-				pos->castlePerm |= WQCA;
-				break;
-			case 'k':
-				pos->castlePerm |= BKCA;
-				break;
-			case 'q':
-				pos->castlePerm |= BQCA;
-				break;
-			default:
-				break;
+			case 'K': pos->castlePerm |= WKCA; break;
+			case 'Q': pos->castlePerm |= WQCA; break;
+			case 'k': pos->castlePerm |= BKCA; break;
+			case 'q': pos->castlePerm |= BQCA; break;
+			default: break;
 		}
 		fen++;
 	}
@@ -451,9 +416,8 @@ void MirrorBoard(S_BOARD *pos) {
 	if (pos->castlePerm & BKCA) tempCastlePerm |= WKCA;
 	if (pos->castlePerm & BQCA) tempCastlePerm |= WQCA;
 
-	if (pos->enPas != NO_SQ) {
+	if (pos->enPas != NO_SQ)
 		tempEnPas = SQ120(Mirror64[SQ64(pos->enPas)]);
-	}
 
 	for (sq = 0; sq < 64; sq++)
 		tempPiecesArray[sq] = pos->pieces[SQ120(Mirror64[sq])];

@@ -6,6 +6,8 @@
 #include "validate.h"
 #include "board.h"
 
+#define ENDGAME_MAT (1 * PieceVal[wR] + 2 * PieceVal[wN] + 2 * PieceVal[wP] + PieceVal[wK])
+
 const int PawnPassed[8] = {0, 5, 10, 20, 35, 60, 100, 0};
 const int PawnIsolated = -10;
 const int RookOpenFile = 10;
@@ -79,39 +81,34 @@ static int MaterialDraw(const S_BOARD *pos) {
 
 	assert(CheckBoard(pos));
 
-	if (!pos->pceNum[wR] && !pos->pceNum[bR] && !pos->pceNum[wQ] && !pos->pceNum[bQ]) {
-		if (!pos->pceNum[bB] && !pos->pceNum[wB]) {
-			if (pos->pceNum[wN] < 3 && pos->pceNum[bN] < 3) {
+	if (!pos->pceNum[wR] && !pos->pceNum[bR] && !pos->pceNum[wQ] && !pos->pceNum[bQ])
+		if (!pos->pceNum[bB] && !pos->pceNum[wB])
+			if (pos->pceNum[wN] < 3 && pos->pceNum[bN] < 3)
 				return TRUE;
-			}
-		} else if (!pos->pceNum[wN] && !pos->pceNum[bN]) {
-			if (abs(pos->pceNum[wB] - pos->pceNum[bB]) < 2) {
+
+		else if (!pos->pceNum[wN] && !pos->pceNum[bN])
+			if (abs(pos->pceNum[wB] - pos->pceNum[bB]) < 2)
 				return TRUE;
-			}
-		} else if ((pos->pceNum[wN] < 3 && !pos->pceNum[wB]) || (pos->pceNum[wB] == 1 && !pos->pceNum[wN])) {
-			if ((pos->pceNum[bN] < 3 && !pos->pceNum[bB]) || (pos->pceNum[bB] == 1 && !pos->pceNum[bN])) {
+
+		else if ((pos->pceNum[wN] < 3 && !pos->pceNum[wB]) || (pos->pceNum[wB] == 1 && !pos->pceNum[wN]))
+			if ((pos->pceNum[bN] < 3 && !pos->pceNum[bB]) || (pos->pceNum[bB] == 1 && !pos->pceNum[bN]))
 				return TRUE;
-			}
-		}
-	} else if (!pos->pceNum[wQ] && !pos->pceNum[bQ]) {
-		if (pos->pceNum[wR] == 1 && pos->pceNum[bR] == 1) {
-			if ((pos->pceNum[wN] + pos->pceNum[wB]) < 2 && (pos->pceNum[bN] + pos->pceNum[bB]) < 2) {
+
+	else if (!pos->pceNum[wQ] && !pos->pceNum[bQ])
+		if (pos->pceNum[wR] == 1 && pos->pceNum[bR] == 1)
+			if ((pos->pceNum[wN] + pos->pceNum[wB]) < 2 && (pos->pceNum[bN] + pos->pceNum[bB]) < 2)
 				return TRUE;
-			}
-		} else if (pos->pceNum[wR] == 1 && !pos->pceNum[bR]) {
-			if ((pos->pceNum[wN] + pos->pceNum[wB] == 0) && (((pos->pceNum[bN] + pos->pceNum[bB]) == 1) || ((pos->pceNum[bN] + pos->pceNum[bB]) == 2))) {
+
+		else if (pos->pceNum[wR] == 1 && !pos->pceNum[bR])
+			if ((pos->pceNum[wN] + pos->pceNum[wB] == 0) && (((pos->pceNum[bN] + pos->pceNum[bB]) == 1) || ((pos->pceNum[bN] + pos->pceNum[bB]) == 2)))
 				return TRUE;
-			}
-		} else if (pos->pceNum[bR] == 1 && !pos->pceNum[wR]) {
-			if ((pos->pceNum[bN] + pos->pceNum[bB] == 0) && (((pos->pceNum[wN] + pos->pceNum[wB]) == 1) || ((pos->pceNum[wN] + pos->pceNum[wB]) == 2))) {
+
+		else if (pos->pceNum[bR] == 1 && !pos->pceNum[wR])
+			if ((pos->pceNum[bN] + pos->pceNum[bB] == 0) && (((pos->pceNum[wN] + pos->pceNum[wB]) == 1) || ((pos->pceNum[wN] + pos->pceNum[wB]) == 2)))
 				return TRUE;
-			}
-		}
-	}
+
 	return FALSE;
 }
-
-#define ENDGAME_MAT (1 * PieceVal[wR] + 2 * PieceVal[wN] + 2 * PieceVal[wP] + PieceVal[wK])
 
 int EvalPosition(const S_BOARD *pos) {
 
@@ -122,9 +119,8 @@ int EvalPosition(const S_BOARD *pos) {
 	int sq;
 	int score = pos->material[WHITE] - pos->material[BLACK];
 
-	if (!pos->pceNum[wP] && !pos->pceNum[bP] && MaterialDraw(pos)) {
+	if (!pos->pceNum[wP] && !pos->pceNum[bP] && MaterialDraw(pos))
 		return 0;
-	}
 
 	pce = wP;
 	for (pceNum = 0; pceNum < pos->pceNum[pce]; ++pceNum) {
@@ -203,11 +199,10 @@ int EvalPosition(const S_BOARD *pos) {
 
 		assert(FileRankValid(FilesBrd[sq]));
 
-		if (!(pos->pawns[BOTH] & FileBBMask[FilesBrd[sq]])) {
+		if (!(pos->pawns[BOTH] & FileBBMask[FilesBrd[sq]]))
 			score += RookOpenFile;
-		} else if (!(pos->pawns[WHITE] & FileBBMask[FilesBrd[sq]])) {
+		else if (!(pos->pawns[WHITE] & FileBBMask[FilesBrd[sq]]))
 			score += RookSemiOpenFile;
-		}
 	}
 
 	pce = bR;
@@ -217,11 +212,10 @@ int EvalPosition(const S_BOARD *pos) {
 		assert(MIRROR64(SQ64(sq)) >= 0 && MIRROR64(SQ64(sq)) <= 63);
 		score -= RookTable[MIRROR64(SQ64(sq))];
 		assert(FileRankValid(FilesBrd[sq]));
-		if (!(pos->pawns[BOTH] & FileBBMask[FilesBrd[sq]])) {
+		if (!(pos->pawns[BOTH] & FileBBMask[FilesBrd[sq]]))
 			score -= RookOpenFile;
-		} else if (!(pos->pawns[BLACK] & FileBBMask[FilesBrd[sq]])) {
+		else if (!(pos->pawns[BLACK] & FileBBMask[FilesBrd[sq]]))
 			score -= RookSemiOpenFile;
-		}
 	}
 
 	pce = wQ;
@@ -230,11 +224,10 @@ int EvalPosition(const S_BOARD *pos) {
 		assert(SqOnBoard(sq));
 		assert(SQ64(sq) >= 0 && SQ64(sq) <= 63);
 		assert(FileRankValid(FilesBrd[sq]));
-		if (!(pos->pawns[BOTH] & FileBBMask[FilesBrd[sq]])) {
+		if (!(pos->pawns[BOTH] & FileBBMask[FilesBrd[sq]]))
 			score += QueenOpenFile;
-		} else if (!(pos->pawns[WHITE] & FileBBMask[FilesBrd[sq]])) {
+		else if (!(pos->pawns[WHITE] & FileBBMask[FilesBrd[sq]]))
 			score += QueenSemiOpenFile;
-		}
 	}
 
 	pce = bQ;
@@ -243,11 +236,10 @@ int EvalPosition(const S_BOARD *pos) {
 		assert(SqOnBoard(sq));
 		assert(SQ64(sq) >= 0 && SQ64(sq) <= 63);
 		assert(FileRankValid(FilesBrd[sq]));
-		if (!(pos->pawns[BOTH] & FileBBMask[FilesBrd[sq]])) {
+		if (!(pos->pawns[BOTH] & FileBBMask[FilesBrd[sq]]))
 			score -= QueenOpenFile;
-		} else if (!(pos->pawns[BLACK] & FileBBMask[FilesBrd[sq]])) {
+		else if (!(pos->pawns[BLACK] & FileBBMask[FilesBrd[sq]]))
 			score -= QueenSemiOpenFile;
-		}
 	}
 	//8/p6k/6p1/5p2/P4K2/8/5pB1/8 b - - 2 62
 	pce = wK;
@@ -255,31 +247,30 @@ int EvalPosition(const S_BOARD *pos) {
 	assert(SqOnBoard(sq));
 	assert(SQ64(sq) >= 0 && SQ64(sq) <= 63);
 
-	if ((pos->material[BLACK] <= ENDGAME_MAT)) {
+	if (pos->material[BLACK] <= ENDGAME_MAT)
 		score += KingE[SQ64(sq)];
-	} else {
+	else
 		score += KingO[SQ64(sq)];
-	}
 
 	pce = bK;
 	sq = pos->pList[pce][0];
 	assert(SqOnBoard(sq));
 	assert(MIRROR64(SQ64(sq)) >= 0 && MIRROR64(SQ64(sq)) <= 63);
 
-	if ((pos->material[WHITE] <= ENDGAME_MAT)) {
+	// King position
+	if (pos->material[WHITE] <= ENDGAME_MAT)
 		score -= KingE[MIRROR64(SQ64(sq))];
-	} else {
+	else
 		score -= KingO[MIRROR64(SQ64(sq))];
-	}
 
+	// Bishop pair
 	if (pos->pceNum[wB] >= 2)
 		score += BishopPair;
 	if (pos->pceNum[bB] >= 2)
 		score -= BishopPair;
 
-	if (pos->side == WHITE) {
+	if (pos->side == WHITE)
 		return score;
-	} else {
+	else
 		return -score;
-	}
 }

@@ -132,15 +132,13 @@ static void InitHashKeys() {
 
 	int index = 0;
 	int index2 = 0;
-	for (index = 0; index < 13; ++index) {
-		for (index2 = 0; index2 < 120; ++index2) {
+	for (index = 0; index < 13; ++index)
+		for (index2 = 0; index2 < 120; ++index2)
 			PieceKeys[index][index2] = RAND_64;
-		}
-	}
+
 	SideKey = RAND_64;
-	for (index = 0; index < 16; ++index) {
+	for (index = 0; index < 16; ++index)
 		CastleKeys[index] = RAND_64;
-	}
 }
 
 static void InitBitMasks() {
@@ -164,13 +162,11 @@ static void InitSq120To64() {
 	int rank = RANK_1;
 	int sq = A1;
 	int sq64 = 0;
-	for (index = 0; index < BRD_SQ_NUM; ++index) {
+	for (index = 0; index < BRD_SQ_NUM; ++index)
 		Sq120ToSq64[index] = 65;
-	}
 
-	for (index = 0; index < 64; ++index) {
+	for (index = 0; index < 64; ++index)
 		Sq64ToSq120[index] = 120;
-	}
 
 	for (rank = RANK_1; rank <= RANK_8; ++rank) {
 		for (file = FILE_A; file <= FILE_H; ++file) {
@@ -184,9 +180,7 @@ static void InitSq120To64() {
 }
 
 void InitAll() {
-
 	InitAttacks();
-
 	InitSq120To64();
 	InitBitMasks();
 	InitHashKeys();

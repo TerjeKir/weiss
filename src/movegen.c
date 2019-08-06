@@ -49,13 +49,13 @@ const int VictimScore[13] = {0, 100, 200, 300, 400, 500, 600, 100, 200, 300, 400
 static int MvvLvaScores[13][13];
 
 void InitMvvLva() {
+
 	int Attacker;
 	int Victim;
-	for (Attacker = wP; Attacker <= bK; ++Attacker) {
-		for (Victim = wP; Victim <= bK; ++Victim) {
+
+	for (Attacker = wP; Attacker <= bK; ++Attacker)
+		for (Victim = wP; Victim <= bK; ++Victim)
 			MvvLvaScores[Victim][Attacker] = VictimScore[Victim] + 6 - (VictimScore[Attacker] / 100);
-		}
-	}
 }
 
 int MoveExists(S_BOARD *pos, const int move) {
@@ -132,9 +132,8 @@ static void AddWhitePawnCapMove(const S_BOARD *pos, const int from, const int to
 		AddCaptureMove(pos, MOVE(from, to, cap, wR, 0), list);
 		AddCaptureMove(pos, MOVE(from, to, cap, wB, 0), list);
 		AddCaptureMove(pos, MOVE(from, to, cap, wN, 0), list);
-	} else {
+	} else
 		AddCaptureMove(pos, MOVE(from, to, cap, EMPTY, 0), list);
-	}
 }
 
 static void AddWhitePawnMove(const S_BOARD *pos, const int from, const int to, S_MOVELIST *list) {
@@ -148,9 +147,8 @@ static void AddWhitePawnMove(const S_BOARD *pos, const int from, const int to, S
 		AddQuietMove(pos, MOVE(from, to, EMPTY, wR, 0), list);
 		AddQuietMove(pos, MOVE(from, to, EMPTY, wB, 0), list);
 		AddQuietMove(pos, MOVE(from, to, EMPTY, wN, 0), list);
-	} else {
+	} else
 		AddQuietMove(pos, MOVE(from, to, EMPTY, EMPTY, 0), list);
-	}
 }
 
 static void AddBlackPawnCapMove(const S_BOARD *pos, const int from, const int to, const int cap, S_MOVELIST *list) {
@@ -165,9 +163,8 @@ static void AddBlackPawnCapMove(const S_BOARD *pos, const int from, const int to
 		AddCaptureMove(pos, MOVE(from, to, cap, bR, 0), list);
 		AddCaptureMove(pos, MOVE(from, to, cap, bB, 0), list);
 		AddCaptureMove(pos, MOVE(from, to, cap, bN, 0), list);
-	} else {
+	} else
 		AddCaptureMove(pos, MOVE(from, to, cap, EMPTY, 0), list);
-	}
 }
 
 static void AddBlackPawnMove(const S_BOARD *pos, const int from, const int to, S_MOVELIST *list) {
@@ -181,9 +178,8 @@ static void AddBlackPawnMove(const S_BOARD *pos, const int from, const int to, S
 		AddQuietMove(pos, MOVE(from, to, EMPTY, bR, 0), list);
 		AddQuietMove(pos, MOVE(from, to, EMPTY, bB, 0), list);
 		AddQuietMove(pos, MOVE(from, to, EMPTY, bN, 0), list);
-	} else {
+	} else
 		AddQuietMove(pos, MOVE(from, to, EMPTY, EMPTY, 0), list);
-	}
 }
 
 void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {

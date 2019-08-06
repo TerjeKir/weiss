@@ -32,17 +32,17 @@ char *PrMove(const int move) {
 
 	if (promoted) {
 		char pchar = 'q';
-		if (IsKn(promoted)) {
+		if (IsKn(promoted))
 			pchar = 'n';
-		} else if (IsRQ(promoted) && !IsBQ(promoted)) {
+		else if (IsRQ(promoted) && !IsBQ(promoted))
 			pchar = 'r';
-		} else if (!IsRQ(promoted) && IsBQ(promoted)) {
+		else if (!IsRQ(promoted) && IsBQ(promoted))
 			pchar = 'b';
-		}
+
 		sprintf(MvStr, "%c%c%c%c%c", ('a' + ff), ('1' + rf), ('a' + ft), ('1' + rt), pchar);
-	} else {
+	} else
 		sprintf(MvStr, "%c%c%c%c", ('a' + ff), ('1' + rf), ('a' + ft), ('1' + rt));
-	}
+
 	return MvStr;
 }
 
@@ -74,15 +74,15 @@ int ParseMove(char *ptrChar, S_BOARD *pos) {
 			PromPce = PROMOTED(Move);
 			if (PromPce != EMPTY) {
 
-				if (IsRQ(PromPce) && !IsBQ(PromPce) && ptrChar[4] == 'r') {
+				if (IsRQ(PromPce) && !IsBQ(PromPce) && ptrChar[4] == 'r')
 					return Move;
-				} else if (!IsRQ(PromPce) && IsBQ(PromPce) && ptrChar[4] == 'b') {
+				else if (!IsRQ(PromPce) && IsBQ(PromPce) && ptrChar[4] == 'b')
 					return Move;
-				} else if (IsRQ(PromPce) && IsBQ(PromPce) && ptrChar[4] == 'q') {
+				else if (IsRQ(PromPce) && IsBQ(PromPce) && ptrChar[4] == 'q')
 					return Move;
-				} else if (IsKn(PromPce) && ptrChar[4] == 'n') {
+				else if (IsKn(PromPce) && ptrChar[4] == 'n')
 					return Move;
-				}
+
 				continue;
 			}
 			return Move;

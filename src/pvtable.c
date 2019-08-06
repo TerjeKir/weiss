@@ -13,9 +13,8 @@ static int ProbePvMove(const S_BOARD *pos) {
 	int index = pos->posKey % pos->HashTable->numEntries;
 	assert(index >= 0 && index <= pos->HashTable->numEntries - 1);
 
-	if (pos->HashTable->pTable[index].posKey == pos->posKey) {
+	if (pos->HashTable->pTable[index].posKey == pos->posKey)
 		return pos->HashTable->pTable[index].move;
-	}
 
 	return NOMOVE;
 }
@@ -34,15 +33,14 @@ int GetPvLine(const int depth, S_BOARD *pos) {
 		if (MoveExists(pos, move)) {
 			MakeMove(pos, move);
 			pos->PvArray[count++] = move;
-		} else {
+		} else
 			break;
-		}
+
 		move = ProbePvMove(pos);
 	}
 
-	while (pos->ply > 0) {
+	while (pos->ply > 0)
 		TakeMove(pos);
-	}
 
 	return count;
 }

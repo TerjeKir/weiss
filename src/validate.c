@@ -12,19 +12,21 @@
 #include "search.h"
 
 int MoveListOk(const S_MOVELIST *list, const S_BOARD *pos) {
-	if (list->count < 0 || list->count >= MAXPOSITIONMOVES) {
+
+	if (list->count < 0 || list->count >= MAXPOSITIONMOVES)
 		return FALSE;
-	}
 
 	int MoveNum;
 	int from = 0;
 	int to = 0;
 	for (MoveNum = 0; MoveNum < list->count; ++MoveNum) {
+		
 		to = TOSQ(list->moves[MoveNum].move);
 		from = FROMSQ(list->moves[MoveNum].move);
-		if (!SqOnBoard(to) || !SqOnBoard(from)) {
+		
+		if (!SqOnBoard(to) || !SqOnBoard(from))
 			return FALSE;
-		}
+
 		if (!PieceValid(pos->pieces[from])) {
 			PrintBoard(pos);
 			return FALSE;
@@ -90,9 +92,8 @@ void MirrorEvalTest(S_BOARD *pos) {
 				return;
 			}
 
-			if ((positions % 1000) == 0) {
+			if ((positions % 1000) == 0)
 				printf("position %d\n", positions);
-			}
 
 			memset(&lineIn[0], 0, sizeof(lineIn));
 		}

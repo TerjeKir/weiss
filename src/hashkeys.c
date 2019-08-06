@@ -20,9 +20,8 @@ uint64_t GeneratePosKey(const S_BOARD *pos) {
 		}
 	}
 
-	if (pos->side == WHITE) {
+	if (pos->side == WHITE)
 		finalKey ^= SideKey;
-	}
 
 	if (pos->enPas != NO_SQ) {
 		assert(pos->enPas >= 0 && pos->enPas < BRD_SQ_NUM);

@@ -145,11 +145,11 @@ static void AddPiece(const int sq, S_BOARD *pos, const int pce) {
 	// Piece lists and old bitboards
 	if (PieceBig[pce]) {
 		pos->bigPce[col]++;
-		if (PieceMaj[pce]) {
+		if (PieceMaj[pce])
 			pos->majPce[col]++;
-		} else {
+		else
 			pos->minPce[col]++;
-		}
+
 	} else {
 		SETBIT(pos->pawns[col], SQ64(sq));
 		SETBIT(pos->pawns[BOTH], SQ64(sq));
@@ -350,13 +350,13 @@ int MakeMove(S_BOARD *pos, int move) {
 
 	pos->history[pos->hisPly].posKey = pos->posKey;
 
-	if (move & MOVE_FLAG_ENPAS) {
+	if (move & MOVE_FLAG_ENPAS)
 		if (side == WHITE)
 			ClearPiece(to - 10, pos);
 		else
 			ClearPiece(to + 10, pos);
 
-	} else if (move & MOVE_FLAG_CASTLE) {
+	else if (move & MOVE_FLAG_CASTLE)
 		switch (to) {
 			case C1: MovePiece(A1, D1, pos); break;
 			case C8: MovePiece(A8, D8, pos); break;
@@ -364,7 +364,7 @@ int MakeMove(S_BOARD *pos, int move) {
 			case G8: MovePiece(H8, F8, pos); break;
 			default: assert(FALSE); break;
 		}
-	}
+
 
 	if (pos->enPas != NO_SQ) HASH_EP;
 	HASH_CA;
@@ -465,13 +465,13 @@ void TakeMove(S_BOARD *pos) {
 	pos->side ^= 1;
 	HASH_SIDE;
 
-	if (MOVE_FLAG_ENPAS & move) {
+	if (MOVE_FLAG_ENPAS & move)
 		if (pos->side == WHITE)
 			AddPiece(to - 10, pos, bP);
 		else
 			AddPiece(to + 10, pos, wP);
 
-	} else if (move & MOVE_FLAG_CASTLE) {
+	else if (move & MOVE_FLAG_CASTLE)
 		switch (to) {
 			case C1: MovePiece(D1, A1, pos); break;
 			case C8: MovePiece(D8, A8, pos); break;
@@ -479,7 +479,6 @@ void TakeMove(S_BOARD *pos) {
 			case G8: MovePiece(F8, H8, pos); break;
 			default: assert(FALSE); break;
 		}
-	}
 
 	MovePiece(to, from, pos);
 

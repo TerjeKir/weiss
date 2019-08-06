@@ -44,6 +44,7 @@ int PopCount(uint64_t x) {
     // return __builtin_popcount(x);
 }
 
+// Finds and clears the least significant bit
 int PopBit(uint64_t *bb) {
 
 	uint64_t b = *bb ^ (*bb - 1);
@@ -62,11 +63,10 @@ void PrintBB(uint64_t bb) {
 
     for (rank = 7; rank >= 0; rank--) {
         for (file = 0; file <= 7; file++) {
-            if (bb & (bitmask << ((rank * 8) + file))) {
+            if (bb & (bitmask << ((rank * 8) + file)))
                 printf("1");
-            } else {
+            else
                 printf("0");
-            }
         }
         printf("\n");
     }

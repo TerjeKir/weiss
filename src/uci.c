@@ -70,10 +70,11 @@ static void ParseGo(char *line, S_SEARCHINFO *info, S_BOARD *pos) {
 	SearchPosition(pos, info);
 }
 
-// position fen fenstr
-// position startpos
-// ... moves e2e4 e7e5 b7b8q
 static void ParsePosition(char *lineIn, S_BOARD *pos) {
+
+	// position fen fenstr
+	// position startpos
+	// ... moves e2e4 e7e5 b7b8q
 
 	lineIn += 9;
 	char *ptrChar = lineIn;

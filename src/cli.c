@@ -19,13 +19,13 @@ static int ThreeFoldRep(const S_BOARD *pos) {
 
 	assert(CheckBoard(pos));
 
-	int i = 0, r = 0;
-	for (i = 0; i < pos->hisPly; ++i) {
-		if (pos->history[i].posKey == pos->posKey) {
-			r++;
-		}
-	}
-	return r;
+	int repeats = 0;
+
+	for (int i = 0; i < pos->hisPly; ++i)
+		if (pos->history[i].posKey == pos->posKey)
+			repeats++;
+
+	return repeats;
 }
 
 static int DrawMaterial(const S_BOARD *pos) {
@@ -72,9 +72,9 @@ static int checkresult(S_BOARD *pos) {
 	int found = 0;
 	for (MoveNum = 0; MoveNum < list->count; ++MoveNum) {
 
-		if (!MakeMove(pos, list->moves[MoveNum].move)) {
+		if (!MakeMove(pos, list->moves[MoveNum].move))
 			continue;
-		}
+
 		found++;
 		TakeMove(pos);
 		break;
