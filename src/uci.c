@@ -65,8 +65,8 @@ static void ParseGo(char *line, S_SEARCHINFO *info, S_BOARD *pos) {
 
 	if (depth == -1) info->depth = MAXDEPTH;
 
-	printf("time:%d start:%d stop:%d depth:%d timeset:%d\n",
-		   time, info->starttime, info->stoptime, info->depth, info->timeset);
+	// printf("time:%d start:%d stop:%d depth:%d timeset:%d\n",
+	// 	   time, info->starttime, info->stoptime, info->depth, info->timeset);
 	SearchPosition(pos, info);
 }
 
@@ -106,7 +106,7 @@ static void ParsePosition(char *lineIn, S_BOARD *pos) {
 			ptrChar++;
 		}
 	}
-	PrintBoard(pos);
+	// PrintBoard(pos);
 }
 
 void Uci_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
@@ -126,53 +126,50 @@ void Uci_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 	int MB = 64;
 
 	while (TRUE) {
+
 		memset(&line[0], 0, sizeof(line));
 		fflush(stdout);
+
 		if (!fgets(line, INPUTBUFFER, stdin))
 			continue;
 
-		if (line[0] == '\n')
+		if (!strncmp(line, "go", 2))
+			ParseGo(line, info, pos);
+
+		else if (line[0] == '\n')
 			continue;
 
-		if (!strncmp(line, "isready", 7)) {
+		else if (!strncmp(line, "isready", 7))
 			printf("readyok\n");
-			continue;
-		} else if (!strncmp(line, "position", 8)) {
+
+		else if (!strncmp(line, "position", 8))
 			ParsePosition(line, pos);
-		} else if (!strncmp(line, "ucinewgame", 10)) {
+
+		else if (!strncmp(line, "ucinewgame", 10))
 			ParsePosition("position startpos\n", pos);
-		} else if (!strncmp(line, "go", 2)) {
-			printf("Seen Go..\n");
-			ParseGo(line, info, pos);
-		} else if (!strncmp(line, "quit", 4)) {
+
+		else if (!strncmp(line, "quit", 4)) {
 			info->quit = TRUE;
 			break;
+
 		} else if (!strncmp(line, "uci", 3)) {
 			printf("id name %s\n", NAME);
 			printf("id author LoliSquad\n");
 			printf("uciok\n");
-		} else if (!strncmp(line, "debug", 4)) {
-			DebugAnalysisTest(pos, info);
-			break;
+
 		} else if (!strncmp(line, "setoption name Hash value ", 26)) {
 			sscanf(line, "%*s %*s %*s %*s %d", &MB);
 			if (MB < 4) MB = 4;
 			if (MB > MAXHASH) MB = MAXHASH;
 			printf("Set Hash to %d MB\n", MB);
 			InitHashTable(pos->HashTable, MB);
-		// } else if (!strncmp(line, "setoption name Book value ", 26)) {
-		// 	char *ptrTrue = NULL;
-		// 	ptrTrue = strstr(line, "true");
-		// 	if (ptrTrue != NULL) {
-		// 		EngineOptions->UseBook = TRUE;
-		// 	} else {
-		// 		EngineOptions->UseBook = FALSE;
-		// 	}
+
 		} else if (!strncmp(line, "setoption name SyzygyPath value ", 32)) {
 			char *ptr = line + strlen("setoption name SyzygyPath value ");
 			tb_init(ptr); 
 			printf("info string set SyzygyPath to %s\n", ptr);
 		}
+
 		if (info->quit) break;
 	}
 }

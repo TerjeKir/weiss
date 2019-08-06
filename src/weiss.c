@@ -10,7 +10,7 @@
 #include "uci.h"
 #include "cli.h"
 
-int main(int argc, char *argv[]) {
+int main() {
 
 	InitAll();
 
@@ -22,15 +22,6 @@ int main(int argc, char *argv[]) {
 	setbuf(stdin, NULL);
 	setbuf(stdout, NULL);
 
-	int ArgNum = 0;
-
-	for (ArgNum = 0; ArgNum < argc; ++ArgNum) {
-		// if (strncmp(argv[ArgNum], "NoBook", 6) == 0) {
-		// 	EngineOptions->UseBook = FALSE;
-		// 	printf("Book Off\n");
-		// }
-	}
-
 	printf("Welcome to weiss! Type 'weiss' for console mode.\n> ");
 
 	char line[256];
@@ -40,21 +31,26 @@ int main(int argc, char *argv[]) {
 		fflush(stdout);
 		if (!fgets(line, 256, stdin))
 			continue;
+
 		if (!strncmp(line, "uci", 3)) {
 			Uci_Loop(pos, info);
 			if (info->quit)
 				break;
 			continue;
-		} else if (!strncmp(line, "weiss", 5)) {
+		} 
+		
+		if (!strncmp(line, "weiss", 5)) {
 			Console_Loop(pos, info);
 			if (info->quit)
 				break;
 			continue;
-		} else if (!strncmp(line, "quit", 4)) {
+		} 
+		
+		if (!strncmp(line, "quit", 4))
 			break;
-		} else {
+
+		else
 			printf("Invalid command. Type 'weiss' for console mode.\n> ");
-		}
 	}
 
 	free(pos->HashTable->pTable);
