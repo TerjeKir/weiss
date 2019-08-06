@@ -3,8 +3,11 @@ OUT		= ../bin/
 EXE		= weiss
 VER		= 0.1.1
 
-#WFLAGS = -std=gnu11 -Wall -Wextra -Wshadow
-WFLAGS = -std=gnu11
+STD		= -std=gnu11
+WFLAGS 	= -Wall -Wextra -Wshadow
 
-all:
-	gcc $(WFLAGS) $(SRC) -o "$(OUT)$(EXE)$(VER).exe"
+default:
+	gcc $(STD) $(SRC) -o "$(EXE)$(VER).exe"
+
+bin:
+	gcc $(STD) $(WFLAGS) $(SRC) -o "$(OUT)$(EXE)$(VER).exe"
