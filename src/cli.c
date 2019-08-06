@@ -252,14 +252,16 @@ void Console_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 		}
 
 		if (!strcmp(command, "perft")) {
+
 			sscanf(inBuf, "perft %d", &perftDepth);
 			char *perftFen = inBuf + 8;
-			if (!*perftFen) {
+			
+			if (!*perftFen)
 				ParseFen(START_FEN, board);
-			} else {
+			else
 				ParseFen(perftFen, board);
-			}
-			PerftTest(perftDepth, board);
+
+			Perft(perftDepth, board);
 			continue;
 		}
 
