@@ -34,7 +34,7 @@ static int DrawMaterial(const S_BOARD *pos) {
 
 	if (pos->pieceBBs[0])
 		return FALSE;
-	if (pos->pieceBBs[4] || pos->pieceBBs[5])
+	if (pos->pieceBBs[3] || pos->pieceBBs[4])
 		return FALSE;
 	if (PopCount(pos->colors[WHITE] & pos->pieceBBs[1]) > 1 || PopCount(pos->colors[BLACK] & pos->pieceBBs[1]) > 1)
 		return FALSE;
@@ -84,7 +84,7 @@ static int checkresult(S_BOARD *pos) {
 	if (found != 0)
 		return FALSE;
 
-	int InCheck = SqAttacked(pos->KingSq[pos->side], pos->side ^ 1, pos);
+	int InCheck = SqAttacked(pos->colors[pos->side] & pos->pieceBBs[5], !pos->side, pos);
 
 	if (InCheck) {
 		if (pos->side == WHITE) {
@@ -112,13 +112,13 @@ void Console_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 	setbuf(stdout, NULL);
 
 	int depth = MAXDEPTH, movetime = 3000;
-	int engineSide = BOTH;
+	int engineSide = BLACK;
 	int move = NOMOVE;
 	char inBuf[80], command[80];
 
-	engineSide = BLACK;
 	ParseFen(START_FEN, pos);
 
+	// Perft vars
 	S_BOARD board[1];
 	int perftDepth = 3;
 

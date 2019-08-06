@@ -374,11 +374,10 @@ void SearchPosition(S_BOARD *pos, S_SEARCHINFO *info) {
 			printf("\n");
 		}
 
-		
-
 		//printf("Hits:%d Overwrite:%d NewWrite:%d Cut:%d\nOrdering %.2f NullCut:%d\n", pos->HashTable->hit,
 		//	pos->HashTable->overWrite, pos->HashTable->newWrite, pos->HashTable->cut, (info->fhf/info->fh)*100, info->nullCut);
 	}
+
 	// Print the move chosen after searching
 	if (info->GAME_MODE == UCIMODE)
 		printf("bestmove %s\n", PrMove(bestMove));
