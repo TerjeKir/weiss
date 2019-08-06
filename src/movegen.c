@@ -339,14 +339,8 @@ void GenerateAllCaptures(const S_BOARD *pos, S_MOVELIST *list) {
 
 	list->count = 0;
 
-	int pce = EMPTY;
+	int pce, sq, t_sq, pceNum, dir, index, pceIndex;
 	int side = pos->side;
-	int sq = 0;
-	int t_sq = 0;
-	int pceNum = 0;
-	int dir = 0;
-	int index = 0;
-	int pceIndex = 0;
 
 	if (side == WHITE) {
 
