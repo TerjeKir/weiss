@@ -47,7 +47,7 @@ static void ClearPiece(const int sq, S_BOARD *pos) {
 	pos->pieces[sq] = EMPTY;
 	pos->material[col] -= PieceVal[pce];
 
-	// Piece lists and old bitboards
+	// Piece lists
 	if (PieceBig[pce]) {
 		pos->bigPce[col]--;
 		if (PieceMaj[pce])
@@ -55,9 +55,6 @@ static void ClearPiece(const int sq, S_BOARD *pos) {
 		else
 			pos->minPce[col]--;
 
-	} else {
-		CLRBIT(pos->pawns[col], SQ64(sq));
-		CLRBIT(pos->pawns[BOTH], SQ64(sq));
 	}
 
 	// Bitboards
@@ -142,7 +139,7 @@ static void AddPiece(const int sq, S_BOARD *pos, const int pce) {
 
 	pos->pieces[sq] = pce;
 
-	// Piece lists and old bitboards
+	// Piece lists
 	if (PieceBig[pce]) {
 		pos->bigPce[col]++;
 		if (PieceMaj[pce])
@@ -150,9 +147,6 @@ static void AddPiece(const int sq, S_BOARD *pos, const int pce) {
 		else
 			pos->minPce[col]++;
 
-	} else {
-		SETBIT(pos->pawns[col], SQ64(sq));
-		SETBIT(pos->pawns[BOTH], SQ64(sq));
 	}
 
 	// Bitboards
@@ -221,7 +215,6 @@ static void MovePiece(const int from, const int to, S_BOARD *pos) {
 
 	int index = 0;
 	int pce = pos->pieces[from];
-	int col = PieceCol[pce];
 	assert(SideValid(col));
 	assert(PieceValid(pce));
 
@@ -234,13 +227,6 @@ static void MovePiece(const int from, const int to, S_BOARD *pos) {
 
 	HASH_PCE(pce, to);
 	pos->pieces[to] = pce;
-
-	if (!PieceBig[pce]) {
-		CLRBIT(pos->pawns[col], SQ64(from));
-		CLRBIT(pos->pawns[BOTH], SQ64(from));
-		SETBIT(pos->pawns[col], SQ64(to));
-		SETBIT(pos->pawns[BOTH], SQ64(to));
-	}
 
 	// Bitboards
 	switch (pce) {

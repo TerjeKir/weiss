@@ -34,14 +34,6 @@ static void UpdateListsMaterial(S_BOARD *pos) {
 
 			if (piece == wK) pos->KingSq[WHITE] = sq;
 			if (piece == bK) pos->KingSq[BLACK] = sq;
-
-			if (piece == wP) {
-				SETBIT(pos->pawns[WHITE], SQ64(sq));
-				SETBIT(pos->pawns[BOTH], SQ64(sq));
-			} else if (piece == bP) {
-				SETBIT(pos->pawns[BLACK], SQ64(sq));
-				SETBIT(pos->pawns[BOTH], SQ64(sq));
-			}
 		}
 	}
 }
@@ -124,9 +116,6 @@ static void ResetBoard(S_BOARD *pos) {
 		pos->material[index] = 0;
 	}
 
-	for (index = 0; index < 3; ++index)
-		pos->pawns[index] = 0ULL;
-
 	for (index = 0; index < 13; ++index)
 		pos->pceNum[index] = 0;
 
@@ -162,12 +151,6 @@ int CheckBoard(const S_BOARD *pos) {
 
 	int sq64, t_piece, t_pce_num, sq120, colour;
 
-	uint64_t t_pawns[3] = {0ULL, 0ULL, 0ULL};
-
-	t_pawns[WHITE] = pos->pawns[WHITE];
-	t_pawns[BLACK] = pos->pawns[BLACK];
-	t_pawns[BOTH] = pos->pawns[BOTH];
-
 	// check piece lists
 	for (t_piece = wP; t_piece <= bK; ++t_piece)
 		for (t_pce_num = 0; t_pce_num < pos->pceNum[t_piece]; ++t_pce_num) {
@@ -191,33 +174,6 @@ int CheckBoard(const S_BOARD *pos) {
 
 	for (t_piece = wP; t_piece <= bK; ++t_piece)
 		assert(t_pceNum[t_piece] == pos->pceNum[t_piece]);
-
-	// check bitboard counts -- will be removed
-#ifndef NDEBUG
-	int pcount;
-	pcount = CNT(t_pawns[WHITE]);
-	assert(pcount == pos->pceNum[wP]);
-	pcount = CNT(t_pawns[BLACK]);
-	assert(pcount == pos->pceNum[bP]);
-	pcount = CNT(t_pawns[BOTH]);
-	assert(pcount == (pos->pceNum[bP] + pos->pceNum[wP]));
-#endif
-
-	// check bitboard squares -- will be removed
-	while (t_pawns[WHITE]) {
-		sq64 = POP(&t_pawns[WHITE]);
-		assert(pos->pieces[SQ120(sq64)] == wP);
-	}
-
-	while (t_pawns[BLACK]) {
-		sq64 = POP(&t_pawns[BLACK]);
-		assert(pos->pieces[SQ120(sq64)] == bP);
-	}
-
-	while (t_pawns[BOTH]) {
-		sq64 = POP(&t_pawns[BOTH]);
-		assert((pos->pieces[SQ120(sq64)] == bP) || (pos->pieces[SQ120(sq64)] == wP));
-	}
 
 	assert(t_material[WHITE] == pos->material[WHITE] && t_material[BLACK] == pos->material[BLACK]);
 	assert(t_minPce[WHITE] == pos->minPce[WHITE] && t_minPce[BLACK] == pos->minPce[BLACK]);
