@@ -163,7 +163,7 @@ void Console_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 			printf("view - show current depth and movetime settings\n");
 			printf("setboard x - set position to fen x\n");
 			printf("** note ** - to reset time and depth, set to 0\n");
-			printf("enter moves using b7b8q notation\n\n\n");
+			printf("enter moves using b7b8q notation\n");
 			continue;
 		}
 
