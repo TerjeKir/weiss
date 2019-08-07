@@ -40,29 +40,37 @@ int PopCount(uint64_t x) {
 
     // return (x * h01) >> 56;             //returns left 8 bits of x + (x<<8) + (x<<16) + (x<<24) + ... 
 
-    //// Built-in fastest in clang?
-    // return __builtin_popcount(x);
+    //// Built-in fastest?
+    // return __builtin_popcount(x); ?
+    // return __builtin_popcountll(x); ?
 }
 
-// Finds and clears the least significant bit
-int PopBit(uint64_t *bb) {
+// Returns the index of the least significant bit
+inline int Lsb(uint64_t *bb) {
 
 	uint64_t b = *bb ^ (*bb - 1);
 
 	unsigned int fold = (unsigned)((b & 0xffffffff) ^ (b >> 32));
-	*bb &= (*bb - 1);
 
 	return BitTable[(fold * 0x783a9b23) >> 26];
+}
+
+// Returns the index of the least significant bit and unsets it
+int PopLsb(uint64_t *bb) {
+
+	int lsb = Lsb(bb);
+	*bb &= (*bb - 1);
+
+	return lsb;
 }
 
 // Prints a bitboard
 void PrintBB(uint64_t bb) {
     
     uint64_t bitmask = 1;
-    int rank, file;
 
-    for (rank = 7; rank >= 0; rank--) {
-        for (file = 0; file <= 7; file++) {
+    for (int rank = 7; rank >= 0; rank--) {
+        for (int file = 0; file <= 7; file++) {
             if (bb & (bitmask << ((rank * 8) + file)))
                 printf("1");
             else

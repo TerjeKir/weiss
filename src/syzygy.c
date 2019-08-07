@@ -10,7 +10,7 @@
 
 unsigned int probeWDL(S_BOARD *pos, int depth) {
 
-    int cardinality = CNT(pos->colors[WHITE] | pos->colors[BLACK]);
+    int cardinality = PopCount(pos->colors[WHITE] | pos->colors[BLACK]);
 
     assert(CheckBoard(pos));
 

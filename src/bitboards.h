@@ -4,9 +4,8 @@
 
 #include "types.h"
 
-#define POP(b) PopBit(b)
-#define CNT(b) PopCount(b)
 
-void PrintBB(uint64_t bb);
-int PopBit(uint64_t *bb);
+int Lsb(uint64_t *bb);
+int PopLsb(uint64_t *bb);
 int PopCount(uint64_t x);
+void PrintBB(uint64_t bb);
