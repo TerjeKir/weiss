@@ -244,11 +244,7 @@ int ParseFen(char *fen, S_BOARD *pos) {
 
 	int rank = RANK_8;
 	int file = FILE_A;
-	int piece = 0;
-	int count = 0;
-	int i = 0;
-	int sq64 = 0;
-	int sq120 = 0;
+	int piece, count, i, sq64, sq120;
 
 	ResetBoard(pos);
 
