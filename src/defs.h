@@ -49,12 +49,12 @@
 #define IsKn(p) (PieceKnight[(p)])
 #define IsKi(p) (PieceKing[(p)])
 
+#define MIRROR64(sq) (Mirror64[(sq)])
+
 #define FROMSQ(m) ((m) & 0x7F)
 #define TOSQ(m) (((m)>>7) & 0x7F)
 #define CAPTURED(m) (((m)>>14) & 0xF)
 #define PROMOTED(m) (((m)>>20) & 0xF)
-
-#define MIRROR64(sq) (Mirror64[(sq)])
 
 /* GAME MOVE 
 0000 0000 0000 0000 0000 0111 1111 -> From 0x7F
@@ -88,7 +88,6 @@ typedef struct {
 
 } S_UNDO;
 
-
 typedef struct {
 	uint64_t posKey;
 	int move;
@@ -106,25 +105,13 @@ typedef struct {
 	int cut;
 } S_HASHTABLE;
 
-
 typedef struct {
 
-	int pieces[BRD_SQ_NUM];
+	// Bitboards
 	uint64_t colors[2];
 	uint64_t pieceBBs[6]; // 0 Pawn 1 Knight 2 Bishop 3 Rook 4 Queen 5 King
 
-	int KingSq[2];
-
-	int side;
-	int enPas;
-	int fiftyMove;
-
-	int ply;
-	int hisPly;
-
-	int castlePerm;
-
-	uint64_t posKey;
+	int pieces[BRD_SQ_NUM]; // (120)
 
 	int pceNum[13];
 	int bigPce[2];
@@ -132,10 +119,21 @@ typedef struct {
 	int minPce[2];
 	int material[2];
 
-	S_UNDO history[MAXGAMEMOVES];
+	int pList[13][10]; // piece list
 
-	// piece list
-	int pList[13][10];
+	int KingSq[2]; // 0 White 1 Black (120)
+
+	int side;
+	int enPas;
+	int fiftyMove;
+	int castlePerm;
+
+	int ply;
+	int hisPly;
+
+	uint64_t posKey;
+
+	S_UNDO history[MAXGAMEMOVES];
 
 	S_HASHTABLE HashTable[1];
 	int PvArray[MAXDEPTH];
