@@ -32,17 +32,22 @@ static int ThreeFoldRep(const S_BOARD *pos) {
 static int DrawMaterial(const S_BOARD *pos) {
 	assert(CheckBoard(pos));
 
-	if (pos->pieceBBs[0])
+	// Pawns can promote to pieces that can mate
+	if (pos->pieceBBs[PAWN])
 		return FALSE;
-	if (pos->pieceBBs[3] || pos->pieceBBs[4])
+	// Rooks and queens can mate
+	if (pos->pieceBBs[ROOK] || pos->pieceBBs[QUEEN])
 		return FALSE;
-	if (PopCount(pos->colors[WHITE] & pos->pieceBBs[1]) > 1 || PopCount(pos->colors[BLACK] & pos->pieceBBs[1]) > 1)
+	// 3 knights can mate
+	if (PopCount(pos->colors[WHITE] & pos->pieceBBs[KNIGHT]) > 2 || PopCount(pos->colors[BLACK] & pos->pieceBBs[KNIGHT]) > 2)
 		return FALSE;
-	if (PopCount(pos->colors[WHITE] & pos->pieceBBs[2]) > 1 || PopCount(pos->colors[BLACK] & pos->pieceBBs[2]) > 1)
+	// 2 bishops can mate
+	if (PopCount(pos->colors[WHITE] & pos->pieceBBs[BISHOP]) > 1 || PopCount(pos->colors[BLACK] & pos->pieceBBs[BISHOP]) > 1)
 		return FALSE;
-	if ((pos->colors[WHITE] & pos->pieceBBs[1]) && (pos->colors[WHITE] & pos->pieceBBs[2]))
+	// Bishop + Knight can mate
+	if ((pos->colors[WHITE] & pos->pieceBBs[KNIGHT]) && (pos->colors[WHITE] & pos->pieceBBs[BISHOP]))
 		return FALSE;
-	if ((pos->colors[BLACK] & pos->pieceBBs[1]) && (pos->colors[BLACK] & pos->pieceBBs[2]))
+	if ((pos->colors[BLACK] & pos->pieceBBs[KNIGHT]) && (pos->colors[BLACK] & pos->pieceBBs[BISHOP]))
 		return FALSE;
 
 	return TRUE;
@@ -84,7 +89,7 @@ static int checkresult(S_BOARD *pos) {
 	if (found != 0)
 		return FALSE;
 
-	int InCheck = SqAttacked(pos->colors[pos->side] & pos->pieceBBs[5], !pos->side, pos);
+	int InCheck = SqAttacked(pos->colors[pos->side] & pos->pieceBBs[KING], !pos->side, pos);
 
 	if (InCheck) {
 		if (pos->side == WHITE) {

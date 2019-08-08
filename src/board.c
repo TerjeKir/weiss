@@ -123,7 +123,7 @@ static void ResetBoard(S_BOARD *pos) {
 	for (index = 0; index < 2; index++)
 		pos->colors[index] = 0ULL;
 	
-	for (index = 0; index < 6; index++)
+	for (index = PAWN; index <= KING; index++)
 		pos->pieceBBs[index] = 0ULL;
 
 	pos->KingSq[WHITE] = pos->KingSq[BLACK] = NO_SQ;
@@ -150,6 +150,23 @@ int CheckBoard(const S_BOARD *pos) {
 	int t_material[2] = {0, 0};
 
 	int sq64, t_piece, t_pce_num, sq120, colour;
+
+	// Bitboards
+	assert(PopCount(pos->pieceBBs[KING]) == 2);
+	assert(PopCount(pos->pieceBBs[KING] & pos->colors[WHITE]) == 1);
+	assert(PopCount(pos->pieceBBs[KING] & pos->colors[BLACK]) == 1);
+
+	assert(PopCount(pos->pieceBBs[  PAWN]) >= 0);
+	assert(PopCount(pos->pieceBBs[KNIGHT]) >= 0);
+	assert(PopCount(pos->pieceBBs[BISHOP]) >= 0);
+	assert(PopCount(pos->pieceBBs[  ROOK]) >= 0);
+	assert(PopCount(pos->pieceBBs[ QUEEN]) >= 0);
+
+	assert(PopCount(pos->pieceBBs[  PAWN]) <= 16);
+	assert(PopCount(pos->pieceBBs[KNIGHT]) <= 20);
+	assert(PopCount(pos->pieceBBs[BISHOP]) <= 20);
+	assert(PopCount(pos->pieceBBs[  ROOK]) <= 20);
+	assert(PopCount(pos->pieceBBs[ QUEEN]) <= 18);
 
 	// check piece lists
 	for (t_piece = wP; t_piece <= bK; ++t_piece)
