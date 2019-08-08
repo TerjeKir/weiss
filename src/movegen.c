@@ -4,6 +4,7 @@
 
 #include "defs.h"
 #include "attack.h"
+#include "bitboards.h"
 #include "makemove.h"
 #include "movegen.h"
 #include "validate.h"
@@ -11,6 +12,11 @@
 
 #define MOVE(f, t, ca, pro, fl) ((f) | ((t) << 7) | ((ca) << 14) | ((pro) << 20) | (fl))
 #define SQOFFBOARD(sq) (FilesBrd[(sq)] == OFFBOARD)
+
+uint64_t bitB1C1D1 = (1ULL << 1) | (1ULL << 2) | (1ULL << 3);
+uint64_t bitF1G1 = (1ULL << 5) | (1ULL << 6);
+uint64_t bitB8C8D8 = (1ULL << 57) | (1ULL << 58) | (1ULL << 59);
+uint64_t bitF8G8 = (1ULL << 61) | (1ULL << 62);
 
 const int LoopSlidePce[8] = {
 	wB, wR, wQ, 0, bB, bR, bQ, 0};
@@ -188,88 +194,157 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 
 	list->count = 0;
 
-	int pce, sq, t_sq, pceNum, dir, index, pceIndex;
+	int pce, sq, t_sq, pceNum, dir, index, pceIndex, sq120, attack, move;
 	int side = pos->side;
 
+	uint64_t squareBitMask, attacks, moves;
+
+	uint64_t allPieces  = pos->colors[WHITE] | pos->colors[BLACK];
+	uint64_t empty		= ~allPieces;
+	// uint64_t allies 	= pos->colors[side];
+	uint64_t enemies 	= pos->colors[!side];
+
+	uint64_t pawns 		= pos->colors[side] & pos->pieceBBs[PAWN];
+	uint64_t knights 	= pos->colors[side] & pos->pieceBBs[KNIGHT];
+	// uint64_t bishops = pos->colors[side] & pos->pieceBBs[BISHOP];
+	// uint64_t rooks 	= pos->colors[side] & pos->pieceBBs[ROOK];
+	// uint64_t queens 	= pos->colors[side] & pos->pieceBBs[QUEEN];
+	uint64_t king 		= pos->colors[side] & pos->pieceBBs[KING];
+	
+	uint64_t enPassant 	= 1ULL << SQ64(pos->enPas);
+
+	// Pawns and castling
 	if (side == WHITE) {
 
-		for (pceNum = 0; pceNum < pos->pceNum[wP]; ++pceNum) {
-			sq = pos->pList[wP][pceNum];
-			assert(SqOnBoard(sq));
-
-			if (pos->pieces[sq + 10] == EMPTY) {
-				AddWhitePawnMove(pos, sq, sq + 10, list);
-				if (RanksBrd[sq] == RANK_2 && pos->pieces[sq + 20] == EMPTY)
-					AddQuietMove(pos, MOVE(sq, (sq + 20), EMPTY, EMPTY, MOVE_FLAG_PAWNSTART), list);
-			}
-
-			if (!SQOFFBOARD(sq + 9) && PieceCol[pos->pieces[sq + 9]] == BLACK)
-				AddWhitePawnCapMove(pos, sq, sq + 9, pos->pieces[sq + 9], list);
-
-			if (!SQOFFBOARD(sq + 11) && PieceCol[pos->pieces[sq + 11]] == BLACK)
-				AddWhitePawnCapMove(pos, sq, sq + 11, pos->pieces[sq + 11], list);
-
-			if (pos->enPas != NO_SQ) {
-				if (sq + 9 == pos->enPas)
-					AddEnPassantMove(pos, MOVE(sq, sq + 9, EMPTY, EMPTY, MOVE_FLAG_ENPAS), list);
-				if (sq + 11 == pos->enPas)
-					AddEnPassantMove(pos, MOVE(sq, sq + 11, EMPTY, EMPTY, MOVE_FLAG_ENPAS), list);
-			}
-		}
-
+		// King side castle
 		if (pos->castlePerm & WKCA)
-			if (pos->pieces[F1] == EMPTY && pos->pieces[G1] == EMPTY)
+			if (!(allPieces & bitF1G1))
 				if (!SqAttacked(E1, BLACK, pos) && !SqAttacked(F1, BLACK, pos))
 					AddQuietMove(pos, MOVE(E1, G1, EMPTY, EMPTY, MOVE_FLAG_CASTLE), list);
 
+		// Queen side castle
 		if (pos->castlePerm & WQCA)
-			if (pos->pieces[D1] == EMPTY && pos->pieces[C1] == EMPTY && pos->pieces[B1] == EMPTY)
+			if (!(allPieces & bitB1C1D1))
 				if (!SqAttacked(E1, BLACK, pos) && !SqAttacked(D1, BLACK, pos))
 					AddQuietMove(pos, MOVE(E1, C1, EMPTY, EMPTY, MOVE_FLAG_CASTLE), list);
 
-	} else {
+		// Pawns
+		while (pawns) {
 
-		for (pceNum = 0; pceNum < pos->pceNum[bP]; ++pceNum) {
-			sq = pos->pList[bP][pceNum];
-			assert(SqOnBoard(sq));
+			sq = PopLsb(&pawns);
+			squareBitMask = 1ULL << sq;
+			sq120 = SQ120(sq);
+			assert(SqOnBoard(sq120));
 
-			if (pos->pieces[sq - 10] == EMPTY) {
-				AddBlackPawnMove(pos, sq, sq - 10, list);
-				if (RanksBrd[sq] == RANK_7 && pos->pieces[sq - 20] == EMPTY)
-					AddQuietMove(pos, MOVE(sq, (sq - 20), EMPTY, EMPTY, MOVE_FLAG_PAWNSTART), list);
+			// Move forward
+			if (!(allPieces & squareBitMask << 8)) {
+				AddWhitePawnMove(pos, sq120, sq120 + 10, list);
+				// Move forward two squares
+				if (!(allPieces & squareBitMask << 16) && (sq < 16))
+					AddQuietMove(pos, MOVE(sq120, (sq120 + 20), EMPTY, EMPTY, MOVE_FLAG_PAWNSTART), list);
 			}
 
-			if (!SQOFFBOARD(sq - 9) && PieceCol[pos->pieces[sq - 9]] == WHITE)
-				AddBlackPawnCapMove(pos, sq, sq - 9, pos->pieces[sq - 9], list);
+			// Pawn captures
+			attacks = pawn_attacks[side][sq] & enemies;
 
-			if (!SQOFFBOARD(sq - 11) && PieceCol[pos->pieces[sq - 11]] == WHITE)
-				AddBlackPawnCapMove(pos, sq, sq - 11, pos->pieces[sq - 11], list);
+			// En passant
+			if (pos->enPas != NO_SQ)
+				// to the left
+				if (pawn_attacks[side][sq] & enPassant)
+					AddEnPassantMove(pos, MOVE(sq120, pos->enPas, EMPTY, EMPTY, MOVE_FLAG_ENPAS), list);
 
-
-			if (pos->enPas != NO_SQ) {
-				if (sq - 9 == pos->enPas)
-					AddEnPassantMove(pos, MOVE(sq, sq - 9, EMPTY, EMPTY, MOVE_FLAG_ENPAS), list);
-				if (sq - 11 == pos->enPas)
-					AddEnPassantMove(pos, MOVE(sq, sq - 11, EMPTY, EMPTY, MOVE_FLAG_ENPAS), list);
+			// Normal captures
+			while (attacks) {
+				attack = SQ120(PopLsb(&attacks));
+				AddWhitePawnCapMove(pos, sq120, attack, pos->pieces[attack], list);
 			}
 		}
 
-		// castling
+	} else {
+
+		// King side castle
 		if (pos->castlePerm & BKCA)
-			if (pos->pieces[F8] == EMPTY && pos->pieces[G8] == EMPTY)
+			if (!((allPieces & bitF8G8)))
 				if (!SqAttacked(E8, WHITE, pos) && !SqAttacked(F8, WHITE, pos))
 					AddQuietMove(pos, MOVE(E8, G8, EMPTY, EMPTY, MOVE_FLAG_CASTLE), list);
 
+		// Queen side castle
 		if (pos->castlePerm & BQCA)
-			if (pos->pieces[D8] == EMPTY && pos->pieces[C8] == EMPTY && pos->pieces[B8] == EMPTY)
+			if (!((allPieces & bitB8C8D8)))
 				if (!SqAttacked(E8, WHITE, pos) && !SqAttacked(D8, WHITE, pos))
 					AddQuietMove(pos, MOVE(E8, C8, EMPTY, EMPTY, MOVE_FLAG_CASTLE), list);
+
+		// Pawns
+		while (pawns) {
+
+			sq = PopLsb(&pawns);
+			squareBitMask = 1ULL << sq;
+			sq120 = SQ120(sq);
+			assert(SqOnBoard(sq120));
+
+			// Move forward
+			if (!(allPieces & squareBitMask >> 8)) {
+				AddBlackPawnMove(pos, sq120, sq120 - 10, list);
+				// Move forward two squares
+				if (!(allPieces & squareBitMask >> 16) && (sq > 47))
+					AddQuietMove(pos, MOVE(sq120, (sq120 - 20), EMPTY, EMPTY, MOVE_FLAG_PAWNSTART), list);
+			}
+
+			// Pawn captures
+			attacks = pawn_attacks[side][sq] & enemies;
+
+			// En passant
+			if (pos->enPas != NO_SQ)
+				// to the left
+				if (pawn_attacks[side][sq] & enPassant)
+					AddEnPassantMove(pos, MOVE(sq120, pos->enPas, EMPTY, EMPTY, MOVE_FLAG_ENPAS), list);
+
+			// Normal captures
+			while (attacks) {
+				attack = SQ120(PopLsb(&attacks));
+				AddBlackPawnCapMove(pos, sq120, attack, pos->pieces[attack], list);
+			}
+		}
+	}
+
+	// Knights
+	while (knights) {
+
+		sq = PopLsb(&knights);
+		squareBitMask = 1ULL << sq;
+		sq120 = SQ120(sq);
+
+		attacks = knight_attacks[sq] & enemies;
+		while (attacks) {
+			attack = SQ120(PopLsb(&attacks));
+			AddCaptureMove(pos, MOVE(sq120, attack, pos->pieces[attack], EMPTY, 0), list);
+		}
+		moves = knight_attacks[sq] & empty;
+		while (moves) {
+			move = SQ120(PopLsb(&moves));
+			AddQuietMove(pos, MOVE(sq120, move, EMPTY, EMPTY, 0), list);
+		}
+	}
+
+	// King
+	sq = Lsb(&king);
+	squareBitMask = 1ULL << sq;
+	sq120 = SQ120(sq);
+
+	attacks = king_attacks[sq] & enemies;
+	while (attacks) {
+		attack = SQ120(PopLsb(&attacks));
+		AddCaptureMove(pos, MOVE(sq120, attack, pos->pieces[attack], EMPTY, 0), list);
+	}
+	moves = king_attacks[sq] & empty;
+	while (moves) {
+		move = SQ120(PopLsb(&moves));
+		AddQuietMove(pos, MOVE(sq120, move, EMPTY, EMPTY, 0), list);
 	}
 
 	/* Loop for slide pieces */
 	pceIndex = LoopSlideIndex[side];
 	pce = LoopSlidePce[pceIndex++];
-
 	while (pce != 0) {
 
 		assert(PieceValid(pce));
@@ -298,36 +373,9 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 		pce = LoopSlidePce[pceIndex++];
 	}
 
-	/* Loop for non slide */
-	pceIndex = LoopNonSlideIndex[side];
-	pce = LoopNonSlidePce[pceIndex++];
-	while (pce != 0) {
-		assert(PieceValid(pce));
-
-		for (pceNum = 0; pceNum < pos->pceNum[pce]; ++pceNum) {
-			sq = pos->pList[pce][pceNum];
-			assert(SqOnBoard(sq));
-
-			for (index = 0; index < NumDir[pce]; ++index) {
-				dir = PceDir[pce][index];
-				t_sq = sq + dir;
-
-				if (SQOFFBOARD(t_sq))
-					continue;
-
-				// BLACK ^ 1 == WHITE	   WHITE ^ 1 == BLACK
-				if (pos->pieces[t_sq] != EMPTY) {
-					if (PieceCol[pos->pieces[t_sq]] == (side ^ 1))
-						AddCaptureMove(pos, MOVE(sq, t_sq, pos->pieces[t_sq], EMPTY, 0), list);
-					continue;
-				}
-				AddQuietMove(pos, MOVE(sq, t_sq, EMPTY, EMPTY, 0), list);
-			}
-		}
-		pce = LoopNonSlidePce[pceIndex++];
-	}
 	assert(MoveListOk(list, pos));
 }
+
 
 void GenerateAllCaptures(const S_BOARD *pos, S_MOVELIST *list) {
 
@@ -335,49 +383,95 @@ void GenerateAllCaptures(const S_BOARD *pos, S_MOVELIST *list) {
 
 	list->count = 0;
 
-	int pce, sq, t_sq, pceNum, dir, index, pceIndex;
+	int pce, sq, t_sq, pceNum, dir, index, pceIndex, sq120, attack;
 	int side = pos->side;
+
+	uint64_t attacks;
+
+	// uint64_t allPieces  = pos->colors[WHITE] | pos->colors[BLACK];
+	uint64_t enemies 	= pos->colors[!side];
+
+	uint64_t pawns 		= pos->colors[side] & pos->pieceBBs[PAWN];
+	uint64_t knights 	= pos->colors[side] & pos->pieceBBs[KNIGHT];
+	// uint64_t bishops = pos->colors[side] & pos->pieceBBs[BISHOP];
+	// uint64_t rooks 	= pos->colors[side] & pos->pieceBBs[ROOK];
+	// uint64_t queens 	= pos->colors[side] & pos->pieceBBs[QUEEN];
+	uint64_t king 		= pos->colors[side] & pos->pieceBBs[KING];
+	
+	uint64_t enPassant 	= 1ULL << SQ64(pos->enPas);
 
 	if (side == WHITE) {
 
-		for (pceNum = 0; pceNum < pos->pceNum[wP]; ++pceNum) {
+		// Pawns
+		while (pawns) {
 
-			sq = pos->pList[wP][pceNum];
-			assert(SqOnBoard(sq));
+			sq = PopLsb(&pawns);
+			sq120 = SQ120(sq);
+			assert(SqOnBoard(sq120));
 
-			if (!SQOFFBOARD(sq + 9) && PieceCol[pos->pieces[sq + 9]] == BLACK)
-				AddWhitePawnCapMove(pos, sq, sq + 9, pos->pieces[sq + 9], list);
+			// Pawn captures
+			attacks = pawn_attacks[side][sq] & enemies;
 
-			if (!SQOFFBOARD(sq + 11) && PieceCol[pos->pieces[sq + 11]] == BLACK)
-				AddWhitePawnCapMove(pos, sq, sq + 11, pos->pieces[sq + 11], list);
+			// En passant
+			if (pos->enPas != NO_SQ)
+				// to the left
+				if (pawn_attacks[side][sq] & enPassant)
+					AddEnPassantMove(pos, MOVE(sq120, pos->enPas, EMPTY, EMPTY, MOVE_FLAG_ENPAS), list);
 
-
-			if (pos->enPas != NO_SQ) {
-				if (sq + 9 == pos->enPas)
-					AddEnPassantMove(pos, MOVE(sq, sq + 9, EMPTY, EMPTY, MOVE_FLAG_ENPAS), list);
-				if (sq + 11 == pos->enPas)
-					AddEnPassantMove(pos, MOVE(sq, sq + 11, EMPTY, EMPTY, MOVE_FLAG_ENPAS), list);
+			// Normal captures
+			while (attacks) {
+				attack = SQ120(PopLsb(&attacks));
+				AddWhitePawnCapMove(pos, sq120, attack, pos->pieces[attack], list);
 			}
 		}
+
 	} else {
 
-		for (pceNum = 0; pceNum < pos->pceNum[bP]; ++pceNum) {
-			sq = pos->pList[bP][pceNum];
-			assert(SqOnBoard(sq));
+		// Pawns
+		while (pawns) {
 
-			if (!SQOFFBOARD(sq - 9) && PieceCol[pos->pieces[sq - 9]] == WHITE)
-				AddBlackPawnCapMove(pos, sq, sq - 9, pos->pieces[sq - 9], list);
+			sq = PopLsb(&pawns);
+			sq120 = SQ120(sq);
+			assert(SqOnBoard(sq120));
 
-			if (!SQOFFBOARD(sq - 11) && PieceCol[pos->pieces[sq - 11]] == WHITE)
-				AddBlackPawnCapMove(pos, sq, sq - 11, pos->pieces[sq - 11], list);
+			// Pawn captures
+			attacks = pawn_attacks[side][sq] & enemies;
 
-			if (pos->enPas != NO_SQ) {
-				if (sq - 9 == pos->enPas)
-					AddEnPassantMove(pos, MOVE(sq, sq - 9, EMPTY, EMPTY, MOVE_FLAG_ENPAS), list);
-				if (sq - 11 == pos->enPas)
-					AddEnPassantMove(pos, MOVE(sq, sq - 11, EMPTY, EMPTY, MOVE_FLAG_ENPAS), list);
+			// En passant
+			if (pos->enPas != NO_SQ)
+				// to the left
+				if (pawn_attacks[side][sq] & enPassant)
+					AddEnPassantMove(pos, MOVE(sq120, pos->enPas, EMPTY, EMPTY, MOVE_FLAG_ENPAS), list);
+
+			// Normal captures
+			while (attacks) {
+				attack = SQ120(PopLsb(&attacks));
+				AddBlackPawnCapMove(pos, sq120, attack, pos->pieces[attack], list);
 			}
 		}
+	}
+
+	// Knights
+	while (knights) {
+
+		sq = PopLsb(&knights);
+		sq120 = SQ120(sq);
+
+		attacks = knight_attacks[sq] & enemies;
+		while (attacks) {
+			attack = SQ120(PopLsb(&attacks));
+			AddCaptureMove(pos, MOVE(sq120, attack, pos->pieces[attack], EMPTY, 0), list);
+		}
+	}
+
+	// King
+	sq = Lsb(&king);
+	sq120 = SQ120(sq);
+
+	attacks = king_attacks[sq] & enemies;
+	while (attacks) {
+		attack = SQ120(PopLsb(&attacks));
+		AddCaptureMove(pos, MOVE(sq120, attack, pos->pieces[attack], EMPTY, 0), list);
 	}
 
 	/* Loop for slide pieces */
@@ -397,7 +491,6 @@ void GenerateAllCaptures(const S_BOARD *pos, S_MOVELIST *list) {
 				t_sq = sq + dir;
 
 				while (!SQOFFBOARD(t_sq)) {
-					// BLACK ^ 1 == WHITE	   WHITE ^ 1 == BLACK
 					if (pos->pieces[t_sq] != EMPTY) {
 						if (PieceCol[pos->pieces[t_sq]] == (side ^ 1))
 							AddCaptureMove(pos, MOVE(sq, t_sq, pos->pieces[t_sq], EMPTY, 0), list);
@@ -410,35 +503,5 @@ void GenerateAllCaptures(const S_BOARD *pos, S_MOVELIST *list) {
 		pce = LoopSlidePce[pceIndex++];
 	}
 
-	/* Loop for non slide */
-	pceIndex = LoopNonSlideIndex[side];
-	pce = LoopNonSlidePce[pceIndex++];
-	while (pce != 0) {
-
-		assert(PieceValid(pce));
-
-		for (pceNum = 0; pceNum < pos->pceNum[pce]; ++pceNum) {
-
-			sq = pos->pList[pce][pceNum];
-			assert(SqOnBoard(sq));
-
-			for (index = 0; index < NumDir[pce]; ++index) {
-
-				dir = PceDir[pce][index];
-				t_sq = sq + dir;
-
-				if (SQOFFBOARD(t_sq))
-					continue;
-
-				// BLACK ^ 1 == WHITE	   WHITE ^ 1 == BLACK
-				if (pos->pieces[t_sq] != EMPTY) {
-					if (PieceCol[pos->pieces[t_sq]] == (side ^ 1))
-						AddCaptureMove(pos, MOVE(sq, t_sq, pos->pieces[t_sq], EMPTY, 0), list);
-					continue;
-				}
-			}
-		}
-		pce = LoopNonSlidePce[pceIndex++];
-	}
 	assert(MoveListOk(list, pos));
 }
