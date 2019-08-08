@@ -215,7 +215,6 @@ static void MovePiece(const int from, const int to, S_BOARD *pos) {
 
 	int index = 0;
 	int pce = pos->pieces[from];
-	assert(SideValid(col));
 	assert(PieceValid(pce));
 
 #ifndef NDEBUG
