@@ -113,13 +113,13 @@ typedef struct {
 
 	int pieces[BRD_SQ_NUM]; // (120)
 
-	int pceNum[13];
-	int bigPce[2];
-	int majPce[2];
-	int minPce[2];
-	int material[2];
+	int pceNum[13];			// # of each type of piece
+	int bigPce[2];			// # of non-pawns
+	int majPce[2];			// # of rooks + queens
+	int minPce[2];			// # of knights + bishops
+	int material[2];		// Total value of pieces (from PieceVals)
 
-	int pList[13][10]; 		// piece list
+	int pList[13][10]; 		// [piece type][#] -> square (120)
 
 	int KingSq[2]; 			// 0 White 1 Black (120)
 

@@ -22,11 +22,11 @@ void InitHashKeys() {
 
 	int index, index2;
 
+	SideKey = RAND_64;
+
 	for (index = 0; index < 13; ++index)
 		for (index2 = 0; index2 < 120; ++index2)
 			PieceKeys[index][index2] = RAND_64;
-
-	SideKey = RAND_64;
 
 	for (index = 0; index < 16; ++index)
 		CastleKeys[index] = RAND_64;
@@ -39,7 +39,7 @@ uint64_t GeneratePosKey(const S_BOARD *pos) {
 
 	// Pieces
 	for (int sq = 0; sq < BRD_SQ_NUM; ++sq) {
-		piece = pos->pieces[SQ64(sq)];
+		piece = pos->pieces[sq];
 		if (piece != NO_SQ && piece != EMPTY && piece != OFFBOARD) {
 			assert(piece >= wP && piece <= bK);
 			posKey ^= PieceKeys[piece][sq];
