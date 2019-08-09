@@ -334,7 +334,7 @@ int MakeMove(S_BOARD *pos, int move) {
 	assert(pos->hisPly >= 0 && pos->hisPly < MAXGAMEMOVES);
 	assert(pos->ply >= 0 && pos->ply < MAXDEPTH);
 
-	// Save posKey in history?
+	// Save posKey in history
 	pos->history[pos->hisPly].posKey = pos->posKey;
 
 	// Remove the victim of en passant

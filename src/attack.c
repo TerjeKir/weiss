@@ -145,9 +145,8 @@ int SqAttacked(const int sq, const int side, const S_BOARD *pos) {
 
 		while (pce != OFFBOARD) {
 			if (pce != EMPTY) {
-				if (IsRQ(pce) && PieceCol[pce] == side) {
+				if (IsRQ(pce) && PieceCol[pce] == side)
 					return TRUE;
-				}
 				break;
 			}
 			t_sq += dir;
