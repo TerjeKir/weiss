@@ -3,6 +3,7 @@
 #include <stdio.h>
 
 #include "defs.h"
+#include "bitboards.h"
 #include "validate.h"
 
 
@@ -35,15 +36,17 @@ void InitHashKeys() {
 uint64_t GeneratePosKey(const S_BOARD *pos) {
 
 	uint64_t posKey = 0;
-	int piece;
+	uint64_t allPieces = pos->colors[WHITE] | pos->colors[BLACK];
+	int sq, piece;
 
 	// Pieces
-	for (int sq = 0; sq < BRD_SQ_NUM; ++sq) {
-		piece = pos->pieces[sq];
-		if (piece != NO_SQ && piece != EMPTY && piece != OFFBOARD) {
-			assert(piece >= wP && piece <= bK);
-			posKey ^= PieceKeys[piece][sq];
-		}
+	while (allPieces) {
+
+		sq = PopLsb(&allPieces);
+		piece = pos->pieces[SQ120(sq)];
+
+		assert(piece >= wP && piece <= bK);
+		posKey ^= PieceKeys[piece][sq];
 	}
 
 	// Side to play
