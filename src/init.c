@@ -4,25 +4,17 @@
 #include <stdlib.h>
 
 #include "defs.h"
-#include "movegen.h"
 #include "attack.h"
+#include "hashkeys.h"
+#include "movegen.h"
 #include "validate.h"
 
-#define RAND_64 ((uint64_t)rand() |	   \
-				 (uint64_t)rand() << 15 | \
-				 (uint64_t)rand() << 30 | \
-				 (uint64_t)rand() << 45 | \
-				 ((uint64_t)rand() & 0xf) << 60)
 
 int Sq120ToSq64[BRD_SQ_NUM];
 int Sq64ToSq120[64];
 
 uint64_t SetMask[64];
 uint64_t ClearMask[64];
-
-uint64_t PieceKeys[13][120];
-uint64_t SideKey;
-uint64_t CastleKeys[16];
 
 int FilesBrd[BRD_SQ_NUM];
 int RanksBrd[BRD_SQ_NUM];
@@ -126,19 +118,6 @@ static void InitFilesRanksBrd() {
 			RanksBrd[sq] = rank;
 		}
 	}
-}
-
-static void InitHashKeys() {
-
-	int index = 0;
-	int index2 = 0;
-	for (index = 0; index < 13; ++index)
-		for (index2 = 0; index2 < 120; ++index2)
-			PieceKeys[index][index2] = RAND_64;
-
-	SideKey = RAND_64;
-	for (index = 0; index < 16; ++index)
-		CastleKeys[index] = RAND_64;
 }
 
 static void InitBitMasks() {

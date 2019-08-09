@@ -108,8 +108,8 @@ typedef struct {
 typedef struct {
 
 	// Bitboards
-	uint64_t colors[2];
-	uint64_t pieceBBs[6]; // 0 Pawn 1 Knight 2 Bishop 3 Rook 4 Queen 5 King
+	uint64_t colors[2];		// 0 White 1 Black
+	uint64_t pieceBBs[6]; 	// 0 Pawn  1 Knight 2 Bishop 3 Rook 4 Queen 5 King
 
 	int pieces[BRD_SQ_NUM]; // (120)
 
@@ -119,9 +119,9 @@ typedef struct {
 	int minPce[2];
 	int material[2];
 
-	int pList[13][10]; // piece list
+	int pList[13][10]; 		// piece list
 
-	int KingSq[2]; // 0 White 1 Black (120)
+	int KingSq[2]; 			// 0 White 1 Black (120)
 
 	int side;
 	int enPas;
@@ -177,9 +177,6 @@ extern int Sq120ToSq64[BRD_SQ_NUM];
 extern int Sq64ToSq120[64];
 extern uint64_t SetMask[64];
 extern uint64_t ClearMask[64];
-extern uint64_t PieceKeys[13][120];
-extern uint64_t SideKey;
-extern uint64_t CastleKeys[16];
 extern char PceChar[];
 extern char SideChar[];
 extern char RankChar[];

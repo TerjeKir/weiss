@@ -4,9 +4,10 @@
 
 #include "defs.h"
 #include "attack.h"
+#include "board.h"
+#include "hashkeys.h"
 #include "makemove.h"
 #include "validate.h"
-#include "board.h"
 
 #define HASH_PCE(pce, sq) (pos->posKey ^= (PieceKeys[(pce)][(sq)]))
 #define HASH_CA (pos->posKey ^= (CastleKeys[(pos->castlePerm)]))
