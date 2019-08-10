@@ -107,9 +107,8 @@ typedef struct {
 
 typedef struct {
 
-	// Bitboards
-	uint64_t colors[2];		// 0 White 1 Black
-	uint64_t pieceBBs[6]; 	// 0 Pawn  1 Knight 2 Bishop 3 Rook 4 Queen 5 King
+	bitboard colors[2];		// 0 White 1 Black
+	bitboard pieceBBs[6]; 	// 0 Pawn  1 Knight 2 Bishop 3 Rook 4 Queen 5 King
 
 	int pieces[BRD_SQ_NUM]; // (120)
 
@@ -175,8 +174,8 @@ typedef struct {
 
 extern int Sq120ToSq64[BRD_SQ_NUM];
 extern int Sq64ToSq120[64];
-extern uint64_t SetMask[64];
-extern uint64_t ClearMask[64];
+extern bitboard SetMask[64];
+extern bitboard ClearMask[64];
 extern char PceChar[];
 extern char SideChar[];
 extern char RankChar[];
@@ -200,11 +199,11 @@ extern int PieceSlides[13];
 
 extern int Mirror64[64];
 
-extern uint64_t FileBBMask[8];
-extern uint64_t RankBBMask[8];
+extern bitboard FileBBMask[8];
+extern bitboard RankBBMask[8];
 
-extern uint64_t BlackPassedMask[64];
-extern uint64_t WhitePassedMask[64];
-extern uint64_t IsolatedMask[64];
+extern bitboard BlackPassedMask[64];
+extern bitboard WhitePassedMask[64];
+extern bitboard IsolatedMask[64];
 
 extern S_OPTIONS EngineOptions[1];

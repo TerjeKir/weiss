@@ -21,7 +21,7 @@ const uint64_t m4  = 0x0f0f0f0f0f0f0f0f;
 const uint64_t h01 = 0x0101010101010101;
 
 
-int PopCount(uint64_t x) {
+int PopCount(bitboard x) {
 
     //// Best for slow multiplication
     x -= (x >> 1) & m1;              //put count of each 2 bits into those 2 bits
@@ -46,7 +46,7 @@ int PopCount(uint64_t x) {
 }
 
 // Returns the index of the least significant bit
-inline int Lsb(uint64_t *bb) {
+inline int Lsb(bitboard *bb) {
 
 	uint64_t b = *bb ^ (*bb - 1);
 
@@ -56,7 +56,7 @@ inline int Lsb(uint64_t *bb) {
 }
 
 // Returns the index of the least significant bit and unsets it
-int PopLsb(uint64_t *bb) {
+int PopLsb(bitboard *bb) {
 
 	int lsb = Lsb(bb);
 	*bb &= (*bb - 1);
@@ -65,9 +65,9 @@ int PopLsb(uint64_t *bb) {
 }
 
 // Prints a bitboard
-void PrintBB(uint64_t bb) {
+void PrintBB(bitboard bb) {
     
-    uint64_t bitmask = 1;
+    bitboard bitmask = 1;
 
     for (int rank = 7; rank >= 0; rank--) {
         for (int file = 0; file <= 7; file++) {

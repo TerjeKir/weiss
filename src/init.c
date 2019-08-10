@@ -13,18 +13,18 @@
 int Sq120ToSq64[BRD_SQ_NUM];
 int Sq64ToSq120[64];
 
-uint64_t SetMask[64];
-uint64_t ClearMask[64];
+bitboard SetMask[64];
+bitboard ClearMask[64];
 
 int FilesBrd[BRD_SQ_NUM];
 int RanksBrd[BRD_SQ_NUM];
 
-uint64_t FileBBMask[8];
-uint64_t RankBBMask[8];
+bitboard FileBBMask[8];
+bitboard RankBBMask[8];
 
-uint64_t BlackPassedMask[64];
-uint64_t WhitePassedMask[64];
-uint64_t IsolatedMask[64];
+bitboard BlackPassedMask[64];
+bitboard WhitePassedMask[64];
+bitboard IsolatedMask[64];
 
 S_OPTIONS EngineOptions[1];
 

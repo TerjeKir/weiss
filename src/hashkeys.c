@@ -36,7 +36,7 @@ void InitHashKeys() {
 uint64_t GeneratePosKey(const S_BOARD *pos) {
 
 	uint64_t posKey = 0;
-	uint64_t allPieces = pos->colors[WHITE] | pos->colors[BLACK];
+	bitboard allPieces = pos->colors[WHITE] | pos->colors[BLACK];
 	int sq, piece;
 
 	// Pieces

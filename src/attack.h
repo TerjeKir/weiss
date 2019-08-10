@@ -4,9 +4,9 @@
 
 #include "defs.h"
 
-uint64_t king_attacks[64];
-uint64_t knight_attacks[64];
-uint64_t pawn_attacks[2][64];
+bitboard king_attacks[64];
+bitboard knight_attacks[64];
+bitboard pawn_attacks[2][64];
 
 void InitAttacks();
 

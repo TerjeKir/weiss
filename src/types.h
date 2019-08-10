@@ -4,6 +4,9 @@
 
 #include <stdint.h>
 
+
+typedef uint64_t bitboard;
+
 enum { WHITE, BLACK, BOTH };
 
 enum { PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING };

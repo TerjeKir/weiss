@@ -11,15 +11,15 @@
 const int RkDir[4] = {-1, -10, 1, 10};
 const int BiDir[4] = {-9, -11, 11, 9};
 
-uint64_t king_attacks[64];
-uint64_t knight_attacks[64];
-uint64_t pawn_attacks[2][64];
+bitboard king_attacks[64];
+bitboard knight_attacks[64];
+bitboard pawn_attacks[2][64];
 
 
 // Inits the king attack bitboards
 static void InitKingAttacks() {
 
-    uint64_t bitmask = 1ULL;
+    bitboard bitmask = 1ULL;
     int square;
 
     for (square = 0; square < 64; square++, bitmask <<= 1) {
@@ -50,7 +50,7 @@ static void InitKingAttacks() {
 // Inits the knight attack bitboards
 static void InitKnightAttacks() {
 
-    uint64_t bitmask = 1ULL;
+    bitboard bitmask = 1ULL;
     int square;
 
     for (square = 0; square < 64; square++, bitmask <<= 1) {
@@ -85,7 +85,7 @@ static void InitKnightAttacks() {
 // Inits the pawn attack bitboards
 static void InitPawnAttacks() {
 
-    uint64_t bitmask = 1ULL;
+    bitboard bitmask = 1ULL;
     int square;
 
     // No point going further as all their attacks would be off board

@@ -13,10 +13,10 @@
 #define MOVE(f, t, ca, pro, fl) ((f) | ((t) << 7) | ((ca) << 14) | ((pro) << 20) | (fl))
 #define SQOFFBOARD(sq) (FilesBrd[(sq)] == OFFBOARD)
 
-uint64_t bitB1C1D1 = (1ULL << 1) | (1ULL << 2) | (1ULL << 3);
-uint64_t bitF1G1 = (1ULL << 5) | (1ULL << 6);
-uint64_t bitB8C8D8 = (1ULL << 57) | (1ULL << 58) | (1ULL << 59);
-uint64_t bitF8G8 = (1ULL << 61) | (1ULL << 62);
+bitboard bitB1C1D1 = (1ULL << 1) | (1ULL << 2) | (1ULL << 3);
+bitboard bitF1G1 = (1ULL << 5) | (1ULL << 6);
+bitboard bitB8C8D8 = (1ULL << 57) | (1ULL << 58) | (1ULL << 59);
+bitboard bitF8G8 = (1ULL << 61) | (1ULL << 62);
 
 const int LoopSlidePce[8] = {
 	wB, wR, wQ, 0, bB, bR, bQ, 0};
@@ -197,21 +197,21 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 	int pce, sq, t_sq, pceNum, dir, index, pceIndex, sq120, attack, move;
 	int side = pos->side;
 
-	uint64_t squareBitMask, attacks, moves;
+	bitboard squareBitMask, attacks, moves;
 
-	uint64_t allPieces  = pos->colors[WHITE] | pos->colors[BLACK];
-	uint64_t empty		= ~allPieces;
-	// uint64_t allies 	= pos->colors[side];
-	uint64_t enemies 	= pos->colors[!side];
+	bitboard allPieces  = pos->colors[WHITE] | pos->colors[BLACK];
+	bitboard empty		= ~allPieces;
+	// bitboard allies 	= pos->colors[side];
+	bitboard enemies 	= pos->colors[!side];
 
-	uint64_t pawns 		= pos->colors[side] & pos->pieceBBs[PAWN];
-	uint64_t knights 	= pos->colors[side] & pos->pieceBBs[KNIGHT];
-	// uint64_t bishops = pos->colors[side] & pos->pieceBBs[BISHOP];
-	// uint64_t rooks 	= pos->colors[side] & pos->pieceBBs[ROOK];
-	// uint64_t queens 	= pos->colors[side] & pos->pieceBBs[QUEEN];
-	uint64_t king 		= pos->colors[side] & pos->pieceBBs[KING];
+	bitboard pawns 		= pos->colors[side] & pos->pieceBBs[PAWN];
+	bitboard knights 	= pos->colors[side] & pos->pieceBBs[KNIGHT];
+	// bitboard bishops = pos->colors[side] & pos->pieceBBs[BISHOP];
+	// bitboard rooks 	= pos->colors[side] & pos->pieceBBs[ROOK];
+	// bitboard queens 	= pos->colors[side] & pos->pieceBBs[QUEEN];
+	bitboard king 		= pos->colors[side] & pos->pieceBBs[KING];
 	
-	uint64_t enPassant 	= 1ULL << SQ64(pos->enPas);
+	bitboard enPassant 	= 1ULL << SQ64(pos->enPas);
 
 	// Pawns and castling
 	if (side == WHITE) {
@@ -386,19 +386,19 @@ void GenerateAllCaptures(const S_BOARD *pos, S_MOVELIST *list) {
 	int pce, sq, t_sq, pceNum, dir, index, pceIndex, sq120, attack;
 	int side = pos->side;
 
-	uint64_t attacks;
+	bitboard attacks;
 
-	// uint64_t allPieces  = pos->colors[WHITE] | pos->colors[BLACK];
-	uint64_t enemies 	= pos->colors[!side];
+	// bitboard allPieces  = pos->colors[WHITE] | pos->colors[BLACK];
+	bitboard enemies 	= pos->colors[!side];
 
-	uint64_t pawns 		= pos->colors[side] & pos->pieceBBs[PAWN];
-	uint64_t knights 	= pos->colors[side] & pos->pieceBBs[KNIGHT];
-	// uint64_t bishops = pos->colors[side] & pos->pieceBBs[BISHOP];
-	// uint64_t rooks 	= pos->colors[side] & pos->pieceBBs[ROOK];
-	// uint64_t queens 	= pos->colors[side] & pos->pieceBBs[QUEEN];
-	uint64_t king 		= pos->colors[side] & pos->pieceBBs[KING];
+	bitboard pawns 		= pos->colors[side] & pos->pieceBBs[PAWN];
+	bitboard knights 	= pos->colors[side] & pos->pieceBBs[KNIGHT];
+	// bitboard bishops = pos->colors[side] & pos->pieceBBs[BISHOP];
+	// bitboard rooks 	= pos->colors[side] & pos->pieceBBs[ROOK];
+	// bitboard queens 	= pos->colors[side] & pos->pieceBBs[QUEEN];
+	bitboard king 		= pos->colors[side] & pos->pieceBBs[KING];
 	
-	uint64_t enPassant 	= 1ULL << SQ64(pos->enPas);
+	bitboard enPassant 	= 1ULL << SQ64(pos->enPas);
 
 	if (side == WHITE) {
 

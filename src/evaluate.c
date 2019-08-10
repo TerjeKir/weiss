@@ -85,16 +85,16 @@ int EvalPosition(const S_BOARD *pos) {
 	int sq, sq120;
 	int score = pos->material[WHITE] - pos->material[BLACK];
 
-	uint64_t whitePawns 	= pos->colors[WHITE] & pos->pieceBBs[  PAWN];
-	uint64_t whiteKnights 	= pos->colors[WHITE] & pos->pieceBBs[KNIGHT];
-	uint64_t whiteBishops 	= pos->colors[WHITE] & pos->pieceBBs[BISHOP];
-	uint64_t whiteRooks 	= pos->colors[WHITE] & pos->pieceBBs[  ROOK];
-	uint64_t whiteQueens 	= pos->colors[WHITE] & pos->pieceBBs[ QUEEN];
-	uint64_t blackPawns 	= pos->colors[BLACK] & pos->pieceBBs[  PAWN];
-	uint64_t blackKnights 	= pos->colors[BLACK] & pos->pieceBBs[KNIGHT];
-	uint64_t blackBishops 	= pos->colors[BLACK] & pos->pieceBBs[BISHOP];
-	uint64_t blackRooks 	= pos->colors[BLACK] & pos->pieceBBs[  ROOK];
-	uint64_t blackQueens 	= pos->colors[BLACK] & pos->pieceBBs[ QUEEN];
+	bitboard whitePawns 	= pos->colors[WHITE] & pos->pieceBBs[  PAWN];
+	bitboard whiteKnights 	= pos->colors[WHITE] & pos->pieceBBs[KNIGHT];
+	bitboard whiteBishops 	= pos->colors[WHITE] & pos->pieceBBs[BISHOP];
+	bitboard whiteRooks 	= pos->colors[WHITE] & pos->pieceBBs[  ROOK];
+	bitboard whiteQueens 	= pos->colors[WHITE] & pos->pieceBBs[ QUEEN];
+	bitboard blackPawns 	= pos->colors[BLACK] & pos->pieceBBs[  PAWN];
+	bitboard blackKnights 	= pos->colors[BLACK] & pos->pieceBBs[KNIGHT];
+	bitboard blackBishops 	= pos->colors[BLACK] & pos->pieceBBs[BISHOP];
+	bitboard blackRooks 	= pos->colors[BLACK] & pos->pieceBBs[  ROOK];
+	bitboard blackQueens 	= pos->colors[BLACK] & pos->pieceBBs[ QUEEN];
 
 
 	// Bishop pair
