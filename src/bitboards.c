@@ -7,6 +7,12 @@
 #include "bitboards.h"
 
 
+const bitboard fileBBs[] = { 0x0101010101010101ULL, 0x0202020202020202ULL, 0x0404040404040404ULL, 0x0808080808080808ULL,
+                       0x1010101010101010ULL, 0x2020202020202020ULL, 0x4040404040404040ULL, 0x8080808080808080ULL };
+
+const bitboard rankBBs[] = {         0xFF,         0xFF00,         0xFF0000,         0xFF000000, 
+                       0xFF00000000, 0xFF0000000000, 0xFF000000000000, 0xFF00000000000000 };
+
 const int BitTable[64] = {
 	63, 30,  3, 32, 25, 41, 22, 33,
 	15, 50, 42, 13, 11, 53, 19, 34,
@@ -28,7 +34,7 @@ int Distance(int sq1, int sq2) {
     return distance[sq1][sq2];
 }
 
-void initDistance() {
+void InitDistance() {
 
     int vertical, horizontal;
 
@@ -36,7 +42,7 @@ void initDistance() {
         for (int sq2 = 0; sq2 < 64; sq2++) {
             vertical = abs((sq1 / 8) - (sq2 / 8));
             horizontal = abs((sq1 % 8) - (sq2 % 8));
-            distance[sq1][sq2] = max(vertical, horizontal);
+            distance[sq1][sq2] = ((vertical > horizontal) ? vertical : horizontal);
         }
 }
 

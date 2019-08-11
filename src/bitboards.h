@@ -4,32 +4,31 @@
 
 #include "types.h"
 
+enum {
+    fileABB = 0x0101010101010101ULL,
+    fileBBB = 0x0202020202020202ULL,
+    fileCBB = 0x0404040404040404ULL,
+    fileDBB = 0x0808080808080808ULL,
+    fileEBB = 0x1010101010101010ULL,
+    fileFBB = 0x2020202020202020ULL,
+    fileGBB = 0x4040404040404040ULL,
+    fileHBB = 0x8080808080808080ULL,
 
-bitboard fileABB = 0x0101010101010101ULL;
-bitboard fileBBB = 0x0202020202020202ULL;
-bitboard fileCBB = 0x0404040404040404ULL;
-bitboard fileDBB = 0x0808080808080808ULL;
-bitboard fileEBB = 0x1010101010101010ULL;
-bitboard fileFBB = 0x2020202020202020ULL;
-bitboard fileGBB = 0x4040404040404040ULL;
-bitboard fileHBB = 0x8080808080808080ULL;
+    rank1BB = 0xFF,
+    rank2BB = 0xFF00,
+    rank3BB = 0xFF0000,
+    rank4BB = 0xFF000000,
+    rank5BB = 0xFF00000000,
+    rank6BB = 0xFF0000000000,
+    rank7BB = 0xFF000000000000,
+    rank8BB = 0xFF00000000000000,
+};
 
-bitboard rank1BB = 0xFF;
-bitboard rank2BB = 0xFF00;
-bitboard rank3BB = 0xFF0000;
-bitboard rank4BB = 0xFF000000;
-bitboard rank5BB = 0xFF00000000;
-bitboard rank6BB = 0xFF0000000000;
-bitboard rank7BB = 0xFF000000000000;
-bitboard rank8BB = 0xFF00000000000000;
+const bitboard fileBBs[8];
+const bitboard rankBBs[8];
 
-bitboard fileBBs[] = { 0x0101010101010101ULL, 0x0202020202020202ULL, 0x0404040404040404ULL, 0x0808080808080808ULL,
-                       0x1010101010101010ULL, 0x2020202020202020ULL, 0x4040404040404040ULL, 0x8080808080808080ULL };
-
-bitboard rankBBs[] = {         0xFF,         0xFF00,         0xFF0000,         0xFF000000, 
-                       0xFF00000000, 0xFF0000000000, 0xFF000000000000, 0xFF00000000000000 };
-
-
+void InitDistance();
+int Distance(int sq1, int sq2);
 int Lsb(bitboard *bb);
 int PopLsb(bitboard *bb);
 int PopCount(bitboard x);
