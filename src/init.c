@@ -5,6 +5,7 @@
 
 #include "defs.h"
 #include "attack.h"
+#include "bitboards.h"
 #include "hashkeys.h"
 #include "movegen.h"
 #include "validate.h"
@@ -160,6 +161,7 @@ static void InitSq120To64() {
 
 void InitAll() {
 	InitAttacks();
+	InitDistance();
 	InitSq120To64();
 	InitBitMasks();
 	InitHashKeys();

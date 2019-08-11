@@ -1,9 +1,11 @@
 // bitboards.c
 
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "types.h"
 #include "bitboards.h"
+
 
 const int BitTable[64] = {
 	63, 30,  3, 32, 25, 41, 22, 33,
@@ -20,6 +22,23 @@ const uint64_t m2  = 0x3333333333333333;
 const uint64_t m4  = 0x0f0f0f0f0f0f0f0f;
 const uint64_t h01 = 0x0101010101010101;
 
+int distance[64][64];
+
+int Distance(int sq1, int sq2) {
+    return distance[sq1][sq2];
+}
+
+void initDistance() {
+
+    int vertical, horizontal;
+
+    for (int sq1 = 0; sq1 < 64; sq1++)
+        for (int sq2 = 0; sq2 < 64; sq2++) {
+            vertical = abs((sq1 / 8) - (sq2 / 8));
+            horizontal = abs((sq1 % 8) - (sq2 % 8));
+            distance[sq1][sq2] = max(vertical, horizontal);
+        }
+}
 
 int PopCount(bitboard x) {
 
