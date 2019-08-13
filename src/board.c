@@ -156,17 +156,17 @@ int CheckBoard(const S_BOARD *pos) {
 	assert(PopCount(pos->pieceBBs[KING] & pos->colors[WHITE]) == 1);
 	assert(PopCount(pos->pieceBBs[KING] & pos->colors[BLACK]) == 1);
 
-	assert(PopCount(pos->pieceBBs[  PAWN]) >= 0);
-	assert(PopCount(pos->pieceBBs[KNIGHT]) >= 0);
-	assert(PopCount(pos->pieceBBs[BISHOP]) >= 0);
-	assert(PopCount(pos->pieceBBs[  ROOK]) >= 0);
-	assert(PopCount(pos->pieceBBs[ QUEEN]) >= 0);
+	assert(PopCount(pos->pieceBBs[  PAWN] & pos->colors[WHITE]) <= 8);
+	assert(PopCount(pos->pieceBBs[KNIGHT] & pos->colors[WHITE]) <= 10);
+	assert(PopCount(pos->pieceBBs[BISHOP] & pos->colors[WHITE]) <= 10);
+	assert(PopCount(pos->pieceBBs[  ROOK] & pos->colors[WHITE]) <= 10);
+	assert(PopCount(pos->pieceBBs[ QUEEN] & pos->colors[WHITE]) <= 9);
 
-	assert(PopCount(pos->pieceBBs[  PAWN]) <= 16);
-	assert(PopCount(pos->pieceBBs[KNIGHT]) <= 20);
-	assert(PopCount(pos->pieceBBs[BISHOP]) <= 20);
-	assert(PopCount(pos->pieceBBs[  ROOK]) <= 20);
-	assert(PopCount(pos->pieceBBs[ QUEEN]) <= 18);
+	assert(PopCount(pos->pieceBBs[  PAWN] & pos->colors[BLACK]) <= 8);
+	assert(PopCount(pos->pieceBBs[KNIGHT] & pos->colors[BLACK]) <= 10);
+	assert(PopCount(pos->pieceBBs[BISHOP] & pos->colors[BLACK]) <= 10);
+	assert(PopCount(pos->pieceBBs[  ROOK] & pos->colors[BLACK]) <= 10);
+	assert(PopCount(pos->pieceBBs[ QUEEN] & pos->colors[BLACK]) <= 9);
 
 	// check piece lists
 	for (t_piece = wP; t_piece <= bK; ++t_piece)
@@ -198,7 +198,6 @@ int CheckBoard(const S_BOARD *pos) {
 	assert(t_bigPce[WHITE] == pos->bigPce[WHITE] && t_bigPce[BLACK] == pos->bigPce[BLACK]);
 
 	assert(pos->side == WHITE || pos->side == BLACK);
-	assert(GeneratePosKey(pos) == pos->posKey);
 
 	assert(pos->enPas == NO_SQ || (RanksBrd[pos->enPas] == RANK_6 && pos->side == WHITE) || (RanksBrd[pos->enPas] == RANK_3 && pos->side == BLACK));
 
@@ -206,6 +205,8 @@ int CheckBoard(const S_BOARD *pos) {
 	assert(pos->pieces[pos->KingSq[BLACK]] == bK);
 
 	assert(pos->castlePerm >= 0 && pos->castlePerm <= 15);
+
+	assert(GeneratePosKey(pos) == pos->posKey);
 
 	return TRUE;
 }
