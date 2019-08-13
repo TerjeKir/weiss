@@ -160,7 +160,6 @@ static void InitSq120To64() {
 }
 
 void InitAll() {
-	InitAttacks();
 	InitDistance();
 	InitSq120To64();
 	InitBitMasks();
@@ -168,4 +167,5 @@ void InitAll() {
 	InitFilesRanksBrd();
 	InitEvalMasks();
 	InitMvvLva();
+	InitAttacks();
 }
