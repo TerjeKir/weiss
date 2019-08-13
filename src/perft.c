@@ -51,8 +51,10 @@ void Perft(int depth, S_BOARD *pos) {
 	for (int MoveNum = 0; MoveNum < list->count; ++MoveNum) {
 		move = list->moves[MoveNum].move;
 
-		if (!MakeMove(pos, move))
+		if (!MakeMove(pos, move)){
+			printf("move %d : %s : Illegal\n", MoveNum + 1, PrMove(move));
 			continue;
+		}
 
 		uint64_t oldCount = leafNodes;
 		RecursivePerft(depth - 1, pos);
@@ -64,7 +66,8 @@ void Perft(int depth, S_BOARD *pos) {
 
 	int timeElapsed = GetTimeMs() - start;
 	printf("\nPerft Complete : %I64d nodes visited in %dms\n", leafNodes, timeElapsed);
-	printf("               : %.0f nps\n", leafNodes / ((double) timeElapsed / 1000));
+	if (timeElapsed > 0) 
+		printf("               : %.0f nps\n", leafNodes / ((double) timeElapsed / 1000));
 
 	return;
 }
