@@ -1,7 +1,7 @@
 SRC     = *.c fathom/tbprobe.c
 OUT		= ../bin/
 EXE		= weiss
-VER		= 0.1.1
+VER		= 0.2
 
 STD		= -std=gnu11
 WFLAGS 	= -Wall -Wextra -Wshadow

@@ -13,7 +13,7 @@
 
 /* DEFINITIONS */
 
-#define NAME "weiss 0.1"
+#define NAME "weiss 0.2"
 
 #define BRD_SQ_NUM 120
 
