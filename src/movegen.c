@@ -194,7 +194,7 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 
 	list->count = 0;
 
-	int pce, sq, t_sq, pceNum, dir, index, pceIndex, sq120, attack, move;
+	int sq, sq120, attack, move;
 	int side = pos->side;
 
 	bitboard squareBitMask, attacks, moves;
@@ -206,9 +206,9 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 
 	bitboard pawns 		= pos->colors[side] & pos->pieceBBs[PAWN];
 	bitboard knights 	= pos->colors[side] & pos->pieceBBs[KNIGHT];
-	// bitboard bishops = pos->colors[side] & pos->pieceBBs[BISHOP];
-	// bitboard rooks 	= pos->colors[side] & pos->pieceBBs[ROOK];
-	// bitboard queens 	= pos->colors[side] & pos->pieceBBs[QUEEN];
+	bitboard bishops = pos->colors[side] & pos->pieceBBs[BISHOP];
+	bitboard rooks 	= pos->colors[side] & pos->pieceBBs[ROOK];
+	bitboard queens 	= pos->colors[side] & pos->pieceBBs[QUEEN];
 	bitboard king 		= pos->colors[side] & pos->pieceBBs[KING];
 	
 	bitboard enPassant 	= 1ULL << SQ64(pos->enPas);
@@ -342,35 +342,68 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 		AddQuietMove(pos, MOVE(sq120, move, EMPTY, EMPTY, 0), list);
 	}
 
-	/* Loop for slide pieces */
-	pceIndex = LoopSlideIndex[side];
-	pce = LoopSlidePce[pceIndex++];
-	while (pce != 0) {
+	// Bishops
+	while (bishops) {
 
-		assert(PieceValid(pce));
+		sq = PopLsb(&bishops);
+		sq120 = SQ120(sq);
 
-		for (pceNum = 0; pceNum < pos->pceNum[pce]; ++pceNum) {
-
-			sq = pos->pList[pce][pceNum];
-			assert(SqOnBoard(sq));
-
-			for (index = 0; index < NumDir[pce]; ++index) {
-				dir = PceDir[pce][index];
-				t_sq = sq + dir;
-
-				while (!SQOFFBOARD(t_sq)) {
-					// BLACK ^ 1 == WHITE	   WHITE ^ 1 == BLACK
-					if (pos->pieces[t_sq] != EMPTY) {
-						if (PieceCol[pos->pieces[t_sq]] == (side ^ 1))
-							AddCaptureMove(pos, MOVE(sq, t_sq, pos->pieces[t_sq], EMPTY, 0), list);
-						break;
-					}
-					AddQuietMove(pos, MOVE(sq, t_sq, EMPTY, EMPTY, 0), list);
-					t_sq += dir;
-				}
-			}
+		attacks = SliderAttacks(sq, allPieces, mBishopTable) & enemies;
+		while (attacks) {
+			attack = SQ120(PopLsb(&attacks));
+			AddCaptureMove(pos, MOVE(sq120, attack, pos->pieces[attack], EMPTY, 0), list);
 		}
-		pce = LoopSlidePce[pceIndex++];
+		moves = SliderAttacks(sq, allPieces, mBishopTable) & empty;
+		while (moves) {
+			move = SQ120(PopLsb(&moves));
+			AddQuietMove(pos, MOVE(sq120, move, EMPTY, EMPTY, 0), list);
+		}
+	}
+
+	// Rooks
+	while (rooks) {
+
+		sq = PopLsb(&rooks);
+		sq120 = SQ120(sq);
+
+		attacks = SliderAttacks(sq, allPieces, mRookTable) & enemies;
+		while (attacks) {
+			attack = SQ120(PopLsb(&attacks));
+			AddCaptureMove(pos, MOVE(sq120, attack, pos->pieces[attack], EMPTY, 0), list);
+		}
+		moves = SliderAttacks(sq, allPieces, mRookTable) & empty;
+		while (moves) {
+			move = SQ120(PopLsb(&moves));
+			AddQuietMove(pos, MOVE(sq120, move, EMPTY, EMPTY, 0), list);
+		}
+	}
+
+	// Queens
+	while (queens) {
+
+		sq = PopLsb(&queens);
+		sq120 = SQ120(sq);
+
+		attacks = SliderAttacks(sq, allPieces, mBishopTable) & enemies;
+		while (attacks) {
+			attack = SQ120(PopLsb(&attacks));
+			AddCaptureMove(pos, MOVE(sq120, attack, pos->pieces[attack], EMPTY, 0), list);
+		}
+		attacks = SliderAttacks(sq, allPieces, mRookTable) & enemies;
+		while (attacks) {
+			attack = SQ120(PopLsb(&attacks));
+			AddCaptureMove(pos, MOVE(sq120, attack, pos->pieces[attack], EMPTY, 0), list);
+		}
+		moves = SliderAttacks(sq, allPieces, mBishopTable) & empty;
+		while (moves) {
+			move = SQ120(PopLsb(&moves));
+			AddQuietMove(pos, MOVE(sq120, move, EMPTY, EMPTY, 0), list);
+		}
+		moves = SliderAttacks(sq, allPieces, mRookTable) & empty;
+		while (moves) {
+			move = SQ120(PopLsb(&moves));
+			AddQuietMove(pos, MOVE(sq120, move, EMPTY, EMPTY, 0), list);
+		}
 	}
 
 	assert(MoveListOk(list, pos));
@@ -383,20 +416,20 @@ void GenerateAllCaptures(const S_BOARD *pos, S_MOVELIST *list) {
 
 	list->count = 0;
 
-	int pce, sq, t_sq, pceNum, dir, index, pceIndex, sq120, attack;
+	int sq, sq120, attack;
 	int side = pos->side;
 
 	bitboard attacks;
 
-	// bitboard allPieces  = pos->allBB;
+	bitboard allPieces  = pos->allBB;
 	bitboard enemies 	= pos->colors[!side];
 
-	bitboard pawns 		= pos->colors[side] & pos->pieceBBs[PAWN];
+	bitboard pawns 		= pos->colors[side] & pos->pieceBBs[  PAWN];
 	bitboard knights 	= pos->colors[side] & pos->pieceBBs[KNIGHT];
-	// bitboard bishops = pos->colors[side] & pos->pieceBBs[BISHOP];
-	// bitboard rooks 	= pos->colors[side] & pos->pieceBBs[ROOK];
-	// bitboard queens 	= pos->colors[side] & pos->pieceBBs[QUEEN];
-	bitboard king 		= pos->colors[side] & pos->pieceBBs[KING];
+	bitboard bishops 	= pos->colors[side] & pos->pieceBBs[BISHOP];
+	bitboard rooks 		= pos->colors[side] & pos->pieceBBs[  ROOK];
+	bitboard queens 	= pos->colors[side] & pos->pieceBBs[ QUEEN];
+	bitboard king 		= pos->colors[side] & pos->pieceBBs[  KING];
 	
 	bitboard enPassant 	= 1ULL << SQ64(pos->enPas);
 
@@ -474,33 +507,48 @@ void GenerateAllCaptures(const S_BOARD *pos, S_MOVELIST *list) {
 		AddCaptureMove(pos, MOVE(sq120, attack, pos->pieces[attack], EMPTY, 0), list);
 	}
 
-	/* Loop for slide pieces */
-	pceIndex = LoopSlideIndex[side];
-	pce = LoopSlidePce[pceIndex++];
-	while (pce != 0) {
-		
-		assert(PieceValid(pce));
+	// Bishops
+	while (bishops) {
 
-		for (pceNum = 0; pceNum < pos->pceNum[pce]; ++pceNum) {
+		sq = PopLsb(&bishops);
+		sq120 = SQ120(sq);
 
-			sq = pos->pList[pce][pceNum];
-			assert(SqOnBoard(sq));
-
-			for (index = 0; index < NumDir[pce]; ++index) {
-				dir = PceDir[pce][index];
-				t_sq = sq + dir;
-
-				while (!SQOFFBOARD(t_sq)) {
-					if (pos->pieces[t_sq] != EMPTY) {
-						if (PieceCol[pos->pieces[t_sq]] == (side ^ 1))
-							AddCaptureMove(pos, MOVE(sq, t_sq, pos->pieces[t_sq], EMPTY, 0), list);
-						break;
-					}
-					t_sq += dir;
-				}
-			}
+		attacks = SliderAttacks(sq, allPieces, mBishopTable) & enemies;
+		while (attacks) {
+			attack = SQ120(PopLsb(&attacks));
+			AddCaptureMove(pos, MOVE(sq120, attack, pos->pieces[attack], EMPTY, 0), list);
 		}
-		pce = LoopSlidePce[pceIndex++];
+	}
+
+	// Rooks
+	while (rooks) {
+
+		sq = PopLsb(&rooks);
+		sq120 = SQ120(sq);
+
+		attacks = SliderAttacks(sq, allPieces, mRookTable) & enemies;
+		while (attacks) {
+			attack = SQ120(PopLsb(&attacks));
+			AddCaptureMove(pos, MOVE(sq120, attack, pos->pieces[attack], EMPTY, 0), list);
+		}
+	}
+
+	// Queens
+	while (queens) {
+
+		sq = PopLsb(&queens);
+		sq120 = SQ120(sq);
+
+		attacks = SliderAttacks(sq, allPieces, mBishopTable) & enemies;
+		while (attacks) {
+			attack = SQ120(PopLsb(&attacks));
+			AddCaptureMove(pos, MOVE(sq120, attack, pos->pieces[attack], EMPTY, 0), list);
+		}
+		attacks = SliderAttacks(sq, allPieces, mRookTable) & enemies;
+		while (attacks) {
+			attack = SQ120(PopLsb(&attacks));
+			AddCaptureMove(pos, MOVE(sq120, attack, pos->pieces[attack], EMPTY, 0), list);
+		}
 	}
 
 	assert(MoveListOk(list, pos));

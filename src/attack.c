@@ -9,18 +9,6 @@
 #include "validate.h"
 
 
-const int bishopDirections[4] = {7, 9, -7, -9};
-const int   rookDirections[4] = {8, 1, -8, -1};
-
-typedef struct {
-
-    bitboard *attacks;
-    bitboard mask;
-    uint64_t magic;
-    int shift;
-
-} MAGIC;
-
 // Simple
 bitboard pawn_attacks[2][64];
 bitboard knight_attacks[64];
@@ -121,14 +109,6 @@ static void InitPawnAttacks() {
     }
 }
 
-static bitboard SliderAttacks(int sq, bitboard occupied, MAGIC *table) {
-    bitboard *ptr = table[sq].attacks;
-    occupied     &= table[sq].mask;
-    occupied     *= table[sq].magic;
-    occupied    >>= table[sq].shift;
-    return ptr[occupied];
-}
-
 static bitboard MakeSliderAttacks(int sq, bitboard occupied, const int directions[]) {
 
     bitboard result = 0;
@@ -179,11 +159,23 @@ static void InitSliderAttacks(MAGIC *table, bitboard *attackTable, const bitboar
     }
 }
 
+// Returns the attack bitboard for a slider based on what squares are occupied
+bitboard SliderAttacks(int sq, bitboard occupied, MAGIC *table) {
+    bitboard *ptr = table[sq].attacks;
+    occupied     &= table[sq].mask;
+    occupied     *= table[sq].magic;
+    occupied    >>= table[sq].shift;
+    return ptr[occupied];
+}
+
+
 // Initializes all attack bitboards
 void InitAttacks() {
     InitKingAttacks();
     InitKnightAttacks();
     InitPawnAttacks();
+    const int bishopDirections[4] = {7, 9, -7, -9};
+    const int   rookDirections[4] = {8, 1, -8, -1};
     InitSliderAttacks(mBishopTable, bishop_attacks, BishopMagics, bishopDirections);
     InitSliderAttacks(mRookTable,     rook_attacks,   RookMagics,   rookDirections);
 }
@@ -219,7 +211,6 @@ int SqAttacked(const int sq, const int side, const S_BOARD *pos) {
     // Bishops
     bAtks = SliderAttacks(sq64, allPieces, mBishopTable);
     if (bAtks & bishops) return TRUE;
-
 
     // Rook
     rAtks = SliderAttacks(sq64, allPieces, mRookTable);

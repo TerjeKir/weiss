@@ -42,10 +42,23 @@ static const uint64_t BishopMagics[64] = {
     0x0400000260142410ull, 0x0800633408100500ull, 0xFC087E8E4BB2F736ull, 0x43FF9E4EF4CA2C89ull,
 };
 
+typedef struct {
+
+    bitboard *attacks;
+    bitboard mask;
+    uint64_t magic;
+    int shift;
+
+} MAGIC;
+
 bitboard king_attacks[64];
 bitboard knight_attacks[64];
 bitboard pawn_attacks[2][64];
 
+MAGIC mBishopTable[64];
+MAGIC mRookTable[64];
+
 void InitAttacks();
 
+bitboard SliderAttacks(int sq, bitboard occupied, MAGIC *table);
 int SqAttacked(const int sq, const int side, const S_BOARD *pos);
