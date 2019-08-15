@@ -89,7 +89,7 @@ static int checkresult(S_BOARD *pos) {
 	if (found != 0)
 		return FALSE;
 
-	int InCheck = SqAttacked(pos->colors[pos->side] & pos->pieceBBs[KING], !pos->side, pos);
+	int InCheck = SqAttacked(pos->KingSq[pos->side], !pos->side, pos);
 
 	if (InCheck) {
 		if (pos->side == WHITE) {
