@@ -5,16 +5,17 @@
 
 #include "defs.h"
 #include "attack.h"
-#include "board.h"
 #include "bitboards.h"
+#include "board.h"
 #include "evaluate.h"
 #include "io.h"
 #include "makemove.h"
 #include "movegen.h"
 #include "misc.h"
+#include "perft.h"
 #include "pvtable.h"
 #include "search.h"
-#include "perft.h"
+#include "validate.h"
 
 static int ThreeFoldRep(const S_BOARD *pos) {
 
