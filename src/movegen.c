@@ -201,15 +201,14 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 
 	bitboard allPieces  = pos->allBB;
 	bitboard empty		= ~allPieces;
-	// bitboard allies 	= pos->colors[side];
 	bitboard enemies 	= pos->colors[!side];
 
-	bitboard pawns 		= pos->colors[side] & pos->pieceBBs[PAWN];
+	bitboard pawns 		= pos->colors[side] & pos->pieceBBs[  PAWN];
 	bitboard knights 	= pos->colors[side] & pos->pieceBBs[KNIGHT];
-	bitboard bishops = pos->colors[side] & pos->pieceBBs[BISHOP];
-	bitboard rooks 	= pos->colors[side] & pos->pieceBBs[ROOK];
-	bitboard queens 	= pos->colors[side] & pos->pieceBBs[QUEEN];
-	bitboard king 		= pos->colors[side] & pos->pieceBBs[KING];
+	bitboard bishops 	= pos->colors[side] & pos->pieceBBs[BISHOP];
+	bitboard rooks 		= pos->colors[side] & pos->pieceBBs[  ROOK];
+	bitboard queens 	= pos->colors[side] & pos->pieceBBs[ QUEEN];
+	bitboard king 		= pos->colors[side] & pos->pieceBBs[  KING];
 	
 	bitboard enPassant 	= 1ULL << SQ64(pos->enPas);
 
@@ -311,7 +310,6 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 	while (knights) {
 
 		sq = PopLsb(&knights);
-		squareBitMask = 1ULL << sq;
 		sq120 = SQ120(sq);
 
 		attacks = knight_attacks[sq] & enemies;
@@ -328,7 +326,6 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 
 	// King
 	sq = Lsb(&king);
-	squareBitMask = 1ULL << sq;
 	sq120 = SQ120(sq);
 
 	attacks = king_attacks[sq] & enemies;
