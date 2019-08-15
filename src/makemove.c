@@ -377,7 +377,7 @@ int MakeMove(S_BOARD *pos, int move) {
 	pos->history[pos->hisPly].enPas = pos->enPas;
 	pos->history[pos->hisPly].castlePerm = pos->castlePerm;
 
-	// Update castling rights
+	// Update castling rights and unset passant square
 	pos->castlePerm &= CastlePerm[from];
 	pos->castlePerm &= CastlePerm[to];
 	pos->enPas = NO_SQ;
@@ -407,11 +407,11 @@ int MakeMove(S_BOARD *pos, int move) {
 		pos->fiftyMove = 0;
 		if (move & MOVE_FLAG_PAWNSTART) {
 			if (side == WHITE) {
-				pos->enPas = from + 10;
-				assert(RanksBrd[pos->enPas] == RANK_3);
+				pos->enPas = SQ64(from + 10);
+				assert(pos->enPas >= 16 && pos->enPas < 24);
 			} else {
-				pos->enPas = from - 10;
-				assert(RanksBrd[pos->enPas] == RANK_6);
+				pos->enPas = SQ64(from - 10);
+				assert(pos->enPas >= 40 && pos->enPas < 48);
 			}
 			HASH_EP;
 		}
@@ -533,16 +533,23 @@ void MakeNullMove(S_BOARD *pos) {
 	pos->ply++;
 	pos->history[pos->hisPly].posKey = pos->posKey;
 
-	if (pos->enPas != NO_SQ) HASH_EP;
+	// Hash out en passant if there was one, and unset it
+	if (pos->enPas != NO_SQ) {
+		HASH_EP;
+		pos->enPas = NO_SQ;
+	}
 
+	// Save misc info for takeback
 	pos->history[pos->hisPly].move = NOMOVE;
 	pos->history[pos->hisPly].fiftyMove = pos->fiftyMove;
 	pos->history[pos->hisPly].enPas = pos->enPas;
 	pos->history[pos->hisPly].castlePerm = pos->castlePerm;
-	pos->enPas = NO_SQ;
-
-	pos->side ^= 1;
 	pos->hisPly++;
+
+	// Unset en passant square
+
+	// Change side to play
+	pos->side ^= 1;
 	HASH_SIDE;
 
 	assert(CheckBoard(pos));
@@ -558,7 +565,7 @@ void TakeNullMove(S_BOARD *pos) {
 	pos->hisPly--;
 	pos->ply--;
 
-	if (pos->enPas != NO_SQ) HASH_EP;
+	if (pos->enPas != NO_SQ) HASH_EP; // TODO: Remove?
 
 	pos->castlePerm = pos->history[pos->hisPly].castlePerm;
 	pos->fiftyMove = pos->history[pos->hisPly].fiftyMove;

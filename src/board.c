@@ -105,19 +105,21 @@ static void ResetBoard(S_BOARD *pos) {
 
 	int index = 0;
 
+	// All squares to offboard
 	for (index = 0; index < BRD_SQ_NUM; ++index)
 		pos->pieces[index] = OFFBOARD;
 
+	// All squares on the board to empty instead of offboard
 	for (index = 0; index < 64; ++index)
 		pos->pieces[SQ120(index)] = EMPTY;
 
+	// Piece lists etc
 	for (index = 0; index < 2; ++index) {
 		pos->bigPce[index] = 0;
 		pos->majPce[index] = 0;
 		pos->minPce[index] = 0;
 		pos->material[index] = 0;
 	}
-
 	for (index = 0; index < 13; ++index)
 		pos->pceNum[index] = 0;
 
@@ -130,17 +132,20 @@ static void ResetBoard(S_BOARD *pos) {
 
 	pos->allBB = 0ULL;
 
+	// King squares
 	pos->KingSq[WHITE] = pos->KingSq[BLACK] = NO_SQ;
 
+	// Misc
 	pos->side = BOTH;
 	pos->enPas = NO_SQ;
 	pos->fiftyMove = 0;
+	pos->castlePerm = 0;
 
+	// Ply
 	pos->ply = 0;
 	pos->hisPly = 0;
 
-	pos->castlePerm = 0;
-
+	// Position key
 	pos->posKey = 0ULL;
 }
 
@@ -205,7 +210,9 @@ int CheckBoard(const S_BOARD *pos) {
 
 	assert(pos->side == WHITE || pos->side == BLACK);
 
-	assert(pos->enPas == NO_SQ || (RanksBrd[pos->enPas] == RANK_6 && pos->side == WHITE) || (RanksBrd[pos->enPas] == RANK_3 && pos->side == BLACK));
+	assert(pos->enPas == NO_SQ 
+	   || (pos->enPas >= 40 && pos->enPas < 48 && pos->side == WHITE) 
+	   || (pos->enPas >= 16 && pos->enPas < 24 && pos->side == BLACK));
 
 	assert(pos->pieces[pos->KingSq[WHITE]] == wK);
 	assert(pos->pieces[pos->KingSq[BLACK]] == bK);
@@ -311,9 +318,9 @@ int ParseFen(char *fen, S_BOARD *pos) {
 		rank = fen[1] - '1';
 
 		assert(file >= FILE_A && file <= FILE_H);
-		assert(rank >= RANK_1 && rank <= RANK_8);
+		assert(rank == RANK_3 || rank == RANK_6);
 
-		pos->enPas = FR2SQ(file, rank);
+		pos->enPas = (8 * rank) + file;
 	}
 
 	// Position Key
@@ -374,7 +381,7 @@ void MirrorBoard(S_BOARD *pos) {
 	if (pos->castlePerm & BQCA) tempCastlePerm |= WQCA;
 
 	if (pos->enPas != NO_SQ)
-		tempEnPas = SQ120(Mirror64[SQ64(pos->enPas)]);
+		tempEnPas = Mirror64[pos->enPas];
 
 	for (sq = 0; sq < 64; sq++)
 		tempPiecesArray[sq] = pos->pieces[SQ120(Mirror64[sq])];

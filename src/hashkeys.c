@@ -52,9 +52,8 @@ uint64_t GeneratePosKey(const S_BOARD *pos) {
 
 	// En passant
 	if (pos->enPas != NO_SQ) {
-		assert(pos->enPas >= 0 && pos->enPas < BRD_SQ_NUM);
-		assert(SqOnBoard(pos->enPas));
-		assert(RanksBrd[pos->enPas] == RANK_3 || RanksBrd[pos->enPas] == RANK_6);
+		assert((pos->enPas >= 16 && pos->enPas < 24 && pos->side == BLACK) 
+			|| (pos->enPas >= 40 && pos->enPas < 48 && pos->side == WHITE));
 		posKey ^= PieceKeys[EMPTY][pos->enPas];
 	}
 
