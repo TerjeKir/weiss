@@ -565,8 +565,6 @@ void TakeNullMove(S_BOARD *pos) {
 	pos->hisPly--;
 	pos->ply--;
 
-	if (pos->enPas != NO_SQ) HASH_EP; // TODO: Remove?
-
 	pos->castlePerm = pos->history[pos->hisPly].castlePerm;
 	pos->fiftyMove = pos->history[pos->hisPly].fiftyMove;
 	pos->enPas = pos->history[pos->hisPly].enPas;
