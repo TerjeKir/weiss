@@ -199,7 +199,7 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 
 	bitboard squareBitMask, attacks, moves;
 
-	bitboard allPieces  = pos->colors[WHITE] | pos->colors[BLACK];
+	bitboard allPieces  = pos->allBB;
 	bitboard empty		= ~allPieces;
 	// bitboard allies 	= pos->colors[side];
 	bitboard enemies 	= pos->colors[!side];
@@ -388,7 +388,7 @@ void GenerateAllCaptures(const S_BOARD *pos, S_MOVELIST *list) {
 
 	bitboard attacks;
 
-	// bitboard allPieces  = pos->colors[WHITE] | pos->colors[BLACK];
+	// bitboard allPieces  = pos->allBB;
 	bitboard enemies 	= pos->colors[!side];
 
 	bitboard pawns 		= pos->colors[side] & pos->pieceBBs[PAWN];

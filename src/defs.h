@@ -109,6 +109,7 @@ typedef struct {
 
 	bitboard colors[2];		// 0 White 1 Black
 	bitboard pieceBBs[6]; 	// 0 Pawn  1 Knight 2 Bishop 3 Rook 4 Queen 5 King
+	bitboard allBB;
 
 	int pieces[BRD_SQ_NUM]; // (120)
 

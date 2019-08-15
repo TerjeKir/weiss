@@ -51,6 +51,8 @@ static void UpdateBitboards(S_BOARD *pos) {
 
 		if (piece != OFFBOARD && piece != EMPTY) {
 
+			SETBIT(pos->allBB,  SQ64(sq));
+
 			// Pawns
 			if (piece == wP) {
 				SETBIT(pos->colors[WHITE], SQ64(sq));
@@ -126,6 +128,8 @@ static void ResetBoard(S_BOARD *pos) {
 	for (index = PAWN; index <= KING; index++)
 		pos->pieceBBs[index] = 0ULL;
 
+	pos->allBB = 0ULL;
+
 	pos->KingSq[WHITE] = pos->KingSq[BLACK] = NO_SQ;
 
 	pos->side = BOTH;
@@ -167,6 +171,8 @@ int CheckBoard(const S_BOARD *pos) {
 	assert(PopCount(pos->pieceBBs[BISHOP] & pos->colors[BLACK]) <= 10);
 	assert(PopCount(pos->pieceBBs[  ROOK] & pos->colors[BLACK]) <= 10);
 	assert(PopCount(pos->pieceBBs[ QUEEN] & pos->colors[BLACK]) <= 9);
+
+	assert(pos->allBB == (pos->colors[WHITE] | pos->colors[BLACK]));
 
 	// check piece lists
 	for (t_piece = wP; t_piece <= bK; ++t_piece)

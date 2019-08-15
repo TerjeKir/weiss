@@ -59,6 +59,9 @@ static void ClearPiece(const int sq, S_BOARD *pos) {
 	}
 
 	// Bitboards
+	
+	CLRBIT(pos->allBB, SQ64(sq));
+
 	switch (pce) {
 		case wP:
 			CLRBIT(pos->pieceBBs[PAWN], SQ64(sq));
@@ -151,6 +154,9 @@ static void AddPiece(const int sq, S_BOARD *pos, const int pce) {
 	}
 
 	// Bitboards
+	
+	SETBIT(pos->allBB, SQ64(sq));
+
 	switch (pce) {
 		case wP:
 			SETBIT(pos->pieceBBs[PAWN], SQ64(sq));
@@ -229,6 +235,10 @@ static void MovePiece(const int from, const int to, S_BOARD *pos) {
 	pos->pieces[to] = pce;
 
 	// Bitboards
+	
+	CLRBIT(pos->allBB, SQ64(from));
+	SETBIT(pos->allBB, SQ64(to));
+
 	switch (pce) {
 		case wP:
 			CLRBIT(pos->pieceBBs[PAWN], SQ64(from));

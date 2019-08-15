@@ -200,7 +200,7 @@ int SqAttacked(const int sq, const int side, const S_BOARD *pos) {
 	assert(SideValid(side));
 	assert(CheckBoard(pos));
 
-    bitboard allPieces = pos->colors[WHITE] | pos->colors[BLACK];
+    bitboard allPieces = pos->allBB;
     bitboard bishops = pos->colors[side] & (pos->pieceBBs[BISHOP] | pos->pieceBBs[QUEEN]);
     bitboard rooks = pos->colors[side] & (pos->pieceBBs[ROOK] | pos->pieceBBs[QUEEN]);
 
