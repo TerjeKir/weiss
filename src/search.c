@@ -313,7 +313,8 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 // Root of search
 void SearchPosition(S_BOARD *pos, S_SEARCHINFO *info) {
 
-	int bestMove, bestScore, currentDepth, pvMoves, pvNum, timeElapsed;
+	int bestMove = NOMOVE;
+	int bestScore, currentDepth, pvMoves, pvNum, timeElapsed;
 
 	ClearForSearch(pos, info);
 
