@@ -5,9 +5,10 @@ VER		= 0.2
 
 STD		= -std=gnu11
 WFLAGS 	= -Wall -Wextra -Wshadow
+OPTIM	= -O2
 
 default:
-	gcc $(STD) $(SRC) -o "$(EXE)$(VER).exe"
+	gcc $(STD) $(SRC) -o "$(EXE)$(VER).exe" $(OPTIM)
 
 bin:
-	gcc $(STD) $(WFLAGS) $(SRC) -o "$(OUT)$(EXE)$(VER).exe"
+	gcc $(STD) $(WFLAGS) $(SRC) -o "$(OUT)$(EXE)$(VER).exe" $(OPTIM)
