@@ -127,6 +127,7 @@ void Uci_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 	printf("uciok\n");
 
 	int MB = DEFAULTHASH;
+	int newMB;
 
 	while (TRUE) {
 
@@ -161,7 +162,9 @@ void Uci_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 			printf("uciok\n");
 
 		} else if (!strncmp(line, "setoption name Hash value ", 26)) {
-			sscanf(line, "%*s %*s %*s %*s %d", &MB);
+			sscanf(line, "%*s %*s %*s %*s %d", &newMB);
+			if (newMB == MB) continue;
+			MB = newMB;
 			if (MB < 4) MB = 4;
 			if (MB > MAXHASH) MB = MAXHASH;
 			printf("Set Hash to %d MB\n", MB);
