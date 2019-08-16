@@ -4,6 +4,7 @@
 
 #include "defs.h"
 
+
 int SqOnBoard(const int sq);
 int SideValid(const int side);
 int FileRankValid(const int fr);

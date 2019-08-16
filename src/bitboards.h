@@ -4,6 +4,11 @@
 
 #include "types.h"
 
+
+#define SETBIT(bb, sq) ((bb) |= SetMask[(sq)])
+#define CLRBIT(bb, sq) ((bb) &= ClearMask[(sq)])
+
+
 enum {
     fileABB = 0x0101010101010101ULL,
     fileBBB = 0x0202020202020202ULL,
@@ -23,6 +28,13 @@ enum {
     rank7BB = 0xFF000000000000,
     rank8BB = 0xFF00000000000000,
 };
+
+
+extern bitboard SetMask[64];
+extern bitboard ClearMask[64];
+
+extern bitboard FileBBMask[8];
+extern bitboard RankBBMask[8];
 
 const bitboard fileBBs[8];
 const bitboard rankBBs[8];

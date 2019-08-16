@@ -8,6 +8,7 @@
 #include "movegen.h"
 #include "pvtable.h"
 
+
 static int ProbePvMove(const S_BOARD *pos) {
 
 	int index = pos->posKey % pos->HashTable->numEntries;

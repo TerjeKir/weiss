@@ -10,8 +10,10 @@
 #include "validate.h"
 #include "board.h"
 
+
 #define MOVE(f, t, ca, pro, fl) ((f) | ((t) << 7) | ((ca) << 14) | ((pro) << 20) | (fl))
 #define SQOFFBOARD(sq) (FilesBrd[(sq)] == OFFBOARD)
+
 
 bitboard bitB1C1D1 = (1ULL << 1) | (1ULL << 2) | (1ULL << 3);
 bitboard bitF1G1 = (1ULL << 5) | (1ULL << 6);
@@ -53,6 +55,7 @@ HistoryScore
 */
 const int VictimScore[13] = {0, 100, 200, 300, 400, 500, 600, 100, 200, 300, 400, 500, 600};
 static int MvvLvaScores[13][13];
+
 
 void InitMvvLva() {
 

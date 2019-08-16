@@ -4,15 +4,19 @@
 
 #include "defs.h"
 #include "attack.h"
+#include "bitboards.h"
 #include "board.h"
+#include "data.h"
 #include "hashkeys.h"
 #include "makemove.h"
 #include "validate.h"
+
 
 #define HASH_PCE(pce, sq) (pos->posKey ^= (PieceKeys[(pce)][(sq)]))
 #define HASH_CA (pos->posKey ^= (CastleKeys[(pos->castlePerm)]))
 #define HASH_SIDE (pos->posKey ^= (SideKey))
 #define HASH_EP (pos->posKey ^= (PieceKeys[EMPTY][(pos->enPas)]))
+
 
 const int CastlePerm[120] = {
 	15, 15, 15, 15, 15, 15, 15, 15, 15, 15,
@@ -27,6 +31,7 @@ const int CastlePerm[120] = {
 	15,  7, 15, 15, 15,  3, 15, 15, 11, 15,
 	15, 15, 15, 15, 15, 15, 15, 15, 15, 15,
 	15, 15, 15, 15, 15, 15, 15, 15, 15, 15};
+
 
 // Remove a piece from square sq (120)
 static void ClearPiece(const int sq, S_BOARD *pos) {

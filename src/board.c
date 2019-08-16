@@ -5,8 +5,10 @@
 #include "defs.h"
 #include "bitboards.h"
 #include "board.h"
+#include "data.h"
 #include "hashkeys.h"
 #include "validate.h"
+
 
 // Update material lists to match pos->pieces[]
 static void UpdateListsMaterial(S_BOARD *pos) {

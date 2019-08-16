@@ -11,6 +11,7 @@
 #include "pvtable.h"
 #include "search.h"
 
+
 int MoveListOk(const S_MOVELIST *list, const S_BOARD *pos) {
 
 	if (list->count < 0 || list->count >= MAXPOSITIONMOVES)

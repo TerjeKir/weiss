@@ -5,9 +5,17 @@
 #include "defs.h"
 #include "bitboards.h"
 #include "board.h"
+#include "data.h"
 #include "validate.h"
 
+
 #define ENDGAME_MAT (1 * PieceVal[wR] + 2 * PieceVal[wN] + 2 * PieceVal[wP] + PieceVal[wK])
+#define MIRROR64(sq) (Mirror64[(sq)])
+
+
+extern bitboard BlackPassedMask[64];
+extern bitboard WhitePassedMask[64];
+extern bitboard IsolatedMask[64];
 
 const int PawnPassed[8] = {0, 5, 10, 20, 35, 60, 100, 0};
 const int PawnIsolated = -10;

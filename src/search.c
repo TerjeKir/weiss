@@ -13,7 +13,9 @@
 #include "misc.h"
 #include "pvtable.h"
 
+
 int rootDepth;
+
 
 // Check if time up, or interrupt from GUI
 static void CheckUp(S_SEARCHINFO *info) {

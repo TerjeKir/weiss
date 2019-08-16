@@ -17,6 +17,7 @@
 #include "search.h"
 #include "validate.h"
 
+
 static int ThreeFoldRep(const S_BOARD *pos) {
 
 	assert(CheckBoard(pos));

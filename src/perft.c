@@ -9,7 +9,9 @@
 #include "movegen.h"
 #include "misc.h"
 
+
 uint64_t leafNodes;
+
 
 static void RecursivePerft(int depth, S_BOARD *pos) {
 

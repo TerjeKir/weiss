@@ -30,6 +30,7 @@ const uint64_t h01 = 0x0101010101010101;
 
 int distance[64][64];
 
+
 int Distance(int sq1, int sq2) {
     return distance[sq1][sq2];
 }

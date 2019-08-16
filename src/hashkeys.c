@@ -12,10 +12,12 @@
 				 (uint64_t)rand() << 45 | \
 				 ((uint64_t)rand() & 0xf) << 60)
 
+
 // Zobrist key tables
 uint64_t PieceKeys[13][120]; // 0 En passant 1-12 White pawn - Black king
 uint64_t SideKey;
 uint64_t CastleKeys[16];
+
 
 // Inits zobrist key tables
 void InitHashKeys() {

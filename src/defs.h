@@ -2,21 +2,16 @@
 
 #pragma once
 
-
 #define NDEBUG
 #include <assert.h>
-
 #include <stdlib.h>
 #include <stdio.h>
 
 #include "types.h"
 
-/* DEFINITIONS */
 
 #define NAME "weiss 0.2"
-
 #define BRD_SQ_NUM 120
-
 #define MAXGAMEMOVES 512
 #define MAXPOSITIONMOVES 256
 #define MAXDEPTH 128
@@ -41,15 +36,11 @@
 #define SQ64(sq120) (Sq120ToSq64[(sq120)])
 #define SQ120(sq64) (Sq64ToSq120[(sq64)])
 
-#define CLRBIT(bb, sq) ((bb) &= ClearMask[(sq)])
-#define SETBIT(bb, sq) ((bb) |= SetMask[(sq)])
 
 #define IsBQ(p) (PieceBishopQueen[(p)])
 #define IsRQ(p) (PieceRookQueen[(p)])
 #define IsKn(p) (PieceKnight[(p)])
 #define IsKi(p) (PieceKing[(p)])
-
-#define MIRROR64(sq) (Mirror64[(sq)])
 
 #define FROMSQ(m) ((m) & 0x7F)
 #define TOSQ(m) (((m)>>7) & 0x7F)
@@ -173,34 +164,9 @@ typedef struct {
 
 extern int Sq120ToSq64[BRD_SQ_NUM];
 extern int Sq64ToSq120[64];
-extern bitboard SetMask[64];
-extern bitboard ClearMask[64];
-extern char PceChar[];
-extern char SideChar[];
-extern char RankChar[];
-extern char FileChar[];
 
-extern int PieceBig[13];
-extern int PieceVal[13];
-extern int PieceCol[13];
-extern int PiecePawn[13];
+extern int FilesBrd[BRD_SQ_NUM]; // 120square
+extern int RanksBrd[BRD_SQ_NUM]; // 120square
 
-extern int FilesBrd[BRD_SQ_NUM];
-extern int RanksBrd[BRD_SQ_NUM];
-
-extern int PieceKnight[13];
-extern int PieceKing[13];
-extern int PieceRookQueen[13];
-extern int PieceBishopQueen[13];
-extern int PieceSlides[13];
-
-extern int Mirror64[64];
-
-extern bitboard FileBBMask[8];
-extern bitboard RankBBMask[8];
-
-extern bitboard BlackPassedMask[64];
-extern bitboard WhitePassedMask[64];
-extern bitboard IsolatedMask[64];
 
 extern S_OPTIONS EngineOptions[1];

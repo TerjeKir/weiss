@@ -13,7 +13,9 @@
 #include "pvtable.h"
 #include "search.h"
 
+
 #define INPUTBUFFER 400 * 6
+
 
 // go depth 6 wtime 180000 btime 100000 binc 1000 winc 1000 movetime 1000 movestogo 40
 static void ParseGo(char *line, S_SEARCHINFO *info, S_BOARD *pos) {

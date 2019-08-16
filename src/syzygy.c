@@ -5,8 +5,10 @@
 #include "fathom/tbprobe.h"
 #include "board.h"
 
+
 #define TB_PROBE_DEPTH 4
 #define TB_LARGEST 6
+
 
 unsigned int probeWDL(S_BOARD *pos, int depth) {
 
