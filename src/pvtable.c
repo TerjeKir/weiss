@@ -75,7 +75,7 @@ void InitHashTable(S_HASHTABLE *table, const int MB) {
 		InitHashTable(table, MB / 2);
 	} else {
 		ClearHashTable(table);
-		printf("HashTable init complete with %d entries\n", table->numEntries);
+		printf("HashTable init complete with %d entries, using %dMB.\n", table->numEntries, MB);
 	}
 }
 

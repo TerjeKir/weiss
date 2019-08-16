@@ -126,7 +126,7 @@ void Uci_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 	printf("option name SyzygyPath type string default <empty>\n");
 	printf("uciok\n");
 
-	int MB = 64;
+	int MB = DEFAULTHASH;
 
 	while (TRUE) {
 
