@@ -13,6 +13,13 @@ const bitboard fileBBs[] = { 0x0101010101010101ULL, 0x0202020202020202ULL, 0x040
 const bitboard rankBBs[] = {         0xFF,         0xFF00,         0xFF0000,         0xFF000000, 
                              0xFF00000000, 0xFF0000000000, 0xFF000000000000, 0xFF00000000000000 };
 
+const uint64_t m1  = 0x5555555555555555;
+const uint64_t m2  = 0x3333333333333333;
+const uint64_t m4  = 0x0f0f0f0f0f0f0f0f;
+const uint64_t h01 = 0x0101010101010101;
+
+int distance[64][64];
+
 const int BitTable[64] = {
 	63, 30,  3, 32, 25, 41, 22, 33,
 	15, 50, 42, 13, 11, 53, 19, 34,
@@ -23,14 +30,8 @@ const int BitTable[64] = {
 	 7, 39, 48, 24, 59, 14, 12, 55,
 	38, 28, 58, 20, 37, 17, 36,  8};
 
-const uint64_t m1  = 0x5555555555555555;
-const uint64_t m2  = 0x3333333333333333;
-const uint64_t m4  = 0x0f0f0f0f0f0f0f0f;
-const uint64_t h01 = 0x0101010101010101;
 
-int distance[64][64];
-
-
+// Returns distance between sq1 and sq2
 int Distance(int sq1, int sq2) {
     return distance[sq1][sq2];
 }
@@ -47,6 +48,7 @@ void InitDistance() {
         }
 }
 
+// Population count/Hamming weight
 int PopCount(bitboard x) {
 
     //// Best for slow multiplication
