@@ -41,7 +41,7 @@ const bitboard rankBBs[8];
 
 void InitDistance();
 int Distance(int sq1, int sq2);
-int Lsb(bitboard *bb);
+int Lsb(bitboard bb);
 int PopLsb(bitboard *bb);
 int PopCount(bitboard x);
 void PrintBB(bitboard bb);

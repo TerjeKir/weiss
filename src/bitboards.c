@@ -32,7 +32,7 @@ const int BitTable[64] = {
 
 
 // Returns distance between sq1 and sq2
-int Distance(int sq1, int sq2) {
+inline int Distance(int sq1, int sq2) {
     return distance[sq1][sq2];
 }
 
@@ -49,21 +49,21 @@ void InitDistance() {
 }
 
 // Population count/Hamming weight
-int PopCount(bitboard x) {
+inline int PopCount(bitboard bb) {
 
-    return __builtin_popcountll(x);
+    return __builtin_popcountll(bb);
 }
 
 // Returns the index of the least significant bit
-inline int Lsb(bitboard *bb) {
+inline int Lsb(bitboard bb) {
 
-    return __builtin_ctzll(*bb);
+    return __builtin_ctzll(bb);
 }
 
 // Returns the index of the least significant bit and unsets it
 inline int PopLsb(bitboard *bb) {
 
-	int lsb = Lsb(bb);
+	int lsb = Lsb(*bb);
 	*bb &= (*bb - 1);
 
 	return lsb;

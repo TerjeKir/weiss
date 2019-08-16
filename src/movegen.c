@@ -329,7 +329,7 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 	}
 
 	// King
-	sq = Lsb(&king);
+	sq = Lsb(king);
 	sq120 = SQ120(sq);
 
 	attacks = king_attacks[sq] & enemies;
@@ -499,7 +499,7 @@ void GenerateAllCaptures(const S_BOARD *pos, S_MOVELIST *list) {
 	}
 
 	// King
-	sq = Lsb(&king);
+	sq = Lsb(king);
 	sq120 = SQ120(sq);
 
 	attacks = king_attacks[sq] & enemies;
