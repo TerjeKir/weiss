@@ -12,3 +12,6 @@ default:
 
 bin:
 	gcc $(STD) $(WFLAGS) $(SRC) -o "$(OUT)$(EXE)$(VER).exe" $(OPTIM)
+
+prof:
+	gcc $(STD) $(WFLAGS) $(SRC) -o "$(OUT)$(EXE)$(VER)prof.exe" $(OPTIM) -pg
