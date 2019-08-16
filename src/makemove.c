@@ -50,13 +50,8 @@ static void ClearPiece(const int sq, S_BOARD *pos) {
 	pos->material[col] -= PieceVal[pce];
 
 	// Piece lists
-	if (PieceBig[pce]) {
+	if (PieceBig[pce])
 		pos->bigPce[col]--;
-		if (PieceMaj[pce])
-			pos->majPce[col]--;
-		else
-			pos->minPce[col]--;
-	}
 
 	// Bitboards
 	
@@ -144,14 +139,8 @@ static void AddPiece(const int sq, S_BOARD *pos, const int pce) {
 	pos->pieces[sq] = pce;
 
 	// Piece lists
-	if (PieceBig[pce]) {
+	if (PieceBig[pce])
 		pos->bigPce[col]++;
-		if (PieceMaj[pce])
-			pos->majPce[col]++;
-		else
-			pos->minPce[col]++;
-
-	}
 
 	// Bitboards
 	

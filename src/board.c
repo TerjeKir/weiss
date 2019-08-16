@@ -22,9 +22,6 @@ static void UpdateListsMaterial(S_BOARD *pos) {
 			assert(SideValid(colour));
 
 			if (PieceBig[piece]) pos->bigPce[colour]++;
-			if (PieceMin[piece]) pos->minPce[colour]++;
-			if (PieceMaj[piece]) pos->majPce[colour]++;
-
 			pos->material[colour] += PieceVal[piece];
 
 			assert(pos->pceNum[piece] < 10 && pos->pceNum[piece] >= 0);
@@ -116,8 +113,6 @@ static void ResetBoard(S_BOARD *pos) {
 	// Piece lists etc
 	for (index = 0; index < 2; ++index) {
 		pos->bigPce[index] = 0;
-		pos->majPce[index] = 0;
-		pos->minPce[index] = 0;
 		pos->material[index] = 0;
 	}
 	for (index = 0; index < 13; ++index)
@@ -154,8 +149,6 @@ int CheckBoard(const S_BOARD *pos) {
 
 	int t_pceNum[13] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 	int t_bigPce[2] = {0, 0};
-	int t_majPce[2] = {0, 0};
-	int t_minPce[2] = {0, 0};
 	int t_material[2] = {0, 0};
 
 	int sq64, t_piece, t_pce_num, sq120, colour;
@@ -194,8 +187,6 @@ int CheckBoard(const S_BOARD *pos) {
 		colour = PieceCol[t_piece];
 
 		if (PieceBig[t_piece]) t_bigPce[colour]++;
-		if (PieceMin[t_piece]) t_minPce[colour]++;
-		if (PieceMaj[t_piece]) t_majPce[colour]++;
 
 		t_material[colour] += PieceVal[t_piece];
 	}
@@ -204,8 +195,6 @@ int CheckBoard(const S_BOARD *pos) {
 		assert(t_pceNum[t_piece] == pos->pceNum[t_piece]);
 
 	assert(t_material[WHITE] == pos->material[WHITE] && t_material[BLACK] == pos->material[BLACK]);
-	assert(t_minPce[WHITE] == pos->minPce[WHITE] && t_minPce[BLACK] == pos->minPce[BLACK]);
-	assert(t_majPce[WHITE] == pos->majPce[WHITE] && t_majPce[BLACK] == pos->majPce[BLACK]);
 	assert(t_bigPce[WHITE] == pos->bigPce[WHITE] && t_bigPce[BLACK] == pos->bigPce[BLACK]);
 
 	assert(pos->side == WHITE || pos->side == BLACK);

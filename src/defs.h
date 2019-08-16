@@ -115,8 +115,6 @@ typedef struct {
 
 	int pceNum[13];			// # of each type of piece
 	int bigPce[2];			// # of non-pawns
-	int majPce[2];			// # of rooks + queens
-	int minPce[2];			// # of knights + bishops
 	int material[2];		// Total value of pieces (from PieceVals)
 
 	int pList[13][10]; 		// [piece type][#] -> square (120)
@@ -183,8 +181,6 @@ extern char RankChar[];
 extern char FileChar[];
 
 extern int PieceBig[13];
-extern int PieceMaj[13];
-extern int PieceMin[13];
 extern int PieceVal[13];
 extern int PieceCol[13];
 extern int PiecePawn[13];
