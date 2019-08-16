@@ -173,7 +173,7 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 		return Quiescence(alpha, beta, pos, info);
 
 	// Check for time
-	if ((info->nodes & 4095) == 0)
+	if ((info->nodes & 2047) == 0)
 		CheckUp(info);
 
 	info->nodes++;
