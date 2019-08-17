@@ -424,7 +424,7 @@ int MakeMove(S_BOARD *pos, int move) {
 
 	// Update king position if king moved
 	if (PieceKing[pos->pieces[to]])
-		pos->KingSq[pos->side] = to;
+		pos->KingSq[pos->side] = SQ64(to);
 
 	// Change turn to play
 	pos->side ^= 1;
@@ -433,7 +433,7 @@ int MakeMove(S_BOARD *pos, int move) {
 	assert(CheckBoard(pos));
 
 	// If own king is attacked after the move, take it back immediately
-	if (SqAttacked(pos->KingSq[side], pos->side, pos)) {
+	if (SqAttacked(SQ120(pos->KingSq[side]), pos->side, pos)) {
 		TakeMove(pos);
 		return FALSE;
 	}
@@ -500,7 +500,7 @@ void TakeMove(S_BOARD *pos) {
 
 	// Update king position if king moved
 	if (PieceKing[pos->pieces[from]])
-		pos->KingSq[pos->side] = from;
+		pos->KingSq[pos->side] = SQ64(from);
 
 	// Add back captured piece if any
 	int captured = CAPTURED(move);
@@ -522,7 +522,7 @@ void TakeMove(S_BOARD *pos) {
 void MakeNullMove(S_BOARD *pos) {
 
 	assert(CheckBoard(pos));
-	assert(!SqAttacked(pos->KingSq[pos->side], pos->side ^ 1, pos));
+	assert(!SqAttacked(SQ120(pos->KingSq[pos->side]), pos->side ^ 1, pos));
 
 	pos->ply++;
 	pos->history[pos->hisPly].posKey = pos->posKey;

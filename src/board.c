@@ -31,8 +31,8 @@ static void UpdateListsMaterial(S_BOARD *pos) {
 			pos->pList[piece][pos->pceNum[piece]] = sq;
 			pos->pceNum[piece]++;
 
-			if (piece == wK) pos->KingSq[WHITE] = sq;
-			if (piece == bK) pos->KingSq[BLACK] = sq;
+			if (piece == wK) pos->KingSq[WHITE] = SQ64(sq);
+			if (piece == bK) pos->KingSq[BLACK] = SQ64(sq);
 		}
 	}
 }
@@ -205,8 +205,8 @@ int CheckBoard(const S_BOARD *pos) {
 	   || (pos->enPas >= 40 && pos->enPas < 48 && pos->side == WHITE) 
 	   || (pos->enPas >= 16 && pos->enPas < 24 && pos->side == BLACK));
 
-	assert(pos->pieces[pos->KingSq[WHITE]] == wK);
-	assert(pos->pieces[pos->KingSq[BLACK]] == bK);
+	assert(pos->pieces[SQ120(pos->KingSq[WHITE])] == wK);
+	assert(pos->pieces[SQ120(pos->KingSq[BLACK])] == bK);
 
 	assert(pos->castlePerm >= 0 && pos->castlePerm <= 15);
 

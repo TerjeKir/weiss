@@ -111,7 +111,7 @@ typedef struct {
 
 	int pList[13][10]; 		// [piece type][#] -> square (120)
 
-	int KingSq[2]; 			// 0 White 1 Black (120)
+	int KingSq[2]; 			// 0 White 1 Black
 
 	int side;
 	int enPas;

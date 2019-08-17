@@ -233,7 +233,7 @@ int EvalPosition(const S_BOARD *pos) {
 	}
 
 	// White king
-	sq = SQ64(pos->KingSq[WHITE]);
+	sq = pos->KingSq[WHITE];
 	assert(sq >= 0 && sq < 64);
 	if (pos->material[BLACK] <= ENDGAME_MAT)
 		score += KingE[sq];
@@ -241,7 +241,7 @@ int EvalPosition(const S_BOARD *pos) {
 		score += KingO[sq];
 
 	// Black king
-	sq = SQ64(pos->KingSq[BLACK]);
+	sq = pos->KingSq[BLACK];
 	assert(sq >= 0 && sq < 64);
 	if (pos->material[WHITE] <= ENDGAME_MAT)
 		score -= KingE[MIRROR64(sq)];
