@@ -181,8 +181,8 @@ int CheckBoard(const S_BOARD *pos) {
 	// check piece lists
 	for (t_piece = wP; t_piece <= bK; ++t_piece)
 		for (t_pce_num = 0; t_pce_num < pos->pieceCounts[t_piece]; ++t_pce_num) {
-			sq = pos->pieceList[t_piece][t_pce_num];
-			assert(pos->pieces[sq] == t_piece);
+			sq = SQ64(pos->pieceList[t_piece][t_pce_num]);
+			assert(pos->pieces[SQ120(sq)] == t_piece);
 		}
 
 	// check piece count and other counters
@@ -338,8 +338,8 @@ void PrintBoard(const S_BOARD *pos) {
 	for (rank = RANK_8; rank >= RANK_1; --rank) {
 		printf("%d  ", rank + 1);
 		for (file = FILE_A; file <= FILE_H; ++file) {
-			sq = FR2SQ(file, rank);
-			piece = pos->pieces[sq];
+			sq = SQ64(FR2SQ(file, rank));
+			piece = pos->pieces[SQ120(sq)];
 			printf("%3c", PceChar[piece]);
 		}
 		printf("\n");

@@ -2,7 +2,7 @@
 
 #pragma once
 
-#define NDEBUG
+// #define NDEBUG
 #include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
