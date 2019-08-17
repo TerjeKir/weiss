@@ -45,8 +45,7 @@ int MoveExists(S_BOARD *pos, const int move) {
 	S_MOVELIST list[1];
 	GenerateAllMoves(pos, list);
 
-	int MoveNum = 0;
-	for (MoveNum = 0; MoveNum < list->count; ++MoveNum) {
+	for (int MoveNum = 0; MoveNum < list->count; ++MoveNum) {
 
 		if (!MakeMove(pos, list->moves[MoveNum].move))
 			continue;
@@ -170,7 +169,7 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 
 	list->count = 0;
 
-	int sq, sq120, attack, move;
+	int sq, attack, move;
 	int side = pos->side;
 
 	bitboard squareBitMask, attacks, moves, enPassant;
@@ -207,15 +206,14 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 
 			sq = PopLsb(&pawns);
 			squareBitMask = 1ULL << sq;
-			sq120 = SQ120(sq);
-			assert(SqOnBoard(sq120));
+			assert(SqOnBoard(SQ120(sq)));
 
 			// Move forward
 			if (!(allPieces & squareBitMask << 8)) {
-				AddWhitePawnMove(pos, sq120, sq120 + 10, list);
+				AddWhitePawnMove(pos, SQ120(sq), SQ120(sq) + 10, list);
 				// Move forward two squares
 				if (!(allPieces & squareBitMask << 16) && (sq < 16))
-					AddQuietMove(pos, MOVE(sq120, (sq120 + 20), EMPTY, EMPTY, MOVE_FLAG_PAWNSTART), list);
+					AddQuietMove(pos, MOVE(SQ120(sq), (SQ120(sq) + 20), EMPTY, EMPTY, MOVE_FLAG_PAWNSTART), list);
 			}
 
 			// Pawn captures
@@ -226,12 +224,12 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 				assert(pos->enPas >= 0 && pos->enPas < 64);
 				enPassant = 1ULL << pos->enPas;
 				if (pawn_attacks[side][sq] & enPassant)
-					AddEnPassantMove(pos, MOVE(sq120, SQ120(pos->enPas), EMPTY, EMPTY, MOVE_FLAG_ENPAS), list);
+					AddEnPassantMove(pos, MOVE(SQ120(sq), SQ120(pos->enPas), EMPTY, EMPTY, MOVE_FLAG_ENPAS), list);
 			}
 			// Normal captures
 			while (attacks) {
 				attack = SQ120(PopLsb(&attacks));
-				AddWhitePawnCapMove(pos, sq120, attack, pos->pieces[attack], list);
+				AddWhitePawnCapMove(pos, SQ120(sq), attack, pos->pieces[attack], list);
 			}
 		}
 
@@ -254,15 +252,14 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 
 			sq = PopLsb(&pawns);
 			squareBitMask = 1ULL << sq;
-			sq120 = SQ120(sq);
-			assert(SqOnBoard(sq120));
+			assert(SqOnBoard(SQ120(sq)));
 
 			// Move forward
 			if (!(allPieces & squareBitMask >> 8)) {
-				AddBlackPawnMove(pos, sq120, sq120 - 10, list);
+				AddBlackPawnMove(pos, SQ120(sq), SQ120(sq) - 10, list);
 				// Move forward two squares
 				if (!(allPieces & squareBitMask >> 16) && (sq > 47))
-					AddQuietMove(pos, MOVE(sq120, (sq120 - 20), EMPTY, EMPTY, MOVE_FLAG_PAWNSTART), list);
+					AddQuietMove(pos, MOVE(SQ120(sq), (SQ120(sq) - 20), EMPTY, EMPTY, MOVE_FLAG_PAWNSTART), list);
 			}
 
 			// Pawn captures
@@ -273,12 +270,12 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 				assert(pos->enPas >= 0 && pos->enPas < 64);
 				enPassant = 1ULL << pos->enPas;
 				if (pawn_attacks[side][sq] & enPassant)
-					AddEnPassantMove(pos, MOVE(sq120, SQ120(pos->enPas), EMPTY, EMPTY, MOVE_FLAG_ENPAS), list);
+					AddEnPassantMove(pos, MOVE(SQ120(sq), SQ120(pos->enPas), EMPTY, EMPTY, MOVE_FLAG_ENPAS), list);
 			}
 			// Normal captures
 			while (attacks) {
 				attack = SQ120(PopLsb(&attacks));
-				AddBlackPawnCapMove(pos, sq120, attack, pos->pieces[attack], list);
+				AddBlackPawnCapMove(pos, SQ120(sq), attack, pos->pieces[attack], list);
 			}
 		}
 	}
@@ -287,50 +284,47 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 	while (knights) {
 
 		sq = PopLsb(&knights);
-		sq120 = SQ120(sq);
 
 		attacks = knight_attacks[sq] & enemies;
 		while (attacks) {
 			attack = SQ120(PopLsb(&attacks));
-			AddCaptureMove(pos, MOVE(sq120, attack, pos->pieces[attack], EMPTY, 0), list);
+			AddCaptureMove(pos, MOVE(SQ120(sq), attack, pos->pieces[attack], EMPTY, 0), list);
 		}
 		moves = knight_attacks[sq] & empty;
 		while (moves) {
 			move = SQ120(PopLsb(&moves));
-			AddQuietMove(pos, MOVE(sq120, move, EMPTY, EMPTY, 0), list);
+			AddQuietMove(pos, MOVE(SQ120(sq), move, EMPTY, EMPTY, 0), list);
 		}
 	}
 
 	// King
 	sq = Lsb(king);
-	sq120 = SQ120(sq);
 
 	attacks = king_attacks[sq] & enemies;
 	while (attacks) {
 		attack = SQ120(PopLsb(&attacks));
-		AddCaptureMove(pos, MOVE(sq120, attack, pos->pieces[attack], EMPTY, 0), list);
+		AddCaptureMove(pos, MOVE(SQ120(sq), attack, pos->pieces[attack], EMPTY, 0), list);
 	}
 	moves = king_attacks[sq] & empty;
 	while (moves) {
 		move = SQ120(PopLsb(&moves));
-		AddQuietMove(pos, MOVE(sq120, move, EMPTY, EMPTY, 0), list);
+		AddQuietMove(pos, MOVE(SQ120(sq), move, EMPTY, EMPTY, 0), list);
 	}
 
 	// Bishops
 	while (bishops) {
 
 		sq = PopLsb(&bishops);
-		sq120 = SQ120(sq);
 
 		attacks = SliderAttacks(sq, allPieces, mBishopTable) & enemies;
 		while (attacks) {
 			attack = SQ120(PopLsb(&attacks));
-			AddCaptureMove(pos, MOVE(sq120, attack, pos->pieces[attack], EMPTY, 0), list);
+			AddCaptureMove(pos, MOVE(SQ120(sq), attack, pos->pieces[attack], EMPTY, 0), list);
 		}
 		moves = SliderAttacks(sq, allPieces, mBishopTable) & empty;
 		while (moves) {
 			move = SQ120(PopLsb(&moves));
-			AddQuietMove(pos, MOVE(sq120, move, EMPTY, EMPTY, 0), list);
+			AddQuietMove(pos, MOVE(SQ120(sq), move, EMPTY, EMPTY, 0), list);
 		}
 	}
 
@@ -338,17 +332,16 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 	while (rooks) {
 
 		sq = PopLsb(&rooks);
-		sq120 = SQ120(sq);
 
 		attacks = SliderAttacks(sq, allPieces, mRookTable) & enemies;
 		while (attacks) {
 			attack = SQ120(PopLsb(&attacks));
-			AddCaptureMove(pos, MOVE(sq120, attack, pos->pieces[attack], EMPTY, 0), list);
+			AddCaptureMove(pos, MOVE(SQ120(sq), attack, pos->pieces[attack], EMPTY, 0), list);
 		}
 		moves = SliderAttacks(sq, allPieces, mRookTable) & empty;
 		while (moves) {
 			move = SQ120(PopLsb(&moves));
-			AddQuietMove(pos, MOVE(sq120, move, EMPTY, EMPTY, 0), list);
+			AddQuietMove(pos, MOVE(SQ120(sq), move, EMPTY, EMPTY, 0), list);
 		}
 	}
 
@@ -356,27 +349,26 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 	while (queens) {
 
 		sq = PopLsb(&queens);
-		sq120 = SQ120(sq);
 
 		attacks = SliderAttacks(sq, allPieces, mBishopTable) & enemies;
 		while (attacks) {
 			attack = SQ120(PopLsb(&attacks));
-			AddCaptureMove(pos, MOVE(sq120, attack, pos->pieces[attack], EMPTY, 0), list);
+			AddCaptureMove(pos, MOVE(SQ120(sq), attack, pos->pieces[attack], EMPTY, 0), list);
 		}
 		attacks = SliderAttacks(sq, allPieces, mRookTable) & enemies;
 		while (attacks) {
 			attack = SQ120(PopLsb(&attacks));
-			AddCaptureMove(pos, MOVE(sq120, attack, pos->pieces[attack], EMPTY, 0), list);
+			AddCaptureMove(pos, MOVE(SQ120(sq), attack, pos->pieces[attack], EMPTY, 0), list);
 		}
 		moves = SliderAttacks(sq, allPieces, mBishopTable) & empty;
 		while (moves) {
 			move = SQ120(PopLsb(&moves));
-			AddQuietMove(pos, MOVE(sq120, move, EMPTY, EMPTY, 0), list);
+			AddQuietMove(pos, MOVE(SQ120(sq), move, EMPTY, EMPTY, 0), list);
 		}
 		moves = SliderAttacks(sq, allPieces, mRookTable) & empty;
 		while (moves) {
 			move = SQ120(PopLsb(&moves));
-			AddQuietMove(pos, MOVE(sq120, move, EMPTY, EMPTY, 0), list);
+			AddQuietMove(pos, MOVE(SQ120(sq), move, EMPTY, EMPTY, 0), list);
 		}
 	}
 
@@ -390,7 +382,7 @@ void GenerateAllCaptures(const S_BOARD *pos, S_MOVELIST *list) {
 
 	list->count = 0;
 
-	int sq, sq120, attack;
+	int sq, attack;
 	int side = pos->side;
 
 	bitboard attacks, enPassant;
@@ -412,8 +404,7 @@ void GenerateAllCaptures(const S_BOARD *pos, S_MOVELIST *list) {
 		while (pawns) {
 
 			sq = PopLsb(&pawns);
-			sq120 = SQ120(sq);
-			assert(SqOnBoard(sq120));
+			assert(SqOnBoard(SQ120(sq)));
 
 			// Pawn captures
 			attacks = pawn_attacks[side][sq] & enemies;
@@ -423,12 +414,12 @@ void GenerateAllCaptures(const S_BOARD *pos, S_MOVELIST *list) {
 				assert(pos->enPas >= 0 && pos->enPas < 64);
 				enPassant = 1ULL << pos->enPas;
 				if (pawn_attacks[side][sq] & enPassant)
-					AddEnPassantMove(pos, MOVE(sq120, SQ120(pos->enPas), EMPTY, EMPTY, MOVE_FLAG_ENPAS), list);
+					AddEnPassantMove(pos, MOVE(SQ120(sq), SQ120(pos->enPas), EMPTY, EMPTY, MOVE_FLAG_ENPAS), list);
 			}
 			// Normal captures
 			while (attacks) {
 				attack = SQ120(PopLsb(&attacks));
-				AddWhitePawnCapMove(pos, sq120, attack, pos->pieces[attack], list);
+				AddWhitePawnCapMove(pos, SQ120(sq), attack, pos->pieces[attack], list);
 			}
 		}
 
@@ -437,8 +428,7 @@ void GenerateAllCaptures(const S_BOARD *pos, S_MOVELIST *list) {
 		while (pawns) {
 
 			sq = PopLsb(&pawns);
-			sq120 = SQ120(sq);
-			assert(SqOnBoard(sq120));
+			assert(SqOnBoard(SQ120(sq)));
 
 			// Pawn captures
 			attacks = pawn_attacks[side][sq] & enemies;
@@ -448,12 +438,12 @@ void GenerateAllCaptures(const S_BOARD *pos, S_MOVELIST *list) {
 				assert(pos->enPas >= 0 && pos->enPas < 64);
 				enPassant = 1ULL << pos->enPas;
 				if (pawn_attacks[side][sq] & enPassant)
-					AddEnPassantMove(pos, MOVE(sq120, SQ120(pos->enPas), EMPTY, EMPTY, MOVE_FLAG_ENPAS), list);
+					AddEnPassantMove(pos, MOVE(SQ120(sq), SQ120(pos->enPas), EMPTY, EMPTY, MOVE_FLAG_ENPAS), list);
 			}
 			// Normal captures
 			while (attacks) {
 				attack = SQ120(PopLsb(&attacks));
-				AddBlackPawnCapMove(pos, sq120, attack, pos->pieces[attack], list);
+				AddBlackPawnCapMove(pos, SQ120(sq), attack, pos->pieces[attack], list);
 			}
 		}
 	}
@@ -462,35 +452,32 @@ void GenerateAllCaptures(const S_BOARD *pos, S_MOVELIST *list) {
 	while (knights) {
 
 		sq = PopLsb(&knights);
-		sq120 = SQ120(sq);
 
 		attacks = knight_attacks[sq] & enemies;
 		while (attacks) {
 			attack = SQ120(PopLsb(&attacks));
-			AddCaptureMove(pos, MOVE(sq120, attack, pos->pieces[attack], EMPTY, 0), list);
+			AddCaptureMove(pos, MOVE(SQ120(sq), attack, pos->pieces[attack], EMPTY, 0), list);
 		}
 	}
 
 	// King
 	sq = Lsb(king);
-	sq120 = SQ120(sq);
 
 	attacks = king_attacks[sq] & enemies;
 	while (attacks) {
 		attack = SQ120(PopLsb(&attacks));
-		AddCaptureMove(pos, MOVE(sq120, attack, pos->pieces[attack], EMPTY, 0), list);
+		AddCaptureMove(pos, MOVE(SQ120(sq), attack, pos->pieces[attack], EMPTY, 0), list);
 	}
 
 	// Bishops
 	while (bishops) {
 
 		sq = PopLsb(&bishops);
-		sq120 = SQ120(sq);
 
 		attacks = SliderAttacks(sq, allPieces, mBishopTable) & enemies;
 		while (attacks) {
 			attack = SQ120(PopLsb(&attacks));
-			AddCaptureMove(pos, MOVE(sq120, attack, pos->pieces[attack], EMPTY, 0), list);
+			AddCaptureMove(pos, MOVE(SQ120(sq), attack, pos->pieces[attack], EMPTY, 0), list);
 		}
 	}
 
@@ -498,12 +485,11 @@ void GenerateAllCaptures(const S_BOARD *pos, S_MOVELIST *list) {
 	while (rooks) {
 
 		sq = PopLsb(&rooks);
-		sq120 = SQ120(sq);
 
 		attacks = SliderAttacks(sq, allPieces, mRookTable) & enemies;
 		while (attacks) {
 			attack = SQ120(PopLsb(&attacks));
-			AddCaptureMove(pos, MOVE(sq120, attack, pos->pieces[attack], EMPTY, 0), list);
+			AddCaptureMove(pos, MOVE(SQ120(sq), attack, pos->pieces[attack], EMPTY, 0), list);
 		}
 	}
 
@@ -511,17 +497,16 @@ void GenerateAllCaptures(const S_BOARD *pos, S_MOVELIST *list) {
 	while (queens) {
 
 		sq = PopLsb(&queens);
-		sq120 = SQ120(sq);
 
 		attacks = SliderAttacks(sq, allPieces, mBishopTable) & enemies;
 		while (attacks) {
 			attack = SQ120(PopLsb(&attacks));
-			AddCaptureMove(pos, MOVE(sq120, attack, pos->pieces[attack], EMPTY, 0), list);
+			AddCaptureMove(pos, MOVE(SQ120(sq), attack, pos->pieces[attack], EMPTY, 0), list);
 		}
 		attacks = SliderAttacks(sq, allPieces, mRookTable) & enemies;
 		while (attacks) {
 			attack = SQ120(PopLsb(&attacks));
-			AddCaptureMove(pos, MOVE(sq120, attack, pos->pieces[attack], EMPTY, 0), list);
+			AddCaptureMove(pos, MOVE(SQ120(sq), attack, pos->pieces[attack], EMPTY, 0), list);
 		}
 	}
 

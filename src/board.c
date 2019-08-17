@@ -155,7 +155,7 @@ int CheckBoard(const S_BOARD *pos) {
 	int t_bigPieces[2] = {0, 0};
 	int t_material[2] = {0, 0};
 
-	int sq64, t_piece, t_pce_num, sq120, color;
+	int sq, t_piece, t_pce_num, color;
 
 	// Bitboards
 	assert(PopCount(pos->pieceBBs[KING]) == 2);
@@ -179,13 +179,13 @@ int CheckBoard(const S_BOARD *pos) {
 	// check piece lists
 	for (t_piece = wP; t_piece <= bK; t_piece++)
 		for (t_pce_num = 0; t_pce_num < pos->pieceCounts[t_piece]; ++t_pce_num) {
-			sq120 = pos->pieceList[t_piece][t_pce_num];
-			assert(pos->pieces[sq120] == t_piece);
+			sq = pos->pieceList[t_piece][t_pce_num];
+			assert(pos->pieces[sq] == t_piece);
 		}
 
 	// check piece count and other counters
-	for (sq64 = 0; sq64 < 64; sq64++) {
-		t_piece = pos->pieces[SQ120(sq64)];
+	for (sq = 0; sq < 64; sq++) {
+		t_piece = pos->pieces[SQ120(sq)];
 		t_pieceCounts[t_piece]++;
 		color = PieceColor[t_piece];
 
