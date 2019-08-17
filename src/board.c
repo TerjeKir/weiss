@@ -13,11 +13,10 @@
 // Update material lists to match pos->pieces[]
 static void UpdateListsMaterial(S_BOARD *pos) {
 
-	int piece, sq, index, colour;
+	int piece, sq, colour;
 
-	for (index = 0; index < BRD_SQ_NUM; ++index) {
-		sq = index;
-		piece = pos->pieces[index];
+	for (sq = 0; sq < BRD_SQ_NUM; ++sq) {
+		piece = pos->pieces[sq];
 		assert(PceValidEmptyOffbrd(piece));
 		if (piece != OFFBOARD && piece != EMPTY) {
 			colour = PieceCol[piece];
