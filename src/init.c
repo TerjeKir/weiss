@@ -42,8 +42,8 @@ static void InitEvalMasks() {
 		RankBBMask[sq] = 0ULL;
 	}
 
-	for (r = RANK_8; r >= RANK_1; r--) {
-		for (f = FILE_A; f <= FILE_H; f++) {
+	for (r = RANK_8; r >= RANK_1; --r) {
+		for (f = FILE_A; f <= FILE_H; ++f) {
 			sq = r * 8 + f;
 			FileBBMask[f] |= (1ULL << sq);
 			RankBBMask[r] |= (1ULL << sq);
@@ -132,12 +132,12 @@ static void InitFilesRanksBrd() {
 static void InitBitMasks() {
 	int index = 0;
 
-	for (index = 0; index < 64; index++) {
+	for (index = 0; index < 64; ++index) {
 		SetMask[index] = 0ULL;
 		ClearMask[index] = 0ULL;
 	}
 
-	for (index = 0; index < 64; index++) {
+	for (index = 0; index < 64; ++index) {
 		SetMask[index] |= (1ULL << index);
 		ClearMask[index] = ~SetMask[index];
 	}

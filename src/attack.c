@@ -27,7 +27,7 @@ static void InitKingAttacks() {
     bitboard bitmask = 1ULL;
     int square;
 
-    for (square = 0; square < 64; square++, bitmask <<= 1) {
+    for (square = 0; square < 64; ++square, bitmask <<= 1) {
 
         if (square <= 55) {
             if ((square % 8) != 7)
@@ -58,7 +58,7 @@ static void InitKnightAttacks() {
     bitboard bitmask = 1ULL;
     int square;
 
-    for (square = 0; square < 64; square++, bitmask <<= 1) {
+    for (square = 0; square < 64; ++square, bitmask <<= 1) {
 
         if (square <= 47) {
             if ((square % 8) < 7)
@@ -94,7 +94,7 @@ static void InitPawnAttacks() {
     int square;
 
     // No point going further as all their attacks would be off board
-    for (square = 0; square < 64; square++, bitmask <<= 1) {
+    for (square = 0; square < 64; ++square, bitmask <<= 1) {
 
         // White
         if ((square % 8) != 0)
@@ -113,7 +113,7 @@ static bitboard MakeSliderAttacks(int sq, bitboard occupied, const int direction
 
     bitboard result = 0;
 
-    for (int dir = 0; dir < 4; dir++)
+    for (int dir = 0; dir < 4; ++dir)
 
         for (int tSq = sq + directions[dir];
              (tSq >= 0) && (tSq < 64) && (Distance(tSq, tSq - directions[dir]) == 1);
@@ -136,7 +136,7 @@ static void InitSliderAttacks(MAGIC *table, bitboard *attackTable, const bitboar
 
     table[0].attacks = attackTable;
 
-    for (int sq = 0; sq < 64; sq++) {
+    for (int sq = 0; sq < 64; ++sq) {
 
         edges = ((rank1BB | rank8BB) & ~rankBBs[sq / 8]) 
               | ((fileABB | fileHBB) & ~fileBBs[sq % 8]);

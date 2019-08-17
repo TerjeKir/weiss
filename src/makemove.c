@@ -60,7 +60,7 @@ static void ClearPiece(const int sq120, S_BOARD *pos) {
 	if (PieceBig[piece])
 		pos->bigPieces[color]--;
 
-	for (int index = 0; index < pos->pieceCounts[piece]; index++) {
+	for (int index = 0; index < pos->pieceCounts[piece]; ++index) {
 		if (pos->pieceList[piece][index] == SQ120(sq)) {
 			t_pieceCounts = index;
 			break;
@@ -237,7 +237,7 @@ static void MovePiece(const int from120, const int to120, S_BOARD *pos) {
 	HASH_PCE(piece, SQ120(to));
 	pos->pieces[SQ120(to)] = piece;
 
-	for (index = 0; index < pos->pieceCounts[piece]; index++) {
+	for (index = 0; index < pos->pieceCounts[piece]; ++index) {
 		if (pos->pieceList[piece][index] == SQ120(from)) {
 			pos->pieceList[piece][index] = SQ120(to);
 #ifndef NDEBUG

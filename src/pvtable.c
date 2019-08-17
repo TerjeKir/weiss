@@ -51,7 +51,7 @@ void ClearHashTable(S_HASHTABLE *table) {
 
 	S_HASHENTRY *tableEntry;
 
-	for (tableEntry = table->pTable; tableEntry < table->pTable + table->numEntries; tableEntry++) {
+	for (tableEntry = table->pTable; tableEntry < table->pTable + table->numEntries; ++tableEntry) {
 		tableEntry->posKey = 0ULL;
 		tableEntry->move = NOMOVE;
 		tableEntry->depth = 0;

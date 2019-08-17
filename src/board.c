@@ -15,7 +15,7 @@ static void UpdateListsMaterial(S_BOARD *pos) {
 
 	int piece, sq, color;
 
-	for (sq = 0; sq < 64; sq++) {
+	for (sq = 0; sq < 64; ++sq) {
 
 		piece = pos->pieces[SQ120(sq)];
 		assert(PceValidEmptyOffbrd(piece));
@@ -25,7 +25,9 @@ static void UpdateListsMaterial(S_BOARD *pos) {
 			color = PieceColor[piece];
 			assert(SideValid(color));
 
-			if (PieceBig[piece]) pos->bigPieces[color]++;
+			if (PieceBig[piece]) 
+				pos->bigPieces[color]++;
+
 			pos->material[color] += PieceValues[piece];
 
 			assert(pos->pieceCounts[piece] < 10 && pos->pieceCounts[piece] >= 0);
@@ -44,7 +46,7 @@ static void UpdateBitboards(S_BOARD *pos) {
 
 	int piece, sq;
 
-	for (sq = 0; sq < 64; sq++) {
+	for (sq = 0; sq < 64; ++sq) {
 
 		piece = pos->pieces[SQ120(sq)];
 		assert(PceValidEmptyOffbrd(piece));
@@ -122,10 +124,10 @@ static void ResetBoard(S_BOARD *pos) {
 		pos->pieceCounts[index] = 0;
 
 	// Bitboards
-	for (index = 0; index < 2; index++)
+	for (index = 0; index < 2; ++index)
 		pos->colors[index] = 0ULL;
 	
-	for (index = PAWN; index <= KING; index++)
+	for (index = PAWN; index <= KING; ++index)
 		pos->pieceBBs[index] = 0ULL;
 
 	pos->allBB = 0ULL;
@@ -177,14 +179,15 @@ int CheckBoard(const S_BOARD *pos) {
 	assert(pos->allBB == (pos->colors[WHITE] | pos->colors[BLACK]));
 
 	// check piece lists
-	for (t_piece = wP; t_piece <= bK; t_piece++)
+	for (t_piece = wP; t_piece <= bK; ++t_piece)
 		for (t_pce_num = 0; t_pce_num < pos->pieceCounts[t_piece]; ++t_pce_num) {
 			sq = pos->pieceList[t_piece][t_pce_num];
 			assert(pos->pieces[sq] == t_piece);
 		}
 
 	// check piece count and other counters
-	for (sq = 0; sq < 64; sq++) {
+	for (sq = 0; sq < 64; ++sq) {
+
 		t_piece = pos->pieces[SQ120(sq)];
 		t_pieceCounts[t_piece]++;
 		color = PieceColor[t_piece];
@@ -270,7 +273,7 @@ int ParseFen(char *fen, S_BOARD *pos) {
 				return -1;
 		}
 
-		for (i = 0; i < count; i++) {
+		for (i = 0; i < count; ++i) {
 			sq = rank * 8 + file;
 			if (piece != EMPTY)
 				pos->pieces[SQ120(sq)] = piece;
@@ -287,7 +290,7 @@ int ParseFen(char *fen, S_BOARD *pos) {
 	fen += 2;
 
 	// Castling rights
-	for (i = 0; i < 4; i++) {
+	for (i = 0; i < 4; ++i) {
 
 		if (*fen == ' ')
 			break;
@@ -332,9 +335,9 @@ void PrintBoard(const S_BOARD *pos) {
 
 	printf("\nGame Board:\n\n");
 
-	for (rank = RANK_8; rank >= RANK_1; rank--) {
+	for (rank = RANK_8; rank >= RANK_1; --rank) {
 		printf("%d  ", rank + 1);
-		for (file = FILE_A; file <= FILE_H; file++) {
+		for (file = FILE_A; file <= FILE_H; ++file) {
 			sq = FR2SQ(file, rank);
 			piece = pos->pieces[sq];
 			printf("%3c", PceChar[piece]);
@@ -343,7 +346,7 @@ void PrintBoard(const S_BOARD *pos) {
 	}
 
 	printf("\n   ");
-	for (file = FILE_A; file <= FILE_H; file++)
+	for (file = FILE_A; file <= FILE_H; ++file)
 		printf("%3c", 'a' + file);
 
 	printf("\n");
@@ -378,12 +381,12 @@ void MirrorBoard(S_BOARD *pos) {
 	if (pos->enPas != NO_SQ)
 		tempEnPas = Mirror64[pos->enPas];
 
-	for (sq = 0; sq < 64; sq++)
+	for (sq = 0; sq < 64; ++sq)
 		tempPiecesArray[sq] = pos->pieces[SQ120(Mirror64[sq])];
 
 	ResetBoard(pos);
 
-	for (sq = 0; sq < 64; sq++) {
+	for (sq = 0; sq < 64; ++sq) {
 		tp = SwapPiece[tempPiecesArray[sq]];
 		pos->pieces[SQ120(sq)] = tp;
 	}

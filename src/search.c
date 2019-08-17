@@ -64,12 +64,12 @@ static void ClearForSearch(S_BOARD *pos, S_SEARCHINFO *info) {
 
 	int index, index2;
 
-	for (index = 0; index < 13; index++)
-		for (index2 = 0; index2 < BRD_SQ_NUM; index2++)
+	for (index = 0; index < 13; ++index)
+		for (index2 = 0; index2 < BRD_SQ_NUM; ++index2)
 			pos->searchHistory[index][index2] = 0;
 
-	for (index = 0; index < 2; index++)
-		for (index2 = 0; index2 < MAXDEPTH; index2++)
+	for (index = 0; index < 2; ++index)
+		for (index2 = 0; index2 < MAXDEPTH; ++index2)
 			pos->searchKillers[index][index2] = 0;
 
 	pos->ply = 0;
