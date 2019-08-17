@@ -90,7 +90,7 @@ int EvalPosition(const S_BOARD *pos) {
 
 	assert(CheckBoard(pos));
 
-	int sq, sq120;
+	int sq;
 	int score = pos->material[WHITE] - pos->material[BLACK];
 
 	bitboard whitePawns 	= pos->colors[WHITE] & pos->pieceBBs[  PAWN];
@@ -115,7 +115,6 @@ int EvalPosition(const S_BOARD *pos) {
 	while (whitePawns) {
 
 		sq = PopLsb(&whitePawns);
-		assert(SqOnBoard(SQ120(sq)));
 		assert(sq >= 0 && sq < 64);
 
 		// Position score
@@ -125,14 +124,13 @@ int EvalPosition(const S_BOARD *pos) {
 			score += PawnIsolated;
 		// Passed bonus
 		if ((WhitePassedMask[sq] & blackPawns) == 0)
-			score += PawnPassed[RanksBrd[SQ120(sq)]];
+			score += PawnPassed[RanksBrd64[sq]];
 	}
 
 	// Black pawns
 	while (blackPawns) {
 
 		sq = PopLsb(&blackPawns);
-		assert(SqOnBoard(SQ120(sq)));
 		assert(MIRROR64(sq) >= 0 && MIRROR64(sq) < 64);
 
 		score -= PawnTable[MIRROR64(sq)];
@@ -141,13 +139,12 @@ int EvalPosition(const S_BOARD *pos) {
 			score -= PawnIsolated;
 
 		if ((BlackPassedMask[sq] & pos->colors[WHITE] & pos->pieceBBs[PAWN]) == 0)
-			score -= PawnPassed[7 - RanksBrd[SQ120(sq)]];
+			score -= PawnPassed[7 - RanksBrd64[sq]];
 	}
 
 	// White knights
 	while (whiteKnights) {
 		sq = PopLsb(&whiteKnights);
-		assert(SqOnBoard(SQ120(sq)));
 		assert(sq >= 0 && sq < 64);
 		score += KnightTable[sq];
 	}
@@ -155,7 +152,6 @@ int EvalPosition(const S_BOARD *pos) {
 	// Black knights
 	while (blackKnights) {
 		sq = MIRROR64(PopLsb(&blackKnights));
-		assert(SqOnBoard(SQ120(sq)));
 		assert(sq >= 0 && sq < 64);
 		score -= KnightTable[sq];
 	}
@@ -163,7 +159,6 @@ int EvalPosition(const S_BOARD *pos) {
 	// White bishops
 	while (whiteBishops) {
 		sq = PopLsb(&whiteBishops);
-		assert(SqOnBoard(SQ120(sq)));
 		assert(sq >= 0 && sq < 64);
 		score += BishopTable[sq];
 	}
@@ -171,7 +166,6 @@ int EvalPosition(const S_BOARD *pos) {
 	// Black bishops
 	while (blackBishops) {
 		sq = MIRROR64(PopLsb(&blackBishops));
-		assert(SqOnBoard(SQ120(sq)));
 		assert(sq >= 0 && sq < 64);
 		score -= BishopTable[sq];
 	}
@@ -180,18 +174,16 @@ int EvalPosition(const S_BOARD *pos) {
 	while (whiteRooks) {
 
 		sq = PopLsb(&whiteRooks);
-		sq120 = SQ120(sq);
-		assert(SqOnBoard(sq120));
 		assert(sq >= 0 && sq < 64);
 
 		score += RookTable[sq];
 
-		assert(FileRankValid(FilesBrd[sq120]));
+		assert(FileRankValid(FilesBrd64[sq]));
 
 		// Open/Semi-open file bonus
-		if (!(pos->pieceBBs[PAWN] & FileBBMask[FilesBrd[sq120]]))
+		if (!(pos->pieceBBs[PAWN] & FileBBMask[FilesBrd64[sq]]))
 			score += RookOpenFile;
-		else if (!(pos->colors[WHITE] & pos->pieceBBs[PAWN] & FileBBMask[FilesBrd[sq120]]))
+		else if (!(pos->colors[WHITE] & pos->pieceBBs[PAWN] & FileBBMask[FilesBrd64[sq]]))
 			score += RookSemiOpenFile;
 	}
 
@@ -199,18 +191,16 @@ int EvalPosition(const S_BOARD *pos) {
 	while (blackRooks) {
 
 		sq = PopLsb(&blackRooks);
-		sq120 = SQ120(sq);
-		assert(SqOnBoard(sq120));
-		assert(MIRROR64(sq) >= 0 && MIRROR64(sq) < 64);
+		assert(sq >= 0 && sq < 64);
 
 		score -= RookTable[MIRROR64(sq)];
 
-		assert(FileRankValid(FilesBrd[sq120]));
+		assert(FileRankValid(FilesBrd64[sq]));
 
 		// Open/Semi-open file bonus
-		if (!(pos->pieceBBs[PAWN] & FileBBMask[FilesBrd[sq120]]))
+		if (!(pos->pieceBBs[PAWN] & FileBBMask[FilesBrd64[sq]]))
 			score -= RookOpenFile;
-		else if (!(pos->colors[BLACK] & pos->pieceBBs[PAWN] & FileBBMask[FilesBrd[sq120]]))
+		else if (!(pos->colors[BLACK] & pos->pieceBBs[PAWN] & FileBBMask[FilesBrd64[sq]]))
 			score -= RookSemiOpenFile;
 	}
 
@@ -218,15 +208,13 @@ int EvalPosition(const S_BOARD *pos) {
 	while (whiteQueens) {
 
 		sq = PopLsb(&whiteQueens);
-		sq120 = SQ120(sq);
-		assert(SqOnBoard(sq120));
 		assert(sq >= 0 && sq < 64);
-		assert(FileRankValid(FilesBrd[sq120]));
+		assert(FileRankValid(FilesBrd64[sq]));
 
 		// Open/Semi-open file bonus
-		if (!(pos->pieceBBs[PAWN] & FileBBMask[FilesBrd[sq120]]))
+		if (!(pos->pieceBBs[PAWN] & FileBBMask[FilesBrd64[sq]]))
 			score += QueenOpenFile;
-		else if (!(pos->colors[WHITE] & pos->pieceBBs[PAWN] & FileBBMask[FilesBrd[sq120]]))
+		else if (!(pos->colors[WHITE] & pos->pieceBBs[PAWN] & FileBBMask[FilesBrd64[sq]]))
 			score += QueenSemiOpenFile;
 	}
 
@@ -234,21 +222,18 @@ int EvalPosition(const S_BOARD *pos) {
 	while (blackQueens) {
 
 		sq = PopLsb(&blackQueens);
-		sq120 = SQ120(sq);
-		assert(SqOnBoard(sq120));
 		assert(sq >= 0 && sq < 64);
-		assert(FileRankValid(FilesBrd[sq120]));
+		assert(FileRankValid(FilesBrd64[sq]));
 
 		// Open/Semi-open file bonus
-		if (!(pos->pieceBBs[PAWN] & FileBBMask[FilesBrd[sq120]]))
+		if (!(pos->pieceBBs[PAWN] & FileBBMask[FilesBrd64[sq]]))
 			score -= QueenOpenFile;
-		else if (!(pos->colors[BLACK] & pos->pieceBBs[PAWN] & FileBBMask[FilesBrd[sq120]]))
+		else if (!(pos->colors[BLACK] & pos->pieceBBs[PAWN] & FileBBMask[FilesBrd64[sq]]))
 			score -= QueenSemiOpenFile;
 	}
 
 	// White king
 	sq = SQ64(pos->KingSq[WHITE]);
-	assert(SqOnBoard(SQ120(sq)));
 	assert(sq >= 0 && sq < 64);
 	if (pos->material[BLACK] <= ENDGAME_MAT)
 		score += KingE[sq];
@@ -257,8 +242,7 @@ int EvalPosition(const S_BOARD *pos) {
 
 	// Black king
 	sq = SQ64(pos->KingSq[BLACK]);
-	assert(SqOnBoard(SQ120(sq)));
-	assert(MIRROR64(sq) >= 0 && MIRROR64(sq) < 64);
+	assert(sq >= 0 && sq < 64);
 	if (pos->material[WHITE] <= ENDGAME_MAT)
 		score -= KingE[MIRROR64(sq)];
 	else

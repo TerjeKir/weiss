@@ -17,6 +17,9 @@ int Sq64ToSq120[64];
 int FilesBrd[BRD_SQ_NUM];
 int RanksBrd[BRD_SQ_NUM];
 
+int FilesBrd64[64];
+int RanksBrd64[64];
+
 bitboard SetMask[64];
 bitboard ClearMask[64];
 
@@ -118,6 +121,10 @@ static void InitFilesRanksBrd() {
 			sq = FR2SQ(file, rank);
 			FilesBrd[sq] = file;
 			RanksBrd[sq] = rank;
+
+			sq = (rank * 8) + file;
+			FilesBrd64[sq] = file;
+			RanksBrd64[sq] = rank;
 		}
 	}
 }
