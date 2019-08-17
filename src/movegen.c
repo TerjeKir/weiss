@@ -192,13 +192,13 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 		// King side castle
 		if (pos->castlePerm & WKCA)
 			if (!(allPieces & bitF1G1))
-				if (!SqAttacked(E1, BLACK, pos) && !SqAttacked(F1, BLACK, pos))
+				if (!SqAttacked(4, BLACK, pos) && !SqAttacked(5, BLACK, pos)) // TODO: Add back enums
 					AddQuietMove(pos, MOVE(E1, G1, EMPTY, EMPTY, MOVE_FLAG_CASTLE), list);
 
 		// Queen side castle
 		if (pos->castlePerm & WQCA)
 			if (!(allPieces & bitB1C1D1))
-				if (!SqAttacked(E1, BLACK, pos) && !SqAttacked(D1, BLACK, pos))
+				if (!SqAttacked(4, BLACK, pos) && !SqAttacked(3, BLACK, pos)) // TODO: Add back enums
 					AddQuietMove(pos, MOVE(E1, C1, EMPTY, EMPTY, MOVE_FLAG_CASTLE), list);
 
 		// Pawns
@@ -238,13 +238,13 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 		// King side castle
 		if (pos->castlePerm & BKCA)
 			if (!((allPieces & bitF8G8)))
-				if (!SqAttacked(E8, WHITE, pos) && !SqAttacked(F8, WHITE, pos))
+				if (!SqAttacked(60, WHITE, pos) && !SqAttacked(61, WHITE, pos)) // TODO: Add back enums
 					AddQuietMove(pos, MOVE(E8, G8, EMPTY, EMPTY, MOVE_FLAG_CASTLE), list);
 
 		// Queen side castle
 		if (pos->castlePerm & BQCA)
 			if (!((allPieces & bitB8C8D8)))
-				if (!SqAttacked(E8, WHITE, pos) && !SqAttacked(D8, WHITE, pos))
+				if (!SqAttacked(60, WHITE, pos) && !SqAttacked(59, WHITE, pos)) // TODO: Add back enums
 					AddQuietMove(pos, MOVE(E8, C8, EMPTY, EMPTY, MOVE_FLAG_CASTLE), list);
 
 		// Pawns

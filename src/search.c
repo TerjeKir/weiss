@@ -199,7 +199,7 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 		return EvalPosition(pos);
 
 	// Extend search if in check
-	int InCheck = SqAttacked(SQ120(pos->KingSq[pos->side]), pos->side ^ 1, pos);
+	int InCheck = SqAttacked(pos->KingSq[pos->side], pos->side ^ 1, pos);
 	if (InCheck)
 		depth++;
 

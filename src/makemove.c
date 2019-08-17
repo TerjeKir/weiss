@@ -442,7 +442,7 @@ int MakeMove(S_BOARD *pos, int move) {
 	assert(CheckBoard(pos));
 
 	// If own king is attacked after the move, take it back immediately
-	if (SqAttacked(SQ120(pos->KingSq[side]), pos->side, pos)) {
+	if (SqAttacked(pos->KingSq[side], pos->side, pos)) {
 		TakeMove(pos);
 		return FALSE;
 	}
@@ -532,7 +532,7 @@ void TakeMove(S_BOARD *pos) {
 void MakeNullMove(S_BOARD *pos) {
 
 	assert(CheckBoard(pos));
-	assert(!SqAttacked(SQ120(pos->KingSq[pos->side]), pos->side ^ 1, pos));
+	assert(!SqAttacked(pos->KingSq[pos->side], pos->side ^ 1, pos));
 
 	pos->ply++;
 	pos->history[pos->hisPly].posKey = pos->posKey;
