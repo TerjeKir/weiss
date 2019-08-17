@@ -13,17 +13,17 @@
 // Update material lists to match pos->pieces[]
 static void UpdateListsMaterial(S_BOARD *pos) {
 
-	int piece, sq, colour;
+	int piece, sq, color;
 
 	for (sq = 0; sq < BRD_SQ_NUM; ++sq) {
 		piece = pos->pieces[sq];
 		assert(PceValidEmptyOffbrd(piece));
 		if (piece != OFFBOARD && piece != EMPTY) {
-			colour = PieceCol[piece];
-			assert(SideValid(colour));
+			color = PieceCol[piece];
+			assert(SideValid(color));
 
-			if (PieceBig[piece]) pos->bigPce[colour]++;
-			pos->material[colour] += PieceVal[piece];
+			if (PieceBig[piece]) pos->bigPce[color]++;
+			pos->material[color] += PieceVal[piece];
 
 			assert(pos->pceNum[piece] < 10 && pos->pceNum[piece] >= 0);
 
@@ -152,7 +152,7 @@ int CheckBoard(const S_BOARD *pos) {
 	int t_bigPce[2] = {0, 0};
 	int t_material[2] = {0, 0};
 
-	int sq64, t_piece, t_pce_num, sq120, colour;
+	int sq64, t_piece, t_pce_num, sq120, color;
 
 	// Bitboards
 	assert(PopCount(pos->pieceBBs[KING]) == 2);
@@ -185,11 +185,11 @@ int CheckBoard(const S_BOARD *pos) {
 		sq120 = SQ120(sq64);
 		t_piece = pos->pieces[sq120];
 		t_pceNum[t_piece]++;
-		colour = PieceCol[t_piece];
+		color = PieceCol[t_piece];
 
-		if (PieceBig[t_piece]) t_bigPce[colour]++;
+		if (PieceBig[t_piece]) t_bigPce[color]++;
 
-		t_material[colour] += PieceVal[t_piece];
+		t_material[color] += PieceVal[t_piece];
 	}
 
 	for (t_piece = wP; t_piece <= bK; ++t_piece)
