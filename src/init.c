@@ -159,7 +159,6 @@ static void InitSq120To64() {
 	for (rank = RANK_1; rank <= RANK_8; ++rank) {
 		for (file = FILE_A; file <= FILE_H; ++file) {
 			sq = FR2SQ(file, rank);
-			assert(SqOnBoard(sq));
 			Sq64ToSq120[sq64] = sq;
 			Sq120ToSq64[sq] = sq64;
 			sq64++;

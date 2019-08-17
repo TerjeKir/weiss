@@ -36,14 +36,8 @@ int MoveListOk(const S_MOVELIST *list, const S_BOARD *pos) {
 	return TRUE;
 }
 
-// 64 sq
 int ValidSquare(const int sq) {
 	return (sq >= 0 && sq < 64);
-}
-
-// 120 sq
-int SqOnBoard(const int sq) {
-	return FilesBrd[sq] == OFFBOARD ? 0 : 1;
 }
 
 int SideValid(const int side) {
@@ -52,10 +46,6 @@ int SideValid(const int side) {
 
 int FileRankValid(const int fr) {
 	return (fr >= 0 && fr <= 7) ? 1 : 0;
-}
-
-int PceValidEmptyOffbrd(const int pce) {
-	return (PieceValidEmpty(pce) || pce == OFFBOARD);
 }
 
 int PieceValidEmpty(const int pce) {

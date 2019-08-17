@@ -18,7 +18,7 @@ static void UpdateListsMaterial(S_BOARD *pos) {
 	for (sq = 0; sq < 64; ++sq) {
 
 		piece = pos->pieces[sq];
-		assert(PceValidEmptyOffbrd(piece));
+		assert(PieceValidEmpty(piece));
 
 		if (piece != EMPTY) {
 
@@ -49,9 +49,9 @@ static void UpdateBitboards(S_BOARD *pos) {
 	for (sq = 0; sq < 64; ++sq) {
 
 		piece = pos->pieces[sq];
-		assert(PceValidEmptyOffbrd(piece));
+		assert(PieceValidEmpty(piece));
 
-		if (piece != OFFBOARD && piece != EMPTY) {
+		if (piece != EMPTY) {
 
 			SETBIT(pos->allBB,  sq);
 

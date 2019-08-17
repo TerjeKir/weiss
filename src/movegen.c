@@ -12,7 +12,6 @@
 
 
 #define MOVE(f, t, ca, pro, fl) ((f) | ((t) << 7) | ((ca) << 14) | ((pro) << 20) | (fl))
-#define SQOFFBOARD(sq) (FilesBrd[(sq)] == OFFBOARD)
 
 
 const bitboard bitB1C1D1 = (1ULL << 1) | (1ULL << 2) | (1ULL << 3);
@@ -60,8 +59,8 @@ int MoveExists(S_BOARD *pos, const int move) {
 
 static void AddQuietMove(const S_BOARD *pos, int move, S_MOVELIST *list) {
 
-	assert(SqOnBoard(FROMSQ(move)));
-	assert(SqOnBoard(TOSQ(move)));
+	assert(ValidSquare(SQ64(FROMSQ(move))));
+	assert(ValidSquare(SQ64(TOSQ(move))));
 	assert(CheckBoard(pos));
 	assert(pos->ply >= 0 && pos->ply < MAXDEPTH);
 
@@ -79,8 +78,8 @@ static void AddQuietMove(const S_BOARD *pos, int move, S_MOVELIST *list) {
 
 static void AddCaptureMove(const S_BOARD *pos, int move, S_MOVELIST *list) {
 
-	assert(SqOnBoard(FROMSQ(move)));
-	assert(SqOnBoard(TOSQ(move)));
+	assert(ValidSquare(SQ64(FROMSQ(move))));
+	assert(ValidSquare(SQ64(TOSQ(move))));
 	assert(PieceValid(CAPTURED(move)));
 	assert(CheckBoard(pos));
 
@@ -91,8 +90,8 @@ static void AddCaptureMove(const S_BOARD *pos, int move, S_MOVELIST *list) {
 
 static void AddEnPassantMove(const S_BOARD *pos, int move, S_MOVELIST *list) {
 
-	assert(SqOnBoard(FROMSQ(move)));
-	assert(SqOnBoard(TOSQ(move)));
+	assert(ValidSquare(SQ64(FROMSQ(move))));
+	assert(ValidSquare(SQ64(TOSQ(move))));
 	assert(CheckBoard(pos));
 	assert((RanksBrd[TOSQ(move)] == RANK_6 && pos->side == WHITE) || (RanksBrd[TOSQ(move)] == RANK_3 && pos->side == BLACK));
 
@@ -104,8 +103,8 @@ static void AddEnPassantMove(const S_BOARD *pos, int move, S_MOVELIST *list) {
 static void AddWhitePawnCapMove(const S_BOARD *pos, const int from, const int to, const int cap, S_MOVELIST *list) {
 
 	assert(PieceValidEmpty(cap));
-	assert(SqOnBoard(from));
-	assert(SqOnBoard(to));
+	assert(ValidSquare(SQ64(from)));
+	assert(ValidSquare(SQ64(to)));
 	assert(CheckBoard(pos));
 
 	if (RanksBrd[from] == RANK_7) {
@@ -119,8 +118,8 @@ static void AddWhitePawnCapMove(const S_BOARD *pos, const int from, const int to
 
 static void AddWhitePawnMove(const S_BOARD *pos, const int from, const int to, S_MOVELIST *list) {
 
-	assert(SqOnBoard(from));
-	assert(SqOnBoard(to));
+	assert(ValidSquare(SQ64(from)));
+	assert(ValidSquare(SQ64(to)));
 	assert(CheckBoard(pos));
 
 	if (RanksBrd[from] == RANK_7) {
@@ -135,8 +134,8 @@ static void AddWhitePawnMove(const S_BOARD *pos, const int from, const int to, S
 static void AddBlackPawnCapMove(const S_BOARD *pos, const int from, const int to, const int cap, S_MOVELIST *list) {
 
 	assert(PieceValidEmpty(cap));
-	assert(SqOnBoard(from));
-	assert(SqOnBoard(to));
+	assert(ValidSquare(SQ64(from)));
+	assert(ValidSquare(SQ64(to)));
 	assert(CheckBoard(pos));
 
 	if (RanksBrd[from] == RANK_2) {
@@ -150,8 +149,8 @@ static void AddBlackPawnCapMove(const S_BOARD *pos, const int from, const int to
 
 static void AddBlackPawnMove(const S_BOARD *pos, const int from, const int to, S_MOVELIST *list) {
 
-	assert(SqOnBoard(from));
-	assert(SqOnBoard(to));
+	assert(ValidSquare(SQ64(from)));
+	assert(ValidSquare(SQ64(to)));
 	assert(CheckBoard(pos));
 
 	if (RanksBrd[from] == RANK_2) {
@@ -206,7 +205,7 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 
 			sq = PopLsb(&pawns);
 			squareBitMask = 1ULL << sq;
-			assert(SqOnBoard(SQ120(sq)));
+			assert(ValidSquare(sq));
 
 			// Move forward
 			if (!(allPieces & squareBitMask << 8)) {
@@ -252,7 +251,7 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 
 			sq = PopLsb(&pawns);
 			squareBitMask = 1ULL << sq;
-			assert(SqOnBoard(SQ120(sq)));
+			assert(ValidSquare(sq));
 
 			// Move forward
 			if (!(allPieces & squareBitMask >> 8)) {
@@ -404,7 +403,7 @@ void GenerateAllCaptures(const S_BOARD *pos, S_MOVELIST *list) {
 		while (pawns) {
 
 			sq = PopLsb(&pawns);
-			assert(SqOnBoard(SQ120(sq)));
+			assert(ValidSquare(sq));
 
 			// Pawn captures
 			attacks = pawn_attacks[side][sq] & enemies;
@@ -428,7 +427,7 @@ void GenerateAllCaptures(const S_BOARD *pos, S_MOVELIST *list) {
 		while (pawns) {
 
 			sq = PopLsb(&pawns);
-			assert(SqOnBoard(SQ120(sq)));
+			assert(ValidSquare(sq));
 
 			// Pawn captures
 			attacks = pawn_attacks[side][sq] & enemies;

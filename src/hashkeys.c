@@ -37,10 +37,10 @@ uint64_t GeneratePosKey(const S_BOARD *pos) {
 
 	// Pieces
 	for (int sq = 0; sq < 64; ++sq) {
-		
+
 		piece = pos->pieces[sq];
-		
-		if (piece != NO_SQ && piece != EMPTY && piece != OFFBOARD) {
+
+		if (piece != EMPTY) {
 			assert(piece >= wP && piece <= bK);
 			posKey ^= PieceKeys[piece][SQ120(sq)];
 		}

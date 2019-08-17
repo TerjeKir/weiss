@@ -39,7 +39,7 @@ static void ClearPiece(const int sq120, S_BOARD *pos) {
 
 	int sq = SQ64(sq120);
 
-	assert(SqOnBoard(SQ120(sq)));
+	assert(ValidSquare(sq));
 	assert(CheckBoard(pos));
 
 	int piece = pos->pieces[sq];
@@ -140,7 +140,7 @@ static void AddPiece(const int sq120, S_BOARD *pos, const int piece) {
 	int sq = SQ64(sq120);
 
 	assert(PieceValid(piece));
-	assert(SqOnBoard(SQ120(sq)));
+	assert(ValidSquare(sq));
 
 	int color = PieceColor[piece];
 	assert(SideValid(color));
@@ -220,8 +220,8 @@ static void MovePiece(const int from120, const int to120, S_BOARD *pos) {
 	int from = SQ64(from120);
 	int to = SQ64(to120);
 
-	assert(SqOnBoard(SQ120(from)));
-	assert(SqOnBoard(SQ120(to)));
+	assert(ValidSquare(from));
+	assert(ValidSquare(to));
 
 	int index = 0;
 	int piece = pos->pieces[from];
@@ -341,8 +341,8 @@ int MakeMove(S_BOARD *pos, int move) {
 	int to = SQ64(TOSQ(move));
 	int side = pos->side;
 
-	assert(SqOnBoard(SQ120(from)));
-	assert(SqOnBoard(SQ120(to)));
+	assert(ValidSquare(from));
+	assert(ValidSquare(to));
 	assert(SideValid(side));
 	assert(PieceValid(pos->pieces[from]));
 	assert(pos->hisPly >= 0 && pos->hisPly < MAXGAMEMOVES);
@@ -465,8 +465,8 @@ void TakeMove(S_BOARD *pos) {
 	int from = SQ64(FROMSQ(move));
 	int to = SQ64(TOSQ(move));
 
-	assert(SqOnBoard(SQ120(from)));
-	assert(SqOnBoard(SQ120(to)));
+	assert(ValidSquare(from));
+	assert(ValidSquare(to));
 
 	// Hash out en passant if exists
 	if (pos->enPas != NO_SQ) HASH_EP;
