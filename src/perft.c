@@ -69,7 +69,7 @@ void Perft(int depth, S_BOARD *pos) {
 	int timeElapsed = GetTimeMs() - start;
 	printf("\nPerft Complete : %I64d nodes visited in %dms\n", leafNodes, timeElapsed);
 	if (timeElapsed > 0) 
-		printf("               : %.0f nps\n", leafNodes / ((double) timeElapsed / 1000));
+		printf("               : %I64d nps\n", ((leafNodes * 1000) / timeElapsed));
 
 	return;
 }

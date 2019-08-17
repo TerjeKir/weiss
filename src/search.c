@@ -14,9 +14,6 @@
 #include "pvtable.h"
 
 
-int rootDepth;
-
-
 // Check if time up, or interrupt from GUI
 static void CheckUp(S_SEARCHINFO *info) {
 	
@@ -178,6 +175,7 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 
 	info->nodes++;
 
+	// Update selective depth
 	if (pos->ply > info->seldepth)
 		info->seldepth = pos->ply;
 
@@ -318,12 +316,11 @@ void SearchPosition(S_BOARD *pos, S_SEARCHINFO *info) {
 
 	ClearForSearch(pos, info);
 
-	// iterative deepening
+	// Iterative deepening
 	for (currentDepth = 1; currentDepth <= info->depth; ++currentDepth) {
 		if (currentDepth > info->seldepth) 
 			info->seldepth = currentDepth;
 
-		rootDepth = currentDepth;
 		bestScore = AlphaBeta(-INFINITE, INFINITE, currentDepth, pos, info, TRUE);
 
 		if (info->stopped) break;
@@ -353,7 +350,7 @@ void SearchPosition(S_BOARD *pos, S_SEARCHINFO *info) {
 
 			// Nodes per second
 			if (timeElapsed > 0)
-				printf("nps %I64d ", ((info->nodes / timeElapsed) * 1000));
+				printf("nps %I64d ", ((info->nodes * 1000) / timeElapsed));
 
 			// Principal variation
 			printf("pv");
