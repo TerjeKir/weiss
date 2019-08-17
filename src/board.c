@@ -147,6 +147,7 @@ static void ResetBoard(S_BOARD *pos) {
 	pos->posKey = 0ULL;
 }
 
+#ifndef NDEBUG
 // Check board state makes sense
 int CheckBoard(const S_BOARD *pos) {
 
@@ -214,6 +215,7 @@ int CheckBoard(const S_BOARD *pos) {
 
 	return TRUE;
 }
+#endif
 
 // Parse FEN and set up board in the position described
 int ParseFen(char *fen, S_BOARD *pos) {
