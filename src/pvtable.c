@@ -1,6 +1,7 @@
 // pvtable.c
 
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "defs.h"
 #include "makemove.h"
@@ -69,12 +70,12 @@ void InitHashTable(S_HASHTABLE *table, const int MB) {
 	if (table->pTable != NULL)
 		free(table->pTable);
 
-	table->pTable = (S_HASHENTRY *)malloc(table->numEntries * sizeof(S_HASHENTRY));
+	table->pTable = (S_HASHENTRY *)calloc(table->numEntries, sizeof(S_HASHENTRY));
 	if (table->pTable == NULL) {
 		printf("Hash Allocation Failed, trying %dMB...\n", MB / 2);
 		InitHashTable(table, MB / 2);
 	} else {
-		ClearHashTable(table);
+		table->newWrite = 0;
 		printf("HashTable init complete with %d entries, using %dMB.\n", table->numEntries, MB);
 	}
 }
