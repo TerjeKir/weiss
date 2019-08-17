@@ -61,7 +61,7 @@ static void ClearPiece(const int sq120, S_BOARD *pos) {
 		pos->bigPieces[color]--;
 
 	for (int index = 0; index < pos->pieceCounts[piece]; ++index) {
-		if (pos->pieceList[piece][index] == SQ120(sq)) {
+		if (pos->pieceList[piece][index] == sq) {
 			t_pieceCounts = index;
 			break;
 		}
@@ -154,7 +154,7 @@ static void AddPiece(const int sq120, S_BOARD *pos, const int piece) {
 		pos->bigPieces[color]++;
 
 	pos->material[color] += PieceValues[piece];
-	pos->pieceList[piece][pos->pieceCounts[piece]++] = SQ120(sq);
+	pos->pieceList[piece][pos->pieceCounts[piece]++] = sq;
 
 	// Bitboards
 	
@@ -238,8 +238,8 @@ static void MovePiece(const int from120, const int to120, S_BOARD *pos) {
 	pos->pieces[to] = piece;
 
 	for (index = 0; index < pos->pieceCounts[piece]; ++index) {
-		if (pos->pieceList[piece][index] == SQ120(from)) {
-			pos->pieceList[piece][index] = SQ120(to);
+		if (pos->pieceList[piece][index] == from) {
+			pos->pieceList[piece][index] = to;
 #ifndef NDEBUG
 			t_PieceNum = TRUE;
 #endif

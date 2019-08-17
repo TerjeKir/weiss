@@ -32,7 +32,7 @@ static void UpdateListsMaterial(S_BOARD *pos) {
 
 			assert(pos->pieceCounts[piece] < 10 && pos->pieceCounts[piece] >= 0);
 
-			pos->pieceList[piece][pos->pieceCounts[piece]] = SQ120(sq);
+			pos->pieceList[piece][pos->pieceCounts[piece]] = sq;
 			pos->pieceCounts[piece]++;
 
 			if (piece == wK) pos->KingSq[WHITE] = sq;
@@ -177,7 +177,7 @@ int CheckBoard(const S_BOARD *pos) {
 	// check piece lists
 	for (t_piece = wP; t_piece <= bK; ++t_piece)
 		for (t_pce_num = 0; t_pce_num < pos->pieceCounts[t_piece]; ++t_pce_num) {
-			sq = SQ64(pos->pieceList[t_piece][t_pce_num]);
+			sq = pos->pieceList[t_piece][t_pce_num];
 			assert(pos->pieces[sq] == t_piece);
 		}
 
