@@ -1,9 +1,6 @@
 # EPD
 *.epd
 
-# VS Code settings
-settings.json
-
 # Prerequisites
 *.d
 
