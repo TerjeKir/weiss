@@ -9,9 +9,10 @@ extern char RankChar[];
 extern char FileChar[];
 
 extern int PieceBig[13];
-extern int PieceVal[13];
-extern int PieceCol[13];
+extern int PieceValues[13];
+extern int PieceColor[13];
 
+// Mostly unused
 extern int PiecePawn[13];
 extern int PieceKnight[13];
 extern int PieceKing[13];

@@ -103,15 +103,14 @@ typedef struct {
 	bitboard pieceBBs[6]; 	// 0 Pawn  1 Knight 2 Bishop 3 Rook 4 Queen 5 King
 	bitboard allBB;
 
+	int KingSq[2]; 			// Square king is on, 0 White 1 Black
+	int material[2];		// Total value of pieces, 0 White 1 Black
+	int bigPieces[2];		// # of non-pawns, 0 White 1 Black
+	int pieceCounts[13];	// # of each type of piece
+
+	// 120 sq
 	int pieces[BRD_SQ_NUM]; // (120)
-
-	int pceNum[13];			// # of each type of piece
-	int bigPce[2];			// # of non-pawns
-	int material[2];		// Total value of pieces (from PieceVals)
-
-	int pList[13][10]; 		// [piece type][#] -> square (120)
-
-	int KingSq[2]; 			// 0 White 1 Black
+	int pieceList[13][10]; 	// [piece type][#] -> square (120)
 
 	int side;
 	int enPas;

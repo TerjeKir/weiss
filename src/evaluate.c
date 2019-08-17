@@ -9,7 +9,7 @@
 #include "validate.h"
 
 
-#define ENDGAME_MAT (1 * PieceVal[wR] + 2 * PieceVal[wN] + 2 * PieceVal[wP] + PieceVal[wK])
+#define ENDGAME_MAT (1 * PieceValues[wR] + 2 * PieceValues[wN] + 2 * PieceValues[wP] + PieceValues[wK])
 #define MIRROR64(sq) (Mirror64[(sq)])
 
 
