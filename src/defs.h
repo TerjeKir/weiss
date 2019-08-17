@@ -16,7 +16,7 @@
 #define MAXPOSITIONMOVES 256
 #define MAXDEPTH 128
 #define MAXHASH 1024
-#define DEFAULTHASH 64
+#define DEFAULTHASH 1024
 
 #define START_FEN  "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 
