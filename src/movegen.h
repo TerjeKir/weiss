@@ -4,7 +4,8 @@
 
 #include "defs.h"
 
-extern void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list);
-extern void GenerateAllCaps(const S_BOARD *pos, S_MOVELIST *list);
-extern int MoveExists(S_BOARD *pos, const int move);
-extern void InitMvvLva();
+
+void InitMvvLva();
+int MoveExists(S_BOARD *pos, const int move);
+void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list);
+void GenerateAllCaptures(const S_BOARD *pos, S_MOVELIST *list);

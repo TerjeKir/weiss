@@ -1,8 +1,9 @@
 // validate.c
 
+#include <stdio.h>
+#include <string.h>
+
 #include "defs.h"
-#include "stdio.h"
-#include "string.h"
 #include "board.h"
 #include "evaluate.h"
 #include "validate.h"
@@ -10,20 +11,23 @@
 #include "pvtable.h"
 #include "search.h"
 
+
 int MoveListOk(const S_MOVELIST *list, const S_BOARD *pos) {
-	if (list->count < 0 || list->count >= MAXPOSITIONMOVES) {
+
+	if (list->count < 0 || list->count >= MAXPOSITIONMOVES)
 		return FALSE;
-	}
 
 	int MoveNum;
 	int from = 0;
 	int to = 0;
 	for (MoveNum = 0; MoveNum < list->count; ++MoveNum) {
+		
 		to = TOSQ(list->moves[MoveNum].move);
 		from = FROMSQ(list->moves[MoveNum].move);
-		if (!SqOnBoard(to) || !SqOnBoard(from)) {
+		
+		if (!SqOnBoard(to) || !SqOnBoard(from))
 			return FALSE;
-		}
+
 		if (!PieceValid(pos->pieces[from])) {
 			PrintBoard(pos);
 			return FALSE;
@@ -60,34 +64,6 @@ int PieceValid(const int pce) {
 	return (pce >= wP && pce <= bK) ? 1 : 0;
 }
 
-void DebugAnalysisTest(S_BOARD *pos, S_SEARCHINFO *info) {
-
-	FILE *file;
-	file = fopen("lct2.epd", "r");
-	char lineIn[1024];
-
-	info->depth = MAXDEPTH;
-	info->timeset = TRUE;
-	int time = 1140000;
-
-	if (file == NULL) {
-		printf("File Not Found\n");
-		return;
-	} else {
-		while (fgets(lineIn, 1024, file) != NULL) {
-			info->starttime = GetTimeMs();
-			info->stoptime = info->starttime + time;
-			ClearHashTable(pos->HashTable);
-			ParseFen(lineIn, pos);
-			printf("\n%s\n", lineIn);
-			printf("time:%d start:%d stop:%d depth:%d timeset:%d\n",
-				   time, info->starttime, info->stoptime, info->depth, info->timeset);
-			SearchPosition(pos, info);
-			memset(&lineIn[0], 0, sizeof(lineIn));
-		}
-	}
-}
-
 void MirrorEvalTest(S_BOARD *pos) {
 	FILE *file;
 	file = fopen("mirror.epd", "r");
@@ -117,9 +93,8 @@ void MirrorEvalTest(S_BOARD *pos) {
 				return;
 			}
 
-			if ((positions % 1000) == 0) {
+			if ((positions % 1000) == 0)
 				printf("position %d\n", positions);
-			}
 
 			memset(&lineIn[0], 0, sizeof(lineIn));
 		}

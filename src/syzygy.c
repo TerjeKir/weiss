@@ -3,15 +3,18 @@
 #include "defs.h"
 #include "bitboards.h"
 #include "fathom/tbprobe.h"
+#include "board.h"
+
 
 #define TB_PROBE_DEPTH 4
 #define TB_LARGEST 6
 
+
 unsigned int probeWDL(S_BOARD *pos, int depth) {
 
-    int cardinality = CNT(pos->colors[WHITE] | pos->colors[BLACK]);
+    int cardinality = PopCount(pos->allBB);
 
-    ASSERT(CheckBoard(pos));
+    assert(CheckBoard(pos));
 
     if (    (pos->ply == 0)
         ||  (pos->enPas != NO_SQ)
@@ -24,12 +27,12 @@ unsigned int probeWDL(S_BOARD *pos, int depth) {
     return tb_probe_wdl(
         pos->colors[WHITE],
         pos->colors[BLACK],
-        pos->pieces[KING],
-        pos->pieces[QUEEN],
-        pos->pieces[ROOK],
-        pos->pieces[BISHOP],
-        pos->pieces[KNIGHT],
-        pos->pieces[PAWN],
+        pos->pieceBBs[KING],
+        pos->pieceBBs[QUEEN],
+        pos->pieceBBs[ROOK],
+        pos->pieceBBs[BISHOP],
+        pos->pieceBBs[KNIGHT],
+        pos->pieceBBs[PAWN],
         pos->fiftyMove,
         pos->castlePerm,
         pos->enPas == NO_SQ ? 0 : pos->enPas,

@@ -1,40 +1,39 @@
 // init.c
 
-#include "defs.h"
-#include "stdio.h"
-#include "stdlib.h"
-#include "movegen.h"
-#include "polybook.h"
+#include <stdio.h>
+#include <stdlib.h>
 
-#define RAND_64 ((uint64_t)rand() |	   \
-				 (uint64_t)rand() << 15 | \
-				 (uint64_t)rand() << 30 | \
-				 (uint64_t)rand() << 45 | \
-				 ((uint64_t)rand() & 0xf) << 60)
+#include "defs.h"
+#include "attack.h"
+#include "bitboards.h"
+#include "hashkeys.h"
+#include "movegen.h"
+#include "validate.h"
+
 
 int Sq120ToSq64[BRD_SQ_NUM];
 int Sq64ToSq120[64];
 
-uint64_t SetMask[64];
-uint64_t ClearMask[64];
-
-uint64_t PieceKeys[13][120];
-uint64_t SideKey;
-uint64_t CastleKeys[16];
-
 int FilesBrd[BRD_SQ_NUM];
 int RanksBrd[BRD_SQ_NUM];
 
-uint64_t FileBBMask[8];
-uint64_t RankBBMask[8];
+int FilesBrd64[64];
+int RanksBrd64[64];
 
-uint64_t BlackPassedMask[64];
-uint64_t WhitePassedMask[64];
-uint64_t IsolatedMask[64];
+bitboard SetMask[64];
+bitboard ClearMask[64];
+
+bitboard FileBBMask[8];
+bitboard RankBBMask[8];
+
+bitboard BlackPassedMask[64];
+bitboard WhitePassedMask[64];
+bitboard IsolatedMask[64];
 
 S_OPTIONS EngineOptions[1];
 
-void InitEvalMasks() {
+
+static void InitEvalMasks() {
 
 	int sq, tsq, r, f;
 
@@ -105,7 +104,7 @@ void InitEvalMasks() {
 	}
 }
 
-void InitFilesRanksBrd() {
+static void InitFilesRanksBrd() {
 
 	int index = 0;
 	int file = FILE_A;
@@ -122,26 +121,15 @@ void InitFilesRanksBrd() {
 			sq = FR2SQ(file, rank);
 			FilesBrd[sq] = file;
 			RanksBrd[sq] = rank;
+
+			sq = (rank * 8) + file;
+			FilesBrd64[sq] = file;
+			RanksBrd64[sq] = rank;
 		}
 	}
 }
 
-void InitHashKeys() {
-
-	int index = 0;
-	int index2 = 0;
-	for (index = 0; index < 13; ++index) {
-		for (index2 = 0; index2 < 120; ++index2) {
-			PieceKeys[index][index2] = RAND_64;
-		}
-	}
-	SideKey = RAND_64;
-	for (index = 0; index < 16; ++index) {
-		CastleKeys[index] = RAND_64;
-	}
-}
-
-void InitBitMasks() {
+static void InitBitMasks() {
 	int index = 0;
 
 	for (index = 0; index < 64; index++) {
@@ -155,25 +143,23 @@ void InitBitMasks() {
 	}
 }
 
-void InitSq120To64() {
+static void InitSq120To64() {
 
 	int index = 0;
 	int file = FILE_A;
 	int rank = RANK_1;
 	int sq = A1;
 	int sq64 = 0;
-	for (index = 0; index < BRD_SQ_NUM; ++index) {
+	for (index = 0; index < BRD_SQ_NUM; ++index)
 		Sq120ToSq64[index] = 65;
-	}
 
-	for (index = 0; index < 64; ++index) {
+	for (index = 0; index < 64; ++index)
 		Sq64ToSq120[index] = 120;
-	}
 
 	for (rank = RANK_1; rank <= RANK_8; ++rank) {
 		for (file = FILE_A; file <= FILE_H; ++file) {
 			sq = FR2SQ(file, rank);
-			ASSERT(SqOnBoard(sq));
+			assert(SqOnBoard(sq));
 			Sq64ToSq120[sq64] = sq;
 			Sq120ToSq64[sq] = sq64;
 			sq64++;
@@ -182,11 +168,12 @@ void InitSq120To64() {
 }
 
 void InitAll() {
+	InitDistance();
 	InitSq120To64();
 	InitBitMasks();
 	InitHashKeys();
 	InitFilesRanksBrd();
 	InitEvalMasks();
 	InitMvvLva();
-	InitPolyBook();
+	InitAttacks();
 }

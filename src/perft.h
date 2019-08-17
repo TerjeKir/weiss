@@ -4,4 +4,5 @@
 
 #include "defs.h"
 
-extern void PerftTest(int depth, S_BOARD *pos);
+
+void Perft(int depth, S_BOARD *pos);

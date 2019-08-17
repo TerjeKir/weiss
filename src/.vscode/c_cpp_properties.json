@@ -6,7 +6,6 @@
 				"${workspaceFolder}/**"
 			],
 			"defines": [
-				"_DEBUG",
 				"UNICODE",
 				"_UNICODE",
 				"WIN32"

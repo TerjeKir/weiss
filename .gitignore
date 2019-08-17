@@ -1,3 +1,6 @@
+# EPD
+*.epd
+
 # VS Code settings
 settings.json
 
