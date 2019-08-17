@@ -15,37 +15,13 @@
 #define SQOFFBOARD(sq) (FilesBrd[(sq)] == OFFBOARD)
 
 
-bitboard bitB1C1D1 = (1ULL << 1) | (1ULL << 2) | (1ULL << 3);
-bitboard bitF1G1 = (1ULL << 5) | (1ULL << 6);
-bitboard bitB8C8D8 = (1ULL << 57) | (1ULL << 58) | (1ULL << 59);
-bitboard bitF8G8 = (1ULL << 61) | (1ULL << 62);
+const bitboard bitB1C1D1 = (1ULL << 1) | (1ULL << 2) | (1ULL << 3);
+const bitboard bitF1G1 = (1ULL << 5) | (1ULL << 6);
+const bitboard bitB8C8D8 = (1ULL << 57) | (1ULL << 58) | (1ULL << 59);
+const bitboard bitF8G8 = (1ULL << 61) | (1ULL << 62);
 
-const int LoopSlidePce[8] = {
-	wB, wR, wQ, 0, bB, bR, bQ, 0};
-
-const int LoopNonSlidePce[6] = {
-	wN, wK, 0, bN, bK, 0};
-
-const int LoopSlideIndex[2] = {0, 4};
-const int LoopNonSlideIndex[2] = {0, 3};
-
-const int PceDir[13][8] = {
-	{0, 0, 0, 0, 0, 0, 0},
-	{0, 0, 0, 0, 0, 0, 0},
-	{-8, -19, -21, -12, 8, 19, 21, 12},
-	{-9, -11, 11, 9, 0, 0, 0, 0},
-	{-1, -10, 1, 10, 0, 0, 0, 0},
-	{-1, -10, 1, 10, -9, -11, 11, 9},
-	{-1, -10, 1, 10, -9, -11, 11, 9},
-	{0, 0, 0, 0, 0, 0, 0},
-	{-8, -19, -21, -12, 8, 19, 21, 12},
-	{-9, -11, 11, 9, 0, 0, 0, 0},
-	{-1, -10, 1, 10, 0, 0, 0, 0},
-	{-1, -10, 1, 10, -9, -11, 11, 9},
-	{-1, -10, 1, 10, -9, -11, 11, 9}};
-
-const int NumDir[13] = {
-	0, 0, 8, 4, 4, 8, 8, 0, 8, 4, 4, 8, 8};
+const int VictimScore[13] = {0, 100, 200, 300, 400, 500, 600, 100, 200, 300, 400, 500, 600};
+static int MvvLvaScores[13][13];
 
 /*
 PV Move
@@ -53,9 +29,6 @@ Cap -> MvvLVA
 Killers
 HistoryScore
 */
-const int VictimScore[13] = {0, 100, 200, 300, 400, 500, 600, 100, 200, 300, 400, 500, 600};
-static int MvvLvaScores[13][13];
-
 
 void InitMvvLva() {
 
