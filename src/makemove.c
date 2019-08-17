@@ -42,7 +42,7 @@ static void ClearPiece(const int sq120, S_BOARD *pos) {
 	assert(SqOnBoard(SQ120(sq)));
 	assert(CheckBoard(pos));
 
-	int piece = pos->pieces[SQ120(sq)];
+	int piece = pos->pieces[sq];
 
 	assert(PieceValid(piece));
 
@@ -53,7 +53,7 @@ static void ClearPiece(const int sq120, S_BOARD *pos) {
 
 	HASH_PCE(piece, SQ120(sq));
 
-	pos->pieces[SQ120(sq)] = EMPTY;
+	pos->pieces[sq] = EMPTY;
 	pos->material[color] -= PieceValues[piece];
 
 	// Piece lists
@@ -147,7 +147,7 @@ static void AddPiece(const int sq120, S_BOARD *pos, const int piece) {
 
 	HASH_PCE(piece, SQ120(sq));
 
-	pos->pieces[SQ120(sq)] = piece;
+	pos->pieces[sq] = piece;
 
 	// Piece lists
 	if (PieceBig[piece])
@@ -224,7 +224,7 @@ static void MovePiece(const int from120, const int to120, S_BOARD *pos) {
 	assert(SqOnBoard(SQ120(to)));
 
 	int index = 0;
-	int piece = pos->pieces[SQ120(from)];
+	int piece = pos->pieces[from];
 	assert(PieceValid(piece));
 
 #ifndef NDEBUG
@@ -232,10 +232,10 @@ static void MovePiece(const int from120, const int to120, S_BOARD *pos) {
 #endif
 
 	HASH_PCE(piece, SQ120(from));
-	pos->pieces[SQ120(from)] = EMPTY;
+	pos->pieces[from] = EMPTY;
 
 	HASH_PCE(piece, SQ120(to));
-	pos->pieces[SQ120(to)] = piece;
+	pos->pieces[to] = piece;
 
 	for (index = 0; index < pos->pieceCounts[piece]; ++index) {
 		if (pos->pieceList[piece][index] == SQ120(from)) {
@@ -344,7 +344,7 @@ int MakeMove(S_BOARD *pos, int move) {
 	assert(SqOnBoard(SQ120(from)));
 	assert(SqOnBoard(SQ120(to)));
 	assert(SideValid(side));
-	assert(PieceValid(pos->pieces[SQ120(from)]));
+	assert(PieceValid(pos->pieces[from]));
 	assert(pos->hisPly >= 0 && pos->hisPly < MAXGAMEMOVES);
 	assert(pos->ply >= 0 && pos->ply < MAXDEPTH);
 
@@ -406,7 +406,7 @@ int MakeMove(S_BOARD *pos, int move) {
 	assert(pos->ply >= 0 && pos->ply < MAXDEPTH);
 
 	// Set en passant square and hash it in if any
-	if (PiecePawn[pos->pieces[SQ120(from)]]) {
+	if (PiecePawn[pos->pieces[from]]) {
 		pos->fiftyMove = 0;
 		if (move & MOVE_FLAG_PAWNSTART) {
 			if (side == WHITE) {
@@ -432,7 +432,7 @@ int MakeMove(S_BOARD *pos, int move) {
 	}
 
 	// Update king position if king moved
-	if (PieceKing[pos->pieces[SQ120(to)]])
+	if (PieceKing[pos->pieces[to]])
 		pos->KingSq[pos->side] = to;
 
 	// Change turn to play
@@ -508,7 +508,7 @@ void TakeMove(S_BOARD *pos) {
 	MovePiece(SQ120(to), SQ120(from), pos);
 
 	// Update king position if king moved
-	if (PieceKing[pos->pieces[SQ120(from)]])
+	if (PieceKing[pos->pieces[from]])
 		pos->KingSq[pos->side] = from;
 
 	// Add back captured piece if any

@@ -17,7 +17,7 @@ static void UpdateListsMaterial(S_BOARD *pos) {
 
 	for (sq = 0; sq < 64; ++sq) {
 
-		piece = pos->pieces[SQ120(sq)];
+		piece = pos->pieces[sq];
 		assert(PceValidEmptyOffbrd(piece));
 
 		if (piece != EMPTY) {
@@ -48,7 +48,7 @@ static void UpdateBitboards(S_BOARD *pos) {
 
 	for (sq = 0; sq < 64; ++sq) {
 
-		piece = pos->pieces[SQ120(sq)];
+		piece = pos->pieces[sq];
 		assert(PceValidEmptyOffbrd(piece));
 
 		if (piece != OFFBOARD && piece != EMPTY) {
@@ -107,13 +107,9 @@ static void ResetBoard(S_BOARD *pos) {
 
 	int index = 0;
 
-	// All squares to offboard
-	for (index = 0; index < BRD_SQ_NUM; ++index)
-		pos->pieces[index] = OFFBOARD;
-
 	// All squares on the board to empty instead of offboard
 	for (index = 0; index < 64; ++index)
-		pos->pieces[SQ120(index)] = EMPTY;
+		pos->pieces[index] = EMPTY;
 
 	// Piece counts and material
 	for (index = 0; index < 2; ++index) {
@@ -182,13 +178,13 @@ int CheckBoard(const S_BOARD *pos) {
 	for (t_piece = wP; t_piece <= bK; ++t_piece)
 		for (t_pce_num = 0; t_pce_num < pos->pieceCounts[t_piece]; ++t_pce_num) {
 			sq = SQ64(pos->pieceList[t_piece][t_pce_num]);
-			assert(pos->pieces[SQ120(sq)] == t_piece);
+			assert(pos->pieces[sq] == t_piece);
 		}
 
 	// check piece count and other counters
 	for (sq = 0; sq < 64; ++sq) {
 
-		t_piece = pos->pieces[SQ120(sq)];
+		t_piece = pos->pieces[sq];
 		t_pieceCounts[t_piece]++;
 		color = PieceColor[t_piece];
 
@@ -209,8 +205,8 @@ int CheckBoard(const S_BOARD *pos) {
 	   || (pos->enPas >= 40 && pos->enPas < 48 && pos->side == WHITE) 
 	   || (pos->enPas >= 16 && pos->enPas < 24 && pos->side == BLACK));
 
-	assert(pos->pieces[SQ120(pos->KingSq[WHITE])] == wK);
-	assert(pos->pieces[SQ120(pos->KingSq[BLACK])] == bK);
+	assert(pos->pieces[pos->KingSq[WHITE]] == wK);
+	assert(pos->pieces[pos->KingSq[BLACK]] == bK);
 
 	assert(pos->castlePerm >= 0 && pos->castlePerm <= 15);
 
@@ -276,7 +272,7 @@ int ParseFen(char *fen, S_BOARD *pos) {
 		for (i = 0; i < count; ++i) {
 			sq = rank * 8 + file;
 			if (piece != EMPTY)
-				pos->pieces[SQ120(sq)] = piece;
+				pos->pieces[sq] = piece;
 
 			file++;
 		}
@@ -339,7 +335,7 @@ void PrintBoard(const S_BOARD *pos) {
 		printf("%d  ", rank + 1);
 		for (file = FILE_A; file <= FILE_H; ++file) {
 			sq = SQ64(FR2SQ(file, rank));
-			piece = pos->pieces[SQ120(sq)];
+			piece = pos->pieces[sq];
 			printf("%3c", PceChar[piece]);
 		}
 		printf("\n");
@@ -382,13 +378,13 @@ void MirrorBoard(S_BOARD *pos) {
 		tempEnPas = Mirror64[pos->enPas];
 
 	for (sq = 0; sq < 64; ++sq)
-		tempPiecesArray[sq] = pos->pieces[SQ120(Mirror64[sq])];
+		tempPiecesArray[sq] = pos->pieces[Mirror64[sq]];
 
 	ResetBoard(pos);
 
 	for (sq = 0; sq < 64; ++sq) {
 		tp = SwapPiece[tempPiecesArray[sq]];
-		pos->pieces[SQ120(sq)] = tp;
+		pos->pieces[sq] = tp;
 	}
 
 	pos->side = tempSide;

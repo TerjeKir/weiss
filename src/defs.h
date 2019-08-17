@@ -2,7 +2,7 @@
 
 #pragma once
 
-// #define NDEBUG
+#define NDEBUG
 #include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -108,8 +108,7 @@ typedef struct {
 	int bigPieces[2];		// # of non-pawns, 0 White 1 Black
 	int pieceCounts[13];	// # of each type of piece
 
-	// 120 sq
-	int pieces[BRD_SQ_NUM]; // (120)
+	int pieces[64];
 	int pieceList[13][10]; 	// [piece type][#] -> square (120)
 
 	int side;

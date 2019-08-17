@@ -284,7 +284,7 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 				alpha = Score;
 
 				if (!(list->moves[MoveNum].move & MOVE_FLAG_CAP))
-					pos->searchHistory[pos->pieces[SQ120(SQ64(FROMSQ(BestMove)))]][TOSQ(BestMove)] += depth;
+					pos->searchHistory[pos->pieces[SQ64(FROMSQ(BestMove))]][TOSQ(BestMove)] += depth;
 			}
 		}
 	}
