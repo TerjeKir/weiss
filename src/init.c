@@ -70,8 +70,8 @@ static void InitEvalMasks() {
 			tsq -= 8;
 		}
 
-		if (FilesBrd[SQ120(sq)] > FILE_A) {
-			IsolatedMask[sq] |= FileBBMask[FilesBrd[SQ120(sq)] - 1];
+		if (FilesBrd64[sq] > FILE_A) {
+			IsolatedMask[sq] |= FileBBMask[FilesBrd64[sq] - 1];
 
 			tsq = sq + 7;
 			while (tsq < 64) {
@@ -86,8 +86,8 @@ static void InitEvalMasks() {
 			}
 		}
 
-		if (FilesBrd[SQ120(sq)] < FILE_H) {
-			IsolatedMask[sq] |= FileBBMask[FilesBrd[SQ120(sq)] + 1];
+		if (FilesBrd64[sq] < FILE_H) {
+			IsolatedMask[sq] |= FileBBMask[FilesBrd64[sq] + 1];
 
 			tsq = sq + 9;
 			while (tsq < 64) {
