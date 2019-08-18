@@ -489,7 +489,7 @@ void TakeMove(S_BOARD *pos) {
 			AddPiece(to + 8, pos, wP);
 	// Move rook back if castling
 	else if (move & MOVE_FLAG_CASTLE)
-		switch (SQ120(to)) {
+		switch (to) {
 			case C1: MovePiece(D1, A1, pos); break;
 			case C8: MovePiece(D8, A8, pos); break;
 			case G1: MovePiece(F1, H1, pos); break;

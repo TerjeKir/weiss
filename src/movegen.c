@@ -238,13 +238,13 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 		if (pos->castlePerm & BKCA)
 			if (!((allPieces & bitF8G8)))
 				if (!SqAttacked(60, WHITE, pos) && !SqAttacked(61, WHITE, pos)) // TODO: Add back enums
-					AddQuietMove(pos, MOVE(E8, G8, EMPTY, EMPTY, MOVE_FLAG_CASTLE), list);
+					AddQuietMove(pos, MOVE(SQ120(E8), SQ120(G8), EMPTY, EMPTY, MOVE_FLAG_CASTLE), list);
 
 		// Queen side castle
 		if (pos->castlePerm & BQCA)
 			if (!((allPieces & bitB8C8D8)))
 				if (!SqAttacked(60, WHITE, pos) && !SqAttacked(59, WHITE, pos)) // TODO: Add back enums
-					AddQuietMove(pos, MOVE(E8, C8, EMPTY, EMPTY, MOVE_FLAG_CASTLE), list);
+					AddQuietMove(pos, MOVE(SQ120(E8), SQ120(C8), EMPTY, EMPTY, MOVE_FLAG_CASTLE), list);
 
 		// Pawns
 		while (pawns) {
