@@ -19,7 +19,6 @@ const bitboard bitF1G1 = (1ULL << 5) | (1ULL << 6);
 const bitboard bitB8C8D8 = (1ULL << 57) | (1ULL << 58) | (1ULL << 59);
 const bitboard bitF8G8 = (1ULL << 61) | (1ULL << 62);
 
-const int VictimScore[13] = {0, 100, 200, 300, 400, 500, 600, 100, 200, 300, 400, 500, 600};
 static int MvvLvaScores[13][13];
 
 /*
@@ -31,9 +30,12 @@ HistoryScore
 
 void InitMvvLva() {
 
+	const int VictimScore[13]   = {0, 106, 206, 306, 406, 506, 606, 106, 206, 306, 406, 506, 606};
+	const int AttackerScore[13] = {0,   1,   2,   3,   4,   5,   6,   1,   2,   3,   4,   5,   6};
+
 	for (int Attacker = wP; Attacker <= bK; ++Attacker)
 		for (int Victim = wP; Victim <= bK; ++Victim)
-			MvvLvaScores[Victim][Attacker] = VictimScore[Victim] + 6 - (VictimScore[Attacker] / 100);
+			MvvLvaScores[Victim][Attacker] = VictimScore[Victim] - (AttackerScore[Attacker]);
 }
 
 int MoveExists(S_BOARD *pos, const int move) {
