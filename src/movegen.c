@@ -96,7 +96,7 @@ static void AddCaptureMove(const S_BOARD *pos, int move, S_MOVELIST *list) {
 }
 
 static void AddEnPassantMove(const S_BOARD *pos, int move, S_MOVELIST *list) {
-#ifdef NDEBUG
+#ifndef NDEBUG
 	int from = SQ64(FROMSQ(move));
 	int   to = SQ64(  TOSQ(move));
 
