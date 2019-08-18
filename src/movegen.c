@@ -208,10 +208,10 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 			assert(ValidSquare(sq));
 
 			// Move forward
-			if (!(allPieces & squareBitMask << 8)) {
+			if (empty & squareBitMask << 8) {
 				AddWhitePawnMove(pos, SQ120(sq), SQ120(sq) + 10, list);
 				// Move forward two squares
-				if (!(allPieces & squareBitMask << 16) && (sq < 16))
+				if ((empty & squareBitMask << 16) && (sq < 16))
 					AddQuietMove(pos, MOVE(SQ120(sq), (SQ120(sq) + 20), EMPTY, EMPTY, MOVE_FLAG_PAWNSTART), list);
 			}
 
@@ -254,10 +254,10 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 			assert(ValidSquare(sq));
 
 			// Move forward
-			if (!(allPieces & squareBitMask >> 8)) {
+			if (empty & squareBitMask >> 8) {
 				AddBlackPawnMove(pos, SQ120(sq), SQ120(sq) - 10, list);
 				// Move forward two squares
-				if (!(allPieces & squareBitMask >> 16) && (sq > 47))
+				if ((empty & squareBitMask >> 16) && (sq > 47))
 					AddQuietMove(pos, MOVE(SQ120(sq), (SQ120(sq) - 20), EMPTY, EMPTY, MOVE_FLAG_PAWNSTART), list);
 			}
 
