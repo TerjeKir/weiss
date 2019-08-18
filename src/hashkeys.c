@@ -12,7 +12,7 @@
 
 
 // Zobrist key tables
-uint64_t PieceKeys[13][120]; // 0 En passant, 1-12 White pawn - Black king
+uint64_t PieceKeys[13][64]; // 0 En passant, 1-12 White pawn - Black king
 uint64_t SideKey;
 uint64_t CastleKeys[16];
 
@@ -23,7 +23,7 @@ void InitHashKeys() {
 	SideKey = RAND_64;
 
 	for (int piece = 0; piece < 13; ++piece)
-		for (int sq = 0; sq < 120; ++sq)
+		for (int sq = 0; sq < 64; ++sq)
 			PieceKeys[piece][sq] = RAND_64;
 
 	for (int index = 0; index < 16; ++index)
@@ -42,7 +42,7 @@ uint64_t GeneratePosKey(const S_BOARD *pos) {
 
 		if (piece != EMPTY) {
 			assert(piece >= wP && piece <= bK);
-			posKey ^= PieceKeys[piece][SQ120(sq)];
+			posKey ^= PieceKeys[piece][sq];
 		}
 	}
 

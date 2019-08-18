@@ -49,7 +49,7 @@ static void ClearPiece(const int sq, S_BOARD *pos) {
 
 	assert(SideValid(color));
 
-	HASH_PCE(piece, SQ120(sq));
+	HASH_PCE(piece, sq);
 
 	pos->pieces[sq] = EMPTY;
 	pos->material[color] -= PieceValues[piece];
@@ -141,7 +141,7 @@ static void AddPiece(const int sq, S_BOARD *pos, const int piece) {
 	int color = PieceColor[piece];
 	assert(SideValid(color));
 
-	HASH_PCE(piece, SQ120(sq));
+	HASH_PCE(piece, sq);
 
 	pos->pieces[sq] = piece;
 
@@ -224,10 +224,10 @@ static void MovePiece(const int from, const int to, S_BOARD *pos) {
 	int t_PieceNum = FALSE;
 #endif
 
-	HASH_PCE(piece, SQ120(from));
+	HASH_PCE(piece, from);
 	pos->pieces[from] = EMPTY;
 
-	HASH_PCE(piece, SQ120(to));
+	HASH_PCE(piece, to);
 	pos->pieces[to] = piece;
 
 	for (index = 0; index < pos->pieceCounts[piece]; ++index) {
