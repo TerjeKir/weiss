@@ -34,7 +34,7 @@ const int CastlePerm[120] = {
 };
 
 
-// Remove a piece from square sq (120)
+// Remove a piece from a square sq
 static void ClearPiece(const int sq120, S_BOARD *pos) {
 
 	int sq = SQ64(sq120);
@@ -134,7 +134,7 @@ static void ClearPiece(const int sq120, S_BOARD *pos) {
 	}
 }
 
-// Add a piece piece to square sq (120)
+// Add a piece piece to a square
 static void AddPiece(const int sq120, S_BOARD *pos, const int piece) {
 
 	int sq = SQ64(sq120);
@@ -214,7 +214,7 @@ static void AddPiece(const int sq120, S_BOARD *pos, const int piece) {
 			break;
 	}
 }
-// Move a piece from square from to square to (120)
+// Move a piece from a square to another square
 static void MovePiece(const int from120, const int to120, S_BOARD *pos) {
 
 	int from = SQ64(from120);
@@ -354,9 +354,9 @@ int MakeMove(S_BOARD *pos, int move) {
 	// Remove the victim of en passant
 	if (move & MOVE_FLAG_ENPAS)
 		if (side == WHITE)
-			ClearPiece(SQ120(to) - 10, pos);
+			ClearPiece(SQ120(to - 8), pos);
 		else
-			ClearPiece(SQ120(to) + 10, pos);
+			ClearPiece(SQ120(to + 8), pos);
 
 	// Move the rook during castling
 	else if (move & MOVE_FLAG_CASTLE)
@@ -491,9 +491,9 @@ void TakeMove(S_BOARD *pos) {
 	// Add in pawn capture by en passant
 	if (MOVE_FLAG_ENPAS & move)
 		if (pos->side == WHITE)
-			AddPiece(SQ120(to) - 10, pos, bP);
+			AddPiece(SQ120(to - 8), pos, bP);
 		else
-			AddPiece(SQ120(to) + 10, pos, wP);
+			AddPiece(SQ120(to + 8), pos, wP);
 	// Move rook back if castling
 	else if (move & MOVE_FLAG_CASTLE)
 		switch (SQ120(to)) {
