@@ -31,11 +31,8 @@ HistoryScore
 
 void InitMvvLva() {
 
-	int Attacker;
-	int Victim;
-
-	for (Attacker = wP; Attacker <= bK; ++Attacker)
-		for (Victim = wP; Victim <= bK; ++Victim)
+	for (int Attacker = wP; Attacker <= bK; ++Attacker)
+		for (int Victim = wP; Victim <= bK; ++Victim)
 			MvvLvaScores[Victim][Attacker] = VictimScore[Victim] + 6 - (VictimScore[Attacker] / 100);
 }
 
