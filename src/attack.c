@@ -25,9 +25,8 @@ MAGIC mRookTable[64];
 static void InitKingAttacks() {
 
     bitboard bitmask = 1ULL;
-    int square;
 
-    for (square = 0; square < 64; ++square, bitmask <<= 1) {
+    for (int square = 0; square < 64; ++square, bitmask <<= 1) {
 
         if (square <= 55) {
             if ((square % 8) != 7)
@@ -56,9 +55,8 @@ static void InitKingAttacks() {
 static void InitKnightAttacks() {
 
     bitboard bitmask = 1ULL;
-    int square;
 
-    for (square = 0; square < 64; ++square, bitmask <<= 1) {
+    for (int square = 0; square < 64; ++square, bitmask <<= 1) {
 
         if (square <= 47) {
             if ((square % 8) < 7)
@@ -91,10 +89,9 @@ static void InitKnightAttacks() {
 static void InitPawnAttacks() {
 
     bitboard bitmask = 1ULL;
-    int square;
 
     // No point going further as all their attacks would be off board
-    for (square = 0; square < 64; ++square, bitmask <<= 1) {
+    for (int square = 0; square < 64; ++square, bitmask <<= 1) {
 
         // White
         if ((square % 8) != 0)
@@ -168,7 +165,6 @@ bitboard SliderAttacks(int sq, bitboard occupied, MAGIC *table) {
     return ptr[occupied];
 }
 
-
 // Initializes all attack bitboards
 void InitAttacks() {
     InitKingAttacks();
@@ -185,14 +181,13 @@ int SqAttacked(const int sq, const int side, const S_BOARD *pos) {
 	
     bitboard bAtks, rAtks;
 
-    assert(sq >= 0);
-    assert(sq < 64);
+    assert(ValidSquare(sq));
 	assert(SideValid(side));
 	assert(CheckBoard(pos));
 
     bitboard allPieces = pos->allBB;
-    bitboard bishops = pos->colors[side] & (pos->pieceBBs[BISHOP] | pos->pieceBBs[QUEEN]);
-    bitboard rooks = pos->colors[side] & (pos->pieceBBs[ROOK] | pos->pieceBBs[QUEEN]);
+    bitboard bishops   = pos->colors[side] & (pos->pieceBBs[BISHOP] | pos->pieceBBs[QUEEN]);
+    bitboard rooks     = pos->colors[side] & (pos->pieceBBs[ROOK] | pos->pieceBBs[QUEEN]);
 
 	// Pawns
 	if (pawn_attacks[!side][sq] & pos->pieceBBs[PAWN] & pos->colors[side])
