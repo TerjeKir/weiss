@@ -17,7 +17,7 @@ int Sq64ToSq120[64];
 int SqToFile[64];
 int SqToRank[64];
 
-bitboard SetMask[64];
+bitboard   SetMask[64];
 bitboard ClearMask[64];
 
 bitboard FileBBMask[8];
@@ -105,16 +105,17 @@ static void InitFilesRanksBrd() {
 
 	int sq = 0;
 
-	for (int rank = RANK_1; rank <= RANK_8; ++rank)
+	for (    int rank = RANK_1; rank <= RANK_8; ++rank)
 		for (int file = FILE_A; file <= FILE_H; ++file) {
 
-			sq = (rank * 8) + file;
 			SqToFile[sq] = file;
 			SqToRank[sq] = rank;
+			sq++;
 		}
 }
 
 static void InitBitMasks() {
+
 	int index = 0;
 
 	for (index = 0; index < 64; ++index) {
