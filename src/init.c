@@ -35,18 +35,18 @@ S_OPTIONS EngineOptions[1];
 
 static void InitEvalMasks() {
 
-	int sq, tsq, r, f;
+	int sq, tsq;
 
-	for (sq = 0; sq < 8; ++sq) {
-		FileBBMask[sq] = 0ULL;
-		RankBBMask[sq] = 0ULL;
+	for (int i = 0; i < 8; ++i) {
+		FileBBMask[i] = 0ULL;
+		RankBBMask[i] = 0ULL;
 	}
 
-	for (r = RANK_8; r >= RANK_1; --r) {
-		for (f = FILE_A; f <= FILE_H; ++f) {
-			sq = r * 8 + f;
-			FileBBMask[f] |= (1ULL << sq);
-			RankBBMask[r] |= (1ULL << sq);
+	for (int rank = RANK_8; rank >= RANK_1; --rank) {
+		for (int file = FILE_A; file <= FILE_H; ++file) {
+			sq = rank * 8 + file;
+			FileBBMask[file] |= (1ULL << sq);
+			RankBBMask[rank] |= (1ULL << sq);
 		}
 	}
 
