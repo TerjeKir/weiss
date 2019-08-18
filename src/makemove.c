@@ -35,9 +35,7 @@ const int CastlePerm[120] = {
 
 
 // Remove a piece from a square sq
-static void ClearPiece(const int sq120, S_BOARD *pos) {
-
-	int sq = SQ64(sq120);
+static void ClearPiece(const int sq, S_BOARD *pos) {
 
 	assert(ValidSquare(sq));
 	assert(CheckBoard(pos));
@@ -135,9 +133,7 @@ static void ClearPiece(const int sq120, S_BOARD *pos) {
 }
 
 // Add a piece piece to a square
-static void AddPiece(const int sq120, S_BOARD *pos, const int piece) {
-
-	int sq = SQ64(sq120);
+static void AddPiece(const int sq, S_BOARD *pos, const int piece) {
 
 	assert(PieceValid(piece));
 	assert(ValidSquare(sq));
@@ -354,9 +350,9 @@ int MakeMove(S_BOARD *pos, int move) {
 	// Remove the victim of en passant
 	if (move & MOVE_FLAG_ENPAS)
 		if (side == WHITE)
-			ClearPiece(SQ120(to - 8), pos);
+			ClearPiece(to - 8, pos);
 		else
-			ClearPiece(SQ120(to + 8), pos);
+			ClearPiece(to + 8, pos);
 
 	// Move the rook during castling
 	else if (move & MOVE_FLAG_CASTLE)
@@ -393,7 +389,7 @@ int MakeMove(S_BOARD *pos, int move) {
 	
 	if (captured != EMPTY) {
 		assert(PieceValid(captured));
-		ClearPiece(SQ120(to), pos);
+		ClearPiece(to, pos);
 		pos->fiftyMove = 0;
 	}
 
@@ -427,8 +423,8 @@ int MakeMove(S_BOARD *pos, int move) {
 	int prPce = PROMOTED(move);
 	if (prPce != EMPTY) {
 		assert(PieceValid(prPce) && !PiecePawn[prPce]);
-		ClearPiece(SQ120(to), pos);
-		AddPiece(SQ120(to), pos, prPce);
+		ClearPiece(to, pos);
+		AddPiece(to, pos, prPce);
 	}
 
 	// Update king position if king moved
@@ -491,9 +487,9 @@ void TakeMove(S_BOARD *pos) {
 	// Add in pawn capture by en passant
 	if (MOVE_FLAG_ENPAS & move)
 		if (pos->side == WHITE)
-			AddPiece(SQ120(to - 8), pos, bP);
+			AddPiece(to - 8, pos, bP);
 		else
-			AddPiece(SQ120(to + 8), pos, wP);
+			AddPiece(to + 8, pos, wP);
 	// Move rook back if castling
 	else if (move & MOVE_FLAG_CASTLE)
 		switch (SQ120(to)) {
@@ -515,14 +511,14 @@ void TakeMove(S_BOARD *pos) {
 	int captured = CAPTURED(move);
 	if (captured != EMPTY) {
 		assert(PieceValid(captured));
-		AddPiece(SQ120(to), pos, captured);
+		AddPiece(to, pos, captured);
 	}
 
 	// Remove promoted piece and put back the pawn
 	if (PROMOTED(move) != EMPTY) {
 		assert(PieceValid(PROMOTED(move)) && !PiecePawn[PROMOTED(move)]);
-		ClearPiece(SQ120(from), pos);
-		AddPiece(SQ120(from), pos, (PieceColor[PROMOTED(move)] == WHITE ? wP : bP));
+		ClearPiece(from, pos);
+		AddPiece(from, pos, (PieceColor[PROMOTED(move)] == WHITE ? wP : bP));
 	}
 
 	assert(CheckBoard(pos));
