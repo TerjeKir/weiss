@@ -18,19 +18,15 @@
 #define HASH_EP (pos->posKey ^= (PieceKeys[EMPTY][(pos->enPas)]))
 
 
-const int CastlePerm[120] = {
-	15, 15, 15, 15, 15, 15, 15, 15, 15, 15,
-	15, 15, 15, 15, 15, 15, 15, 15, 15, 15,
-	15, 13, 15, 15, 15, 12, 15, 15, 14, 15,
-	15, 15, 15, 15, 15, 15, 15, 15, 15, 15,
-	15, 15, 15, 15, 15, 15, 15, 15, 15, 15,
-	15, 15, 15, 15, 15, 15, 15, 15, 15, 15,
-	15, 15, 15, 15, 15, 15, 15, 15, 15, 15,
-	15, 15, 15, 15, 15, 15, 15, 15, 15, 15,
-	15, 15, 15, 15, 15, 15, 15, 15, 15, 15,
-	15,  7, 15, 15, 15,  3, 15, 15, 11, 15,
-	15, 15, 15, 15, 15, 15, 15, 15, 15, 15,
-	15, 15, 15, 15, 15, 15, 15, 15, 15, 15
+const int CastlePerm[64] = {
+	13, 15, 15, 15, 12, 15, 15, 14,
+	15, 15, 15, 15, 15, 15, 15, 15,
+	15, 15, 15, 15, 15, 15, 15, 15,
+	15, 15, 15, 15, 15, 15, 15, 15,
+	15, 15, 15, 15, 15, 15, 15, 15,
+	15, 15, 15, 15, 15, 15, 15, 15,
+	15, 15, 15, 15, 15, 15, 15, 15,
+	 7, 15, 15, 15,  3, 15, 15, 11
 };
 
 
@@ -374,8 +370,8 @@ int MakeMove(S_BOARD *pos, int move) {
 	pos->history[pos->hisPly].castlePerm = pos->castlePerm;
 
 	// Update castling rights and unset passant square
-	pos->castlePerm &= CastlePerm[SQ120(from)];
-	pos->castlePerm &= CastlePerm[SQ120(to)];
+	pos->castlePerm &= CastlePerm[from];
+	pos->castlePerm &= CastlePerm[to];
 	pos->enPas = NO_SQ;
 
 	// Hash in the castling rights again
