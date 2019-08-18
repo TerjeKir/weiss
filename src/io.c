@@ -9,7 +9,7 @@
 #include "validate.h"
 
 
-char *PrMove(const int move) {
+char *MoveToStr(const int move) {
 
 	static char MvStr[6];
 

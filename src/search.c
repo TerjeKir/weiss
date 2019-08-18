@@ -354,7 +354,7 @@ void SearchPosition(S_BOARD *pos, S_SEARCHINFO *info) {
 			printf("pv");
 			pvMoves = GetPvLine(currentDepth, pos);
 			for (pvNum = 0; pvNum < pvMoves; ++pvNum) {
-				printf(" %s", PrMove(pos->PvArray[pvNum]));
+				printf(" %s", MoveToStr(pos->PvArray[pvNum]));
 			}
 			printf("\n");
 		// CLI mode
@@ -367,7 +367,7 @@ void SearchPosition(S_BOARD *pos, S_SEARCHINFO *info) {
 			printf("pv");
 			pvMoves = GetPvLine(currentDepth, pos);
 			for (pvNum = 0; pvNum < pvMoves; ++pvNum)
-				printf(" %s", PrMove(pos->PvArray[pvNum]));
+				printf(" %s", MoveToStr(pos->PvArray[pvNum]));
 
 			printf("\n");
 		}
@@ -378,9 +378,9 @@ void SearchPosition(S_BOARD *pos, S_SEARCHINFO *info) {
 
 	// Print the move chosen after searching
 	if (info->GAME_MODE == UCIMODE)
-		printf("bestmove %s\n", PrMove(bestMove));
+		printf("bestmove %s\n", MoveToStr(bestMove));
 	else {
-		printf("\n\n***!! weiss makes move %s !!***\n\n", PrMove(bestMove));
+		printf("\n\n***!! weiss makes move %s !!***\n\n", MoveToStr(bestMove));
 		MakeMove(pos, bestMove);
 		PrintBoard(pos);
 	}
