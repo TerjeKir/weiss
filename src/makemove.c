@@ -13,9 +13,9 @@
 
 
 #define HASH_PCE(piece, sq) (pos->posKey ^= (PieceKeys[(piece)][(sq)]))
-#define HASH_CA (pos->posKey ^= (CastleKeys[(pos->castlePerm)]))
-#define HASH_SIDE (pos->posKey ^= (SideKey))
-#define HASH_EP (pos->posKey ^= (PieceKeys[EMPTY][(pos->enPas)]))
+#define HASH_CA             (pos->posKey ^= (CastleKeys[(pos->castlePerm)]))
+#define HASH_SIDE           (pos->posKey ^= (SideKey))
+#define HASH_EP             (pos->posKey ^= (PieceKeys[EMPTY][(pos->enPas)]))
 
 
 const int CastlePerm[64] = {
