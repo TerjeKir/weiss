@@ -334,7 +334,7 @@ void PrintBoard(const S_BOARD *pos) {
 	for (rank = RANK_8; rank >= RANK_1; --rank) {
 		printf("%d  ", rank + 1);
 		for (file = FILE_A; file <= FILE_H; ++file) {
-			sq = SQ64(FR2SQ(file, rank));
+			sq = (rank * 8) + file;
 			piece = pos->pieces[sq];
 			printf("%3c", PceChar[piece]);
 		}
