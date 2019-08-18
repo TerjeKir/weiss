@@ -45,10 +45,10 @@ int ParseMove(char *ptrChar, S_BOARD *pos) {
 	if (ptrChar[0] > 'h' || ptrChar[0] < 'a') return NOMOVE;
 	if (ptrChar[2] > 'h' || ptrChar[2] < 'a') return NOMOVE;
 
-	int from = FR2SQ(ptrChar[0] - 'a', ptrChar[1] - '1');
-	int to = FR2SQ(ptrChar[2] - 'a', ptrChar[3] - '1');
+	int from = (ptrChar[0] - 'a') + (8 * (ptrChar[1] - '1'));
+	int to   = (ptrChar[2] - 'a') + (8 * (ptrChar[3] - '1'));
 
-	assert(ValidSquare(SQ64(from)) && ValidSquare(SQ64(to)));
+	assert(ValidSquare(from) && ValidSquare(to));
 
 	S_MOVELIST list[1];
 	GenerateAllMoves(pos, list);
@@ -59,7 +59,7 @@ int ParseMove(char *ptrChar, S_BOARD *pos) {
 	for (MoveNum = 0; MoveNum < list->count; ++MoveNum) {
 
 		Move = list->moves[MoveNum].move;
-		if (FROMSQ(Move) == from && TOSQ(Move) == to) {
+		if (SQ64(FROMSQ(Move)) == from && SQ64(TOSQ(Move)) == to) {
 
 			PromPce = PROMOTED(Move);
 			if (PromPce != EMPTY) {
