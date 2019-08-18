@@ -111,10 +111,7 @@ static void AddEnPassantMove(const S_BOARD *pos, int move, S_MOVELIST *list) {
 	list->count++;
 }
 
-static void AddWhitePawnCapMove(const S_BOARD *pos, const int from120, const int to120, const int cap, S_MOVELIST *list) {
-
-	int from = SQ64(from120);
-	int   to = SQ64(to120);
+static void AddWhitePawnCapMove(const S_BOARD *pos, const int from, const int to, const int cap, S_MOVELIST *list) {
 
 	assert(ValidSquare(from));
 	assert(ValidSquare(to));
@@ -130,10 +127,7 @@ static void AddWhitePawnCapMove(const S_BOARD *pos, const int from120, const int
 		AddCaptureMove(pos, MOVE(SQ120(from), SQ120(to), cap, EMPTY, 0), list);
 }
 
-static void AddWhitePawnMove(const S_BOARD *pos, const int from120, const int to120, S_MOVELIST *list) {
-
-	int from = SQ64(from120);
-	int   to = SQ64(to120);
+static void AddWhitePawnMove(const S_BOARD *pos, const int from, const int to, S_MOVELIST *list) {
 
 	assert(ValidSquare(from));
 	assert(ValidSquare(to));
@@ -148,10 +142,7 @@ static void AddWhitePawnMove(const S_BOARD *pos, const int from120, const int to
 		AddQuietMove(pos, MOVE(SQ120(from), SQ120(to), EMPTY, EMPTY, 0), list);
 }
 
-static void AddBlackPawnCapMove(const S_BOARD *pos, const int from120, const int to120, const int cap, S_MOVELIST *list) {
-
-	int from = SQ64(from120);
-	int   to = SQ64(to120);
+static void AddBlackPawnCapMove(const S_BOARD *pos, const int from, const int to, const int cap, S_MOVELIST *list) {
 
 	assert(ValidSquare(from));
 	assert(ValidSquare(to));
@@ -167,10 +158,7 @@ static void AddBlackPawnCapMove(const S_BOARD *pos, const int from120, const int
 		AddCaptureMove(pos, MOVE(SQ120(from), SQ120(to), cap, EMPTY, 0), list);
 }
 
-static void AddBlackPawnMove(const S_BOARD *pos, const int from120, const int to120, S_MOVELIST *list) {
-
-	int from = SQ64(from120);
-	int   to = SQ64(to120);
+static void AddBlackPawnMove(const S_BOARD *pos, const int from, const int to, S_MOVELIST *list) {
 
 	assert(ValidSquare(from));
 	assert(ValidSquare(to));
@@ -232,7 +220,7 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 
 			// Move forward
 			if (empty & squareBitMask << 8) {
-				AddWhitePawnMove(pos, SQ120(sq), SQ120(sq) + 10, list);
+				AddWhitePawnMove(pos, sq, (sq + 8), list);
 				// Move forward two squares
 				if ((empty & squareBitMask << 16) && (sq < 16))
 					AddQuietMove(pos, MOVE(SQ120(sq), (SQ120(sq) + 20), EMPTY, EMPTY, MOVE_FLAG_PAWNSTART), list);
@@ -251,7 +239,7 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 			// Normal captures
 			while (attacks) {
 				attack = PopLsb(&attacks);
-				AddWhitePawnCapMove(pos, SQ120(sq), SQ120(attack), pos->pieces[attack], list);
+				AddWhitePawnCapMove(pos, sq, attack, pos->pieces[attack], list);
 			}
 		}
 
@@ -278,7 +266,7 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 
 			// Move forward
 			if (empty & squareBitMask >> 8) {
-				AddBlackPawnMove(pos, SQ120(sq), SQ120(sq) - 10, list);
+				AddBlackPawnMove(pos, sq, (sq - 8), list);
 				// Move forward two squares
 				if ((empty & squareBitMask >> 16) && (sq > 47))
 					AddQuietMove(pos, MOVE(SQ120(sq), (SQ120(sq) - 20), EMPTY, EMPTY, MOVE_FLAG_PAWNSTART), list);
@@ -297,7 +285,7 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 			// Normal captures
 			while (attacks) {
 				attack = PopLsb(&attacks);
-				AddBlackPawnCapMove(pos, SQ120(sq), SQ120(attack), pos->pieces[attack], list);
+				AddBlackPawnCapMove(pos, sq, attack, pos->pieces[attack], list);
 			}
 		}
 	}
@@ -441,7 +429,7 @@ void GenerateAllCaptures(const S_BOARD *pos, S_MOVELIST *list) {
 			// Normal captures
 			while (attacks) {
 				attack = PopLsb(&attacks);
-				AddWhitePawnCapMove(pos, SQ120(sq), SQ120(attack), pos->pieces[attack], list);
+				AddWhitePawnCapMove(pos, sq, attack, pos->pieces[attack], list);
 			}
 		}
 
@@ -465,7 +453,7 @@ void GenerateAllCaptures(const S_BOARD *pos, S_MOVELIST *list) {
 			// Normal captures
 			while (attacks) {
 				attack = PopLsb(&attacks);
-				AddBlackPawnCapMove(pos, SQ120(sq), SQ120(attack), pos->pieces[attack], list);
+				AddBlackPawnCapMove(pos, sq, attack, pos->pieces[attack], list);
 			}
 		}
 	}
