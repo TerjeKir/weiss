@@ -13,10 +13,10 @@ char *MoveToStr(const int move) {
 
 	static char MvStr[6];
 
-	int ff = FilesBrd64[SQ64(FROMSQ(move))];
-	int rf = RanksBrd64[SQ64(FROMSQ(move))];
-	int ft = FilesBrd64[SQ64(TOSQ(move))];
-	int rt = RanksBrd64[SQ64(TOSQ(move))];
+	int ff = SqToFile[SQ64(FROMSQ(move))];
+	int rf = SqToRank[SQ64(FROMSQ(move))];
+	int ft = SqToFile[SQ64(TOSQ(move))];
+	int rt = SqToRank[SQ64(TOSQ(move))];
 
 	int promoted = PROMOTED(move);
 

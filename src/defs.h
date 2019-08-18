@@ -164,10 +164,7 @@ typedef struct {
 extern int Sq120ToSq64[BRD_SQ_NUM];
 extern int Sq64ToSq120[64];
 
-extern int FilesBrd[BRD_SQ_NUM]; // 120square
-extern int RanksBrd[BRD_SQ_NUM]; // 120square
-
-extern int FilesBrd64[64];
-extern int RanksBrd64[64];
+extern int SqToFile[64];
+extern int SqToRank[64];
 
 extern S_OPTIONS EngineOptions[1];

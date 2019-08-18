@@ -14,11 +14,8 @@
 int Sq120ToSq64[BRD_SQ_NUM];
 int Sq64ToSq120[64];
 
-int FilesBrd[BRD_SQ_NUM];
-int RanksBrd[BRD_SQ_NUM];
-
-int FilesBrd64[64];
-int RanksBrd64[64];
+int SqToFile[64];
+int SqToRank[64];
 
 bitboard SetMask[64];
 bitboard ClearMask[64];
@@ -70,8 +67,8 @@ static void InitEvalMasks() {
 			tsq -= 8;
 		}
 
-		if (FilesBrd64[sq] > FILE_A) {
-			IsolatedMask[sq] |= FileBBMask[FilesBrd64[sq] - 1];
+		if (SqToFile[sq] > FILE_A) {
+			IsolatedMask[sq] |= FileBBMask[SqToFile[sq] - 1];
 
 			tsq = sq + 7;
 			while (tsq < 64) {
@@ -86,8 +83,8 @@ static void InitEvalMasks() {
 			}
 		}
 
-		if (FilesBrd64[sq] < FILE_H) {
-			IsolatedMask[sq] |= FileBBMask[FilesBrd64[sq] + 1];
+		if (SqToFile[sq] < FILE_H) {
+			IsolatedMask[sq] |= FileBBMask[SqToFile[sq] + 1];
 
 			tsq = sq + 9;
 			while (tsq < 64) {
@@ -106,24 +103,15 @@ static void InitEvalMasks() {
 
 static void InitFilesRanksBrd() {
 
-	int sq;
+	int sq = 0;
 
-	for (int index = 0; index < BRD_SQ_NUM; ++index) {
-		FilesBrd[index] = OFFBOARD;
-		RanksBrd[index] = OFFBOARD;
-	}
-
-	for (int rank = RANK_1; rank <= RANK_8; ++rank) {
+	for (int rank = RANK_1; rank <= RANK_8; ++rank)
 		for (int file = FILE_A; file <= FILE_H; ++file) {
-			sq = FR2SQ(file, rank);
-			FilesBrd[sq] = file;
-			RanksBrd[sq] = rank;
 
 			sq = (rank * 8) + file;
-			FilesBrd64[sq] = file;
-			RanksBrd64[sq] = rank;
+			SqToFile[sq] = file;
+			SqToRank[sq] = rank;
 		}
-	}
 }
 
 static void InitBitMasks() {
