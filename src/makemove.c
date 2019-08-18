@@ -211,10 +211,7 @@ static void AddPiece(const int sq, S_BOARD *pos, const int piece) {
 	}
 }
 // Move a piece from a square to another square
-static void MovePiece(const int from120, const int to120, S_BOARD *pos) {
-
-	int from = SQ64(from120);
-	int to = SQ64(to120);
+static void MovePiece(const int from, const int to, S_BOARD *pos) {
 
 	assert(ValidSquare(from));
 	assert(ValidSquare(to));
@@ -356,7 +353,7 @@ int MakeMove(S_BOARD *pos, int move) {
 
 	// Move the rook during castling
 	else if (move & MOVE_FLAG_CASTLE)
-		switch (SQ120(to)) {
+		switch (to) {
 			case C1: MovePiece(A1, D1, pos); break;
 			case C8: MovePiece(A8, D8, pos); break;
 			case G1: MovePiece(H1, F1, pos); break;
@@ -417,7 +414,7 @@ int MakeMove(S_BOARD *pos, int move) {
 	}
 
 	// Move the piece
-	MovePiece(SQ120(from), SQ120(to), pos);
+	MovePiece(from, to, pos);
 
 	// Replace promoting pawn with new piece
 	int prPce = PROMOTED(move);
@@ -501,7 +498,7 @@ void TakeMove(S_BOARD *pos) {
 		}
 
 	// Make reverse move (from <-> to)
-	MovePiece(SQ120(to), SQ120(from), pos);
+	MovePiece(to, from, pos);
 
 	// Update king position if king moved
 	if (PieceKing[pos->pieces[from]])
