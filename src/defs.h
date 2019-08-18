@@ -126,7 +126,7 @@ typedef struct {
 	S_HASHTABLE HashTable[1];
 	int PvArray[MAXDEPTH];
 
-	int searchHistory[13][BRD_SQ_NUM];
+	int searchHistory[13][64];
 	int searchKillers[2][MAXDEPTH];
 
 } S_BOARD;

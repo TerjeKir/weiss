@@ -65,7 +65,7 @@ static void ClearForSearch(S_BOARD *pos, S_SEARCHINFO *info) {
 	int index, index2;
 
 	for (index = 0; index < 13; ++index)
-		for (index2 = 0; index2 < BRD_SQ_NUM; ++index2)
+		for (index2 = 0; index2 < 64; ++index2)
 			pos->searchHistory[index][index2] = 0;
 
 	for (index = 0; index < 2; ++index)
@@ -284,7 +284,7 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 				alpha = Score;
 
 				if (!(list->moves[MoveNum].move & MOVE_FLAG_CAP))
-					pos->searchHistory[pos->pieces[SQ64(FROMSQ(BestMove))]][TOSQ(BestMove)] += depth;
+					pos->searchHistory[pos->pieces[SQ64(FROMSQ(BestMove))]][SQ64(TOSQ(BestMove))] += depth;
 			}
 		}
 	}
