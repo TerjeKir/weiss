@@ -118,7 +118,7 @@ static void AddWhitePawnCapMove(const S_BOARD *pos, const int from, const int to
 	assert(PieceValidEmpty(cap));
 	assert(CheckBoard(pos));
 
-	if (RanksBrd[from] == RANK_7) {
+	if (RanksBrd64[from] == RANK_7) {
 		AddCaptureMove(pos, MOVE(SQ120(from), SQ120(to), cap, wQ, 0), list);
 		AddCaptureMove(pos, MOVE(SQ120(from), SQ120(to), cap, wR, 0), list);
 		AddCaptureMove(pos, MOVE(SQ120(from), SQ120(to), cap, wB, 0), list);
@@ -133,7 +133,7 @@ static void AddWhitePawnMove(const S_BOARD *pos, const int from, const int to, S
 	assert(ValidSquare(to));
 	assert(CheckBoard(pos));
 
-	if (RanksBrd[from] == RANK_7) {
+	if (RanksBrd64[from] == RANK_7) {
 		AddQuietMove(pos, MOVE(SQ120(from), SQ120(to), EMPTY, wQ, 0), list);
 		AddQuietMove(pos, MOVE(SQ120(from), SQ120(to), EMPTY, wR, 0), list);
 		AddQuietMove(pos, MOVE(SQ120(from), SQ120(to), EMPTY, wB, 0), list);
