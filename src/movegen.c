@@ -59,8 +59,11 @@ int MoveExists(S_BOARD *pos, const int move) {
 
 static void AddQuietMove(const S_BOARD *pos, int move, S_MOVELIST *list) {
 
-	assert(ValidSquare(SQ64(FROMSQ(move))));
-	assert(ValidSquare(SQ64(TOSQ(move))));
+	int from = SQ64(FROMSQ(move));
+	int   to = SQ64(  TOSQ(move));
+
+	assert(ValidSquare(from));
+	assert(ValidSquare(to));
 	assert(CheckBoard(pos));
 	assert(pos->ply >= 0 && pos->ply < MAXDEPTH);
 
@@ -71,95 +74,115 @@ static void AddQuietMove(const S_BOARD *pos, int move, S_MOVELIST *list) {
 	else if (pos->searchKillers[1][pos->ply] == move)
 		list->moves[list->count].score = 800000;
 	else
-		list->moves[list->count].score = pos->searchHistory[pos->pieces[SQ64(FROMSQ(move))]][SQ64(TOSQ(move))];
+		list->moves[list->count].score = pos->searchHistory[pos->pieces[from]][to];
 
 	list->count++;
 }
 
 static void AddCaptureMove(const S_BOARD *pos, int move, S_MOVELIST *list) {
 
-	assert(ValidSquare(SQ64(FROMSQ(move))));
-	assert(ValidSquare(SQ64(TOSQ(move))));
-	assert(PieceValid(CAPTURED(move)));
+	int from  = SQ64(FROMSQ(move));
+	int to    = SQ64(  TOSQ(move));
+	int piece = CAPTURED(move);
+
+	assert(ValidSquare(from));
+	assert(ValidSquare(to));
+	assert(PieceValid(piece));
 	assert(CheckBoard(pos));
 
 	list->moves[list->count].move = move;
-	list->moves[list->count].score = MvvLvaScores[CAPTURED(move)][pos->pieces[SQ64(FROMSQ(move))]] + 1000000;
+	list->moves[list->count].score = MvvLvaScores[piece][pos->pieces[from]] + 1000000;
 	list->count++;
 }
 
 static void AddEnPassantMove(const S_BOARD *pos, int move, S_MOVELIST *list) {
+#ifdef NDEBUG
+	int from = SQ64(FROMSQ(move));
+	int   to = SQ64(  TOSQ(move));
 
-	assert(ValidSquare(SQ64(FROMSQ(move))));
-	assert(ValidSquare(SQ64(TOSQ(move))));
+	assert(ValidSquare(from));
+	assert(ValidSquare(to));
 	assert(CheckBoard(pos));
-	assert((RanksBrd[TOSQ(move)] == RANK_6 && pos->side == WHITE) || (RanksBrd[TOSQ(move)] == RANK_3 && pos->side == BLACK));
+	assert((RanksBrd64[to] == RANK_6 && pos->side == WHITE) || (RanksBrd64[to] == RANK_3 && pos->side == BLACK));
+#endif
 
 	list->moves[list->count].move = move;
 	list->moves[list->count].score = 105 + 1000000;
 	list->count++;
 }
 
-static void AddWhitePawnCapMove(const S_BOARD *pos, const int from, const int to, const int cap, S_MOVELIST *list) {
+static void AddWhitePawnCapMove(const S_BOARD *pos, const int from120, const int to120, const int cap, S_MOVELIST *list) {
 
+	int from = SQ64(from120);
+	int   to = SQ64(to120);
+
+	assert(ValidSquare(from));
+	assert(ValidSquare(to));
 	assert(PieceValidEmpty(cap));
-	assert(ValidSquare(SQ64(from)));
-	assert(ValidSquare(SQ64(to)));
 	assert(CheckBoard(pos));
 
 	if (RanksBrd[from] == RANK_7) {
-		AddCaptureMove(pos, MOVE(from, to, cap, wQ, 0), list);
-		AddCaptureMove(pos, MOVE(from, to, cap, wR, 0), list);
-		AddCaptureMove(pos, MOVE(from, to, cap, wB, 0), list);
-		AddCaptureMove(pos, MOVE(from, to, cap, wN, 0), list);
+		AddCaptureMove(pos, MOVE(SQ120(from), SQ120(to), cap, wQ, 0), list);
+		AddCaptureMove(pos, MOVE(SQ120(from), SQ120(to), cap, wR, 0), list);
+		AddCaptureMove(pos, MOVE(SQ120(from), SQ120(to), cap, wB, 0), list);
+		AddCaptureMove(pos, MOVE(SQ120(from), SQ120(to), cap, wN, 0), list);
 	} else
-		AddCaptureMove(pos, MOVE(from, to, cap, EMPTY, 0), list);
+		AddCaptureMove(pos, MOVE(SQ120(from), SQ120(to), cap, EMPTY, 0), list);
 }
 
-static void AddWhitePawnMove(const S_BOARD *pos, const int from, const int to, S_MOVELIST *list) {
+static void AddWhitePawnMove(const S_BOARD *pos, const int from120, const int to120, S_MOVELIST *list) {
 
-	assert(ValidSquare(SQ64(from)));
-	assert(ValidSquare(SQ64(to)));
+	int from = SQ64(from120);
+	int   to = SQ64(to120);
+
+	assert(ValidSquare(from));
+	assert(ValidSquare(to));
 	assert(CheckBoard(pos));
 
 	if (RanksBrd[from] == RANK_7) {
-		AddQuietMove(pos, MOVE(from, to, EMPTY, wQ, 0), list);
-		AddQuietMove(pos, MOVE(from, to, EMPTY, wR, 0), list);
-		AddQuietMove(pos, MOVE(from, to, EMPTY, wB, 0), list);
-		AddQuietMove(pos, MOVE(from, to, EMPTY, wN, 0), list);
+		AddQuietMove(pos, MOVE(SQ120(from), SQ120(to), EMPTY, wQ, 0), list);
+		AddQuietMove(pos, MOVE(SQ120(from), SQ120(to), EMPTY, wR, 0), list);
+		AddQuietMove(pos, MOVE(SQ120(from), SQ120(to), EMPTY, wB, 0), list);
+		AddQuietMove(pos, MOVE(SQ120(from), SQ120(to), EMPTY, wN, 0), list);
 	} else
-		AddQuietMove(pos, MOVE(from, to, EMPTY, EMPTY, 0), list);
+		AddQuietMove(pos, MOVE(SQ120(from), SQ120(to), EMPTY, EMPTY, 0), list);
 }
 
-static void AddBlackPawnCapMove(const S_BOARD *pos, const int from, const int to, const int cap, S_MOVELIST *list) {
+static void AddBlackPawnCapMove(const S_BOARD *pos, const int from120, const int to120, const int cap, S_MOVELIST *list) {
 
+	int from = SQ64(from120);
+	int   to = SQ64(to120);
+
+	assert(ValidSquare(from));
+	assert(ValidSquare(to));
 	assert(PieceValidEmpty(cap));
-	assert(ValidSquare(SQ64(from)));
-	assert(ValidSquare(SQ64(to)));
 	assert(CheckBoard(pos));
 
-	if (RanksBrd[from] == RANK_2) {
-		AddCaptureMove(pos, MOVE(from, to, cap, bQ, 0), list);
-		AddCaptureMove(pos, MOVE(from, to, cap, bR, 0), list);
-		AddCaptureMove(pos, MOVE(from, to, cap, bB, 0), list);
-		AddCaptureMove(pos, MOVE(from, to, cap, bN, 0), list);
+	if (RanksBrd64[from] == RANK_2) {
+		AddCaptureMove(pos, MOVE(SQ120(from), SQ120(to), cap, bQ, 0), list);
+		AddCaptureMove(pos, MOVE(SQ120(from), SQ120(to), cap, bR, 0), list);
+		AddCaptureMove(pos, MOVE(SQ120(from), SQ120(to), cap, bB, 0), list);
+		AddCaptureMove(pos, MOVE(SQ120(from), SQ120(to), cap, bN, 0), list);
 	} else
-		AddCaptureMove(pos, MOVE(from, to, cap, EMPTY, 0), list);
+		AddCaptureMove(pos, MOVE(SQ120(from), SQ120(to), cap, EMPTY, 0), list);
 }
 
-static void AddBlackPawnMove(const S_BOARD *pos, const int from, const int to, S_MOVELIST *list) {
+static void AddBlackPawnMove(const S_BOARD *pos, const int from120, const int to120, S_MOVELIST *list) {
 
-	assert(ValidSquare(SQ64(from)));
-	assert(ValidSquare(SQ64(to)));
+	int from = SQ64(from120);
+	int   to = SQ64(to120);
+
+	assert(ValidSquare(from));
+	assert(ValidSquare(to));
 	assert(CheckBoard(pos));
 
-	if (RanksBrd[from] == RANK_2) {
-		AddQuietMove(pos, MOVE(from, to, EMPTY, bQ, 0), list);
-		AddQuietMove(pos, MOVE(from, to, EMPTY, bR, 0), list);
-		AddQuietMove(pos, MOVE(from, to, EMPTY, bB, 0), list);
-		AddQuietMove(pos, MOVE(from, to, EMPTY, bN, 0), list);
+	if (RanksBrd64[from] == RANK_2) {
+		AddQuietMove(pos, MOVE(SQ120(from), SQ120(to), EMPTY, bQ, 0), list);
+		AddQuietMove(pos, MOVE(SQ120(from), SQ120(to), EMPTY, bR, 0), list);
+		AddQuietMove(pos, MOVE(SQ120(from), SQ120(to), EMPTY, bB, 0), list);
+		AddQuietMove(pos, MOVE(SQ120(from), SQ120(to), EMPTY, bN, 0), list);
 	} else
-		AddQuietMove(pos, MOVE(from, to, EMPTY, EMPTY, 0), list);
+		AddQuietMove(pos, MOVE(SQ120(from), SQ120(to), EMPTY, EMPTY, 0), list);
 }
 
 void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
