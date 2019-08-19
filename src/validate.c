@@ -21,8 +21,8 @@ int MoveListOk(const S_MOVELIST *list, const S_BOARD *pos) {
 
 	for (int MoveNum = 0; MoveNum < list->count; ++MoveNum) {
 
-		to 	 = SQ64(  TOSQ(list->moves[MoveNum].move));
-		from = SQ64(FROMSQ(list->moves[MoveNum].move));
+		to 	 =   TOSQ(list->moves[MoveNum].move);
+		from = FROMSQ(list->moves[MoveNum].move);
 
 		if (!ValidSquare(to) || !ValidSquare(from))
 			return FALSE;

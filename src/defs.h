@@ -11,7 +11,6 @@
 
 
 #define NAME "weiss 0.2"
-#define BRD_SQ_NUM 120
 #define MAXGAMEMOVES 512
 #define MAXPOSITIONMOVES 256
 #define MAXDEPTH 128
@@ -34,9 +33,6 @@
 /* MACROS */
 
 #define FR2SQ(f, r) ( (21 + (f)) + ( (r) * 10))
-#define SQ64(sq120) (Sq120ToSq64[(sq120)])
-#define SQ120(sq64) (Sq64ToSq120[(sq64)])
-
 
 #define IsBQ(p) (PieceBishopQueen[(p)])
 #define IsRQ(p) (PieceRookQueen[(p)])
@@ -160,9 +156,6 @@ typedef struct {
 } S_OPTIONS;
 
 /* GLOBALS */
-
-extern int Sq120ToSq64[BRD_SQ_NUM];
-extern int Sq64ToSq120[64];
 
 extern int SqToFile[64];
 extern int SqToRank[64];

@@ -11,9 +11,6 @@
 #include "validate.h"
 
 
-int Sq120ToSq64[BRD_SQ_NUM];
-int Sq64ToSq120[64];
-
 int SqToFile[64];
 int SqToRank[64];
 
@@ -129,30 +126,8 @@ static void InitBitMasks() {
 	}
 }
 
-static void InitSq120To64() {
-
-	int index, sq;
-	int sq64 = 0;
-
-	for (index = 0; index < BRD_SQ_NUM; ++index)
-		Sq120ToSq64[index] = 65;
-
-	for (index = 0; index < 64; ++index)
-		Sq64ToSq120[index] = 120;
-
-	for (int rank = RANK_1; rank <= RANK_8; ++rank) {
-		for (int file = FILE_A; file <= FILE_H; ++file) {
-			sq = FR2SQ(file, rank);
-			Sq64ToSq120[sq64] = sq;
-			Sq120ToSq64[sq] = sq64;
-			sq64++;
-		}
-	}
-}
-
 void InitAll() {
 	InitDistance();
-	InitSq120To64();
 	InitBitMasks();
 	InitHashKeys();
 	InitFilesRanksBrd();

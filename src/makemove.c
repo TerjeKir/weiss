@@ -326,8 +326,8 @@ int MakeMove(S_BOARD *pos, int move) {
 
 	assert(CheckBoard(pos));
 
-	int from = SQ64(FROMSQ(move));
-	int to = SQ64(TOSQ(move));
+	int from = FROMSQ(move);
+	int to = TOSQ(move);
 	int side = pos->side;
 
 	assert(ValidSquare(from));
@@ -451,8 +451,8 @@ void TakeMove(S_BOARD *pos) {
 	assert(pos->ply >= 0 && pos->ply < MAXDEPTH);
 
 	int move = pos->history[pos->hisPly].move;
-	int from = SQ64(FROMSQ(move));
-	int to = SQ64(TOSQ(move));
+	int from = FROMSQ(move);
+	int   to =   TOSQ(move);
 
 	assert(ValidSquare(from));
 	assert(ValidSquare(to));

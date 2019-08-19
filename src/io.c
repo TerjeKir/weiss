@@ -13,10 +13,10 @@ char *MoveToStr(const int move) {
 
 	static char MvStr[6];
 
-	int ff = SqToFile[SQ64(FROMSQ(move))];
-	int rf = SqToRank[SQ64(FROMSQ(move))];
-	int ft = SqToFile[SQ64(TOSQ(move))];
-	int rt = SqToRank[SQ64(TOSQ(move))];
+	int ff = SqToFile[FROMSQ(move)];
+	int rf = SqToRank[FROMSQ(move)];
+	int ft = SqToFile[  TOSQ(move)];
+	int rt = SqToRank[  TOSQ(move)];
 
 	int promoted = PROMOTED(move);
 
@@ -59,7 +59,7 @@ int ParseMove(char *ptrChar, S_BOARD *pos) {
 	for (MoveNum = 0; MoveNum < list->count; ++MoveNum) {
 
 		Move = list->moves[MoveNum].move;
-		if (SQ64(FROMSQ(Move)) == from && SQ64(TOSQ(Move)) == to) {
+		if (FROMSQ(Move) == from && TOSQ(Move) == to) {
 
 			PromPce = PROMOTED(Move);
 			if (PromPce != EMPTY) {

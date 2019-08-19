@@ -11,7 +11,7 @@
 #include "board.h"
 
 
-#define MOVE(f, t, ca, pro, fl) ((SQ120(f)) | ((SQ120(t)) << 7) | ((ca) << 14) | ((pro) << 20) | (fl))
+#define MOVE(f, t, ca, pro, fl) ((f) | ((t) << 7) | ((ca) << 14) | ((pro) << 20) | (fl))
 
 
 const bitboard bitB1C1D1 = (1ULL << 1) | (1ULL << 2) | (1ULL << 3);
@@ -58,8 +58,8 @@ int MoveExists(S_BOARD *pos, const int move) {
 
 static void AddQuietMove(const S_BOARD *pos, int move, S_MOVELIST *list) {
 
-	int from = SQ64(FROMSQ(move));
-	int   to = SQ64(  TOSQ(move));
+	int from = FROMSQ(move);
+	int   to =   TOSQ(move);
 
 	assert(ValidSquare(from));
 	assert(ValidSquare(to));
@@ -80,8 +80,8 @@ static void AddQuietMove(const S_BOARD *pos, int move, S_MOVELIST *list) {
 
 static void AddCaptureMove(const S_BOARD *pos, int move, S_MOVELIST *list) {
 
-	int from  = SQ64(FROMSQ(move));
-	int to    = SQ64(  TOSQ(move));
+	int from  = FROMSQ(move);
+	int to    =   TOSQ(move);
 	int piece = CAPTURED(move);
 
 	assert(ValidSquare(from));
@@ -96,8 +96,8 @@ static void AddCaptureMove(const S_BOARD *pos, int move, S_MOVELIST *list) {
 
 static void AddEnPassantMove(const S_BOARD *pos, int move, S_MOVELIST *list) {
 #ifndef NDEBUG
-	int from = SQ64(FROMSQ(move));
-	int   to = SQ64(  TOSQ(move));
+	int from = FROMSQ(move);
+	int   to =   TOSQ(move);
 
 	assert(ValidSquare(from));
 	assert(ValidSquare(to));
