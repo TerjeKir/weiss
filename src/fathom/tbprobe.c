@@ -1942,7 +1942,7 @@ int probe_wdl(Pos *pos, int *success)
   // Now handle the stalemate case.
   if (bestEp > -3 && v == 0) {
     TbMove moves[TB_MAX_MOVES];
-    TbMove *end = gen_moves(pos, moves);
+    end = gen_moves(pos, moves);
     // Check for stalemate in the position with ep captures.
     for (m = moves; m < end; m++) {
       if (!is_en_passant(pos,*m) && legal_move(pos, *m)) break;
