@@ -32,18 +32,16 @@
 
 /* MACROS */
 
-#define FR2SQ(f, r) ( (21 + (f)) + ( (r) * 10))
-
-#define FROMSQ(m) ((m) & 0x7F)
-#define TOSQ(m) (((m)>>7) & 0x7F)
-#define CAPTURED(m) (((m)>>14) & 0xF)
+#define FROMSQ(m)     ((m)      & 0x7F)
+#define TOSQ(m)      (((m)>> 7) & 0x7F)
+#define CAPTURED(m)  (((m)>>14) & 0xF)
 #define PROMOTION(m) (((m)>>20) & 0xF)
 
 /* GAME MOVE 
 0000 0000 0000 0000 0000 0111 1111 -> From 0x7F
 0000 0000 0000 0011 1111 1000 0000 -> To >> 7, 0x7F
 0000 0000 0011 1100 0000 0000 0000 -> Captured >> 14, 0xF
-0000 0000 0100 0000 0000 0000 0000 -> EP 0x40000
+0000 0000 0100 0000 0000 0000 0000 -> En passant 0x40000
 0000 0000 1000 0000 0000 0000 0000 -> Pawn Start 0x80000
 0000 1111 0000 0000 0000 0000 0000 -> Promoted Piece >> 20, 0xF
 0001 0000 0000 0000 0000 0000 0000 -> Castle 0x1000000
@@ -90,17 +88,18 @@ typedef struct {
 
 typedef struct {
 
-	bitboard colors[2];		// 0 White 1 Black
+	bitboard colors[2];
 	bitboard pieceBBs[6]; 	// 0 Pawn  1 Knight 2 Bishop 3 Rook 4 Queen 5 King
-	bitboard allBB;
-
-	int KingSq[2]; 			// Square king is on, 0 White 1 Black
-	int material[2];		// Total value of pieces, 0 White 1 Black
-	int bigPieces[2];		// # of non-pawns, 0 White 1 Black
-	int pieceCounts[13];	// # of each type of piece
+	bitboard allBB;			// BB with all pieces
 
 	int pieces[64];			// [square] -> empty/piece on that square
+
 	int pieceList[13][10]; 	// [piece type][#] -> square
+	int pieceCounts[13];	// # of each type of piece
+
+	int KingSq[2]; 			// Square king is on
+	int bigPieces[2];		// # of non-pawns
+	int material[2];		// Total value of pieces
 
 	int side;
 	int enPas;
