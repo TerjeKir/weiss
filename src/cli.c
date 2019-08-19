@@ -3,7 +3,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "defs.h"
 #include "attack.h"
 #include "bitboards.h"
 #include "board.h"

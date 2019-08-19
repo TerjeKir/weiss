@@ -4,11 +4,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "defs.h"
+#include "cli.h"
 #include "init.h"
 #include "pvtable.h"
 #include "uci.h"
-#include "cli.h"
 
 
 int main() {
@@ -20,10 +19,11 @@ int main() {
 	info->quit = FALSE;
 	pos->HashTable->pTable = NULL;
 	InitHashTable(pos->HashTable, DEFAULTHASH);
+
 	setbuf(stdin, NULL);
 	setbuf(stdout, NULL);
 
-	printf("Welcome to weiss! Type 'weiss' for console mode.\n> ");
+	printf("\nWelcome to weiss! Type 'weiss' for console mode.\n> ");
 
 	char line[256];
 	while (TRUE) {

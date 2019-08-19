@@ -2,13 +2,12 @@
 
 #include <stdio.h>
 
-#include "defs.h"
 #include "attack.h"
-#include "bitboards.h"
-#include "makemove.h"
-#include "movegen.h"
-#include "validate.h"
 #include "board.h"
+#include "bitboards.h"
+#include "data.h"
+#include "makemove.h"
+#include "validate.h"
 
 
 #define MOVE(f, t, ca, pro, fl) ((f) | ((t) << 7) | ((ca) << 14) | ((pro) << 20) | (fl))
@@ -19,7 +18,7 @@ const bitboard bitF1G1 = (1ULL << 5) | (1ULL << 6);
 const bitboard bitB8C8D8 = (1ULL << 57) | (1ULL << 58) | (1ULL << 59);
 const bitboard bitF8G8 = (1ULL << 61) | (1ULL << 62);
 
-static int MvvLvaScores[13][13];
+int MvvLvaScores[13][13];
 
 /*
 PV Move
@@ -36,24 +35,6 @@ void InitMvvLva() {
 	for (int Attacker = wP; Attacker <= bK; ++Attacker)
 		for (int Victim = wP; Victim <= bK; ++Victim)
 			MvvLvaScores[Victim][Attacker] = VictimScore[Victim] - (AttackerScore[Attacker]);
-}
-
-int MoveExists(S_BOARD *pos, const int move) {
-
-	S_MOVELIST list[1];
-	GenerateAllMoves(pos, list);
-
-	for (int MoveNum = 0; MoveNum < list->count; ++MoveNum) {
-
-		if (!MakeMove(pos, list->moves[MoveNum].move))
-			continue;
-
-		TakeMove(pos);
-
-		if (list->moves[MoveNum].move == move)
-			return TRUE;
-	}
-	return FALSE;
 }
 
 static void AddQuietMove(const S_BOARD *pos, int move, S_MOVELIST *list) {
@@ -81,7 +62,9 @@ static void AddQuietMove(const S_BOARD *pos, int move, S_MOVELIST *list) {
 static void AddCaptureMove(const S_BOARD *pos, int move, S_MOVELIST *list) {
 
 	int from  = FROMSQ(move);
-	int to    =   TOSQ(move);
+#ifndef NDEBUG
+	int to    = TOSQ(move);
+#endif
 	int piece = CAPTURED(move);
 
 	assert(ValidSquare(from));
@@ -520,4 +503,22 @@ void GenerateAllCaptures(const S_BOARD *pos, S_MOVELIST *list) {
 	}
 
 	assert(MoveListOk(list, pos));
+}
+
+int MoveExists(S_BOARD *pos, const int move) {
+
+	S_MOVELIST list[1];
+	GenerateAllMoves(pos, list);
+
+	for (int MoveNum = 0; MoveNum < list->count; ++MoveNum) {
+
+		if (!MakeMove(pos, list->moves[MoveNum].move))
+			continue;
+
+		TakeMove(pos);
+
+		if (list->moves[MoveNum].move == move)
+			return TRUE;
+	}
+	return FALSE;
 }

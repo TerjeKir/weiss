@@ -2,7 +2,6 @@
 
 #include <stdio.h>
 
-#include "defs.h"
 #include "board.h"
 #include "io.h"
 #include "makemove.h"

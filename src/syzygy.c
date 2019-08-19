@@ -1,8 +1,7 @@
 // syzygy.c
 
-#include "defs.h"
-#include "bitboards.h"
 #include "fathom/tbprobe.h"
+#include "bitboards.h"
 #include "board.h"
 
 
@@ -12,9 +11,9 @@
 
 unsigned int probeWDL(S_BOARD *pos, int depth) {
 
-    int cardinality = PopCount(pos->allBB);
-
     assert(CheckBoard(pos));
+
+    int cardinality = PopCount(pos->allBB);
 
     if (    (pos->ply == 0)
         ||  (pos->enPas != NO_SQ)

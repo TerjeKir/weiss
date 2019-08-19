@@ -4,6 +4,8 @@
 
 #include <stdint.h>
 
+#include "defs.h"
+
 
 typedef uint64_t bitboard;
 
@@ -35,3 +37,105 @@ enum { FALSE, TRUE };
 enum { WKCA = 1, WQCA = 2, BKCA = 4, BQCA = 8 };
 
 enum { HFNONE, HFALPHA, HFBETA, HFEXACT };
+
+/* STRUCTS */
+
+typedef struct {
+	int move;
+	int score;
+} S_MOVE;
+
+typedef struct {
+	S_MOVE moves[MAXPOSITIONMOVES];
+	int count;
+} S_MOVELIST;
+
+typedef struct {
+
+	int move;
+	int castlePerm;
+	int enPas;
+	int fiftyMove;
+	uint64_t posKey;
+
+} S_UNDO;
+
+typedef struct {
+	uint64_t posKey;
+	int move;
+	int score;
+	int depth;
+	int flags;
+} S_HASHENTRY;
+
+typedef struct {
+	S_HASHENTRY *pTable;
+	int numEntries;
+	int newWrite;
+	int overWrite;
+	int hit;
+	int cut;
+} S_HASHTABLE;
+
+typedef struct {
+
+	bitboard colors[2];
+	bitboard pieceBBs[6]; 	// 0 Pawn  1 Knight 2 Bishop 3 Rook 4 Queen 5 King
+	bitboard allBB;			// BB with all pieces
+
+	int pieces[64];			// [square] -> empty/piece on that square
+
+	int pieceList[13][10]; 	// [piece type][#] -> square
+	int pieceCounts[13];	// # of each type of piece
+
+	int KingSq[2]; 			// Square king is on
+	int bigPieces[2];		// # of non-pawns
+	int material[2];		// Total value of pieces
+
+	int side;
+	int enPas;
+	int fiftyMove;
+	int castlePerm;
+
+	int ply;
+	int hisPly;
+
+	uint64_t posKey;
+
+	S_UNDO history[MAXGAMEMOVES];
+
+	S_HASHTABLE HashTable[1];
+	int PvArray[MAXDEPTH];
+
+	int searchHistory[13][64];
+	int searchKillers[2][MAXDEPTH];
+
+} S_BOARD;
+
+typedef struct {
+
+	int starttime;
+	int stoptime;
+	int depth;
+	int seldepth;
+	int timeset;
+	int movestogo;
+
+	uint64_t nodes;
+	uint64_t tbhits;
+
+	int quit;
+	int stopped;
+
+	float fh;
+	float fhf;
+	int nullCut;
+
+	int GAME_MODE;
+	int POST_THINKING;
+
+} S_SEARCHINFO;
+
+typedef struct {
+	char syzygyPath[256];
+} S_OPTIONS;

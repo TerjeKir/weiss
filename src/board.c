@@ -1,14 +1,34 @@
 // board.c
 
 #include <stdio.h>
+#include <stdlib.h>
 
-#include "defs.h"
 #include "bitboards.h"
 #include "board.h"
 #include "data.h"
 #include "hashkeys.h"
 #include "validate.h"
 
+
+int distance[64][64];
+
+
+// Returns distance between sq1 and sq2
+inline int Distance(int sq1, int sq2) {
+    return distance[sq1][sq2];
+}
+
+void InitDistance() {
+
+    int vertical, horizontal;
+
+    for (int sq1 = 0; sq1 < 64; ++sq1)
+        for (int sq2 = 0; sq2 < 64; ++sq2) {
+            vertical = abs((sq1 / 8) - (sq2 / 8));
+            horizontal = abs((sq1 % 8) - (sq2 % 8));
+            distance[sq1][sq2] = ((vertical > horizontal) ? vertical : horizontal);
+        }
+}
 
 // Update material lists to match pos->pieces
 static void UpdateListsMaterial(S_BOARD *pos) {

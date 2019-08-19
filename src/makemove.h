@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "defs.h"
+#include "types.h"
 
 
 int MakeMove(S_BOARD *pos, int move);

@@ -33,14 +33,13 @@ enum {
 extern bitboard   SetMask[64];
 extern bitboard ClearMask[64];
 
+// TODO: Determine if these are needed
 extern bitboard FileBBMask[8];
 extern bitboard RankBBMask[8];
 
 const bitboard fileBBs[8];
 const bitboard rankBBs[8];
 
-void InitDistance();
-int Distance(int sq1, int sq2);
 int PopCount(bitboard x);
 int Lsb(bitboard bb);
 int PopLsb(bitboard *bb);

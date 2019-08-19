@@ -1,17 +1,17 @@
 // uci.c
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-#include "defs.h"
-#include "string.h"
-#include "board.h"
 #include "fathom/tbprobe.h"
-#include "makemove.h"
+#include "board.h"
 #include "io.h"
-#include "validate.h"
+#include "makemove.h"
 #include "misc.h"
 #include "pvtable.h"
 #include "search.h"
+#include "validate.h"
 
 
 #define INPUTBUFFER 400 * 6

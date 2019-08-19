@@ -2,10 +2,9 @@
 
 #include <stdio.h>
 
-#include "defs.h"
+#include "board.h"
 #include "data.h"
 #include "movegen.h"
-#include "board.h"
 #include "validate.h"
 
 

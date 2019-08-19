@@ -1,8 +1,5 @@
 // makemove.c
 
-#include <stdio.h>
-
-#include "defs.h"
 #include "attack.h"
 #include "bitboards.h"
 #include "board.h"

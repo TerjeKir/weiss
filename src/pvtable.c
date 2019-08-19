@@ -3,9 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "defs.h"
 #include "makemove.h"
-#include "io.h"
 #include "movegen.h"
 #include "pvtable.h"
 

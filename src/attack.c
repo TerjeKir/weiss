@@ -1,12 +1,9 @@
 // attack.c
 
-#include <stdio.h>
-
-#include "defs.h"
 #include "attack.h"
-#include "bitboards.h"
 #include "board.h"
 #include "validate.h"
+#include "bitboards.h"
 
 
 // Simple

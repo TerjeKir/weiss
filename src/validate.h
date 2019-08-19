@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "defs.h"
+#include "types.h"
 
 
 int MoveListOk(const S_MOVELIST *list,  const S_BOARD *pos);

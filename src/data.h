@@ -21,4 +21,7 @@ extern int PieceQueen[13];
 extern int PieceKing[13];
 extern int PieceSlides[13];
 
+extern int SqToFile[64];
+extern int SqToRank[64];
+
 extern int Mirror64[64];

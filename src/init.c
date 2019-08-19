@@ -1,14 +1,9 @@
 // init.c
 
-#include <stdio.h>
-#include <stdlib.h>
-
-#include "defs.h"
 #include "attack.h"
-#include "bitboards.h"
+#include "board.h"
 #include "hashkeys.h"
 #include "movegen.h"
-#include "validate.h"
 
 
 int SqToFile[64];
@@ -17,7 +12,7 @@ int SqToRank[64];
 bitboard   SetMask[64];
 bitboard ClearMask[64];
 
-bitboard FileBBMask[8];
+bitboard FileBBMask[8]; // TODO
 bitboard RankBBMask[8];
 
 bitboard BlackPassedMask[64];
@@ -36,7 +31,7 @@ static void InitEvalMasks() {
 		RankBBMask[i] = 0ULL;
 	}
 
-	for (int rank = RANK_8; rank >= RANK_1; --rank) {
+	for (    int rank = RANK_8; rank >= RANK_1; --rank) {
 		for (int file = FILE_A; file <= FILE_H; ++file) {
 			sq = rank * 8 + file;
 			FileBBMask[file] |= (1ULL << sq);

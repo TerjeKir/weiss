@@ -1,5 +1,7 @@
 // hashkeys.c
 
+#include <stdlib.h>
+
 #include "defs.h"
 #include "validate.h"
 

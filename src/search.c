@@ -1,16 +1,16 @@
 // search.c
 
 #include <stdio.h>
+#include <stdlib.h>
 
-#include "defs.h"
 #include "fathom/tbprobe.h"
 #include "attack.h"
 #include "board.h"
 #include "evaluate.h"
 #include "io.h"
-#include "movegen.h"
 #include "makemove.h"
 #include "misc.h"
+#include "movegen.h"
 #include "pvtable.h"
 
 

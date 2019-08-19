@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "defs.h"
+#include "types.h"
 
 
 void InitHashTable(S_HASHTABLE *table, const int MB);

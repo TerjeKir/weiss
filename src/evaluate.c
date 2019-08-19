@@ -2,7 +2,6 @@
 
 #include <stdio.h>
 
-#include "defs.h"
 #include "bitboards.h"
 #include "board.h"
 #include "data.h"

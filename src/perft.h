@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "defs.h"
+#include "types.h"
 
 
 void Perft(int depth, S_BOARD *pos);

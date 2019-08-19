@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "defs.h"
+#include "types.h"
 
 
 void Console_Loop(S_BOARD *pos, S_SEARCHINFO *info);

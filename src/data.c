@@ -1,6 +1,6 @@
 // data.c
 
-#include "defs.h"
+#include "types.h"
 
 
 char PceChar[] = ".PNBRQKpnbrqk";

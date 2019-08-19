@@ -3,14 +3,29 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "defs.h"
 #include "board.h"
 #include "evaluate.h"
-#include "validate.h"
-#include "misc.h"
-#include "pvtable.h"
-#include "search.h"
 
+
+int ValidSquare(const int sq) {
+	return (sq >= 0 && sq < 64);
+}
+
+int SideValid(const int side) {
+	return (side == WHITE || side == BLACK) ? 1 : 0;
+}
+
+int FileRankValid(const int fr) {
+	return (fr >= 0 && fr <= 7) ? 1 : 0;
+}
+
+int PieceValid(const int pce) {
+	return (pce >= wP && pce <= bK) ? 1 : 0;
+}
+
+int PieceValidEmpty(const int pce) {
+	return (PieceValid(pce) || pce == EMPTY) ? 1 : 0;
+}
 
 int MoveListOk(const S_MOVELIST *list, const S_BOARD *pos) {
 
@@ -34,26 +49,6 @@ int MoveListOk(const S_MOVELIST *list, const S_BOARD *pos) {
 	}
 
 	return TRUE;
-}
-
-int ValidSquare(const int sq) {
-	return (sq >= 0 && sq < 64);
-}
-
-int SideValid(const int side) {
-	return (side == WHITE || side == BLACK) ? 1 : 0;
-}
-
-int FileRankValid(const int fr) {
-	return (fr >= 0 && fr <= 7) ? 1 : 0;
-}
-
-int PieceValidEmpty(const int pce) {
-	return (PieceValid(pce) || pce == EMPTY) ? 1 : 0;
-}
-
-int PieceValid(const int pce) {
-	return (pce >= wP && pce <= bK) ? 1 : 0;
 }
 
 void MirrorEvalTest(S_BOARD *pos) {

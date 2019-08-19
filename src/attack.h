@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "defs.h"
+#include "types.h"
 
 
 static const uint64_t RookMagics[64] = {
@@ -58,6 +58,7 @@ bitboard pawn_attacks[2][64];
 
 MAGIC mBishopTable[64];
 MAGIC mRookTable[64];
+
 
 void InitAttacks();
 

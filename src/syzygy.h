@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "defs.h"
+#include "types.h"
 
 
 unsigned int probeWDL(S_BOARD *pos, int depth);

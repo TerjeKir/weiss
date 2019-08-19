@@ -2,8 +2,7 @@
 
 #include <stdio.h>
 
-#include "defs.h"
-#include "io.h"
+#include "misc.h"
 
 #ifdef _WIN32
 #include "windows.h"
