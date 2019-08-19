@@ -37,7 +37,7 @@
 #define FROMSQ(m) ((m) & 0x7F)
 #define TOSQ(m) (((m)>>7) & 0x7F)
 #define CAPTURED(m) (((m)>>14) & 0xF)
-#define PROMOTED(m) (((m)>>20) & 0xF)
+#define PROMOTION(m) (((m)>>20) & 0xF)
 
 /* GAME MOVE 
 0000 0000 0000 0000 0000 0111 1111 -> From 0x7F

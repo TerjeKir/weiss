@@ -413,7 +413,7 @@ int MakeMove(S_BOARD *pos, int move) {
 	MovePiece(from, to, pos);
 
 	// Replace promoting pawn with new piece
-	int prPce = PROMOTED(move);
+	int prPce = PROMOTION(move);
 	if (prPce != EMPTY) {
 		assert(PieceValid(prPce) && !PiecePawn[prPce]);
 		ClearPiece(to, pos);
@@ -508,10 +508,10 @@ void TakeMove(S_BOARD *pos) {
 	}
 
 	// Remove promoted piece and put back the pawn
-	if (PROMOTED(move) != EMPTY) {
-		assert(PieceValid(PROMOTED(move)) && !PiecePawn[PROMOTED(move)]);
+	if (PROMOTION(move) != EMPTY) {
+		assert(PieceValid(PROMOTION(move)) && !PiecePawn[PROMOTION(move)]);
 		ClearPiece(from, pos);
-		AddPiece(from, pos, (PieceColor[PROMOTED(move)] == WHITE ? wP : bP));
+		AddPiece(from, pos, (PieceColor[PROMOTION(move)] == WHITE ? wP : bP));
 	}
 
 	assert(CheckBoard(pos));

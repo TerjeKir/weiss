@@ -17,29 +17,29 @@
 
 char *MoveToStr(const int move) {
 
-	static char MvStr[6];
+	static char moveStr[6];
 
 	int ff = SqToFile[FROMSQ(move)];
 	int rf = SqToRank[FROMSQ(move)];
 	int ft = SqToFile[  TOSQ(move)];
 	int rt = SqToRank[  TOSQ(move)];
 
-	int promoted = PROMOTED(move);
+	int promotion = PROMOTION(move);
 
-	if (promoted) {
+	if (promotion) {
 		char pchar = 'q';
-		if (IsKnight(promoted))
+		if (IsKnight(promotion))
 			pchar = 'n';
-		else if (IsRook(promoted))
+		else if (IsRook(promotion))
 			pchar = 'r';
-		else if (IsBishop(promoted))
+		else if (IsBishop(promotion))
 			pchar = 'b';
 
-		sprintf(MvStr, "%c%c%c%c%c", ('a' + ff), ('1' + rf), ('a' + ft), ('1' + rt), pchar);
+		sprintf(moveStr, "%c%c%c%c%c", ('a' + ff), ('1' + rf), ('a' + ft), ('1' + rt), pchar);
 	} else
-		sprintf(MvStr, "%c%c%c%c", ('a' + ff), ('1' + rf), ('a' + ft), ('1' + rt));
+		sprintf(moveStr, "%c%c%c%c", ('a' + ff), ('1' + rf), ('a' + ft), ('1' + rt));
 
-	return MvStr;
+	return moveStr;
 }
 
 int ParseMove(char *ptrChar, S_BOARD *pos) {
@@ -59,28 +59,28 @@ int ParseMove(char *ptrChar, S_BOARD *pos) {
 	S_MOVELIST list[1];
 	GenerateAllMoves(pos, list);
 
-	int Move, PromPce;
+	int move, promotion;
 
-	for (int MoveNum = 0; MoveNum < list->count; ++MoveNum) {
+	for (int moveNum = 0; moveNum < list->count; ++moveNum) {
 
-		Move = list->moves[MoveNum].move;
-		if (FROMSQ(Move) == from && TOSQ(Move) == to) {
+		move = list->moves[moveNum].move;
+		if (FROMSQ(move) == from && TOSQ(move) == to) {
 
-			PromPce = PROMOTED(Move);
-			if (PromPce != EMPTY) {
+			promotion = PROMOTION(move);
+			if (promotion != EMPTY) {
 
-				if (IsQueen(PromPce) && ptrChar[4] == 'q')
-					return Move;
-				else if (IsKnight(PromPce) && ptrChar[4] == 'n')
-					return Move;
-				else if (IsRook(PromPce) && ptrChar[4] == 'r')
-					return Move;
-				else if (IsBishop(PromPce) && ptrChar[4] == 'b')
-					return Move;
+				if (IsQueen(promotion) && ptrChar[4] == 'q')
+					return move;
+				else if (IsKnight(promotion) && ptrChar[4] == 'n')
+					return move;
+				else if (IsRook(promotion) && ptrChar[4] == 'r')
+					return move;
+				else if (IsBishop(promotion) && ptrChar[4] == 'b')
+					return move;
 
 				continue;
 			}
-			return Move;
+			return move;
 		}
 	}
 	return NOMOVE;
