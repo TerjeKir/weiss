@@ -9,26 +9,14 @@
 #include "validate.h"
 
 
-char *PrSq(const int sq) {
-
-	static char SqStr[3];
-
-	int file = FilesBrd[sq];
-	int rank = RanksBrd[sq];
-
-	sprintf(SqStr, "%c%c", ('a' + file), ('1' + rank));
-
-	return SqStr;
-}
-
-char *PrMove(const int move) {
+char *MoveToStr(const int move) {
 
 	static char MvStr[6];
 
-	int ff = FilesBrd[FROMSQ(move)];
-	int rf = RanksBrd[FROMSQ(move)];
-	int ft = FilesBrd[TOSQ(move)];
-	int rt = RanksBrd[TOSQ(move)];
+	int ff = SqToFile[FROMSQ(move)];
+	int rf = SqToRank[FROMSQ(move)];
+	int ft = SqToFile[  TOSQ(move)];
+	int rt = SqToRank[  TOSQ(move)];
 
 	int promoted = PROMOTED(move);
 
@@ -57,15 +45,15 @@ int ParseMove(char *ptrChar, S_BOARD *pos) {
 	if (ptrChar[0] > 'h' || ptrChar[0] < 'a') return NOMOVE;
 	if (ptrChar[2] > 'h' || ptrChar[2] < 'a') return NOMOVE;
 
-	int from = FR2SQ(ptrChar[0] - 'a', ptrChar[1] - '1');
-	int to = FR2SQ(ptrChar[2] - 'a', ptrChar[3] - '1');
+	int from = (ptrChar[0] - 'a') + (8 * (ptrChar[1] - '1'));
+	int to   = (ptrChar[2] - 'a') + (8 * (ptrChar[3] - '1'));
 
-	assert(SqOnBoard(from) && SqOnBoard(to));
+	assert(ValidSquare(from) && ValidSquare(to));
 
 	S_MOVELIST list[1];
 	GenerateAllMoves(pos, list);
 	int MoveNum = 0;
-	int Move = 0;
+	int Move = NOMOVE;
 	int PromPce = EMPTY;
 
 	for (MoveNum = 0; MoveNum < list->count; ++MoveNum) {

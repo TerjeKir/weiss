@@ -11,7 +11,6 @@
 
 
 #define NAME "weiss 0.2"
-#define BRD_SQ_NUM 120
 #define MAXGAMEMOVES 512
 #define MAXPOSITIONMOVES 256
 #define MAXDEPTH 128
@@ -34,9 +33,6 @@
 /* MACROS */
 
 #define FR2SQ(f, r) ( (21 + (f)) + ( (r) * 10))
-#define SQ64(sq120) (Sq120ToSq64[(sq120)])
-#define SQ120(sq64) (Sq64ToSq120[(sq64)])
-
 
 #define IsBQ(p) (PieceBishopQueen[(p)])
 #define IsRQ(p) (PieceRookQueen[(p)])
@@ -103,15 +99,13 @@ typedef struct {
 	bitboard pieceBBs[6]; 	// 0 Pawn  1 Knight 2 Bishop 3 Rook 4 Queen 5 King
 	bitboard allBB;
 
-	int pieces[BRD_SQ_NUM]; // (120)
+	int KingSq[2]; 			// Square king is on, 0 White 1 Black
+	int material[2];		// Total value of pieces, 0 White 1 Black
+	int bigPieces[2];		// # of non-pawns, 0 White 1 Black
+	int pieceCounts[13];	// # of each type of piece
 
-	int pceNum[13];			// # of each type of piece
-	int bigPce[2];			// # of non-pawns
-	int material[2];		// Total value of pieces (from PieceVals)
-
-	int pList[13][10]; 		// [piece type][#] -> square (120)
-
-	int KingSq[2]; 			// 0 White 1 Black (120)
+	int pieces[64];			// [square] -> empty/piece on that square
+	int pieceList[13][10]; 	// [piece type][#] -> square
 
 	int side;
 	int enPas;
@@ -128,7 +122,7 @@ typedef struct {
 	S_HASHTABLE HashTable[1];
 	int PvArray[MAXDEPTH];
 
-	int searchHistory[13][BRD_SQ_NUM];
+	int searchHistory[13][64];
 	int searchKillers[2][MAXDEPTH];
 
 } S_BOARD;
@@ -163,13 +157,7 @@ typedef struct {
 
 /* GLOBALS */
 
-extern int Sq120ToSq64[BRD_SQ_NUM];
-extern int Sq64ToSq120[64];
-
-extern int FilesBrd[BRD_SQ_NUM]; // 120square
-extern int RanksBrd[BRD_SQ_NUM]; // 120square
-
-extern int FilesBrd64[64];
-extern int RanksBrd64[64];
+extern int SqToFile[64];
+extern int SqToRank[64];
 
 extern S_OPTIONS EngineOptions[1];

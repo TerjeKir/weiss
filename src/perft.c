@@ -54,14 +54,14 @@ void Perft(int depth, S_BOARD *pos) {
 		move = list->moves[MoveNum].move;
 
 		if (!MakeMove(pos, move)){
-			printf("move %d : %s : Illegal\n", MoveNum + 1, PrMove(move));
+			printf("move %d : %s : Illegal\n", MoveNum + 1, MoveToStr(move));
 			continue;
 		}
 
 		uint64_t oldCount = leafNodes;
 		RecursivePerft(depth - 1, pos);
 		uint64_t newNodes = leafNodes - oldCount;
-		printf("move %d : %s : %I64d\n", MoveNum + 1, PrMove(move), newNodes);
+		printf("move %d : %s : %I64d\n", MoveNum + 1, MoveToStr(move), newNodes);
 
 		TakeMove(pos);
 	}

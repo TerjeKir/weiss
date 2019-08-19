@@ -30,7 +30,7 @@ enum {
 };
 
 
-extern bitboard SetMask[64];
+extern bitboard   SetMask[64];
 extern bitboard ClearMask[64];
 
 extern bitboard FileBBMask[8];
@@ -41,7 +41,7 @@ const bitboard rankBBs[8];
 
 void InitDistance();
 int Distance(int sq1, int sq2);
+int PopCount(bitboard x);
 int Lsb(bitboard bb);
 int PopLsb(bitboard *bb);
-int PopCount(bitboard x);
 void PrintBB(bitboard bb);

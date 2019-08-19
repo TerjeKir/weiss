@@ -12,308 +12,223 @@
 #include "validate.h"
 
 
-#define HASH_PCE(pce, sq) (pos->posKey ^= (PieceKeys[(pce)][(sq)]))
-#define HASH_CA (pos->posKey ^= (CastleKeys[(pos->castlePerm)]))
-#define HASH_SIDE (pos->posKey ^= (SideKey))
-#define HASH_EP (pos->posKey ^= (PieceKeys[EMPTY][(pos->enPas)]))
+#define HASH_PCE(piece, sq) (pos->posKey ^= (PieceKeys[(piece)][(sq)]))
+#define HASH_CA             (pos->posKey ^= (CastleKeys[(pos->castlePerm)]))
+#define HASH_SIDE           (pos->posKey ^= (SideKey))
+#define HASH_EP             (pos->posKey ^= (PieceKeys[EMPTY][(pos->enPas)]))
 
 
-const int CastlePerm[120] = {
-	15, 15, 15, 15, 15, 15, 15, 15, 15, 15,
-	15, 15, 15, 15, 15, 15, 15, 15, 15, 15,
-	15, 13, 15, 15, 15, 12, 15, 15, 14, 15,
-	15, 15, 15, 15, 15, 15, 15, 15, 15, 15,
-	15, 15, 15, 15, 15, 15, 15, 15, 15, 15,
-	15, 15, 15, 15, 15, 15, 15, 15, 15, 15,
-	15, 15, 15, 15, 15, 15, 15, 15, 15, 15,
-	15, 15, 15, 15, 15, 15, 15, 15, 15, 15,
-	15, 15, 15, 15, 15, 15, 15, 15, 15, 15,
-	15,  7, 15, 15, 15,  3, 15, 15, 11, 15,
-	15, 15, 15, 15, 15, 15, 15, 15, 15, 15,
-	15, 15, 15, 15, 15, 15, 15, 15, 15, 15};
+const int CastlePerm[64] = {
+	13, 15, 15, 15, 12, 15, 15, 14,
+	15, 15, 15, 15, 15, 15, 15, 15,
+	15, 15, 15, 15, 15, 15, 15, 15,
+	15, 15, 15, 15, 15, 15, 15, 15,
+	15, 15, 15, 15, 15, 15, 15, 15,
+	15, 15, 15, 15, 15, 15, 15, 15,
+	15, 15, 15, 15, 15, 15, 15, 15,
+	 7, 15, 15, 15,  3, 15, 15, 11
+};
 
 
-// Remove a piece from square sq (120)
+// Remove a piece from a square sq
 static void ClearPiece(const int sq, S_BOARD *pos) {
 
-	assert(SqOnBoard(sq));
+	assert(ValidSquare(sq));
 	assert(CheckBoard(pos));
 
-	int pce = pos->pieces[sq];
+	int piece = pos->pieces[sq];
 
-	assert(PieceValid(pce));
+	assert(PieceValid(piece));
 
-	int col = PieceCol[pce];
-	int index = 0;
-	int t_pceNum = -1;
+	int color = PieceColor[piece];
+	int t_pieceCounts = -1;
 
-	assert(SideValid(col));
+	assert(SideValid(color));
 
-	HASH_PCE(pce, sq);
+	HASH_PCE(piece, sq);
 
 	pos->pieces[sq] = EMPTY;
-	pos->material[col] -= PieceVal[pce];
+	pos->material[color] -= PieceValues[piece];
 
 	// Piece lists
-	if (PieceBig[pce])
-		pos->bigPce[col]--;
+	if (PieceBig[piece])
+		pos->bigPieces[color]--;
 
-	// Bitboards
-	
-	CLRBIT(pos->allBB, SQ64(sq));
-
-	switch (pce) {
-		case wP:
-			CLRBIT(pos->pieceBBs[PAWN], SQ64(sq));
-			CLRBIT(pos->colors[WHITE], SQ64(sq));
-			break;
-		case wN:
-			CLRBIT(pos->pieceBBs[KNIGHT], SQ64(sq));
-			CLRBIT(pos->colors[WHITE], SQ64(sq));
-			break;
-		case wB:
-			CLRBIT(pos->pieceBBs[BISHOP], SQ64(sq));
-			CLRBIT(pos->colors[WHITE], SQ64(sq));
-			break;
-		case wR:
-			CLRBIT(pos->pieceBBs[ROOK], SQ64(sq));
-			CLRBIT(pos->colors[WHITE], SQ64(sq));
-			break;
-		case wQ:
-			CLRBIT(pos->pieceBBs[QUEEN], SQ64(sq));
-			CLRBIT(pos->colors[WHITE], SQ64(sq));
-			break;
-		case wK:
-			CLRBIT(pos->pieceBBs[KING], SQ64(sq));
-			CLRBIT(pos->colors[WHITE], SQ64(sq));
-			break;
-		case bP:
-			CLRBIT(pos->pieceBBs[PAWN], SQ64(sq));
-			CLRBIT(pos->colors[BLACK], SQ64(sq));
-			break;
-		case bN:
-			CLRBIT(pos->pieceBBs[KNIGHT], SQ64(sq));
-			CLRBIT(pos->colors[BLACK], SQ64(sq));
-			break;
-		case bB:
-			CLRBIT(pos->pieceBBs[BISHOP], SQ64(sq));
-			CLRBIT(pos->colors[BLACK], SQ64(sq));
-			break;
-		case bR:
-			CLRBIT(pos->pieceBBs[ROOK], SQ64(sq));
-			CLRBIT(pos->colors[BLACK], SQ64(sq));
-			break;
-		case bQ:
-			CLRBIT(pos->pieceBBs[QUEEN], SQ64(sq));
-			CLRBIT(pos->colors[BLACK], SQ64(sq));
-			break;
-		case bK:
-			CLRBIT(pos->pieceBBs[KING], SQ64(sq));
-			CLRBIT(pos->colors[BLACK], SQ64(sq));
-			break;
-		default:
-			assert(FALSE);
-			break;
-	}
-
-	for (index = 0; index < pos->pceNum[pce]; ++index) {
-		if (pos->pList[pce][index] == sq) {
-			t_pceNum = index;
+	for (int index = 0; index < pos->pieceCounts[piece]; ++index) {
+		if (pos->pieceList[piece][index] == sq) {
+			t_pieceCounts = index;
 			break;
 		}
 	}
 
-	assert(t_pceNum != -1);
-	assert(t_pceNum >= 0 && t_pceNum < 10);
+	assert(t_pieceCounts != -1);
+	assert(t_pieceCounts >= 0 && t_pieceCounts < 10);
 
-	pos->pceNum[pce]--;
+	// Update piece count
+	pos->pieceCounts[piece]--;
 
-	pos->pList[pce][t_pceNum] = pos->pList[pce][pos->pceNum[pce]];
-}
-// Add a piece pce to square sq (120)
-static void AddPiece(const int sq, S_BOARD *pos, const int pce) {
-
-	assert(PieceValid(pce));
-	assert(SqOnBoard(sq));
-
-	int col = PieceCol[pce];
-	assert(SideValid(col));
-
-	HASH_PCE(pce, sq);
-
-	pos->pieces[sq] = pce;
-
-	// Piece lists
-	if (PieceBig[pce])
-		pos->bigPce[col]++;
+	pos->pieceList[piece][t_pieceCounts] = pos->pieceList[piece][pos->pieceCounts[piece]];
 
 	// Bitboards
 	
-	SETBIT(pos->allBB, SQ64(sq));
+	CLRBIT(pos->allBB, sq);
 
-	switch (pce) {
+	switch (piece) {
 		case wP:
-			SETBIT(pos->pieceBBs[PAWN], SQ64(sq));
-			SETBIT(pos->colors[WHITE], SQ64(sq));
+			CLRBIT(pos->pieceBBs[PAWN], sq);
+			CLRBIT(pos->colors[WHITE], sq);
 			break;
 		case wN:
-			SETBIT(pos->pieceBBs[KNIGHT], SQ64(sq));
-			SETBIT(pos->colors[WHITE], SQ64(sq));
+			CLRBIT(pos->pieceBBs[KNIGHT], sq);
+			CLRBIT(pos->colors[WHITE], sq);
 			break;
 		case wB:
-			SETBIT(pos->pieceBBs[BISHOP], SQ64(sq));
-			SETBIT(pos->colors[WHITE], SQ64(sq));
+			CLRBIT(pos->pieceBBs[BISHOP], sq);
+			CLRBIT(pos->colors[WHITE], sq);
 			break;
 		case wR:
-			SETBIT(pos->pieceBBs[ROOK], SQ64(sq));
-			SETBIT(pos->colors[WHITE], SQ64(sq));
+			CLRBIT(pos->pieceBBs[ROOK], sq);
+			CLRBIT(pos->colors[WHITE], sq);
 			break;
 		case wQ:
-			SETBIT(pos->pieceBBs[QUEEN], SQ64(sq));
-			SETBIT(pos->colors[WHITE], SQ64(sq));
+			CLRBIT(pos->pieceBBs[QUEEN], sq);
+			CLRBIT(pos->colors[WHITE], sq);
 			break;
 		case wK:
-			SETBIT(pos->pieceBBs[KING], SQ64(sq));
-			SETBIT(pos->colors[WHITE], SQ64(sq));
+			CLRBIT(pos->pieceBBs[KING], sq);
+			CLRBIT(pos->colors[WHITE], sq);
 			break;
 		case bP:
-			SETBIT(pos->pieceBBs[PAWN], SQ64(sq));
-			SETBIT(pos->colors[BLACK], SQ64(sq));
+			CLRBIT(pos->pieceBBs[PAWN], sq);
+			CLRBIT(pos->colors[BLACK], sq);
 			break;
 		case bN:
-			SETBIT(pos->pieceBBs[KNIGHT], SQ64(sq));
-			SETBIT(pos->colors[BLACK], SQ64(sq));
+			CLRBIT(pos->pieceBBs[KNIGHT], sq);
+			CLRBIT(pos->colors[BLACK], sq);
 			break;
 		case bB:
-			SETBIT(pos->pieceBBs[BISHOP], SQ64(sq));
-			SETBIT(pos->colors[BLACK], SQ64(sq));
+			CLRBIT(pos->pieceBBs[BISHOP], sq);
+			CLRBIT(pos->colors[BLACK], sq);
 			break;
 		case bR:
-			SETBIT(pos->pieceBBs[ROOK], SQ64(sq));
-			SETBIT(pos->colors[BLACK], SQ64(sq));
+			CLRBIT(pos->pieceBBs[ROOK], sq);
+			CLRBIT(pos->colors[BLACK], sq);
 			break;
 		case bQ:
-			SETBIT(pos->pieceBBs[QUEEN], SQ64(sq));
-			SETBIT(pos->colors[BLACK], SQ64(sq));
+			CLRBIT(pos->pieceBBs[QUEEN], sq);
+			CLRBIT(pos->colors[BLACK], sq);
 			break;
 		case bK:
-			SETBIT(pos->pieceBBs[KING], SQ64(sq));
-			SETBIT(pos->colors[BLACK], SQ64(sq));
+			CLRBIT(pos->pieceBBs[KING], sq);
+			CLRBIT(pos->colors[BLACK], sq);
 			break;
 		default:
 			assert(FALSE);
 			break;
 	}
-
-	pos->material[col] += PieceVal[pce];
-	pos->pList[pce][pos->pceNum[pce]++] = sq;
 }
-// Move a piece from square from to square to (120)
+
+// Add a piece piece to a square
+static void AddPiece(const int sq, S_BOARD *pos, const int piece) {
+
+	assert(PieceValid(piece));
+	assert(ValidSquare(sq));
+
+	int color = PieceColor[piece];
+	assert(SideValid(color));
+
+	HASH_PCE(piece, sq);
+
+	pos->pieces[sq] = piece;
+
+	// Piece lists
+	if (PieceBig[piece])
+		pos->bigPieces[color]++;
+
+	pos->material[color] += PieceValues[piece];
+	pos->pieceList[piece][pos->pieceCounts[piece]++] = sq;
+
+	// Bitboards
+	
+	SETBIT(pos->allBB, sq);
+
+	switch (piece) {
+		case wP:
+			SETBIT(pos->pieceBBs[PAWN], sq);
+			SETBIT(pos->colors[WHITE], sq);
+			break;
+		case wN:
+			SETBIT(pos->pieceBBs[KNIGHT], sq);
+			SETBIT(pos->colors[WHITE], sq);
+			break;
+		case wB:
+			SETBIT(pos->pieceBBs[BISHOP], sq);
+			SETBIT(pos->colors[WHITE], sq);
+			break;
+		case wR:
+			SETBIT(pos->pieceBBs[ROOK], sq);
+			SETBIT(pos->colors[WHITE], sq);
+			break;
+		case wQ:
+			SETBIT(pos->pieceBBs[QUEEN], sq);
+			SETBIT(pos->colors[WHITE], sq);
+			break;
+		case wK:
+			SETBIT(pos->pieceBBs[KING], sq);
+			SETBIT(pos->colors[WHITE], sq);
+			break;
+		case bP:
+			SETBIT(pos->pieceBBs[PAWN], sq);
+			SETBIT(pos->colors[BLACK], sq);
+			break;
+		case bN:
+			SETBIT(pos->pieceBBs[KNIGHT], sq);
+			SETBIT(pos->colors[BLACK], sq);
+			break;
+		case bB:
+			SETBIT(pos->pieceBBs[BISHOP], sq);
+			SETBIT(pos->colors[BLACK], sq);
+			break;
+		case bR:
+			SETBIT(pos->pieceBBs[ROOK], sq);
+			SETBIT(pos->colors[BLACK], sq);
+			break;
+		case bQ:
+			SETBIT(pos->pieceBBs[QUEEN], sq);
+			SETBIT(pos->colors[BLACK], sq);
+			break;
+		case bK:
+			SETBIT(pos->pieceBBs[KING], sq);
+			SETBIT(pos->colors[BLACK], sq);
+			break;
+		default:
+			assert(FALSE);
+			break;
+	}
+}
+// Move a piece from a square to another square
 static void MovePiece(const int from, const int to, S_BOARD *pos) {
 
-	assert(SqOnBoard(from));
-	assert(SqOnBoard(to));
+	assert(ValidSquare(from));
+	assert(ValidSquare(to));
 
 	int index = 0;
-	int pce = pos->pieces[from];
-	assert(PieceValid(pce));
+	int piece = pos->pieces[from];
+	assert(PieceValid(piece));
 
 #ifndef NDEBUG
 	int t_PieceNum = FALSE;
 #endif
 
-	HASH_PCE(pce, from);
+	HASH_PCE(piece, from);
 	pos->pieces[from] = EMPTY;
 
-	HASH_PCE(pce, to);
-	pos->pieces[to] = pce;
+	HASH_PCE(piece, to);
+	pos->pieces[to] = piece;
 
-	// Bitboards
-	
-	CLRBIT(pos->allBB, SQ64(from));
-	SETBIT(pos->allBB, SQ64(to));
-
-	switch (pce) {
-		case wP:
-			CLRBIT(pos->pieceBBs[PAWN], SQ64(from));
-			CLRBIT(pos->colors[WHITE], SQ64(from));
-			SETBIT(pos->pieceBBs[PAWN], SQ64(to));
-			SETBIT(pos->colors[WHITE], SQ64(to));
-			break;
-		case wN:
-			CLRBIT(pos->pieceBBs[KNIGHT], SQ64(from));
-			CLRBIT(pos->colors[WHITE], SQ64(from));
-			SETBIT(pos->pieceBBs[KNIGHT], SQ64(to));
-			SETBIT(pos->colors[WHITE], SQ64(to));
-			break;
-		case wB:
-			CLRBIT(pos->pieceBBs[BISHOP], SQ64(from));
-			CLRBIT(pos->colors[WHITE], SQ64(from));
-			SETBIT(pos->pieceBBs[BISHOP], SQ64(to));
-			SETBIT(pos->colors[WHITE], SQ64(to));
-			break;
-		case wR:
-			CLRBIT(pos->pieceBBs[ROOK], SQ64(from));
-			CLRBIT(pos->colors[WHITE], SQ64(from));
-			SETBIT(pos->pieceBBs[ROOK], SQ64(to));
-			SETBIT(pos->colors[WHITE], SQ64(to));
-			break;
-		case wQ:
-			CLRBIT(pos->pieceBBs[QUEEN], SQ64(from));
-			CLRBIT(pos->colors[WHITE], SQ64(from));
-			SETBIT(pos->pieceBBs[QUEEN], SQ64(to));
-			SETBIT(pos->colors[WHITE], SQ64(to));
-			break;
-		case wK:
-			CLRBIT(pos->pieceBBs[KING], SQ64(from));
-			CLRBIT(pos->colors[WHITE], SQ64(from));
-			SETBIT(pos->pieceBBs[KING], SQ64(to));
-			SETBIT(pos->colors[WHITE], SQ64(to));
-			break;
-		case bP:
-			CLRBIT(pos->pieceBBs[PAWN], SQ64(from));
-			CLRBIT(pos->colors[BLACK], SQ64(from));
-			SETBIT(pos->pieceBBs[PAWN], SQ64(to));
-			SETBIT(pos->colors[BLACK], SQ64(to));
-			break;
-		case bN:
-			CLRBIT(pos->pieceBBs[KNIGHT], SQ64(from));
-			CLRBIT(pos->colors[BLACK], SQ64(from));
-			SETBIT(pos->pieceBBs[KNIGHT], SQ64(to));
-			SETBIT(pos->colors[BLACK], SQ64(to));
-			break;
-		case bB:
-			CLRBIT(pos->pieceBBs[BISHOP], SQ64(from));
-			CLRBIT(pos->colors[BLACK], SQ64(from));
-			SETBIT(pos->pieceBBs[BISHOP], SQ64(to));
-			SETBIT(pos->colors[BLACK], SQ64(to));
-			break;
-		case bR:
-			CLRBIT(pos->pieceBBs[ROOK], SQ64(from));
-			CLRBIT(pos->colors[BLACK], SQ64(from));
-			SETBIT(pos->pieceBBs[ROOK], SQ64(to));
-			SETBIT(pos->colors[BLACK], SQ64(to));
-			break;
-		case bQ:
-			CLRBIT(pos->pieceBBs[QUEEN], SQ64(from));
-			CLRBIT(pos->colors[BLACK], SQ64(from));
-			SETBIT(pos->pieceBBs[QUEEN], SQ64(to));
-			SETBIT(pos->colors[BLACK], SQ64(to));
-			break;
-		case bK:
-			CLRBIT(pos->pieceBBs[KING], SQ64(from));
-			CLRBIT(pos->colors[BLACK], SQ64(from));
-			SETBIT(pos->pieceBBs[KING], SQ64(to));
-			SETBIT(pos->colors[BLACK], SQ64(to));
-			break;
-		default:
-			assert(FALSE);
-			break;
-	}
-
-	for (index = 0; index < pos->pceNum[pce]; ++index) {
-		if (pos->pList[pce][index] == from) {
-			pos->pList[pce][index] = to;
+	for (index = 0; index < pos->pieceCounts[piece]; ++index) {
+		if (pos->pieceList[piece][index] == from) {
+			pos->pieceList[piece][index] = to;
 #ifndef NDEBUG
 			t_PieceNum = TRUE;
 #endif
@@ -321,6 +236,89 @@ static void MovePiece(const int from, const int to, S_BOARD *pos) {
 		}
 	}
 	assert(t_PieceNum);
+
+	// Bitboards
+	
+	CLRBIT(pos->allBB, from);
+	SETBIT(pos->allBB, to);
+
+	switch (piece) {
+		case wP:
+			CLRBIT(pos->pieceBBs[PAWN], from);
+			CLRBIT(pos->colors[WHITE], from);
+			SETBIT(pos->pieceBBs[PAWN], to);
+			SETBIT(pos->colors[WHITE], to);
+			break;
+		case wN:
+			CLRBIT(pos->pieceBBs[KNIGHT], from);
+			CLRBIT(pos->colors[WHITE], from);
+			SETBIT(pos->pieceBBs[KNIGHT], to);
+			SETBIT(pos->colors[WHITE], to);
+			break;
+		case wB:
+			CLRBIT(pos->pieceBBs[BISHOP], from);
+			CLRBIT(pos->colors[WHITE], from);
+			SETBIT(pos->pieceBBs[BISHOP], to);
+			SETBIT(pos->colors[WHITE], to);
+			break;
+		case wR:
+			CLRBIT(pos->pieceBBs[ROOK], from);
+			CLRBIT(pos->colors[WHITE], from);
+			SETBIT(pos->pieceBBs[ROOK], to);
+			SETBIT(pos->colors[WHITE], to);
+			break;
+		case wQ:
+			CLRBIT(pos->pieceBBs[QUEEN], from);
+			CLRBIT(pos->colors[WHITE], from);
+			SETBIT(pos->pieceBBs[QUEEN], to);
+			SETBIT(pos->colors[WHITE], to);
+			break;
+		case wK:
+			CLRBIT(pos->pieceBBs[KING], from);
+			CLRBIT(pos->colors[WHITE], from);
+			SETBIT(pos->pieceBBs[KING], to);
+			SETBIT(pos->colors[WHITE], to);
+			break;
+		case bP:
+			CLRBIT(pos->pieceBBs[PAWN], from);
+			CLRBIT(pos->colors[BLACK], from);
+			SETBIT(pos->pieceBBs[PAWN], to);
+			SETBIT(pos->colors[BLACK], to);
+			break;
+		case bN:
+			CLRBIT(pos->pieceBBs[KNIGHT], from);
+			CLRBIT(pos->colors[BLACK], from);
+			SETBIT(pos->pieceBBs[KNIGHT], to);
+			SETBIT(pos->colors[BLACK], to);
+			break;
+		case bB:
+			CLRBIT(pos->pieceBBs[BISHOP], from);
+			CLRBIT(pos->colors[BLACK], from);
+			SETBIT(pos->pieceBBs[BISHOP], to);
+			SETBIT(pos->colors[BLACK], to);
+			break;
+		case bR:
+			CLRBIT(pos->pieceBBs[ROOK], from);
+			CLRBIT(pos->colors[BLACK], from);
+			SETBIT(pos->pieceBBs[ROOK], to);
+			SETBIT(pos->colors[BLACK], to);
+			break;
+		case bQ:
+			CLRBIT(pos->pieceBBs[QUEEN], from);
+			CLRBIT(pos->colors[BLACK], from);
+			SETBIT(pos->pieceBBs[QUEEN], to);
+			SETBIT(pos->colors[BLACK], to);
+			break;
+		case bK:
+			CLRBIT(pos->pieceBBs[KING], from);
+			CLRBIT(pos->colors[BLACK], from);
+			SETBIT(pos->pieceBBs[KING], to);
+			SETBIT(pos->colors[BLACK], to);
+			break;
+		default:
+			assert(FALSE);
+			break;
+	}
 }
 
 // Make move move
@@ -332,8 +330,8 @@ int MakeMove(S_BOARD *pos, int move) {
 	int to = TOSQ(move);
 	int side = pos->side;
 
-	assert(SqOnBoard(from));
-	assert(SqOnBoard(to));
+	assert(ValidSquare(from));
+	assert(ValidSquare(to));
 	assert(SideValid(side));
 	assert(PieceValid(pos->pieces[from]));
 	assert(pos->hisPly >= 0 && pos->hisPly < MAXGAMEMOVES);
@@ -345,9 +343,9 @@ int MakeMove(S_BOARD *pos, int move) {
 	// Remove the victim of en passant
 	if (move & MOVE_FLAG_ENPAS)
 		if (side == WHITE)
-			ClearPiece(to - 10, pos);
+			ClearPiece(to - 8, pos);
 		else
-			ClearPiece(to + 10, pos);
+			ClearPiece(to + 8, pos);
 
 	// Move the rook during castling
 	else if (move & MOVE_FLAG_CASTLE)
@@ -401,10 +399,10 @@ int MakeMove(S_BOARD *pos, int move) {
 		pos->fiftyMove = 0;
 		if (move & MOVE_FLAG_PAWNSTART) {
 			if (side == WHITE) {
-				pos->enPas = SQ64(from + 10);
+				pos->enPas = from + 8;
 				assert(pos->enPas >= 16 && pos->enPas < 24);
 			} else {
-				pos->enPas = SQ64(from - 10);
+				pos->enPas = from - 8;
 				assert(pos->enPas >= 40 && pos->enPas < 48);
 			}
 			HASH_EP;
@@ -454,10 +452,10 @@ void TakeMove(S_BOARD *pos) {
 
 	int move = pos->history[pos->hisPly].move;
 	int from = FROMSQ(move);
-	int to = TOSQ(move);
+	int   to =   TOSQ(move);
 
-	assert(SqOnBoard(from));
-	assert(SqOnBoard(to));
+	assert(ValidSquare(from));
+	assert(ValidSquare(to));
 
 	// Hash out en passant if exists
 	if (pos->enPas != NO_SQ) HASH_EP;
@@ -482,9 +480,9 @@ void TakeMove(S_BOARD *pos) {
 	// Add in pawn capture by en passant
 	if (MOVE_FLAG_ENPAS & move)
 		if (pos->side == WHITE)
-			AddPiece(to - 10, pos, bP);
+			AddPiece(to - 8, pos, bP);
 		else
-			AddPiece(to + 10, pos, wP);
+			AddPiece(to + 8, pos, wP);
 	// Move rook back if castling
 	else if (move & MOVE_FLAG_CASTLE)
 		switch (to) {
@@ -513,12 +511,13 @@ void TakeMove(S_BOARD *pos) {
 	if (PROMOTED(move) != EMPTY) {
 		assert(PieceValid(PROMOTED(move)) && !PiecePawn[PROMOTED(move)]);
 		ClearPiece(from, pos);
-		AddPiece(from, pos, (PieceCol[PROMOTED(move)] == WHITE ? wP : bP));
+		AddPiece(from, pos, (PieceColor[PROMOTED(move)] == WHITE ? wP : bP));
 	}
 
 	assert(CheckBoard(pos));
 }
 
+// Pass the turn without moving
 void MakeNullMove(S_BOARD *pos) {
 
 	assert(CheckBoard(pos));
@@ -553,6 +552,7 @@ void MakeNullMove(S_BOARD *pos) {
 	return;
 }
 
+// Take back passing the turn
 void TakeNullMove(S_BOARD *pos) {
 	assert(CheckBoard(pos));
 

@@ -26,8 +26,8 @@ void InitDistance() {
 
     int vertical, horizontal;
 
-    for (int sq1 = 0; sq1 < 64; sq1++)
-        for (int sq2 = 0; sq2 < 64; sq2++) {
+    for (int sq1 = 0; sq1 < 64; ++sq1)
+        for (int sq2 = 0; sq2 < 64; ++sq2) {
             vertical = abs((sq1 / 8) - (sq2 / 8));
             horizontal = abs((sq1 % 8) - (sq2 % 8));
             distance[sq1][sq2] = ((vertical > horizontal) ? vertical : horizontal);
@@ -60,8 +60,8 @@ void PrintBB(bitboard bb) {
     
     bitboard bitmask = 1;
 
-    for (int rank = 7; rank >= 0; rank--) {
-        for (int file = 0; file <= 7; file++) {
+    for (int rank = 7; rank >= 0; --rank) {
+        for (int file = 0; file <= 7; ++file) {
             if (bb & (bitmask << ((rank * 8) + file)))
                 printf("1");
             else

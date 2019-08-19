@@ -50,9 +50,8 @@ static void PickNextMove(int moveNum, S_MOVELIST *list) {
 // Checks whether position has already occurred
 static int IsRepetition(const S_BOARD *pos) {
 
-	int index = 0;
+	for (int index = pos->hisPly - pos->fiftyMove; index < pos->hisPly - 1; ++index) {
 
-	for (index = pos->hisPly - pos->fiftyMove; index < pos->hisPly - 1; ++index) {
 		assert(index >= 0 && index < MAXGAMEMOVES);
 		if (pos->posKey == pos->history[index].posKey)
 			return TRUE;
@@ -63,11 +62,10 @@ static int IsRepetition(const S_BOARD *pos) {
 // Get ready to start a search
 static void ClearForSearch(S_BOARD *pos, S_SEARCHINFO *info) {
 
-	int index = 0;
-	int index2 = 0;
+	int index, index2;
 
 	for (index = 0; index < 13; ++index)
-		for (index2 = 0; index2 < BRD_SQ_NUM; ++index2)
+		for (index2 = 0; index2 < 64; ++index2)
 			pos->searchHistory[index][index2] = 0;
 
 	for (index = 0; index < 2; ++index)
@@ -214,7 +212,7 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 	}
 
 	// Null Move Pruning
-	if (DoNull && !InCheck && pos->ply && (pos->bigPce[pos->side] > 0) && depth >= 4) {
+	if (DoNull && !InCheck && pos->ply && (pos->bigPieces[pos->side] > 0) && depth >= 4) {
 		MakeNullMove(pos);
 		Score = -AlphaBeta(-beta, -beta + 1, depth - 4, pos, info, FALSE);
 		TakeNullMove(pos);
@@ -356,7 +354,7 @@ void SearchPosition(S_BOARD *pos, S_SEARCHINFO *info) {
 			printf("pv");
 			pvMoves = GetPvLine(currentDepth, pos);
 			for (pvNum = 0; pvNum < pvMoves; ++pvNum) {
-				printf(" %s", PrMove(pos->PvArray[pvNum]));
+				printf(" %s", MoveToStr(pos->PvArray[pvNum]));
 			}
 			printf("\n");
 		// CLI mode
@@ -369,7 +367,7 @@ void SearchPosition(S_BOARD *pos, S_SEARCHINFO *info) {
 			printf("pv");
 			pvMoves = GetPvLine(currentDepth, pos);
 			for (pvNum = 0; pvNum < pvMoves; ++pvNum)
-				printf(" %s", PrMove(pos->PvArray[pvNum]));
+				printf(" %s", MoveToStr(pos->PvArray[pvNum]));
 
 			printf("\n");
 		}
@@ -380,9 +378,9 @@ void SearchPosition(S_BOARD *pos, S_SEARCHINFO *info) {
 
 	// Print the move chosen after searching
 	if (info->GAME_MODE == UCIMODE)
-		printf("bestmove %s\n", PrMove(bestMove));
+		printf("bestmove %s\n", MoveToStr(bestMove));
 	else {
-		printf("\n\n***!! weiss makes move %s !!***\n\n", PrMove(bestMove));
+		printf("\n\n***!! weiss makes move %s !!***\n\n", MoveToStr(bestMove));
 		MakeMove(pos, bestMove);
 		PrintBoard(pos);
 	}

@@ -5,6 +5,5 @@
 #include "defs.h"
 
 
-char *PrMove(const int move);
-char *PrSq(const int sq);
+char *MoveToStr(const int move);
 int ParseMove(char *ptrChar, S_BOARD *pos);

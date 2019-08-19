@@ -1,7 +1,5 @@
 // hashkeys.c
 
-#include <stdio.h>
-
 #include "defs.h"
 #include "validate.h"
 
@@ -14,7 +12,7 @@
 
 
 // Zobrist key tables
-uint64_t PieceKeys[13][120]; // 0 En passant 1-12 White pawn - Black king
+uint64_t PieceKeys[13][64]; // 0 En passant, 1-12 White pawn - Black king
 uint64_t SideKey;
 uint64_t CastleKeys[16];
 
@@ -22,15 +20,13 @@ uint64_t CastleKeys[16];
 // Inits zobrist key tables
 void InitHashKeys() {
 
-	int index, index2;
-
 	SideKey = RAND_64;
 
-	for (index = 0; index < 13; ++index)
-		for (index2 = 0; index2 < 120; ++index2)
-			PieceKeys[index][index2] = RAND_64;
+	for (int piece = 0; piece < 13; ++piece)
+		for (int sq = 0; sq < 64; ++sq)
+			PieceKeys[piece][sq] = RAND_64;
 
-	for (index = 0; index < 16; ++index)
+	for (int index = 0; index < 16; ++index)
 		CastleKeys[index] = RAND_64;
 }
 
@@ -40,9 +36,11 @@ uint64_t GeneratePosKey(const S_BOARD *pos) {
 	int piece;
 
 	// Pieces
-	for (int sq = 0; sq < BRD_SQ_NUM; ++sq) {
+	for (int sq = 0; sq < 64; ++sq) {
+
 		piece = pos->pieces[sq];
-		if (piece != NO_SQ && piece != EMPTY && piece != OFFBOARD) {
+
+		if (piece != EMPTY) {
 			assert(piece >= wP && piece <= bK);
 			posKey ^= PieceKeys[piece][sq];
 		}

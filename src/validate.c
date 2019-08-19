@@ -17,15 +17,14 @@ int MoveListOk(const S_MOVELIST *list, const S_BOARD *pos) {
 	if (list->count < 0 || list->count >= MAXPOSITIONMOVES)
 		return FALSE;
 
-	int MoveNum;
-	int from = 0;
-	int to = 0;
-	for (MoveNum = 0; MoveNum < list->count; ++MoveNum) {
-		
-		to = TOSQ(list->moves[MoveNum].move);
+	int from, to;
+
+	for (int MoveNum = 0; MoveNum < list->count; ++MoveNum) {
+
+		to 	 =   TOSQ(list->moves[MoveNum].move);
 		from = FROMSQ(list->moves[MoveNum].move);
-		
-		if (!SqOnBoard(to) || !SqOnBoard(from))
+
+		if (!ValidSquare(to) || !ValidSquare(from))
 			return FALSE;
 
 		if (!PieceValid(pos->pieces[from])) {
@@ -37,15 +36,8 @@ int MoveListOk(const S_MOVELIST *list, const S_BOARD *pos) {
 	return TRUE;
 }
 
-int SqIs120(const int sq) {
-	return (sq >= 0 && sq < 120);
-}
-
-int PceValidEmptyOffbrd(const int pce) {
-	return (PieceValidEmpty(pce) || pce == OFFBOARD);
-}
-int SqOnBoard(const int sq) {
-	return FilesBrd[sq] == OFFBOARD ? 0 : 1;
+int ValidSquare(const int sq) {
+	return (sq >= 0 && sq < 64);
 }
 
 int SideValid(const int side) {
@@ -57,7 +49,7 @@ int FileRankValid(const int fr) {
 }
 
 int PieceValidEmpty(const int pce) {
-	return (pce >= EMPTY && pce <= bK) ? 1 : 0;
+	return (PieceValid(pce) || pce == EMPTY) ? 1 : 0;
 }
 
 int PieceValid(const int pce) {
