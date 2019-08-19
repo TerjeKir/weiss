@@ -52,11 +52,10 @@ int ParseMove(char *ptrChar, S_BOARD *pos) {
 
 	S_MOVELIST list[1];
 	GenerateAllMoves(pos, list);
-	int MoveNum = 0;
-	int Move = NOMOVE;
-	int PromPce = EMPTY;
 
-	for (MoveNum = 0; MoveNum < list->count; ++MoveNum) {
+	int Move, PromPce;
+
+	for (int MoveNum = 0; MoveNum < list->count; ++MoveNum) {
 
 		Move = list->moves[MoveNum].move;
 		if (FROMSQ(Move) == from && TOSQ(Move) == to) {
@@ -64,13 +63,13 @@ int ParseMove(char *ptrChar, S_BOARD *pos) {
 			PromPce = PROMOTED(Move);
 			if (PromPce != EMPTY) {
 
-				if (IsRQ(PromPce) && !IsBQ(PromPce) && ptrChar[4] == 'r')
+				if (IsRQ(PromPce) && IsBQ(PromPce) && ptrChar[4] == 'q')
+					return Move;
+				else if (IsKn(PromPce) && ptrChar[4] == 'n')
 					return Move;
 				else if (!IsRQ(PromPce) && IsBQ(PromPce) && ptrChar[4] == 'b')
 					return Move;
-				else if (IsRQ(PromPce) && IsBQ(PromPce) && ptrChar[4] == 'q')
-					return Move;
-				else if (IsKn(PromPce) && ptrChar[4] == 'n')
+				else if (IsRQ(PromPce) && !IsBQ(PromPce) && ptrChar[4] == 'r')
 					return Move;
 
 				continue;
