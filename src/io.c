@@ -53,7 +53,7 @@ int ParseMove(char *ptrChar, S_BOARD *pos) {
 	S_MOVELIST list[1];
 	GenerateAllMoves(pos, list);
 	int MoveNum = 0;
-	int Move = 0;
+	int Move = NOMOVE;
 	int PromPce = EMPTY;
 
 	for (MoveNum = 0; MoveNum < list->count; ++MoveNum) {

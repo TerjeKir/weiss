@@ -76,9 +76,8 @@ static int checkresult(S_BOARD *pos) {
 	S_MOVELIST list[1];
 	GenerateAllMoves(pos, list);
 
-	int MoveNum = 0;
 	int found = 0;
-	for (MoveNum = 0; MoveNum < list->count; ++MoveNum) {
+	for (int MoveNum = 0; MoveNum < list->count; ++MoveNum) {
 
 		if (!MakeMove(pos, list->moves[MoveNum].move))
 			continue;
