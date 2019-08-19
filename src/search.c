@@ -27,16 +27,14 @@ static void CheckUp(S_SEARCHINFO *info) {
 static void PickNextMove(int moveNum, S_MOVELIST *list) {
 
 	S_MOVE temp;
-	int index = 0;
 	int bestScore = 0;
 	int bestNum = moveNum;
 
-	for (index = moveNum; index < list->count; ++index) {
+	for (int index = moveNum; index < list->count; ++index)
 		if (list->moves[index].score > bestScore) {
 			bestScore = list->moves[index].score;
 			bestNum = index;
 		}
-	}
 
 	assert(moveNum >= 0 && moveNum < list->count);
 	assert(bestNum >= 0 && bestNum < list->count);
@@ -91,51 +89,60 @@ static int Quiescence(int alpha, int beta, S_BOARD *pos, S_SEARCHINFO *info) {
 	assert(CheckBoard(pos));
 	assert(beta > alpha);
 
+	// Check if we should stop
 	if ((info->nodes & 2047) == 0)
 		CheckUp(info);
 
 	info->nodes++;
 
+	// Update selective depth
 	if (pos->ply > info->seldepth)
 		info->seldepth = pos->ply;
 
+	// Check for draw
 	if (IsRepetition(pos) || pos->fiftyMove >= 100)
 		return 0;
 
+	// If we are at max depth, return static eval
 	if (pos->ply > MAXDEPTH - 1)
 		return EvalPosition(pos);
 
+	// Evaluate the position
 	int Score = EvalPosition(pos);
 
-	assert(Score > -INFINITE && Score < INFINITE);
-
+	// TODO
 	if (Score >= beta)
 		return beta;
-
+	// TODO
 	if (Score > alpha)
 		alpha = Score;
 
+	// Generate all moves
 	S_MOVELIST list[1];
 	GenerateAllCaptures(pos, list);
 
-	int MoveNum = 0;
 	int Legal = 0;
 	Score = -INFINITE;
 
-	for (MoveNum = 0; MoveNum < list->count; ++MoveNum) {
+	// Move loop
+	for (int MoveNum = 0; MoveNum < list->count; ++MoveNum) {
 
 		PickNextMove(MoveNum, list);
 
+		// Skip illegal moves
 		if (!MakeMove(pos, list->moves[MoveNum].move))
 			continue;
 
 		Legal++;
+
 		Score = -Quiescence(-beta, -alpha, pos, info);
 		TakeMove(pos);
 
+		// Stop search if gui says to stop
 		if (info->stopped)
 			return 0;
 
+		// Update alpha, return beta if beta cutoff? TODO
 		if (Score > alpha) {
 			if (Score >= beta) {
 				if (Legal == 1)
@@ -148,8 +155,6 @@ static int Quiescence(int alpha, int beta, S_BOARD *pos, S_SEARCHINFO *info) {
 		}
 	}
 
-	//assert(alpha >= OldAlpha);
-
 	return alpha;
 }
 
@@ -159,9 +164,6 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 	assert(CheckBoard(pos));
 	assert(beta > alpha);
 	assert(depth >= 0);
-	
-	// unsigned tbresult;
-	// int val;
 
 	// Quiescence at the end of search
 	if (depth == 0)
@@ -181,10 +183,15 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 	if ((IsRepetition(pos) || pos->fiftyMove >= 100) && pos->ply)
 		return 0;
 
+
 	// Syzygy
+	// unsigned tbresult;
+	// int val;
+
 	// if ((tbresult = probeWDL(pos, depth)) != TB_RESULT_FAILED) {
 
 	// 	info->tbhits++; // Increment tbhits counter
+	// 	printf("TBHIT\n");
 
 	// 	// Convert the WDL value to a score. We consider blessed losses
 	// 	// and cursed wins to be a draw, and thus set value to zero.
@@ -206,6 +213,7 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 	int Score = -INFINITE;
 	int PvMove = NOMOVE;
 
+	// Probe transposition table
 	if (ProbeHashEntry(pos, &PvMove, &Score, alpha, beta, depth)) {
 		pos->HashTable->cut++;
 		return Score;
@@ -226,44 +234,52 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 		}
 	}
 
+	// Generate all moves
 	S_MOVELIST list[1];
 	GenerateAllMoves(pos, list);
 
-	int MoveNum = 0;
+	int MoveNum;
 	int Legal = 0;
 	int OldAlpha = alpha;
 	int BestMove = NOMOVE;
-
 	int BestScore = -INFINITE;
 
 	Score = -INFINITE;
 
+	// Set score of PV move
 	if (PvMove != NOMOVE)
 		for (MoveNum = 0; MoveNum < list->count; ++MoveNum)
 			if (list->moves[MoveNum].move == PvMove) {
 				list->moves[MoveNum].score = 2000000;
-				//printf("Pv move found \n");
 				break;
 			}
 
-
+	// Move loop
 	for (MoveNum = 0; MoveNum < list->count; ++MoveNum) {
 
+		// Move the best move to front of queue
 		PickNextMove(MoveNum, list);
 
+		// Skip illegal moves
 		if (!MakeMove(pos, list->moves[MoveNum].move))
 			continue;
 
 		Legal++;
+
 		Score = -AlphaBeta(-beta, -alpha, depth - 1, pos, info, TRUE);
 		TakeMove(pos);
 
+		// Abort if we have to
 		if (info->stopped)
 			return 0;
 
+		// Found a new best
 		if (Score > BestScore) {
+
 			BestScore = Score;
 			BestMove = list->moves[MoveNum].move;
+
+			// TODO
 			if (Score > alpha) {
 				if (Score >= beta) {
 
@@ -289,6 +305,7 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 		}
 	}
 
+	// Checkmate or stalemate
 	if (Legal == 0) {
 		if (InCheck)
 			return -INFINITE + pos->ply;
