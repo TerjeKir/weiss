@@ -59,6 +59,9 @@ using namespace std;
 #define FD_ERR -1
 typedef size_t map_t;
 #else
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
 #include <windows.h>
 #define SEP_CHAR ';'
 #define FD HANDLE
@@ -178,10 +181,8 @@ static unsigned lsb(uint64_t b) {
 #endif
 #endif
 
-#ifndef _WIN32
 #define max(a,b) a > b ? a : b
 #define min(a,b) a < b ? a : b
-#endif
 
 #include "stdendian.h"
 
@@ -1941,7 +1942,7 @@ int probe_wdl(Pos *pos, int *success)
   // Now handle the stalemate case.
   if (bestEp > -3 && v == 0) {
     TbMove moves[TB_MAX_MOVES];
-    end = gen_moves(pos, moves);
+    TbMove *end = gen_moves(pos, moves);
     // Check for stalemate in the position with ep captures.
     for (m = moves; m < end; m++) {
       if (!is_en_passant(pos,*m) && legal_move(pos, *m)) break;
@@ -2195,8 +2196,10 @@ int probe_dtz(Pos *pos, int *success)
          continue; // not legal
       int v = -probe_wdl(&pos1, success);
       if (*success == 0) return 0;
-      if (v == wdl)
+      if (v == wdl) {
+        assert(wdl < 3);
         return WdlToDtz[wdl + 2];
+      }
     }
   }
 
@@ -2277,6 +2280,7 @@ static int root_probe_dtz(const Pos *pos, bool hasRepeated, bool useRule50, stru
     if (pos1.rule50 == 0) {
       // If the move resets the 50-move counter, dtz is -101/-1/0/1/101.
       v = -probe_wdl(&pos1, &success);
+      assert(v < 3);
       v = WdlToDtz[v + 2];
     } else {
       // Otherwise, take dtz for the new position and correct by 1 ply.

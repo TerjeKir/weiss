@@ -659,6 +659,7 @@ static TbMove *gen_captures(const Pos *pos, TbMove *moves)
     uint64_t b, att;
     {
         unsigned from = lsb(pos->kings & us);
+        assert(from < 64);
         for (att = king_attacks(from) & them; att; att = poplsb(att))
         {
             unsigned to = lsb(att);
@@ -871,6 +872,7 @@ static bool is_check(const Pos *pos)
     uint64_t us = (pos->turn? pos->white: pos->black),
              them = (pos->turn? pos->black: pos->white);
     uint64_t king = pos->kings & us;
+    assert(king != 0);
     unsigned sq = lsb(king);
     uint64_t ratt = rook_attacks(sq, occ);
     uint64_t batt = bishop_attacks(sq, occ);

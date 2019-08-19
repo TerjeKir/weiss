@@ -9,6 +9,9 @@ are:
 * To make it easy to create stand-alone applications that use the Syzygy
   tablebases;
 
+Fathom is compilable under either C99 or C++ and supports a variety of
+platforms, including at least Windows, Linux, and MacOS.
+
 Tool
 ----
 
@@ -70,7 +73,7 @@ History and Credits
 -------------------
 
 The Syzygy tablebases were created by Ronald de Man. This original version of Fathom
-(basil00/Fathom) combined probing code from Ronald de Man, originally written for
+(https://github.com/basil00/Fathom) combined probing code from Ronald de Man, originally written for
 Stockfish, with chess-related functions and other support code from Basil Falcinelli.
 This repository was originaly a fork of that codebase, with additional modifications
 by Jon Dart.
