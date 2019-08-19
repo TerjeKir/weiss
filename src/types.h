@@ -134,8 +134,6 @@ typedef struct {
 	int GAME_MODE;
 	int POST_THINKING;
 
-} S_SEARCHINFO;
-
-typedef struct {
 	char syzygyPath[256];
-} S_OPTIONS;
+
+} S_SEARCHINFO;

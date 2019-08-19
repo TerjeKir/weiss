@@ -247,6 +247,8 @@ int EvalPosition(const S_BOARD *pos) {
 	else
 		score -= KingO[MIRROR64(sq)];
 
+	assert(Score > -INFINITE && Score < INFINITE);
+
 	// Return score
 	if (pos->side == WHITE)
 		return score;

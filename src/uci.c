@@ -163,7 +163,7 @@ void Uci_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 
 		} else if (!strncmp(line, "setoption name Hash value ", 26)) {
 			sscanf(line, "%*s %*s %*s %*s %d", &newMB);
-			if (newMB == MB) continue;
+			if (newMB == MB) continue; // Ignore if same as before
 			MB = newMB;
 			if (MB < 4) MB = 4;
 			if (MB > MAXHASH) MB = MAXHASH;
@@ -173,7 +173,7 @@ void Uci_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 		} else if (!strncmp(line, "setoption name SyzygyPath value ", 32)) {
 			char *ptr = line + strlen("setoption name SyzygyPath value ");
 			tb_init(ptr); 
-			printf("info string set SyzygyPath to %s\n", ptr);
+			printf("info string set SyzygyPath to %s", ptr);
 		}
 
 		if (info->quit) break;
