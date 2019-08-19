@@ -19,8 +19,6 @@ bitboard BlackPassedMask[64];
 bitboard WhitePassedMask[64];
 bitboard IsolatedMask[64];
 
-S_OPTIONS EngineOptions[1];
-
 
 static void InitEvalMasks() {
 
