@@ -9,6 +9,12 @@
 #include "validate.h"
 
 
+#define IsKnight(p) (PieceKnight[(p)])
+#define IsBishop(p) (PieceBishop[(p)])
+#define IsRook(p)   (PieceRook[(p)])
+#define IsQueen(p)  (PieceQueen[(p)])
+
+
 char *MoveToStr(const int move) {
 
 	static char MvStr[6];
@@ -22,11 +28,11 @@ char *MoveToStr(const int move) {
 
 	if (promoted) {
 		char pchar = 'q';
-		if (IsKn(promoted))
+		if (IsKnight(promoted))
 			pchar = 'n';
-		else if (IsRQ(promoted) && !IsBQ(promoted))
+		else if (IsRook(promoted))
 			pchar = 'r';
-		else if (!IsRQ(promoted) && IsBQ(promoted))
+		else if (IsBishop(promoted))
 			pchar = 'b';
 
 		sprintf(MvStr, "%c%c%c%c%c", ('a' + ff), ('1' + rf), ('a' + ft), ('1' + rt), pchar);
@@ -63,13 +69,13 @@ int ParseMove(char *ptrChar, S_BOARD *pos) {
 			PromPce = PROMOTED(Move);
 			if (PromPce != EMPTY) {
 
-				if (IsRQ(PromPce) && IsBQ(PromPce) && ptrChar[4] == 'q')
+				if (IsQueen(PromPce) && ptrChar[4] == 'q')
 					return Move;
-				else if (IsKn(PromPce) && ptrChar[4] == 'n')
+				else if (IsKnight(PromPce) && ptrChar[4] == 'n')
 					return Move;
-				else if (!IsRQ(PromPce) && IsBQ(PromPce) && ptrChar[4] == 'b')
+				else if (IsRook(PromPce) && ptrChar[4] == 'r')
 					return Move;
-				else if (IsRQ(PromPce) && !IsBQ(PromPce) && ptrChar[4] == 'r')
+				else if (IsBishop(PromPce) && ptrChar[4] == 'b')
 					return Move;
 
 				continue;

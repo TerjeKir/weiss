@@ -15,9 +15,10 @@ extern int PieceColor[13];
 // Mostly unused
 extern int PiecePawn[13];
 extern int PieceKnight[13];
+extern int PieceBishop[13];
+extern int PieceRook[13];
+extern int PieceQueen[13];
 extern int PieceKing[13];
-extern int PieceRookQueen[13];
-extern int PieceBishopQueen[13];
 extern int PieceSlides[13];
 
 extern int Mirror64[64];

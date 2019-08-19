@@ -34,11 +34,6 @@
 
 #define FR2SQ(f, r) ( (21 + (f)) + ( (r) * 10))
 
-#define IsBQ(p) (PieceBishopQueen[(p)])
-#define IsRQ(p) (PieceRookQueen[(p)])
-#define IsKn(p) (PieceKnight[(p)])
-#define IsKi(p) (PieceKing[(p)])
-
 #define FROMSQ(m) ((m) & 0x7F)
 #define TOSQ(m) (((m)>>7) & 0x7F)
 #define CAPTURED(m) (((m)>>14) & 0xF)
