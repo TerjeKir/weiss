@@ -4,7 +4,9 @@
 
 #include "board.h"
 #include "data.h"
+#include "misc.h"
 #include "movegen.h"
+#include "pvtable.h"
 #include "validate.h"
 
 
@@ -83,4 +85,54 @@ int ParseMove(char *ptrChar, S_BOARD *pos) {
 		}
 	}
 	return NOMOVE;
+}
+
+// Print thinking
+void PrintThinking(S_SEARCHINFO *info, S_BOARD *pos, int bestScore, int currentDepth, int pvMoves) {
+
+	unsigned timeElapsed = GetTimeMs() - info->starttime;
+
+	// UCI mode
+	if (info->GAME_MODE == UCIMODE) {
+
+		printf("info score ");
+
+		// Score or mate
+		if (bestScore > ISMATE)
+			printf("mate %d ", ((INFINITE - bestScore) / 2) + 1);
+		else if (bestScore < -ISMATE)
+			printf("mate -%d ", (INFINITE + bestScore) / 2);
+		else
+			printf("cp %d ", bestScore);
+
+		// Basic info
+		printf("depth %d seldepth %d nodes %I64d tbhits %I64d time %d ",
+				currentDepth, info->seldepth, info->nodes, info->tbhits, timeElapsed);
+
+		// Nodes per second
+		if (timeElapsed > 0)
+			printf("nps %I64d ", ((info->nodes * 1000) / timeElapsed));
+
+		// Principal variation
+		printf("pv");
+		pvMoves = GetPvLine(currentDepth, pos);
+		for (int pvNum = 0; pvNum < pvMoves; ++pvNum) {
+			printf(" %s", MoveToStr(pos->PvArray[pvNum]));
+		}
+		printf("\n");
+
+	// CLI mode
+	} else if (info->POST_THINKING) {
+		// Basic info
+		printf("score:%d depth:%d nodes:%I64d time:%d(ms) ",
+				bestScore, currentDepth, info->nodes, timeElapsed);
+
+		// Principal variation
+		printf("pv");
+		pvMoves = GetPvLine(currentDepth, pos);
+		for (int pvNum = 0; pvNum < pvMoves; ++pvNum)
+			printf(" %s", MoveToStr(pos->PvArray[pvNum]));
+
+		printf("\n");
+	}
 }
