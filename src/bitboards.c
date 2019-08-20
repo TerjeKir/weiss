@@ -1,52 +1,50 @@
 // bitboards.c
 
-#include "stdio.h"
-#include "defs.h"
+#include <stdio.h>
 
-const int BitTable[64] = {
-	63, 30,  3, 32, 25, 41, 22, 33,
-	15, 50, 42, 13, 11, 53, 19, 34,
-	61, 29,  2, 51, 21, 43, 45, 10,
-	18, 47,  1, 54,  9, 57,  0, 35,
-	62, 31, 40,  4, 49,  5, 52, 26,
-	60,  6, 23, 44, 46, 27, 56, 16,
-	 7, 39, 48, 24, 59, 14, 12, 55,
-	38, 28, 58, 20, 37, 17, 36,  8};
+#include "bitboards.h"
 
-int PopBit(U64 *bb) {
-	U64 b = *bb ^ (*bb - 1);
-	unsigned int fold = (unsigned)((b & 0xffffffff) ^ (b >> 32));
+
+const bitboard fileBBs[] = { 0x0101010101010101ULL, 0x0202020202020202ULL, 0x0404040404040404ULL, 0x0808080808080808ULL,
+                             0x1010101010101010ULL, 0x2020202020202020ULL, 0x4040404040404040ULL, 0x8080808080808080ULL };
+
+const bitboard rankBBs[] = {         0xFF,         0xFF00,         0xFF0000,         0xFF000000, 
+                             0xFF00000000, 0xFF0000000000, 0xFF000000000000, 0xFF00000000000000 };
+
+
+// Population count/Hamming weight
+inline int PopCount(bitboard bb) {
+
+    return __builtin_popcountll(bb);
+}
+
+// Returns the index of the least significant bit
+inline int Lsb(bitboard bb) {
+
+    return __builtin_ctzll(bb);
+}
+
+// Returns the index of the least significant bit and unsets it
+inline int PopLsb(bitboard *bb) {
+
+	int lsb = Lsb(*bb);
 	*bb &= (*bb - 1);
-	return BitTable[(fold * 0x783a9b23) >> 26];
+
+	return lsb;
 }
 
-int CountBits(U64 b) {
-	int r;
-	for (r = 0; b; r++, b &= b - 1);
-	return r;
-}
+// Prints a bitboard
+void PrintBB(bitboard bb) {
+    
+    bitboard bitmask = 1;
 
-void PrintBitBoard(U64 bb) {
-
-	U64 shiftMe = 1ULL;
-
-	int rank = 0;
-	int file = 0;
-	int sq = 0;
-	int sq64 = 0;
-
-	printf("\n");
-	for (rank = RANK_8; rank >= RANK_1; --rank) {
-		for (file = FILE_A; file <= FILE_H; ++file) {
-			sq = FR2SQ(file, rank); // 120 based
-			sq64 = SQ64(sq);		// 64 based
-
-			if ((shiftMe << sq64) & bb)
-				printf("X");
-			else
-				printf("-");
-		}
-		printf("\n");
-	}
-	printf("\n\n");
+    for (int rank = 7; rank >= 0; --rank) {
+        for (int file = 0; file <= 7; ++file) {
+            if (bb & (bitmask << ((rank * 8) + file)))
+                printf("1");
+            else
+                printf("0");
+        }
+        printf("\n");
+    }
 }

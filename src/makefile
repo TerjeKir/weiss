@@ -1,2 +1,17 @@
-all:
-	gcc xboard.c weiss.c uci.c evaluate.c pvtable.c init.c bitboards.c hashkeys.c board.c data.c attack.c io.c movegen.c validate.c makemove.c perft.c search.c misc.c polybook.c polykeys.c -o "../bin/weiss 0.1.1.exe"
+SRC     = *.c fathom/tbprobe.c
+OUT		= ../bin/
+EXE		= weiss
+VER		= 0.2
+
+STD		= -std=gnu11
+WFLAGS 	= -Wall -Wextra -Wshadow
+OPTIM	= -O2
+
+default:
+	gcc $(STD) $(SRC) -o "$(EXE)$(VER).exe" $(OPTIM)
+
+bin:
+	gcc $(STD) $(WFLAGS) $(SRC) -o "$(OUT)$(EXE)$(VER).exe" $(OPTIM)
+
+prof:
+	gcc $(STD) $(WFLAGS) $(SRC) -o "$(OUT)$(EXE)$(VER)prof.exe" $(OPTIM) -pg

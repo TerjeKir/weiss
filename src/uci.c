@@ -1,13 +1,24 @@
 // uci.c
 
-#include "stdio.h"
-#include "defs.h"
-#include "string.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include "fathom/tbprobe.h"
+#include "board.h"
+#include "io.h"
+#include "makemove.h"
+#include "misc.h"
+#include "pvtable.h"
+#include "search.h"
+#include "validate.h"
+
 
 #define INPUTBUFFER 400 * 6
 
+
 // go depth 6 wtime 180000 btime 100000 binc 1000 winc 1000 movetime 1000 movestogo 40
-void ParseGo(char *line, S_SEARCHINFO *info, S_BOARD *pos) {
+static void ParseGo(char *line, S_SEARCHINFO *info, S_BOARD *pos) {
 
 	int depth = -1, movestogo = 30, movetime = -1;
 	int time = -1, inc = 0;
@@ -18,33 +29,26 @@ void ParseGo(char *line, S_SEARCHINFO *info, S_BOARD *pos) {
 		;
 	}
 
-	if ((ptr = strstr(line, "binc")) && pos->side == BLACK) {
+	if ((ptr = strstr(line, "binc")) && pos->side == BLACK)
 		inc = atoi(ptr + 5);
-	}
 
-	if ((ptr = strstr(line, "winc")) && pos->side == WHITE) {
+	if ((ptr = strstr(line, "winc")) && pos->side == WHITE)
 		inc = atoi(ptr + 5);
-	}
 
-	if ((ptr = strstr(line, "wtime")) && pos->side == WHITE) {
+	if ((ptr = strstr(line, "wtime")) && pos->side == WHITE)
 		time = atoi(ptr + 6);
-	}
 
-	if ((ptr = strstr(line, "btime")) && pos->side == BLACK) {
+	if ((ptr = strstr(line, "btime")) && pos->side == BLACK)
 		time = atoi(ptr + 6);
-	}
 
-	if ((ptr = strstr(line, "movestogo"))) {
+	if ((ptr = strstr(line, "movestogo")))
 		movestogo = atoi(ptr + 10);
-	}
 
-	if ((ptr = strstr(line, "movetime"))) {
+	if ((ptr = strstr(line, "movetime")))
 		movetime = atoi(ptr + 9);
-	}
 
-	if ((ptr = strstr(line, "depth"))) {
+	if ((ptr = strstr(line, "depth")))
 		depth = atoi(ptr + 6);
-	}
 
 	if (movetime != -1) {
 		time = movetime;
@@ -61,19 +65,18 @@ void ParseGo(char *line, S_SEARCHINFO *info, S_BOARD *pos) {
 		info->stoptime = info->starttime + time + inc;
 	}
 
-	if (depth == -1) {
-		info->depth = MAXDEPTH;
-	}
+	if (depth == -1) info->depth = MAXDEPTH;
 
-	printf("time:%d start:%d stop:%d depth:%d timeset:%d\n",
-		   time, info->starttime, info->stoptime, info->depth, info->timeset);
+	// printf("time:%d start:%d stop:%d depth:%d timeset:%d\n",
+	// 	   time, info->starttime, info->stoptime, info->depth, info->timeset);
 	SearchPosition(pos, info);
 }
 
-// position fen fenstr
-// position startpos
-// ... moves e2e4 e7e5 b7b8q
-void ParsePosition(char *lineIn, S_BOARD *pos) {
+static void ParsePosition(char *lineIn, S_BOARD *pos) {
+
+	// position fen fenstr
+	// position startpos
+	// ... moves e2e4 e7e5 b7b8q
 
 	lineIn += 9;
 	char *ptrChar = lineIn;
@@ -106,7 +109,7 @@ void ParsePosition(char *lineIn, S_BOARD *pos) {
 			ptrChar++;
 		}
 	}
-	PrintBoard(pos);
+	// PrintBoard(pos);
 }
 
 void Uci_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
@@ -119,59 +122,68 @@ void Uci_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 	char line[INPUTBUFFER];
 	printf("id name %s\n", NAME);
 	printf("id author LoliSquad\n");
-	printf("option name Hash type spin default 64 min 4 max %d\n", MAXHASH);
-	printf("option name Book type check default true\n");
+	printf("option name Hash type spin default %d min 4 max %d\n", DEFAULTHASH, MAXHASH);
+	printf("option name SyzygyPath type string default <empty>\n");
 	printf("uciok\n");
 
-	int MB = 64;
+	int MB = DEFAULTHASH;
+	int newMB;
 
 	while (TRUE) {
+
 		memset(&line[0], 0, sizeof(line));
 		fflush(stdout);
+
 		if (!fgets(line, INPUTBUFFER, stdin))
 			continue;
 
-		if (line[0] == '\n')
+		if (!strncmp(line, "go", 2))
+			ParseGo(line, info, pos);
+
+		else if (line[0] == '\n')
 			continue;
 
-		if (!strncmp(line, "isready", 7)) {
+		else if (!strncmp(line, "isready", 7))
 			printf("readyok\n");
-			continue;
-		} else if (!strncmp(line, "position", 8)) {
+
+		else if (!strncmp(line, "position", 8))
 			ParsePosition(line, pos);
-		} else if (!strncmp(line, "ucinewgame", 10)) {
+
+		else if (!strncmp(line, "ucinewgame", 10))
 			ParsePosition("position startpos\n", pos);
-		} else if (!strncmp(line, "go", 2)) {
-			printf("Seen Go..\n");
-			ParseGo(line, info, pos);
-		} else if (!strncmp(line, "quit", 4)) {
+
+		else if (!strncmp(line, "quit", 4)) {
 			info->quit = TRUE;
 			break;
+
 		} else if (!strncmp(line, "uci", 3)) {
 			printf("id name %s\n", NAME);
 			printf("id author LoliSquad\n");
 			printf("uciok\n");
-		} else if (!strncmp(line, "debug", 4)) {
-			DebugAnalysisTest(pos, info);
-			break;
+
 		} else if (!strncmp(line, "setoption name Hash value ", 26)) {
-			sscanf(line, "%*s %*s %*s %*s %d", &MB);
-			if (MB < 4)
-				MB = 4;
-			if (MB > MAXHASH)
-				MB = MAXHASH;
+			
+			sscanf(line, "%*s %*s %*s %*s %d", &newMB);
+			if (newMB == MB) continue; // Ignore if same as before
+			MB = newMB;
+			if (MB < 4) MB = 4;
+			if (MB > MAXHASH) MB = MAXHASH;
 			printf("Set Hash to %d MB\n", MB);
 			InitHashTable(pos->HashTable, MB);
-		} else if (!strncmp(line, "setoption name Book value ", 26)) {
-			char *ptrTrue = NULL;
-			ptrTrue = strstr(line, "true");
-			if (ptrTrue != NULL) {
-				EngineOptions->UseBook = TRUE;
-			} else {
-				EngineOptions->UseBook = FALSE;
-			}
+
+		} else if (!strncmp(line, "setoption name SyzygyPath value ", 32)) {
+			
+			char *path = line + strlen("setoption name SyzygyPath value ");
+
+			// Replace newline with null
+			char *newline;
+			if ((newline = strchr(path, '\n')))
+				path[newline-path] = '\0';
+
+			strcpy(info->syzygyPath, path);
+			tb_init(info->syzygyPath);
 		}
-		if (info->quit)
-			break;
+
+		if (info->quit) break;
 	}
 }

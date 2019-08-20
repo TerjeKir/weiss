@@ -1,13 +1,20 @@
 // perft.c
 
-#include "defs.h"
-#include "stdio.h"
+#include <stdio.h>
 
-long leafNodes;
+#include "board.h"
+#include "io.h"
+#include "makemove.h"
+#include "movegen.h"
+#include "misc.h"
 
-void Perft(int depth, S_BOARD *pos) {
 
-	ASSERT(CheckBoard(pos));
+uint64_t leafNodes;
+
+
+static void RecursivePerft(int depth, S_BOARD *pos) {
+
+	assert(CheckBoard(pos));
 
 	if (depth == 0) {
 		leafNodes++;
@@ -17,45 +24,51 @@ void Perft(int depth, S_BOARD *pos) {
 	S_MOVELIST list[1];
 	GenerateAllMoves(pos, list);
 
-	int MoveNum = 0;
-	for (MoveNum = 0; MoveNum < list->count; ++MoveNum) {
+	for (int MoveNum = 0; MoveNum < list->count; ++MoveNum) {
 
-		if (!MakeMove(pos, list->moves[MoveNum].move)) {
+		if (!MakeMove(pos, list->moves[MoveNum].move))
 			continue;
-		}
-		Perft(depth - 1, pos);
+
+		RecursivePerft(depth - 1, pos);
 		TakeMove(pos);
 	}
 
 	return;
 }
 
-void PerftTest(int depth, S_BOARD *pos) {
+void Perft(int depth, S_BOARD *pos) {
 
-	ASSERT(CheckBoard(pos));
+	assert(CheckBoard(pos));
 
-	PrintBoard(pos);
-	printf("\nStarting Test To Depth:%d\n", depth);
-	leafNodes = 0;
+	printf("\nStarting Test To Depth:%d\n\n", depth);
+
 	int start = GetTimeMs();
+
+	leafNodes = 0;
 	S_MOVELIST list[1];
 	GenerateAllMoves(pos, list);
 
 	int move;
-	int MoveNum = 0;
-	for (MoveNum = 0; MoveNum < list->count; ++MoveNum) {
+	for (int MoveNum = 0; MoveNum < list->count; ++MoveNum) {
 		move = list->moves[MoveNum].move;
-		if (!MakeMove(pos, move)) {
+
+		if (!MakeMove(pos, move)){
+			printf("move %d : %s : Illegal\n", MoveNum + 1, MoveToStr(move));
 			continue;
 		}
-		long cumnodes = leafNodes;
-		Perft(depth - 1, pos);
+
+		uint64_t oldCount = leafNodes;
+		RecursivePerft(depth - 1, pos);
+		uint64_t newNodes = leafNodes - oldCount;
+		printf("move %d : %s : %I64d\n", MoveNum + 1, MoveToStr(move), newNodes);
+
 		TakeMove(pos);
-		long oldnodes = leafNodes - cumnodes;
-		printf("move %d : %s : %ld\n", MoveNum + 1, PrMove(move), oldnodes);
 	}
 
-	printf("\nTest Complete : %ld nodes visited in %dms\n", leafNodes, GetTimeMs() - start);
+	int timeElapsed = GetTimeMs() - start;
+	printf("\nPerft Complete : %I64d nodes visited in %dms\n", leafNodes, timeElapsed);
+	if (timeElapsed > 0) 
+		printf("               : %I64d nps\n", ((leafNodes * 1000) / timeElapsed));
 
 	return;
 }

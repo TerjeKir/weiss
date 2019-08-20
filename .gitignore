@@ -1,3 +1,6 @@
+# EPD
+*.epd
+
 # Prerequisites
 *.d
 
@@ -29,7 +32,7 @@
 *.dylib
 
 # Executables
-# *.exe
+*.exe
 *.out
 *.app
 *.i*86

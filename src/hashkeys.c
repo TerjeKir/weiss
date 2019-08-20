@@ -1,36 +1,67 @@
 // hashkeys.c
-#include "stdio.h"
+
+#include <stdlib.h>
+
 #include "defs.h"
+#include "validate.h"
 
-U64 GeneratePosKey(const S_BOARD *pos) {
 
-	int sq = 0;
-	U64 finalKey = 0;
-	int piece = EMPTY;
+#define RAND_64 ((uint64_t)rand() |	   \
+				 (uint64_t)rand() << 15 | \
+				 (uint64_t)rand() << 30 | \
+				 (uint64_t)rand() << 45 | \
+				 ((uint64_t)rand() & 0xf) << 60)
 
-	// pieces
-	for (sq = 0; sq < BRD_SQ_NUM; ++sq) {
+
+// Zobrist key tables
+uint64_t PieceKeys[13][64]; // 0 En passant, 1-12 White pawn - Black king
+uint64_t SideKey;
+uint64_t CastleKeys[16];
+
+
+// Inits zobrist key tables
+void InitHashKeys() {
+
+	SideKey = RAND_64;
+
+	for (int piece = 0; piece < 13; ++piece)
+		for (int sq = 0; sq < 64; ++sq)
+			PieceKeys[piece][sq] = RAND_64;
+
+	for (int index = 0; index < 16; ++index)
+		CastleKeys[index] = RAND_64;
+}
+
+uint64_t GeneratePosKey(const S_BOARD *pos) {
+
+	uint64_t posKey = 0;
+	int piece;
+
+	// Pieces
+	for (int sq = 0; sq < 64; ++sq) {
+
 		piece = pos->pieces[sq];
-		if (piece != NO_SQ && piece != EMPTY && piece != OFFBOARD) {
-			ASSERT(piece >= wP && piece <= bK);
-			finalKey ^= PieceKeys[piece][sq];
+
+		if (piece != EMPTY) {
+			assert(piece >= wP && piece <= bK);
+			posKey ^= PieceKeys[piece][sq];
 		}
 	}
 
-	if (pos->side == WHITE) {
-		finalKey ^= SideKey;
-	}
+	// Side to play
+	if (pos->side == WHITE)
+		posKey ^= SideKey;
 
+	// En passant
 	if (pos->enPas != NO_SQ) {
-		ASSERT(pos->enPas >= 0 && pos->enPas < BRD_SQ_NUM);
-		ASSERT(SqOnBoard(pos->enPas));
-		ASSERT(RanksBrd[pos->enPas] == RANK_3 || RanksBrd[pos->enPas] == RANK_6);
-		finalKey ^= PieceKeys[EMPTY][pos->enPas];
+		assert((pos->enPas >= 16 && pos->enPas < 24 && pos->side == BLACK) 
+			|| (pos->enPas >= 40 && pos->enPas < 48 && pos->side == WHITE));
+		posKey ^= PieceKeys[EMPTY][pos->enPas];
 	}
 
-	ASSERT(pos->castlePerm >= 0 && pos->castlePerm <= 15);
+	// Castling rights
+	assert(pos->castlePerm >= 0 && pos->castlePerm <= 15);
+	posKey ^= CastleKeys[pos->castlePerm];
 
-	finalKey ^= CastleKeys[pos->castlePerm];
-
-	return finalKey;
+	return posKey;
 }
