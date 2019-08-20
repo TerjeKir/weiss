@@ -5,21 +5,22 @@
 #include "board.h"
 
 
-#define TB_PROBE_DEPTH 4
-#define TB_LARGEST 6
+#define TB_PROBE_DEPTH 0
 
 
 unsigned int probeWDL(S_BOARD *pos, int depth) {
 
     assert(CheckBoard(pos));
 
-    int cardinality = PopCount(pos->allBB);
-
     if (    (pos->ply == 0)
         ||  (pos->enPas != NO_SQ)
         ||  (pos->castlePerm != 0)
-        ||  (pos->fiftyMove != 0)
-        ||  (cardinality > (int)TB_LARGEST)
+        ||  (pos->fiftyMove != 0))
+        return TB_RESULT_FAILED;
+
+    int cardinality = PopCount(pos->allBB);
+
+    if (    (cardinality > (int)TB_LARGEST)
         ||  (cardinality == (int)TB_LARGEST && depth < (int)TB_PROBE_DEPTH))
         return TB_RESULT_FAILED;
 
@@ -32,9 +33,9 @@ unsigned int probeWDL(S_BOARD *pos, int depth) {
         pos->pieceBBs[BISHOP],
         pos->pieceBBs[KNIGHT],
         pos->pieceBBs[PAWN],
-        pos->fiftyMove,
-        pos->castlePerm,
-        pos->enPas == NO_SQ ? 0 : pos->enPas,
+        0,                              // If we get here, it is 0
+        0,                              // If we get here, it is 0
+        0,                              // If we get here, it is 0
         pos->side == WHITE ? 1 : 0);
 }
 

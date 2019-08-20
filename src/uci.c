@@ -61,7 +61,7 @@ static void ParseGo(char *line, S_SEARCHINFO *info, S_BOARD *pos) {
 	if (time != -1) {
 		info->timeset = TRUE;
 		time /= movestogo;
-		time -= 75;
+		time -= 100;
 		info->stoptime = info->starttime + time + inc;
 	}
 
@@ -162,6 +162,7 @@ void Uci_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 			printf("uciok\n");
 
 		} else if (!strncmp(line, "setoption name Hash value ", 26)) {
+			
 			sscanf(line, "%*s %*s %*s %*s %d", &newMB);
 			if (newMB == MB) continue; // Ignore if same as before
 			MB = newMB;
@@ -171,9 +172,16 @@ void Uci_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 			InitHashTable(pos->HashTable, MB);
 
 		} else if (!strncmp(line, "setoption name SyzygyPath value ", 32)) {
-			char *ptr = line + strlen("setoption name SyzygyPath value ");
-			tb_init(ptr); 
-			printf("info string set SyzygyPath to %s", ptr);
+			
+			char *path = line + strlen("setoption name SyzygyPath value ");
+
+			// Replace newline with null
+			char *newline;
+			if ((newline = strchr(path, '\n')))
+				path[newline-path] = '\0';
+
+			strcpy(info->syzygyPath, path);
+			tb_init(info->syzygyPath);
 		}
 
 		if (info->quit) break;
