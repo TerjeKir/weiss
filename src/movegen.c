@@ -87,7 +87,6 @@ static void AddEnPassantMove(const S_BOARD *pos, int move, S_MOVELIST *list) {
 	assert(CheckBoard(pos));
 	assert((SqToRank[to] == RANK_6 && pos->side == WHITE) || (SqToRank[to] == RANK_3 && pos->side == BLACK));
 #endif
-
 	list->moves[list->count].move = move;
 	list->moves[list->count].score = 105 + 1000000;
 	list->count++;
@@ -155,6 +154,7 @@ static void AddBlackPawnMove(const S_BOARD *pos, const int from, const int to, S
 		AddQuietMove(pos, MOVE(from, to, EMPTY, EMPTY, 0), list);
 }
 
+// Generate all possible moves
 void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 
 	assert(CheckBoard(pos));
@@ -367,7 +367,7 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 	assert(MoveListOk(list, pos));
 }
 
-
+// Generate all moves that capture pieces
 void GenerateAllCaptures(const S_BOARD *pos, S_MOVELIST *list) {
 
 	assert(CheckBoard(pos));
