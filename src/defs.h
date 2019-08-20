@@ -6,7 +6,7 @@
 #include <assert.h>
 
 
-#define NAME "weiss 0.2"
+#define NAME "weiss 0.3"
 #define MAXGAMEMOVES 512
 #define MAXPOSITIONMOVES 256
 #define MAXDEPTH 128
