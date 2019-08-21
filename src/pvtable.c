@@ -98,14 +98,16 @@ int ProbeHashEntry(S_BOARD *pos, int *move, int *score, int alpha, int beta, int
 			assert(pos->HashTable->pTable[index].flags >= HFALPHA && pos->HashTable->pTable[index].flags <= HFEXACT);
 
 			*score = pos->HashTable->pTable[index].score;
+			assert(*score >= -INFINITE);
+			assert(*score <= INFINITE);
 			if (*score > ISMATE)
 				*score -= pos->ply;
 			else if (*score < -ISMATE)
 				*score += pos->ply;
-				
+
 			assert(*score >= -INFINITE);
 			assert(*score <= INFINITE);
-			
+
 			switch (pos->HashTable->pTable[index].flags) {
 				case HFALPHA:
 					if (*score <= alpha) {
