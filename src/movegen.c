@@ -77,15 +77,13 @@ static void AddCaptureMove(const S_BOARD *pos, int move, S_MOVELIST *list) {
 	list->count++;
 }
 
-static void AddEnPassantMove(const S_BOARD *pos, int move, S_MOVELIST *list) {
+static void AddEnPassantMove(int move, S_MOVELIST *list) {
 #ifndef NDEBUG
 	int from = FROMSQ(move);
 	int   to =   TOSQ(move);
 
 	assert(ValidSquare(from));
 	assert(ValidSquare(to));
-	assert(CheckBoard(pos));
-	assert((SqToRank[to] == RANK_6 && pos->side == WHITE) || (SqToRank[to] == RANK_3 && pos->side == BLACK));
 #endif
 	list->moves[list->count].move = move;
 	list->moves[list->count].score = 105 + 1000000;
@@ -216,7 +214,7 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 				assert(pos->enPas >= 0 && pos->enPas < 64);
 				enPassant = 1ULL << pos->enPas;
 				if (pawn_attacks[side][sq] & enPassant)
-					AddEnPassantMove(pos, MOVE(sq, pos->enPas, EMPTY, EMPTY, MOVE_FLAG_ENPAS), list);
+					AddEnPassantMove(MOVE(sq, pos->enPas, EMPTY, EMPTY, MOVE_FLAG_ENPAS), list);
 			}
 			// Normal captures
 			while (attacks) {
@@ -262,7 +260,7 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 				assert(pos->enPas >= 0 && pos->enPas < 64);
 				enPassant = 1ULL << pos->enPas;
 				if (pawn_attacks[side][sq] & enPassant)
-					AddEnPassantMove(pos, MOVE(sq, pos->enPas, EMPTY, EMPTY, MOVE_FLAG_ENPAS), list);
+					AddEnPassantMove(MOVE(sq, pos->enPas, EMPTY, EMPTY, MOVE_FLAG_ENPAS), list);
 			}
 			// Normal captures
 			while (attacks) {
@@ -406,7 +404,7 @@ void GenerateAllCaptures(const S_BOARD *pos, S_MOVELIST *list) {
 				assert(pos->enPas >= 0 && pos->enPas < 64);
 				enPassant = 1ULL << pos->enPas;
 				if (pawn_attacks[side][sq] & enPassant)
-					AddEnPassantMove(pos, MOVE(sq, pos->enPas, EMPTY, EMPTY, MOVE_FLAG_ENPAS), list);
+					AddEnPassantMove(MOVE(sq, pos->enPas, EMPTY, EMPTY, MOVE_FLAG_ENPAS), list);
 			}
 			// Normal captures
 			while (attacks) {
@@ -430,7 +428,7 @@ void GenerateAllCaptures(const S_BOARD *pos, S_MOVELIST *list) {
 				assert(pos->enPas >= 0 && pos->enPas < 64);
 				enPassant = 1ULL << pos->enPas;
 				if (pawn_attacks[side][sq] & enPassant)
-					AddEnPassantMove(pos, MOVE(sq, pos->enPas, EMPTY, EMPTY, MOVE_FLAG_ENPAS), list);
+					AddEnPassantMove(MOVE(sq, pos->enPas, EMPTY, EMPTY, MOVE_FLAG_ENPAS), list);
 			}
 			// Normal captures
 			while (attacks) {
