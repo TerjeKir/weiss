@@ -1,3 +1,6 @@
+# Files used for profile guided optimization
+*.gcda
+
 # EPD
 *.epd
 
