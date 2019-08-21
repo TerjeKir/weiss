@@ -73,8 +73,8 @@
  * modification to adapt to an engine's own internal score values.
  */
 #define TB_VALUE_PAWN 100  /* value of pawn in endgame */
-#define TB_VALUE_MATE 32000
-#define TB_VALUE_INFINITE 32767 /* value above all normal score values */
+#define TB_VALUE_MATE ISMATE
+#define TB_VALUE_INFINITE 30000 /* value above all normal score values */
 #define TB_VALUE_DRAW 0
 #define TB_MAX_MATE_PLY 255
 
