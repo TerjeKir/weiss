@@ -167,48 +167,38 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 	assert(depth >= 0);
 
 	// Quiescence at the end of search
-	if (depth == 0)
-		return Quiescence(alpha, beta, pos, info);
+	if (depth == 0) return Quiescence(alpha, beta, pos, info);
 
 	// Check for time
-	if ((info->nodes & 2047) == 0)
-		CheckUp(info);
+	if ((info->nodes & 2047) == 0) CheckUp(info);
 
 	info->nodes++;
 
 	// Update selective depth
-	if (pos->ply > info->seldepth)
-		info->seldepth = pos->ply;
+	if (pos->ply > info->seldepth) info->seldepth = pos->ply;
 
 	// Repetition reached
-	if ((IsRepetition(pos) || pos->fiftyMove >= 100) && pos->ply)
-		return 0;
-
+	if ((IsRepetition(pos) || pos->fiftyMove >= 100) && pos->ply) return 0;
 
 	// Syzygy
 	unsigned tbresult;
-
 	if ((tbresult = probeWDL(pos, depth)) != TB_RESULT_FAILED) {
 
 		info->tbhits++;
 
-		// Convert the WDL value to a score. We consider blessed losses
-		// and cursed wins to be a draw, and thus set value to zero.
-		int val = tbresult == TB_LOSS ? -INFINITE + MAXDEPTH + pos->ply + 1
-				: tbresult == TB_WIN  ?  INFINITE - MAXDEPTH - pos->ply - 1 
+		int val = tbresult == TB_LOSS ? -ISMATE + pos->ply + 1
+				: tbresult == TB_WIN  ?  ISMATE - pos->ply - 1 
 				: 0;
 
 		return val;
 	}
 
 	// Max Depth reached
-	if (pos->ply > MAXDEPTH - 1)
-		return EvalPosition(pos);
+	if (pos->ply > MAXDEPTH - 1) return EvalPosition(pos);
 
 	// Extend search if in check
 	int InCheck = SqAttacked(pos->KingSq[pos->side], pos->side ^ 1, pos);
-	if (InCheck)
-		depth++;
+	if (InCheck) depth++;
 
 	int Score = -INFINITE;
 	int PvMove = NOMOVE;
@@ -221,12 +211,12 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 
 	// Null Move Pruning
 	if (DoNull && !InCheck && pos->ply && (pos->bigPieces[pos->side] > 0) && depth >= 4) {
+
 		MakeNullMove(pos);
 		Score = -AlphaBeta(-beta, -beta + 1, depth - 4, pos, info, FALSE);
 		TakeNullMove(pos);
-		if (info->stopped) {
-			return 0;
-		}
+
+		if (info->stopped) return 0;
 
 		if (Score >= beta && abs(Score) < ISMATE) {
 			info->nullCut++;
@@ -261,8 +251,7 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 		PickNextMove(MoveNum, list);
 
 		// Skip illegal moves
-		if (!MakeMove(pos, list->moves[MoveNum].move))
-			continue;
+		if (!MakeMove(pos, list->moves[MoveNum].move)) continue;
 
 		Legal++;
 
@@ -270,8 +259,7 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 		TakeMove(pos);
 
 		// Abort if we have to
-		if (info->stopped)
-			return 0;
+		if (info->stopped) return 0;
 
 		// Found a new best
 		if (Score > BestScore) {
@@ -283,8 +271,7 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 			if (Score > alpha) {
 				if (Score >= beta) {
 
-					if (Legal == 1)
-						info->fhf++;
+					if (Legal == 1) info->fhf++;
 
 					info->fh++;
 
