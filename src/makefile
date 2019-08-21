@@ -8,10 +8,10 @@ WFLAGS 	= -Wall -Wextra -Wshadow
 OPTIM	= -O3
 
 default:
-	gcc $(STD) $(SRC) -o "$(EXE) $(VER).exe" $(OPTIM)
+	gcc $(STD) $(OPTIM) $(SRC) -o "$(EXE) $(VER).exe"
 
 bin:
-	gcc $(STD) $(WFLAGS) $(SRC) -o "$(OUT)$(EXE) $(VER).exe" $(OPTIM)
+	gcc $(STD) $(OPTIM) $(WFLAGS) $(SRC) -o "$(OUT)$(EXE) $(VER).exe"
 
 prof:
-	gcc $(STD) $(WFLAGS) $(SRC) -o "$(OUT)$(EXE) $(VER)prof.exe" $(OPTIM) -pg
+	gcc $(STD) $(OPTIM) $(WFLAGS) $(SRC) -o "$(OUT)$(EXE) $(VER)prof.exe" -pg
