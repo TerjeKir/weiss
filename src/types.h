@@ -9,7 +9,7 @@
 
 typedef uint64_t bitboard;
 
-enum { WHITE, BLACK, BOTH };
+typedef enum Color { BLACK, WHITE, BOTH } Color;
 
 enum { PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING };
 

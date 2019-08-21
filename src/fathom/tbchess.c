@@ -21,12 +21,14 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#define TB_PAWN 1
-#define TB_KNIGHT 2
-#define TB_BISHOP 3
-#define TB_ROOK 4
-#define TB_QUEEN 5
-#define TB_KING 6
+// LoliEDIT: Moved here, renamed TB_ to avoid clashing with my own
+// Note: WHITE, BLACK values are reverse of Stockfish
+// typedef enum Color { BLACK, WHITE } Color;
+typedef enum PieceType { TB_PAWN=1, TB_KNIGHT, TB_BISHOP, TB_ROOK, TB_QUEEN, TB_KING } PieceType;
+typedef enum Piece {
+  W_PAWN = 1, W_KNIGHT, W_BISHOP, W_ROOK, W_QUEEN, W_KING,
+  B_PAWN = 9, B_KNIGHT, B_BISHOP, B_ROOK, B_QUEEN, B_KING
+} Piece;
 
 #define TB_WPAWN TB_PAWN
 #define TB_BPAWN (TB_PAWN | 8)
@@ -66,21 +68,7 @@ SOFTWARE.
 #define BEST_NONE               0xFFFF
 #define SCORE_ILLEGAL           0x7FFF
 
-// Note: WHITE, BLACK values are reverse of Stockfish
-#ifdef __cplusplus
-enum Color { BLACK, WHITE };
-enum PieceType { PAWN=1, KNIGHT, BISHOP, ROOK, QUEEN, KING };
-enum Piece {
-  W_PAWN = 1, W_KNIGHT, W_BISHOP, W_ROOK, W_QUEEN, W_KING,
-  B_PAWN = 9, B_KNIGHT, B_BISHOP, B_ROOK, B_QUEEN, B_KING };
-#else
-typedef enum Color { BLACK, WHITE } Color;
-typedef enum PieceType { PAWN=1, KNIGHT, BISHOP, ROOK, QUEEN, KING } PieceType;
-typedef enum Piece {
-  W_PAWN = 1, W_KNIGHT, W_BISHOP, W_ROOK, W_QUEEN, W_KING,
-  B_PAWN = 9, B_KNIGHT, B_BISHOP, B_ROOK, B_QUEEN, B_KING
-} Piece;
-#endif
+
 
 static inline Color ColorOfPiece(int piece) {
   return (Color)(!(piece >> 3));
@@ -110,17 +98,17 @@ typedef struct Pos
 static inline uint64_t pieces_by_type(const Pos *pos, Color c, PieceType p) {
   uint64_t mask = (c == WHITE) ? pos->white : pos->black;
   switch(p) {
-  case PAWN:
+  case TB_PAWN:
     return pos->pawns & mask;
-  case KNIGHT:
+  case TB_KNIGHT:
     return pos->knights & mask;
-  case BISHOP:
+  case TB_BISHOP:
     return pos->bishops & mask;
-  case ROOK:
+  case TB_ROOK:
     return pos->rooks & mask;
-  case QUEEN:
+  case TB_QUEEN:
     return pos->queens & mask;
-  case KING:
+  case TB_KING:
     return pos->kings & mask;
   default:
     assert(0);
@@ -132,7 +120,7 @@ static const char piece_to_char[] = " PNBRQK  pnbrqk";
   
 // map upper-case characters to piece types
 static PieceType char_to_piece_type(char c) {
-    for (int i = PAWN; i <= KING; i++)
+    for (int i = TB_PAWN; i <= TB_KING; i++)
        if (c == piece_to_char[i]) {
          return (PieceType)i;
        }
@@ -144,363 +132,11 @@ static PieceType char_to_piece_type(char c) {
 #define board(s)                ((uint64_t)1 << (s))
 #define square(r, f)            (8 * (r) + (f))
 
-#ifdef TB_KING_ATTACKS
+#define pawn_attacks(s, c)      TB_PAWN_ATTACKS(s, c)
 #define king_attacks(s)         TB_KING_ATTACKS(s)
-#define king_attacks_init()     /* NOP */
-#else       /* TB_KING_ATTACKS */
-
-static uint64_t king_attacks_table[64];
-
-#define king_attacks(s)         king_attacks_table[(s)]
-
-static void king_attacks_init(void)
-{
-    for (unsigned s = 0; s < 64; s++)
-    {
-        unsigned r = rank(s);
-        unsigned f = file(s);
-        uint64_t b = 0;
-        if (r != 0 && f != 0)
-            b |= board(square(r-1, f-1));
-        if (r != 0)
-            b |= board(square(r-1, f));
-        if (r != 0 && f != 7)
-            b |= board(square(r-1, f+1));
-        if (f != 7)
-            b |= board(square(r, f+1));
-        if (r != 7 && f != 7)
-            b |= board(square(r+1, f+1));
-        if (r != 7)
-            b |= board(square(r+1, f));
-        if (r != 7 && f != 0)
-            b |= board(square(r+1, f-1));
-        if (f != 0)
-            b |= board(square(r, f-1));
-        king_attacks_table[s] = b;
-    }
-}
-
-#endif      /* TB_KING_ATTACKS */
-
-#ifdef TB_KNIGHT_ATTACKS
 #define knight_attacks(s)       TB_KNIGHT_ATTACKS(s)
-#define knight_attacks_init()   /* NOP */
-#else       /* TB_KNIGHT_ATTACKS */
-
-static uint64_t knight_attacks_table[64];
-
-#define knight_attacks(s)       knight_attacks_table[(s)]
-
-static void knight_attacks_init(void)
-{
-    for (unsigned s = 0; s < 64; s++)
-    {
-        int r1, r = rank(s);
-        int f1, f = file(s);
-        uint64_t b = 0;
-        r1 = r-1; f1 = f-2;
-        if (r1 >= 0 && f1 >= 0)
-            b |= board(square(r1, f1));
-        r1 = r-1; f1 = f+2;
-        if (r1 >= 0 && f1 <= 7)
-            b |= board(square(r1, f1));
-        r1 = r-2; f1 = f-1;
-        if (r1 >= 0 && f1 >= 0)
-            b |= board(square(r1, f1));
-        r1 = r-2; f1 = f+1;
-        if (r1 >= 0 && f1 <= 7)
-            b |= board(square(r1, f1));
-        r1 = r+1; f1 = f-2;
-        if (r1 <= 7 && f1 >= 0)
-            b |= board(square(r1, f1));
-        r1 = r+1; f1 = f+2;
-        if (r1 <= 7 && f1 <= 7)
-            b |= board(square(r1, f1));
-        r1 = r+2; f1 = f-1;
-        if (r1 <= 7 && f1 >= 0)
-            b |= board(square(r1, f1));
-        r1 = r+2; f1 = f+1;
-        if (r1 <= 7 && f1 <= 7)
-            b |= board(square(r1, f1));
-        knight_attacks_table[s] = b;
-    }
-}
-
-#endif      /* TB_KNIGHT_ATTACKS */
-
-#ifdef TB_BISHOP_ATTACKS
 #define bishop_attacks(s, occ)  TB_BISHOP_ATTACKS(s, occ)
-#define bishop_attacks_init()   /* NOP */
-#else       /* TB_BISHOP_ATTACKS */
-
-static uint64_t diag_attacks_table[64][64];
-static uint64_t anti_attacks_table[64][64];
-
-static const unsigned square2diag_table[64] =
-{
-    0,  1,  2,  3,  4,  5,  6,  7,
-    14, 0,  1,  2,  3,  4,  5,  6,
-    13, 14, 0,  1,  2,  3,  4,  5,
-    12, 13, 14, 0,  1,  2,  3,  4,
-    11, 12, 13, 14, 0,  1,  2,  3,
-    10, 11, 12, 13, 14, 0,  1,  2,
-    9,  10, 11, 12, 13, 14, 0,  1,
-    8,  9,  10, 11, 12, 13, 14, 0
-};
-
-static const unsigned square2anti_table[64] =
-{
-    8,  9,  10, 11, 12, 13, 14, 0,
-    9,  10, 11, 12, 13, 14, 0,  1,
-    10, 11, 12, 13, 14, 0,  1,  2,
-    11, 12, 13, 14, 0,  1,  2,  3,
-    12, 13, 14, 0,  1,  2,  3,  4,
-    13, 14, 0,  1,  2,  3,  4,  5,
-    14, 0,  1,  2,  3,  4,  5,  6,
-    0,  1,  2,  3,  4,  5,  6,  7
-};
-
-static const uint64_t diag2board_table[15] =
-{
-    0x8040201008040201ull,
-    0x0080402010080402ull,
-    0x0000804020100804ull,
-    0x0000008040201008ull,
-    0x0000000080402010ull,
-    0x0000000000804020ull,
-    0x0000000000008040ull,
-    0x0000000000000080ull,
-    0x0100000000000000ull,
-    0x0201000000000000ull,
-    0x0402010000000000ull,
-    0x0804020100000000ull,
-    0x1008040201000000ull,
-    0x2010080402010000ull,
-    0x4020100804020100ull,
-};
-
-static const uint64_t anti2board_table[15] =
-{
-    0x0102040810204080ull,
-    0x0204081020408000ull,
-    0x0408102040800000ull,
-    0x0810204080000000ull,
-    0x1020408000000000ull,
-    0x2040800000000000ull,
-    0x4080000000000000ull,
-    0x8000000000000000ull,
-    0x0000000000000001ull,
-    0x0000000000000102ull,
-    0x0000000000010204ull,
-    0x0000000001020408ull,
-    0x0000000102040810ull,
-    0x0000010204081020ull,
-    0x0001020408102040ull,
-};
-
-static inline size_t diag2index(uint64_t b)
-{
-    b *= 0x0101010101010101ull;
-    b >>= 56;
-    b >>= 1;
-    return (size_t)b;
-}
-
-static inline size_t anti2index(uint64_t b)
-{
-    return diag2index(b);
-}
-
-#define diag(s)                 square2diag_table[(s)]
-#define anti(s)                 square2anti_table[(s)]
-#define diag2board(d)           diag2board_table[(d)]
-#define anti2board(a)           anti2board_table[(a)]
-
-static uint64_t bishop_attacks(unsigned sq, uint64_t occ)
-{
-    occ &= ~board(sq);
-    unsigned d = diag(sq), a = anti(sq);
-    uint64_t d_occ = occ & (diag2board(d) & ~BOARD_EDGE);
-    uint64_t a_occ = occ & (anti2board(a) & ~BOARD_EDGE);
-    size_t d_idx = diag2index(d_occ);
-    size_t a_idx = anti2index(a_occ);
-    uint64_t d_attacks = diag_attacks_table[sq][d_idx];
-    uint64_t a_attacks = anti_attacks_table[sq][a_idx];
-    return d_attacks | a_attacks;
-}
-
-static void bishop_attacks_init(void)
-{
-    for (unsigned idx = 0; idx < 64; idx++)
-    {
-        unsigned idx1 = idx << 1;
-        for (unsigned s = 0; s < 64; s++)
-        {
-            int r = rank(s);
-            int f = file(s);
-            uint64_t b = 0;
-            for (int i = -1; f + i >= 0 && r + i >= 0; i--)
-            {
-                unsigned occ = (1 << (f + i));
-                b |= board(square(r + i, f + i));
-                if (idx1 & occ)
-                    break;
-            }
-            for (int i = 1; f + i <= 7 && r + i <= 7; i++)
-            {
-                unsigned occ = (1 << (f + i));
-                b |= board(square(r + i, f + i));
-                if (idx1 & occ)
-                    break;
-            }
-            diag_attacks_table[s][idx] = b;
-        }
-    }
-
-    for (unsigned idx = 0; idx < 64; idx++)
-    {
-        unsigned idx1 = idx << 1;
-        for (unsigned s = 0; s < 64; s++)
-        {
-            int r = rank(s);
-            int f = file(s);
-            uint64_t b = 0;
-            for (int i = -1; f + i >= 0 && r - i <= 7; i--)
-            {
-                unsigned occ = (1 << (f + i));
-                b |= board(square(r - i, f + i));
-                if (idx1 & occ)
-                    break;
-            }
-            for (int i = 1; f + i <= 7 && r - i >= 0; i++)
-            {
-                unsigned occ = (1 << (f + i));
-                b |= board(square(r - i, f + i));
-                if (idx1 & occ)
-                    break;
-            }
-            anti_attacks_table[s][idx] = b;
-        }
-    }
-}
-
-#endif      /* TB_BISHOP_ATTACKS */
-
-#ifdef TB_ROOK_ATTACKS
 #define rook_attacks(s, occ)    TB_ROOK_ATTACKS(s, occ)
-#define rook_attacks_init()     /* NOP */
-#else       /* TB_ROOK_ATTACKS */
-
-static uint64_t rank_attacks_table[64][64];
-static uint64_t file_attacks_table[64][64];
-
-static inline size_t rank2index(uint64_t b, unsigned r)
-{
-    b >>= (8 * r);
-    b >>= 1;
-    return (size_t)b;
-}
-
-static inline size_t file2index(uint64_t b, unsigned f)
-{
-    b >>= f;
-    b *= 0x0102040810204080ull;
-    b >>= 56;
-    b >>= 1;
-    return (size_t)b;
-}
-
-#define rank2board(r)           (0xFFull << (8 * (r)))
-#define file2board(f)           (0x0101010101010101ull << (f))
-
-static uint64_t rook_attacks(unsigned sq, uint64_t occ)
-{
-    occ &= ~board(sq);
-    unsigned r = rank(sq), f = file(sq);
-    uint64_t r_occ = occ & (rank2board(r) & ~BOARD_RANK_EDGE);
-    uint64_t f_occ = occ & (file2board(f) & ~BOARD_FILE_EDGE);
-    size_t r_idx = rank2index(r_occ, r);
-    size_t f_idx = file2index(f_occ, f);
-    uint64_t r_attacks = rank_attacks_table[sq][r_idx];
-    uint64_t f_attacks = file_attacks_table[sq][f_idx];
-    return r_attacks | f_attacks;
-}
-
-static void rook_attacks_init(void)
-{
-    for (unsigned idx = 0; idx < 64; idx++)
-    {
-        unsigned idx1 = idx << 1, occ;
-        for (int f = 0; f <= 7; f++)
-        {
-            uint64_t b = 0;
-            if (f > 0)
-            {
-                int i = f-1;
-                do
-                {
-                    occ = (1 << i);
-                    b |= board(square(0, i));
-                    i--;
-                }
-                while (!(idx1 & occ) && i >= 0);
-            }
-            if (f < 7)
-            {
-                int i = f+1;
-                do
-                {
-                    occ = (1 << i);
-                    b |= board(square(0, i));
-                    i++;
-                }
-                while (!(idx1 & occ) && i <= 7);
-            }
-            for (int r = 0; r <= 7; r++)
-            {
-                rank_attacks_table[square(r, f)][idx] = b;
-                b <<= 8;
-            }
-        }
-    }
-    for (unsigned idx = 0; idx < 64; idx++)
-    {
-        unsigned idx1 = idx << 1, occ;
-        for (int r = 0; r <= 7; r++)
-        {
-            uint64_t b = 0;
-            if (r > 0)
-            {
-                int i = r-1;
-                do
-                {
-                    occ = (1 << i);
-                    b |= board(square(i, 0));
-                    i--;
-                }
-                while (!(idx1 & occ) && i >= 0);
-            }
-            if (r < 7)
-            {
-                int i = r+1;
-                do
-                {
-                    occ = (1 << i);
-                    b |= board(square(i, 0));
-                    i++;
-                }
-                while (!(idx1 & occ) && i <= 7);
-            }
-            for (int f = 0; f <= 7; f++)
-            {
-                file_attacks_table[square(r, f)][idx] = b;
-                b <<= 1;
-            }
-        }
-    }
-}
-
-#endif      /* TB_ROOK_ATTACKS */
 
 #ifdef TB_QUEEN_ATTACKS
 #define queen_attacks(s, occ)   TB_QUEEN_ATTACKS(s, occ)
@@ -509,45 +145,8 @@ static void rook_attacks_init(void)
     (rook_attacks((s), (occ)) | bishop_attacks((s), (occ)))
 #endif      /* TB_QUEEN_ATTACKS */
 
-#ifdef TB_PAWN_ATTACKS
-#define pawn_attacks(s, c)      TB_PAWN_ATTACKS(s, c)
-#define pawn_attacks_init()     /* NOP */
-#else       /* TB_PAWN_ATTACKS */
 
-static uint64_t pawn_attacks_table[2][64];
 
-#define pawn_attacks(s, c)      pawn_attacks_table[(c)][(s)]
-
-static void pawn_attacks_init(void)
-{
-    for (unsigned s = 0; s < 64; s++)
-    {
-        int r = rank(s);
-        int f = file(s);
-
-        uint64_t b = 0;
-        if (r != 7)
-        {
-            if (f != 0)
-                b |= board(square(r+1, f-1));
-            if (f != 7)
-                b |= board(square(r+1, f+1));
-        }
-        pawn_attacks_table[1][s] = b;
-
-        b = 0;
-        if (r != 0)
-        {
-            if (f != 0)
-                b |= board(square(r-1, f-1));
-            if (f != 7)
-                b |= board(square(r-1, f+1));
-        }
-        pawn_attacks_table[0][s] = b;
-    }
-}
-
-#endif      /* TB_PAWN_ATTACKS */
 
 /*
  * Given a position, produce a 64-bit material signature key.
@@ -620,7 +219,7 @@ static uint64_t calc_key_from_pieces(uint8_t *piece, int num)
     (((move) >> 12) & 0x7)
 
 static inline int type_of_piece_moved(Pos *pos, TbMove move) {
-  for (int i = PAWN; i <= KING; i++) {
+  for (int i = TB_PAWN; i <= TB_KING; i++) {
     if ((pieces_by_type(pos,(Color)(pos->turn == WHITE),(PieceType)i) & board(move_from(move))) != 0) {
       return i;
     }

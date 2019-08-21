@@ -21,38 +21,13 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef TBPROBE_H
-#define TBPROBE_H
+#pragma once
+
+#include <stdbool.h>
+#include <stdint.h>
 
 #include "tbconfig.h"
 
-#ifdef __cplusplus
-extern "C"
-{
-#endif
-
-#ifndef TB_NO_STDINT
-#include <stdint.h>
-#else
-typedef unsigned char uint8_t;
-typedef unsigned short uint16_t;
-typedef unsigned uint32_t;
-typedef long long unsigned uint64_t;
-typedef char int8_t;
-typedef short int16_t;
-typedef int int32_t;
-typedef long long int64_t;
-#endif
-
-#ifndef TB_NO_STDBOOL
-#include <stdbool.h>
-#else
-#ifndef __cplusplus
-typedef uint8_t bool;
-#define true    1
-#define false   0
-#endif
-#endif
 
 /*
  * Internal definitions.  Do not call these functions directly.
@@ -361,33 +336,3 @@ int tb_probe_root_wdl(uint64_t _white,
     bool     _turn,
     bool useRule50,
     struct TbRootMoves *_results);
-
-/****************************************************************************/
-/* HELPER API                                                               */
-/****************************************************************************/
-
-/*
- * The HELPER API provides some useful additional functions.  It is optional
- * and can be disabled by defining TB_NO_HELPER_API.  Engines should disable
- * the HELPER API.
- */
-
-#ifndef TB_NO_HELPER_API
-
-extern unsigned tb_pop_count(uint64_t _bb);
-extern unsigned tb_lsb(uint64_t _bb);
-extern uint64_t tb_pop_lsb(uint64_t _bb);
-extern uint64_t tb_king_attacks(unsigned _square);
-extern uint64_t tb_queen_attacks(unsigned _square, uint64_t _occ);
-extern uint64_t tb_rook_attacks(unsigned _square, uint64_t _occ);
-extern uint64_t tb_bishop_attacks(unsigned _square, uint64_t _occ);
-extern uint64_t tb_knight_attacks(unsigned _square);
-extern uint64_t tb_pawn_attacks(unsigned _square, bool _color);
-
-#endif
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif

@@ -22,25 +22,15 @@ SOFTWARE.
 */
 
 #include <assert.h>
-#ifdef __cplusplus
-#include <atomic>
-#else
 #include <stdatomic.h>
-#endif
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#ifdef TB_NO_STDBOOL
-#typedef uint8 bool
-#else
-#include <stdbool.h>
-#endif
+
 #include "tbprobe.h"
 
-#ifdef __cplusplus
-using namespace std;
-#endif
 
 #define TB_PIECES 7
 #define TB_HASHBITS  (TB_PIECES < 7 ?  11 : 12)
@@ -73,16 +63,6 @@ typedef HANDLE map_t;
 
 // Threading support
 #ifndef TB_NO_THREADS
-#if defined(__cplusplus) && (__cplusplus >= 201103L)
-
-#include <mutex>
-#define LOCK_T std::mutex
-#define LOCK_INIT(x)
-#define LOCK_DESTROY(x)
-#define LOCK(x) x.lock()
-#define UNLOCK(x) x.unlock()
-
-#else
 #ifndef _WIN32
 #define LOCK_T pthread_mutex_t
 #define LOCK_INIT(x) pthread_mutex_init(&(x), NULL)
@@ -97,7 +77,6 @@ typedef HANDLE map_t;
 #define UNLOCK(x) ReleaseMutex(x)
 #endif
 
-#endif
 #else /* TB_NO_THREADS */
 #define LOCK_T          int
 #define LOCK_INIT(x)    /* NOP */
@@ -188,63 +167,32 @@ static unsigned lsb(uint64_t b) {
 
 #if _BYTE_ORDER == _BIG_ENDIAN
 
-/* (unused)
-static uint64_t from_le_u64(uint64_t input) {
-  return bswap64(input);
-}
-*/
-
 static uint32_t from_le_u32(uint32_t input) {
   return bswap32(input);
 }
-
 static uint16_t from_le_u16(uint16_t input) {
   return bswap16(input);
 }
-
 static uint64_t from_be_u64(uint64_t x) {
   return x;
 }
-
 static uint32_t from_be_u32(uint32_t x) {
   return x;
 }
-
-/* (unused)
-  static uint16_t from_be_u16(uint16_t x) {
-  return x;
- }*/
-
 #else
-
-/* (unused)
-static uint64_t from_le_u64(uint64_t x) {
-  return x;
-}
-*/
 
 static uint32_t from_le_u32(uint32_t x) {
   return x;
 }
-
 static uint16_t from_le_u16(uint16_t x) {
   return x;
 }
-
 static uint64_t from_be_u64(uint64_t input) {
   return bswap64(input);
 }
-
 static uint32_t from_be_u32(uint32_t input) {
   return bswap32(input);
 }
-
-/* (unused)
-static uint16_t from_be_u16(const uint16_t input) {
-  return bswap16(input);
-}
-*/
-
 #endif
 
 inline static uint32_t read_le_u32(void *p)
@@ -417,11 +365,7 @@ struct BaseEntry {
   uint64_t key;
   uint8_t *data[3];
   map_t mapping[3];
-#ifdef __cplusplus
-  atomic<bool> ready[3];
-#else
   atomic_bool ready[3];
-#endif
   uint8_t num;
   bool symmetric, hasPawns, hasDtm, hasDtz;
   union {
@@ -639,12 +583,12 @@ static void prt_str(const Pos *pos, char *str, bool flip)
 {
   int color = flip ? BLACK : WHITE;
 
-  for (int pt = KING; pt >= PAWN; pt--)
+  for (int pt = TB_KING; pt >= TB_PAWN; pt--)
     for (int i = popcount(pieces_by_type(pos, (Color)color, (PieceType)pt)); i > 0; i--)
       *str++ = piece_to_char[pt];
   *str++ = 'v';
   color ^= 1;
-  for (int pt = KING; pt >= PAWN; pt--)
+  for (int pt = TB_KING; pt >= TB_PAWN; pt--)
     for (int i = popcount(pieces_by_type(pos, (Color)color, (PieceType)pt)); i > 0; i--)
       *str++ = piece_to_char[pt];
   *str++ = 0;
@@ -694,7 +638,7 @@ static void add_to_hash(struct BaseEntry *ptr, uint64_t key)
   tbHash[idx].ptr = ptr;
 }
 
-#define pchr(i) piece_to_char[QUEEN - (i)]
+#define pchr(i) piece_to_char[TB_QUEEN - (i)]
 #define Swap(a,b) {int tmp=a;a=b;b=tmp;}
 
 static void init_tb(char *str)
@@ -799,11 +743,6 @@ bool tb_init(const char *path)
 {
   if (!initialized) {
     init_indices();
-    king_attacks_init();
-    knight_attacks_init();
-    bishop_attacks_init();
-    rook_attacks_init();
-    pawn_attacks_init();
     initialized = 1;
   }
 
@@ -1696,124 +1635,124 @@ inline static int fill_squares(const Pos *pos, uint8_t *pc, bool flip, int mirro
   return i;
 }
 
-int probe_table(const Pos *pos, int s, int *success, const int type)
-{
-  // Obtain the position's material-signature key
-  uint64_t key = calc_key(pos,false);
+int probe_table(const Pos *pos, int s, int *success, const int type) {
+    // Obtain the position's material-signature key
+    uint64_t key = calc_key(pos,false);
 
-  // Test for KvK
-  // Note: Cfish has key == 2ULL for KvK but we have 0
-  if (type == WDL && key == 0ULL)
-    return 0;
+    // LoliEDIT: Won't call in KvK
+    // Test for KvK
+    // Note: Cfish has key == 2ULL for KvK but we have 0  
+    //   if (type == WDL && key == 0ULL) 
+    //     return 0;
 
-  int hashIdx = key >> (64 - TB_HASHBITS);
-  while (tbHash[hashIdx].key && tbHash[hashIdx].key != key)
-    hashIdx = (hashIdx + 1) & ((1 << TB_HASHBITS) - 1);
-  if (!tbHash[hashIdx].ptr) {
-    *success = 0;
-    return 0;
-  }
-
-  struct BaseEntry *be = tbHash[hashIdx].ptr;
-  if ((type == DTM && !be->hasDtm) || (type == DTZ && !be->hasDtz)) {
-    *success = 0;
-    return 0;
-  }
-
-  // Use double-checked locking to reduce locking overhead
-  if (!atomic_load_explicit(&be->ready[type], memory_order_acquire)) {
-    LOCK(tbMutex);
-    if (!atomic_load_explicit(&be->ready[type], memory_order_relaxed)) {
-      char str[16];
-      prt_str(pos, str, be->key != key);
-      if (!init_table(be, str, type)) {
-        tbHash[hashIdx].ptr = NULL; // mark as deleted
+    int hashIdx = key >> (64 - TB_HASHBITS);
+    while (tbHash[hashIdx].key && tbHash[hashIdx].key != key)
+        hashIdx = (hashIdx + 1) & ((1 << TB_HASHBITS) - 1);
+    if (!tbHash[hashIdx].ptr) {
         *success = 0;
+        return 0;
+    }
+
+    struct BaseEntry *be = tbHash[hashIdx].ptr;
+    if ((type == DTM && !be->hasDtm) || (type == DTZ && !be->hasDtz)) {
+        *success = 0;
+        return 0;
+    }
+
+    // Use double-checked locking to reduce locking overhead
+    if (!atomic_load_explicit(&be->ready[type], memory_order_acquire)) {
+        LOCK(tbMutex);
+        if (!atomic_load_explicit(&be->ready[type], memory_order_relaxed)) {
+            char str[16];
+            prt_str(pos, str, be->key != key);
+            if (!init_table(be, str, type)) {
+                tbHash[hashIdx].ptr = NULL; // mark as deleted
+                *success = 0;
+                UNLOCK(tbMutex);
+                return 0;
+            }
+            atomic_store_explicit(&be->ready[type], true, memory_order_release);
+        }
         UNLOCK(tbMutex);
-        return 0;
-      }
-      atomic_store_explicit(&be->ready[type], true, memory_order_release);
     }
-    UNLOCK(tbMutex);
-  }
 
-  bool bside, flip;
-  if (!be->symmetric) {
-    flip = key != be->key;
-    bside = (pos->turn == WHITE) == flip;
-    if (type == DTM && be->hasPawns && PAWN(be)->dtmSwitched) {
-      flip = !flip;
-      bside = !bside;
+    bool bside, flip;
+    if (!be->symmetric) {
+        flip = key != be->key;
+        bside = (pos->turn == WHITE) == flip;
+        if (type == DTM && be->hasPawns && PAWN(be)->dtmSwitched) {
+            flip = !flip;
+            bside = !bside;
+        }
+    } else {
+        flip = pos->turn != WHITE;
+        bside = false;
     }
-  } else {
-    flip = pos->turn != WHITE;
-    bside = false;
-  }
 
-  struct EncInfo *ei = first_ei(be, type);
-  int p[TB_PIECES];
-  size_t idx;
-  int t = 0;
-  uint8_t flags = 0; // initialize to fix GCC warning
+    struct EncInfo *ei = first_ei(be, type);
+    int p[TB_PIECES];
+    size_t idx;
+    int t = 0;
+    uint8_t flags = 0; // initialize to fix GCC warning
 
-  if (!be->hasPawns) {
-    if (type == DTZ) {
-      flags = PIECE(be)->dtzFlags;
-      if ((flags & 1) != bside && !be->symmetric) {
-        *success = -1;
-        return 0;
-      }
+    if (!be->hasPawns) {
+        if (type == DTZ) {
+            flags = PIECE(be)->dtzFlags;
+            if ((flags & 1) != bside && !be->symmetric) {
+                *success = -1;
+                return 0;
+            }
+        }
+        ei = type != DTZ ? &ei[bside] : ei;
+        for (int i = 0; i < be->num;)
+            i = fill_squares(pos, ei->pieces, flip, 0, p, i);
+        idx = encode_piece(p, ei, be);
+    } else {
+        int i = fill_squares(pos, ei->pieces, flip, flip ? 0x38 : 0, p, 0);
+        t = leading_pawn(p, be, type != DTM ? FILE_ENC : RANK_ENC);
+        if (type == DTZ) {
+            flags = PAWN(be)->dtzFlags[t];
+            if ((flags & 1) != bside && !be->symmetric) {
+                *success = -1;
+                return 0;
+            }
+        }
+        ei =  type == WDL ? &ei[t + 4 * bside]
+            : type == DTM ? &ei[t + 6 * bside] : &ei[t];
+        while (i < be->num)
+            i = fill_squares(pos, ei->pieces, flip, flip ? 0x38 : 0, p, i);
+        idx = type != DTM ? encode_pawn_f(p, ei, be) : encode_pawn_r(p, ei, be);
     }
-    ei = type != DTZ ? &ei[bside] : ei;
-    for (int i = 0; i < be->num;)
-      i = fill_squares(pos, ei->pieces, flip, 0, p, i);
-    idx = encode_piece(p, ei, be);
-  } else {
-    int i = fill_squares(pos, ei->pieces, flip, flip ? 0x38 : 0, p, 0);
-    t = leading_pawn(p, be, type != DTM ? FILE_ENC : RANK_ENC);
-    if (type == DTZ) {
-      flags = PAWN(be)->dtzFlags[t];
-      if ((flags & 1) != bside && !be->symmetric) {
-        *success = -1;
-        return 0;
-      }
+
+    uint8_t *w = decompress_pairs(ei->precomp, idx);
+
+    if (type == WDL)
+        return (int)w[0] - 2;
+
+    int v = w[0] + ((w[1] & 0x0f) << 8);
+
+    if (type == DTM) {
+        if (!be->dtmLossOnly)
+            v = (int)from_le_u16(be->hasPawns
+                        ? PAWN(be)->dtmMap[PAWN(be)->dtmMapIdx[t][bside][s] + v]
+                            : PIECE(be)->dtmMap[PIECE(be)->dtmMapIdx[bside][s] + v]);
+    } else {
+        if (flags & 2) {
+            int m = WdlToMap[s + 2];
+            if (!(flags & 16))
+                v =  be->hasPawns
+                ? ((uint8_t *)PAWN(be)->dtzMap)[PAWN(be)->dtzMapIdx[t][m] + v]
+                : ((uint8_t *)PIECE(be)->dtzMap)[PIECE(be)->dtzMapIdx[m] + v];
+            else
+                v = (int)from_le_u16(be->hasPawns
+                                ? ((uint16_t *)PAWN(be)->dtzMap)[PAWN(be)->dtzMapIdx[t][m] + v]
+                                : ((uint16_t *)PIECE(be)->dtzMap)[PIECE(be)->dtzMapIdx[m] + v]);
+        }
+        if (!(flags & PAFlags[s + 2]) || (s & 1))
+            v *= 2;
     }
-    ei =  type == WDL ? &ei[t + 4 * bside]
-        : type == DTM ? &ei[t + 6 * bside] : &ei[t];
-    while (i < be->num)
-      i = fill_squares(pos, ei->pieces, flip, flip ? 0x38 : 0, p, i);
-    idx = type != DTM ? encode_pawn_f(p, ei, be) : encode_pawn_r(p, ei, be);
-  }
 
-  uint8_t *w = decompress_pairs(ei->precomp, idx);
-
-  if (type == WDL)
-    return (int)w[0] - 2;
-
-  int v = w[0] + ((w[1] & 0x0f) << 8);
-
-  if (type == DTM) {
-    if (!be->dtmLossOnly)
-      v = (int)from_le_u16(be->hasPawns
-                       ? PAWN(be)->dtmMap[PAWN(be)->dtmMapIdx[t][bside][s] + v]
-                        : PIECE(be)->dtmMap[PIECE(be)->dtmMapIdx[bside][s] + v]);
-  } else {
-    if (flags & 2) {
-      int m = WdlToMap[s + 2];
-      if (!(flags & 16))
-        v =  be->hasPawns
-           ? ((uint8_t *)PAWN(be)->dtzMap)[PAWN(be)->dtzMapIdx[t][m] + v]
-           : ((uint8_t *)PIECE(be)->dtzMap)[PIECE(be)->dtzMapIdx[m] + v];
-      else
-        v = (int)from_le_u16(be->hasPawns
-                         ? ((uint16_t *)PAWN(be)->dtzMap)[PAWN(be)->dtzMapIdx[t][m] + v]
-                          : ((uint16_t *)PIECE(be)->dtzMap)[PIECE(be)->dtzMapIdx[m] + v]);
-    }
-    if (!(flags & PAFlags[s + 2]) || (s & 1))
-      v *= 2;
-  }
-
-  return v;
+    return v;
 }
 
 static int probe_wdl_table(const Pos *pos, int *success)
@@ -1881,79 +1820,79 @@ int probe_wdl(Pos *pos, int *success)
 {
   *success = 1;
 
-  // Generate (at least) all legal captures including (under)promotions.
-  TbMove moves0[TB_MAX_CAPTURES];
-  TbMove *m = moves0;
-  TbMove *end = gen_captures(pos, m);
-  int bestCap = -3, bestEp = -3;
+//   // Generate (at least) all legal captures including (under)promotions.
+//   TbMove moves0[TB_MAX_CAPTURES];
+//   TbMove *m = moves0;
+//   TbMove *end = gen_captures(pos, m);
+//   int bestCap = -3, bestEp = -3;
 
-  // We do capture resolution, letting bestCap keep track of the best
-  // capture without ep rights and letting bestEp keep track of still
-  // better ep captures if they exist.
+//   // We do capture resolution, letting bestCap keep track of the best
+//   // capture without ep rights and letting bestEp keep track of still
+//   // better ep captures if they exist.
 
-  for (; m < end; m++) {
-    Pos pos1;
-    TbMove move = *m;
-    if (!is_capture(pos, move))
-      continue;
-    if (!do_move(&pos1, pos, move))
-      continue; // illegal move
-    int v = -probe_ab(&pos1, -2, -bestCap, success);
-    if (*success == 0) return 0;
-    if (v > bestCap) {
-      if (v == 2) {
-        *success = 2;
-        return 2;
-      }
-      if (!is_en_passant(pos,move))
-        bestCap = v;
-      else if (v > bestEp)
-        bestEp = v;
-    }
-  }
+//   for (; m < end; m++) {
+//     Pos pos1;
+//     TbMove move = *m;
+//     if (!is_capture(pos, move))
+//         continue;
+//     if (!do_move(&pos1, pos, move))
+//         continue; // illegal move
+//     int v = -probe_ab(&pos1, -2, -bestCap, success);
+//     if (*success == 0) return 0;
+//     if (v > bestCap) {
+//         if (v == 2) {
+//             *success = 2;
+//             return 2;
+//         }
+//         if (!is_en_passant(pos,move))
+//             bestCap = v;
+//         else if (v > bestEp)
+//             bestEp = v;
+//     }
+//   }
 
   int v = probe_wdl_table(pos, success);
   if (*success == 0) return 0;
 
-  // Now max(v, bestCap) is the WDL value of the position without ep rights.
-  // If the position without ep rights is not stalemate or no ep captures
-  // exist, then the value of the position is max(v, bestCap, bestEp).
-  // If the position without ep rights is stalemate and bestEp > -3,
-  // then the value of the position is bestEp (and we will have v == 0).
+//   // Now max(v, bestCap) is the WDL value of the position without ep rights.
+//   // If the position without ep rights is not stalemate or no ep captures
+//   // exist, then the value of the position is max(v, bestCap, bestEp).
+//   // If the position without ep rights is stalemate and bestEp > -3,
+//   // then the value of the position is bestEp (and we will have v == 0).
 
-  if (bestEp > bestCap) {
-    if (bestEp > v) { // ep capture (possibly cursed losing) is best.
-      *success = 2;
-      return bestEp;
-    }
-    bestCap = bestEp;
-  }
+//   if (bestEp > bestCap) {
+//     if (bestEp > v) { // ep capture (possibly cursed losing) is best.
+//       *success = 2;
+//       return bestEp;
+//     }
+//     bestCap = bestEp;
+//   }
 
-  // Now max(v, bestCap) is the WDL value of the position unless
-  // the position without ep rights is stalemate and bestEp > -3.
+//   // Now max(v, bestCap) is the WDL value of the position unless
+//   // the position without ep rights is stalemate and bestEp > -3.
 
-  if (bestCap >= v) {
-    // No need to test for the stalemate case here: either there are
-    // non-ep captures, or bestCap == bestEp >= v anyway.
-    *success = 1 + (bestCap > 0);
-    return bestCap;
-  }
+//   if (bestCap >= v) {
+//     // No need to test for the stalemate case here: either there are
+//     // non-ep captures, or bestCap == bestEp >= v anyway.
+//     *success = 1 + (bestCap > 0);
+//     return bestCap;
+//   }
 
-  // Now handle the stalemate case.
-  if (bestEp > -3 && v == 0) {
-    TbMove moves[TB_MAX_MOVES];
-    end = gen_moves(pos, moves);
-    // Check for stalemate in the position with ep captures.
-    for (m = moves; m < end; m++) {
-      if (!is_en_passant(pos,*m) && legal_move(pos, *m)) break;
-    }
-    if (m == end && !is_check(pos)) {
-      // stalemate score from tb (w/o e.p.), but an en-passant capture
-      // is possible.
-      *success = 2;
-      return bestEp;
-    }
-  }
+//   // Now handle the stalemate case.
+//   if (bestEp > -3 && v == 0) {
+//     TbMove moves[TB_MAX_MOVES];
+//     end = gen_moves(pos, moves);
+//     // Check for stalemate in the position with ep captures.
+//     for (m = moves; m < end; m++) {
+//       if (!is_en_passant(pos,*m) && legal_move(pos, *m)) break;
+//     }
+//     if (m == end && !is_check(pos)) {
+//       // stalemate score from tb (w/o e.p.), but an en-passant capture
+//       // is possible.
+//       *success = 2;
+//       return bestEp;
+//     }
+//   }
   // Stalemate / en passant not an issue, so v is the correct value.
 
   return v;
@@ -2190,7 +2129,7 @@ int probe_dtz(Pos *pos, int *success)
 
     for (m = moves; m < end; m++) {
       TbMove move = *m;
-      if (type_of_piece_moved(pos,move) != PAWN || is_capture(pos, move))
+      if (type_of_piece_moved(pos,move) != TB_PAWN || is_capture(pos, move))
          continue;
       if (!do_move(&pos1, pos, move))
          continue; // not legal
@@ -2231,7 +2170,7 @@ int probe_dtz(Pos *pos, int *success)
     // We can skip pawn moves and captures.
     // If wdl > 0, we already caught them. If wdl < 0, the initial value
     // of best already takes account of them.
-    if (is_capture(pos, move) || type_of_piece_moved(pos, move) == PAWN)
+    if (is_capture(pos, move) || type_of_piece_moved(pos, move) == TB_PAWN)
       continue;
     if (!do_move(&pos1, pos, move)) {
       // move was not legal
@@ -2418,7 +2357,7 @@ void tb_expand_mate(Pos *pos, struct TbRootMove *move, Value moveScore, unsigned
   }
 
   // Now try to expand until the actual mate.
-  if (popcount(pos->white | pos->black) <= cardinalityDTM) {
+  if ((unsigned)(popcount(pos->white | pos->black)) <= cardinalityDTM) {
     while (v != -TB_VALUE_MATE && move->pvSize < TB_MAX_PLY) {
       v = v > 0 ? -v - 1 : -v + 1;
       wdl = -wdl;
@@ -2574,52 +2513,3 @@ static uint16_t probe_root(Pos *pos, int *score, unsigned *results)
         return 0;
     }
 }
-
-#ifndef TB_NO_HELPER_API
-
-unsigned tb_pop_count(uint64_t bb)
-{
-    return popcount(bb);
-}
-
-unsigned tb_lsb(uint64_t bb)
-{
-    return lsb(bb);
-}
-
-uint64_t tb_pop_lsb(uint64_t bb)
-{
-    return poplsb(bb);
-}
-
-uint64_t tb_king_attacks(unsigned sq)
-{
-    return king_attacks(sq);
-}
-
-uint64_t tb_queen_attacks(unsigned sq, uint64_t occ)
-{
-    return queen_attacks(sq, occ);
-}
-
-uint64_t tb_rook_attacks(unsigned sq, uint64_t occ)
-{
-    return rook_attacks(sq, occ);
-}
-
-uint64_t tb_bishop_attacks(unsigned sq, uint64_t occ)
-{
-    return bishop_attacks(sq, occ);
-}
-
-uint64_t tb_knight_attacks(unsigned sq)
-{
-    return knight_attacks(sq);
-}
-
-uint64_t tb_pawn_attacks(unsigned sq, bool color)
-{
-    return pawn_attacks(sq, color);
-}
-
-#endif      /* TB_NO_HELPER_API */
