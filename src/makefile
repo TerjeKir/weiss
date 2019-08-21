@@ -5,7 +5,7 @@ VER		= 0.3
 
 STD		= -std=gnu11
 WFLAGS 	= -Wall -Wextra -Wshadow
-OPTIM	= -O3
+OPTIM	= -O3 -march=native
 
 default:
 	gcc $(STD) $(OPTIM) $(SRC) -o "$(EXE) $(VER).exe"
