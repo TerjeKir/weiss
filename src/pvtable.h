@@ -5,7 +5,7 @@
 #include "types.h"
 
 
-#define PV_STATS
+// #define PV_STATS
 
 
 void InitHashTable(S_HASHTABLE *table, const int MB);

@@ -167,6 +167,10 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 	assert(CheckBoard(pos));
 	assert(beta > alpha);
 	assert(depth >= 0);
+	assert(alpha <=  INFINITE);
+	assert(alpha >= -INFINITE);
+	assert(beta  <=  INFINITE);
+	assert(beta  >= -INFINITE);
 
 	// Quiescence at the end of search
 	if (depth == 0) return Quiescence(alpha, beta, pos, info);
@@ -349,11 +353,11 @@ void SearchPosition(S_BOARD *pos, S_SEARCHINFO *info) {
 #endif
 	}
 
-	// Print the move chosen after searching
+	// Print the best move after search finishes
 	if (info->GAME_MODE == UCIMODE)
 		printf("bestmove %s\n", MoveToStr(bestMove));
 	else {
-		printf("\n\n***!! weiss makes move %s !!***\n\n", MoveToStr(bestMove));
+		printf("\n\n***!! %s !!***\n\n", MoveToStr(bestMove));
 		MakeMove(pos, bestMove);
 		PrintBoard(pos);
 	}
