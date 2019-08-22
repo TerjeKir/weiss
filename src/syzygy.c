@@ -34,5 +34,5 @@ unsigned int probeWDL(S_BOARD *pos, int depth) {
         pos->pieceBBs[KNIGHT],
         pos->pieceBBs[PAWN],
         0,                              // If we get here, it is 0
-        pos->side == WHITE ? 1 : 0);
+        pos->side);
 }
