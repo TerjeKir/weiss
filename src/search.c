@@ -288,8 +288,8 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 						pos->searchKillers[0][pos->ply] = list->moves[MoveNum].move;
 					}
 
-					assert(beta + pos->ply <=  INFINITE);
-					assert(beta - pos->ply >= -INFINITE);
+					assert(beta <=  INFINITE);
+					assert(beta >= -INFINITE);
 					
 					StoreHashEntry(pos, BestMove, beta, HFBETA, depth);
 
@@ -312,10 +312,10 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 	}
 
 	assert(alpha >= OldAlpha);
-	assert(alpha + pos->ply <=  INFINITE);
-	assert(alpha - pos->ply >= -INFINITE);
-	assert(BestScore + pos->ply <=  INFINITE);
-	assert(BestScore - pos->ply >= -INFINITE);
+	assert(alpha <=  INFINITE);
+	assert(alpha >= -INFINITE);
+	assert(BestScore <=  INFINITE);
+	assert(BestScore >= -INFINITE);
 
 	if (alpha != OldAlpha)
 		StoreHashEntry(pos, BestMove, BestScore, HFEXACT, depth);
