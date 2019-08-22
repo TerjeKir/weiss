@@ -5,7 +5,7 @@ VER		= 0.3
 
 STD		= -std=gnu11
 WFLAGS 	= -Wall -Wextra -Wshadow
-OPTIM	= -O2 -march=native
+OPTIM	= -O3 -march=native
 
 PGODIR  = "../prof"
 PGOMAKE	= -fprofile-generate=$(PGODIR)
