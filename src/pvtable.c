@@ -90,16 +90,20 @@ int ProbeHashEntry(S_BOARD *pos, int *move, int *score, int alpha, int beta, int
 	assert(pos->ply >= 0 && pos->ply < MAXDEPTH);
 
 	if (pos->HashTable->pTable[index].posKey == pos->posKey) {
+
 		*move = pos->HashTable->pTable[index].move;
 		if (pos->HashTable->pTable[index].depth >= depth) {
-			pos->HashTable->hit++;
 
+#ifdef PV_STATS
+			pos->HashTable->hit++;
+#endif
 			assert(pos->HashTable->pTable[index].depth >= 1 && pos->HashTable->pTable[index].depth < MAXDEPTH);
 			assert(pos->HashTable->pTable[index].flags >= HFALPHA && pos->HashTable->pTable[index].flags <= HFEXACT);
 
 			*score = pos->HashTable->pTable[index].score;
 			assert(*score >= -INFINITE);
 			assert(*score <= INFINITE);
+			
 			if (*score > ISMATE)
 				*score -= pos->ply;
 			else if (*score < -ISMATE)
@@ -144,15 +148,19 @@ void StoreHashEntry(S_BOARD *pos, const int move, int score, const int flags, co
 	assert(score >= -INFINITE && score <= INFINITE);
 	assert(pos->ply >= 0 && pos->ply < MAXDEPTH);
 
+#ifdef PV_STATS
 	if (pos->HashTable->pTable[index].posKey == 0)
 		pos->HashTable->newWrite++;
 	else
 		pos->HashTable->overWrite++;
+#endif
 
 	if (score > ISMATE)
 		score += pos->ply;
 	else if (score < -ISMATE)
 		score -= pos->ply;
+
+	assert(score >= -INFINITE && score <= INFINITE);
 
 	pos->HashTable->pTable[index].move = move;
 	pos->HashTable->pTable[index].posKey = pos->posKey;

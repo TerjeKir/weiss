@@ -72,9 +72,11 @@ static void ClearForSearch(S_BOARD *pos, S_SEARCHINFO *info) {
 			pos->searchKillers[index][index2] = 0;
 
 	pos->ply = 0;
+#ifdef PV_STATS
 	pos->HashTable->hit = 0;
 	pos->HashTable->cut = 0;
 	pos->HashTable->overWrite = 0;
+#endif
 
 	info->fh = 0;
 	info->fhf = 0;
@@ -186,8 +188,8 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 
 		info->tbhits++;
 
-		int val = tbresult == TB_LOSS ? -ISMATE + pos->ply + 1
-				: tbresult == TB_WIN  ?  ISMATE - pos->ply - 1 
+		int val = tbresult == TB_LOSS ? -INFINITE + pos->ply + 1
+				: tbresult == TB_WIN  ?  INFINITE - pos->ply - 1
 				: 0;
 
 		return val;
@@ -205,7 +207,9 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 
 	// Probe transposition table
 	if (ProbeHashEntry(pos, &PvMove, &Score, alpha, beta, depth)) {
+#ifdef PV_STATS
 		pos->HashTable->cut++;
+#endif
 		return Score;
 	}
 
@@ -280,6 +284,9 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 						pos->searchKillers[0][pos->ply] = list->moves[MoveNum].move;
 					}
 
+					assert(beta + pos->ply <=  INFINITE);
+					assert(beta - pos->ply >= -INFINITE);
+					
 					StoreHashEntry(pos, BestMove, beta, HFBETA, depth);
 
 					return beta;
@@ -301,6 +308,10 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 	}
 
 	assert(alpha >= OldAlpha);
+	assert(alpha + pos->ply <=  INFINITE);
+	assert(alpha - pos->ply >= -INFINITE);
+	assert(BestScore + pos->ply <=  INFINITE);
+	assert(BestScore - pos->ply >= -INFINITE);
 
 	if (alpha != OldAlpha)
 		StoreHashEntry(pos, BestMove, BestScore, HFEXACT, depth);
@@ -332,8 +343,10 @@ void SearchPosition(S_BOARD *pos, S_SEARCHINFO *info) {
 
 		PrintThinking(info, pos, bestScore, currentDepth, pvMoves);
 
-		//printf("Hits:%d Overwrite:%d NewWrite:%d Cut:%d\nOrdering %.2f NullCut:%d\n", pos->HashTable->hit,
-		//	pos->HashTable->overWrite, pos->HashTable->newWrite, pos->HashTable->cut, (info->fhf/info->fh)*100, info->nullCut);
+#ifdef PV_STATS
+		printf("PV Stats: Hits: %d Overwrite: %d NewWrite: %d Cut: %d\nOrdering %.2f NullCut: %d\n", pos->HashTable->hit,
+			pos->HashTable->overWrite, pos->HashTable->newWrite, pos->HashTable->cut, (info->fhf/info->fh)*100, info->nullCut);
+#endif
 	}
 
 	// Print the move chosen after searching
