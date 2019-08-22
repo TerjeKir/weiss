@@ -44,6 +44,8 @@ extern unsigned tb_probe_wdl_impl(
     uint64_t _pawns,
     unsigned _ep,
     bool     _turn);
+
+#if 0
 extern unsigned tb_probe_root_impl(
     uint64_t _white,
     uint64_t _black,
@@ -57,6 +59,7 @@ extern unsigned tb_probe_root_impl(
     unsigned _ep,
     bool     _turn,
     unsigned *_results);
+#endif
 
 /****************************************************************************/
 /* MAIN API                                                                 */
@@ -240,6 +243,7 @@ static inline unsigned tb_probe_wdl(
  * - This function is NOT thread safe.  For engines this function should only
  *   be called once at the root per search.
  */
+#if 0
 static inline unsigned tb_probe_root(
     uint64_t _white,
     uint64_t _black,
@@ -260,6 +264,7 @@ static inline unsigned tb_probe_root(
     return tb_probe_root_impl(_white, _black, _kings, _queens, _rooks,
         _bishops, _knights, _pawns, _rule50, _ep, _turn, _results);
 }
+#endif
 
 typedef uint16_t TbMove;
 
@@ -293,6 +298,7 @@ struct TbRootMoves {
  *   non-zero if ok, 0 means not all probes were successful
  *
  */
+#if 0
 int tb_probe_root_dtz(
     uint64_t _white,
     uint64_t _black,
@@ -336,3 +342,4 @@ int tb_probe_root_wdl(uint64_t _white,
     bool     _turn,
     bool useRule50,
     struct TbRootMoves *_results);
+#endif

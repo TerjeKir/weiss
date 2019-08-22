@@ -232,6 +232,7 @@ static inline int type_of_piece_moved(Pos *pos, TbMove move) {
 #define MOVE_STALEMATE          0xFFFF
 #define MOVE_CHECKMATE          0xFFFE
 
+#if 0
 static TbMove *add_move(TbMove *moves, bool promotes, unsigned from,
     unsigned to)
 {
@@ -641,4 +642,4 @@ static TbMove *gen_legal(const Pos *pos, TbMove *moves)
   }
   return results;
 }
-
+#endif

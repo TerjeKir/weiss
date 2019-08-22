@@ -325,7 +325,7 @@ static void unmap_file(void *data, map_t mapping)
 }
 #endif
 
-#define poplsb(x)               ((x) & ((x) - 1))
+#define poplsb(x) ((x) & ((x) - 1))
 
 int TB_MaxCardinality = 0, TB_MaxCardinalityDTM = 0;
 unsigned TB_LARGEST = 0;
@@ -413,10 +413,12 @@ static void init_indices(void);
 // Forward declarations. These functions without the tb_
 // prefix take a pos structure as input.
 static int probe_wdl(Pos *pos, int *success);
+#if 0
 static int probe_dtz(Pos *pos, int *success);
 static int root_probe_wdl(const Pos *pos, bool useRule50, struct TbRootMoves *rm);
 static int root_probe_dtz(const Pos *pos, bool hasRepeated, bool useRule50, struct TbRootMoves *rm);
 static uint16_t probe_root(Pos *pos, int *score, unsigned *results);
+#endif
 
 unsigned tb_probe_wdl_impl(
     uint64_t white,
@@ -451,6 +453,7 @@ unsigned tb_probe_wdl_impl(
     return (unsigned)(v + 2);
 }
 
+#if 0
 static unsigned dtz_to_wdl(int cnt50, int dtz)
 {
     int wdl = 0;
@@ -575,6 +578,7 @@ int tb_probe_root_wdl(
     if (castling != 0) return 0;
     return root_probe_wdl(&pos, useRule50, results);
 }
+#endif
 
 // Given a position, produce a text string of the form KQPvKRP, where
 // "KQP" represents the white pieces if flip == false and the black pieces
@@ -1760,6 +1764,7 @@ static int probe_wdl_table(const Pos *pos, int *success)
   return probe_table(pos, 0, success, WDL);
 }
 
+#if 0
 static int probe_dtm_table(const Pos *pos, int won, int *success)
 {
   return probe_table(pos, won, success, DTM);
@@ -1800,6 +1805,7 @@ static int probe_ab(const Pos *pos, int alpha, int beta, int *success)
 
   return alpha >= v ? alpha : v;
 }
+#endif
 
 // Probe the WDL table for a particular position.
 //
@@ -1820,80 +1826,84 @@ int probe_wdl(Pos *pos, int *success)
 {
   *success = 1;
 
-//   // Generate (at least) all legal captures including (under)promotions.
-//   TbMove moves0[TB_MAX_CAPTURES];
-//   TbMove *m = moves0;
-//   TbMove *end = gen_captures(pos, m);
-//   int bestCap = -3, bestEp = -3;
+#if 0
+  // Generate (at least) all legal captures including (under)promotions.
+  TbMove moves0[TB_MAX_CAPTURES];
+  TbMove *m = moves0;
+  TbMove *end = gen_captures(pos, m);
+  int bestCap = -3, bestEp = -3;
 
-//   // We do capture resolution, letting bestCap keep track of the best
-//   // capture without ep rights and letting bestEp keep track of still
-//   // better ep captures if they exist.
+  // We do capture resolution, letting bestCap keep track of the best
+  // capture without ep rights and letting bestEp keep track of still
+  // better ep captures if they exist.
 
-//   for (; m < end; m++) {
-//     Pos pos1;
-//     TbMove move = *m;
-//     if (!is_capture(pos, move))
-//         continue;
-//     if (!do_move(&pos1, pos, move))
-//         continue; // illegal move
-//     int v = -probe_ab(&pos1, -2, -bestCap, success);
-//     if (*success == 0) return 0;
-//     if (v > bestCap) {
-//         if (v == 2) {
-//             *success = 2;
-//             return 2;
-//         }
-//         if (!is_en_passant(pos,move))
-//             bestCap = v;
-//         else if (v > bestEp)
-//             bestEp = v;
-//     }
-//   }
+  for (; m < end; m++) {
+    Pos pos1;
+    TbMove move = *m;
+    if (!is_capture(pos, move))
+        continue;
+    if (!do_move(&pos1, pos, move))
+        continue; // illegal move
+    int v = -probe_ab(&pos1, -2, -bestCap, success);
+    if (*success == 0) return 0;
+    if (v > bestCap) {
+        if (v == 2) {
+            *success = 2;
+            return 2;
+        }
+        if (!is_en_passant(pos,move))
+            bestCap = v;
+        else if (v > bestEp)
+            bestEp = v;
+    }
+  }
+#endif
 
   int v = probe_wdl_table(pos, success);
   if (*success == 0) return 0;
 
-//   // Now max(v, bestCap) is the WDL value of the position without ep rights.
-//   // If the position without ep rights is not stalemate or no ep captures
-//   // exist, then the value of the position is max(v, bestCap, bestEp).
-//   // If the position without ep rights is stalemate and bestEp > -3,
-//   // then the value of the position is bestEp (and we will have v == 0).
+#if 0
+  // Now max(v, bestCap) is the WDL value of the position without ep rights.
+  // If the position without ep rights is not stalemate or no ep captures
+  // exist, then the value of the position is max(v, bestCap, bestEp).
+  // If the position without ep rights is stalemate and bestEp > -3,
+  // then the value of the position is bestEp (and we will have v == 0).
 
-//   if (bestEp > bestCap) {
-//     if (bestEp > v) { // ep capture (possibly cursed losing) is best.
-//       *success = 2;
-//       return bestEp;
-//     }
-//     bestCap = bestEp;
-//   }
+  if (bestEp > bestCap) {
+    if (bestEp > v) { // ep capture (possibly cursed losing) is best.
+      *success = 2;
+      return bestEp;
+    }
+    bestCap = bestEp;
+  }
 
-//   // Now max(v, bestCap) is the WDL value of the position unless
-//   // the position without ep rights is stalemate and bestEp > -3.
+  // Now max(v, bestCap) is the WDL value of the position unless
+  // the position without ep rights is stalemate and bestEp > -3.
 
-//   if (bestCap >= v) {
-//     // No need to test for the stalemate case here: either there are
-//     // non-ep captures, or bestCap == bestEp >= v anyway.
-//     *success = 1 + (bestCap > 0);
-//     return bestCap;
-//   }
+  if (bestCap >= v) {
+    // No need to test for the stalemate case here: either there are
+    // non-ep captures, or bestCap == bestEp >= v anyway.
+    *success = 1 + (bestCap > 0);
+    return bestCap;
+  }
 
-//   // Now handle the stalemate case.
-//   if (bestEp > -3 && v == 0) {
-//     TbMove moves[TB_MAX_MOVES];
-//     end = gen_moves(pos, moves);
-//     // Check for stalemate in the position with ep captures.
-//     for (m = moves; m < end; m++) {
-//       if (!is_en_passant(pos,*m) && legal_move(pos, *m)) break;
-//     }
-//     if (m == end && !is_check(pos)) {
-//       // stalemate score from tb (w/o e.p.), but an en-passant capture
-//       // is possible.
-//       *success = 2;
-//       return bestEp;
-//     }
-//   }
+  // Now handle the stalemate case.
+  if (bestEp > -3 && v == 0) {
+    TbMove moves[TB_MAX_MOVES];
+    end = gen_moves(pos, moves);
+    // Check for stalemate in the position with ep captures.
+    for (m = moves; m < end; m++) {
+      if (!is_en_passant(pos,*m) && legal_move(pos, *m)) break;
+    }
+    if (m == end && !is_check(pos)) {
+      // stalemate score from tb (w/o e.p.), but an en-passant capture
+      // is possible.
+      *success = 2;
+      return bestEp;
+    }
+  }
   // Stalemate / en passant not an issue, so v is the correct value.
+#endif
 
   return v;
 }
@@ -1933,7 +1943,6 @@ static Value probe_dtm_dc(const Pos *pos, int won, int *success)
 
   return max(bestCap,v);
 }
-#endif
 
 static Value probe_dtm_win(const Pos *pos, int *success);
 
@@ -2014,7 +2023,6 @@ Value TB_probe_dtm(const Pos *pos, int wdl, int *success)
                  : probe_dtm_loss(pos, success);
 }
 
-#if 0
 // To be called only for non-drawn positions.
 Value TB_probe_dtm2(const Pos *pos, int wdl, int *success)
 {
@@ -2072,7 +2080,6 @@ Value TB_probe_dtm2(const Pos *pos, int wdl, int *success)
   v = wdl > 0 ? TB_VALUE_MATE - 2 * dtm + 1 : -TB_VALUE_MATE + 2 * dtm;
   return max(bestCap,v);
 }
-#endif
 
 static int WdlToDtz[] = { -1, -101, 0, 101, 1 };
 
@@ -2513,3 +2520,4 @@ static uint16_t probe_root(Pos *pos, int *score, unsigned *results)
         return 0;
     }
 }
+#endif
