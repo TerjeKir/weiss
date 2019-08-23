@@ -6,8 +6,8 @@
 #include "movegen.h"
 
 
-int SqToFile[64];
-int SqToRank[64];
+uint8_t SqToFile[64];
+uint8_t SqToRank[64];
 
 bitboard   SetMask[64];
 bitboard ClearMask[64];
