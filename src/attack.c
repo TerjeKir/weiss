@@ -26,23 +26,23 @@ static void InitKingAttacks() {
     for (int square = 0; square < 64; ++square, bitmask <<= 1) {
 
         if (square <= 55) {
-            if ((square % 8) != 7)
+            if ((fileOf(square)) != 7)
                 king_attacks[square] |= (bitmask << 9);
             king_attacks[square] |= (bitmask << 8);
-            if ((square % 8) != 0)
+            if ((fileOf(square)) != 0)
                 king_attacks[square] |= (bitmask << 7);
         }
 
-        if ((square % 8) != 7)
+        if ((fileOf(square)) != 7)
             king_attacks[square] |= (bitmask << 1);
-        if ((square % 8) != 0)
+        if ((fileOf(square)) != 0)
             king_attacks[square] |= (bitmask >> 1);
 
         if (square >= 8) {
-            if ((square % 8) != 7)
+            if ((fileOf(square)) != 7)
                 king_attacks[square] |= (bitmask >> 7);
             king_attacks[square] |= (bitmask >> 8);
-            if ((square % 8) != 0)
+            if ((fileOf(square)) != 0)
                 king_attacks[square] |= (bitmask >> 9);
         }
     }
@@ -56,27 +56,27 @@ static void InitKnightAttacks() {
     for (int square = 0; square < 64; ++square, bitmask <<= 1) {
 
         if (square <= 47) {
-            if ((square % 8) < 7)
+            if ((fileOf(square)) < 7)
                 knight_attacks[square] |= (bitmask << 17);
-            if ((square % 8) > 0)
+            if ((fileOf(square)) > 0)
                 knight_attacks[square] |= (bitmask << 15);
         }
         if (square <= 55) {
-            if ((square % 8) < 6)
+            if ((fileOf(square)) < 6)
                 knight_attacks[square] |= (bitmask << 10);
-            if ((square % 8) > 1)
+            if ((fileOf(square)) > 1)
                 knight_attacks[square] |= (bitmask << 6);
         }
         if (square >= 8) {
-            if ((square % 8) < 6)
+            if ((fileOf(square)) < 6)
                 knight_attacks[square] |= (bitmask >> 6);
-            if ((square % 8) > 1)
+            if ((fileOf(square)) > 1)
                 knight_attacks[square] |= (bitmask >> 10);
         }
         if (square >= 16) {
-            if ((square % 8) < 7)
+            if ((fileOf(square)) < 7)
                 knight_attacks[square] |= (bitmask >> 15);
-            if ((square % 8) > 0)
+            if ((fileOf(square)) > 0)
                 knight_attacks[square] |= (bitmask >> 17);
         }
     }
@@ -91,14 +91,14 @@ static void InitPawnAttacks() {
     for (int square = 0; square < 64; ++square, bitmask <<= 1) {
 
         // White
-        if ((square % 8) != 0)
+        if ((fileOf(square)) != 0)
             pawn_attacks[WHITE][square] |= bitmask << 7;
-        if ((square % 8) != 7)
+        if ((fileOf(square)) != 7)
             pawn_attacks[WHITE][square] |= bitmask << 9;
         // Black
-        if ((square % 8) != 7)
+        if ((fileOf(square)) != 7)
             pawn_attacks[BLACK][square] |= bitmask >> 7;
-        if ((square % 8) != 0)
+        if ((fileOf(square)) != 0)
             pawn_attacks[BLACK][square] |= bitmask >> 9;
     }
 }
@@ -132,8 +132,8 @@ static void InitSliderAttacks(MAGIC *table, bitboard *attackTable, const bitboar
 
     for (int sq = 0; sq < 64; ++sq) {
 
-        edges = ((rank1BB | rank8BB) & ~rankBBs[sq / 8]) 
-              | ((fileABB | fileHBB) & ~fileBBs[sq % 8]);
+        edges = ((rank1BB | rank8BB) & ~rankBBs[rankOf(sq)]) 
+              | ((fileABB | fileHBB) & ~fileBBs[fileOf(sq)]);
 
         table[sq].magic = magics[sq];
         table[sq].mask  = MakeSliderAttacks(sq, 0, dir) & ~edges;

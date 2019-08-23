@@ -137,3 +137,11 @@ typedef struct {
 	char syzygyPath[256];
 
 } S_SEARCHINFO;
+
+inline int fileOf(int square) {
+	return square & 7;
+}
+
+inline int rankOf(int square) {
+	return square >> 3;
+}

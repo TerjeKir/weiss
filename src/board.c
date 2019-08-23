@@ -10,7 +10,7 @@
 #include "validate.h"
 
 
-int distance[64][64];
+uint8_t distance[64][64];
 
 
 // Returns distance between sq1 and sq2
@@ -24,8 +24,8 @@ void InitDistance() {
 
     for (int sq1 = 0; sq1 < 64; ++sq1)
         for (int sq2 = 0; sq2 < 64; ++sq2) {
-            vertical = abs((sq1 / 8) - (sq2 / 8));
-            horizontal = abs((sq1 % 8) - (sq2 % 8));
+            vertical   = abs(rankOf(sq1) - rankOf(sq2));
+            horizontal = abs(fileOf(sq1) - fileOf(sq2));
             distance[sq1][sq2] = ((vertical > horizontal) ? vertical : horizontal);
         }
 }
