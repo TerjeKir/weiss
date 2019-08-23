@@ -1,24 +1,32 @@
+# weiss makefile
+
+#general
+NAME	= weiss
+VER		= 0.3
 SRC     = *.c fathom/tbprobe.c
 OUT		= ../bin/
-EXE		= weiss
-VER		= 0.3
 
+#generic flags
 STD		= -std=gnu11
 WFLAGS 	= -Wall -Wextra -Wshadow
 OPTIM	= -O3 -march=native
 
+#pgo
 PGODIR  = "../prof"
 PGOMAKE	= -fprofile-generate=$(PGODIR)
 PGOUSE  = -fprofile-use=$(PGODIR)
 
-default:
-	gcc $(STD) $(OPTIM) $(SRC) -o "$(EXE) $(VER).exe"
+default: 	#for quick tests
+	gcc $(STD) $(OPTIM) $(SRC) -o "$(NAME) $(VER).exe"
 
-pgo:
-	gcc $(STD) $(OPTIM) $(WFLAGS) $(SRC) $(PGOMAKE) -o "$(OUT)$(EXE) $(VER) pgo.exe"
+pgoc:		#for pgo-compile
+	gcc $(STD) $(OPTIM) $(WFLAGS) $(SRC) $(PGOUSE) -o "$(OUT)$(NAME) $(VER) pgoc.exe"
 
-bin:
-	gcc $(STD) $(OPTIM) $(WFLAGS) $(SRC) $(PGOUSE) -o "$(OUT)$(EXE) $(VER).exe"
+pgom: 		#for generating profile data -> pgo
+	gcc $(STD) $(OPTIM) $(WFLAGS) $(SRC) $(PGOMAKE) -o "$(OUT)$(NAME) $(VER) pgom.exe"
 
-prof:
-	gcc $(STD) $(OPTIM) $(WFLAGS) $(SRC) $(PGOUSE) -pg -o "$(OUT)$(EXE) $(VER) prof.exe"
+basic: 		#for basic compile
+	gcc $(STD) $(OPTIM) $(WFLAGS) $(SRC) -o "$(OUT)$(NAME) $(VER).exe"
+
+prof:		#for gprof profiling
+	gcc $(STD) $(OPTIM) $(WFLAGS) $(SRC) $(PGOUSE) -pg -o "$(OUT)$(NAME) $(VER) prof.exe"
