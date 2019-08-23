@@ -10,6 +10,10 @@
 #endif
 
 
+const int bishopDirections[4] = {7, 9, -7, -9};
+const int   rookDirections[4] = {8, 1, -8, -1};
+
+
 // Simple
 bitboard pawn_attacks[2][64];
 bitboard knight_attacks[64];
@@ -127,8 +131,11 @@ static bitboard MakeSliderAttacks(int sq, bitboard occupied, const int direction
 }
 
 // Inits the magic shit
+#ifdef USE_PEXT
+static void InitSliderAttacks(MAGIC *table, bitboard *attackTable, const int *dir) {
+#else
 static void InitSliderAttacks(MAGIC *table, bitboard *attackTable, const bitboard *magics, const int *dir) {
-
+#endif
     int size, index;
     bitboard edges, occupied;
 
@@ -139,9 +146,11 @@ static void InitSliderAttacks(MAGIC *table, bitboard *attackTable, const bitboar
         edges = ((rank1BB | rank8BB) & ~rankBBs[rankOf(sq)]) 
               | ((fileABB | fileHBB) & ~fileBBs[fileOf(sq)]);
 
-        table[sq].magic = magics[sq];
         table[sq].mask  = MakeSliderAttacks(sq, 0, dir) & ~edges;
+#ifndef USE_PEXT
+        table[sq].magic = magics[sq];
         table[sq].shift = 64 - PopCount(table[sq].mask);
+#endif
 
         table[sq].attacks = sq == 0 ? attackTable : table[sq - 1].attacks + size + 1;
 
@@ -151,7 +160,7 @@ static void InitSliderAttacks(MAGIC *table, bitboard *attackTable, const bitboar
 #ifdef USE_PEXT
             index = _pext_u64(occupied, table[sq].mask);
 #else
-            index = (blockers * table[sq].magic) >> table[sq].shift;
+            index = (occupied * table[sq].magic) >> table[sq].shift;
 #endif
             if (index > size) 
                 size = index;
@@ -176,13 +185,20 @@ bitboard SliderAttacks(int sq, bitboard occupied, MAGIC *table) {
 
 // Initializes all attack bitboards
 void InitAttacks() {
+
+    // Simple
     InitKingAttacks();
     InitKnightAttacks();
     InitPawnAttacks();
-    const int bishopDirections[4] = {7, 9, -7, -9};
-    const int   rookDirections[4] = {8, 1, -8, -1};
+
+    // Magic
+#ifdef USE_PEXT
+    InitSliderAttacks(mBishopTable, bishop_attacks, bishopDirections);
+    InitSliderAttacks(  mRookTable,   rook_attacks,   rookDirections);
+#else
     InitSliderAttacks(mBishopTable, bishop_attacks, BishopMagics, bishopDirections);
-    InitSliderAttacks(mRookTable,     rook_attacks,   RookMagics,   rookDirections);
+    InitSliderAttacks(  mRookTable,   rook_attacks,   RookMagics,   rookDirections);
+#endif
 }
 
 // Returns TRUE if sq is attacked by side

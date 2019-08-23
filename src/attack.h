@@ -8,6 +8,7 @@
 #define USE_PEXT
 
 
+#ifndef USE_PEXT
 static const uint64_t RookMagics[64] = {
     0xA180022080400230ull, 0x0040100040022000ull, 0x0080088020001002ull, 0x0080080280841000ull,
     0x4200042010460008ull, 0x04800A0003040080ull, 0x0400110082041008ull, 0x008000A041000880ull,
@@ -45,14 +46,15 @@ static const uint64_t BishopMagics[64] = {
     0xFFFFFCFCFD79EDFFull, 0xFC0863FCCB147576ull, 0x040C000022013020ull, 0x2000104000420600ull,
     0x0400000260142410ull, 0x0800633408100500ull, 0xFC087E8E4BB2F736ull, 0x43FF9E4EF4CA2C89ull,
 };
+#endif
 
 typedef struct {
-
     bitboard *attacks;
     bitboard mask;
+#ifndef USE_PEXT
     uint64_t magic;
     int shift;
-
+#endif
 } MAGIC;
 
 bitboard king_attacks[64];
