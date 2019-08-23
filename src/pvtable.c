@@ -107,7 +107,7 @@ int ProbeHashEntry(S_BOARD *pos, int *move, int *score, int alpha, int beta, int
 			*score = pos->HashTable->pTable[index].score;
 			assert(*score >= -INFINITE);
 			assert(*score <= INFINITE);
-			
+
 			if (*score > ISMATE)
 				*score -= pos->ply;
 			else if (*score < -ISMATE)
@@ -166,9 +166,9 @@ void StoreHashEntry(S_BOARD *pos, const int move, int score, const int flags, co
 
 	assert(score >= -INFINITE && score <= INFINITE);
 
-	pos->HashTable->pTable[index].move = move;
 	pos->HashTable->pTable[index].posKey = pos->posKey;
-	pos->HashTable->pTable[index].flags = flags;
-	pos->HashTable->pTable[index].score = score;
-	pos->HashTable->pTable[index].depth = depth;
+	pos->HashTable->pTable[index].move   = move;
+	pos->HashTable->pTable[index].depth  = depth;
+	pos->HashTable->pTable[index].score  = score;
+	pos->HashTable->pTable[index].flags  = flags;
 }
