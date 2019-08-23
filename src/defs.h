@@ -5,7 +5,6 @@
 #define NDEBUG
 #include <assert.h>
 
-#define CHECK_MAT_DRAW
 
 #define NAME "weiss 0.3"
 #define MAXGAMEMOVES 512

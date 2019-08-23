@@ -5,4 +5,7 @@
 #include "types.h"
 
 
+// #define CHECK_MAT_DRAW
+
+
 int EvalPosition(const S_BOARD *pos);
