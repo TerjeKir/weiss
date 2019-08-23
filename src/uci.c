@@ -17,9 +17,11 @@
 #define INPUTBUFFER 400 * 6
 
 
-// go depth 6 wtime 180000 btime 100000 binc 1000 winc 1000 movetime 1000 movestogo 40
 static void ParseGo(char *line, S_SEARCHINFO *info, S_BOARD *pos) {
 
+	info->starttime = GetTimeMs();
+
+	int moveOverhead = 50;
 	int depth = -1, movestogo = 30, movetime = -1;
 	int time = -1, inc = 0;
 	char *ptr = NULL;
@@ -55,28 +57,20 @@ static void ParseGo(char *line, S_SEARCHINFO *info, S_BOARD *pos) {
 		movestogo = 1;
 	}
 
-	info->starttime = GetTimeMs();
-	info->depth = depth;
+	info->depth = depth == -1 ? MAXDEPTH : depth;
 
 	if (time != -1) {
 		info->timeset = TRUE;
-		time /= movestogo;
-		time -= 50;
-		info->stoptime = info->starttime + time + inc;
+		int timeThisMove = (time / movestogo) + inc - moveOverhead;		// Try to use 1/30 of remaining time + increment
+		int maxTime = time - moveOverhead; 								// Most time we can use
+		info->stoptime = info->starttime;
+		info->stoptime += timeThisMove > maxTime ? maxTime : timeThisMove;
 	}
 
-	if (depth == -1) info->depth = MAXDEPTH;
-
-	// printf("time:%d start:%d stop:%d depth:%d timeset:%d\n",
-	// 	   time, info->starttime, info->stoptime, info->depth, info->timeset);
 	SearchPosition(pos, info);
 }
 
 static void ParsePosition(char *lineIn, S_BOARD *pos) {
-
-	// position fen fenstr
-	// position startpos
-	// ... moves e2e4 e7e5 b7b8q
 
 	lineIn += 9;
 	char *ptrChar = lineIn;
@@ -109,7 +103,6 @@ static void ParsePosition(char *lineIn, S_BOARD *pos) {
 			ptrChar++;
 		}
 	}
-	// PrintBoard(pos);
 }
 
 void Uci_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
