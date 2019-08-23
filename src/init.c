@@ -6,9 +6,6 @@
 #include "movegen.h"
 
 
-uint8_t SqToFile[64];
-uint8_t SqToRank[64];
-
 bitboard   SetMask[64];
 bitboard ClearMask[64];
 
@@ -57,8 +54,8 @@ static void InitEvalMasks() {
 			tsq -= 8;
 		}
 
-		if (SqToFile[sq] > FILE_A) {
-			IsolatedMask[sq] |= FileBBMask[SqToFile[sq] - 1];
+		if (fileOf(sq) > FILE_A) {
+			IsolatedMask[sq] |= FileBBMask[fileOf(sq) - 1];
 
 			tsq = sq + 7;
 			while (tsq < 64) {
@@ -73,8 +70,8 @@ static void InitEvalMasks() {
 			}
 		}
 
-		if (SqToFile[sq] < FILE_H) {
-			IsolatedMask[sq] |= FileBBMask[SqToFile[sq] + 1];
+		if (fileOf(sq) < FILE_H) {
+			IsolatedMask[sq] |= FileBBMask[fileOf(sq) + 1];
 
 			tsq = sq + 9;
 			while (tsq < 64) {
@@ -89,19 +86,6 @@ static void InitEvalMasks() {
 			}
 		}
 	}
-}
-
-static void InitFilesRanksBrd() {
-
-	int sq = 0;
-
-	for (    int rank = RANK_1; rank <= RANK_8; ++rank)
-		for (int file = FILE_A; file <= FILE_H; ++file) {
-
-			SqToFile[sq] = file;
-			SqToRank[sq] = rank;
-			sq++;
-		}
 }
 
 static void InitBitMasks() {
@@ -123,7 +107,6 @@ void InitAll() {
 	InitDistance();
 	InitBitMasks();
 	InitHashKeys();
-	InitFilesRanksBrd();
 	InitEvalMasks();
 	InitMvvLva();
 	InitAttacks();

@@ -20,10 +20,10 @@ char *MoveToStr(const int move) {
 
 	static char moveStr[6];
 
-	int ff = SqToFile[FROMSQ(move)];
-	int rf = SqToRank[FROMSQ(move)];
-	int ft = SqToFile[  TOSQ(move)];
-	int rt = SqToRank[  TOSQ(move)];
+	int ff = fileOf(FROMSQ(move));
+	int rf = rankOf(FROMSQ(move));
+	int ft = fileOf(TOSQ(move));
+	int rt = rankOf(TOSQ(move));
 
 	int promotion = PROMOTION(move);
 
