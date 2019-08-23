@@ -29,4 +29,4 @@ basic: 		#for basic compile
 	gcc $(STD) $(OPTIM) $(WFLAGS) $(SRC) -o "$(OUT)$(NAME) $(VER).exe"
 
 prof:		#for gprof profiling
-	gcc $(STD) $(OPTIM) $(WFLAGS) $(SRC) $(PGOUSE) -pg -o "$(OUT)$(NAME) $(VER) prof.exe"
+	gcc $(STD) $(OPTIM) $(WFLAGS) $(SRC) -pg -o "$(OUT)$(NAME) $(VER) prof.exe"
