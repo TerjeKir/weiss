@@ -59,19 +59,23 @@ void ClearHashTable(S_HASHTABLE *table) {
 	table->newWrite = 0;
 }
 
-void InitHashTable(S_HASHTABLE *table, const int MB) {
+void InitHashTable(S_HASHTABLE *table, const uint64_t MB) {
 
-	int HashSize = 0x100000 * MB;
+	uint64_t HashSize = 0x100000LL * MB;
 	table->numEntries = HashSize / sizeof(S_HASHENTRY);
-	table->numEntries -= 2;
 
+	// Free memory if we have already allocated
 	if (table->pTable != NULL)
 		free(table->pTable);
 
+	// Allocate memory
 	table->pTable = (S_HASHENTRY *)calloc(table->numEntries, sizeof(S_HASHENTRY));
+
+	// If allocation fails, try half the size
 	if (table->pTable == NULL) {
 		printf("Hash Allocation Failed, trying %dMB...\n", MB / 2);
 		InitHashTable(table, MB / 2);
+	// Success
 	} else {
 		table->newWrite = 0;
 		printf("HashTable init complete with %d entries, using %dMB.\n", table->numEntries, MB);
