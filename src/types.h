@@ -61,9 +61,9 @@ typedef struct {
 typedef struct {
 	uint64_t posKey;
 	int move;
-	int score;
-	int depth;
-	int flags;
+	uint16_t score;
+	uint8_t depth;
+	uint8_t flags;
 } S_HASHENTRY;
 
 typedef struct {
