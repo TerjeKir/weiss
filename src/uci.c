@@ -61,10 +61,11 @@ static void ParseGo(char *line, S_SEARCHINFO *info, S_BOARD *pos) {
 
 	if (time != -1) {
 		info->timeset = TRUE;
-		int timeThisMove = (time / movestogo) + inc - moveOverhead;		// Try to use 1/30 of remaining time + increment
-		int maxTime = time - moveOverhead; 								// Most time we can use
+		int timeThisMove = (time / movestogo) + inc;		// Try to use 1/30 of remaining time + increment
+		int maxTime = time; 								// Most time we can use
 		info->stoptime = info->starttime;
 		info->stoptime += timeThisMove > maxTime ? maxTime : timeThisMove;
+		info->stoptime -= moveOverhead;
 	}
 
 	SearchPosition(pos, info);
