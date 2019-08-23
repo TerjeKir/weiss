@@ -5,6 +5,10 @@
 #include "validate.h"
 #include "bitboards.h"
 
+#ifdef USE_PEXT
+#include "x86intrin.h"
+#endif
+
 
 // Simple
 bitboard pawn_attacks[2][64];
@@ -126,7 +130,7 @@ static bitboard MakeSliderAttacks(int sq, bitboard occupied, const int direction
 static void InitSliderAttacks(MAGIC *table, bitboard *attackTable, const bitboard *magics, const int *dir) {
 
     int size, index;
-    bitboard edges, blockers;
+    bitboard edges, occupied;
 
     table[0].attacks = attackTable;
 
@@ -141,25 +145,33 @@ static void InitSliderAttacks(MAGIC *table, bitboard *attackTable, const bitboar
 
         table[sq].attacks = sq == 0 ? attackTable : table[sq - 1].attacks + size + 1;
 
-        size = blockers = 0;
+        size = occupied = 0;
 
         do {
+#ifdef USE_PEXT
+            index = _pext_u64(occupied, table[sq].mask);
+#else
             index = (blockers * table[sq].magic) >> table[sq].shift;
+#endif
             if (index > size) 
                 size = index;
-            table[sq].attacks[index] = MakeSliderAttacks(sq, blockers, dir);
-            blockers = (blockers - table[sq].mask) & table[sq].mask; // Carry rippler
-        } while (blockers);
+            table[sq].attacks[index] = MakeSliderAttacks(sq, occupied, dir);
+            occupied = (occupied - table[sq].mask) & table[sq].mask; // Carry rippler
+        } while (occupied);
     }
 }
 
 // Returns the attack bitboard for a slider based on what squares are occupied
 bitboard SliderAttacks(int sq, bitboard occupied, MAGIC *table) {
     bitboard *ptr = table[sq].attacks;
+#ifdef USE_PEXT
+    return ptr[_pext_u64(occupied, table[sq].mask)];
+#else
     occupied     &= table[sq].mask;
     occupied     *= table[sq].magic;
     occupied    >>= table[sq].shift;
     return ptr[occupied];
+#endif
 }
 
 // Initializes all attack bitboards
