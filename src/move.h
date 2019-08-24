@@ -10,14 +10,13 @@
 0001 0000 0000 0000 0000 0000 0000 -> Castle 0x1000000
 */
 
-
-#define MOVE_FLAG_ENPAS 0x40000
-#define MOVE_FLAG_PAWNSTART 0x80000
-#define MOVE_FLAG_CASTLE 0x1000000
-#define MOVE_FLAG_CAP 0x7C000
-#define MOVE_FLAG_PROMO 0xF00000 // unused
-
 #define NOMOVE 0
+
+#define FLAG_CAPTURE 0x40000
+#define FLAG_PAWNSTART 0x80000
+#define FLAG_CASTLE 0x1000000
+#define FLAG_CAPTURE 0x7C000    // unused
+#define FLAG_PROMO 0xF00000     // unused
 
 
 #define MOVE(f, t, ca, pro, fl) ((f) | ((t) << 7) | ((ca) << 14) | ((pro) << 20) | (fl))

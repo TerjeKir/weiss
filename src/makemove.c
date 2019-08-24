@@ -357,13 +357,13 @@ void TakeMove(S_BOARD *pos) {
 	HASH_SIDE;
 
 	// Add in pawn capture by en passant
-	if (MOVE_FLAG_ENPAS & move)
+	if (FLAG_CAPTURE & move)
 		if (pos->side == WHITE)
 			AddPiece(to - 8, pos, bP);
 		else
 			AddPiece(to + 8, pos, wP);
 	// Move rook back if castling
-	else if (move & MOVE_FLAG_CASTLE)
+	else if (move & FLAG_CASTLE)
 		switch (to) {
 			case C1: MovePiece(D1, A1, pos); break;
 			case C8: MovePiece(D8, A8, pos); break;
@@ -416,14 +416,14 @@ int MakeMove(S_BOARD *pos, int move) {
 	pos->history[pos->hisPly].posKey = pos->posKey;
 
 	// Remove the victim of en passant
-	if (move & MOVE_FLAG_ENPAS)
+	if (move & FLAG_CAPTURE)
 		if (side == WHITE)
 			ClearPiece(to - 8, pos);
 		else
 			ClearPiece(to + 8, pos);
 
 	// Move the rook during castling
-	else if (move & MOVE_FLAG_CASTLE)
+	else if (move & FLAG_CASTLE)
 		switch (to) {
 			case C1: MovePiece(A1, D1, pos); break;
 			case C8: MovePiece(A8, D8, pos); break;
@@ -472,7 +472,7 @@ int MakeMove(S_BOARD *pos, int move) {
 	// Set en passant square and hash it in if any
 	if (PiecePawn[pos->pieces[from]]) {
 		pos->fiftyMove = 0;
-		if (move & MOVE_FLAG_PAWNSTART) {
+		if (move & FLAG_PAWNSTART) {
 			if (side == WHITE) {
 				pos->enPas = from + 8;
 				assert(pos->enPas >= 16 && pos->enPas < 24);

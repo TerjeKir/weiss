@@ -180,13 +180,13 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 		if (pos->castlePerm & WKCA)
 			if (!(allPieces & bitF1G1))
 				if (!SqAttacked(E1, BLACK, pos) && !SqAttacked(F1, BLACK, pos))
-					AddQuietMove(pos, MOVE(E1, G1, EMPTY, EMPTY, MOVE_FLAG_CASTLE), list);
+					AddQuietMove(pos, MOVE(E1, G1, EMPTY, EMPTY, FLAG_CASTLE), list);
 
 		// Queen side castle
 		if (pos->castlePerm & WQCA)
 			if (!(allPieces & bitB1C1D1))
 				if (!SqAttacked(E1, BLACK, pos) && !SqAttacked(D1, BLACK, pos))
-					AddQuietMove(pos, MOVE(E1, C1, EMPTY, EMPTY, MOVE_FLAG_CASTLE), list);
+					AddQuietMove(pos, MOVE(E1, C1, EMPTY, EMPTY, FLAG_CASTLE), list);
 
 		// Pawns
 		while (pawns) {
@@ -200,7 +200,7 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 				AddWhitePawnMove(pos, sq, (sq + 8), list);
 				// Move forward two squares
 				if ((empty & squareBitMask << 16) && (sq < 16))
-					AddQuietMove(pos, MOVE(sq, sq + 16, EMPTY, EMPTY, MOVE_FLAG_PAWNSTART), list);
+					AddQuietMove(pos, MOVE(sq, sq + 16, EMPTY, EMPTY, FLAG_PAWNSTART), list);
 			}
 
 			// Pawn captures
@@ -211,7 +211,7 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 				assert(pos->enPas >= 0 && pos->enPas < 64);
 				enPassant = 1ULL << pos->enPas;
 				if (pawn_attacks[side][sq] & enPassant)
-					AddEnPassantMove(MOVE(sq, pos->enPas, EMPTY, EMPTY, MOVE_FLAG_ENPAS), list);
+					AddEnPassantMove(MOVE(sq, pos->enPas, EMPTY, EMPTY, FLAG_CAPTURE), list);
 			}
 			// Normal captures
 			while (attacks) {
@@ -226,13 +226,13 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 		if (pos->castlePerm & BKCA)
 			if (!((allPieces & bitF8G8)))
 				if (!SqAttacked(E8, WHITE, pos) && !SqAttacked(F8, WHITE, pos))
-					AddQuietMove(pos, MOVE(E8, G8, EMPTY, EMPTY, MOVE_FLAG_CASTLE), list);
+					AddQuietMove(pos, MOVE(E8, G8, EMPTY, EMPTY, FLAG_CASTLE), list);
 
 		// Queen side castle
 		if (pos->castlePerm & BQCA)
 			if (!((allPieces & bitB8C8D8)))
 				if (!SqAttacked(E8, WHITE, pos) && !SqAttacked(D8, WHITE, pos))
-					AddQuietMove(pos, MOVE(E8, C8, EMPTY, EMPTY, MOVE_FLAG_CASTLE), list);
+					AddQuietMove(pos, MOVE(E8, C8, EMPTY, EMPTY, FLAG_CASTLE), list);
 
 		// Pawns
 		while (pawns) {
@@ -246,7 +246,7 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 				AddBlackPawnMove(pos, sq, (sq - 8), list);
 				// Move forward two squares
 				if ((empty & squareBitMask >> 16) && (sq > 47))
-					AddQuietMove(pos, MOVE(sq, sq - 16, EMPTY, EMPTY, MOVE_FLAG_PAWNSTART), list);
+					AddQuietMove(pos, MOVE(sq, sq - 16, EMPTY, EMPTY, FLAG_PAWNSTART), list);
 			}
 
 			// Pawn captures
@@ -257,7 +257,7 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 				assert(pos->enPas >= 0 && pos->enPas < 64);
 				enPassant = 1ULL << pos->enPas;
 				if (pawn_attacks[side][sq] & enPassant)
-					AddEnPassantMove(MOVE(sq, pos->enPas, EMPTY, EMPTY, MOVE_FLAG_ENPAS), list);
+					AddEnPassantMove(MOVE(sq, pos->enPas, EMPTY, EMPTY, FLAG_CAPTURE), list);
 			}
 			// Normal captures
 			while (attacks) {
@@ -400,7 +400,7 @@ void GenerateAllCaptures(const S_BOARD *pos, S_MOVELIST *list) {
 				assert(pos->enPas >= 0 && pos->enPas < 64);
 				enPassant = 1ULL << pos->enPas;
 				if (pawn_attacks[side][sq] & enPassant)
-					AddEnPassantMove(MOVE(sq, pos->enPas, EMPTY, EMPTY, MOVE_FLAG_ENPAS), list);
+					AddEnPassantMove(MOVE(sq, pos->enPas, EMPTY, EMPTY, FLAG_CAPTURE), list);
 			}
 			// Normal captures
 			while (attacks) {
@@ -424,7 +424,7 @@ void GenerateAllCaptures(const S_BOARD *pos, S_MOVELIST *list) {
 				assert(pos->enPas >= 0 && pos->enPas < 64);
 				enPassant = 1ULL << pos->enPas;
 				if (pawn_attacks[side][sq] & enPassant)
-					AddEnPassantMove(MOVE(sq, pos->enPas, EMPTY, EMPTY, MOVE_FLAG_ENPAS), list);
+					AddEnPassantMove(MOVE(sq, pos->enPas, EMPTY, EMPTY, FLAG_CAPTURE), list);
 			}
 			// Normal captures
 			while (attacks) {
