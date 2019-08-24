@@ -203,6 +203,7 @@ static void AddPiece(const int sq, S_BOARD *pos, const int piece) {
 			break;
 	}
 }
+
 // Move a piece from a square to another square
 static void MovePiece(const int from, const int to, S_BOARD *pos) {
 
@@ -357,7 +358,7 @@ void TakeMove(S_BOARD *pos) {
 	HASH_SIDE;
 
 	// Add in pawn capture by en passant
-	if (FLAG_CAPTURE & move)
+	if (FLAG_ENPAS & move)
 		if (pos->side == WHITE)
 			AddPiece(to - 8, pos, bP);
 		else
@@ -416,7 +417,7 @@ int MakeMove(S_BOARD *pos, int move) {
 	pos->history[pos->hisPly].posKey = pos->posKey;
 
 	// Remove the victim of en passant
-	if (move & FLAG_CAPTURE)
+	if (move & FLAG_ENPAS)
 		if (side == WHITE)
 			ClearPiece(to - 8, pos);
 		else

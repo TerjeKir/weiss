@@ -211,7 +211,7 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 				assert(pos->enPas >= 0 && pos->enPas < 64);
 				enPassant = 1ULL << pos->enPas;
 				if (pawn_attacks[side][sq] & enPassant)
-					AddEnPassantMove(MOVE(sq, pos->enPas, EMPTY, EMPTY, FLAG_CAPTURE), list);
+					AddEnPassantMove(MOVE(sq, pos->enPas, EMPTY, EMPTY, FLAG_ENPAS), list);
 			}
 			// Normal captures
 			while (attacks) {
@@ -257,7 +257,7 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 				assert(pos->enPas >= 0 && pos->enPas < 64);
 				enPassant = 1ULL << pos->enPas;
 				if (pawn_attacks[side][sq] & enPassant)
-					AddEnPassantMove(MOVE(sq, pos->enPas, EMPTY, EMPTY, FLAG_CAPTURE), list);
+					AddEnPassantMove(MOVE(sq, pos->enPas, EMPTY, EMPTY, FLAG_ENPAS), list);
 			}
 			// Normal captures
 			while (attacks) {
@@ -400,7 +400,7 @@ void GenerateAllCaptures(const S_BOARD *pos, S_MOVELIST *list) {
 				assert(pos->enPas >= 0 && pos->enPas < 64);
 				enPassant = 1ULL << pos->enPas;
 				if (pawn_attacks[side][sq] & enPassant)
-					AddEnPassantMove(MOVE(sq, pos->enPas, EMPTY, EMPTY, FLAG_CAPTURE), list);
+					AddEnPassantMove(MOVE(sq, pos->enPas, EMPTY, EMPTY, FLAG_ENPAS), list);
 			}
 			// Normal captures
 			while (attacks) {
@@ -424,7 +424,7 @@ void GenerateAllCaptures(const S_BOARD *pos, S_MOVELIST *list) {
 				assert(pos->enPas >= 0 && pos->enPas < 64);
 				enPassant = 1ULL << pos->enPas;
 				if (pawn_attacks[side][sq] & enPassant)
-					AddEnPassantMove(MOVE(sq, pos->enPas, EMPTY, EMPTY, FLAG_CAPTURE), list);
+					AddEnPassantMove(MOVE(sq, pos->enPas, EMPTY, EMPTY, FLAG_ENPAS), list);
 			}
 			// Normal captures
 			while (attacks) {

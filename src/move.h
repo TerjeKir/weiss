@@ -1,5 +1,7 @@
 // move.h
 
+#pragma once
+
 /* GAME MOVE 
 0000 0000 0000 0000 0000 0111 1111 -> From 0x7F
 0000 0000 0000 0011 1111 1000 0000 -> To >> 7, 0x7F
@@ -12,7 +14,7 @@
 
 #define NOMOVE 0
 
-#define FLAG_CAPTURE 0x40000
+#define FLAG_ENPAS 0x40000
 #define FLAG_PAWNSTART 0x80000
 #define FLAG_CASTLE 0x1000000
 #define FLAG_CAPTURE 0x7C000    // unused

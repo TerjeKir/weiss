@@ -122,14 +122,12 @@ int ProbeHashEntry(S_BOARD *pos, int *move, int *score, int alpha, int beta, int
 					if (*score <= alpha) {
 						*score = alpha;
 						return TRUE;
-					}
-					break;
+					} break;
 				case HFBETA:
 					if (*score >= beta) {
 						*score = beta;
 						return TRUE;
-					}
-					break;
+					} break;
 				case HFEXACT:
 					return TRUE;
 					break;
