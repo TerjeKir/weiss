@@ -7,10 +7,8 @@
 #include "bitboards.h"
 #include "data.h"
 #include "makemove.h"
+#include "move.h"
 #include "validate.h"
-
-
-#define MOVE(f, t, ca, pro, fl) ((f) | ((t) << 7) | ((ca) << 14) | ((pro) << 20) | (fl))
 
 
 const bitboard bitB1C1D1 = (1ULL << 1) | (1ULL << 2) | (1ULL << 3);

@@ -9,12 +9,16 @@
 #include "evaluate.h"
 #include "io.h"
 #include "makemove.h"
+#include "move.h"
 #include "movegen.h"
 #include "misc.h"
 #include "perft.h"
 #include "pvtable.h"
 #include "search.h"
 #include "validate.h"
+
+
+#define START_FEN  "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 
 
 static int ThreeFoldRep(const S_BOARD *pos) {

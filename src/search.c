@@ -10,6 +10,7 @@
 #include "io.h"
 #include "makemove.h"
 #include "misc.h"
+#include "move.h"
 #include "movegen.h"
 #include "pvtable.h"
 #include "syzygy.h"

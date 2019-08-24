@@ -4,6 +4,7 @@
 #include <stdlib.h>
 
 #include "makemove.h"
+#include "move.h"
 #include "movegen.h"
 #include "pvtable.h"
 

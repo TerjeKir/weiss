@@ -7,6 +7,9 @@
 
 // #define PV_STATS
 
+#define MAXHASH 16384
+#define DEFAULTHASH 1024
+
 
 enum { HFNONE, HFALPHA, HFBETA, HFEXACT };
 

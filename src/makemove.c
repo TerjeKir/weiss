@@ -5,7 +5,7 @@
 #include "board.h"
 #include "data.h"
 #include "hashkeys.h"
-#include "makemove.h"
+#include "move.h"
 #include "validate.h"
 
 
@@ -318,6 +318,84 @@ static void MovePiece(const int from, const int to, S_BOARD *pos) {
 	}
 }
 
+void TakeMove(S_BOARD *pos) {
+
+	assert(CheckBoard(pos));
+
+	// Decrement hisPly, ply
+	pos->hisPly--;
+	pos->ply--;
+
+	assert(pos->hisPly >= 0 && pos->hisPly < MAXGAMEMOVES);
+	assert(pos->ply >= 0 && pos->ply < MAXDEPTH);
+
+	int move = pos->history[pos->hisPly].move;
+	int from = FROMSQ(move);
+	int   to =   TOSQ(move);
+
+	assert(ValidSquare(from));
+	assert(ValidSquare(to));
+
+	// Hash out en passant if exists
+	if (pos->enPas != NO_SQ) HASH_EP;
+
+	// Hash out castling rights
+	HASH_CA;
+
+	// Update castling rights, 50mr, en passant
+	pos->castlePerm = pos->history[pos->hisPly].castlePerm;
+	pos->fiftyMove = pos->history[pos->hisPly].fiftyMove;
+	pos->enPas = pos->history[pos->hisPly].enPas;
+
+	// Hash in en passant if exists
+	if (pos->enPas != NO_SQ) HASH_EP;
+	// Hash in castling rights
+	HASH_CA;
+
+	// Change side to play and hash it in
+	pos->side ^= 1;
+	HASH_SIDE;
+
+	// Add in pawn capture by en passant
+	if (MOVE_FLAG_ENPAS & move)
+		if (pos->side == WHITE)
+			AddPiece(to - 8, pos, bP);
+		else
+			AddPiece(to + 8, pos, wP);
+	// Move rook back if castling
+	else if (move & MOVE_FLAG_CASTLE)
+		switch (to) {
+			case C1: MovePiece(D1, A1, pos); break;
+			case C8: MovePiece(D8, A8, pos); break;
+			case G1: MovePiece(F1, H1, pos); break;
+			case G8: MovePiece(F8, H8, pos); break;
+			default: assert(FALSE); break;
+		}
+
+	// Make reverse move (from <-> to)
+	MovePiece(to, from, pos);
+
+	// Update king position if king moved
+	if (PieceKing[pos->pieces[from]])
+		pos->KingSq[pos->side] = from;
+
+	// Add back captured piece if any
+	int captured = CAPTURED(move);
+	if (captured != EMPTY) {
+		assert(PieceValid(captured));
+		AddPiece(to, pos, captured);
+	}
+
+	// Remove promoted piece and put back the pawn
+	if (PROMOTION(move) != EMPTY) {
+		assert(PieceValid(PROMOTION(move)) && !PiecePawn[PROMOTION(move)]);
+		ClearPiece(from, pos);
+		AddPiece(from, pos, (PieceColor[PROMOTION(move)] == WHITE ? wP : bP));
+	}
+
+	assert(CheckBoard(pos));
+}
+
 // Make move move
 int MakeMove(S_BOARD *pos, int move) {
 
@@ -434,84 +512,6 @@ int MakeMove(S_BOARD *pos, int move) {
 	}
 
 	return TRUE;
-}
-
-void TakeMove(S_BOARD *pos) {
-
-	assert(CheckBoard(pos));
-
-	// Decrement hisPly, ply
-	pos->hisPly--;
-	pos->ply--;
-
-	assert(pos->hisPly >= 0 && pos->hisPly < MAXGAMEMOVES);
-	assert(pos->ply >= 0 && pos->ply < MAXDEPTH);
-
-	int move = pos->history[pos->hisPly].move;
-	int from = FROMSQ(move);
-	int   to =   TOSQ(move);
-
-	assert(ValidSquare(from));
-	assert(ValidSquare(to));
-
-	// Hash out en passant if exists
-	if (pos->enPas != NO_SQ) HASH_EP;
-
-	// Hash out castling rights
-	HASH_CA;
-
-	// Update castling rights, 50mr, en passant
-	pos->castlePerm = pos->history[pos->hisPly].castlePerm;
-	pos->fiftyMove = pos->history[pos->hisPly].fiftyMove;
-	pos->enPas = pos->history[pos->hisPly].enPas;
-
-	// Hash in en passant if exists
-	if (pos->enPas != NO_SQ) HASH_EP;
-	// Hash in castling rights
-	HASH_CA;
-
-	// Change side to play and hash it in
-	pos->side ^= 1;
-	HASH_SIDE;
-
-	// Add in pawn capture by en passant
-	if (MOVE_FLAG_ENPAS & move)
-		if (pos->side == WHITE)
-			AddPiece(to - 8, pos, bP);
-		else
-			AddPiece(to + 8, pos, wP);
-	// Move rook back if castling
-	else if (move & MOVE_FLAG_CASTLE)
-		switch (to) {
-			case C1: MovePiece(D1, A1, pos); break;
-			case C8: MovePiece(D8, A8, pos); break;
-			case G1: MovePiece(F1, H1, pos); break;
-			case G8: MovePiece(F8, H8, pos); break;
-			default: assert(FALSE); break;
-		}
-
-	// Make reverse move (from <-> to)
-	MovePiece(to, from, pos);
-
-	// Update king position if king moved
-	if (PieceKing[pos->pieces[from]])
-		pos->KingSq[pos->side] = from;
-
-	// Add back captured piece if any
-	int captured = CAPTURED(move);
-	if (captured != EMPTY) {
-		assert(PieceValid(captured));
-		AddPiece(to, pos, captured);
-	}
-
-	// Remove promoted piece and put back the pawn
-	if (PROMOTION(move) != EMPTY) {
-		assert(PieceValid(PROMOTION(move)) && !PiecePawn[PROMOTION(move)]);
-		ClearPiece(from, pos);
-		AddPiece(from, pos, (PieceColor[PROMOTION(move)] == WHITE ? wP : bP));
-	}
-
-	assert(CheckBoard(pos));
 }
 
 // Pass the turn without moving

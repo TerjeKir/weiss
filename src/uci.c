@@ -9,11 +9,13 @@
 #include "io.h"
 #include "makemove.h"
 #include "misc.h"
+#include "move.h"
 #include "pvtable.h"
 #include "search.h"
 #include "validate.h"
 
 
+#define START_FEN  "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 #define INPUTBUFFER 400 * 6
 
 

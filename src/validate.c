@@ -5,6 +5,7 @@
 
 #include "board.h"
 #include "evaluate.h"
+#include "move.h"
 
 
 int ValidSquare(const int sq) {
