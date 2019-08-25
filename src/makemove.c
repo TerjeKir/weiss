@@ -524,18 +524,18 @@ void MakeNullMove(S_BOARD *pos) {
 	pos->ply++;
 	pos->history[pos->hisPly].posKey = pos->posKey;
 
-	// Hash out en passant if there was one, and unset it
-	if (pos->enPas != NO_SQ) {
-		HASH_EP;
-		pos->enPas = NO_SQ;
-	}
-
 	// Save misc info for takeback
 	pos->history[pos->hisPly].move = NOMOVE;
 	pos->history[pos->hisPly].fiftyMove = pos->fiftyMove;
 	pos->history[pos->hisPly].enPas = pos->enPas;
 	pos->history[pos->hisPly].castlePerm = pos->castlePerm;
 	pos->hisPly++;
+
+	// Hash out en passant if there was one, and unset it
+	if (pos->enPas != NO_SQ) {
+		HASH_EP;
+		pos->enPas = NO_SQ;
+	}
 
 	// Unset en passant square
 
