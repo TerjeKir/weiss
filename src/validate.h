@@ -12,3 +12,4 @@ int FileRankValid(const int fr);
 int PieceValidEmpty(const int pce);
 int PieceValid(const int pce);
 void MirrorEvalTest(S_BOARD *pos);
+void MateInXTest(S_BOARD *pos);

@@ -176,9 +176,15 @@ void Console_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 			continue;
 		}
 
-		if (!strcmp(command, "mirror")) {
+		if (!strcmp(command, "mirrortest")) {
 			engineSide = BOTH;
 			MirrorEvalTest(pos);
+			continue;
+		}
+
+		if (!strcmp(command, "matetest")) {
+			engineSide = BOTH;
+			MateInXTest(pos);
 			continue;
 		}
 
