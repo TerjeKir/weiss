@@ -119,7 +119,9 @@ void Uci_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 	printf("id name %s\n", NAME);
 	printf("id author LoliSquad\n");
 	printf("option name Hash type spin default %d min 4 max %d\n", DEFAULTHASH, MAXHASH);
+#ifdef USE_TBS
 	printf("option name SyzygyPath type string default <empty>\n");
+#endif
 	printf("uciok\n");
 
 	int MB = DEFAULTHASH;
@@ -158,7 +160,7 @@ void Uci_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 			printf("uciok\n");
 
 		} else if (!strncmp(line, "setoption name Hash value ", 26)) {
-			
+
 			sscanf(line, "%*s %*s %*s %*s %d", &newMB);
 			if (newMB == MB) continue; // Ignore if same as before
 			MB = newMB;
@@ -166,9 +168,9 @@ void Uci_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 			if (MB > MAXHASH) MB = MAXHASH;
 			printf("Set Hash to %d MB\n", MB);
 			InitHashTable(pos->HashTable, MB);
-
+#ifdef USE_TBS
 		} else if (!strncmp(line, "setoption name SyzygyPath value ", 32)) {
-			
+
 			char *path = line + strlen("setoption name SyzygyPath value ");
 
 			// Replace newline with null
@@ -178,8 +180,8 @@ void Uci_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 
 			strcpy(info->syzygyPath, path);
 			tb_init(info->syzygyPath);
+#endif
 		}
-
 		if (info->quit) break;
 	}
 }

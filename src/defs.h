@@ -5,6 +5,7 @@
 #define NDEBUG
 #include <assert.h>
 
+#define USE_TBS
 
 #define NAME "weiss 0.3"
 

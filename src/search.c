@@ -188,6 +188,7 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 	if ((IsRepetition(pos) || pos->fiftyMove >= 100) && pos->ply) return 0;
 
 	// Syzygy
+#ifdef USE_TBS
 	unsigned tbresult;
 	if ((tbresult = probeWDL(pos, depth)) != TB_RESULT_FAILED) {
 
@@ -199,7 +200,7 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 
 		return val;
 	}
-
+#endif
 	// Max Depth reached
 	if (pos->ply > MAXDEPTH - 1) return EvalPosition(pos);
 
