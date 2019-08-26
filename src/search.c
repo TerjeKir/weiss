@@ -56,6 +56,7 @@ static int IsRepetition(const S_BOARD *pos) {
 		if (pos->posKey == pos->history[index].posKey)
 			return TRUE;
 	}
+
 	return FALSE;
 }
 
@@ -92,6 +93,10 @@ static int Quiescence(int alpha, int beta, S_BOARD *pos, S_SEARCHINFO *info) {
 
 	assert(CheckBoard(pos));
 	assert(beta > alpha);
+	assert(beta <=  INFINITE);
+	assert(beta >= -INFINITE);
+	assert(alpha <=  INFINITE);
+	assert(alpha >= -INFINITE);
 
 	// Check if we should stop
 	if ((info->nodes & 2047) == 0)
@@ -108,38 +113,38 @@ static int Quiescence(int alpha, int beta, S_BOARD *pos, S_SEARCHINFO *info) {
 		return 0;
 
 	// If we are at max depth, return static eval
-	if (pos->ply > MAXDEPTH - 1)
+	if (pos->ply >= MAXDEPTH)
 		return EvalPosition(pos);
 
 	// Evaluate the position
-	int Score = EvalPosition(pos);
+	int score = EvalPosition(pos);
 
 	// TODO
-	if (Score >= beta)
+	if (score >= beta)
 		return beta;
 	// TODO
-	if (Score > alpha)
-		alpha = Score;
+	if (score > alpha)
+		alpha = score;
 
 	// Generate all moves
 	S_MOVELIST list[1];
 	GenerateAllCaptures(pos, list);
 
-	int Legal = 0;
-	Score = -INFINITE;
+	int legal = 0;
+	score = -INFINITE;
 
 	// Move loop
-	for (int MoveNum = 0; MoveNum < list->count; ++MoveNum) {
+	for (int moveNum = 0; moveNum < list->count; ++moveNum) {
 
-		PickNextMove(MoveNum, list);
+		PickNextMove(moveNum, list);
 
 		// Skip illegal moves
-		if (!MakeMove(pos, list->moves[MoveNum].move))
+		if (!MakeMove(pos, list->moves[moveNum].move))
 			continue;
 
-		Legal++;
+		legal++;
 
-		Score = -Quiescence(-beta, -alpha, pos, info);
+		score = -Quiescence(-beta, -alpha, pos, info);
 		TakeMove(pos);
 
 		// Stop search if gui says to stop
@@ -147,15 +152,15 @@ static int Quiescence(int alpha, int beta, S_BOARD *pos, S_SEARCHINFO *info) {
 			return 0;
 
 		// Update alpha, return beta if beta cutoff? TODO
-		if (Score > alpha) {
-			if (Score >= beta) {
-				if (Legal == 1)
+		if (score > alpha) {
+			if (score >= beta) {
+				if (legal == 1)
 					info->fhf++;
 
 				info->fh++;
 				return beta;
 			}
-			alpha = Score;
+			alpha = score;
 		}
 	}
 
@@ -163,7 +168,7 @@ static int Quiescence(int alpha, int beta, S_BOARD *pos, S_SEARCHINFO *info) {
 }
 
 // Alpha Beta
-static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO *info, int DoNull) {
+static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO *info, int doNull) {
 
 	assert(CheckBoard(pos));
 	assert(beta > alpha);
@@ -174,7 +179,7 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 	assert(beta  >= -INFINITE);
 
 	// Quiescence at the end of search
-	if (depth == 0) return Quiescence(alpha, beta, pos, info);
+	if (depth <= 0) return Quiescence(alpha, beta, pos, info);
 
 	// Check for time
 	if ((info->nodes & 2047) == 0) CheckUp(info);
@@ -202,33 +207,33 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 	}
 #endif
 	// Max Depth reached
-	if (pos->ply > MAXDEPTH - 1) return EvalPosition(pos);
+	if (pos->ply >= MAXDEPTH) return EvalPosition(pos);
 
 	// Extend search if in check
-	int InCheck = SqAttacked(pos->KingSq[pos->side], pos->side ^ 1, pos);
-	if (InCheck) depth++;
+	int inCheck = SqAttacked(pos->KingSq[pos->side], pos->side ^ 1, pos);
+	if (inCheck) depth++;
 
-	int Score = -INFINITE;
-	int PvMove = NOMOVE;
+	int score = -INFINITE;
+	int pvMove = NOMOVE;
 
 	// Probe transposition table
-	if (ProbeHashEntry(pos, &PvMove, &Score, alpha, beta, depth)) {
+	if (ProbeHashEntry(pos, &pvMove, &score, alpha, beta, depth)) {
 #ifdef PV_STATS
 		pos->HashTable->cut++;
 #endif
-		return Score;
+		return score;
 	}
 
 	// Null Move Pruning
-	if (DoNull && !InCheck && pos->ply && (pos->bigPieces[pos->side] > 0) && depth >= 4) {
+	if (doNull && !inCheck && pos->ply && (pos->bigPieces[pos->side] > 0) && depth >= 4) {
 
 		MakeNullMove(pos);
-		Score = -AlphaBeta(-beta, -beta + 1, depth - 4, pos, info, FALSE);
+		score = -AlphaBeta(-beta, -beta + 1, depth - 4, pos, info, FALSE);
 		TakeNullMove(pos);
 
 		if (info->stopped) return 0;
 
-		if (Score >= beta && abs(Score) < ISMATE) {
+		if (score >= beta && abs(score) < ISMATE) {
 			info->nullCut++;
 			return beta;
 		}
@@ -238,91 +243,101 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 	S_MOVELIST list[1];
 	GenerateAllMoves(pos, list);
 
-	int MoveNum;
-	int Legal = 0;
-	int OldAlpha = alpha;
-	int BestMove = NOMOVE;
-	int BestScore = -INFINITE;
+	int moveNum;
+	int legal = 0;
+	int oldAlpha = alpha;
+	int bestMove = NOMOVE;
+	int bestScore = -INFINITE;
 
-	Score = -INFINITE;
+	score = -INFINITE;
 
 	// Set score of PV move
-	if (PvMove != NOMOVE)
-		for (MoveNum = 0; MoveNum < list->count; ++MoveNum)
-			if (list->moves[MoveNum].move == PvMove) {
-				list->moves[MoveNum].score = 2000000;
+	if (pvMove != NOMOVE)
+		for (moveNum = 0; moveNum < list->count; ++moveNum)
+			if (list->moves[moveNum].move == pvMove) {
+				list->moves[moveNum].score = 2000000;
 				break;
 			}
 
 	// Move loop
-	for (MoveNum = 0; MoveNum < list->count; ++MoveNum) {
+	for (moveNum = 0; moveNum < list->count; ++moveNum) {
 
 		// Move the best move to front of queue
-		PickNextMove(MoveNum, list);
+		PickNextMove(moveNum, list);
 
 		// Skip illegal moves
-		if (!MakeMove(pos, list->moves[MoveNum].move)) continue;
+		if (!MakeMove(pos, list->moves[moveNum].move)) continue;
 
-		Legal++;
+		legal++;
 
-		Score = -AlphaBeta(-beta, -alpha, depth - 1, pos, info, TRUE);
+		score = -AlphaBeta(-beta, -alpha, depth - 1, pos, info, TRUE);
 		TakeMove(pos);
+
+		assert(score <=  INFINITE);
+		assert(score >= -INFINITE);
 
 		// Abort if we have to
 		if (info->stopped) return 0;
 
 		// Found a new best
-		if (Score > BestScore) {
+		if (score > bestScore) {
 
-			BestScore = Score;
-			BestMove = list->moves[MoveNum].move;
+			bestScore = score;
+			bestMove = list->moves[moveNum].move;
 
 			// TODO
-			if (Score > alpha) {
-				if (Score >= beta) {
+			if (score > alpha) {
+				if (score >= beta) {
 
-					if (Legal == 1) info->fhf++;
+					if (legal == 1) info->fhf++;
 
 					info->fh++;
 
-					if (!(list->moves[MoveNum].move & FLAG_CAPTURE)) {
+					if (!(list->moves[moveNum].move & FLAG_CAPTURE)) {
 						pos->searchKillers[1][pos->ply] = pos->searchKillers[0][pos->ply];
-						pos->searchKillers[0][pos->ply] = list->moves[MoveNum].move;
+						pos->searchKillers[0][pos->ply] = list->moves[moveNum].move;
 					}
 
 					assert(beta <=  INFINITE);
 					assert(beta >= -INFINITE);
 					
-					StoreHashEntry(pos, BestMove, beta, HFBETA, depth);
+					StoreHashEntry(pos, bestMove, beta, HFBETA, depth);
 
 					return beta;
 				}
-				alpha = Score;
 
-				if (!(list->moves[MoveNum].move & FLAG_CAPTURE))
-					pos->searchHistory[pos->pieces[FROMSQ(BestMove)]][TOSQ(BestMove)] += depth;
+				assert(alpha <=  INFINITE);
+				assert(alpha >= -INFINITE);
+
+				alpha = score;
+
+				assert(alpha <=  INFINITE);
+				assert(alpha >= -INFINITE);
+
+				if (!(list->moves[moveNum].move & FLAG_CAPTURE))
+					pos->searchHistory[pos->pieces[FROMSQ(bestMove)]][TOSQ(bestMove)] += depth;
 			}
 		}
 	}
 
 	// Checkmate or stalemate
-	if (Legal == 0) {
-		if (InCheck)
+	if (legal == 0) {
+		if (inCheck)
 			return -INFINITE + pos->ply;
 		else
 			return 0;
 	}
 
-	assert(alpha >= OldAlpha);
+	assert(alpha >= oldAlpha);
 	assert(alpha <=  INFINITE);
 	assert(alpha >= -INFINITE);
-	assert(BestScore <=  INFINITE);
-	assert(BestScore >= -INFINITE);
+	assert(bestScore <=  INFINITE);
+	assert(bestScore >= -INFINITE);
 
-	if (alpha != OldAlpha)
-		StoreHashEntry(pos, BestMove, BestScore, HFEXACT, depth);
+	if (alpha != oldAlpha)
+		StoreHashEntry(pos, bestMove, bestScore, HFEXACT, depth);
 	else
-		StoreHashEntry(pos, BestMove, alpha, HFALPHA, depth);
+		StoreHashEntry(pos, bestMove, alpha, HFALPHA, depth);
 
 	return alpha;
 }
