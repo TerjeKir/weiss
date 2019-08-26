@@ -346,23 +346,25 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 void SearchPosition(S_BOARD *pos, S_SEARCHINFO *info) {
 
 	int bestMove = NOMOVE;
-	int bestScore, currentDepth, pvMoves;
+	int bestScore, currentDepth;
 
 	ClearForSearch(pos, info);
 
 	// Iterative deepening
 	for (currentDepth = 1; currentDepth <= info->depth; ++currentDepth) {
+
+		// Update seldepth if deeper
 		if (currentDepth > info->seldepth) 
 			info->seldepth = currentDepth;
 
+		// Search position
 		bestScore = AlphaBeta(-INFINITE, INFINITE, currentDepth, pos, info, TRUE);
 
+		// Stop search if applicable
 		if (info->stopped) break;
 
-		pvMoves = GetPvLine(currentDepth, pos);
-		bestMove = pos->PvArray[0];
-
-		PrintThinking(info, pos, bestScore, currentDepth, pvMoves);
+		// Print thinking
+		PrintThinking(info, pos, bestScore, currentDepth);
 
 #ifdef PV_STATS
 		printf("PV Stats: Hits: %d Overwrite: %d NewWrite: %d Cut: %d\nOrdering %.2f NullCut: %d\n", pos->HashTable->hit,
@@ -370,7 +372,9 @@ void SearchPosition(S_BOARD *pos, S_SEARCHINFO *info) {
 #endif
 	}
 
-	// Print the best move after search finishes
+	// Get and print best move when done thinking
+	bestMove = pos->PvArray[0];
+
 	if (info->GAME_MODE == UCIMODE)
 		printf("bestmove %s\n", MoveToStr(bestMove));
 	else {

@@ -138,9 +138,10 @@ int ParseEPDMove(char *ptrChar, S_BOARD *pos) {
 }
 
 // Print thinking
-void PrintThinking(S_SEARCHINFO *info, S_BOARD *pos, int bestScore, int currentDepth, int pvMoves) {
+void PrintThinking(S_SEARCHINFO *info, S_BOARD *pos, int bestScore, int currentDepth) {
 
 	unsigned timeElapsed = GetTimeMs() - info->starttime;
+	int pvMoves;
 
 	// UCI mode
 	if (info->GAME_MODE == UCIMODE) {

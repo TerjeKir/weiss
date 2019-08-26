@@ -12,7 +12,7 @@
 static int ProbePvMove(const S_BOARD *pos) {
 
 	int index = pos->posKey % pos->HashTable->numEntries;
-	assert(index >= 0 && index <= pos->HashTable->numEntries - 1);
+	assert(index >= 0 && index < pos->HashTable->numEntries);
 
 	if (pos->HashTable->pTable[index].posKey == pos->posKey)
 		return pos->HashTable->pTable[index].move;
