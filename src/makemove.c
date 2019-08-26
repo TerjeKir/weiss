@@ -525,9 +525,9 @@ void MakeNullMove(S_BOARD *pos) {
 	pos->history[pos->hisPly].posKey = pos->posKey;
 
 	// Save misc info for takeback
-	pos->history[pos->hisPly].move = NOMOVE;
-	pos->history[pos->hisPly].fiftyMove = pos->fiftyMove;
-	pos->history[pos->hisPly].enPas = pos->enPas;
+	pos->history[pos->hisPly].move 		 = NOMOVE;
+	pos->history[pos->hisPly].fiftyMove  = pos->fiftyMove;
+	pos->history[pos->hisPly].enPas 	 = pos->enPas;
 	pos->history[pos->hisPly].castlePerm = pos->castlePerm;
 	pos->hisPly++;
 
@@ -536,8 +536,6 @@ void MakeNullMove(S_BOARD *pos) {
 		HASH_EP;
 		pos->enPas = NO_SQ;
 	}
-
-	// Unset en passant square
 
 	// Change side to play
 	pos->side ^= 1;
@@ -554,15 +552,20 @@ void MakeNullMove(S_BOARD *pos) {
 void TakeNullMove(S_BOARD *pos) {
 	assert(CheckBoard(pos));
 
+	// Reduce ply
 	pos->hisPly--;
 	pos->ply--;
 
+	// Get info from history
 	pos->castlePerm = pos->history[pos->hisPly].castlePerm;
-	pos->fiftyMove = pos->history[pos->hisPly].fiftyMove;
-	pos->enPas = pos->history[pos->hisPly].enPas;
+	pos->fiftyMove 	= pos->history[pos->hisPly].fiftyMove;
+	pos->enPas 		= pos->history[pos->hisPly].enPas;
 
-	if (pos->enPas != NO_SQ) HASH_EP;
+	// Hash in new en passant if exists
+	if (pos->enPas != NO_SQ) 
+		HASH_EP;
 
+	// Change side to play and hash it
 	pos->side ^= 1;
 	HASH_SIDE;
 

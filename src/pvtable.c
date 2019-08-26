@@ -145,7 +145,7 @@ void StoreHashEntry(S_BOARD *pos, const int move, int score, const int flags, co
 
 	int index = pos->posKey % pos->HashTable->numEntries;
 
-	assert(index >= 0 && index <= pos->HashTable->numEntries - 1);
+	assert(index >= 0 && index < pos->HashTable->numEntries);
 	assert(depth >= 1 && depth < MAXDEPTH);
 	assert(flags >= HFALPHA && flags <= HFEXACT);
 	assert(score >= -INFINITE && score <= INFINITE);
