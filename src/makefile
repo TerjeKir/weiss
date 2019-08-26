@@ -3,6 +3,7 @@
 #general
 NAME	= weiss
 VER		= 0.3
+EXE		= $(NAME) $(VER)
 SRC     = *.c fathom/tbprobe.c
 OUT		= ../bin/
 
@@ -17,16 +18,16 @@ PGOMAKE	= -fprofile-generate=$(PGODIR)
 PGOUSE  = -fprofile-use=$(PGODIR)
 
 default: 	#for quick tests
-	gcc $(STD) $(OPTIM) $(SRC) -o "$(NAME) $(VER).exe"
-
-pgoc:		#for pgo-compile
-	gcc $(STD) $(OPTIM) $(WFLAGS) $(SRC) $(PGOUSE) -o "$(OUT)$(NAME) $(VER) pgoc.exe"
-
-pgom: 		#for generating profile data -> pgo
-	gcc $(STD) $(OPTIM) $(WFLAGS) $(SRC) $(PGOMAKE) -o "$(OUT)$(NAME) $(VER) pgom.exe"
+	gcc $(STD) $(OPTIM) $(WFLAGS) $(SRC)            -o       "$(EXE) dev.exe"
 
 basic: 		#for basic compile
-	gcc $(STD) $(OPTIM) $(WFLAGS) $(SRC) -o "$(OUT)$(NAME) $(VER).exe"
+	gcc $(STD) $(OPTIM) $(WFLAGS) $(SRC)            -o "$(OUT)$(EXE) basic.exe"
+
+pgo:		#for pgo-compile
+	gcc $(STD) $(OPTIM) $(WFLAGS) $(SRC) $(PGOUSE)  -o "$(OUT)$(EXE).exe"
+
+pgomake: 	#for generating profile data -> pgo
+	gcc $(STD) $(OPTIM) $(WFLAGS) $(SRC) $(PGOMAKE) -o "$(OUT)$(EXE) pgo.exe"
 
 prof:		#for gprof profiling
-	gcc $(STD) $(OPTIM) $(WFLAGS) $(SRC) -pg -o "$(OUT)$(NAME) $(VER) prof.exe"
+	gcc $(STD) $(OPTIM) $(WFLAGS) $(SRC) -pg        -o "$(OUT)$(EXE) prof.exe"
