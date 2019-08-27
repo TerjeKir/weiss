@@ -5,7 +5,10 @@
 #define NDEBUG
 #include <assert.h>
 
-#define USE_TBS
+// #define USE_TBS
+#define CHECK_MAT_DRAW
+#define USE_PEXT
+// #define PV_STATS
 
 #define NAME "weiss 0.3"
 
