@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "fathom/tbprobe.h"
 #include "attack.h"
 #include "bitboards.h"
 #include "board.h"
@@ -130,6 +131,10 @@ void Console_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 	// Perft vars
 	S_BOARD board[1];
 	int perftDepth = 3;
+
+#ifdef USE_TBS
+	tb_init("F:\\Syzygy");
+#endif
 
 	while (TRUE) {
 
