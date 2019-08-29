@@ -69,10 +69,12 @@ typedef struct {
 typedef struct {
 	S_HASHENTRY *pTable;
 	int numEntries;
+#ifdef SEARCH_STATS
 	int newWrite;
 	int overWrite;
 	int hit;
 	int cut;
+#endif
 } S_HASHTABLE;
 
 typedef struct {
@@ -125,9 +127,11 @@ typedef struct {
 	int quit;
 	int stopped;
 
+#ifdef SEARCH_STATS
 	float fh;
 	float fhf;
 	int nullCut;
+#endif
 
 	int GAME_MODE;
 	int POST_THINKING;

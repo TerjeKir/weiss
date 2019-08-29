@@ -8,7 +8,7 @@
 #define USE_TBS
 #define CHECK_MAT_DRAW
 #define USE_PEXT
-// #define PV_STATS
+// #define SEARCH_STATS
 
 #define NAME "weiss 0.3"
 

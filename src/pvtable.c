@@ -57,7 +57,9 @@ void ClearHashTable(S_HASHTABLE *table) {
 		tableEntry->score = 0;
 		tableEntry->flags = 0;
 	}
+#ifdef SEARCH_STATS
 	table->newWrite = 0;
+#endif
 }
 
 void InitHashTable(S_HASHTABLE *table, const uint64_t MB) {
@@ -78,7 +80,9 @@ void InitHashTable(S_HASHTABLE *table, const uint64_t MB) {
 		InitHashTable(table, MB / 2);
 	// Success
 	} else {
+#ifdef SEARCH_STATS
 		table->newWrite = 0;
+#endif
 		printf("HashTable init complete with %d entries, using %I64dMB.\n", table->numEntries, MB);
 	}
 }
@@ -99,7 +103,7 @@ int ProbeHashEntry(S_BOARD *pos, int *move, int *score, int alpha, int beta, int
 		*move = pos->HashTable->pTable[index].move;
 		if (pos->HashTable->pTable[index].depth >= depth) {
 
-#ifdef PV_STATS
+#ifdef SEARCH_STATS
 			pos->HashTable->hit++;
 #endif
 			assert(pos->HashTable->pTable[index].depth >= 1 && pos->HashTable->pTable[index].depth < MAXDEPTH);
@@ -151,7 +155,7 @@ void StoreHashEntry(S_BOARD *pos, const int move, int score, const int flags, co
 	assert(score >= -INFINITE && score <= INFINITE);
 	assert(pos->ply >= 0 && pos->ply < MAXDEPTH);
 
-#ifdef PV_STATS
+#ifdef SEARCH_STATS
 	if (pos->HashTable->pTable[index].posKey == 0)
 		pos->HashTable->newWrite++;
 	else

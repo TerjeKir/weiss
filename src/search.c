@@ -73,15 +73,15 @@ static void ClearForSearch(S_BOARD *pos, S_SEARCHINFO *info) {
 		for (index2 = 0; index2 < MAXDEPTH; ++index2)
 			pos->searchKillers[index][index2] = 0;
 
-	pos->ply = 0;
-#ifdef PV_STATS
+#ifdef SEARCH_STATS
 	pos->HashTable->hit = 0;
 	pos->HashTable->cut = 0;
 	pos->HashTable->overWrite = 0;
-#endif
 
 	info->fh = 0;
 	info->fhf = 0;
+#endif
+	pos->ply = 0;
 	info->nodes = 0;
 	info->tbhits = 0;
 	info->stopped = 0;
@@ -154,10 +154,10 @@ static int Quiescence(int alpha, int beta, S_BOARD *pos, S_SEARCHINFO *info) {
 		// Update alpha, return beta if beta cutoff? TODO
 		if (score > alpha) {
 			if (score >= beta) {
-				if (legal == 1)
-					info->fhf++;
-
+#ifdef SEARCH_STATS
+				if (legal == 1) info->fhf++;
 				info->fh++;
+#endif
 				return beta;
 			}
 			alpha = score;
@@ -218,7 +218,7 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 
 	// Probe transposition table
 	if (ProbeHashEntry(pos, &pvMove, &score, alpha, beta, depth)) {
-#ifdef PV_STATS
+#ifdef SEARCH_STATS
 		pos->HashTable->cut++;
 #endif
 		return score;
@@ -234,7 +234,9 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 		if (info->stopped) return 0;
 
 		if (score >= beta && abs(score) < ISMATE) {
+#ifdef SEARCH_STATS
 			info->nullCut++;
+#endif
 			return beta;
 		}
 	}
@@ -288,11 +290,10 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 			// TODO
 			if (score > alpha) {
 				if (score >= beta) {
-
+#ifdef SEARCH_STATS
 					if (legal == 1) info->fhf++;
-
 					info->fh++;
-
+#endif
 					if (!(list->moves[moveNum].move & FLAG_CAPTURE)) {
 						pos->searchKillers[1][pos->ply] = pos->searchKillers[0][pos->ply];
 						pos->searchKillers[0][pos->ply] = list->moves[moveNum].move;
@@ -366,8 +367,8 @@ void SearchPosition(S_BOARD *pos, S_SEARCHINFO *info) {
 		// Print thinking
 		PrintThinking(info, pos, bestScore, currentDepth);
 
-#ifdef PV_STATS
-		printf("PV Stats: Hits: %d Overwrite: %d NewWrite: %d Cut: %d\nOrdering %.2f NullCut: %d\n", pos->HashTable->hit,
+#ifdef SEARCH_STATS
+		printf("Stats: Hits: %d Overwrite: %d NewWrite: %d Cut: %d\nOrdering %.2f NullCut: %d\n", pos->HashTable->hit,
 			pos->HashTable->overWrite, pos->HashTable->newWrite, pos->HashTable->cut, (info->fhf/info->fh)*100, info->nullCut);
 #endif
 	}
