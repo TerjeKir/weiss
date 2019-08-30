@@ -18,7 +18,7 @@
 
 // Check if time up, or interrupt from GUI
 static void CheckUp(S_SEARCHINFO *info) {
-	
+
 	if (info->timeset && GetTimeMs() > info->stoptime)
 		info->stopped = TRUE;
 
@@ -116,13 +116,11 @@ static int Quiescence(int alpha, int beta, S_BOARD *pos, S_SEARCHINFO *info) {
 	if (pos->ply >= MAXDEPTH)
 		return EvalPosition(pos);
 
-	// Evaluate the position
+	// Standing Pat -- If the stand-pat beats beta there is most likely also a move that beats beta
+	// so we assume we have a beta cutoff. If the stand-pat beats alpha we use it as alpha.
 	int score = EvalPosition(pos);
-
-	// TODO
 	if (score >= beta)
 		return beta;
-	// TODO
 	if (score > alpha)
 		alpha = score;
 
@@ -138,28 +136,26 @@ static int Quiescence(int alpha, int beta, S_BOARD *pos, S_SEARCHINFO *info) {
 
 		PickNextMove(moveNum, list);
 
-		// Skip illegal moves
-		if (!MakeMove(pos, list->moves[moveNum].move))
-			continue;
-
-		legal++;
-
+		// Recursively search the positions after making the moves, skipping illegal ones
+		if (!MakeMove(pos, list->moves[moveNum].move)) continue;
 		score = -Quiescence(-beta, -alpha, pos, info);
 		TakeMove(pos);
 
-		// Stop search if gui says to stop
-		if (info->stopped)
-			return 0;
+		legal++;
 
-		// Update alpha, return beta if beta cutoff? TODO
+		// If score beats alpha we update alpha
 		if (score > alpha) {
+
+			// If score beats beta we have a cutoff
 			if (score >= beta) {
+
 #ifdef SEARCH_STATS
 				if (legal == 1) info->fhf++;
 				info->fh++;
 #endif
 				return beta;
 			}
+
 			alpha = score;
 		}
 	}
@@ -179,18 +175,22 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 	assert(beta  >= -INFINITE);
 
 	// Quiescence at the end of search
-	if (depth <= 0) return Quiescence(alpha, beta, pos, info);
+	if (depth <= 0) 
+		return Quiescence(alpha, beta, pos, info);
 
 	// Check for time
-	if ((info->nodes & 2047) == 0) CheckUp(info);
+	if ((info->nodes & 2047) == 0) 
+		CheckUp(info);
 
 	info->nodes++;
 
 	// Update selective depth
-	if (pos->ply > info->seldepth) info->seldepth = pos->ply;
+	if (pos->ply > info->seldepth) 
+		info->seldepth = pos->ply;
 
 	// Repetition reached
-	if ((IsRepetition(pos) || pos->fiftyMove >= 100) && pos->ply) return 0;
+	if ((IsRepetition(pos) || pos->fiftyMove >= 100) && pos->ply) 
+		return 0;
 
 	// Syzygy
 #ifdef USE_TBS
@@ -206,11 +206,13 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 		return val;
 	}
 #endif
+
 	// Max Depth reached
-	if (pos->ply >= MAXDEPTH) return EvalPosition(pos);
+	if (pos->ply >= MAXDEPTH) 
+		return EvalPosition(pos);
 
 	// Extend search if in check
-	int inCheck = SqAttacked(pos->KingSq[pos->side], pos->side ^ 1, pos);
+	int inCheck = SqAttacked(pos->KingSq[pos->side], !pos->side, pos);
 	if (inCheck) depth++;
 
 	int score = -INFINITE;
@@ -230,8 +232,6 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 		MakeNullMove(pos);
 		score = -AlphaBeta(-beta, -beta + 1, depth - 4, pos, info, FALSE);
 		TakeNullMove(pos);
-
-		if (info->stopped) return 0;
 
 		if (score >= beta && abs(score) < ISMATE) {
 #ifdef SEARCH_STATS
@@ -267,54 +267,45 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 		// Move the best move to front of queue
 		PickNextMove(moveNum, list);
 
-		// Skip illegal moves
+		// Recursively search the positions after making the moves, skipping illegal ones
 		if (!MakeMove(pos, list->moves[moveNum].move)) continue;
-
-		legal++;
-
 		score = -AlphaBeta(-beta, -alpha, depth - 1, pos, info, TRUE);
 		TakeMove(pos);
 
-		assert(score <=  INFINITE);
-		assert(score >= -INFINITE);
+		legal++;
 
-		// Abort if we have to
-		if (info->stopped) return 0;
+		assert(-INFINITE <= score && score <=  INFINITE);
 
-		// Found a new best
+		// Found a new best move in this position
 		if (score > bestScore) {
 
 			bestScore = score;
 			bestMove = list->moves[moveNum].move;
 
-			// TODO
+			// If score beats alpha we update alpha
 			if (score > alpha) {
+				// If score beats beta we have a cutoff
 				if (score >= beta) {
-#ifdef SEARCH_STATS
-					if (legal == 1) info->fhf++;
-					info->fh++;
-#endif
+
+					// Update killers if quiet move
 					if (!(list->moves[moveNum].move & FLAG_CAPTURE)) {
 						pos->searchKillers[1][pos->ply] = pos->searchKillers[0][pos->ply];
 						pos->searchKillers[0][pos->ply] = list->moves[moveNum].move;
 					}
-
-					assert(beta <=  INFINITE);
-					assert(beta >= -INFINITE);
-					
+				
+#ifdef SEARCH_STATS
+					if (legal == 1) info->fhf++;
+					info->fh++;
+#endif
+	
 					StoreHashEntry(pos, bestMove, beta, HFBETA, depth);
 
 					return beta;
 				}
 
-				assert(alpha <=  INFINITE);
-				assert(alpha >= -INFINITE);
-
 				alpha = score;
 
-				assert(alpha <=  INFINITE);
-				assert(alpha >= -INFINITE);
-
+				// Update searchHistory if quiet move
 				if (!(list->moves[moveNum].move & FLAG_CAPTURE))
 					pos->searchHistory[pos->pieces[FROMSQ(bestMove)]][TOSQ(bestMove)] += depth;
 			}
@@ -334,6 +325,11 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 	assert(alpha >= -INFINITE);
 	assert(bestScore <=  INFINITE);
 	assert(bestScore >= -INFINITE);
+
+	if (alpha != oldAlpha)
+		printf("Storing HFEXACT: %d ply: %d\n", bestScore, pos->ply);
+	else
+		printf("Storing HFALPHA: %d ply: %d\n", alpha, pos->ply);
 
 	if (alpha != oldAlpha)
 		StoreHashEntry(pos, bestMove, bestScore, HFEXACT, depth);
@@ -378,6 +374,7 @@ void SearchPosition(S_BOARD *pos, S_SEARCHINFO *info) {
 
 	if (info->GAME_MODE == UCIMODE)
 		printf("bestmove %s\n", MoveToStr(bestMove));
+
 	else {
 		printf("\n\n***!! %s !!***\n\n", MoveToStr(bestMove));
 		MakeMove(pos, bestMove);
