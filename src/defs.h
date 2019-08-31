@@ -6,7 +6,7 @@
 #include <assert.h>
 
 #define USE_TBS
-#define CHECK_MAT_DRAW
+// #define CHECK_MAT_DRAW
 #define USE_PEXT
 // #define SEARCH_STATS
 
