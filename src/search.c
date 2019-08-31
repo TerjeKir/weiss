@@ -342,10 +342,8 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 	assert(bestScore <=  INFINITE);
 	assert(bestScore >= -INFINITE);
 
-	if (alpha != oldAlpha)
-		StoreHashEntry(pos, bestMove, bestScore, HFEXACT, depth);
-	else
-		StoreHashEntry(pos, bestMove, bestScore, HFALPHA, depth);
+	int flag = alpha != oldAlpha ? HFEXACT : HFALPHA;
+	StoreHashEntry(pos, bestMove, bestScore, flag, depth);
 
 	return bestScore;
 }
