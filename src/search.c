@@ -210,13 +210,13 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 				: tbresult == TB_WIN  ?  INFINITE - pos->ply - 1
 									  :  0;
 
-        int flag = tbresult == TB_LOSS ? HFBETA
-                 : tbresult == TB_WIN  ? HFALPHA 
+        int flag = tbresult == TB_LOSS ? HFALPHA
+                 : tbresult == TB_WIN  ? HFBETA 
 									   : HFEXACT;
 
         if (    flag == HFEXACT
-            || (flag == HFALPHA && val >= beta)
-            || (flag == HFBETA  && val <= alpha)) {
+            || (flag == HFBETA  && val >= beta)
+            || (flag == HFALPHA && val <= alpha)) {
 
             StoreHashEntry(pos, NOMOVE, val, flag, MAXDEPTH-1);
             return val;
@@ -250,7 +250,7 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 		score = -AlphaBeta(-beta, -beta + 1, depth - 4, pos, info, FALSE);
 		TakeNullMove(pos);
 
-		if (score >= beta && abs(score) < ISMATE) {
+		if (score >= beta) {
 #ifdef SEARCH_STATS
 			info->nullCut++;
 #endif
