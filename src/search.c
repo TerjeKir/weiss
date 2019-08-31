@@ -143,6 +143,9 @@ static int Quiescence(int alpha, int beta, S_BOARD *pos, S_SEARCHINFO *info) {
 
 		legal++;
 
+		if(info->stopped == TRUE)
+			return 0;
+
 		// If score beats alpha we update alpha
 		if (score > alpha) {
 
@@ -274,6 +277,9 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 
 		legal++;
 
+		if(info->stopped == TRUE)
+			return 0;
+
 		assert(-INFINITE <= score && score <=  INFINITE);
 
 		// Found a new best move in this position
@@ -325,11 +331,6 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 	assert(alpha >= -INFINITE);
 	assert(bestScore <=  INFINITE);
 	assert(bestScore >= -INFINITE);
-
-	if (alpha != oldAlpha)
-		printf("Storing HFEXACT: %d ply: %d\n", bestScore, pos->ply);
-	else
-		printf("Storing HFALPHA: %d ply: %d\n", alpha, pos->ply);
 
 	if (alpha != oldAlpha)
 		StoreHashEntry(pos, bestMove, bestScore, HFEXACT, depth);
