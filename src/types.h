@@ -63,7 +63,7 @@ typedef struct {
 	int move;
 	int16_t score;
 	uint8_t depth;
-	uint8_t flags;
+	uint8_t flag;
 } S_HASHENTRY;
 
 typedef struct {

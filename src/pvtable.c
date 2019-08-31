@@ -57,7 +57,7 @@ void ClearHashTable(S_HASHTABLE *table) {
 		tableEntry->move = NOMOVE;
 		tableEntry->depth = 0;
 		tableEntry->score = 0;
-		tableEntry->flags = 0;
+		tableEntry->flag = 0;
 	}
 #ifdef SEARCH_STATS
 	table->newWrite = 0;
@@ -129,7 +129,7 @@ int ProbeHashEntry(S_BOARD *pos, int *move, int *score, int alpha, int beta, int
 		if (pos->HashTable->pTable[index].depth >= depth) {
 
 			assert(pos->HashTable->pTable[index].depth >= 1 && pos->HashTable->pTable[index].depth < MAXDEPTH);
-			assert(pos->HashTable->pTable[index].flags >= HFALPHA && pos->HashTable->pTable[index].flags <= HFEXACT);
+			assert(pos->HashTable->pTable[index].flag >= HFALPHA && pos->HashTable->pTable[index].flag <= HFEXACT);
 
 			*score = ScoreFromTT(pos->HashTable->pTable[index].score, pos->ply);
 
@@ -139,8 +139,8 @@ int ProbeHashEntry(S_BOARD *pos, int *move, int *score, int alpha, int beta, int
 			pos->HashTable->hit++;
 #endif
 
-			// Update score based on flags and current alpha/beta
-			switch (pos->HashTable->pTable[index].flags) {
+			// Update score based on flag and current alpha/beta
+			switch (pos->HashTable->pTable[index].flag) {
 				case HFALPHA:
 					if (*score <= alpha) {
 						*score = alpha;
@@ -167,7 +167,7 @@ int ProbeHashEntry(S_BOARD *pos, int *move, int *score, int alpha, int beta, int
 void StoreHashEntry(S_BOARD *pos, const int move, int score, const int flag, const int depth) {
 
 	assert(-INFINITE <= score && score <= INFINITE);
-	assert(flags >= HFALPHA && flags <= HFEXACT);
+	assert(flag >= HFALPHA && flag <= HFEXACT);
 	assert(depth >= 1 && depth < MAXDEPTH);
 	assert(pos->ply >= 0 && pos->ply < MAXDEPTH);
 
@@ -179,7 +179,7 @@ void StoreHashEntry(S_BOARD *pos, const int move, int score, const int flag, con
 	pos->HashTable->pTable[index].move   = move;
 	pos->HashTable->pTable[index].depth  = depth;
 	pos->HashTable->pTable[index].score  = ScoreToTT(score, pos->ply);
-	pos->HashTable->pTable[index].flags  = flag;
+	pos->HashTable->pTable[index].flag  = flag;
 
 	assert(-INFINITE <= pos->HashTable->pTable[index].score && pos->HashTable->pTable[index].score <= INFINITE);
 
