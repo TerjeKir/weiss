@@ -208,9 +208,19 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 
 		int val = tbresult == TB_LOSS ? -INFINITE + pos->ply + 1
 				: tbresult == TB_WIN  ?  INFINITE - pos->ply - 1
-				: 0;
+									  :  0;
 
-		return val;
+        int flag = tbresult == TB_LOSS ? HFBETA
+                 : tbresult == TB_WIN  ? HFALPHA 
+									   : HFEXACT;
+
+        if (    flag == HFEXACT
+            || (flag == HFALPHA && val >= beta)
+            || (flag == HFBETA  && val <= alpha)) {
+
+            StoreHashEntry(pos, NOMOVE, val, flag, MAXDEPTH-1);
+            return val;
+        }
 	}
 #endif
 
