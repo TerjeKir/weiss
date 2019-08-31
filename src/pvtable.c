@@ -9,10 +9,10 @@
 #include "pvtable.h"
 
 
+// Returns principal variation move in the position (if any)
 static int ProbePvMove(const S_BOARD *pos) {
 
 	int index = pos->posKey % pos->HashTable->numEntries;
-	assert(index >= 0 && index < pos->HashTable->numEntries);
 
 	if (pos->HashTable->pTable[index].posKey == pos->posKey)
 		return pos->HashTable->pTable[index].move;
@@ -20,6 +20,7 @@ static int ProbePvMove(const S_BOARD *pos) {
 	return NOMOVE;
 }
 
+// Fills the PvArray of the position with the PV
 int GetPvLine(const int depth, S_BOARD *pos) {
 
 	assert(depth < MAXDEPTH && depth >= 1);
@@ -46,6 +47,7 @@ int GetPvLine(const int depth, S_BOARD *pos) {
 	return count;
 }
 
+// Clears the hash table
 void ClearHashTable(S_HASHTABLE *table) {
 
 	S_HASHENTRY *tableEntry;
@@ -62,6 +64,7 @@ void ClearHashTable(S_HASHTABLE *table) {
 #endif
 }
 
+// Initializes the hash table
 void InitHashTable(S_HASHTABLE *table, const uint64_t MB) {
 
 	uint64_t HashSize = 0x100000LL * MB;
@@ -157,12 +160,11 @@ int ProbeHashEntry(S_BOARD *pos, int *move, int *score, int alpha, int beta, int
 			}
 		}
 	}
-
 	return FALSE;
 }
 
 // Store an entry in the hash table
-void StoreHashEntry(S_BOARD *pos, const int move, int score, const int flags, const int depth) {
+void StoreHashEntry(S_BOARD *pos, const int move, int score, const int flag, const int depth) {
 
 	assert(-INFINITE <= score && score <= INFINITE);
 	assert(flags >= HFALPHA && flags <= HFEXACT);
@@ -177,7 +179,7 @@ void StoreHashEntry(S_BOARD *pos, const int move, int score, const int flags, co
 	pos->HashTable->pTable[index].move   = move;
 	pos->HashTable->pTable[index].depth  = depth;
 	pos->HashTable->pTable[index].score  = ScoreToTT(score, pos->ply);
-	pos->HashTable->pTable[index].flags  = flags;
+	pos->HashTable->pTable[index].flags  = flag;
 
 	assert(-INFINITE <= pos->HashTable->pTable[index].score && pos->HashTable->pTable[index].score <= INFINITE);
 
