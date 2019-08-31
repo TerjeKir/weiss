@@ -132,28 +132,29 @@ int ProbeHashEntry(S_BOARD *pos, int *move, int *score, int alpha, int beta, int
 
 			assert(-INFINITE <= *score && *score <= INFINITE);
 
+#ifdef SEARCH_STATS
+			pos->HashTable->hit++;
+#endif
+
 			// Update score based on flags and current alpha/beta
 			switch (pos->HashTable->pTable[index].flags) {
 				case HFALPHA:
 					if (*score <= alpha) {
 						*score = alpha;
+						return TRUE;
 					} break;
 				case HFBETA:
 					if (*score >= beta) {
 						*score = beta;
+						return TRUE;
 					} break;
 				case HFEXACT:
+					return TRUE;
 					break;
 				default:
 					assert(FALSE);
 					break;
 			}
-
-#ifdef SEARCH_STATS
-			pos->HashTable->hit++;
-#endif
-
-			return TRUE;
 		}
 	}
 
