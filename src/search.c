@@ -263,7 +263,7 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 	GenerateAllMoves(pos, list);
 
 	int moveNum;
-	int legal = 0;
+	int legalMoves = 0;
 	int oldAlpha = alpha;
 	int bestMove = NOMOVE;
 	int bestScore = -INFINITE;
@@ -289,7 +289,7 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 		score = -AlphaBeta(-beta, -alpha, depth - 1, pos, info, TRUE);
 		TakeMove(pos);
 
-		legal++;
+		legalMoves++;
 
 		if(info->stopped == TRUE)
 			return 0;
@@ -333,12 +333,8 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 	}
 
 	// Checkmate or stalemate
-	if (legal == 0) {
-		if (inCheck)
-			return -INFINITE + pos->ply;
-		else
-			return 0;
-	}
+	if (!legalMoves)
+		return inCheck ? -INFINITE + pos->ply : 0;
 
 	assert(alpha >= oldAlpha);
 	assert(alpha <=  INFINITE);
