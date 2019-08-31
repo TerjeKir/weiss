@@ -254,7 +254,7 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 #ifdef SEARCH_STATS
 			info->nullCut++;
 #endif
-			return score;
+			return beta;
 		}
 	}
 
