@@ -361,10 +361,6 @@ void SearchPosition(S_BOARD *pos, S_SEARCHINFO *info) {
 	// Iterative deepening
 	for (currentDepth = 1; currentDepth <= info->depth; ++currentDepth) {
 
-		// Update seldepth if deeper
-		if (currentDepth > info->seldepth) 
-			info->seldepth = currentDepth;
-
 		// Search position
 		bestScore = AlphaBeta(-INFINITE, INFINITE, currentDepth, pos, info, TRUE);
 
