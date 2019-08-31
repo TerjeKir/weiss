@@ -120,7 +120,7 @@ static int Quiescence(int alpha, int beta, S_BOARD *pos, S_SEARCHINFO *info) {
 	// so we assume we have a beta cutoff. If the stand-pat beats alpha we use it as alpha.
 	int score = EvalPosition(pos);
 	if (score >= beta)
-		return beta;
+		return score;
 	if (score > alpha)
 		alpha = score;
 
@@ -129,6 +129,7 @@ static int Quiescence(int alpha, int beta, S_BOARD *pos, S_SEARCHINFO *info) {
 	GenerateAllCaptures(pos, list);
 
 	int legal = 0;
+	int bestScore = score;
 	score = -INFINITE;
 
 	// Move loop
@@ -145,6 +146,9 @@ static int Quiescence(int alpha, int beta, S_BOARD *pos, S_SEARCHINFO *info) {
 
 		if(info->stopped == TRUE)
 			return 0;
+		
+		if (score > bestScore)
+			bestScore = score;
 
 		// If score beats alpha we update alpha
 		if (score > alpha) {
@@ -156,14 +160,14 @@ static int Quiescence(int alpha, int beta, S_BOARD *pos, S_SEARCHINFO *info) {
 				if (legal == 1) info->fhf++;
 				info->fh++;
 #endif
-				return beta;
+				return bestScore;
 			}
 
 			alpha = score;
 		}
 	}
 
-	return alpha;
+	return bestScore;
 }
 
 // Alpha Beta
@@ -240,7 +244,7 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 #ifdef SEARCH_STATS
 			info->nullCut++;
 #endif
-			return beta;
+			return score;
 		}
 	}
 
@@ -303,10 +307,10 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 					if (legal == 1) info->fhf++;
 					info->fh++;
 #endif
-	
-					StoreHashEntry(pos, bestMove, beta, HFBETA, depth);
 
-					return beta;
+					StoreHashEntry(pos, bestMove, bestScore, HFBETA, depth);
+
+					return bestScore;
 				}
 
 				alpha = score;
@@ -335,9 +339,9 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 	if (alpha != oldAlpha)
 		StoreHashEntry(pos, bestMove, bestScore, HFEXACT, depth);
 	else
-		StoreHashEntry(pos, bestMove, alpha, HFALPHA, depth);
+		StoreHashEntry(pos, bestMove, bestScore, HFALPHA, depth);
 
-	return alpha;
+	return bestScore;
 }
 
 // Root of search
