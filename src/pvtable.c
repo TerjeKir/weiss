@@ -179,7 +179,7 @@ void StoreHashEntry(S_BOARD *pos, const int move, int score, const int flag, con
 	pos->HashTable->pTable[index].move   = move;
 	pos->HashTable->pTable[index].depth  = depth;
 	pos->HashTable->pTable[index].score  = ScoreToTT(score, pos->ply);
-	pos->HashTable->pTable[index].flag  = flag;
+	pos->HashTable->pTable[index].flag   = flag;
 
 	assert(-INFINITE <= pos->HashTable->pTable[index].score && pos->HashTable->pTable[index].score <= INFINITE);
 

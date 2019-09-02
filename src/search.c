@@ -215,6 +215,7 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 #ifdef SEARCH_STATS
 		pos->HashTable->cut++;
 #endif
+		assert(-INFINITE <= score && score <= INFINITE);
 		return score;
 	}
 
@@ -312,7 +313,7 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 						pos->searchKillers[1][pos->ply] = pos->searchKillers[0][pos->ply];
 						pos->searchKillers[0][pos->ply] = list->moves[moveNum].move;
 					}
-				
+
 #ifdef SEARCH_STATS
 					if (legal == 1) info->fhf++;
 					info->fh++;
