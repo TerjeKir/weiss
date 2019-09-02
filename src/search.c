@@ -199,6 +199,25 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 	if ((IsRepetition(pos) || pos->fiftyMove >= 100) && pos->ply) 
 		return 0;
 
+	// Max Depth reached
+	if (pos->ply >= MAXDEPTH) 
+		return EvalPosition(pos);
+
+	// Extend search if in check
+	int inCheck = SqAttacked(pos->KingSq[pos->side], !pos->side, pos);
+	if (inCheck) depth++;
+
+	int score = -INFINITE;
+	int pvMove = NOMOVE;
+
+	// Probe transposition table
+	if (ProbeHashEntry(pos, &pvMove, &score, alpha, beta, depth)) {
+#ifdef SEARCH_STATS
+		pos->HashTable->cut++;
+#endif
+		return score;
+	}
+
 	// Syzygy
 #ifdef USE_TBS
 	unsigned tbresult;
@@ -223,25 +242,6 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
         }
 	}
 #endif
-
-	// Max Depth reached
-	if (pos->ply >= MAXDEPTH) 
-		return EvalPosition(pos);
-
-	// Extend search if in check
-	int inCheck = SqAttacked(pos->KingSq[pos->side], !pos->side, pos);
-	if (inCheck) depth++;
-
-	int score = -INFINITE;
-	int pvMove = NOMOVE;
-
-	// Probe transposition table
-	if (ProbeHashEntry(pos, &pvMove, &score, alpha, beta, depth)) {
-#ifdef SEARCH_STATS
-		pos->HashTable->cut++;
-#endif
-		return score;
-	}
 
 	// Null Move Pruning
 	if (doNull && !inCheck && pos->ply && (pos->bigPieces[pos->side] > 0) && depth >= 4) {
