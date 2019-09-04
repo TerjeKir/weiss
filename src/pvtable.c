@@ -141,12 +141,10 @@ int ProbeHashEntry(S_BOARD *pos, int *move, int *score, int alpha, int beta, int
 			switch (pos->HashTable->pTable[index].flag) {
 				case HFALPHA:
 					if (*score <= alpha) {
-						*score = alpha;
 						return TRUE;
 					} break;
 				case HFBETA:
 					if (*score >= beta) {
-						*score = beta;
 						return TRUE;
 					} break;
 				case HFEXACT:
@@ -179,7 +177,8 @@ void StoreHashEntry(S_BOARD *pos, const int move, int score, const int flag, con
 	pos->HashTable->pTable[index].score  = ScoreToTT(score, pos->ply);
 	pos->HashTable->pTable[index].flag   = flag;
 
-	assert(-INFINITE <= pos->HashTable->pTable[index].score && pos->HashTable->pTable[index].score <= INFINITE);
+	assert(pos->HashTable->pTable[index].score >= -INFINITE);
+	assert(pos->HashTable->pTable[index].score <=  INFINITE);
 
 #ifdef SEARCH_STATS
 	if (pos->HashTable->pTable[index].posKey == 0)
