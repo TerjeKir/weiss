@@ -137,16 +137,14 @@ int ProbeHashEntry(S_BOARD *pos, int *move, int *score, int alpha, int beta, int
 			pos->HashTable->hit++;
 #endif
 
-			// Update score based on flag and current alpha/beta
+			// Return true if the score is usable
 			switch (pos->HashTable->pTable[index].flag) {
 				case HFALPHA:
-					if (*score <= alpha) {
-						return TRUE;
-					} break;
+					if (*score <= alpha) return TRUE;
+					break;
 				case HFBETA:
-					if (*score >= beta) {
-						return TRUE;
-					} break;
+					if (*score >= beta) return TRUE;
+					break;
 				case HFEXACT:
 					return TRUE;
 					break;
