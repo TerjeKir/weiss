@@ -195,13 +195,23 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 	if (pos->ply > info->seldepth) 
 		info->seldepth = pos->ply;
 
-	// Repetition reached
-	if ((IsRepetition(pos) || pos->fiftyMove >= 100) && pos->ply) 
-		return 0;
+	// Early exits (not in root node)
+	if (pos->ply) {
 
-	// Max Depth reached
-	if (pos->ply >= MAXDEPTH) 
-		return EvalPosition(pos);
+		// Position is drawn
+		if (IsRepetition(pos) || pos->fiftyMove >= 100)
+			return 0;
+
+		// Max depth reached
+		if (pos->ply >= MAXDEPTH) 
+			return EvalPosition(pos);
+
+		// Mate distance pruning -- TODO doesn't work properly
+		// alpha = alpha > -ISMATE + pos->ply     ? alpha : -ISMATE + pos->ply;
+		// beta  = beta  <  ISMATE - pos->ply - 1 ? beta  :  ISMATE - pos->ply - 1;
+		// if (alpha >= beta)
+		// 	return alpha;
+	}
 
 	// Extend search if in check
 	int inCheck = SqAttacked(pos->KingSq[pos->side], !pos->side, pos);
@@ -215,7 +225,6 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 #ifdef SEARCH_STATS
 		pos->HashTable->cut++;
 #endif
-		assert(-INFINITE <= score && score <= INFINITE);
 		return score;
 	}
 
