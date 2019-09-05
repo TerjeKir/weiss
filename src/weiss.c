@@ -23,7 +23,7 @@ int main() {
 	setbuf(stdin, NULL);
 	setbuf(stdout, NULL);
 
-	printf("\nWelcome to weiss! Type 'weiss' for console mode.\n> ");
+	printf("\nWelcome to weiss! Type 'weiss' for console mode.\n");
 
 	char line[256];
 	while (TRUE) {
