@@ -172,6 +172,7 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 	bitboard rooks 		= pos->colors[side] & pos->pieceBBs[  ROOK];
 	bitboard queens 	= pos->colors[side] & pos->pieceBBs[ QUEEN];
 
+	enPassant = pos->enPas != NO_SQ ? 1ULL << pos->enPas : 0ULL;
 
 	// Pawns and castling
 	if (side == WHITE) {
@@ -203,17 +204,12 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 					AddQuietMove(pos, MOVE(sq, sq + 16, EMPTY, EMPTY, FLAG_PAWNSTART), list);
 			}
 
+			// En passant
+			if (enPassant & pawn_attacks[side][sq])
+				AddEnPassantMove(MOVE(sq, pos->enPas, EMPTY, EMPTY, FLAG_ENPAS), list);
+
 			// Pawn captures
 			attacks = pawn_attacks[side][sq] & enemies;
-
-			// En passant
-			if (pos->enPas != NO_SQ) {
-				assert(pos->enPas >= 0 && pos->enPas < 64);
-				enPassant = 1ULL << pos->enPas;
-				if (pawn_attacks[side][sq] & enPassant)
-					AddEnPassantMove(MOVE(sq, pos->enPas, EMPTY, EMPTY, FLAG_ENPAS), list);
-			}
-			// Normal captures
 			while (attacks) {
 				attack = PopLsb(&attacks);
 				AddWhitePawnCapMove(pos, sq, attack, pos->pieces[attack], list);
@@ -249,17 +245,12 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 					AddQuietMove(pos, MOVE(sq, sq - 16, EMPTY, EMPTY, FLAG_PAWNSTART), list);
 			}
 
+			// En passant
+			if (enPassant & pawn_attacks[side][sq])
+				AddEnPassantMove(MOVE(sq, pos->enPas, EMPTY, EMPTY, FLAG_ENPAS), list);
+
 			// Pawn captures
 			attacks = pawn_attacks[side][sq] & enemies;
-
-			// En passant
-			if (pos->enPas != NO_SQ) {
-				assert(pos->enPas >= 0 && pos->enPas < 64);
-				enPassant = 1ULL << pos->enPas;
-				if (pawn_attacks[side][sq] & enPassant)
-					AddEnPassantMove(MOVE(sq, pos->enPas, EMPTY, EMPTY, FLAG_ENPAS), list);
-			}
-			// Normal captures
 			while (attacks) {
 				attack = PopLsb(&attacks);
 				AddBlackPawnCapMove(pos, sq, attack, pos->pieces[attack], list);
