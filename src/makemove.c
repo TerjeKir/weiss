@@ -556,18 +556,14 @@ void TakeNullMove(S_BOARD *pos) {
 	pos->hisPly--;
 	pos->ply--;
 
+	// Change side to play and hash it
+	pos->side ^= 1;
+
 	// Get info from history
 	pos->castlePerm = pos->history[pos->hisPly].castlePerm;
 	pos->fiftyMove 	= pos->history[pos->hisPly].fiftyMove;
 	pos->enPas 		= pos->history[pos->hisPly].enPas;
-
-	// Hash in new en passant if exists
-	if (pos->enPas != NO_SQ) 
-		HASH_EP;
-
-	// Change side to play and hash it
-	pos->side ^= 1;
-	HASH_SIDE;
+	pos->posKey 	= pos->history[pos->hisPly].posKey;
 
 	assert(CheckBoard(pos));
 	assert(pos->hisPly >= 0 && pos->hisPly < MAXGAMEMOVES);
