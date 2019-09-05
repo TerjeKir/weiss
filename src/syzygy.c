@@ -33,7 +33,7 @@ unsigned int probeWDL(S_BOARD *pos, int depth) {
         pos->pieceBBs[BISHOP],
         pos->pieceBBs[KNIGHT],
         pos->pieceBBs[PAWN],
-        0,                              // If we get here, it is 0
+        0,                      // If we get here, it should be 0
         pos->side);
 }
 #endif

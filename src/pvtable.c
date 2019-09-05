@@ -138,20 +138,11 @@ int ProbeHashEntry(S_BOARD *pos, int *move, int *score, int alpha, int beta, int
 #endif
 
 			// Return true if the score is usable
-			switch (pos->HashTable->pTable[index].flag) {
-				case BOUND_UPPER:
-					if (*score <= alpha) return TRUE;
-					break;
-				case BOUND_LOWER:
-					if (*score >= beta) return TRUE;
-					break;
-				case BOUND_EXACT:
-					return TRUE;
-					break;
-				default:
-					assert(FALSE);
-					break;
-			}
+			uint8_t flag = pos->HashTable->pTable[index].flag;
+			if (   (flag == BOUND_UPPER && *score <= alpha)
+				|| (flag == BOUND_LOWER && *score >= beta)
+				||  flag == BOUND_EXACT)
+				return TRUE;
 		}
 	}
 	return FALSE;
