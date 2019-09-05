@@ -515,7 +515,7 @@ void MakeNullMove(S_BOARD *pos) {
 	pos->history[pos->hisPly].posKey = pos->posKey;
 
 	// Save misc info for takeback
-	pos->history[pos->hisPly].move 		 = NOMOVE;
+	// pos->history[pos->hisPly].move    = NOMOVE;
 	pos->history[pos->hisPly].fiftyMove  = pos->fiftyMove;
 	pos->history[pos->hisPly].enPas 	 = pos->enPas;
 	pos->history[pos->hisPly].castlePerm = pos->castlePerm;
