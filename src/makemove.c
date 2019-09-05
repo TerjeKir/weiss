@@ -31,7 +31,6 @@ const int CastlePerm[64] = {
 static void ClearPiece(const int sq, S_BOARD *pos) {
 
 	assert(ValidSquare(sq));
-	assert(CheckBoard(pos));
 
 	int piece = pos->pieces[sq];
 
@@ -320,7 +319,6 @@ static void MovePiece(const int from, const int to, S_BOARD *pos) {
 }
 
 void TakeMove(S_BOARD *pos) {
-
 	assert(CheckBoard(pos));
 
 	// Decrement hisPly, ply
@@ -337,25 +335,13 @@ void TakeMove(S_BOARD *pos) {
 	assert(ValidSquare(from));
 	assert(ValidSquare(to));
 
-	// Hash out en passant if exists
-	if (pos->enPas != NO_SQ) HASH_EP;
-
-	// Hash out castling rights
-	HASH_CA;
-
 	// Update castling rights, 50mr, en passant
 	pos->castlePerm = pos->history[pos->hisPly].castlePerm;
 	pos->fiftyMove = pos->history[pos->hisPly].fiftyMove;
 	pos->enPas = pos->history[pos->hisPly].enPas;
 
-	// Hash in en passant if exists
-	if (pos->enPas != NO_SQ) HASH_EP;
-	// Hash in castling rights
-	HASH_CA;
-
-	// Change side to play and hash it in
+	// Change side to play
 	pos->side ^= 1;
-	HASH_SIDE;
 
 	// Add in pawn capture by en passant
 	if (FLAG_ENPAS & move)
@@ -363,6 +349,7 @@ void TakeMove(S_BOARD *pos) {
 			AddPiece(to - 8, pos, bP);
 		else
 			AddPiece(to + 8, pos, wP);
+
 	// Move rook back if castling
 	else if (move & FLAG_CASTLE)
 		switch (to) {
@@ -393,6 +380,9 @@ void TakeMove(S_BOARD *pos) {
 		ClearPiece(from, pos);
 		AddPiece(from, pos, (PieceColor[PROMOTION(move)] == WHITE ? wP : bP));
 	}
+
+	// Get old poskey from history
+	pos->posKey = pos->history[pos->hisPly].posKey;
 
 	assert(CheckBoard(pos));
 }
