@@ -5,6 +5,7 @@
 #include "board.h"
 #include "data.h"
 #include "misc.h"
+#include "move.h"
 #include "movegen.h"
 #include "pvtable.h"
 #include "validate.h"
@@ -20,10 +21,10 @@ char *MoveToStr(const int move) {
 
 	static char moveStr[6];
 
-	int ff = SqToFile[FROMSQ(move)];
-	int rf = SqToRank[FROMSQ(move)];
-	int ft = SqToFile[  TOSQ(move)];
-	int rt = SqToRank[  TOSQ(move)];
+	int ff = fileOf(FROMSQ(move));
+	int rf = rankOf(FROMSQ(move));
+	int ft = fileOf(TOSQ(move));
+	int rt = rankOf(TOSQ(move));
 
 	int promotion = PROMOTION(move);
 
@@ -87,10 +88,60 @@ int ParseMove(char *ptrChar, S_BOARD *pos) {
 	return NOMOVE;
 }
 
+int ParseEPDMove(char *ptrChar, S_BOARD *pos) {
+
+	assert(CheckBoard(pos));
+
+	// Nf3-g1+, f3-g1+, Nf3-g1, f3-g1N+ etc
+
+	if ('B' <= ptrChar[0] && ptrChar[0] <= 'R')
+		ptrChar++;
+
+	if (ptrChar[1] > '8' || ptrChar[1] < '1') return NOMOVE;
+	if (ptrChar[4] > '8' || ptrChar[4] < '1') return NOMOVE;
+	if (ptrChar[0] > 'h' || ptrChar[0] < 'a') return NOMOVE;
+	if (ptrChar[3] > 'h' || ptrChar[3] < 'a') return NOMOVE;
+
+	int from = (ptrChar[0] - 'a') + (8 * (ptrChar[1] - '1'));
+	int to   = (ptrChar[3] - 'a') + (8 * (ptrChar[4] - '1'));
+
+	assert(ValidSquare(from) && ValidSquare(to));
+
+	S_MOVELIST list[1];
+	GenerateAllMoves(pos, list);
+
+	int move, promotion;
+
+	for (int moveNum = 0; moveNum < list->count; ++moveNum) {
+
+		move = list->moves[moveNum].move;
+		if (FROMSQ(move) == from && TOSQ(move) == to) {
+
+			promotion = PROMOTION(move);
+			if (promotion != EMPTY) {
+
+				if (IsQueen(promotion) && ptrChar[5] == 'Q')
+					return move;
+				else if (IsKnight(promotion) && ptrChar[5] == 'N')
+					return move;
+				else if (IsRook(promotion) && ptrChar[5] == 'R')
+					return move;
+				else if (IsBishop(promotion) && ptrChar[5] == 'B')
+					return move;
+
+				continue;
+			}
+			return move;
+		}
+	}
+	return NOMOVE;
+}
+
 // Print thinking
-void PrintThinking(S_SEARCHINFO *info, S_BOARD *pos, int bestScore, int currentDepth, int pvMoves) {
+void PrintThinking(S_SEARCHINFO *info, S_BOARD *pos, int bestScore, int currentDepth) {
 
 	unsigned timeElapsed = GetTimeMs() - info->starttime;
+	int pvMoves;
 
 	// UCI mode
 	if (info->GAME_MODE == UCIMODE) {

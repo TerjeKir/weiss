@@ -9,17 +9,21 @@
 #include "io.h"
 #include "makemove.h"
 #include "misc.h"
+#include "move.h"
 #include "pvtable.h"
 #include "search.h"
 #include "validate.h"
 
 
+#define START_FEN  "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 #define INPUTBUFFER 400 * 6
 
 
-// go depth 6 wtime 180000 btime 100000 binc 1000 winc 1000 movetime 1000 movestogo 40
 static void ParseGo(char *line, S_SEARCHINFO *info, S_BOARD *pos) {
 
+	info->starttime = GetTimeMs();
+
+	int moveOverhead = 50;
 	int depth = -1, movestogo = 30, movetime = -1;
 	int time = -1, inc = 0;
 	char *ptr = NULL;
@@ -55,28 +59,21 @@ static void ParseGo(char *line, S_SEARCHINFO *info, S_BOARD *pos) {
 		movestogo = 1;
 	}
 
-	info->starttime = GetTimeMs();
-	info->depth = depth;
+	info->depth = depth == -1 ? MAXDEPTH : depth;
 
 	if (time != -1) {
 		info->timeset = TRUE;
-		time /= movestogo;
-		time -= 50;
-		info->stoptime = info->starttime + time + inc;
+		int timeThisMove = (time / movestogo) + inc;	// Try to use 1/30 of remaining time + increment
+		int maxTime = time; 							// Most time we can use
+		info->stoptime = info->starttime;
+		info->stoptime += timeThisMove > maxTime ? maxTime : timeThisMove;
+		info->stoptime -= moveOverhead;
 	}
 
-	if (depth == -1) info->depth = MAXDEPTH;
-
-	// printf("time:%d start:%d stop:%d depth:%d timeset:%d\n",
-	// 	   time, info->starttime, info->stoptime, info->depth, info->timeset);
 	SearchPosition(pos, info);
 }
 
 static void ParsePosition(char *lineIn, S_BOARD *pos) {
-
-	// position fen fenstr
-	// position startpos
-	// ... moves e2e4 e7e5 b7b8q
 
 	lineIn += 9;
 	char *ptrChar = lineIn;
@@ -109,7 +106,6 @@ static void ParsePosition(char *lineIn, S_BOARD *pos) {
 			ptrChar++;
 		}
 	}
-	// PrintBoard(pos);
 }
 
 void Uci_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
@@ -123,7 +119,10 @@ void Uci_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 	printf("id name %s\n", NAME);
 	printf("id author LoliSquad\n");
 	printf("option name Hash type spin default %d min 4 max %d\n", DEFAULTHASH, MAXHASH);
+	printf("option name Ponder type check default false\n"); // Turn on ponder stats in cutechess
+#ifdef USE_TBS
 	printf("option name SyzygyPath type string default <empty>\n");
+#endif
 	printf("uciok\n");
 
 	int MB = DEFAULTHASH;
@@ -162,7 +161,7 @@ void Uci_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 			printf("uciok\n");
 
 		} else if (!strncmp(line, "setoption name Hash value ", 26)) {
-			
+
 			sscanf(line, "%*s %*s %*s %*s %d", &newMB);
 			if (newMB == MB) continue; // Ignore if same as before
 			MB = newMB;
@@ -170,9 +169,9 @@ void Uci_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 			if (MB > MAXHASH) MB = MAXHASH;
 			printf("Set Hash to %d MB\n", MB);
 			InitHashTable(pos->HashTable, MB);
-
+#ifdef USE_TBS
 		} else if (!strncmp(line, "setoption name SyzygyPath value ", 32)) {
-			
+
 			char *path = line + strlen("setoption name SyzygyPath value ");
 
 			// Replace newline with null
@@ -182,8 +181,8 @@ void Uci_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 
 			strcpy(info->syzygyPath, path);
 			tb_init(info->syzygyPath);
+#endif
 		}
-
 		if (info->quit) break;
 	}
 }

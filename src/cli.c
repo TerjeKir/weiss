@@ -3,18 +3,23 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "fathom/tbprobe.h"
 #include "attack.h"
 #include "bitboards.h"
 #include "board.h"
 #include "evaluate.h"
 #include "io.h"
 #include "makemove.h"
+#include "move.h"
 #include "movegen.h"
 #include "misc.h"
 #include "perft.h"
 #include "pvtable.h"
 #include "search.h"
 #include "validate.h"
+
+
+#define START_FEN  "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 
 
 static int ThreeFoldRep(const S_BOARD *pos) {
@@ -127,6 +132,10 @@ void Console_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 	S_BOARD board[1];
 	int perftDepth = 3;
 
+#ifdef USE_TBS
+	tb_init("F:\\Syzygy");
+#endif
+
 	while (TRUE) {
 
 		fflush(stdout);
@@ -172,9 +181,15 @@ void Console_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 			continue;
 		}
 
-		if (!strcmp(command, "mirror")) {
+		if (!strcmp(command, "mirrortest")) {
 			engineSide = BOTH;
 			MirrorEvalTest(pos);
+			continue;
+		}
+
+		if (!strcmp(command, "matetest")) {
+			engineSide = BOTH;
+			MateInXTest(pos);
 			continue;
 		}
 

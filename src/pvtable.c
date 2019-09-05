@@ -4,14 +4,15 @@
 #include <stdlib.h>
 
 #include "makemove.h"
+#include "move.h"
 #include "movegen.h"
 #include "pvtable.h"
 
 
+// Returns principal variation move in the position (if any)
 static int ProbePvMove(const S_BOARD *pos) {
 
 	int index = pos->posKey % pos->HashTable->numEntries;
-	assert(index >= 0 && index <= pos->HashTable->numEntries - 1);
 
 	if (pos->HashTable->pTable[index].posKey == pos->posKey)
 		return pos->HashTable->pTable[index].move;
@@ -19,6 +20,7 @@ static int ProbePvMove(const S_BOARD *pos) {
 	return NOMOVE;
 }
 
+// Fills the PvArray of the position with the PV
 int GetPvLine(const int depth, S_BOARD *pos) {
 
 	assert(depth < MAXDEPTH && depth >= 1);
@@ -45,6 +47,7 @@ int GetPvLine(const int depth, S_BOARD *pos) {
 	return count;
 }
 
+// Clears the hash table
 void ClearHashTable(S_HASHTABLE *table) {
 
 	S_HASHENTRY *tableEntry;
@@ -54,107 +57,122 @@ void ClearHashTable(S_HASHTABLE *table) {
 		tableEntry->move = NOMOVE;
 		tableEntry->depth = 0;
 		tableEntry->score = 0;
-		tableEntry->flags = 0;
+		tableEntry->flag = 0;
 	}
+#ifdef SEARCH_STATS
 	table->newWrite = 0;
+#endif
 }
 
-void InitHashTable(S_HASHTABLE *table, const int MB) {
+// Initializes the hash table
+void InitHashTable(S_HASHTABLE *table, const uint64_t MB) {
 
-	int HashSize = 0x100000 * MB;
+	uint64_t HashSize = 0x100000LL * MB;
 	table->numEntries = HashSize / sizeof(S_HASHENTRY);
-	table->numEntries -= 2;
 
+	// Free memory if we have already allocated
 	if (table->pTable != NULL)
 		free(table->pTable);
 
+	// Allocate memory
 	table->pTable = (S_HASHENTRY *)calloc(table->numEntries, sizeof(S_HASHENTRY));
+
+	// If allocation fails, try half the size
 	if (table->pTable == NULL) {
-		printf("Hash Allocation Failed, trying %dMB...\n", MB / 2);
+		printf("Hash Allocation Failed, trying %I64dMB...\n", MB / 2);
 		InitHashTable(table, MB / 2);
+	// Success
 	} else {
+#ifdef SEARCH_STATS
 		table->newWrite = 0;
-		printf("HashTable init complete with %d entries, using %dMB.\n", table->numEntries, MB);
+#endif
+		printf("HashTable init complete with %d entries, using %I64dMB.\n", table->numEntries, MB);
 	}
 }
 
+// Mate scores are stored as mate in 0 as they depend on the current ply
+inline int ScoreToTT (int score, int ply) {
+	return score >=  ISMATE ? score + ply
+		 : score <= -ISMATE ? score - ply
+		 				    : score;
+}
+
+// Translates from mate in 0 to the proper mate score at current ply
+inline int ScoreFromTT (int score, int ply) {
+	return score >=  ISMATE ? score - ply
+		 : score <= -ISMATE ? score + ply
+		 					: score;
+}
+
+// Probe the hash table
 int ProbeHashEntry(S_BOARD *pos, int *move, int *score, int alpha, int beta, int depth) {
+
+	assert(alpha < beta);
+	assert(alpha >= -INFINITE && alpha <= INFINITE);
+	assert(beta  >= -INFINITE && beta  <= INFINITE);
+	assert(depth >= 1 && depth < MAXDEPTH);
+	assert(pos->ply >= 0 && pos->ply < MAXDEPTH);
 
 	int index = pos->posKey % pos->HashTable->numEntries;
 
-	assert(index >= 0 && index <= pos->HashTable->numEntries - 1);
-	assert(depth >= 1 && depth < MAXDEPTH);
-	assert(alpha < beta);
-	assert(alpha >= -INFINITE && alpha <= INFINITE);
-	assert(beta >= -INFINITE && beta <= INFINITE);
-	assert(pos->ply >= 0 && pos->ply < MAXDEPTH);
+	assert(index >= 0 && index < pos->HashTable->numEntries);
 
+	// Look for an entry at the index
 	if (pos->HashTable->pTable[index].posKey == pos->posKey) {
+
+		// Use the move as PV regardless of depth
 		*move = pos->HashTable->pTable[index].move;
+
+		// The score is only usable if the depth is equal or greater than current
 		if (pos->HashTable->pTable[index].depth >= depth) {
-			pos->HashTable->hit++;
 
 			assert(pos->HashTable->pTable[index].depth >= 1 && pos->HashTable->pTable[index].depth < MAXDEPTH);
-			assert(pos->HashTable->pTable[index].flags >= HFALPHA && pos->HashTable->pTable[index].flags <= HFEXACT);
+			assert(pos->HashTable->pTable[index].flag >= BOUND_UPPER && pos->HashTable->pTable[index].flag <= BOUND_EXACT);
 
-			*score = pos->HashTable->pTable[index].score;
-			if (*score > ISMATE)
-				*score -= pos->ply;
-			else if (*score < -ISMATE)
-				*score += pos->ply;
-				
-			assert(*score >= -INFINITE);
-			assert(*score >= -INFINITE);
-			
-			switch (pos->HashTable->pTable[index].flags) {
-				case HFALPHA:
-					if (*score <= alpha) {
-						*score = alpha;
-						return TRUE;
-					}
-					break;
-				case HFBETA:
-					if (*score >= beta) {
-						*score = beta;
-						return TRUE;
-					}
-					break;
-				case HFEXACT:
-					return TRUE;
-					break;
-				default:
-					assert(FALSE);
-					break;
-			}
+			*score = ScoreFromTT(pos->HashTable->pTable[index].score, pos->ply);
+
+			assert(-INFINITE <= *score && *score <= INFINITE);
+
+#ifdef SEARCH_STATS
+			pos->HashTable->hit++;
+#endif
+
+			// Return true if the score is usable
+			uint8_t flag = pos->HashTable->pTable[index].flag;
+			if (   (flag == BOUND_UPPER && *score <= alpha)
+				|| (flag == BOUND_LOWER && *score >= beta)
+				||  flag == BOUND_EXACT)
+				return TRUE;
 		}
 	}
-
 	return FALSE;
 }
 
-void StoreHashEntry(S_BOARD *pos, const int move, int score, const int flags, const int depth) {
+// Store an entry in the hash table
+void StoreHashEntry(S_BOARD *pos, const int move, int score, const int flag, const int depth) {
+
+	assert(-INFINITE <= score && score <= INFINITE);
+	assert(flag >= BOUND_UPPER && flag <= BOUND_EXACT);
+	assert(depth >= 1 && depth < MAXDEPTH);
+	assert(pos->ply >= 0 && pos->ply < MAXDEPTH);
 
 	int index = pos->posKey % pos->HashTable->numEntries;
 
-	assert(index >= 0 && index <= pos->HashTable->numEntries - 1);
-	assert(depth >= 1 && depth < MAXDEPTH);
-	assert(flags >= HFALPHA && flags <= HFEXACT);
-	assert(score >= -INFINITE && score <= INFINITE);
-	assert(pos->ply >= 0 && pos->ply < MAXDEPTH);
+	assert(index >= 0 && index < pos->HashTable->numEntries);
 
+	pos->HashTable->pTable[index].posKey = pos->posKey;
+	pos->HashTable->pTable[index].move   = move;
+	pos->HashTable->pTable[index].depth  = depth;
+	pos->HashTable->pTable[index].score  = ScoreToTT(score, pos->ply);
+	pos->HashTable->pTable[index].flag   = flag;
+
+	assert(pos->HashTable->pTable[index].score >= -INFINITE);
+	assert(pos->HashTable->pTable[index].score <=  INFINITE);
+
+#ifdef SEARCH_STATS
 	if (pos->HashTable->pTable[index].posKey == 0)
 		pos->HashTable->newWrite++;
 	else
 		pos->HashTable->overWrite++;
-
-	if (score > ISMATE)
-		score += pos->ply;
-	else if (score < -ISMATE)
-		score -= pos->ply;
-
-	pos->HashTable->pTable[index].move = move;
-	pos->HashTable->pTable[index].posKey = pos->posKey;
-	pos->HashTable->pTable[index].flags = flags;
-	pos->HashTable->pTable[index].score = score;
-	pos->HashTable->pTable[index].depth = depth;
+#endif
 }

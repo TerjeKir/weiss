@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "bitboards.h"
 #include "board.h"
@@ -10,7 +11,7 @@
 #include "validate.h"
 
 
-int distance[64][64];
+uint8_t distance[64][64];
 
 
 // Returns distance between sq1 and sq2
@@ -24,8 +25,8 @@ void InitDistance() {
 
     for (int sq1 = 0; sq1 < 64; ++sq1)
         for (int sq2 = 0; sq2 < 64; ++sq2) {
-            vertical = abs((sq1 / 8) - (sq2 / 8));
-            horizontal = abs((sq1 % 8) - (sq2 % 8));
+            vertical   = abs(rankOf(sq1) - rankOf(sq2));
+            horizontal = abs(fileOf(sq1) - fileOf(sq2));
             distance[sq1][sq2] = ((vertical > horizontal) ? vertical : horizontal);
         }
 }
@@ -127,29 +128,34 @@ static void ResetBoard(S_BOARD *pos) {
 
 	int index = 0;
 
-	// All squares on the board to empty instead of offboard
+	// Bitboard representations
+	for (index = 0; index < 2; ++index)
+		pos->colors[index] = 0ULL;
+
+	for (index = PAWN; index <= KING; ++index)
+		pos->pieceBBs[index] = 0ULL;
+
+	pos->allBB = 0ULL;
+
+	// Array representation
 	for (index = 0; index < 64; ++index)
 		pos->pieces[index] = EMPTY;
+
+	// Piece lists and counts
+	for (index = 0; index < 13; ++index) {
+		pos->pieceCounts[index] = 0;
+		for (int index2 = 0; index2 < 10; ++index2)
+			pos->pieceList[index][index2] = 0;
+	}
+
+	// King squares
+	pos->KingSq[WHITE] = pos->KingSq[BLACK] = NO_SQ;
 
 	// Piece counts and material
 	for (index = 0; index < 2; ++index) {
 		pos->bigPieces[index] = 0;
 		pos->material[index] = 0;
 	}
-	for (index = 0; index < 13; ++index)
-		pos->pieceCounts[index] = 0;
-
-	// Bitboards
-	for (index = 0; index < 2; ++index)
-		pos->colors[index] = 0ULL;
-	
-	for (index = PAWN; index <= KING; ++index)
-		pos->pieceBBs[index] = 0ULL;
-
-	pos->allBB = 0ULL;
-
-	// King squares
-	pos->KingSq[WHITE] = pos->KingSq[BLACK] = NO_SQ;
 
 	// Misc
 	pos->side = BOTH;
@@ -163,6 +169,8 @@ static void ResetBoard(S_BOARD *pos) {
 
 	// Position key
 	pos->posKey = 0ULL;
+
+	memset(pos->PvArray, 0, sizeof(pos->PvArray)); // TODO does this make sense???
 }
 
 #ifndef NDEBUG
@@ -373,7 +381,7 @@ void PrintBoard(const S_BOARD *pos) {
 		   pos->castlePerm & WQCA ? 'Q' : '-',
 		   pos->castlePerm & BKCA ? 'k' : '-',
 		   pos->castlePerm & BQCA ? 'q' : '-');
-	printf("PosKey: %I64d\n", pos->posKey);
+	printf("PosKey: %I64u\n", pos->posKey);
 }
 
 // Reverse the colors
