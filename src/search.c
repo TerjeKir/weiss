@@ -241,13 +241,13 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 				: tbresult == TB_WIN  ?  INFINITE - pos->ply - 1
 									  :  0;
 
-        int flag = tbresult == TB_LOSS ? HFALPHA
-                 : tbresult == TB_WIN  ? HFBETA 
-									   : HFEXACT;
+        int flag = tbresult == TB_LOSS ? BOUND_UPPER
+                 : tbresult == TB_WIN  ? BOUND_LOWER 
+									   : BOUND_EXACT;
 
-        if (    flag == HFEXACT
-            || (flag == HFBETA  && val >= beta)
-            || (flag == HFALPHA && val <= alpha)) {
+        if (    flag == BOUND_EXACT
+            || (flag == BOUND_LOWER && val >= beta)
+            || (flag == BOUND_UPPER && val <= alpha)) {
 
             StoreHashEntry(pos, NOMOVE, val, flag, MAXDEPTH-1);
             return val;
@@ -340,7 +340,7 @@ standard_search:
 					info->fh++;
 #endif
 
-					StoreHashEntry(pos, bestMove, bestScore, HFBETA, depth);
+					StoreHashEntry(pos, bestMove, bestScore, BOUND_LOWER, depth);
 
 					return bestScore;
 				}
@@ -364,7 +364,7 @@ standard_search:
 	assert(bestScore <=  INFINITE);
 	assert(bestScore >= -INFINITE);
 
-	int flag = alpha != oldAlpha ? HFEXACT : HFALPHA;
+	int flag = alpha != oldAlpha ? BOUND_EXACT : BOUND_UPPER;
 	StoreHashEntry(pos, bestMove, bestScore, flag, depth);
 
 	return bestScore;

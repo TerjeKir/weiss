@@ -9,7 +9,7 @@
 #define DEFAULTHASH 1024
 
 
-enum { HFNONE, HFALPHA, HFBETA, HFEXACT };
+enum { BOUND_NONE, BOUND_UPPER, BOUND_LOWER, BOUND_EXACT };
 
 
 void InitHashTable(S_HASHTABLE *table, const uint64_t MB);

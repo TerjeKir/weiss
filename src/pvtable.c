@@ -127,7 +127,7 @@ int ProbeHashEntry(S_BOARD *pos, int *move, int *score, int alpha, int beta, int
 		if (pos->HashTable->pTable[index].depth >= depth) {
 
 			assert(pos->HashTable->pTable[index].depth >= 1 && pos->HashTable->pTable[index].depth < MAXDEPTH);
-			assert(pos->HashTable->pTable[index].flag >= HFALPHA && pos->HashTable->pTable[index].flag <= HFEXACT);
+			assert(pos->HashTable->pTable[index].flag >= BOUND_UPPER && pos->HashTable->pTable[index].flag <= BOUND_EXACT);
 
 			*score = ScoreFromTT(pos->HashTable->pTable[index].score, pos->ply);
 
@@ -139,13 +139,13 @@ int ProbeHashEntry(S_BOARD *pos, int *move, int *score, int alpha, int beta, int
 
 			// Return true if the score is usable
 			switch (pos->HashTable->pTable[index].flag) {
-				case HFALPHA:
+				case BOUND_UPPER:
 					if (*score <= alpha) return TRUE;
 					break;
-				case HFBETA:
+				case BOUND_LOWER:
 					if (*score >= beta) return TRUE;
 					break;
-				case HFEXACT:
+				case BOUND_EXACT:
 					return TRUE;
 					break;
 				default:
@@ -161,7 +161,7 @@ int ProbeHashEntry(S_BOARD *pos, int *move, int *score, int alpha, int beta, int
 void StoreHashEntry(S_BOARD *pos, const int move, int score, const int flag, const int depth) {
 
 	assert(-INFINITE <= score && score <= INFINITE);
-	assert(flag >= HFALPHA && flag <= HFEXACT);
+	assert(flag >= BOUND_UPPER && flag <= BOUND_EXACT);
 	assert(depth >= 1 && depth < MAXDEPTH);
 	assert(pos->ply >= 0 && pos->ply < MAXDEPTH);
 
