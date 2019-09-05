@@ -181,6 +181,8 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 	assert(beta  <=  INFINITE);
 	assert(beta  >= -INFINITE);
 
+	S_MOVELIST list[1];
+
 	// Quiescence at the end of search
 	if (depth <= 0) 
 		return Quiescence(alpha, beta, pos, info);
@@ -253,23 +255,33 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 	}
 #endif
 
+	if (inCheck)
+		goto standard_search;
+	else
+		score = EvalPosition(pos);
+
 	// Null Move Pruning
-	if (doNull && !inCheck && pos->ply && (pos->bigPieces[pos->side] > 0) && depth >= 4) {
+	if (doNull && score >= beta && pos->ply && (pos->bigPieces[pos->side] > 0) && depth >= 4) {
 
 		MakeNullMove(pos);
 		score = -AlphaBeta(-beta, -beta + 1, depth - 4, pos, info, FALSE);
 		TakeNullMove(pos);
 
+		// Cutoff
 		if (score >= beta) {
 #ifdef SEARCH_STATS
 			info->nullCut++;
 #endif
-			return beta;
+			// Don't return unproven mate scores
+			if (score >= ISMATE)
+				score = beta;
+			return score;
 		}
 	}
 
+standard_search:
+
 	// Generate all moves
-	S_MOVELIST list[1];
 	GenerateAllMoves(pos, list);
 
 	int moveNum;
