@@ -352,7 +352,6 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 // Root of search
 void SearchPosition(S_BOARD *pos, S_SEARCHINFO *info) {
 
-	int bestMove = NOMOVE;
 	int bestScore, currentDepth;
 
 	ClearForSearch(pos, info);
@@ -376,12 +375,16 @@ void SearchPosition(S_BOARD *pos, S_SEARCHINFO *info) {
 	}
 
 	// Get and print best move when done thinking
-	bestMove = pos->PvArray[0];
+	int   bestMove = pos->PvArray[0];
+	int ponderMove = pos->PvArray[1];
 
-	if (info->GAME_MODE == UCIMODE)
-		printf("bestmove %s\n", MoveToStr(bestMove));
+	if (info->GAME_MODE == UCIMODE) {
+		printf("bestmove %s", MoveToStr(bestMove));
+		if (ponderMove != NOMOVE) 
+			printf(" ponder %s\n", MoveToStr(ponderMove));
+		printf("\n");
 
-	else {
+	} else {
 		printf("\n\n***!! %s !!***\n\n", MoveToStr(bestMove));
 		MakeMove(pos, bestMove);
 		PrintBoard(pos);

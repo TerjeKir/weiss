@@ -119,6 +119,7 @@ void Uci_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 	printf("id name %s\n", NAME);
 	printf("id author LoliSquad\n");
 	printf("option name Hash type spin default %d min 4 max %d\n", DEFAULTHASH, MAXHASH);
+	printf("option name Ponder type check default false\n"); // Turn on ponder stats in cutechess
 #ifdef USE_TBS
 	printf("option name SyzygyPath type string default <empty>\n");
 #endif
