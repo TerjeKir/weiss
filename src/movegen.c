@@ -11,10 +11,10 @@
 #include "validate.h"
 
 
-const bitboard bitB1C1D1 = (1ULL << 1) | (1ULL << 2) | (1ULL << 3);
-const bitboard bitF1G1 = (1ULL << 5) | (1ULL << 6);
+const bitboard bitB1C1D1 = (1ULL <<  1) | (1ULL <<  2) | (1ULL <<  3);
 const bitboard bitB8C8D8 = (1ULL << 57) | (1ULL << 58) | (1ULL << 59);
-const bitboard bitF8G8 = (1ULL << 61) | (1ULL << 62);
+const bitboard bitF1G1   = (1ULL <<  5) | (1ULL <<  6);
+const bitboard bitF8G8   = (1ULL << 61) | (1ULL << 62);
 
 int MvvLvaScores[13][13];
 
@@ -43,6 +43,7 @@ static void AddQuietMove(const S_BOARD *pos, int move, S_MOVELIST *list) {
 
 	list->moves[list->count].move = move;
 
+	// Add scores to help move ordering based on search history heuristics
 	if (pos->searchKillers[0][pos->ply] == move)
 		list->moves[list->count].score = 900000;
 	else if (pos->searchKillers[1][pos->ply] == move)
@@ -54,11 +55,10 @@ static void AddQuietMove(const S_BOARD *pos, int move, S_MOVELIST *list) {
 }
 
 static void AddCaptureMove(const S_BOARD *pos, int move, S_MOVELIST *list) {
-
-	int from  = FROMSQ(move);
 #ifndef NDEBUG
 	int to    = TOSQ(move);
 #endif
+	int from  = FROMSQ(move);
 	int piece = CAPTURED(move);
 
 	assert(ValidSquare(from));
