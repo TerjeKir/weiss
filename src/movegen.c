@@ -161,6 +161,7 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 	int side = pos->side;
 
 	bitboard attacks, moves, enPassant;
+	bitboard pawnMoves, pawnStarts;
 
 	bitboard allPieces  = pos->allBB;
 	bitboard empty		= ~allPieces;
@@ -190,8 +191,8 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 					AddQuietMove(pos, MOVE(E1, C1, EMPTY, EMPTY, FLAG_CASTLE), list);
 
 		// Pawns
-		bitboard pawnMoves  = empty & pawns << 8;
-		bitboard pawnStarts = empty & (pawnMoves & rank3BB) << 8;
+		pawnMoves  = empty & pawns << 8;
+		pawnStarts = empty & (pawnMoves & rank3BB) << 8;
 
 		while (pawnMoves) {
 			sq = PopLsb(&pawnMoves);
@@ -206,7 +207,6 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 		while (pawns) {
 
 			sq = PopLsb(&pawns);
-			assert(ValidSquare(sq));
 
 			// En passant
 			if (enPassant & pawn_attacks[side][sq])
@@ -235,8 +235,8 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 					AddQuietMove(pos, MOVE(E8, C8, EMPTY, EMPTY, FLAG_CASTLE), list);
 
 		// Pawns
-		bitboard pawnMoves  = empty & pawns >> 8;
-		bitboard pawnStarts = empty & (pawnMoves & rank6BB) >> 8;
+		pawnMoves  = empty & pawns >> 8;
+		pawnStarts = empty & (pawnMoves & rank6BB) >> 8;
 
 		while (pawnMoves) {
 			sq = PopLsb(&pawnMoves);
@@ -251,7 +251,6 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 		while (pawns) {
 
 			sq = PopLsb(&pawns);
-			assert(ValidSquare(sq));
 
 			// En passant
 			if (enPassant & pawn_attacks[side][sq])
