@@ -93,7 +93,7 @@ static int MaterialDraw(const S_BOARD *pos) {
 
 	// No draw with queens or pawns
 	if (pos->pieceCounts[wQ] || pos->pieceCounts[bQ] || pos->pieceCounts[wP] || pos->pieceCounts[bP])
-		return FALSE;
+		return false;
 	
 	// No rooks
 	if (!pos->pieceCounts[wR] && !pos->pieceCounts[bR]) {
@@ -101,30 +101,30 @@ static int MaterialDraw(const S_BOARD *pos) {
 		if (!pos->pieceCounts[bB] && !pos->pieceCounts[wB]) {
 			// Draw with 1-2 knights (or 0 => KvK)
 			if (pos->pieceCounts[wN] < 3 && pos->pieceCounts[bN] < 3)
-				return TRUE;
+				return true;
 		// No knights
 		} else if (!pos->pieceCounts[wN] && !pos->pieceCounts[bN]) {
 			// Draw unless one side has 2 extra bishops
 			if (abs(pos->pieceCounts[wB] - pos->pieceCounts[bB]) < 2)
-				return TRUE;
+				return true;
 		// Draw with 1-2 knights vs 1 bishop
 		} else if ((pos->pieceCounts[wN] < 3 && !pos->pieceCounts[wB]) || (pos->pieceCounts[wB] == 1 && !pos->pieceCounts[wN]))
 			if ((pos->pieceCounts[bN] < 3 && !pos->pieceCounts[bB]) || (pos->pieceCounts[bB] == 1 && !pos->pieceCounts[bN]))
-				return TRUE;
+				return true;
 	// Draw with 1 rook each + up to 1 N or B each
 	} else if (pos->pieceCounts[wR] == 1 && pos->pieceCounts[bR] == 1) {
 		if ((pos->pieceCounts[wN] + pos->pieceCounts[wB]) < 2 && (pos->pieceCounts[bN] + pos->pieceCounts[bB]) < 2)
-			return TRUE;
+			return true;
 	// Draw with white having 1 rook vs 1-2 N/B
 	} else if (pos->pieceCounts[wR] == 1 && !pos->pieceCounts[bR]) {
 		if ((pos->pieceCounts[wN] + pos->pieceCounts[wB] == 0) && (((pos->pieceCounts[bN] + pos->pieceCounts[bB]) == 1) || ((pos->pieceCounts[bN] + pos->pieceCounts[bB]) == 2)))
-			return TRUE;
+			return true;
 	// Draw with black having 1 rook vs 1-2 N/B
 	} else if (pos->pieceCounts[bR] == 1 && !pos->pieceCounts[wR])
 		if ((pos->pieceCounts[bN] + pos->pieceCounts[bB] == 0) && (((pos->pieceCounts[wN] + pos->pieceCounts[wB]) == 1) || ((pos->pieceCounts[wN] + pos->pieceCounts[wB]) == 2)))
-			return TRUE;
+			return true;
 
-	return FALSE;
+	return false;
 }
 #endif
 
@@ -223,8 +223,6 @@ int EvalPosition(const S_BOARD *pos) {
 
 		score += RookTable[sq];
 
-		assert(FileRankValid(fileOf(sq)));
-
 		// Open/Semi-open file bonus
 		if (!(pos->pieceBBs[PAWN] & FileBBMask[fileOf(sq)]))
 			score += RookOpenFile;
@@ -240,8 +238,6 @@ int EvalPosition(const S_BOARD *pos) {
 
 		score -= RookTable[MIRROR64(sq)];
 
-		assert(FileRankValid(fileOf(sq)));
-
 		// Open/Semi-open file bonus
 		if (!(pos->pieceBBs[PAWN] & FileBBMask[fileOf(sq)]))
 			score -= RookOpenFile;
@@ -254,7 +250,6 @@ int EvalPosition(const S_BOARD *pos) {
 
 		sq = PopLsb(&whiteQueens);
 		assert(ValidSquare(sq));
-		assert(FileRankValid(fileOf(sq)));
 
 		// Open/Semi-open file bonus
 		if (!(pos->pieceBBs[PAWN] & FileBBMask[fileOf(sq)]))
@@ -268,7 +263,6 @@ int EvalPosition(const S_BOARD *pos) {
 
 		sq = PopLsb(&blackQueens);
 		assert(ValidSquare(sq));
-		assert(FileRankValid(fileOf(sq)));
 
 		// Open/Semi-open file bonus
 		if (!(pos->pieceBBs[PAWN] & FileBBMask[fileOf(sq)]))

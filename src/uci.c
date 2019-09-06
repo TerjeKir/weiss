@@ -19,7 +19,7 @@
 #define INPUTBUFFER 400 * 6
 
 
-static void ParseGo(char *line, S_SEARCHINFO *info, S_BOARD *pos) {
+static void ParseGo(const char *line, S_SEARCHINFO *info, S_BOARD *pos) {
 
 	info->starttime = GetTimeMs();
 
@@ -27,7 +27,7 @@ static void ParseGo(char *line, S_SEARCHINFO *info, S_BOARD *pos) {
 	int depth = -1, movestogo = 30, movetime = -1;
 	int time = -1, inc = 0;
 	char *ptr = NULL;
-	info->timeset = FALSE;
+	info->timeset = false;
 
 	if ((ptr = strstr(line, "infinite"))) {
 		;
@@ -62,7 +62,7 @@ static void ParseGo(char *line, S_SEARCHINFO *info, S_BOARD *pos) {
 	info->depth = depth == -1 ? MAXDEPTH : depth;
 
 	if (time != -1) {
-		info->timeset = TRUE;
+		info->timeset = true;
 		int timeThisMove = (time / movestogo) + inc;	// Try to use 1/30 of remaining time + increment
 		int maxTime = time; 							// Most time we can use
 		info->stoptime = info->starttime;
@@ -73,10 +73,10 @@ static void ParseGo(char *line, S_SEARCHINFO *info, S_BOARD *pos) {
 	SearchPosition(pos, info);
 }
 
-static void ParsePosition(char *lineIn, S_BOARD *pos) {
+static void ParsePosition(const char *lineIn, S_BOARD *pos) {
 
 	lineIn += 9;
-	char *ptrChar = lineIn;
+	const char *ptrChar = lineIn;
 
 	if (strncmp(lineIn, "startpos", 8) == 0) {
 		ParseFen(START_FEN, pos);
@@ -128,7 +128,7 @@ void Uci_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 	int MB = DEFAULTHASH;
 	int newMB;
 
-	while (TRUE) {
+	while (true) {
 
 		memset(&line[0], 0, sizeof(line));
 		fflush(stdout);
@@ -152,7 +152,7 @@ void Uci_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 			ParsePosition("position startpos\n", pos);
 
 		else if (!strncmp(line, "quit", 4)) {
-			info->quit = TRUE;
+			info->quit = true;
 			break;
 
 		} else if (!strncmp(line, "uci", 3)) {

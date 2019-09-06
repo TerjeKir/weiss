@@ -67,13 +67,13 @@ void ReadInput(S_SEARCHINFO *info) {
     char input[256] = "";
 
     if (InputWaiting()) {
-        info->stopped = TRUE;
+        info->stopped = true;
 
         gets(input);
 
         if (strlen(input) > 0)
             if (!strncmp(input, "quit", 4))
-                info->quit = TRUE;
+                info->quit = true;
 
         return;
     }

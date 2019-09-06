@@ -20,13 +20,13 @@
 static void CheckUp(S_SEARCHINFO *info) {
 
 	if (info->timeset && GetTimeMs() > info->stoptime)
-		info->stopped = TRUE;
+		info->stopped = true;
 
 	ReadInput(info);
 }
 
 // Move best move to the front of the queue
-static void PickNextMove(int moveNum, S_MOVELIST *list) {
+static void PickNextMove(const int moveNum, S_MOVELIST *list) {
 
 	S_MOVE temp;
 	int bestScore = 0;
@@ -54,10 +54,10 @@ static int IsRepetition(const S_BOARD *pos) {
 
 		assert(index >= 0 && index < MAXGAMEMOVES);
 		if (pos->posKey == pos->history[index].posKey)
-			return TRUE;
+			return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
 // Get ready to start a search
@@ -89,7 +89,7 @@ static void ClearForSearch(S_BOARD *pos, S_SEARCHINFO *info) {
 }
 
 // Quiescence
-static int Quiescence(int alpha, int beta, S_BOARD *pos, S_SEARCHINFO *info) {
+static int Quiescence(int alpha, const int beta, S_BOARD *pos, S_SEARCHINFO *info) {
 
 	assert(CheckBoard(pos));
 	assert(beta > alpha);
@@ -144,7 +144,7 @@ static int Quiescence(int alpha, int beta, S_BOARD *pos, S_SEARCHINFO *info) {
 
 		legal++;
 
-		if(info->stopped == TRUE)
+		if(info->stopped == true)
 			return 0;
 		
 		if (score > bestScore)
@@ -171,7 +171,7 @@ static int Quiescence(int alpha, int beta, S_BOARD *pos, S_SEARCHINFO *info) {
 }
 
 // Alpha Beta
-static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO *info, int doNull) {
+static int AlphaBeta(int alpha, const int beta, int depth, S_BOARD *pos, S_SEARCHINFO *info, const int doNull) {
 
 	assert(CheckBoard(pos));
 	assert(beta > alpha);
@@ -264,7 +264,7 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 	if (doNull && score >= beta && pos->ply && (pos->bigPieces[pos->side] > 0) && depth >= 4) {
 
 		MakeNullMove(pos);
-		score = -AlphaBeta(-beta, -beta + 1, depth - 4, pos, info, FALSE);
+		score = -AlphaBeta(-beta, -beta + 1, depth - 4, pos, info, false);
 		TakeNullMove(pos);
 
 		// Cutoff
@@ -308,12 +308,12 @@ standard_search:
 
 		// Recursively search the positions after making the moves, skipping illegal ones
 		if (!MakeMove(pos, list->moves[moveNum].move)) continue;
-		score = -AlphaBeta(-beta, -alpha, depth - 1, pos, info, TRUE);
+		score = -AlphaBeta(-beta, -alpha, depth - 1, pos, info, true);
 		TakeMove(pos);
 
 		legalMoves++;
 
-		if(info->stopped == TRUE)
+		if(info->stopped == true)
 			return 0;
 
 		assert(-INFINITE <= score && score <=  INFINITE);
@@ -381,7 +381,7 @@ void SearchPosition(S_BOARD *pos, S_SEARCHINFO *info) {
 	for (currentDepth = 1; currentDepth <= info->depth; ++currentDepth) {
 
 		// Search position
-		bestScore = AlphaBeta(-INFINITE, INFINITE, currentDepth, pos, info, TRUE);
+		bestScore = AlphaBeta(-INFINITE, INFINITE, currentDepth, pos, info, true);
 
 		// Stop search if applicable
 		if (info->stopped) break;

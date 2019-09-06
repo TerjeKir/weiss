@@ -44,7 +44,7 @@ char *MoveToStr(const int move) {
 	return moveStr;
 }
 
-int ParseMove(char *ptrChar, S_BOARD *pos) {
+int ParseMove(const char *ptrChar, S_BOARD *pos) {
 
 	assert(CheckBoard(pos));
 
@@ -88,7 +88,7 @@ int ParseMove(char *ptrChar, S_BOARD *pos) {
 	return NOMOVE;
 }
 
-int ParseEPDMove(char *ptrChar, S_BOARD *pos) {
+int ParseEPDMove(const char *ptrChar, S_BOARD *pos) {
 
 	assert(CheckBoard(pos));
 
@@ -138,7 +138,7 @@ int ParseEPDMove(char *ptrChar, S_BOARD *pos) {
 }
 
 // Print thinking
-void PrintThinking(S_SEARCHINFO *info, S_BOARD *pos, int bestScore, int currentDepth) {
+void PrintThinking(const S_SEARCHINFO *info, S_BOARD *pos, const int bestScore, const int currentDepth) {
 
 	unsigned timeElapsed = GetTimeMs() - info->starttime;
 	int pvMoves;

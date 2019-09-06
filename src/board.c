@@ -15,7 +15,7 @@ uint8_t distance[64][64];
 
 
 // Returns distance between sq1 and sq2
-inline int Distance(int sq1, int sq2) {
+inline int Distance(const int sq1, const int sq2) {
     return distance[sq1][sq2];
 }
 
@@ -240,12 +240,12 @@ int CheckBoard(const S_BOARD *pos) {
 
 	assert(GeneratePosKey(pos) == pos->posKey);
 
-	return TRUE;
+	return true;
 }
 #endif
 
 // Parse FEN and set up board in the position described
-int ParseFen(char *fen, S_BOARD *pos) {
+int ParseFen(const char *fen, S_BOARD *pos) {
 
 	assert(fen != NULL);
 	assert(pos != NULL);

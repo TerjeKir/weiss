@@ -19,10 +19,6 @@ int SideValid(const int side) {
 	return (side == WHITE || side == BLACK) ? 1 : 0;
 }
 
-int FileRankValid(const int fr) {
-	return (fr >= 0 && fr <= 7) ? 1 : 0;
-}
-
 int PieceValid(const int pce) {
 	return (pce >= wP && pce <= bK) ? 1 : 0;
 }
@@ -34,7 +30,7 @@ int PieceValidEmpty(const int pce) {
 int MoveListOk(const S_MOVELIST *list, const S_BOARD *pos) {
 
 	if (list->count < 0 || list->count >= MAXPOSITIONMOVES)
-		return FALSE;
+		return false;
 
 	int from, to;
 
@@ -44,15 +40,15 @@ int MoveListOk(const S_MOVELIST *list, const S_BOARD *pos) {
 		from = FROMSQ(list->moves[MoveNum].move);
 
 		if (!ValidSquare(to) || !ValidSquare(from))
-			return FALSE;
+			return false;
 
 		if (!PieceValid(pos->pieces[from])) {
 			PrintBoard(pos);
-			return FALSE;
+			return false;
 		}
 	}
 
-	return TRUE;
+	return true;
 }
 
 void MirrorEvalTest(S_BOARD *pos) {

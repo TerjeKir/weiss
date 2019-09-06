@@ -41,6 +41,6 @@ const bitboard fileBBs[8];
 const bitboard rankBBs[8];
 
 int PopCount(bitboard x);
-int Lsb(bitboard bb);
+int Lsb(const bitboard bb);
 int PopLsb(bitboard *bb);
-void PrintBB(bitboard bb);
+void PrintBB(const bitboard bb);

@@ -12,7 +12,7 @@
 uint64_t leafNodes;
 
 
-static void RecursivePerft(int depth, S_BOARD *pos) {
+static void RecursivePerft(const int depth, S_BOARD *pos) {
 
 	assert(CheckBoard(pos));
 
@@ -36,7 +36,7 @@ static void RecursivePerft(int depth, S_BOARD *pos) {
 	return;
 }
 
-void Perft(int depth, S_BOARD *pos) {
+void Perft(const int depth, S_BOARD *pos) {
 
 	assert(CheckBoard(pos));
 

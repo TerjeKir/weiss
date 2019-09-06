@@ -3,6 +3,7 @@
 #pragma once
 
 #include <stdint.h>
+#include <stdbool.h>
 
 #include "defs.h"
 
@@ -10,6 +11,13 @@
 typedef uint64_t bitboard;
 
 typedef enum Color { BLACK, WHITE, BOTH } Color;
+
+enum { MAXGAMEMOVES 	= 512,
+	   MAXPOSITIONMOVES = 256,
+	   MAXDEPTH 		= 128 };
+
+enum { INFINITE = 30000,
+	   ISMATE 	= INFINITE - MAXDEPTH };
 
 enum { PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING };
 
@@ -29,10 +37,8 @@ enum {
   A5, B5, C5, D5, E5, F5, G5, H5,
   A6, B6, C6, D6, E6, F6, G6, H6,
   A7, B7, C7, D7, E7, F7, G7, H7,
-  A8, B8, C8, D8, E8, F8, G8, H8, NO_SQ = 99, OFFBOARD = 100
+  A8, B8, C8, D8, E8, F8, G8, H8, NO_SQ = 99
 };
-
-enum { FALSE, TRUE };
 
 enum { WKCA = 1, WQCA = 2, BKCA = 4, BQCA = 8 };
 
@@ -140,10 +146,10 @@ typedef struct {
 
 } S_SEARCHINFO;
 
-inline int fileOf(int square) {
+inline int fileOf(const int square) {
 	return square & 7;
 }
 
-inline int rankOf(int square) {
+inline int rankOf(const int square) {
 	return square >> 3;
 }

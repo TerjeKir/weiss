@@ -119,7 +119,7 @@ static void ClearPiece(const int sq, S_BOARD *pos) {
 			CLRBIT(pos->colors[BLACK], sq);
 			break;
 		default:
-			assert(FALSE);
+			assert(false);
 			break;
 	}
 }
@@ -198,7 +198,7 @@ static void AddPiece(const int sq, S_BOARD *pos, const int piece) {
 			SETBIT(pos->colors[BLACK], sq);
 			break;
 		default:
-			assert(FALSE);
+			assert(false);
 			break;
 	}
 }
@@ -214,7 +214,7 @@ static void MovePiece(const int from, const int to, S_BOARD *pos) {
 	assert(PieceValid(piece));
 
 #ifndef NDEBUG
-	int t_PieceNum = FALSE;
+	int t_PieceNum = false;
 #endif
 
 	HASH_PCE(piece, from);
@@ -227,7 +227,7 @@ static void MovePiece(const int from, const int to, S_BOARD *pos) {
 		if (pos->pieceList[piece][index] == from) {
 			pos->pieceList[piece][index] = to;
 #ifndef NDEBUG
-			t_PieceNum = TRUE;
+			t_PieceNum = true;
 #endif
 			break;
 		}
@@ -313,7 +313,7 @@ static void MovePiece(const int from, const int to, S_BOARD *pos) {
 			SETBIT(pos->colors[BLACK], to);
 			break;
 		default:
-			assert(FALSE);
+			assert(false);
 			break;
 	}
 }
@@ -357,7 +357,7 @@ void TakeMove(S_BOARD *pos) {
 			case C8: MovePiece(D8, A8, pos); break;
 			case G1: MovePiece(F1, H1, pos); break;
 			case G8: MovePiece(F8, H8, pos); break;
-			default: assert(FALSE); break;
+			default: assert(false); break;
 		}
 
 	// Make reverse move (from <-> to)
@@ -388,7 +388,7 @@ void TakeMove(S_BOARD *pos) {
 }
 
 // Make move move
-int MakeMove(S_BOARD *pos, int move) {
+int MakeMove(S_BOARD *pos, const int move) {
 
 	assert(CheckBoard(pos));
 
@@ -420,7 +420,7 @@ int MakeMove(S_BOARD *pos, int move) {
 			case C8: MovePiece(A8, D8, pos); break;
 			case G1: MovePiece(H1, F1, pos); break;
 			case G8: MovePiece(H8, F8, pos); break;
-			default: assert(FALSE); break;
+			default: assert(false); break;
 		}
 
 	// Hash out the old en passant if exist
@@ -499,10 +499,10 @@ int MakeMove(S_BOARD *pos, int move) {
 	// If own king is attacked after the move, take it back immediately
 	if (SqAttacked(pos->KingSq[side], pos->side, pos)) {
 		TakeMove(pos);
-		return FALSE;
+		return false;
 	}
 
-	return TRUE;
+	return true;
 }
 
 // Pass the turn without moving

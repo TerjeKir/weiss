@@ -31,7 +31,7 @@ void InitMvvLva() {
 
 /* Functions that add moves to the movelist */
 
-static void AddQuietMove(const S_BOARD *pos, int move, S_MOVELIST *list) {
+static void AddQuietMove(const S_BOARD *pos, const int move, S_MOVELIST *list) {
 
 	int from = FROMSQ(move);
 	int   to =   TOSQ(move);
@@ -54,7 +54,7 @@ static void AddQuietMove(const S_BOARD *pos, int move, S_MOVELIST *list) {
 	list->count++;
 }
 
-static void AddCaptureMove(const S_BOARD *pos, int move, S_MOVELIST *list) {
+static void AddCaptureMove(const S_BOARD *pos, const int move, S_MOVELIST *list) {
 #ifndef NDEBUG
 	int to    = TOSQ(move);
 #endif
@@ -71,7 +71,7 @@ static void AddCaptureMove(const S_BOARD *pos, int move, S_MOVELIST *list) {
 	list->count++;
 }
 
-static void AddEnPassantMove(int move, S_MOVELIST *list) {
+static void AddEnPassantMove(const int move, S_MOVELIST *list) {
 #ifndef NDEBUG
 	int from = FROMSQ(move);
 	int   to =   TOSQ(move);
@@ -526,7 +526,7 @@ int MoveExists(S_BOARD *pos, const int move) {
 
 		// If it's legal we take it back and return true.
 		TakeMove(pos);
-		return TRUE;
+		return true;
 	}
-	return FALSE;
+	return false;
 }
