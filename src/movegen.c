@@ -18,6 +18,7 @@ const bitboard bitF8G8 = (1ULL << 61) | (1ULL << 62);
 
 int MvvLvaScores[13][13];
 
+// Initializes the MostValuableVictim-LeastValuableAttacker scores used for ordering captures
 void InitMvvLva() {
 
 	const int VictimScore[13]   = {0, 106, 206, 306, 406, 506, 606, 106, 206, 306, 406, 506, 606};
@@ -25,8 +26,10 @@ void InitMvvLva() {
 
 	for (int Attacker = wP; Attacker <= bK; ++Attacker)
 		for (int Victim = wP; Victim <= bK; ++Victim)
-			MvvLvaScores[Victim][Attacker] = VictimScore[Victim] - (AttackerScore[Attacker]);
+			MvvLvaScores[Victim][Attacker] = VictimScore[Victim] - AttackerScore[Attacker];
 }
+
+/* Functions that add moves to the movelist */
 
 static void AddQuietMove(const S_BOARD *pos, int move, S_MOVELIST *list) {
 
@@ -142,6 +145,8 @@ static void AddBlackPawnMove(const S_BOARD *pos, const int from, const int to, S
 	} else
 		AddQuietMove(pos, MOVE(from, to, EMPTY, EMPTY, 0), list);
 }
+
+/* Functions that generate specific color/piece moves */
 
 // King
 static inline void GenerateWhiteCastling(const S_BOARD *pos, S_MOVELIST *list, const bitboard allPieces) {
