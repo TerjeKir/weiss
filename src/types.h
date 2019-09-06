@@ -12,6 +12,13 @@ typedef uint64_t bitboard;
 
 typedef enum Color { BLACK, WHITE, BOTH } Color;
 
+enum { MAXGAMEMOVES 	= 512,
+	   MAXPOSITIONMOVES = 256,
+	   MAXDEPTH 		= 128 };
+
+enum { INFINITE = 30000,
+	   ISMATE 	= INFINITE - MAXDEPTH };
+
 enum { PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING };
 
 enum { EMPTY, wP, wN, wB, wR, wQ, wK, bP, bN, bB, bR, bQ, bK };
