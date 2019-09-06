@@ -526,7 +526,7 @@ int MoveExists(S_BOARD *pos, const int move) {
 
 		// If it's legal we take it back and return true.
 		TakeMove(pos);
-		return TRUE;
+		return true;
 	}
-	return FALSE;
+	return false;
 }

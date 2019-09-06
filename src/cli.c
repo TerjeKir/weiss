@@ -40,23 +40,23 @@ static int DrawMaterial(const S_BOARD *pos) {
 
 	// Pawns can promote to pieces that can mate
 	if (pos->pieceBBs[PAWN])
-		return FALSE;
+		return false;
 	// Rooks and queens can mate
 	if (pos->pieceBBs[ROOK] || pos->pieceBBs[QUEEN])
-		return FALSE;
+		return false;
 	// 3 knights can mate
 	if (PopCount(pos->colors[WHITE] & pos->pieceBBs[KNIGHT]) > 2 || PopCount(pos->colors[BLACK] & pos->pieceBBs[KNIGHT]) > 2)
-		return FALSE;
+		return false;
 	// 2 bishops can mate
 	if (PopCount(pos->colors[WHITE] & pos->pieceBBs[BISHOP]) > 1 || PopCount(pos->colors[BLACK] & pos->pieceBBs[BISHOP]) > 1)
-		return FALSE;
+		return false;
 	// Bishop + Knight can mate
 	if ((pos->colors[WHITE] & pos->pieceBBs[KNIGHT]) && (pos->colors[WHITE] & pos->pieceBBs[BISHOP]))
-		return FALSE;
+		return false;
 	if ((pos->colors[BLACK] & pos->pieceBBs[KNIGHT]) && (pos->colors[BLACK] & pos->pieceBBs[BISHOP]))
-		return FALSE;
+		return false;
 
-	return TRUE;
+	return true;
 }
 
 static int checkresult(S_BOARD *pos) {
@@ -64,17 +64,17 @@ static int checkresult(S_BOARD *pos) {
 
 	if (pos->fiftyMove > 100) {
 		printf("1/2-1/2 {fifty move rule (claimed by weiss)}\n");
-		return TRUE;
+		return true;
 	}
 
 	if (ThreeFoldRep(pos) >= 2) {
 		printf("1/2-1/2 {3-fold repetition (claimed by weiss)}\n");
-		return TRUE;
+		return true;
 	}
 
 	if (DrawMaterial(pos)) {
 		printf("1/2-1/2 {insufficient material (claimed by weiss)}\n");
-		return TRUE;
+		return true;
 	}
 
 	S_MOVELIST list[1];
@@ -92,23 +92,23 @@ static int checkresult(S_BOARD *pos) {
 	}
 
 	if (found != 0)
-		return FALSE;
+		return false;
 
 	int InCheck = SqAttacked(pos->KingSq[pos->side], !pos->side, pos);
 
 	if (InCheck) {
 		if (pos->side == WHITE) {
 			printf("0-1 {black mates (claimed by weiss)}\n");
-			return TRUE;
+			return true;
 		} else {
 			printf("0-1 {white mates (claimed by weiss)}\n");
-			return TRUE;
+			return true;
 		}
 	} else {
 		printf("\n1/2-1/2 {stalemate (claimed by weiss)}\n");
-		return TRUE;
+		return true;
 	}
-	return FALSE;
+	return false;
 }
 
 void Console_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
@@ -117,7 +117,7 @@ void Console_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 	printf("Type help for commands\n\n");
 
 	info->GAME_MODE = CONSOLEMODE;
-	info->POST_THINKING = TRUE;
+	info->POST_THINKING = true;
 	setbuf(stdin, NULL);
 	setbuf(stdout, NULL);
 
@@ -136,16 +136,16 @@ void Console_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 	tb_init("F:\\Syzygy");
 #endif
 
-	while (TRUE) {
+	while (true) {
 
 		fflush(stdout);
 
-		if (pos->side == engineSide && checkresult(pos) == FALSE) {
+		if (pos->side == engineSide && checkresult(pos) == false) {
 			info->starttime = GetTimeMs();
 			info->depth = depth;
 
 			if (movetime != 0) {
-				info->timeset = TRUE;
+				info->timeset = true;
 				info->stoptime = info->starttime + movetime;
 			}
 
@@ -209,12 +209,12 @@ void Console_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 		}
 
 		if (!strcmp(command, "quit")) {
-			info->quit = TRUE;
+			info->quit = true;
 			break;
 		}
 
 		if (!strcmp(command, "post")) {
-			info->POST_THINKING = TRUE;
+			info->POST_THINKING = true;
 			continue;
 		}
 
@@ -224,7 +224,7 @@ void Console_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 		}
 
 		if (!strcmp(command, "nopost")) {
-			info->POST_THINKING = FALSE;
+			info->POST_THINKING = false;
 			continue;
 		}
 

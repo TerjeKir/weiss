@@ -240,7 +240,7 @@ int CheckBoard(const S_BOARD *pos) {
 
 	assert(GeneratePosKey(pos) == pos->posKey);
 
-	return TRUE;
+	return true;
 }
 #endif
 

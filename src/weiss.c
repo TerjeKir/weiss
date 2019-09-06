@@ -16,7 +16,7 @@ int main() {
 
 	S_BOARD pos[1];
 	S_SEARCHINFO info[1];
-	info->quit = FALSE;
+	info->quit = false;
 	pos->HashTable->pTable = NULL;
 	InitHashTable(pos->HashTable, DEFAULTHASH);
 
@@ -26,7 +26,7 @@ int main() {
 	printf("\nWelcome to weiss! Type 'weiss' for console mode.\n");
 
 	char line[256];
-	while (TRUE) {
+	while (true) {
 		memset(&line[0], 0, sizeof(line));
 
 		fflush(stdout);

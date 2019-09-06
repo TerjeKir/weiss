@@ -142,10 +142,10 @@ int ProbeHashEntry(const S_BOARD *pos, int *move, int *score, const int alpha, c
 			if (   (flag == BOUND_UPPER && *score <= alpha)
 				|| (flag == BOUND_LOWER && *score >= beta)
 				||  flag == BOUND_EXACT)
-				return TRUE;
+				return true;
 		}
 	}
-	return FALSE;
+	return false;
 }
 
 // Store an entry in the hash table

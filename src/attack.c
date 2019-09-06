@@ -201,7 +201,7 @@ void InitAttacks() {
 #endif
 }
 
-// Returns TRUE if sq is attacked by side
+// Returns true if sq is attacked by side
 int SqAttacked(const int sq, const int side, const S_BOARD *pos) {
 	
     bitboard bAtks, rAtks;
@@ -216,23 +216,23 @@ int SqAttacked(const int sq, const int side, const S_BOARD *pos) {
 
 	// Pawns
 	if (pawn_attacks[!side][sq] & pos->pieceBBs[PAWN] & pos->colors[side])
-		return TRUE;
+		return true;
 
 	// Knights
 	if (knight_attacks[sq] & pos->pieceBBs[KNIGHT] & pos->colors[side])
-		return TRUE;
+		return true;
 
     // Kings
 	if (king_attacks[sq] & pos->pieceBBs[KING] & pos->colors[side])
-		return TRUE;
+		return true;
 
     // Bishops
     bAtks = SliderAttacks(sq, allPieces, mBishopTable);
-    if (bAtks & bishops) return TRUE;
+    if (bAtks & bishops) return true;
 
     // Rook
     rAtks = SliderAttacks(sq, allPieces, mRookTable);
-    if (rAtks & rooks) return TRUE;
+    if (rAtks & rooks) return true;
 
-	return FALSE;
+	return false;
 }

@@ -8,17 +8,17 @@ char SideChar[] = "wb-";
 char RankChar[] = "12345678";
 char FileChar[] = "abcdefgh";
 
-int PieceBig[13] = {FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, TRUE, TRUE, TRUE, TRUE, TRUE}; // Used for NullMP
+int PieceBig[13] = {false, false, true, true, true, true, true, false, true, true, true, true, true}; // Used for NullMP
 int PieceValues[13] = {0, 100, 325, 325, 550, 1000, 50000, 100, 325, 325, 550, 1000, 50000};
 int PieceColor[13] = {BOTH, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK};
 
-int PiecePawn[13] 	= {FALSE,  TRUE, FALSE, FALSE, FALSE, FALSE, FALSE,  TRUE, FALSE, FALSE, FALSE, FALSE, FALSE};
-int PieceKnight[13] = {FALSE, FALSE,  TRUE, FALSE, FALSE, FALSE, FALSE, FALSE,  TRUE, FALSE, FALSE, FALSE, FALSE};
-int PieceBishop[13] = {FALSE, FALSE, FALSE,  TRUE, FALSE, FALSE, FALSE, FALSE, FALSE,  TRUE, FALSE, FALSE, FALSE};
-int PieceRook[13] 	= {FALSE, FALSE, FALSE, FALSE,  TRUE, FALSE, FALSE, FALSE, FALSE, FALSE,  TRUE, FALSE, FALSE};
-int PieceQueen[13] 	= {FALSE, FALSE, FALSE, FALSE, FALSE,  TRUE, FALSE, FALSE, FALSE, FALSE, FALSE,  TRUE, FALSE};
-int PieceKing[13] 	= {FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,  TRUE, FALSE, FALSE, FALSE, FALSE, FALSE,  TRUE};
-int PieceSlides[13] = {FALSE, FALSE, FALSE,  TRUE,  TRUE,  TRUE, FALSE, FALSE, FALSE,  TRUE,  TRUE,  TRUE, FALSE};
+int PiecePawn[13] 	= {false,  true, false, false, false, false, false,  true, false, false, false, false, false};
+int PieceKnight[13] = {false, false,  true, false, false, false, false, false,  true, false, false, false, false};
+int PieceBishop[13] = {false, false, false,  true, false, false, false, false, false,  true, false, false, false};
+int PieceRook[13] 	= {false, false, false, false,  true, false, false, false, false, false,  true, false, false};
+int PieceQueen[13] 	= {false, false, false, false, false,  true, false, false, false, false, false,  true, false};
+int PieceKing[13] 	= {false, false, false, false, false, false,  true, false, false, false, false, false,  true};
+int PieceSlides[13] = {false, false, false,  true,  true,  true, false, false, false,  true,  true,  true, false};
 
 int Mirror64[64] = {
 	56, 57, 58, 59, 60, 61, 62, 63,
