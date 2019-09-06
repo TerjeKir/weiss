@@ -223,8 +223,6 @@ int EvalPosition(const S_BOARD *pos) {
 
 		score += RookTable[sq];
 
-		assert(FileRankValid(fileOf(sq)));
-
 		// Open/Semi-open file bonus
 		if (!(pos->pieceBBs[PAWN] & FileBBMask[fileOf(sq)]))
 			score += RookOpenFile;
@@ -240,8 +238,6 @@ int EvalPosition(const S_BOARD *pos) {
 
 		score -= RookTable[MIRROR64(sq)];
 
-		assert(FileRankValid(fileOf(sq)));
-
 		// Open/Semi-open file bonus
 		if (!(pos->pieceBBs[PAWN] & FileBBMask[fileOf(sq)]))
 			score -= RookOpenFile;
@@ -254,7 +250,6 @@ int EvalPosition(const S_BOARD *pos) {
 
 		sq = PopLsb(&whiteQueens);
 		assert(ValidSquare(sq));
-		assert(FileRankValid(fileOf(sq)));
 
 		// Open/Semi-open file bonus
 		if (!(pos->pieceBBs[PAWN] & FileBBMask[fileOf(sq)]))
@@ -268,7 +263,6 @@ int EvalPosition(const S_BOARD *pos) {
 
 		sq = PopLsb(&blackQueens);
 		assert(ValidSquare(sq));
-		assert(FileRankValid(fileOf(sq)));
 
 		// Open/Semi-open file bonus
 		if (!(pos->pieceBBs[PAWN] & FileBBMask[fileOf(sq)]))
