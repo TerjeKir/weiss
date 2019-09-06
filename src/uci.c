@@ -19,7 +19,7 @@
 #define INPUTBUFFER 400 * 6
 
 
-static void ParseGo(char *line, S_SEARCHINFO *info, S_BOARD *pos) {
+static void ParseGo(const char *line, S_SEARCHINFO *info, S_BOARD *pos) {
 
 	info->starttime = GetTimeMs();
 
@@ -73,10 +73,10 @@ static void ParseGo(char *line, S_SEARCHINFO *info, S_BOARD *pos) {
 	SearchPosition(pos, info);
 }
 
-static void ParsePosition(char *lineIn, S_BOARD *pos) {
+static void ParsePosition(const char *lineIn, S_BOARD *pos) {
 
 	lineIn += 9;
-	char *ptrChar = lineIn;
+	const char *ptrChar = lineIn;
 
 	if (strncmp(lineIn, "startpos", 8) == 0) {
 		ParseFen(START_FEN, pos);

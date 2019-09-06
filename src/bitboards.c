@@ -19,7 +19,7 @@ inline int PopCount(bitboard bb) {
 }
 
 // Returns the index of the least significant bit
-inline int Lsb(bitboard bb) {
+inline int Lsb(const bitboard bb) {
 
     return __builtin_ctzll(bb);
 }
@@ -34,7 +34,7 @@ inline int PopLsb(bitboard *bb) {
 }
 
 // Prints a bitboard
-void PrintBB(bitboard bb) {
+void PrintBB(const bitboard bb) {
     
     bitboard bitmask = 1;
 

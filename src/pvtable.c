@@ -91,21 +91,21 @@ void InitHashTable(S_HASHTABLE *table, const uint64_t MB) {
 }
 
 // Mate scores are stored as mate in 0 as they depend on the current ply
-static inline int ScoreToTT (int score, int ply) {
+static inline int ScoreToTT (int score, const int ply) {
 	return score >=  ISMATE ? score + ply
 		 : score <= -ISMATE ? score - ply
 		 				    : score;
 }
 
 // Translates from mate in 0 to the proper mate score at current ply
-static inline int ScoreFromTT (int score, int ply) {
+static inline int ScoreFromTT (int score, const int ply) {
 	return score >=  ISMATE ? score - ply
 		 : score <= -ISMATE ? score + ply
 		 					: score;
 }
 
 // Probe the hash table
-int ProbeHashEntry(S_BOARD *pos, int *move, int *score, int alpha, int beta, int depth) {
+int ProbeHashEntry(const S_BOARD *pos, int *move, int *score, const int alpha, const int beta, const int depth) {
 
 	assert(alpha < beta);
 	assert(alpha >= -INFINITE && alpha <= INFINITE);
@@ -149,7 +149,7 @@ int ProbeHashEntry(S_BOARD *pos, int *move, int *score, int alpha, int beta, int
 }
 
 // Store an entry in the hash table
-void StoreHashEntry(S_BOARD *pos, const int move, int score, const int flag, const int depth) {
+void StoreHashEntry(S_BOARD *pos, const int move, const int score, const int flag, const int depth) {
 
 	assert(-INFINITE <= score && score <= INFINITE);
 	assert(flag >= BOUND_UPPER && flag <= BOUND_EXACT);

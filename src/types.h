@@ -140,10 +140,10 @@ typedef struct {
 
 } S_SEARCHINFO;
 
-inline int fileOf(int square) {
+inline int fileOf(const int square) {
 	return square & 7;
 }
 
-inline int rankOf(int square) {
+inline int rankOf(const int square) {
 	return square >> 3;
 }

@@ -388,7 +388,7 @@ void TakeMove(S_BOARD *pos) {
 }
 
 // Make move move
-int MakeMove(S_BOARD *pos, int move) {
+int MakeMove(S_BOARD *pos, const int move) {
 
 	assert(CheckBoard(pos));
 

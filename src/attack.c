@@ -111,7 +111,7 @@ static void InitPawnAttacks() {
     }
 }
 
-static bitboard MakeSliderAttacks(int sq, bitboard occupied, const int directions[]) {
+static bitboard MakeSliderAttacks(const int sq, const bitboard occupied, const int directions[]) {
 
     bitboard result = 0;
 
@@ -171,7 +171,7 @@ static void InitSliderAttacks(MAGIC *table, bitboard *attackTable, const bitboar
 }
 
 // Returns the attack bitboard for a slider based on what squares are occupied
-bitboard SliderAttacks(int sq, bitboard occupied, MAGIC *table) {
+bitboard SliderAttacks(const int sq, bitboard occupied, const MAGIC *table) {
     bitboard *ptr = table[sq].attacks;
 #ifdef USE_PEXT
     return ptr[_pext_u64(occupied, table[sq].mask)];

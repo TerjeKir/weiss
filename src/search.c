@@ -26,7 +26,7 @@ static void CheckUp(S_SEARCHINFO *info) {
 }
 
 // Move best move to the front of the queue
-static void PickNextMove(int moveNum, S_MOVELIST *list) {
+static void PickNextMove(const int moveNum, S_MOVELIST *list) {
 
 	S_MOVE temp;
 	int bestScore = 0;
@@ -89,7 +89,7 @@ static void ClearForSearch(S_BOARD *pos, S_SEARCHINFO *info) {
 }
 
 // Quiescence
-static int Quiescence(int alpha, int beta, S_BOARD *pos, S_SEARCHINFO *info) {
+static int Quiescence(int alpha, const int beta, S_BOARD *pos, S_SEARCHINFO *info) {
 
 	assert(CheckBoard(pos));
 	assert(beta > alpha);
@@ -171,7 +171,7 @@ static int Quiescence(int alpha, int beta, S_BOARD *pos, S_SEARCHINFO *info) {
 }
 
 // Alpha Beta
-static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO *info, int doNull) {
+static int AlphaBeta(int alpha, const int beta, int depth, S_BOARD *pos, S_SEARCHINFO *info, const int doNull) {
 
 	assert(CheckBoard(pos));
 	assert(beta > alpha);
