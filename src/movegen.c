@@ -307,7 +307,7 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 	int sq, attack, move;
 	int side = pos->side;
 
-	bitboard attacks, moves;
+	bitboard attacks, moves, tempQueen;
 
 	bitboard allPieces  = pos->allBB;
 	bitboard empty		= ~allPieces;
@@ -394,8 +394,9 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 
 		sq = PopLsb(&queens);
 
-		attacks = enemies & (SliderAttacks(sq, allPieces, mBishopTable) | SliderAttacks(sq, allPieces, mRookTable));
-		moves   = empty   & (SliderAttacks(sq, allPieces, mBishopTable) | SliderAttacks(sq, allPieces, mRookTable));
+		tempQueen = SliderAttacks(sq, allPieces, mBishopTable) | SliderAttacks(sq, allPieces, mRookTable);
+		attacks   = enemies & tempQueen;
+		moves     = empty   & tempQueen;
 
 		while (attacks) {
 			attack = PopLsb(&attacks);
