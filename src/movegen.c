@@ -389,22 +389,14 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 
 		sq = PopLsb(&queens);
 
-		attacks = SliderAttacks(sq, allPieces, mBishopTable) & enemies;
+		attacks = enemies & (SliderAttacks(sq, allPieces, mBishopTable) | SliderAttacks(sq, allPieces, mRookTable));
+		moves   = empty   & (SliderAttacks(sq, allPieces, mBishopTable) | SliderAttacks(sq, allPieces, mRookTable));
+
 		while (attacks) {
 			attack = PopLsb(&attacks);
 			AddCaptureMove(pos, MOVE(sq, attack, pos->pieces[attack], EMPTY, 0), list);
 		}
-		attacks = SliderAttacks(sq, allPieces, mRookTable) & enemies;
-		while (attacks) {
-			attack = PopLsb(&attacks);
-			AddCaptureMove(pos, MOVE(sq, attack, pos->pieces[attack], EMPTY, 0), list);
-		}
-		moves = SliderAttacks(sq, allPieces, mBishopTable) & empty;
-		while (moves) {
-			move = PopLsb(&moves);
-			AddQuietMove(pos, MOVE(sq, move, EMPTY, EMPTY, 0), list);
-		}
-		moves = SliderAttacks(sq, allPieces, mRookTable) & empty;
+
 		while (moves) {
 			move = PopLsb(&moves);
 			AddQuietMove(pos, MOVE(sq, move, EMPTY, EMPTY, 0), list);
