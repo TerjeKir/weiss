@@ -499,20 +499,29 @@ void GenerateAllCaptures(const S_BOARD *pos, S_MOVELIST *list) {
 	assert(MoveListOk(list, pos));
 }
 
+// Checks the given move is legal in the given position
 int MoveExists(S_BOARD *pos, const int move) {
 
 	S_MOVELIST list[1];
+
+	// Generate all moves in the position
 	GenerateAllMoves(pos, list);
 
-	for (int MoveNum = 0; MoveNum < list->count; ++MoveNum) {
+	// Loop through them, looking for a match
+	for (int i = 0; i < list->count; ++i) {
 
-		if (!MakeMove(pos, list->moves[MoveNum].move))
+		if (!(list->moves[i].move == move))
 			continue;
 
-		TakeMove(pos);
+		// The movegen gens some illegal moves, so we must verify it is legal.
+		// If it isn't legal then the given move is not legal in the position.
+		// MakeMove takes it back immediately so we just break and return false.
+		if (!MakeMove(pos, list->moves[i].move))
+			break;
 
-		if (list->moves[MoveNum].move == move)
-			return TRUE;
+		// If it's legal we take it back and return true.
+		TakeMove(pos);
+		return TRUE;
 	}
 	return FALSE;
 }
