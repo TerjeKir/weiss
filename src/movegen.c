@@ -160,8 +160,8 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 	int sq, attack, move;
 	int side = pos->side;
 
-	bitboard attacks, moves, enPassant;
-	bitboard pawnMoves, pawnStarts;
+	bitboard attacks, moves;
+	bitboard pawnMoves, pawnStarts, enPassers;
 
 	bitboard allPieces  = pos->allBB;
 	bitboard empty		= ~allPieces;
@@ -172,8 +172,6 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 	bitboard bishops 	= pos->colors[side] & pos->pieceBBs[BISHOP];
 	bitboard rooks 		= pos->colors[side] & pos->pieceBBs[  ROOK];
 	bitboard queens 	= pos->colors[side] & pos->pieceBBs[ QUEEN];
-
-	enPassant = pos->enPas != NO_SQ ? 1ULL << pos->enPas : 0ULL;
 
 	// Pawns and castling
 	if (side == WHITE) {
@@ -194,26 +192,32 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 		pawnMoves  = empty & pawns << 8;
 		pawnStarts = empty & (pawnMoves & rank3BB) << 8;
 
+		// Pawn moves
 		while (pawnMoves) {
 			sq = PopLsb(&pawnMoves);
 			AddWhitePawnMove(pos, (sq - 8), sq, list);
 		}
 
+		// Pawn starts
 		while (pawnStarts) {
 			sq = PopLsb(&pawnStarts);
 			AddQuietMove(pos, MOVE((sq - 16), sq, EMPTY, EMPTY, FLAG_PAWNSTART), list);
 		}
 
-		while (pawns) {
-
-			sq = PopLsb(&pawns);
-
-			// En passant
-			if (enPassant & pawn_attacks[side][sq])
+		// En passant
+		if (pos->enPas != NO_SQ) {
+			enPassers = pawns & pawn_attacks[!side][pos->enPas];
+			while (enPassers) {
+				sq = PopLsb(&enPassers);
 				AddEnPassantMove(MOVE(sq, pos->enPas, EMPTY, EMPTY, FLAG_ENPAS), list);
+			}
+		}
 
-			// Pawn captures
+		// Pawn captures
+		while (pawns) {
+			sq = PopLsb(&pawns);
 			attacks = pawn_attacks[side][sq] & enemies;
+
 			while (attacks) {
 				attack = PopLsb(&attacks);
 				AddWhitePawnCapMove(pos, sq, attack, pos->pieces[attack], list);
@@ -238,26 +242,32 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 		pawnMoves  = empty & pawns >> 8;
 		pawnStarts = empty & (pawnMoves & rank6BB) >> 8;
 
+		// Pawn moves
 		while (pawnMoves) {
 			sq = PopLsb(&pawnMoves);
 			AddBlackPawnMove(pos, (sq + 8), sq, list);
 		}
 
+		// Pawn starts
 		while (pawnStarts) {
 			sq = PopLsb(&pawnStarts);
 			AddQuietMove(pos, MOVE((sq + 16), sq, EMPTY, EMPTY, FLAG_PAWNSTART), list);
 		}
 
-		while (pawns) {
-
-			sq = PopLsb(&pawns);
-
-			// En passant
-			if (enPassant & pawn_attacks[side][sq])
+		// En passant
+		if (pos->enPas != NO_SQ) {
+			enPassers = pawns & pawn_attacks[!side][pos->enPas];
+			while (enPassers) {
+				sq = PopLsb(&enPassers);
 				AddEnPassantMove(MOVE(sq, pos->enPas, EMPTY, EMPTY, FLAG_ENPAS), list);
+			}
+		}
 
-			// Pawn captures
+		// Pawn captures
+		while (pawns) {
+			sq = PopLsb(&pawns);
 			attacks = pawn_attacks[side][sq] & enemies;
+
 			while (attacks) {
 				attack = PopLsb(&attacks);
 				AddBlackPawnCapMove(pos, sq, attack, pos->pieces[attack], list);
