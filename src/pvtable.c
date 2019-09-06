@@ -91,14 +91,14 @@ void InitHashTable(S_HASHTABLE *table, const uint64_t MB) {
 }
 
 // Mate scores are stored as mate in 0 as they depend on the current ply
-inline int ScoreToTT (int score, int ply) {
+static inline int ScoreToTT (int score, int ply) {
 	return score >=  ISMATE ? score + ply
 		 : score <= -ISMATE ? score - ply
 		 				    : score;
 }
 
 // Translates from mate in 0 to the proper mate score at current ply
-inline int ScoreFromTT (int score, int ply) {
+static inline int ScoreFromTT (int score, int ply) {
 	return score >=  ISMATE ? score - ply
 		 : score <= -ISMATE ? score + ply
 		 					: score;
