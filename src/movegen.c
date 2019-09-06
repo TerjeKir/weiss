@@ -160,7 +160,7 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 	int sq, attack, move;
 	int side = pos->side;
 
-	bitboard squareBitMask, attacks, moves, enPassant;
+	bitboard attacks, moves, enPassant;
 
 	bitboard allPieces  = pos->allBB;
 	bitboard empty		= ~allPieces;
@@ -190,19 +190,23 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 					AddQuietMove(pos, MOVE(E1, C1, EMPTY, EMPTY, FLAG_CASTLE), list);
 
 		// Pawns
+		bitboard pawnMoves  = empty & pawns << 8;
+		bitboard pawnStarts = empty & (pawnMoves & rank3BB) << 8;
+
+		while (pawnMoves) {
+			sq = PopLsb(&pawnMoves);
+			AddWhitePawnMove(pos, (sq - 8), sq, list);
+		}
+
+		while (pawnStarts) {
+			sq = PopLsb(&pawnStarts);
+			AddQuietMove(pos, MOVE((sq - 16), sq, EMPTY, EMPTY, FLAG_PAWNSTART), list);
+		}
+
 		while (pawns) {
 
 			sq = PopLsb(&pawns);
-			squareBitMask = 1ULL << sq;
 			assert(ValidSquare(sq));
-
-			// Move forward
-			if (empty & squareBitMask << 8) {
-				AddWhitePawnMove(pos, sq, (sq + 8), list);
-				// Move forward two squares
-				if ((empty & squareBitMask << 16) && (sq < 16))
-					AddQuietMove(pos, MOVE(sq, sq + 16, EMPTY, EMPTY, FLAG_PAWNSTART), list);
-			}
 
 			// En passant
 			if (enPassant & pawn_attacks[side][sq])
@@ -231,19 +235,23 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 					AddQuietMove(pos, MOVE(E8, C8, EMPTY, EMPTY, FLAG_CASTLE), list);
 
 		// Pawns
+		bitboard pawnMoves  = empty & pawns >> 8;
+		bitboard pawnStarts = empty & (pawnMoves & rank6BB) >> 8;
+
+		while (pawnMoves) {
+			sq = PopLsb(&pawnMoves);
+			AddBlackPawnMove(pos, (sq + 8), sq, list);
+		}
+
+		while (pawnStarts) {
+			sq = PopLsb(&pawnStarts);
+			AddQuietMove(pos, MOVE((sq + 16), sq, EMPTY, EMPTY, FLAG_PAWNSTART), list);
+		}
+
 		while (pawns) {
 
 			sq = PopLsb(&pawns);
-			squareBitMask = 1ULL << sq;
 			assert(ValidSquare(sq));
-
-			// Move forward
-			if (empty & squareBitMask >> 8) {
-				AddBlackPawnMove(pos, sq, (sq - 8), list);
-				// Move forward two squares
-				if ((empty & squareBitMask >> 16) && (sq > 47))
-					AddQuietMove(pos, MOVE(sq, sq - 16, EMPTY, EMPTY, FLAG_PAWNSTART), list);
-			}
 
 			// En passant
 			if (enPassant & pawn_attacks[side][sq])
