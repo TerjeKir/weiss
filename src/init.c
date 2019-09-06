@@ -9,7 +9,7 @@
 bitboard   SetMask[64];
 bitboard ClearMask[64];
 
-bitboard FileBBMask[8]; // TODO
+bitboard FileBBMask[8];
 bitboard RankBBMask[8];
 
 bitboard BlackPassedMask[64];
