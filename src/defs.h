@@ -7,7 +7,9 @@
 #define NDEBUG
 #include <assert.h>
 
-// Functionality, should probably be in makefile
+
+/* Functionality, should probably be in makefile */
+
 #define USE_TBS
 // #define CHECK_MAT_DRAW
 #define USE_PEXT
