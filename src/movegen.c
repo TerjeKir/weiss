@@ -439,11 +439,10 @@ void GenerateAllCaptures(const S_BOARD *pos, S_MOVELIST *list) {
 
 
 	// Pawns
-	if (side == WHITE) {
+	if (side == WHITE)
 		GenerateWhitePawnCaptures(pos, list, pawns, enemies);
-	} else {
+	else
 		GenerateBlackPawnCaptures(pos, list, pawns, enemies);
-	}
 
 	// Knights
 	while (knights) {
