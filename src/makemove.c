@@ -33,29 +33,28 @@ static void ClearPiece(const int sq, S_BOARD *pos) {
 	assert(ValidSquare(sq));
 
 	int piece = pos->pieces[sq];
-
-	assert(PieceValid(piece));
-
 	int color = PieceColor[piece];
 	int t_pieceCounts = -1;
 
+	assert(PieceValid(piece));
 	assert(SideValid(color));
 
+	// Hash out the piece
 	HASH_PCE(piece, sq);
 
+	// Set square to empty and reduce material score
 	pos->pieces[sq] = EMPTY;
 	pos->material[color] -= PieceValues[piece];
 
-	// Piece lists
+	// Update various piece lists
 	if (PieceBig[piece])
 		pos->bigPieces[color]--;
 
-	for (int index = 0; index < pos->pieceCounts[piece]; ++index) {
-		if (pos->pieceList[piece][index] == sq) {
-			t_pieceCounts = index;
+	for (int i = 0; i < pos->pieceCounts[piece]; ++i)
+		if (pos->pieceList[piece][i] == sq) {
+			t_pieceCounts = i;
 			break;
 		}
-	}
 
 	assert(t_pieceCounts != -1);
 	assert(t_pieceCounts >= 0 && t_pieceCounts < 10);
@@ -65,7 +64,7 @@ static void ClearPiece(const int sq, S_BOARD *pos) {
 
 	pos->pieceList[piece][t_pieceCounts] = pos->pieceList[piece][pos->pieceCounts[piece]];
 
-	// Bitboards
+	// Update bitboards
 
 	CLRBIT(pos->allBB, sq);
 
@@ -83,18 +82,20 @@ static void AddPiece(const int sq, S_BOARD *pos, const int piece) {
 	int color = PieceColor[piece];
 	assert(SideValid(color));
 
+	// Hash in piece at square
 	HASH_PCE(piece, sq);
 
+	// Update square
 	pos->pieces[sq] = piece;
 
-	// Piece lists
+	// Update various piece lists
 	if (PieceBig[piece])
 		pos->bigPieces[color]++;
 
 	pos->material[color] += PieceValues[piece];
 	pos->pieceList[piece][pos->pieceCounts[piece]++] = sq;
 
-	// Bitboards
+	// Update bitboards
 
 	SETBIT(pos->allBB, sq);
 
@@ -109,7 +110,6 @@ static void MovePiece(const int from, const int to, S_BOARD *pos) {
 	assert(ValidSquare(from));
 	assert(ValidSquare(to));
 
-	int index = 0;
 	int piece = pos->pieces[from];
 	assert(PieceValid(piece));
 
@@ -117,25 +117,26 @@ static void MovePiece(const int from, const int to, S_BOARD *pos) {
 	int t_PieceNum = false;
 #endif
 
+	// Hash out piece on old square, in on new square
 	HASH_PCE(piece, from);
-	pos->pieces[from] = EMPTY;
-
 	HASH_PCE(piece, to);
+
+	// Set old square to empty, new to piece
+	pos->pieces[from] = EMPTY;
 	pos->pieces[to] = piece;
 
-	for (index = 0; index < pos->pieceCounts[piece]; ++index) {
-		if (pos->pieceList[piece][index] == from) {
-			pos->pieceList[piece][index] = to;
+	// Update square for the piece in pieceList
+	for (int i = 0; i < pos->pieceCounts[piece]; ++i)
+		if (pos->pieceList[piece][i] == from) {
+			pos->pieceList[piece][i] = to;
 #ifndef NDEBUG
 			t_PieceNum = true;
 #endif
 			break;
 		}
-	}
 	assert(t_PieceNum);
 
-	// Bitboards
-
+	// Update bitboards
 	CLRBIT(pos->allBB, from);
 	SETBIT(pos->allBB, to);
 
