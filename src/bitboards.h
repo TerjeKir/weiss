@@ -40,7 +40,25 @@ extern bitboard RankBBMask[8];
 const bitboard fileBBs[8];
 const bitboard rankBBs[8];
 
-int PopCount(bitboard x);
-int Lsb(const bitboard bb);
-int PopLsb(bitboard *bb);
 void PrintBB(const bitboard bb);
+
+// Population count/Hamming weight
+static inline int PopCount(bitboard bb) {
+
+    return __builtin_popcountll(bb);
+}
+
+// Returns the index of the least significant bit
+static inline int Lsb(const bitboard bb) {
+
+    return __builtin_ctzll(bb);
+}
+
+// Returns the index of the least significant bit and unsets it
+static inline int PopLsb(bitboard *bb) {
+
+	int lsb = Lsb(*bb);
+	*bb &= (*bb - 1);
+
+	return lsb;
+}
