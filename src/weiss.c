@@ -4,11 +4,25 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "attack.h"
+#include "bitboards.h"
+#include "board.h"
 #include "cli.h"
-#include "init.h"
+#include "evaluate.h"
+#include "hashkeys.h"
+#include "movegen.h"
 #include "pvtable.h"
 #include "uci.h"
 
+
+void InitAll() {
+	InitDistance();
+	InitBitMasks();
+	InitHashKeys();
+	InitEvalMasks();
+	InitMvvLva();
+	InitAttacks();
+}
 
 int main() {
 

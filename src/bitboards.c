@@ -12,6 +12,21 @@ const bitboard rankBBs[] = {         0xFF,         0xFF00,         0xFF0000,    
                              0xFF00000000, 0xFF0000000000, 0xFF000000000000, 0xFF00000000000000 };
 
 
+void InitBitMasks() {
+
+	int index = 0;
+
+	for (index = 0; index < 64; ++index) {
+		SetMask[index] = 0ULL;
+		ClearMask[index] = 0ULL;
+	}
+
+	for (index = 0; index < 64; ++index) {
+		SetMask[index] |= (1ULL << index);
+		ClearMask[index] = ~SetMask[index];
+	}
+}
+
 // Prints a bitboard
 /* Unused, here for potential print debugging
 void PrintBB(const bitboard bb) {
