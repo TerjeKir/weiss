@@ -519,18 +519,19 @@ void MakeNullMove(S_BOARD *pos) {
 	pos->history[pos->hisPly].enPas 	 = pos->enPas;
 	pos->history[pos->hisPly].castlePerm = pos->castlePerm;
 
+	// Increase ply
 	pos->ply++;
 	pos->hisPly++;
+
+	// Change side to play
+	pos->side ^= 1;
+	HASH_SIDE;
 
 	// Hash out en passant if there was one, and unset it
 	if (pos->enPas != NO_SQ) {
 		HASH_EP;
 		pos->enPas = NO_SQ;
 	}
-
-	// Change side to play
-	pos->side ^= 1;
-	HASH_SIDE;
 
 	assert(CheckBoard(pos));
 	assert(pos->hisPly >= 0 && pos->hisPly < MAXGAMEMOVES);
@@ -543,11 +544,11 @@ void MakeNullMove(S_BOARD *pos) {
 void TakeNullMove(S_BOARD *pos) {
 	assert(CheckBoard(pos));
 
-	// Reduce ply
+	// Decrease ply
 	pos->hisPly--;
 	pos->ply--;
 
-	// Change side to play and hash it
+	// Change side to play
 	pos->side ^= 1;
 
 	// Get info from history
