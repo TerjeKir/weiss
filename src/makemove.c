@@ -66,62 +66,12 @@ static void ClearPiece(const int sq, S_BOARD *pos) {
 	pos->pieceList[piece][t_pieceCounts] = pos->pieceList[piece][pos->pieceCounts[piece]];
 
 	// Bitboards
-	
+
 	CLRBIT(pos->allBB, sq);
 
-	switch (piece) {
-		case wP:
-			CLRBIT(pos->pieceBBs[PAWN], sq);
-			CLRBIT(pos->colors[WHITE], sq);
-			break;
-		case wN:
-			CLRBIT(pos->pieceBBs[KNIGHT], sq);
-			CLRBIT(pos->colors[WHITE], sq);
-			break;
-		case wB:
-			CLRBIT(pos->pieceBBs[BISHOP], sq);
-			CLRBIT(pos->colors[WHITE], sq);
-			break;
-		case wR:
-			CLRBIT(pos->pieceBBs[ROOK], sq);
-			CLRBIT(pos->colors[WHITE], sq);
-			break;
-		case wQ:
-			CLRBIT(pos->pieceBBs[QUEEN], sq);
-			CLRBIT(pos->colors[WHITE], sq);
-			break;
-		case wK:
-			CLRBIT(pos->pieceBBs[KING], sq);
-			CLRBIT(pos->colors[WHITE], sq);
-			break;
-		case bP:
-			CLRBIT(pos->pieceBBs[PAWN], sq);
-			CLRBIT(pos->colors[BLACK], sq);
-			break;
-		case bN:
-			CLRBIT(pos->pieceBBs[KNIGHT], sq);
-			CLRBIT(pos->colors[BLACK], sq);
-			break;
-		case bB:
-			CLRBIT(pos->pieceBBs[BISHOP], sq);
-			CLRBIT(pos->colors[BLACK], sq);
-			break;
-		case bR:
-			CLRBIT(pos->pieceBBs[ROOK], sq);
-			CLRBIT(pos->colors[BLACK], sq);
-			break;
-		case bQ:
-			CLRBIT(pos->pieceBBs[QUEEN], sq);
-			CLRBIT(pos->colors[BLACK], sq);
-			break;
-		case bK:
-			CLRBIT(pos->pieceBBs[KING], sq);
-			CLRBIT(pos->colors[BLACK], sq);
-			break;
-		default:
-			assert(false);
-			break;
-	}
+	CLRBIT(pos->colors[PieceColor[piece]], sq);
+
+	CLRBIT(pos->pieceBBs[pieceType[piece]], sq);
 }
 
 // Add a piece piece to a square
@@ -145,62 +95,12 @@ static void AddPiece(const int sq, S_BOARD *pos, const int piece) {
 	pos->pieceList[piece][pos->pieceCounts[piece]++] = sq;
 
 	// Bitboards
-	
+
 	SETBIT(pos->allBB, sq);
 
-	switch (piece) {
-		case wP:
-			SETBIT(pos->pieceBBs[PAWN], sq);
-			SETBIT(pos->colors[WHITE], sq);
-			break;
-		case wN:
-			SETBIT(pos->pieceBBs[KNIGHT], sq);
-			SETBIT(pos->colors[WHITE], sq);
-			break;
-		case wB:
-			SETBIT(pos->pieceBBs[BISHOP], sq);
-			SETBIT(pos->colors[WHITE], sq);
-			break;
-		case wR:
-			SETBIT(pos->pieceBBs[ROOK], sq);
-			SETBIT(pos->colors[WHITE], sq);
-			break;
-		case wQ:
-			SETBIT(pos->pieceBBs[QUEEN], sq);
-			SETBIT(pos->colors[WHITE], sq);
-			break;
-		case wK:
-			SETBIT(pos->pieceBBs[KING], sq);
-			SETBIT(pos->colors[WHITE], sq);
-			break;
-		case bP:
-			SETBIT(pos->pieceBBs[PAWN], sq);
-			SETBIT(pos->colors[BLACK], sq);
-			break;
-		case bN:
-			SETBIT(pos->pieceBBs[KNIGHT], sq);
-			SETBIT(pos->colors[BLACK], sq);
-			break;
-		case bB:
-			SETBIT(pos->pieceBBs[BISHOP], sq);
-			SETBIT(pos->colors[BLACK], sq);
-			break;
-		case bR:
-			SETBIT(pos->pieceBBs[ROOK], sq);
-			SETBIT(pos->colors[BLACK], sq);
-			break;
-		case bQ:
-			SETBIT(pos->pieceBBs[QUEEN], sq);
-			SETBIT(pos->colors[BLACK], sq);
-			break;
-		case bK:
-			SETBIT(pos->pieceBBs[KING], sq);
-			SETBIT(pos->colors[BLACK], sq);
-			break;
-		default:
-			assert(false);
-			break;
-	}
+	SETBIT(pos->colors[PieceColor[piece]], sq);
+
+	SETBIT(pos->pieceBBs[pieceType[piece]], sq);
 }
 
 // Move a piece from a square to another square
@@ -235,87 +135,15 @@ static void MovePiece(const int from, const int to, S_BOARD *pos) {
 	assert(t_PieceNum);
 
 	// Bitboards
-	
+
 	CLRBIT(pos->allBB, from);
 	SETBIT(pos->allBB, to);
 
-	switch (piece) {
-		case wP:
-			CLRBIT(pos->pieceBBs[PAWN], from);
-			CLRBIT(pos->colors[WHITE], from);
-			SETBIT(pos->pieceBBs[PAWN], to);
-			SETBIT(pos->colors[WHITE], to);
-			break;
-		case wN:
-			CLRBIT(pos->pieceBBs[KNIGHT], from);
-			CLRBIT(pos->colors[WHITE], from);
-			SETBIT(pos->pieceBBs[KNIGHT], to);
-			SETBIT(pos->colors[WHITE], to);
-			break;
-		case wB:
-			CLRBIT(pos->pieceBBs[BISHOP], from);
-			CLRBIT(pos->colors[WHITE], from);
-			SETBIT(pos->pieceBBs[BISHOP], to);
-			SETBIT(pos->colors[WHITE], to);
-			break;
-		case wR:
-			CLRBIT(pos->pieceBBs[ROOK], from);
-			CLRBIT(pos->colors[WHITE], from);
-			SETBIT(pos->pieceBBs[ROOK], to);
-			SETBIT(pos->colors[WHITE], to);
-			break;
-		case wQ:
-			CLRBIT(pos->pieceBBs[QUEEN], from);
-			CLRBIT(pos->colors[WHITE], from);
-			SETBIT(pos->pieceBBs[QUEEN], to);
-			SETBIT(pos->colors[WHITE], to);
-			break;
-		case wK:
-			CLRBIT(pos->pieceBBs[KING], from);
-			CLRBIT(pos->colors[WHITE], from);
-			SETBIT(pos->pieceBBs[KING], to);
-			SETBIT(pos->colors[WHITE], to);
-			break;
-		case bP:
-			CLRBIT(pos->pieceBBs[PAWN], from);
-			CLRBIT(pos->colors[BLACK], from);
-			SETBIT(pos->pieceBBs[PAWN], to);
-			SETBIT(pos->colors[BLACK], to);
-			break;
-		case bN:
-			CLRBIT(pos->pieceBBs[KNIGHT], from);
-			CLRBIT(pos->colors[BLACK], from);
-			SETBIT(pos->pieceBBs[KNIGHT], to);
-			SETBIT(pos->colors[BLACK], to);
-			break;
-		case bB:
-			CLRBIT(pos->pieceBBs[BISHOP], from);
-			CLRBIT(pos->colors[BLACK], from);
-			SETBIT(pos->pieceBBs[BISHOP], to);
-			SETBIT(pos->colors[BLACK], to);
-			break;
-		case bR:
-			CLRBIT(pos->pieceBBs[ROOK], from);
-			CLRBIT(pos->colors[BLACK], from);
-			SETBIT(pos->pieceBBs[ROOK], to);
-			SETBIT(pos->colors[BLACK], to);
-			break;
-		case bQ:
-			CLRBIT(pos->pieceBBs[QUEEN], from);
-			CLRBIT(pos->colors[BLACK], from);
-			SETBIT(pos->pieceBBs[QUEEN], to);
-			SETBIT(pos->colors[BLACK], to);
-			break;
-		case bK:
-			CLRBIT(pos->pieceBBs[KING], from);
-			CLRBIT(pos->colors[BLACK], from);
-			SETBIT(pos->pieceBBs[KING], to);
-			SETBIT(pos->colors[BLACK], to);
-			break;
-		default:
-			assert(false);
-			break;
-	}
+	CLRBIT(pos->colors[PieceColor[piece]], from);
+	SETBIT(pos->colors[PieceColor[piece]], to);
+
+	CLRBIT(pos->pieceBBs[pieceType[piece]], from);
+	SETBIT(pos->pieceBBs[pieceType[piece]], to);
 }
 
 // Take back the previous move
