@@ -330,9 +330,9 @@ void TakeMove(S_BOARD *pos) {
 	pos->side ^= 1;
 
 	// Update castling rights, 50mr, en passant
-	pos->castlePerm = pos->history[pos->hisPly].castlePerm;
-	pos->fiftyMove 	= pos->history[pos->hisPly].fiftyMove;
 	pos->enPas 		= pos->history[pos->hisPly].enPas;
+	pos->fiftyMove 	= pos->history[pos->hisPly].fiftyMove;
+	pos->castlePerm = pos->history[pos->hisPly].castlePerm;
 
 	assert(pos->hisPly >= 0 && pos->hisPly < MAXGAMEMOVES);
 	assert(pos->ply >= 0 && pos->ply < MAXDEPTH);
@@ -409,9 +409,9 @@ int MakeMove(S_BOARD *pos, const int move) {
 
 	// Save position 
 	pos->history[pos->hisPly].move 		 = move;
-	pos->history[pos->hisPly].castlePerm = pos->castlePerm;
 	pos->history[pos->hisPly].enPas 	 = pos->enPas;
 	pos->history[pos->hisPly].fiftyMove  = pos->fiftyMove;
+	pos->history[pos->hisPly].castlePerm = pos->castlePerm;
 	pos->history[pos->hisPly].posKey 	 = pos->posKey;
 
 	// Increment hisPly, ply and 50mr
@@ -508,9 +508,9 @@ void MakeNullMove(S_BOARD *pos) {
 
 	// Save misc info for takeback
 	// pos->history[pos->hisPly].move    = NOMOVE;
-	pos->history[pos->hisPly].castlePerm = pos->castlePerm;
 	pos->history[pos->hisPly].enPas 	 = pos->enPas;
 	pos->history[pos->hisPly].fiftyMove  = pos->fiftyMove;
+	pos->history[pos->hisPly].castlePerm = pos->castlePerm;
 	pos->history[pos->hisPly].posKey 	 = pos->posKey;
 
 	// Increase ply
@@ -546,9 +546,9 @@ void TakeNullMove(S_BOARD *pos) {
 	pos->side ^= 1;
 
 	// Get info from history
-	pos->castlePerm = pos->history[pos->hisPly].castlePerm;
-	pos->fiftyMove 	= pos->history[pos->hisPly].fiftyMove;
 	pos->enPas 		= pos->history[pos->hisPly].enPas;
+	pos->fiftyMove 	= pos->history[pos->hisPly].fiftyMove;
+	pos->castlePerm = pos->history[pos->hisPly].castlePerm;
 	pos->posKey 	= pos->history[pos->hisPly].posKey;
 
 	assert(CheckBoard(pos));

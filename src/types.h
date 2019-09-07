@@ -57,9 +57,9 @@ typedef struct {
 typedef struct {
 
 	int move;
-	int castlePerm;
 	int enPas;
 	int fiftyMove;
+	int castlePerm;
 	uint64_t posKey;
 
 } S_UNDO;
