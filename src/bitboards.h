@@ -40,7 +40,8 @@ extern bitboard RankBBMask[8];
 const bitboard fileBBs[8];
 const bitboard rankBBs[8];
 
-void PrintBB(const bitboard bb);
+
+// void PrintBB(const bitboard bb);
 
 // Population count/Hamming weight
 static inline int PopCount(bitboard bb) {

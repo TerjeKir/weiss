@@ -13,6 +13,7 @@ const bitboard rankBBs[] = {         0xFF,         0xFF00,         0xFF0000,    
 
 
 // Prints a bitboard
+/* Unused, here for potential print debugging
 void PrintBB(const bitboard bb) {
     
     bitboard bitmask = 1;
@@ -27,3 +28,4 @@ void PrintBB(const bitboard bb) {
         printf("\n");
     }
 }
+*/
