@@ -9,6 +9,7 @@ uint8_t distance[64][64];
 
 
 void InitDistance();
+
 int CheckBoard(const S_BOARD *pos);
 int ParseFen(const char *fen, S_BOARD *pos);
 void PrintBoard(const S_BOARD *pos);

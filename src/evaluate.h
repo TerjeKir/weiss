@@ -6,4 +6,5 @@
 
 
 void InitEvalMasks();
+
 int EvalPosition(const S_BOARD *pos);
