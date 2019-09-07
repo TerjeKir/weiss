@@ -512,14 +512,14 @@ void MakeNullMove(S_BOARD *pos) {
 	assert(CheckBoard(pos));
 	assert(!SqAttacked(pos->KingSq[pos->side], pos->side ^ 1, pos));
 
-	pos->ply++;
-	pos->history[pos->hisPly].posKey = pos->posKey;
-
 	// Save misc info for takeback
 	// pos->history[pos->hisPly].move    = NOMOVE;
+	pos->history[pos->hisPly].posKey 	 = pos->posKey;
 	pos->history[pos->hisPly].fiftyMove  = pos->fiftyMove;
 	pos->history[pos->hisPly].enPas 	 = pos->enPas;
 	pos->history[pos->hisPly].castlePerm = pos->castlePerm;
+
+	pos->ply++;
 	pos->hisPly++;
 
 	// Hash out en passant if there was one, and unset it
