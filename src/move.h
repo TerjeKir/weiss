@@ -2,28 +2,31 @@
 
 #pragma once
 
-/* GAME MOVE 
-0000 0000 0000 0000 0000 0111 1111 -> From 0x7F
-0000 0000 0000 0011 1111 1000 0000 -> To >> 7, 0x7F
-0000 0000 0011 1100 0000 0000 0000 -> Captured >> 14, 0xF
-0000 0000 0100 0000 0000 0000 0000 -> En passant 0x40000
-0000 0000 1000 0000 0000 0000 0000 -> Pawn Start 0x80000
-0000 1111 0000 0000 0000 0000 0000 -> Promoted Piece >> 20, 0xF
-0001 0000 0000 0000 0000 0000 0000 -> Castle 0x1000000
+/* Move contents - total 23bits used
+0000 0000 0000 0000 0011 1111 -> From              0x3F
+0000 0000 0000 1111 1100 0000 -> To        >> 6    0x3F
+0000 0000 1111 0000 0000 0000 -> Captured  >> 12   0xF
+0000 1111 0000 0000 0000 0000 -> Promotion >> 16   0xF
+0001 0000 0000 0000 0000 0000 -> En passant        0x100000
+0010 0000 0000 0000 0000 0000 -> Pawn Start        0x200000
+0100 0000 0000 0000 0000 0000 -> Castle            0x400000
 */
+
+// Constructs a move
+#define MOVE(f, t, ca, pro, fl) ((f) | ((t) << 6) | ((ca) << 12) | ((pro) << 16) | (fl))
+
+// Macros to get info out of a move
+#define FROMSQ(m)     ((m)        & 0x3F)
+#define TOSQ(m)      (((m) >>  6) & 0x3F)
+#define CAPTURED(m)  (((m) >> 12) & 0xF)
+#define PROMOTION(m) (((m) >> 16) & 0xF)
 
 #define NOMOVE 0
 
-#define FLAG_ENPAS 0x40000
-#define FLAG_PAWNSTART 0x80000
-#define FLAG_CASTLE 0x1000000
-#define FLAG_CAPTURE 0x7C000    // unused
-#define FLAG_PROMO 0xF00000     // unused
+// Possible flags
+#define FLAG_ENPAS      0x100000
+#define FLAG_PAWNSTART  0x200000
+#define FLAG_CASTLE     0x400000
 
-
-#define MOVE(f, t, ca, pro, fl) ((f) | ((t) << 7) | ((ca) << 14) | ((pro) << 20) | (fl))
-
-#define FROMSQ(m)     ((m)      & 0x7F)
-#define TOSQ(m)      (((m)>> 7) & 0x7F)
-#define CAPTURED(m)  (((m)>>14) & 0xF)
-#define PROMOTION(m) (((m)>>20) & 0xF)
+// Move either has enpas flag or a captured piece
+#define MOVE_IS_CAPTURE 0x10F000
