@@ -330,7 +330,7 @@ standard_search:
 				if (score >= beta) {
 
 					// Update killers if quiet move
-					if (!(list->moves[moveNum].move & FLAG_CAPTURE)) {
+					if (!(list->moves[moveNum].move & MOVE_IS_CAPTURE)) {
 						pos->searchKillers[1][pos->ply] = pos->searchKillers[0][pos->ply];
 						pos->searchKillers[0][pos->ply] = list->moves[moveNum].move;
 					}
@@ -348,7 +348,7 @@ standard_search:
 				alpha = score;
 
 				// Update searchHistory if quiet move
-				if (!(list->moves[moveNum].move & FLAG_CAPTURE))
+				if (!(list->moves[moveNum].move & MOVE_IS_CAPTURE))
 					pos->searchHistory[pos->pieces[FROMSQ(bestMove)]][TOSQ(bestMove)] += depth;
 			}
 		}
