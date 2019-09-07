@@ -318,6 +318,7 @@ static void MovePiece(const int from, const int to, S_BOARD *pos) {
 	}
 }
 
+// Take back the previous move
 void TakeMove(S_BOARD *pos) {
 	assert(CheckBoard(pos));
 
@@ -330,8 +331,8 @@ void TakeMove(S_BOARD *pos) {
 
 	// Update castling rights, 50mr, en passant
 	pos->castlePerm = pos->history[pos->hisPly].castlePerm;
-	pos->fiftyMove = pos->history[pos->hisPly].fiftyMove;
-	pos->enPas = pos->history[pos->hisPly].enPas;
+	pos->fiftyMove 	= pos->history[pos->hisPly].fiftyMove;
+	pos->enPas 		= pos->history[pos->hisPly].enPas;
 
 	assert(pos->hisPly >= 0 && pos->hisPly < MAXGAMEMOVES);
 	assert(pos->ply >= 0 && pos->ply < MAXDEPTH);
@@ -388,13 +389,15 @@ void TakeMove(S_BOARD *pos) {
 	assert(CheckBoard(pos));
 }
 
-// Make move move
+// Make a move, advancing the board to the next state
 int MakeMove(S_BOARD *pos, const int move) {
 
 	assert(CheckBoard(pos));
 
-	int from = FROMSQ(move);
-	int to = TOSQ(move);
+	int from 	 = FROMSQ(move);
+	int to		 = TOSQ(move);
+	int captured = CAPTURED(move);
+
 	int side = pos->side;
 
 	assert(ValidSquare(from));
@@ -405,46 +408,16 @@ int MakeMove(S_BOARD *pos, const int move) {
 	assert(pos->ply >= 0 && pos->ply < MAXDEPTH);
 
 	// Save position 
-	pos->history[pos->hisPly].posKey 	 = pos->posKey;
 	pos->history[pos->hisPly].move 		 = move;
-	pos->history[pos->hisPly].fiftyMove  = pos->fiftyMove;
-	pos->history[pos->hisPly].enPas 	 = pos->enPas;
 	pos->history[pos->hisPly].castlePerm = pos->castlePerm;
-
-	// En passant specific updates
-	if (move & FLAG_ENPAS) {
-		ClearPiece(to + (side ? -8 : 8), pos);
-
-	// Move the rook during castling
-	} else if (move & FLAG_CASTLE)
-		switch (to) {
-			case C1: MovePiece(A1, D1, pos); break;
-			case C8: MovePiece(A8, D8, pos); break;
-			case G1: MovePiece(H1, F1, pos); break;
-			case G8: MovePiece(H8, F8, pos); break;
-			default: assert(false); break;
-		}
-
-	// Hash out the old castling rights, update and hash back in
-	HASH_CA;
-	pos->castlePerm &= CastlePerm[from];
-	pos->castlePerm &= CastlePerm[to];
-	HASH_CA;
+	pos->history[pos->hisPly].enPas 	 = pos->enPas;
+	pos->history[pos->hisPly].fiftyMove  = pos->fiftyMove;
+	pos->history[pos->hisPly].posKey 	 = pos->posKey;
 
 	// Increment hisPly, ply and 50mr
 	pos->hisPly++;
 	pos->ply++;
 	pos->fiftyMove++;
-
-	// Remove captured piece if any
-	int captured = CAPTURED(move);
-	if (captured != EMPTY) {
-		assert(PieceValid(captured));
-		ClearPiece(to, pos);
-
-		// Reset 50mr after a capture
-		pos->fiftyMove = 0;
-	}
 
 	assert(pos->hisPly >= 0 && pos->hisPly < MAXGAMEMOVES);
 	assert(pos->ply >= 0 && pos->ply < MAXDEPTH);
@@ -455,32 +428,62 @@ int MakeMove(S_BOARD *pos, const int move) {
 		pos->enPas = NO_SQ;
 	}
 
-	// Reset 50mr after a pawn move
-	if (PiecePawn[pos->pieces[from]]) {
-		pos->fiftyMove = 0;
+	// Hash out the old castling rights, update and hash back in
+	HASH_CA;
+	pos->castlePerm &= CastlePerm[from];
+	pos->castlePerm &= CastlePerm[to];
+	HASH_CA;
 
-		// If the move is a pawnstart we set the en passant square and hash it in
-		if (move & FLAG_PAWNSTART) {
-			pos->enPas = from + (side ? 8 : -8);
-			assert((rankOf(pos->enPas) == RANK_3 && side) || rankOf(pos->enPas) == RANK_6);
-			HASH_EP;
+	// Move the rook during castling
+	if (move & FLAG_CASTLE)
+		switch (to) {
+			case C1: MovePiece(A1, D1, pos); break;
+			case C8: MovePiece(A8, D8, pos); break;
+			case G1: MovePiece(H1, F1, pos); break;
+			case G8: MovePiece(H8, F8, pos); break;
+			default: assert(false); break;
 		}
+
+	// Remove captured piece if any
+	else if (captured != EMPTY) {
+		assert(PieceValid(captured));
+		ClearPiece(to, pos);
+
+		// Reset 50mr after a capture
+		pos->fiftyMove = 0;
 	}
 
 	// Move the piece
 	MovePiece(from, to, pos);
 
-	// Replace promoting pawn with new piece
-	int promo = PROMOTION(move);
-	if (promo != EMPTY) {
-		assert(PieceValid(promo) && !PiecePawn[promo]);
-		ClearPiece(to, pos);
-		AddPiece(to, pos, promo);
-	}
+	// Pawn move specifics
+	if (PiecePawn[pos->pieces[to]]) {
+
+		// Reset 50mr after a pawn move
+		pos->fiftyMove = 0;
+		
+		int promo = PROMOTION(move);
+
+		// If the move is a pawnstart we set the en passant square and hash it in
+		if (move & FLAG_PAWNSTART) {
+			pos->enPas = to + (side ? -8 : 8);
+			assert((rankOf(pos->enPas) == RANK_3 && side) || rankOf(pos->enPas) == RANK_6);
+			HASH_EP;
+
+		// Remove pawn captured by en passant
+		} else if (move & FLAG_ENPAS)
+			ClearPiece(to + (side ? -8 : 8), pos);
+
+		// Replace promoting pawn with new piece
+		else if (promo != EMPTY) {
+			assert(PieceValid(promo) && !PiecePawn[promo]);
+			ClearPiece(to, pos);
+			AddPiece(to, pos, promo);
+		}
 
 	// Update king position if king moved
-	if (PieceKing[pos->pieces[to]])
-		pos->KingSq[pos->side] = to;
+	} else if (PieceKing[pos->pieces[to]])
+		pos->KingSq[side] = to;
 
 	// Change turn to play
 	pos->side ^= 1;
@@ -505,10 +508,10 @@ void MakeNullMove(S_BOARD *pos) {
 
 	// Save misc info for takeback
 	// pos->history[pos->hisPly].move    = NOMOVE;
-	pos->history[pos->hisPly].posKey 	 = pos->posKey;
-	pos->history[pos->hisPly].fiftyMove  = pos->fiftyMove;
-	pos->history[pos->hisPly].enPas 	 = pos->enPas;
 	pos->history[pos->hisPly].castlePerm = pos->castlePerm;
+	pos->history[pos->hisPly].enPas 	 = pos->enPas;
+	pos->history[pos->hisPly].fiftyMove  = pos->fiftyMove;
+	pos->history[pos->hisPly].posKey 	 = pos->posKey;
 
 	// Increase ply
 	pos->ply++;
@@ -531,7 +534,7 @@ void MakeNullMove(S_BOARD *pos) {
 	return;
 }
 
-// Take back passing the turn
+// Take back a null move
 void TakeNullMove(S_BOARD *pos) {
 	assert(CheckBoard(pos));
 
