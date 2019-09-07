@@ -30,17 +30,15 @@ enum {
 };
 
 
-extern bitboard   SetMask[64];
-extern bitboard ClearMask[64];
-
-// TODO: Determine if these are needed
-extern bitboard FileBBMask[8];
-extern bitboard RankBBMask[8];
+bitboard   SetMask[64];
+bitboard ClearMask[64];
 
 const bitboard fileBBs[8];
 const bitboard rankBBs[8];
 
-void PrintBB(const bitboard bb);
+void InitBitMasks();
+
+// void PrintBB(const bitboard bb);
 
 // Population count/Hamming weight
 static inline int PopCount(bitboard bb) {

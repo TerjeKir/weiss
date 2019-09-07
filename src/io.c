@@ -17,6 +17,7 @@
 #define IsQueen(p)  (PieceQueen[(p)])
 
 
+// Translates a move to a string for printing
 char *MoveToStr(const int move) {
 
 	static char moveStr[6];
@@ -44,6 +45,7 @@ char *MoveToStr(const int move) {
 	return moveStr;
 }
 
+// Translates a string to a move
 int ParseMove(const char *ptrChar, S_BOARD *pos) {
 
 	assert(CheckBoard(pos));
@@ -88,6 +90,7 @@ int ParseMove(const char *ptrChar, S_BOARD *pos) {
 	return NOMOVE;
 }
 
+// Translates a string from a .epd file to a move
 int ParseEPDMove(const char *ptrChar, S_BOARD *pos) {
 
 	assert(CheckBoard(pos));

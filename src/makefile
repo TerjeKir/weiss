@@ -11,6 +11,7 @@ OUT		= ../bin/
 STD		= -std=gnu11
 WFLAGS 	= -Wall -Wextra -Wshadow
 OPTIM	= -O3 -march=native
+POPTIM  = -O0 -march=native
 
 #pgo
 PGODIR  = "../prof"
@@ -30,4 +31,4 @@ pgomake: 	#for generating profile data -> pgo
 	gcc $(STD) $(OPTIM) $(WFLAGS) $(SRC) $(PGOMAKE) -o "$(OUT)$(EXE) pgo.exe"
 
 prof:		#for gprof profiling
-	gcc $(STD) $(OPTIM) $(WFLAGS) $(SRC) -pg        -o "$(OUT)$(EXE) prof.exe"
+	gcc $(STD) $(POPTIM) $(WFLAGS) $(SRC) -pg       -o "$(OUT)$(EXE) prof.exe"

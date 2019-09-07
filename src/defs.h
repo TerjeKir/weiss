@@ -10,7 +10,7 @@
 
 /* Functionality, should probably be in makefile */
 
-#define USE_TBS
-// #define CHECK_MAT_DRAW
+// #define USE_TBS
+#define CHECK_MAT_DRAW
 #define USE_PEXT
 // #define SEARCH_STATS
