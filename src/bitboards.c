@@ -12,27 +12,6 @@ const bitboard rankBBs[] = {         0xFF,         0xFF00,         0xFF0000,    
                              0xFF00000000, 0xFF0000000000, 0xFF000000000000, 0xFF00000000000000 };
 
 
-// Population count/Hamming weight
-inline int PopCount(bitboard bb) {
-
-    return __builtin_popcountll(bb);
-}
-
-// Returns the index of the least significant bit
-inline int Lsb(const bitboard bb) {
-
-    return __builtin_ctzll(bb);
-}
-
-// Returns the index of the least significant bit and unsets it
-inline int PopLsb(bitboard *bb) {
-
-	int lsb = Lsb(*bb);
-	*bb &= (*bb - 1);
-
-	return lsb;
-}
-
 // Prints a bitboard
 void PrintBB(const bitboard bb) {
     

@@ -179,10 +179,7 @@ static inline void GenerateBlackCastling(const S_BOARD *pos, S_MOVELIST *list, c
 				AddQuietMove(pos, MOVE(E8, C8, EMPTY, EMPTY, FLAG_CASTLE), list);
 }
 
-static inline void GenerateKingMoves(const S_BOARD *pos, S_MOVELIST *list, const int sq, const bitboard empty) {
-
-	int move;
-	bitboard moves;
+static inline void GenerateKingMoves(const S_BOARD *pos, S_MOVELIST *list, const int sq, const bitboard empty, bitboard moves, int move) {
 
 	moves = king_attacks[sq] & empty;
 	while (moves) {
@@ -191,10 +188,7 @@ static inline void GenerateKingMoves(const S_BOARD *pos, S_MOVELIST *list, const
 	}
 }
 
-static inline void GenerateKingCaptures(const S_BOARD *pos, S_MOVELIST *list, const int sq, const bitboard enemies) {
-
-	int attack;
-	bitboard attacks;
+static inline void GenerateKingCaptures(const S_BOARD *pos, S_MOVELIST *list, const int sq, const bitboard enemies, bitboard attacks, int attack) {
 
 	attacks = king_attacks[sq] & enemies;
 	while (attacks) {
@@ -204,10 +198,7 @@ static inline void GenerateKingCaptures(const S_BOARD *pos, S_MOVELIST *list, co
 }
 
 // Pawn
-static inline void GenerateWhitePawnMoves(const S_BOARD *pos, S_MOVELIST *list, const bitboard pawns, const bitboard empty) {
-
-	int sq;
-	bitboard pawnMoves, pawnStarts;
+static inline void GenerateWhitePawnMoves(const S_BOARD *pos, S_MOVELIST *list, const bitboard pawns, bitboard pawnMoves, bitboard pawnStarts, const bitboard empty, int sq) {
 
 	pawnMoves  = empty & pawns << 8;
 	pawnStarts = empty & (pawnMoves & rank3BB) << 8;
@@ -225,10 +216,7 @@ static inline void GenerateWhitePawnMoves(const S_BOARD *pos, S_MOVELIST *list, 
 	}
 }
 
-static inline void GenerateBlackPawnMoves(const S_BOARD *pos, S_MOVELIST *list, const bitboard pawns, const bitboard empty) {
-
-	int sq;
-	bitboard pawnMoves, pawnStarts;
+static inline void GenerateBlackPawnMoves(const S_BOARD *pos, S_MOVELIST *list, const bitboard pawns, bitboard pawnMoves, bitboard pawnStarts, const bitboard empty, int sq) {
 
 	pawnMoves  = empty & pawns >> 8;
 	pawnStarts = empty & (pawnMoves & rank6BB) >> 8;
@@ -246,10 +234,7 @@ static inline void GenerateBlackPawnMoves(const S_BOARD *pos, S_MOVELIST *list, 
 	}
 }
 
-static inline void GenerateWhitePawnCaptures(const S_BOARD *pos, S_MOVELIST *list, bitboard pawns, const bitboard enemies) {
-
-	int sq, attack;
-	bitboard attacks, enPassers;
+static inline void GenerateWhitePawnCaptures(const S_BOARD *pos, S_MOVELIST *list, bitboard pawns, const bitboard enemies, bitboard enPassers, bitboard attacks, int sq, int attack) {
 
 	// En passant
 	if (pos->enPas != NO_SQ) {
@@ -272,10 +257,7 @@ static inline void GenerateWhitePawnCaptures(const S_BOARD *pos, S_MOVELIST *lis
 	}
 }
 
-static inline void GenerateBlackPawnCaptures(const S_BOARD *pos, S_MOVELIST *list, bitboard pawns, const bitboard enemies) {
-
-	int sq, attack;
-	bitboard attacks, enPassers;
+static inline void GenerateBlackPawnCaptures(const S_BOARD *pos, S_MOVELIST *list, bitboard pawns, const bitboard enemies, bitboard enPassers, bitboard attacks, int sq, int attack) {
 
 	// En passant
 	if (pos->enPas != NO_SQ) {
@@ -308,6 +290,7 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 	int side = pos->side;
 
 	bitboard attacks, moves, tempQueen;
+	bitboard pawnMoves, pawnStarts, enPassers;
 
 	bitboard allPieces  = pos->allBB;
 	bitboard empty		= ~allPieces;
@@ -326,16 +309,16 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 		GenerateWhiteCastling(pos, list, allPieces);
 
 		// Pawns
-		GenerateWhitePawnCaptures(pos, list, pawns, enemies);
-		GenerateWhitePawnMoves   (pos, list, pawns, empty);
+		GenerateWhitePawnCaptures(pos, list, pawns, enemies, enPassers, attacks, sq, attack);
+		GenerateWhitePawnMoves   (pos, list, pawns, pawnMoves, pawnStarts, empty, sq);
 
 	} else {
 		// Castling
 		GenerateBlackCastling(pos, list, allPieces);
 
 		// Pawns
-		GenerateBlackPawnCaptures(pos, list, pawns, enemies);
-		GenerateBlackPawnMoves   (pos, list, pawns, empty);
+		GenerateBlackPawnCaptures(pos, list, pawns, enemies, enPassers, attacks, sq, attack);
+		GenerateBlackPawnMoves   (pos, list, pawns, pawnMoves, pawnStarts, empty, sq);
 	}
 
 	// Knights
@@ -411,8 +394,8 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 
 	// King
 	sq = pos->KingSq[side];
-	GenerateKingCaptures(pos, list, sq, enemies);
-	GenerateKingMoves   (pos, list, sq, empty);
+	GenerateKingCaptures(pos, list, sq, enemies, attacks, attack);
+	GenerateKingMoves   (pos, list, sq, empty, moves, move);
 
 	assert(MoveListOk(list, pos));
 }
@@ -426,7 +409,7 @@ void GenerateAllCaptures(const S_BOARD *pos, S_MOVELIST *list) {
 	int sq, attack;
 	int side = pos->side;
 
-	bitboard attacks;
+	bitboard attacks, enPassers;
 
 	bitboard allPieces  = pos->allBB;
 	bitboard enemies 	= pos->colors[!side];
@@ -440,9 +423,9 @@ void GenerateAllCaptures(const S_BOARD *pos, S_MOVELIST *list) {
 
 	// Pawns
 	if (side == WHITE)
-		GenerateWhitePawnCaptures(pos, list, pawns, enemies);
+		GenerateWhitePawnCaptures(pos, list, pawns, enemies, enPassers, attacks, sq, attack);
 	else
-		GenerateBlackPawnCaptures(pos, list, pawns, enemies);
+		GenerateBlackPawnCaptures(pos, list, pawns, enemies, enPassers, attacks, sq, attack);
 
 	// Knights
 	while (knights) {
@@ -499,7 +482,7 @@ void GenerateAllCaptures(const S_BOARD *pos, S_MOVELIST *list) {
 
 	// King
 	sq = pos->KingSq[side];
-	GenerateKingCaptures(pos, list, sq, enemies);
+	GenerateKingCaptures(pos, list, sq, enemies, attacks, attack);
 
 	assert(MoveListOk(list, pos));
 }
