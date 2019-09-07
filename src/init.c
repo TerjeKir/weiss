@@ -1,6 +1,7 @@
 // init.c
 
 #include "attack.h"
+#include "bitboards.h"
 #include "board.h"
 #include "hashkeys.h"
 #include "movegen.h"
@@ -8,9 +9,6 @@
 
 bitboard   SetMask[64];
 bitboard ClearMask[64];
-
-bitboard FileBBMask[8];
-bitboard RankBBMask[8];
 
 bitboard BlackPassedMask[64];
 bitboard WhitePassedMask[64];
@@ -20,19 +18,6 @@ bitboard IsolatedMask[64];
 static void InitEvalMasks() {
 
 	int sq, tsq;
-
-	for (int i = 0; i < 8; ++i) {
-		FileBBMask[i] = 0ULL;
-		RankBBMask[i] = 0ULL;
-	}
-
-	for (    int rank = RANK_8; rank >= RANK_1; --rank) {
-		for (int file = FILE_A; file <= FILE_H; ++file) {
-			sq = rank * 8 + file;
-			FileBBMask[file] |= (1ULL << sq);
-			RankBBMask[rank] |= (1ULL << sq);
-		}
-	}
 
 	for (sq = 0; sq < 64; ++sq) {
 		IsolatedMask[sq] = 0ULL;
@@ -55,7 +40,7 @@ static void InitEvalMasks() {
 		}
 
 		if (fileOf(sq) > FILE_A) {
-			IsolatedMask[sq] |= FileBBMask[fileOf(sq) - 1];
+			IsolatedMask[sq] |= fileBBs[fileOf(sq) - 1];
 
 			tsq = sq + 7;
 			while (tsq < 64) {
@@ -71,7 +56,7 @@ static void InitEvalMasks() {
 		}
 
 		if (fileOf(sq) < FILE_H) {
-			IsolatedMask[sq] |= FileBBMask[fileOf(sq) + 1];
+			IsolatedMask[sq] |= fileBBs[fileOf(sq) + 1];
 
 			tsq = sq + 9;
 			while (tsq < 64) {
