@@ -325,9 +325,18 @@ void TakeMove(S_BOARD *pos) {
 	pos->hisPly--;
 	pos->ply--;
 
+	// Change side to play
+	pos->side ^= 1;
+
+	// Update castling rights, 50mr, en passant
+	pos->castlePerm = pos->history[pos->hisPly].castlePerm;
+	pos->fiftyMove = pos->history[pos->hisPly].fiftyMove;
+	pos->enPas = pos->history[pos->hisPly].enPas;
+
 	assert(pos->hisPly >= 0 && pos->hisPly < MAXGAMEMOVES);
 	assert(pos->ply >= 0 && pos->ply < MAXDEPTH);
 
+	// Get the move from history
 	int move = pos->history[pos->hisPly].move;
 	int from = FROMSQ(move);
 	int   to =   TOSQ(move);
@@ -335,15 +344,7 @@ void TakeMove(S_BOARD *pos) {
 	assert(ValidSquare(from));
 	assert(ValidSquare(to));
 
-	// Update castling rights, 50mr, en passant
-	pos->castlePerm = pos->history[pos->hisPly].castlePerm;
-	pos->fiftyMove = pos->history[pos->hisPly].fiftyMove;
-	pos->enPas = pos->history[pos->hisPly].enPas;
-
-	// Change side to play
-	pos->side ^= 1;
-
-	// Add in pawn capture by en passant
+	// Add in pawn captured by en passant
 	if (FLAG_ENPAS & move)
 		if (pos->side == WHITE)
 			AddPiece(to - 8, pos, bP);
@@ -368,10 +369,10 @@ void TakeMove(S_BOARD *pos) {
 		pos->KingSq[pos->side] = from;
 
 	// Add back captured piece if any
-	int captured = CAPTURED(move);
-	if (captured != EMPTY) {
-		assert(PieceValid(captured));
-		AddPiece(to, pos, captured);
+	int piece = CAPTURED(move);
+	if (piece != EMPTY) {
+		assert(PieceValid(piece));
+		AddPiece(to, pos, piece);
 	}
 
 	// Remove promoted piece and put back the pawn
