@@ -8,9 +8,10 @@ char SideChar[] = "wb-";
 char RankChar[] = "12345678";
 char FileChar[] = "abcdefgh";
 
-int PieceBig[13] = {false, false, true, true, true, true, true, false, true, true, true, true, true}; // Used for NullMP
+int PieceBig[13] 	= {false, false, true, true, true, true, true, false, true, true, true, true, true}; // Used for NullMP
 int PieceValues[13] = {0, 100, 325, 325, 550, 1000, 50000, 100, 325, 325, 550, 1000, 50000};
-int PieceColor[13] = {BOTH, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK};
+int PieceColor[13] 	= {BOTH, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK};
+int pieceType[13]	= {-1, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING };
 
 int PiecePawn[13] 	= {false,  true, false, false, false, false, false,  true, false, false, false, false, false};
 int PieceKnight[13] = {false, false,  true, false, false, false, false, false,  true, false, false, false, false};

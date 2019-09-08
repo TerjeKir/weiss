@@ -11,6 +11,7 @@ extern char FileChar[];
 extern int PieceBig[13];
 extern int PieceValues[13];
 extern int PieceColor[13];
+extern int pieceType[13];
 
 // Mostly unused
 extern int PiecePawn[13];
