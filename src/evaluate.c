@@ -218,7 +218,6 @@ int EvalPosition(const S_BOARD *pos) {
 	while (whitePawns) {
 
 		sq = PopLsb(&whitePawns);
-		assert(ValidSquare(sq));
 
 		// Position score
 		score += PawnTable[sq];
@@ -234,7 +233,6 @@ int EvalPosition(const S_BOARD *pos) {
 	while (blackPawns) {
 
 		sq = PopLsb(&blackPawns);
-		assert(MIRROR64(sq) >= 0 && MIRROR64(sq) < 64);
 
 		score -= PawnTable[MIRROR64(sq)];
 
@@ -248,28 +246,24 @@ int EvalPosition(const S_BOARD *pos) {
 	// White knights
 	while (whiteKnights) {
 		sq = PopLsb(&whiteKnights);
-		assert(ValidSquare(sq));
 		score += KnightTable[sq];
 	}
 
 	// Black knights
 	while (blackKnights) {
 		sq = MIRROR64(PopLsb(&blackKnights));
-		assert(ValidSquare(sq));
 		score -= KnightTable[sq];
 	}
 
 	// White bishops
 	while (whiteBishops) {
 		sq = PopLsb(&whiteBishops);
-		assert(ValidSquare(sq));
 		score += BishopTable[sq];
 	}
 
 	// Black bishops
 	while (blackBishops) {
 		sq = MIRROR64(PopLsb(&blackBishops));
-		assert(ValidSquare(sq));
 		score -= BishopTable[sq];
 	}
 
@@ -277,7 +271,6 @@ int EvalPosition(const S_BOARD *pos) {
 	while (whiteRooks) {
 
 		sq = PopLsb(&whiteRooks);
-		assert(ValidSquare(sq));
 
 		score += RookTable[sq];
 
@@ -292,7 +285,6 @@ int EvalPosition(const S_BOARD *pos) {
 	while (blackRooks) {
 
 		sq = PopLsb(&blackRooks);
-		assert(ValidSquare(sq));
 
 		score -= RookTable[MIRROR64(sq)];
 
@@ -307,7 +299,6 @@ int EvalPosition(const S_BOARD *pos) {
 	while (whiteQueens) {
 
 		sq = PopLsb(&whiteQueens);
-		assert(ValidSquare(sq));
 
 		// Open/Semi-open file bonus
 		if (!(pos->pieceBBs[PAWN] & fileBBs[fileOf(sq)]))
@@ -320,7 +311,6 @@ int EvalPosition(const S_BOARD *pos) {
 	while (blackQueens) {
 
 		sq = PopLsb(&blackQueens);
-		assert(ValidSquare(sq));
 
 		// Open/Semi-open file bonus
 		if (!(pos->pieceBBs[PAWN] & fileBBs[fileOf(sq)]))
@@ -331,25 +321,14 @@ int EvalPosition(const S_BOARD *pos) {
 
 	// White king
 	sq = pos->KingSq[WHITE];
-	assert(ValidSquare(sq));
-	if (pos->material[BLACK] <= ENDGAME_MAT)
-		score += KingE[sq];
-	else
-		score += KingO[sq];
+	score += (pos->material[BLACK] <= ENDGAME_MAT) ? KingE[sq] : KingO[sq];
 
 	// Black king
 	sq = pos->KingSq[BLACK];
-	assert(ValidSquare(sq));
-	if (pos->material[WHITE] <= ENDGAME_MAT)
-		score -= KingE[MIRROR64(sq)];
-	else
-		score -= KingO[MIRROR64(sq)];
+	score -= (pos->material[WHITE] <= ENDGAME_MAT) ? KingE[MIRROR64(sq)] : KingO[MIRROR64(sq)];
 
 	assert(score > -INFINITE && score < INFINITE);
 
 	// Return score
-	if (pos->side == WHITE)
-		return score;
-	else
-		return -score;
+	return pos->side ? score : -score;
 }
