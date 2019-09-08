@@ -310,12 +310,12 @@ int EvalPosition(const S_BOARD *pos) {
 	}
 
 	// White king
-	sq = pos->KingSq[WHITE];
-	score += (pos->material[BLACK] <= ENDGAME_MAT) ? KingEndgame[sq] : KingEarlygame[sq];
+	score += (pos->material[BLACK] <= ENDGAME_MAT) ?   KingEndgame[pos->KingSq[WHITE]] 
+												   : KingEarlygame[pos->KingSq[WHITE]];
 
 	// Black king
-	sq = pos->KingSq[BLACK];
-	score -= (pos->material[WHITE] <= ENDGAME_MAT) ? KingEndgame[Mirror[(sq)]] : KingEarlygame[Mirror[(sq)]];
+	score -= (pos->material[WHITE] <= ENDGAME_MAT) ?   KingEndgame[Mirror[(pos->KingSq[BLACK])]] 
+												   : KingEarlygame[Mirror[(pos->KingSq[BLACK])]];
 
 	assert(score > -INFINITE && score < INFINITE);
 
