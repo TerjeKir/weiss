@@ -10,20 +10,22 @@
 
 
 #define ENDGAME_MAT (1 * PieceValues[wR] + 2 * PieceValues[wN] + 2 * PieceValues[wP] + PieceValues[wK])
-#define MIRROR64(sq) (Mirror64[(sq)])
 
 
 bitboard BlackPassedMask[64];
 bitboard WhitePassedMask[64];
 bitboard IsolatedMask[64];
 
-const int PawnPassed[8] = {0, 5, 10, 20, 35, 60, 100, 0};
+const int PawnPassed[8] = { 0, 5, 10, 20, 35, 60, 100, 0 };
 const int PawnIsolated = -10;
-const int RookOpenFile = 10;
+
+const int  RookOpenFile = 10;
 const int QueenOpenFile = 5;
-const int RookSemiOpenFile = 5;
+const int  RookSemiOpenFile = 5;
 const int QueenSemiOpenFile = 3;
+
 const int BishopPair = 30;
+
 
 const int PawnTable[64] = {
 	 0,   0,   0,   0,   0,   0,   0,   0,
@@ -86,6 +88,7 @@ const int KingE[64] = {
    -50, -10,   0,   0,   0,   0, -10, -50};
 
 
+// Initialize bit masks used for evaluations
 void InitEvalMasks() {
 
 	int sq, tsq;
@@ -134,6 +137,7 @@ void InitEvalMasks() {
 }
 
 #ifdef CHECK_MAT_DRAW
+// Check if the board is (likely) drawn, logic from sjeng
 static int MaterialDraw(const S_BOARD *pos) {
 
 	assert(CheckBoard(pos));
@@ -175,6 +179,7 @@ static int MaterialDraw(const S_BOARD *pos) {
 }
 #endif
 
+// Calculate a static evaluation of a position
 int EvalPosition(const S_BOARD *pos) {
 
 	assert(CheckBoard(pos));
@@ -223,7 +228,7 @@ int EvalPosition(const S_BOARD *pos) {
 		sq = pos->pieceList[bP][i];
 
 		// Position score
-		score -= PawnTable[MIRROR64(sq)];
+		score -= PawnTable[Mirror[(sq)]];
 		// Isolation penalty
 		if (!(IsolatedMask[sq] & blackPawns))
 			score -= PawnIsolated;
@@ -241,7 +246,7 @@ int EvalPosition(const S_BOARD *pos) {
 	// Black knights
 	for (i = 0; i < pos->pieceCounts[bN]; ++i) {
 		sq = pos->pieceList[bN][i];
-		score -= KnightTable[MIRROR64(sq)];
+		score -= KnightTable[Mirror[(sq)]];
 	}
 
 	// White bishops
@@ -253,7 +258,7 @@ int EvalPosition(const S_BOARD *pos) {
 	// Black bishops
 	for (i = 0; i < pos->pieceCounts[bB]; ++i) {
 		sq = pos->pieceList[bB][i];
-		score -= BishopTable[MIRROR64(sq)];
+		score -= BishopTable[Mirror[(sq)]];
 	}
 
 	// White rooks
@@ -273,7 +278,7 @@ int EvalPosition(const S_BOARD *pos) {
 	for (i = 0; i < pos->pieceCounts[bR]; ++i) {
 		sq = pos->pieceList[bR][i];
 
-		score -= RookTable[MIRROR64(sq)];
+		score -= RookTable[Mirror[(sq)]];
 
 		// Open/Semi-open file bonus
 		if (!(pos->pieceBBs[PAWN] & fileBBs[fileOf(sq)]))
@@ -310,7 +315,7 @@ int EvalPosition(const S_BOARD *pos) {
 
 	// Black king
 	sq = pos->KingSq[BLACK];
-	score -= (pos->material[WHITE] <= ENDGAME_MAT) ? KingE[MIRROR64(sq)] : KingO[MIRROR64(sq)];
+	score -= (pos->material[WHITE] <= ENDGAME_MAT) ? KingE[Mirror[(sq)]] : KingO[Mirror[(sq)]];
 
 	assert(score > -INFINITE && score < INFINITE);
 

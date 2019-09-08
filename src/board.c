@@ -407,10 +407,10 @@ void MirrorBoard(S_BOARD *pos) {
 	if (pos->castlePerm & BQCA) tempCastlePerm |= WQCA;
 
 	if (pos->enPas != NO_SQ)
-		tempEnPas = Mirror64[pos->enPas];
+		tempEnPas = Mirror[pos->enPas];
 
 	for (sq = 0; sq < 64; ++sq)
-		tempPiecesArray[sq] = pos->pieces[Mirror64[sq]];
+		tempPiecesArray[sq] = pos->pieces[Mirror[sq]];
 
 	ResetBoard(pos);
 
