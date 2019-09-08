@@ -209,9 +209,9 @@ int EvalPosition(const S_BOARD *pos) {
 #endif
 
 	// Bishop pair
-	if (PopCount(whiteBishops) >= 2)
+	if (pos->pieceCounts[wB] >= 2)
 		score += BishopPair;
-	if (PopCount(blackBishops) >= 2)
+	if (pos->pieceCounts[bB] >= 2)
 		score -= BishopPair;
 
 	// White pawns
