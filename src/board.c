@@ -192,6 +192,18 @@ int CheckBoard(const S_BOARD *pos) {
 	assert(PopCount(pos->pieceBBs[ QUEEN] & pos->colors[BLACK]) <= 9);
 	assert(PopCount(pos->pieceBBs[  KING] & pos->colors[BLACK]) == 1);
 
+	assert(PopCount(pos->pieceBBs[  PAWN] & pos->colors[WHITE]) == pos->pieceCounts[wP]);
+	assert(PopCount(pos->pieceBBs[KNIGHT] & pos->colors[WHITE]) == pos->pieceCounts[wN]);
+	assert(PopCount(pos->pieceBBs[BISHOP] & pos->colors[WHITE]) == pos->pieceCounts[wB]);
+	assert(PopCount(pos->pieceBBs[  ROOK] & pos->colors[WHITE]) == pos->pieceCounts[wR]);
+	assert(PopCount(pos->pieceBBs[ QUEEN] & pos->colors[WHITE]) == pos->pieceCounts[wQ]);
+
+	assert(PopCount(pos->pieceBBs[  PAWN] & pos->colors[BLACK]) == pos->pieceCounts[bP]);
+	assert(PopCount(pos->pieceBBs[KNIGHT] & pos->colors[BLACK]) == pos->pieceCounts[bN]);
+	assert(PopCount(pos->pieceBBs[BISHOP] & pos->colors[BLACK]) == pos->pieceCounts[bB]);
+	assert(PopCount(pos->pieceBBs[  ROOK] & pos->colors[BLACK]) == pos->pieceCounts[bR]);
+	assert(PopCount(pos->pieceBBs[ QUEEN] & pos->colors[BLACK]) == pos->pieceCounts[bQ]);
+
 	assert(pos->allBB == (pos->colors[WHITE] | pos->colors[BLACK]));
 
 	// check piece lists
@@ -395,10 +407,10 @@ void MirrorBoard(S_BOARD *pos) {
 	if (pos->castlePerm & BQCA) tempCastlePerm |= WQCA;
 
 	if (pos->enPas != NO_SQ)
-		tempEnPas = Mirror64[pos->enPas];
+		tempEnPas = Mirror[pos->enPas];
 
 	for (sq = 0; sq < 64; ++sq)
-		tempPiecesArray[sq] = pos->pieces[Mirror64[sq]];
+		tempPiecesArray[sq] = pos->pieces[Mirror[sq]];
 
 	ResetBoard(pos);
 
