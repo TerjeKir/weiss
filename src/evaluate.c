@@ -26,7 +26,7 @@ const int QueenSemiOpenFile = 3;
 
 const int BishopPair = 30;
 
-
+// Piece square tables
 const int PawnTable[64] = {
 	 0,   0,   0,   0,   0,   0,   0,   0,
 	10,  10,   0, -10, -10,   0,  10,  10,
@@ -67,7 +67,7 @@ const int RookTable[64] = {
 	25,  25,  25,  25,  25,  25,  25,  25,
 	 0,   0,   5,  10,  10,   5,   0,   0};
 
-const int KingO[64] = {
+const int KingEarlygame[64] = {
      0,   5,   5, -10, -10,   0,  10,   5,
    -30, -30, -30, -30, -30, -30, -30, -30,
    -50, -50, -50, -50, -50, -50, -50, -50,
@@ -77,7 +77,7 @@ const int KingO[64] = {
    -70, -70, -70, -70, -70, -70, -70, -70,
    -70, -70, -70, -70, -70, -70, -70, -70};
 
-const int KingE[64] = {
+const int KingEndgame[64] = {
    -50, -10,   0,   0,   0,   0, -10, -50,
    -10,   0,  10,  10,  10,  10,   0, -10,
      0,  10,  20,  20,  20,  20,  10,   0,
@@ -191,16 +191,16 @@ int EvalPosition(const S_BOARD *pos) {
 	int sq, i;
 	int score = pos->material[WHITE] - pos->material[BLACK];
 
-	bitboard whitePawns 	= pos->colors[WHITE] & pos->pieceBBs[  PAWN];
-	// bitboard whiteKnights 	= pos->colors[WHITE] & pos->pieceBBs[KNIGHT];
-	// bitboard whiteBishops 	= pos->colors[WHITE] & pos->pieceBBs[BISHOP];
-	// bitboard whiteRooks 	= pos->colors[WHITE] & pos->pieceBBs[  ROOK];
-	// bitboard whiteQueens 	= pos->colors[WHITE] & pos->pieceBBs[ QUEEN];
-	bitboard blackPawns 	= pos->colors[BLACK] & pos->pieceBBs[  PAWN];
-	// bitboard blackKnights 	= pos->colors[BLACK] & pos->pieceBBs[KNIGHT];
-	// bitboard blackBishops 	= pos->colors[BLACK] & pos->pieceBBs[BISHOP];
-	// bitboard blackRooks 	= pos->colors[BLACK] & pos->pieceBBs[  ROOK];
-	// bitboard blackQueens 	= pos->colors[BLACK] & pos->pieceBBs[ QUEEN];
+	bitboard whitePawns   = pos->colors[WHITE] & pos->pieceBBs[  PAWN];
+	// bitboard whiteKnights = pos->colors[WHITE] & pos->pieceBBs[KNIGHT];
+	// bitboard whiteBishops = pos->colors[WHITE] & pos->pieceBBs[BISHOP];
+	// bitboard whiteRooks   = pos->colors[WHITE] & pos->pieceBBs[  ROOK];
+	// bitboard whiteQueens  = pos->colors[WHITE] & pos->pieceBBs[ QUEEN];
+	bitboard blackPawns   = pos->colors[BLACK] & pos->pieceBBs[  PAWN];
+	// bitboard blackKnights = pos->colors[BLACK] & pos->pieceBBs[KNIGHT];
+	// bitboard blackBishops = pos->colors[BLACK] & pos->pieceBBs[BISHOP];
+	// bitboard blackRooks   = pos->colors[BLACK] & pos->pieceBBs[  ROOK];
+	// bitboard blackQueens  = pos->colors[BLACK] & pos->pieceBBs[ QUEEN];
 
 
 	// Bishop pair
@@ -311,11 +311,11 @@ int EvalPosition(const S_BOARD *pos) {
 
 	// White king
 	sq = pos->KingSq[WHITE];
-	score += (pos->material[BLACK] <= ENDGAME_MAT) ? KingE[sq] : KingO[sq];
+	score += (pos->material[BLACK] <= ENDGAME_MAT) ? KingEndgame[sq] : KingEarlygame[sq];
 
 	// Black king
 	sq = pos->KingSq[BLACK];
-	score -= (pos->material[WHITE] <= ENDGAME_MAT) ? KingE[Mirror[(sq)]] : KingO[Mirror[(sq)]];
+	score -= (pos->material[WHITE] <= ENDGAME_MAT) ? KingEndgame[Mirror[(sq)]] : KingEarlygame[Mirror[(sq)]];
 
 	assert(score > -INFINITE && score < INFINITE);
 
