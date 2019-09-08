@@ -179,6 +179,10 @@ int EvalPosition(const S_BOARD *pos) {
 
 	assert(CheckBoard(pos));
 
+#ifdef CHECK_MAT_DRAW
+	if (MaterialDraw(pos)) return 0;
+#endif
+
 	int sq, i;
 	int score = pos->material[WHITE] - pos->material[BLACK];
 
@@ -193,9 +197,6 @@ int EvalPosition(const S_BOARD *pos) {
 	// bitboard blackRooks 	= pos->colors[BLACK] & pos->pieceBBs[  ROOK];
 	// bitboard blackQueens 	= pos->colors[BLACK] & pos->pieceBBs[ QUEEN];
 
-#ifdef CHECK_MAT_DRAW
-	if (MaterialDraw(pos)) return 0;
-#endif
 
 	// Bishop pair
 	if (pos->pieceCounts[wB] >= 2)
