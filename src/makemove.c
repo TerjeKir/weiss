@@ -123,7 +123,7 @@ static void MovePiece(const int from, const int to, S_BOARD *pos) {
 
 	// Set old square to empty, new to piece
 	pos->pieces[from] = EMPTY;
-	pos->pieces[to] = piece;
+	pos->pieces[to]   = piece;
 
 	// Update square for the piece in pieceList
 	for (int i = 0; i < pos->pieceCounts[piece]; ++i)
@@ -137,6 +137,7 @@ static void MovePiece(const int from, const int to, S_BOARD *pos) {
 	assert(t_PieceNum);
 
 	// Update bitboards
+
 	CLRBIT(pos->allBB, from);
 	SETBIT(pos->allBB, to);
 
