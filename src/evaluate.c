@@ -148,28 +148,34 @@ static int MaterialDraw(const S_BOARD *pos) {
 	
 	// No rooks
 	if (!pos->pieceCounts[wR] && !pos->pieceCounts[bR]) {
+
 		// No bishops
 		if (!pos->pieceCounts[bB] && !pos->pieceCounts[wB]) {
 			// Draw with 1-2 knights (or 0 => KvK)
 			if (pos->pieceCounts[wN] < 3 && pos->pieceCounts[bN] < 3)
 				return true;
+
 		// No knights
 		} else if (!pos->pieceCounts[wN] && !pos->pieceCounts[bN]) {
 			// Draw unless one side has 2 extra bishops
 			if (abs(pos->pieceCounts[wB] - pos->pieceCounts[bB]) < 2)
 				return true;
+
 		// Draw with 1-2 knights vs 1 bishop
 		} else if ((pos->pieceCounts[wN] < 3 && !pos->pieceCounts[wB]) || (pos->pieceCounts[wB] == 1 && !pos->pieceCounts[wN]))
 			if ((pos->pieceCounts[bN] < 3 && !pos->pieceCounts[bB]) || (pos->pieceCounts[bB] == 1 && !pos->pieceCounts[bN]))
 				return true;
+
 	// Draw with 1 rook each + up to 1 N or B each
 	} else if (pos->pieceCounts[wR] == 1 && pos->pieceCounts[bR] == 1) {
 		if ((pos->pieceCounts[wN] + pos->pieceCounts[wB]) < 2 && (pos->pieceCounts[bN] + pos->pieceCounts[bB]) < 2)
 			return true;
+
 	// Draw with white having 1 rook vs 1-2 N/B
 	} else if (pos->pieceCounts[wR] == 1 && !pos->pieceCounts[bR]) {
 		if ((pos->pieceCounts[wN] + pos->pieceCounts[wB] == 0) && (((pos->pieceCounts[bN] + pos->pieceCounts[bB]) == 1) || ((pos->pieceCounts[bN] + pos->pieceCounts[bB]) == 2)))
 			return true;
+
 	// Draw with black having 1 rook vs 1-2 N/B
 	} else if (pos->pieceCounts[bR] == 1 && !pos->pieceCounts[wR])
 		if ((pos->pieceCounts[bN] + pos->pieceCounts[bB] == 0) && (((pos->pieceCounts[wN] + pos->pieceCounts[wB]) == 1) || ((pos->pieceCounts[wN] + pos->pieceCounts[wB]) == 2)))
