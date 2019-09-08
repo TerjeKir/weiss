@@ -90,56 +90,45 @@ void InitEvalMasks() {
 
 	int sq, tsq;
 
+	// Start everything at 0
 	for (sq = 0; sq < 64; ++sq) {
 		IsolatedMask[sq] = 0ULL;
 		WhitePassedMask[sq] = 0ULL;
 		BlackPassedMask[sq] = 0ULL;
 	}
 
+	// For each square
 	for (sq = 0; sq < 64; ++sq) {
-		tsq = sq + 8;
 
-		while (tsq < 64) {
+		// In front
+		for (tsq = sq + 8; tsq < 64; tsq += 8)
 			WhitePassedMask[sq] |= (1ULL << tsq);
-			tsq += 8;
-		}
 
-		tsq = sq - 8;
-		while (tsq >= 0) {
+		for (tsq = sq - 8; tsq >= 0; tsq -= 8)
 			BlackPassedMask[sq] |= (1ULL << tsq);
-			tsq -= 8;
-		}
 
+		// Left side
 		if (fileOf(sq) > FILE_A) {
+
 			IsolatedMask[sq] |= fileBBs[fileOf(sq) - 1];
 
-			tsq = sq + 7;
-			while (tsq < 64) {
+			for (tsq = sq + 7; tsq < 64; tsq += 8)
 				WhitePassedMask[sq] |= (1ULL << tsq);
-				tsq += 8;
-			}
 
-			tsq = sq - 9;
-			while (tsq >= 0) {
+			for (tsq = sq - 9; tsq >= 0; tsq -= 8)
 				BlackPassedMask[sq] |= (1ULL << tsq);
-				tsq -= 8;
-			}
 		}
 
+		// Right side
 		if (fileOf(sq) < FILE_H) {
+
 			IsolatedMask[sq] |= fileBBs[fileOf(sq) + 1];
 
-			tsq = sq + 9;
-			while (tsq < 64) {
+			for (tsq = sq + 9; tsq < 64; tsq += 8)
 				WhitePassedMask[sq] |= (1ULL << tsq);
-				tsq += 8;
-			}
 
-			tsq = sq - 7;
-			while (tsq >= 0) {
+			for (tsq = sq - 7; tsq >= 0; tsq -= 8)
 				BlackPassedMask[sq] |= (1ULL << tsq);
-				tsq -= 8;
-			}
 		}
 	}
 }
@@ -216,7 +205,6 @@ int EvalPosition(const S_BOARD *pos) {
 
 	// White pawns
 	while (whitePawns) {
-
 		sq = PopLsb(&whitePawns);
 
 		// Position score
@@ -231,14 +219,14 @@ int EvalPosition(const S_BOARD *pos) {
 
 	// Black pawns
 	while (blackPawns) {
-
 		sq = PopLsb(&blackPawns);
 
+		// Position score
 		score -= PawnTable[MIRROR64(sq)];
-
+		// Isolation penalty
 		if ((IsolatedMask[sq] & pos->colors[BLACK] & pos->pieceBBs[PAWN]) == 0)
 			score -= PawnIsolated;
-
+		// Passed bonus
 		if ((BlackPassedMask[sq] & pos->colors[WHITE] & pos->pieceBBs[PAWN]) == 0)
 			score -= PawnPassed[7 - rankOf(sq)];
 	}
@@ -269,7 +257,6 @@ int EvalPosition(const S_BOARD *pos) {
 
 	// White rooks
 	while (whiteRooks) {
-
 		sq = PopLsb(&whiteRooks);
 
 		score += RookTable[sq];
@@ -283,7 +270,6 @@ int EvalPosition(const S_BOARD *pos) {
 
 	// Black rooks
 	while (blackRooks) {
-
 		sq = PopLsb(&blackRooks);
 
 		score -= RookTable[MIRROR64(sq)];
@@ -297,7 +283,6 @@ int EvalPosition(const S_BOARD *pos) {
 
 	// White queens
 	while (whiteQueens) {
-
 		sq = PopLsb(&whiteQueens);
 
 		// Open/Semi-open file bonus
@@ -309,7 +294,6 @@ int EvalPosition(const S_BOARD *pos) {
 
 	// Black queens
 	while (blackQueens) {
-
 		sq = PopLsb(&blackQueens);
 
 		// Open/Semi-open file bonus
