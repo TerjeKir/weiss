@@ -179,22 +179,19 @@ int EvalPosition(const S_BOARD *pos) {
 
 	assert(CheckBoard(pos));
 
-	int sq;
+	int sq, i;
 	int score = pos->material[WHITE] - pos->material[BLACK];
 
 	bitboard whitePawns 	= pos->colors[WHITE] & pos->pieceBBs[  PAWN];
-	bitboard whiteKnights 	= pos->colors[WHITE] & pos->pieceBBs[KNIGHT];
-	bitboard whiteBishops 	= pos->colors[WHITE] & pos->pieceBBs[BISHOP];
-	bitboard whiteRooks 	= pos->colors[WHITE] & pos->pieceBBs[  ROOK];
-	bitboard whiteQueens 	= pos->colors[WHITE] & pos->pieceBBs[ QUEEN];
+	// bitboard whiteKnights 	= pos->colors[WHITE] & pos->pieceBBs[KNIGHT];
+	// bitboard whiteBishops 	= pos->colors[WHITE] & pos->pieceBBs[BISHOP];
+	// bitboard whiteRooks 	= pos->colors[WHITE] & pos->pieceBBs[  ROOK];
+	// bitboard whiteQueens 	= pos->colors[WHITE] & pos->pieceBBs[ QUEEN];
 	bitboard blackPawns 	= pos->colors[BLACK] & pos->pieceBBs[  PAWN];
-	bitboard blackKnights 	= pos->colors[BLACK] & pos->pieceBBs[KNIGHT];
-	bitboard blackBishops 	= pos->colors[BLACK] & pos->pieceBBs[BISHOP];
-	bitboard blackRooks 	= pos->colors[BLACK] & pos->pieceBBs[  ROOK];
-	bitboard blackQueens 	= pos->colors[BLACK] & pos->pieceBBs[ QUEEN];
-
-	bitboard whitePawnsPerm = whitePawns;
-	bitboard blackPawnsPerm = blackPawns;
+	// bitboard blackKnights 	= pos->colors[BLACK] & pos->pieceBBs[KNIGHT];
+	// bitboard blackBishops 	= pos->colors[BLACK] & pos->pieceBBs[BISHOP];
+	// bitboard blackRooks 	= pos->colors[BLACK] & pos->pieceBBs[  ROOK];
+	// bitboard blackQueens 	= pos->colors[BLACK] & pos->pieceBBs[ QUEEN];
 
 #ifdef CHECK_MAT_DRAW
 	if (MaterialDraw(pos)) return 0;
@@ -207,102 +204,102 @@ int EvalPosition(const S_BOARD *pos) {
 		score -= BishopPair;
 
 	// White pawns
-	while (whitePawns) {
-		sq = PopLsb(&whitePawns);
+	for (i = 0; i < pos->pieceCounts[wP]; ++i) {
+		sq = pos->pieceList[wP][i];
 
 		// Position score
 		score += PawnTable[sq];
 		// Isolation penalty
-		if (!(IsolatedMask[sq] & whitePawnsPerm))
+		if (!(IsolatedMask[sq] & whitePawns))
 			score += PawnIsolated;
 		// Passed bonus
-		if (!(WhitePassedMask[sq] & blackPawnsPerm))
+		if (!(WhitePassedMask[sq] & blackPawns))
 			score += PawnPassed[rankOf(sq)];
 	}
 
 	// Black pawns
-	while (blackPawns) {
-		sq = PopLsb(&blackPawns);
+	for (i = 0; i < pos->pieceCounts[bP]; ++i) {
+		sq = pos->pieceList[bP][i];
 
 		// Position score
 		score -= PawnTable[MIRROR64(sq)];
 		// Isolation penalty
-		if (!(IsolatedMask[sq] & blackPawnsPerm))
+		if (!(IsolatedMask[sq] & blackPawns))
 			score -= PawnIsolated;
 		// Passed bonus
-		if (!(BlackPassedMask[sq] & whitePawnsPerm))
+		if (!(BlackPassedMask[sq] & whitePawns))
 			score -= PawnPassed[7 - rankOf(sq)];
 	}
 
 	// White knights
-	while (whiteKnights) {
-		sq = PopLsb(&whiteKnights);
+	for (i = 0; i < pos->pieceCounts[wN]; ++i) {
+		sq = pos->pieceList[wN][i];
 		score += KnightTable[sq];
 	}
 
 	// Black knights
-	while (blackKnights) {
-		sq = MIRROR64(PopLsb(&blackKnights));
-		score -= KnightTable[sq];
+	for (i = 0; i < pos->pieceCounts[bN]; ++i) {
+		sq = pos->pieceList[bN][i];
+		score -= KnightTable[MIRROR64(sq)];
 	}
 
 	// White bishops
-	while (whiteBishops) {
-		sq = PopLsb(&whiteBishops);
+	for (i = 0; i < pos->pieceCounts[wB]; ++i) {
+		sq = pos->pieceList[wB][i];
 		score += BishopTable[sq];
 	}
 
 	// Black bishops
-	while (blackBishops) {
-		sq = MIRROR64(PopLsb(&blackBishops));
-		score -= BishopTable[sq];
+	for (i = 0; i < pos->pieceCounts[bB]; ++i) {
+		sq = pos->pieceList[bB][i];
+		score -= BishopTable[MIRROR64(sq)];
 	}
 
 	// White rooks
-	while (whiteRooks) {
-		sq = PopLsb(&whiteRooks);
+	for (i = 0; i < pos->pieceCounts[wR]; ++i) {
+		sq = pos->pieceList[wR][i];
 
 		score += RookTable[sq];
 
 		// Open/Semi-open file bonus
 		if (!(pos->pieceBBs[PAWN] & fileBBs[fileOf(sq)]))
 			score += RookOpenFile;
-		else if (!(whitePawnsPerm & fileBBs[fileOf(sq)]))
+		else if (!(whitePawns & fileBBs[fileOf(sq)]))
 			score += RookSemiOpenFile;
 	}
 
 	// Black rooks
-	while (blackRooks) {
-		sq = PopLsb(&blackRooks);
+	for (i = 0; i < pos->pieceCounts[bR]; ++i) {
+		sq = pos->pieceList[bR][i];
 
 		score -= RookTable[MIRROR64(sq)];
 
 		// Open/Semi-open file bonus
 		if (!(pos->pieceBBs[PAWN] & fileBBs[fileOf(sq)]))
 			score -= RookOpenFile;
-		else if (!(blackPawnsPerm & fileBBs[fileOf(sq)]))
+		else if (!(blackPawns & fileBBs[fileOf(sq)]))
 			score -= RookSemiOpenFile;
 	}
 
 	// White queens
-	while (whiteQueens) {
-		sq = PopLsb(&whiteQueens);
+	for (i = 0; i < pos->pieceCounts[wQ]; ++i) {
+		sq = pos->pieceList[wQ][i];
 
 		// Open/Semi-open file bonus
 		if (!(pos->pieceBBs[PAWN] & fileBBs[fileOf(sq)]))
 			score += QueenOpenFile;
-		else if (!(whitePawnsPerm & fileBBs[fileOf(sq)]))
+		else if (!(whitePawns & fileBBs[fileOf(sq)]))
 			score += QueenSemiOpenFile;
 	}
 
 	// Black queens
-	while (blackQueens) {
-		sq = PopLsb(&blackQueens);
+	for (i = 0; i < pos->pieceCounts[bQ]; ++i) {
+		sq = pos->pieceList[bQ][i];
 
 		// Open/Semi-open file bonus
 		if (!(pos->pieceBBs[PAWN] & fileBBs[fileOf(sq)]))
 			score -= QueenOpenFile;
-		else if (!(blackPawnsPerm & fileBBs[fileOf(sq)]))
+		else if (!(blackPawns & fileBBs[fileOf(sq)]))
 			score -= QueenSemiOpenFile;
 	}
 
