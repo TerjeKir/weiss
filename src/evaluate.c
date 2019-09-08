@@ -97,8 +97,8 @@ void InitEvalMasks() {
 		BlackPassedMask[sq] = 0ULL;
 	}
 
-	// For each square
-	for (sq = 0; sq < 64; ++sq) {
+	// For each square a pawn can be on
+	for (sq = 8; sq < 56; ++sq) {
 
 		// In front
 		for (tsq = sq + 8; tsq < 64; tsq += 8)
