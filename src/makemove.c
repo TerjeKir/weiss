@@ -65,11 +65,8 @@ static void ClearPiece(const int sq, S_BOARD *pos) {
 	pos->pieceList[piece][t_pieceCounts] = pos->pieceList[piece][pos->pieceCounts[piece]];
 
 	// Update bitboards
-
 	CLRBIT(pos->allBB, sq);
-
 	CLRBIT(pos->colors[PieceColor[piece]], sq);
-
 	CLRBIT(pos->pieceBBs[pieceType[piece]], sq);
 }
 
@@ -96,26 +93,23 @@ static void AddPiece(const int sq, S_BOARD *pos, const int piece) {
 	pos->pieceList[piece][pos->pieceCounts[piece]++] = sq;
 
 	// Update bitboards
-
 	SETBIT(pos->allBB, sq);
-
 	SETBIT(pos->colors[PieceColor[piece]], sq);
-
 	SETBIT(pos->pieceBBs[pieceType[piece]], sq);
 }
 
 // Move a piece from a square to another square
 static void MovePiece(const int from, const int to, S_BOARD *pos) {
+#ifndef NDEBUG
+	int t_PieceNum = false;
+#endif
 
 	assert(ValidSquare(from));
 	assert(ValidSquare(to));
 
 	int piece = pos->pieces[from];
-	assert(PieceValid(piece));
 
-#ifndef NDEBUG
-	int t_PieceNum = false;
-#endif
+	assert(PieceValid(piece));
 
 	// Hash out piece on old square, in on new square
 	HASH_PCE(piece, from);
@@ -137,7 +131,6 @@ static void MovePiece(const int from, const int to, S_BOARD *pos) {
 	assert(t_PieceNum);
 
 	// Update bitboards
-
 	CLRBIT(pos->allBB, from);
 	SETBIT(pos->allBB, to);
 
