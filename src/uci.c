@@ -108,6 +108,19 @@ static void ParsePosition(const char *lineIn, S_BOARD *pos) {
 	}
 }
 
+static inline bool GetInput(char *line) {
+
+	memset(line, 0, sizeof(char) * INPUTBUFFER);
+
+	fgets(line, INPUTBUFFER, stdin);
+
+	return true;
+}
+
+static inline bool BeginsWith(const char *string, const char *token) {
+	return strstr(string, token) == string ? true : false;
+}
+
 void Uci_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 
 	info->GAME_MODE = UCIMODE;
@@ -127,44 +140,35 @@ void Uci_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 
 	int MB;
 
-	while (true) {
+	while (GetInput(line)) {
 
-		memset(&line[0], 0, sizeof(line));
-		fflush(stdout);
-
-		if (!fgets(line, INPUTBUFFER, stdin))
-			continue;
-
-		if (!strncmp(line, "go", 2))
+		if (BeginsWith(line, "go"))
 			ParseGo(line, info, pos);
 
-		else if (line[0] == '\n')
-			continue;
-
-		else if (!strncmp(line, "isready", 7))
+		else if (BeginsWith(line, "isready"))
 			printf("readyok\n");
 
-		else if (!strncmp(line, "position", 8))
+		else if (BeginsWith(line, "position"))
 			ParsePosition(line, pos);
 
-		else if (!strncmp(line, "ucinewgame", 10))
+		else if (BeginsWith(line, "ucinewgame"))
 			ParsePosition("position startpos\n", pos);
 
-		else if (!strncmp(line, "quit", 4)) {
+		else if (BeginsWith(line, "quit")) {
 			info->quit = true;
 			break;
 
-		} else if (!strncmp(line, "uci", 3)) {
+		} else if (BeginsWith(line, "uci")) {
 			printf("id name %s\n", NAME);
 			printf("id author LoliSquad\n");
 			printf("uciok\n");
 
-		} else if (!strncmp(line, "setoption name Hash value ", 26)) {
+		} else if (BeginsWith(line, "setoption name Hash value ")) {
 			sscanf(line, "%*s %*s %*s %*s %d", &MB);
 			InitHashTable(pos->HashTable, MB);
 
 #ifdef USE_TBS
-		} else if (!strncmp(line, "setoption name SyzygyPath value ", 32)) {
+		} else if (BeginsWith(line, "setoption name SyzygyPath value ")) {
 
 			char *path = line + strlen("setoption name SyzygyPath value ");
 
@@ -177,6 +181,6 @@ void Uci_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 			tb_init(info->syzygyPath);
 #endif
 		}
-		if (info->quit) break;
+		fflush(stdout);
 	}
 }
