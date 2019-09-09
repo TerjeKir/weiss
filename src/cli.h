@@ -1,4 +1,6 @@
-// cli.c
+// cli.h
+
+#ifdef DEV
 
 #pragma once
 
@@ -6,3 +8,4 @@
 
 
 void Console_Loop(S_BOARD *pos, S_SEARCHINFO *info);
+#endif

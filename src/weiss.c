@@ -7,13 +7,15 @@
 #include "attack.h"
 #include "bitboards.h"
 #include "board.h"
-#include "cli.h"
 #include "evaluate.h"
 #include "hashkeys.h"
 #include "movegen.h"
 #include "pvtable.h"
 #include "uci.h"
 
+#ifdef DEV
+#include "cli.h"
+#endif
 
 void InitAll() {
 	InitDistance();
@@ -52,15 +54,15 @@ int main() {
 			if (info->quit)
 				break;
 			continue;
-		} 
-		
+		}
+#ifdef DEV
 		if (!strncmp(line, "weiss", 5)) {
 			Console_Loop(pos, info);
 			if (info->quit)
 				break;
 			continue;
-		} 
-		
+		}
+#endif
 		if (!strncmp(line, "quit", 4))
 			break;
 

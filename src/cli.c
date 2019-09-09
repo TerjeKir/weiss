@@ -1,5 +1,7 @@
 // cli.c
 
+#ifdef DEV
+
 #include <stdio.h>
 #include <string.h>
 
@@ -295,3 +297,4 @@ void Console_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 		pos->ply = 0;
 	}
 }
+#endif
