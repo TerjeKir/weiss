@@ -5,8 +5,8 @@
 #include "board.h"
 #include "io.h"
 #include "makemove.h"
-#include "movegen.h"
 #include "misc.h"
+#include "movegen.h"
 
 
 uint64_t leafNodes;
@@ -43,14 +43,14 @@ void Perft(const int depth, S_BOARD *pos) {
 	printf("\nStarting Test To Depth:%d\n\n", depth);
 
 	int start = GetTimeMs();
-
 	leafNodes = 0;
+
 	S_MOVELIST list[1];
 	GenerateAllMoves(pos, list);
 
-	int move;
 	for (int MoveNum = 0; MoveNum < list->count; ++MoveNum) {
-		move = list->moves[MoveNum].move;
+
+		int move = list->moves[MoveNum].move;
 
 		if (!MakeMove(pos, move)){
 			printf("move %d : %s : Illegal\n", MoveNum + 1, MoveToStr(move));

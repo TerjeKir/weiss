@@ -10,7 +10,7 @@
 #include "hashkeys.h"
 #include "validate.h"
 
-
+// Initialize distance lookup table
 void InitDistance() {
 
     int vertical, horizontal;
@@ -26,30 +26,34 @@ void InitDistance() {
 // Update material lists to match pos->pieces
 static void UpdateListsMaterial(S_BOARD *pos) {
 
-	int piece, sq, color;
+	// Loop through each square on the board
+	for (int sq = 0; sq < 64; ++sq) {
 
-	for (sq = 0; sq < 64; ++sq) {
-
-		piece = pos->pieces[sq];
+		int piece = pos->pieces[sq];
 		assert(PieceValidEmpty(piece));
 
+		// If it isn't empty we update the relevant lists
 		if (piece != EMPTY) {
 
-			color = PieceColor[piece];
+			int color = PieceColor[piece];
 			assert(SideValid(color));
 
+			// Non pawn piece
 			if (PieceBig[piece]) 
 				pos->bigPieces[color]++;
 
+			// Total material value for that side
 			pos->material[color] += PieceValues[piece];
 
 			assert(pos->pieceCounts[piece] < 10 && pos->pieceCounts[piece] >= 0);
 
+			// Piece list / count
 			pos->pieceList[piece][pos->pieceCounts[piece]] = sq;
 			pos->pieceCounts[piece]++;
 
-			if (piece == wK) pos->KingSq[WHITE] = sq;
-			if (piece == bK) pos->KingSq[BLACK] = sq;
+			// King square
+			if      (piece == wK) pos->KingSq[WHITE] = sq;
+			else if (piece == bK) pos->KingSq[BLACK] = sq;
 		}
 	}
 }
@@ -57,60 +61,16 @@ static void UpdateListsMaterial(S_BOARD *pos) {
 // Update bitboards to match pos->pieces
 static void UpdateBitboards(S_BOARD *pos) {
 
-	int piece, sq;
+	// Loop through each square and update bitboards if there's a piece there
+	for (int sq = 0; sq < 64; ++sq) {
 
-	for (sq = 0; sq < 64; ++sq) {
-
-		piece = pos->pieces[sq];
+		int piece = pos->pieces[sq];
 		assert(PieceValidEmpty(piece));
 
 		if (piece != EMPTY) {
-
 			SETBIT(pos->allBB,  sq);
-
-			// Pawns
-			if (piece == wP) {
-				SETBIT(pos->colors[WHITE], sq);
-				SETBIT(pos->pieceBBs[PAWN],  sq);
-			} else if (piece == bP) {
-				SETBIT(pos->colors[BLACK], sq);
-				SETBIT(pos->pieceBBs[PAWN],  sq);
-			// Knights
-			} else if (piece == wN) {
-				SETBIT(pos->colors[WHITE],  sq);
-				SETBIT(pos->pieceBBs[KNIGHT], sq);
-			} else if (piece == bN) {
-				SETBIT(pos->colors[BLACK],  sq);
-				SETBIT(pos->pieceBBs[KNIGHT], sq);
-			// Bishops
-			} else if (piece == wB) {
-				SETBIT(pos->colors[WHITE],  sq);
-				SETBIT(pos->pieceBBs[BISHOP], sq);
-			} else if (piece == bB) {
-				SETBIT(pos->colors[BLACK],  sq);
-				SETBIT(pos->pieceBBs[BISHOP], sq);
-			// Rooks
-			} else if (piece == wR) {
-				SETBIT(pos->colors[WHITE], sq);
-				SETBIT(pos->pieceBBs[ROOK],  sq);
-			} else if (piece == bR) {
-				SETBIT(pos->colors[BLACK], sq);
-				SETBIT(pos->pieceBBs[ROOK],  sq);
-			// Queens
-			} else if (piece == wQ) {
-				SETBIT(pos->colors[WHITE], sq);
-				SETBIT(pos->pieceBBs[QUEEN], sq);
-			} else if (piece == bQ) {
-				SETBIT(pos->colors[BLACK], sq);
-				SETBIT(pos->pieceBBs[QUEEN], sq);
-			// Kings
-			} else if (piece == wK) {
-				SETBIT(pos->colors[WHITE], sq);
-				SETBIT(pos->pieceBBs[KING],  sq);
-			} else if (piece == bK) {
-				SETBIT(pos->colors[BLACK], sq);
-				SETBIT(pos->pieceBBs[KING],  sq);
-			}
+			SETBIT(pos->colors[PieceColor[piece]], sq);
+			SETBIT(pos->pieceBBs[pieceType[piece]], sq);
 		}
 	}
 }
@@ -347,11 +307,12 @@ int ParseFen(const char *fen, S_BOARD *pos) {
 		pos->enPas = (8 * rank) + file;
 	}
 
-	// Position Key
-	pos->posKey = GeneratePosKey(pos);
-
+	// Update lists and bitboards
 	UpdateListsMaterial(pos);
 	UpdateBitboards(pos);
+
+	// Generate position Key
+	pos->posKey = GeneratePosKey(pos);
 
 	return 0;
 }
@@ -391,42 +352,49 @@ void PrintBoard(const S_BOARD *pos) {
 // Reverse the colors
 void MirrorBoard(S_BOARD *pos) {
 
-	int tempPiecesArray[64];
-	int tempSide = pos->side ^ 1;
 	int SwapPiece[13] = {EMPTY, bP, bN, bB, bR, bQ, bK, wP, wN, wB, wR, wQ, wK};
+	int tempPiecesArray[64];
+	int tempEnPas, sq;
+
+	// Save info about current position, but mirrored
+
+	// Side to play
+	int tempSide = pos->side ^ 1;
+
+	// Castling rights
 	int tempCastlePerm = 0;
-	int tempEnPas = NO_SQ;
-
-	int sq;
-	int tp;
-
 	if (pos->castlePerm & WKCA) tempCastlePerm |= BKCA;
 	if (pos->castlePerm & WQCA) tempCastlePerm |= BQCA;
-
 	if (pos->castlePerm & BKCA) tempCastlePerm |= WKCA;
 	if (pos->castlePerm & BQCA) tempCastlePerm |= WQCA;
 
+	// En passant
 	if (pos->enPas != NO_SQ)
 		tempEnPas = Mirror[pos->enPas];
+	else
+		tempEnPas = NO_SQ;
 
+	// Array representation
 	for (sq = 0; sq < 64; ++sq)
-		tempPiecesArray[sq] = pos->pieces[Mirror[sq]];
+		tempPiecesArray[sq] = SwapPiece[pos->pieces[Mirror[sq]]];
 
+	// Clear the board
 	ResetBoard(pos);
 
+	// Fill the board with the stored mirrored data
 	for (sq = 0; sq < 64; ++sq) {
-		tp = SwapPiece[tempPiecesArray[sq]];
-		pos->pieces[sq] = tp;
+		pos->pieces[sq] = tempPiecesArray[sq];
 	}
-
 	pos->side = tempSide;
-	pos->castlePerm = tempCastlePerm;
 	pos->enPas = tempEnPas;
+	pos->castlePerm = tempCastlePerm;
 
-	pos->posKey = GeneratePosKey(pos);
-
+	// Update lists and bitboards based on array rep
 	UpdateListsMaterial(pos);
 	UpdateBitboards(pos);
+
+	// Generate new position key
+	pos->posKey = GeneratePosKey(pos);
 
 	assert(CheckBoard(pos));
 }

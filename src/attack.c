@@ -1,9 +1,9 @@
 // attack.c
 
 #include "attack.h"
+#include "bitboards.h"
 #include "board.h"
 #include "validate.h"
-#include "bitboards.h"
 
 #ifdef USE_PEXT
 #include "x86intrin.h"
@@ -14,11 +14,9 @@ const int bishopDirections[4] = {7, 9, -7, -9};
 const int   rookDirections[4] = {8, 1, -8, -1};
 
 
-// Simple
 bitboard pawn_attacks[2][64];
 bitboard knight_attacks[64];
 bitboard king_attacks[64];
-// Magic
 bitboard bishop_attacks[0x1480];
 bitboard rook_attacks[0x19000];
 
@@ -29,29 +27,27 @@ MAGIC mRookTable[64];
 // Inits the king attack bitboards
 static void InitKingAttacks() {
 
-    bitboard bitmask = 1ULL;
+    for (int sq = 0; sq < 64; ++sq) {
 
-    for (int square = 0; square < 64; ++square, bitmask <<= 1) {
-
-        if (square <= 55) {
-            if ((fileOf(square)) != 7)
-                king_attacks[square] |= (bitmask << 9);
-            king_attacks[square] |= (bitmask << 8);
-            if ((fileOf(square)) != 0)
-                king_attacks[square] |= (bitmask << 7);
+        if (sq <= 55) {
+            if ((fileOf(sq)) != 7)
+                SETBIT(king_attacks[sq], sq + 9);
+            SETBIT(king_attacks[sq], sq + 8);
+            if ((fileOf(sq)) != 0)
+                SETBIT(king_attacks[sq], sq + 7);
         }
 
-        if ((fileOf(square)) != 7)
-            king_attacks[square] |= (bitmask << 1);
-        if ((fileOf(square)) != 0)
-            king_attacks[square] |= (bitmask >> 1);
+        if ((fileOf(sq)) != 7)
+            SETBIT(king_attacks[sq], sq + 1);
+        if ((fileOf(sq)) != 0)
+            SETBIT(king_attacks[sq], sq - 1);
 
-        if (square >= 8) {
-            if ((fileOf(square)) != 7)
-                king_attacks[square] |= (bitmask >> 7);
-            king_attacks[square] |= (bitmask >> 8);
-            if ((fileOf(square)) != 0)
-                king_attacks[square] |= (bitmask >> 9);
+        if (sq >= 8) {
+            if ((fileOf(sq)) != 7)
+                SETBIT(king_attacks[sq], sq - 7);
+            SETBIT(king_attacks[sq], sq - 8);
+            if ((fileOf(sq)) != 0)
+                SETBIT(king_attacks[sq], sq - 9);
         }
     }
 }
@@ -59,33 +55,31 @@ static void InitKingAttacks() {
 // Inits the knight attack bitboards
 static void InitKnightAttacks() {
 
-    bitboard bitmask = 1ULL;
+    for (int sq = 0; sq < 64; ++sq) {
 
-    for (int square = 0; square < 64; ++square, bitmask <<= 1) {
-
-        if (square <= 47) {
-            if ((fileOf(square)) < 7)
-                knight_attacks[square] |= (bitmask << 17);
-            if ((fileOf(square)) > 0)
-                knight_attacks[square] |= (bitmask << 15);
+        if (sq <= 47) {
+            if ((fileOf(sq)) < 7)
+                SETBIT(knight_attacks[sq], sq + 17);
+            if ((fileOf(sq)) > 0)
+                SETBIT(knight_attacks[sq], sq + 15);
         }
-        if (square <= 55) {
-            if ((fileOf(square)) < 6)
-                knight_attacks[square] |= (bitmask << 10);
-            if ((fileOf(square)) > 1)
-                knight_attacks[square] |= (bitmask << 6);
+        if (sq <= 55) {
+            if ((fileOf(sq)) < 6)
+                SETBIT(knight_attacks[sq], sq + 10);
+            if ((fileOf(sq)) > 1)
+                SETBIT(knight_attacks[sq], sq + 6);
         }
-        if (square >= 8) {
-            if ((fileOf(square)) < 6)
-                knight_attacks[square] |= (bitmask >> 6);
-            if ((fileOf(square)) > 1)
-                knight_attacks[square] |= (bitmask >> 10);
+        if (sq >= 8) {
+            if ((fileOf(sq)) < 6)
+                SETBIT(knight_attacks[sq], sq - 6);
+            if ((fileOf(sq)) > 1)
+                SETBIT(knight_attacks[sq], sq - 10);
         }
-        if (square >= 16) {
-            if ((fileOf(square)) < 7)
-                knight_attacks[square] |= (bitmask >> 15);
-            if ((fileOf(square)) > 0)
-                knight_attacks[square] |= (bitmask >> 17);
+        if (sq >= 16) {
+            if ((fileOf(sq)) < 7)
+                SETBIT(knight_attacks[sq], sq - 15);
+            if ((fileOf(sq)) > 0)
+                SETBIT(knight_attacks[sq], sq - 17);
         }
     }
 }
@@ -93,21 +87,19 @@ static void InitKnightAttacks() {
 // Inits the pawn attack bitboards
 static void InitPawnAttacks() {
 
-    bitboard bitmask = 1ULL;
-
-    // No point going further as all their attacks would be off board
-    for (int square = 0; square < 64; ++square, bitmask <<= 1) {
+    // All squares needed despite pawns never being on 1. or 8. rank
+    for (int sq = 0; sq < 64; ++sq) {
 
         // White
-        if ((fileOf(square)) != 0)
-            pawn_attacks[WHITE][square] |= bitmask << 7;
-        if ((fileOf(square)) != 7)
-            pawn_attacks[WHITE][square] |= bitmask << 9;
+        if ((fileOf(sq)) != 7)
+            SETBIT(pawn_attacks[WHITE][sq], sq + 9);
+        if ((fileOf(sq)) != 0)
+            SETBIT(pawn_attacks[WHITE][sq], sq + 7);
         // Black
-        if ((fileOf(square)) != 7)
-            pawn_attacks[BLACK][square] |= bitmask >> 7;
-        if ((fileOf(square)) != 0)
-            pawn_attacks[BLACK][square] |= bitmask >> 9;
+        if ((fileOf(sq)) != 7)
+            SETBIT(pawn_attacks[BLACK][sq], sq - 7);
+        if ((fileOf(sq)) != 0)
+            SETBIT(pawn_attacks[BLACK][sq], sq - 9);
     }
 }
 
@@ -203,36 +195,20 @@ void InitAttacks() {
 
 // Returns true if sq is attacked by side
 int SqAttacked(const int sq, const int side, const S_BOARD *pos) {
-	
-    bitboard bAtks, rAtks;
 
     assert(ValidSquare(sq));
-	assert(SideValid(side));
-	assert(CheckBoard(pos));
+    assert(SideValid(side));
+    assert(CheckBoard(pos));
 
-    bitboard allPieces = pos->allBB;
     bitboard bishops   = pos->colors[side] & (pos->pieceBBs[BISHOP] | pos->pieceBBs[QUEEN]);
-    bitboard rooks     = pos->colors[side] & (pos->pieceBBs[ROOK] | pos->pieceBBs[QUEEN]);
+    bitboard rooks     = pos->colors[side] & (pos->pieceBBs[  ROOK] | pos->pieceBBs[QUEEN]);
 
-	// Pawns
-	if (pawn_attacks[!side][sq] & pos->pieceBBs[PAWN] & pos->colors[side])
-		return true;
+    if (     pawn_attacks[!side][sq] & pos->pieceBBs[PAWN]   & pos->colors[side]
+        || knight_attacks[sq]        & pos->pieceBBs[KNIGHT] & pos->colors[side]
+        ||   king_attacks[sq]        & pos->pieceBBs[KING]   & pos->colors[side]
+        || bishops & SliderAttacks(sq, pos->allBB, mBishopTable)
+        || rooks   & SliderAttacks(sq, pos->allBB, mRookTable))
+        return true;
 
-	// Knights
-	if (knight_attacks[sq] & pos->pieceBBs[KNIGHT] & pos->colors[side])
-		return true;
-
-    // Kings
-	if (king_attacks[sq] & pos->pieceBBs[KING] & pos->colors[side])
-		return true;
-
-    // Bishops
-    bAtks = SliderAttacks(sq, allPieces, mBishopTable);
-    if (bAtks & bishops) return true;
-
-    // Rook
-    rAtks = SliderAttacks(sq, allPieces, mRookTable);
-    if (rAtks & rooks) return true;
-
-	return false;
+    return false;
 }

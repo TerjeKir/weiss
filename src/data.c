@@ -3,25 +3,24 @@
 #include "types.h"
 
 
-char PceChar[] = ".PNBRQKpnbrqk";
-char SideChar[] = "wb-";
-char RankChar[] = "12345678";
-char FileChar[] = "abcdefgh";
+const char PceChar[]  = ".PNBRQKpnbrqk";
+const char SideChar[] = "wb-";
+const char RankChar[] = "12345678";
+const char FileChar[] = "abcdefgh";
 
-int PieceBig[13] 	= {false, false, true, true, true, true, true, false, true, true, true, true, true}; // Used for NullMP
-int PieceValues[13] = {0, 100, 325, 325, 550, 1000, 50000, 100, 325, 325, 550, 1000, 50000};
-int PieceColor[13] 	= {BOTH, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK};
-int pieceType[13]	= {-1, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING };
+const int PieceBig[13]    = { false, false, true, true, true, true, true, false, true, true, true, true, true }; // Used for NullMP
+const int PieceValues[13] = { 0, 100, 325, 325, 550, 1000, 50000, 100, 325, 325, 550, 1000, 50000 };
+const int PieceColor[13]  = { BOTH, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK };
+const int pieceType[13]	  = { -1, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING };
 
-int PiecePawn[13] 	= {false,  true, false, false, false, false, false,  true, false, false, false, false, false};
-int PieceKnight[13] = {false, false,  true, false, false, false, false, false,  true, false, false, false, false};
-int PieceBishop[13] = {false, false, false,  true, false, false, false, false, false,  true, false, false, false};
-int PieceRook[13] 	= {false, false, false, false,  true, false, false, false, false, false,  true, false, false};
-int PieceQueen[13] 	= {false, false, false, false, false,  true, false, false, false, false, false,  true, false};
-int PieceKing[13] 	= {false, false, false, false, false, false,  true, false, false, false, false, false,  true};
-int PieceSlides[13] = {false, false, false,  true,  true,  true, false, false, false,  true,  true,  true, false};
+const int PiecePawn[13]   = { false,  true, false, false, false, false, false,  true, false, false, false, false, false };
+const int PieceKnight[13] = { false, false,  true, false, false, false, false, false,  true, false, false, false, false };
+const int PieceBishop[13] = { false, false, false,  true, false, false, false, false, false,  true, false, false, false };
+const int PieceRook[13]   = { false, false, false, false,  true, false, false, false, false, false,  true, false, false };
+const int PieceQueen[13]  = { false, false, false, false, false,  true, false, false, false, false, false,  true, false };
+const int PieceKing[13]   = { false, false, false, false, false, false,  true, false, false, false, false, false,  true };
 
-int Mirror[64] = {
+const int Mirror[64] = {
 	56, 57, 58, 59, 60, 61, 62, 63,
 	48, 49, 50, 51, 52, 53, 54, 55,
 	40, 41, 42, 43, 44, 45, 46, 47,
