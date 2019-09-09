@@ -1,4 +1,4 @@
-//validate.c
+//validate.h
 
 #pragma once
 

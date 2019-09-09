@@ -1,4 +1,4 @@
-// pvtable.c
+// pvtable.h
 
 #pragma once
 

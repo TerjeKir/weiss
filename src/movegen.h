@@ -1,4 +1,4 @@
-// movegen.c
+// movegen.h
 
 #pragma once
 

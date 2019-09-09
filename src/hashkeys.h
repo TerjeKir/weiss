@@ -1,4 +1,4 @@
-// hashkeys.c
+// hashkeys.h
 
 #pragma once
 

@@ -1,4 +1,4 @@
-// syzygy.c
+// syzygy.h
 
 #pragma once
 

@@ -1,4 +1,4 @@
-// search.c
+// search.h
 
 #pragma once
 

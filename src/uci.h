@@ -1,4 +1,4 @@
-// uci.c
+// uci.h
 
 #pragma once
 
