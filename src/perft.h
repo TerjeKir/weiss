@@ -1,4 +1,4 @@
-// perft.c
+// perft.h
 
 #pragma once
 

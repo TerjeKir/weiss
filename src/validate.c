@@ -50,7 +50,7 @@ int MoveListOk(const S_MOVELIST *list, const S_BOARD *pos) {
 
 	return true;
 }
-
+#ifdef DEV
 void MirrorEvalTest(S_BOARD *pos) {
 
 	char filename[] = "../EPDs/all.epd";
@@ -221,3 +221,4 @@ search:
 	printf("MateInXTest Complete!\n Failures: %d\n\n", failures);
 	fclose(file);
 }
+#endif

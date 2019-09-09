@@ -1,4 +1,4 @@
-// makemove.c
+// makemove.h
 
 #pragma once
 

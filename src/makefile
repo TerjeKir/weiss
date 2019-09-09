@@ -19,7 +19,7 @@ PGOMAKE	= -fprofile-generate=$(PGODIR)
 PGOUSE  = -fprofile-use=$(PGODIR)
 
 default: 	#for quick tests
-	gcc $(STD) $(OPTIM) $(WFLAGS) $(SRC)            -o       "$(EXE) dev.exe"
+	gcc $(STD) $(OPTIM) $(WFLAGS) $(SRC) -DDEV      -o       "$(EXE) dev.exe"
 
 basic: 		#for basic compile
 	gcc $(STD) $(OPTIM) $(WFLAGS) $(SRC)            -o "$(OUT)$(EXE) basic.exe"

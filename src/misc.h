@@ -1,4 +1,4 @@
-// misc.c
+// misc.h
 
 #pragma once
 
