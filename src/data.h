@@ -20,6 +20,5 @@ extern int PieceBishop[13];
 extern int PieceRook[13];
 extern int PieceQueen[13];
 extern int PieceKing[13];
-extern int PieceSlides[13];
 
 extern int Mirror[64];
