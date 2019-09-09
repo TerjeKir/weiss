@@ -65,10 +65,19 @@ void ClearHashTable(S_HASHTABLE *table) {
 }
 
 // Initializes the hash table
-void InitHashTable(S_HASHTABLE *table, const uint64_t MB) {
+int InitHashTable(S_HASHTABLE *table, uint64_t MB) {
+
+	// Ignore if already initialized with this size
+	if (table->MB == MB) {
+		printf("HashTable already initialized to %I64u.\n", MB);
+		return MB;
+	}
 
 	uint64_t HashSize = 0x100000LL * MB;
 	table->numEntries = HashSize / sizeof(S_HASHENTRY);
+
+	MB = MB < MINHASH ? MINHASH : MB; // Don't go under minhash
+	MB = MB > MAXHASH ? MAXHASH : MB; // Don't go over maxhash
 
 	// Free memory if we have already allocated
 	if (table->pTable != NULL)
@@ -79,14 +88,17 @@ void InitHashTable(S_HASHTABLE *table, const uint64_t MB) {
 
 	// If allocation fails, try half the size
 	if (table->pTable == NULL) {
-		printf("Hash Allocation Failed, trying %I64dMB...\n", MB / 2);
-		InitHashTable(table, MB / 2);
+		printf("Hash Allocation Failed, trying %I64uMB...\n", MB / 2);
+		return InitHashTable(table, MB / 2);
+
 	// Success
 	} else {
 #ifdef SEARCH_STATS
 		table->newWrite = 0;
 #endif
-		printf("HashTable init complete with %d entries, using %I64dMB.\n", table->numEntries, MB);
+		table->MB = MB;
+		printf("HashTable init complete with %d entries, using %I64uMB.\n", table->numEntries, MB);
+		return MB;
 	}
 }
 
