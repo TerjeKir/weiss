@@ -1,5 +1,6 @@
 // uci.c
 
+#include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -16,10 +17,15 @@
 
 
 #define START_FEN  "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-#define INPUTBUFFER 400 * 6
+#define INPUT_SIZE 4096
 
 
-static void ParseGo(const char *line, S_SEARCHINFO *info, S_BOARD *pos) {
+static void *ParseGo(void *searchThreadInfo) {
+
+	S_SEARCH_THREAD *sst = (S_SEARCH_THREAD*)searchThreadInfo;
+	char *line           = sst->line;
+	S_BOARD *pos         = sst->pos;
+	S_SEARCHINFO *info   = sst->info;
 
 	info->starttime = GetTimeMs();
 
@@ -71,6 +77,8 @@ static void ParseGo(const char *line, S_SEARCHINFO *info, S_BOARD *pos) {
 	}
 
 	SearchPosition(pos, info);
+
+	return NULL;
 }
 
 static void ParsePosition(const char *lineIn, S_BOARD *pos) {
@@ -110,15 +118,13 @@ static void ParsePosition(const char *lineIn, S_BOARD *pos) {
 
 static inline bool GetInput(char *line) {
 
-	memset(line, 0, sizeof(char) * INPUTBUFFER);
-
-	fgets(line, INPUTBUFFER, stdin);
+	fgets(line, INPUT_SIZE, stdin);
 
 	return true;
 }
 
 static inline bool BeginsWith(const char *string, const char *token) {
-	return strstr(string, token) == string ? true : false;
+	return strstr(string, token) == string;
 }
 
 void Uci_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
@@ -128,7 +134,6 @@ void Uci_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 	setbuf(stdin, NULL);
 	setbuf(stdout, NULL);
 
-	char line[INPUTBUFFER];
 	printf("id name %s\n", NAME);
 	printf("id author LoliSquad\n");
 	printf("option name Hash type spin default %d min 4 max %d\n", DEFAULTHASH, MAXHASH);
@@ -138,23 +143,33 @@ void Uci_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 #endif
 	printf("uciok\n");
 
+	char line[INPUT_SIZE];
 	int MB;
+	pthread_t searchThread;
+	S_SEARCH_THREAD searchThreadInfo;
+	searchThreadInfo.info = info;
+	searchThreadInfo.pos  = pos;
 
 	while (GetInput(line)) {
 
-		if (BeginsWith(line, "go"))
-			ParseGo(line, info, pos);
+		if (BeginsWith(line, "go")) {
+			strncpy(searchThreadInfo.line, line, INPUT_SIZE);
+			pthread_create(&searchThread, NULL, &ParseGo, &searchThreadInfo);
 
-		else if (BeginsWith(line, "isready"))
+		} else if (BeginsWith(line, "isready"))
 			printf("readyok\n");
 
 		else if (BeginsWith(line, "position"))
 			ParsePosition(line, pos);
 
 		else if (BeginsWith(line, "ucinewgame"))
-			ParsePosition("position startpos\n", pos);
+			ClearHashTable(pos->HashTable);
 
-		else if (BeginsWith(line, "quit")) {
+		else if (BeginsWith(line, "stop")) {
+			info->stopped = true;
+			pthread_join(searchThread, NULL);
+
+		} else if (BeginsWith(line, "quit")) {
 			info->quit = true;
 			break;
 
@@ -181,6 +196,5 @@ void Uci_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 			tb_init(info->syzygyPath);
 #endif
 		}
-		fflush(stdout);
 	}
 }
