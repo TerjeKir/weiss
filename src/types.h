@@ -147,6 +147,14 @@ typedef struct {
 
 } S_SEARCHINFO;
 
+typedef struct {
+
+	S_BOARD *pos;
+	S_SEARCHINFO *info;
+	char line[4096];
+
+} S_SEARCH_THREAD;
+
 static inline int fileOf(const int square) {
 	return square & 7;
 }

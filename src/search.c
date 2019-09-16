@@ -17,12 +17,13 @@
 
 
 // Check if time up, or interrupt from GUI
-static void CheckUp(S_SEARCHINFO *info) {
+static void CheckTime(S_SEARCHINFO *info) {
 
-	if (info->timeset && GetTimeMs() > info->stoptime)
+	if (  (info->nodes & 8192) == 0
+		&& info->timeset 
+		&& GetTimeMs() > info->stoptime) {
 		info->stopped = true;
-
-	ReadInput(info);
+	}
 }
 
 // Move best move to the front of the queue
@@ -98,9 +99,8 @@ static int Quiescence(int alpha, const int beta, S_BOARD *pos, S_SEARCHINFO *inf
 	assert(alpha <=  INFINITE);
 	assert(alpha >= -INFINITE);
 
-	// Check if we should stop
-	if ((info->nodes & 2047) == 0)
-		CheckUp(info);
+	// Check time situation
+	CheckTime(info);
 
 	info->nodes++;
 
@@ -144,7 +144,7 @@ static int Quiescence(int alpha, const int beta, S_BOARD *pos, S_SEARCHINFO *inf
 
 		legal++;
 
-		if(info->stopped == true)
+		if (info->stopped)
 			return 0;
 		
 		if (score > bestScore)
@@ -187,9 +187,8 @@ static int AlphaBeta(int alpha, const int beta, int depth, S_BOARD *pos, S_SEARC
 	if (depth <= 0) 
 		return Quiescence(alpha, beta, pos, info);
 
-	// Check for time
-	if ((info->nodes & 2047) == 0) 
-		CheckUp(info);
+	// Check time situation
+	CheckTime(info);
 
 	info->nodes++;
 
@@ -313,7 +312,7 @@ standard_search:
 
 		legalMoves++;
 
-		if(info->stopped == true)
+		if (info->stopped)
 			return 0;
 
 		assert(-INFINITE <= score && score <=  INFINITE);
