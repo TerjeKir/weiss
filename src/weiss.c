@@ -13,7 +13,7 @@
 #include "pvtable.h"
 #include "uci.h"
 
-#ifdef DEV
+#ifdef CLI
 #include "cli.h"
 #endif
 
@@ -55,7 +55,7 @@ int main() {
 				break;
 			continue;
 		}
-#ifdef DEV
+#ifdef CLI
 		if (!strncmp(line, "weiss", 5)) {
 			Console_Loop(pos, info);
 			if (info->quit)

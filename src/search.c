@@ -398,7 +398,7 @@ void SearchPosition(S_BOARD *pos, S_SEARCHINFO *info) {
 	int   bestMove = pos->PvArray[0];
 	int ponderMove = pos->PvArray[1];
 
-#ifdef DEV
+#ifdef CLI
 	if (info->GAME_MODE == CONSOLEMODE) {
 		printf("\n\n***!! %s !!***\n\n", MoveToStr(bestMove));
 		MakeMove(pos, bestMove);

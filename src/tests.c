@@ -1,6 +1,6 @@
 // tests.c
 
-#ifdef DEV
+#ifdef CLI
 
 #include <stdio.h>
 #include <string.h>

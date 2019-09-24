@@ -351,7 +351,7 @@ int CheckBoard(const S_BOARD *pos) {
 }
 #endif
 
-#ifdef DEV
+#ifdef CLI
 // Reverse the colors
 void MirrorBoard(S_BOARD *pos) {
 

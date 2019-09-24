@@ -141,7 +141,7 @@ int ParseMove(const char *ptrChar, S_BOARD *pos) {
 	return NOMOVE;
 }
 
-#ifdef DEV
+#ifdef CLI
 // Translates a string from a .epd file to a move
 int ParseEPDMove(const char *ptrChar, S_BOARD *pos) {
 

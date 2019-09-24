@@ -1,6 +1,6 @@
 // tests.h
 
-#ifdef DEV
+#ifdef CLI
 
 #pragma once
 
