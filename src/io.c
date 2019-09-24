@@ -45,101 +45,6 @@ char *MoveToStr(const int move) {
 	return moveStr;
 }
 
-// Translates a string to a move
-int ParseMove(const char *ptrChar, S_BOARD *pos) {
-
-	assert(CheckBoard(pos));
-
-	if (ptrChar[1] > '8' || ptrChar[1] < '1') return NOMOVE;
-	if (ptrChar[3] > '8' || ptrChar[3] < '1') return NOMOVE;
-	if (ptrChar[0] > 'h' || ptrChar[0] < 'a') return NOMOVE;
-	if (ptrChar[2] > 'h' || ptrChar[2] < 'a') return NOMOVE;
-
-	int from = (ptrChar[0] - 'a') + (8 * (ptrChar[1] - '1'));
-	int to   = (ptrChar[2] - 'a') + (8 * (ptrChar[3] - '1'));
-
-	assert(ValidSquare(from) && ValidSquare(to));
-
-	S_MOVELIST list[1];
-	GenerateAllMoves(pos, list);
-
-	int move, promotion;
-
-	for (int moveNum = 0; moveNum < list->count; ++moveNum) {
-
-		move = list->moves[moveNum].move;
-		if (FROMSQ(move) == from && TOSQ(move) == to) {
-
-			promotion = PROMOTION(move);
-			if (promotion != EMPTY) {
-
-				if (IsQueen(promotion) && ptrChar[4] == 'q')
-					return move;
-				else if (IsKnight(promotion) && ptrChar[4] == 'n')
-					return move;
-				else if (IsRook(promotion) && ptrChar[4] == 'r')
-					return move;
-				else if (IsBishop(promotion) && ptrChar[4] == 'b')
-					return move;
-
-				continue;
-			}
-			return move;
-		}
-	}
-	return NOMOVE;
-}
-
-// Translates a string from a .epd file to a move
-int ParseEPDMove(const char *ptrChar, S_BOARD *pos) {
-
-	assert(CheckBoard(pos));
-
-	// Nf3-g1+, f3-g1+, Nf3-g1, f3-g1N+ etc
-
-	if ('B' <= ptrChar[0] && ptrChar[0] <= 'R')
-		ptrChar++;
-
-	if (ptrChar[1] > '8' || ptrChar[1] < '1') return NOMOVE;
-	if (ptrChar[4] > '8' || ptrChar[4] < '1') return NOMOVE;
-	if (ptrChar[0] > 'h' || ptrChar[0] < 'a') return NOMOVE;
-	if (ptrChar[3] > 'h' || ptrChar[3] < 'a') return NOMOVE;
-
-	int from = (ptrChar[0] - 'a') + (8 * (ptrChar[1] - '1'));
-	int to   = (ptrChar[3] - 'a') + (8 * (ptrChar[4] - '1'));
-
-	assert(ValidSquare(from) && ValidSquare(to));
-
-	S_MOVELIST list[1];
-	GenerateAllMoves(pos, list);
-
-	int move, promotion;
-
-	for (int moveNum = 0; moveNum < list->count; ++moveNum) {
-
-		move = list->moves[moveNum].move;
-		if (FROMSQ(move) == from && TOSQ(move) == to) {
-
-			promotion = PROMOTION(move);
-			if (promotion != EMPTY) {
-
-				if (IsQueen(promotion) && ptrChar[5] == 'Q')
-					return move;
-				else if (IsKnight(promotion) && ptrChar[5] == 'N')
-					return move;
-				else if (IsRook(promotion) && ptrChar[5] == 'R')
-					return move;
-				else if (IsBishop(promotion) && ptrChar[5] == 'B')
-					return move;
-
-				continue;
-			}
-			return move;
-		}
-	}
-	return NOMOVE;
-}
-
 // Print thinking
 void PrintThinking(const S_SEARCHINFO *info, S_BOARD *pos, const int bestScore, const int currentDepth) {
 
@@ -190,3 +95,100 @@ void PrintThinking(const S_SEARCHINFO *info, S_BOARD *pos, const int bestScore, 
 		printf("\n");
 	}
 }
+
+// Translates a string to a move
+int ParseMove(const char *ptrChar, S_BOARD *pos) {
+
+	assert(CheckBoard(pos));
+
+	if (ptrChar[1] > '8' || ptrChar[1] < '1') return NOMOVE;
+	if (ptrChar[3] > '8' || ptrChar[3] < '1') return NOMOVE;
+	if (ptrChar[0] > 'h' || ptrChar[0] < 'a') return NOMOVE;
+	if (ptrChar[2] > 'h' || ptrChar[2] < 'a') return NOMOVE;
+
+	int from = (ptrChar[0] - 'a') + (8 * (ptrChar[1] - '1'));
+	int to   = (ptrChar[2] - 'a') + (8 * (ptrChar[3] - '1'));
+
+	assert(ValidSquare(from) && ValidSquare(to));
+
+	S_MOVELIST list[1];
+	GenerateAllMoves(pos, list);
+
+	int move, promotion;
+
+	for (int moveNum = 0; moveNum < list->count; ++moveNum) {
+
+		move = list->moves[moveNum].move;
+		if (FROMSQ(move) == from && TOSQ(move) == to) {
+
+			promotion = PROMOTION(move);
+			if (promotion != EMPTY) {
+
+				if (IsQueen(promotion) && ptrChar[4] == 'q')
+					return move;
+				else if (IsKnight(promotion) && ptrChar[4] == 'n')
+					return move;
+				else if (IsRook(promotion) && ptrChar[4] == 'r')
+					return move;
+				else if (IsBishop(promotion) && ptrChar[4] == 'b')
+					return move;
+
+				continue;
+			}
+			return move;
+		}
+	}
+	return NOMOVE;
+}
+
+#ifdef DEV
+// Translates a string from a .epd file to a move
+int ParseEPDMove(const char *ptrChar, S_BOARD *pos) {
+
+	assert(CheckBoard(pos));
+
+	// Nf3-g1+, f3-g1+, Nf3-g1, f3-g1N+ etc
+
+	if ('B' <= ptrChar[0] && ptrChar[0] <= 'R')
+		ptrChar++;
+
+	if (ptrChar[1] > '8' || ptrChar[1] < '1') return NOMOVE;
+	if (ptrChar[4] > '8' || ptrChar[4] < '1') return NOMOVE;
+	if (ptrChar[0] > 'h' || ptrChar[0] < 'a') return NOMOVE;
+	if (ptrChar[3] > 'h' || ptrChar[3] < 'a') return NOMOVE;
+
+	int from = (ptrChar[0] - 'a') + (8 * (ptrChar[1] - '1'));
+	int to   = (ptrChar[3] - 'a') + (8 * (ptrChar[4] - '1'));
+
+	assert(ValidSquare(from) && ValidSquare(to));
+
+	S_MOVELIST list[1];
+	GenerateAllMoves(pos, list);
+
+	int move, promotion;
+
+	for (int moveNum = 0; moveNum < list->count; ++moveNum) {
+
+		move = list->moves[moveNum].move;
+		if (FROMSQ(move) == from && TOSQ(move) == to) {
+
+			promotion = PROMOTION(move);
+			if (promotion != EMPTY) {
+
+				if (IsQueen(promotion) && ptrChar[5] == 'Q')
+					return move;
+				else if (IsKnight(promotion) && ptrChar[5] == 'N')
+					return move;
+				else if (IsRook(promotion) && ptrChar[5] == 'R')
+					return move;
+				else if (IsBishop(promotion) && ptrChar[5] == 'B')
+					return move;
+
+				continue;
+			}
+			return move;
+		}
+	}
+	return NOMOVE;
+}
+#endif
