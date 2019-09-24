@@ -9,11 +9,81 @@
 #include "data.h"
 #include "evaluate.h"
 #include "io.h"
+#include "makemove.h"
 #include "misc.h"
 #include "move.h"
+#include "movegen.h"
 #include "search.h"
 
 
+/* Perft */
+uint64_t leafNodes;
+
+
+static void RecursivePerft(const int depth, S_BOARD *pos) {
+
+	assert(CheckBoard(pos));
+
+	if (depth == 0) {
+		leafNodes++;
+		return;
+	}
+
+	S_MOVELIST list[1];
+	GenerateAllMoves(pos, list);
+
+	for (int MoveNum = 0; MoveNum < list->count; ++MoveNum) {
+
+		if (!MakeMove(pos, list->moves[MoveNum].move))
+			continue;
+
+		RecursivePerft(depth - 1, pos);
+		TakeMove(pos);
+	}
+
+	return;
+}
+
+// Counts number of moves that can be made in a position to some depth
+void Perft(const int depth, S_BOARD *pos) {
+
+	assert(CheckBoard(pos));
+
+	printf("\nStarting Test To Depth:%d\n\n", depth);
+
+	int start = GetTimeMs();
+	leafNodes = 0;
+
+	S_MOVELIST list[1];
+	GenerateAllMoves(pos, list);
+
+	for (int MoveNum = 0; MoveNum < list->count; ++MoveNum) {
+
+		int move = list->moves[MoveNum].move;
+
+		if (!MakeMove(pos, move)){
+			printf("move %d : %s : Illegal\n", MoveNum + 1, MoveToStr(move));
+			continue;
+		}
+
+		uint64_t oldCount = leafNodes;
+		RecursivePerft(depth - 1, pos);
+		uint64_t newNodes = leafNodes - oldCount;
+		printf("move %d : %s : %I64d\n", MoveNum + 1, MoveToStr(move), newNodes);
+
+		TakeMove(pos);
+	}
+
+	int timeElapsed = GetTimeMs() - start;
+	printf("\nPerft Complete : %I64d nodes visited in %dms\n", leafNodes, timeElapsed);
+	if (timeElapsed > 0) 
+		printf("               : %I64d nps\n", ((leafNodes * 1000) / timeElapsed));
+
+	return;
+}
+
+/* Other tests */
+// Checks evaluation is symmetric
 void MirrorEvalTest(S_BOARD *pos) {
 
 	char filename[] = "../EPDs/all.epd";
@@ -56,6 +126,7 @@ void MirrorEvalTest(S_BOARD *pos) {
 	fclose(file);
 }
 
+// Checks engine can find mates
 void MateInXTest(S_BOARD *pos) {
 
 	char filename[] = "../EPDs/mate_-_.epd"; 				// _s are placeholders
