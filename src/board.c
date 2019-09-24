@@ -349,6 +349,7 @@ void PrintBoard(const S_BOARD *pos) {
 	printf("PosKey: %I64u\n", pos->posKey);
 }
 
+#ifdef DEV
 // Reverse the colors
 void MirrorBoard(S_BOARD *pos) {
 
@@ -398,3 +399,4 @@ void MirrorBoard(S_BOARD *pos) {
 
 	assert(CheckBoard(pos));
 }
+#endif

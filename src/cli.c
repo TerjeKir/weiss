@@ -18,7 +18,7 @@
 #include "perft.h"
 #include "pvtable.h"
 #include "search.h"
-#include "validate.h"
+#include "tests.h"
 
 
 #define START_FEN  "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
