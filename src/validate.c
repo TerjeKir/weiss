@@ -3,6 +3,7 @@
 #include "board.h"
 #include "move.h"
 
+#ifndef NDEBUG
 
 int ValidSquare(const int sq) {
 	return (sq >= 0 && sq < 64);
@@ -43,3 +44,4 @@ int MoveListOk(const S_MOVELIST *list, const S_BOARD *pos) {
 
 	return true;
 }
+#endif
