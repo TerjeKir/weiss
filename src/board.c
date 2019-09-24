@@ -125,88 +125,7 @@ static void ResetBoard(S_BOARD *pos) {
 	memset(pos->PvArray, 0, sizeof(pos->PvArray)); // TODO does this make sense???
 }
 
-#ifndef NDEBUG
-// Check board state makes sense
-int CheckBoard(const S_BOARD *pos) {
 
-	int t_pieceCounts[13] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-	int t_bigPieces[2] = {0, 0};
-	int t_material[2] = {0, 0};
-
-	int sq, t_piece, t_pce_num, color;
-
-	// Bitboards
-	assert(PopCount(pos->pieceBBs[KING]) == 2);
-
-	assert(PopCount(pos->pieceBBs[  PAWN] & pos->colors[WHITE]) <= 8);
-	assert(PopCount(pos->pieceBBs[KNIGHT] & pos->colors[WHITE]) <= 10);
-	assert(PopCount(pos->pieceBBs[BISHOP] & pos->colors[WHITE]) <= 10);
-	assert(PopCount(pos->pieceBBs[  ROOK] & pos->colors[WHITE]) <= 10);
-	assert(PopCount(pos->pieceBBs[ QUEEN] & pos->colors[WHITE]) <= 9);
-	assert(PopCount(pos->pieceBBs[  KING] & pos->colors[WHITE]) == 1);
-
-	assert(PopCount(pos->pieceBBs[  PAWN] & pos->colors[BLACK]) <= 8);
-	assert(PopCount(pos->pieceBBs[KNIGHT] & pos->colors[BLACK]) <= 10);
-	assert(PopCount(pos->pieceBBs[BISHOP] & pos->colors[BLACK]) <= 10);
-	assert(PopCount(pos->pieceBBs[  ROOK] & pos->colors[BLACK]) <= 10);
-	assert(PopCount(pos->pieceBBs[ QUEEN] & pos->colors[BLACK]) <= 9);
-	assert(PopCount(pos->pieceBBs[  KING] & pos->colors[BLACK]) == 1);
-
-	assert(PopCount(pos->pieceBBs[  PAWN] & pos->colors[WHITE]) == pos->pieceCounts[wP]);
-	assert(PopCount(pos->pieceBBs[KNIGHT] & pos->colors[WHITE]) == pos->pieceCounts[wN]);
-	assert(PopCount(pos->pieceBBs[BISHOP] & pos->colors[WHITE]) == pos->pieceCounts[wB]);
-	assert(PopCount(pos->pieceBBs[  ROOK] & pos->colors[WHITE]) == pos->pieceCounts[wR]);
-	assert(PopCount(pos->pieceBBs[ QUEEN] & pos->colors[WHITE]) == pos->pieceCounts[wQ]);
-
-	assert(PopCount(pos->pieceBBs[  PAWN] & pos->colors[BLACK]) == pos->pieceCounts[bP]);
-	assert(PopCount(pos->pieceBBs[KNIGHT] & pos->colors[BLACK]) == pos->pieceCounts[bN]);
-	assert(PopCount(pos->pieceBBs[BISHOP] & pos->colors[BLACK]) == pos->pieceCounts[bB]);
-	assert(PopCount(pos->pieceBBs[  ROOK] & pos->colors[BLACK]) == pos->pieceCounts[bR]);
-	assert(PopCount(pos->pieceBBs[ QUEEN] & pos->colors[BLACK]) == pos->pieceCounts[bQ]);
-
-	assert(pos->allBB == (pos->colors[WHITE] | pos->colors[BLACK]));
-
-	// check piece lists
-	for (t_piece = wP; t_piece <= bK; ++t_piece)
-		for (t_pce_num = 0; t_pce_num < pos->pieceCounts[t_piece]; ++t_pce_num) {
-			sq = pos->pieceList[t_piece][t_pce_num];
-			assert(pos->pieces[sq] == t_piece);
-		}
-
-	// check piece count and other counters
-	for (sq = 0; sq < 64; ++sq) {
-
-		t_piece = pos->pieces[sq];
-		t_pieceCounts[t_piece]++;
-		color = PieceColor[t_piece];
-
-		if (PieceBig[t_piece]) t_bigPieces[color]++;
-
-		t_material[color] += PieceValues[t_piece];
-	}
-
-	for (t_piece = wP; t_piece <= bK; ++t_piece)
-		assert(t_pieceCounts[t_piece] == pos->pieceCounts[t_piece]);
-
-	assert(t_material[WHITE] == pos->material[WHITE] && t_material[BLACK] == pos->material[BLACK]);
-	assert(t_bigPieces[WHITE] == pos->bigPieces[WHITE] && t_bigPieces[BLACK] == pos->bigPieces[BLACK]);
-
-	assert(pos->side == WHITE || pos->side == BLACK);
-
-	assert(pos->enPas == NO_SQ 
-	   || (pos->enPas >= 40 && pos->enPas < 48 && pos->side == WHITE) 
-	   || (pos->enPas >= 16 && pos->enPas < 24 && pos->side == BLACK));
-
-	assert(pos->pieces[pos->KingSq[WHITE]] == wK);
-	assert(pos->pieces[pos->KingSq[BLACK]] == bK);
-
-	assert(pos->castlePerm >= 0 && pos->castlePerm <= 15);
-
-	assert(GeneratePosKey(pos) == pos->posKey);
-
-	return true;
-}
-#endif
 
 // Parse FEN and set up board in the position described
 int ParseFen(const char *fen, S_BOARD *pos) {
@@ -349,6 +268,90 @@ void PrintBoard(const S_BOARD *pos) {
 	printf("PosKey: %I64u\n", pos->posKey);
 }
 
+#ifndef NDEBUG
+// Check board state makes sense
+int CheckBoard(const S_BOARD *pos) {
+
+	int t_pieceCounts[13] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+	int t_bigPieces[2] = {0, 0};
+	int t_material[2] = {0, 0};
+
+	int sq, t_piece, t_pce_num, color;
+
+	// Bitboards
+	assert(PopCount(pos->pieceBBs[KING]) == 2);
+
+	assert(PopCount(pos->pieceBBs[  PAWN] & pos->colors[WHITE]) <= 8);
+	assert(PopCount(pos->pieceBBs[KNIGHT] & pos->colors[WHITE]) <= 10);
+	assert(PopCount(pos->pieceBBs[BISHOP] & pos->colors[WHITE]) <= 10);
+	assert(PopCount(pos->pieceBBs[  ROOK] & pos->colors[WHITE]) <= 10);
+	assert(PopCount(pos->pieceBBs[ QUEEN] & pos->colors[WHITE]) <= 9);
+	assert(PopCount(pos->pieceBBs[  KING] & pos->colors[WHITE]) == 1);
+
+	assert(PopCount(pos->pieceBBs[  PAWN] & pos->colors[BLACK]) <= 8);
+	assert(PopCount(pos->pieceBBs[KNIGHT] & pos->colors[BLACK]) <= 10);
+	assert(PopCount(pos->pieceBBs[BISHOP] & pos->colors[BLACK]) <= 10);
+	assert(PopCount(pos->pieceBBs[  ROOK] & pos->colors[BLACK]) <= 10);
+	assert(PopCount(pos->pieceBBs[ QUEEN] & pos->colors[BLACK]) <= 9);
+	assert(PopCount(pos->pieceBBs[  KING] & pos->colors[BLACK]) == 1);
+
+	assert(PopCount(pos->pieceBBs[  PAWN] & pos->colors[WHITE]) == pos->pieceCounts[wP]);
+	assert(PopCount(pos->pieceBBs[KNIGHT] & pos->colors[WHITE]) == pos->pieceCounts[wN]);
+	assert(PopCount(pos->pieceBBs[BISHOP] & pos->colors[WHITE]) == pos->pieceCounts[wB]);
+	assert(PopCount(pos->pieceBBs[  ROOK] & pos->colors[WHITE]) == pos->pieceCounts[wR]);
+	assert(PopCount(pos->pieceBBs[ QUEEN] & pos->colors[WHITE]) == pos->pieceCounts[wQ]);
+
+	assert(PopCount(pos->pieceBBs[  PAWN] & pos->colors[BLACK]) == pos->pieceCounts[bP]);
+	assert(PopCount(pos->pieceBBs[KNIGHT] & pos->colors[BLACK]) == pos->pieceCounts[bN]);
+	assert(PopCount(pos->pieceBBs[BISHOP] & pos->colors[BLACK]) == pos->pieceCounts[bB]);
+	assert(PopCount(pos->pieceBBs[  ROOK] & pos->colors[BLACK]) == pos->pieceCounts[bR]);
+	assert(PopCount(pos->pieceBBs[ QUEEN] & pos->colors[BLACK]) == pos->pieceCounts[bQ]);
+
+	assert(pos->allBB == (pos->colors[WHITE] | pos->colors[BLACK]));
+
+	// check piece lists
+	for (t_piece = wP; t_piece <= bK; ++t_piece)
+		for (t_pce_num = 0; t_pce_num < pos->pieceCounts[t_piece]; ++t_pce_num) {
+			sq = pos->pieceList[t_piece][t_pce_num];
+			assert(pos->pieces[sq] == t_piece);
+		}
+
+	// check piece count and other counters
+	for (sq = 0; sq < 64; ++sq) {
+
+		t_piece = pos->pieces[sq];
+		t_pieceCounts[t_piece]++;
+		color = PieceColor[t_piece];
+
+		if (PieceBig[t_piece]) t_bigPieces[color]++;
+
+		t_material[color] += PieceValues[t_piece];
+	}
+
+	for (t_piece = wP; t_piece <= bK; ++t_piece)
+		assert(t_pieceCounts[t_piece] == pos->pieceCounts[t_piece]);
+
+	assert(t_material[WHITE] == pos->material[WHITE] && t_material[BLACK] == pos->material[BLACK]);
+	assert(t_bigPieces[WHITE] == pos->bigPieces[WHITE] && t_bigPieces[BLACK] == pos->bigPieces[BLACK]);
+
+	assert(pos->side == WHITE || pos->side == BLACK);
+
+	assert(pos->enPas == NO_SQ 
+	   || (pos->enPas >= 40 && pos->enPas < 48 && pos->side == WHITE) 
+	   || (pos->enPas >= 16 && pos->enPas < 24 && pos->side == BLACK));
+
+	assert(pos->pieces[pos->KingSq[WHITE]] == wK);
+	assert(pos->pieces[pos->KingSq[BLACK]] == bK);
+
+	assert(pos->castlePerm >= 0 && pos->castlePerm <= 15);
+
+	assert(GeneratePosKey(pos) == pos->posKey);
+
+	return true;
+}
+#endif
+
+#ifdef CLI
 // Reverse the colors
 void MirrorBoard(S_BOARD *pos) {
 
@@ -398,3 +401,4 @@ void MirrorBoard(S_BOARD *pos) {
 
 	assert(CheckBoard(pos));
 }
+#endif

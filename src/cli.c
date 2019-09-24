@@ -1,6 +1,6 @@
 // cli.c
 
-#ifdef DEV
+#ifdef CLI
 
 #include <stdio.h>
 #include <string.h>
@@ -15,10 +15,9 @@
 #include "move.h"
 #include "movegen.h"
 #include "misc.h"
-#include "perft.h"
 #include "pvtable.h"
 #include "search.h"
-#include "validate.h"
+#include "tests.h"
 
 
 #define START_FEN  "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"

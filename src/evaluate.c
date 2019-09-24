@@ -326,5 +326,5 @@ int EvalPosition(const S_BOARD *pos) {
 	assert(score > -INFINITE && score < INFINITE);
 
 	// Return score
-	return pos->side ? score : -score;
+	return pos->side == WHITE ? score : -score;
 }
