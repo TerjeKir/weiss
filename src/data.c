@@ -4,7 +4,7 @@
 
 
 const char PceChar[]  = ".PNBRQKpnbrqk";
-const char SideChar[] = "wb-";
+const char SideChar[] = "bw-";
 const char RankChar[] = "12345678";
 const char FileChar[] = "abcdefgh";
 
