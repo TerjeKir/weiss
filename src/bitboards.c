@@ -27,20 +27,19 @@ void InitBitMasks() {
 	}
 }
 
+// Unused, here for occasional print debugging
 // Prints a bitboard
-/* Unused, here for potential print debugging
-void PrintBB(const bitboard bb) {
+// void PrintBB(const bitboard bb) {
     
-    bitboard bitmask = 1;
+//     bitboard bitmask = 1;
 
-    for (int rank = 7; rank >= 0; --rank) {
-        for (int file = 0; file <= 7; ++file) {
-            if (bb & (bitmask << ((rank * 8) + file)))
-                printf("1");
-            else
-                printf("0");
-        }
-        printf("\n");
-    }
-}
-*/
+//     for (int rank = 7; rank >= 0; --rank) {
+//         for (int file = 0; file <= 7; ++file) {
+//             if (bb & (bitmask << ((rank * 8) + file)))
+//                 printf("1");
+//             else
+//                 printf("0");
+//         }
+//         printf("\n");
+//     }
+// }
