@@ -30,23 +30,23 @@ static void InitKingAttacks() {
     for (int sq = 0; sq < 64; ++sq) {
 
         if (sq <= 55) {
-            if ((fileOf(sq)) != 7)
+            if (fileOf(sq) != 7)
                 SETBIT(king_attacks[sq], sq + 9);
             SETBIT(king_attacks[sq], sq + 8);
-            if ((fileOf(sq)) != 0)
+            if (fileOf(sq) != 0)
                 SETBIT(king_attacks[sq], sq + 7);
         }
 
-        if ((fileOf(sq)) != 7)
+        if (fileOf(sq) != 7)
             SETBIT(king_attacks[sq], sq + 1);
-        if ((fileOf(sq)) != 0)
+        if (fileOf(sq) != 0)
             SETBIT(king_attacks[sq], sq - 1);
 
         if (sq >= 8) {
-            if ((fileOf(sq)) != 7)
+            if (fileOf(sq) != 7)
                 SETBIT(king_attacks[sq], sq - 7);
             SETBIT(king_attacks[sq], sq - 8);
-            if ((fileOf(sq)) != 0)
+            if (fileOf(sq) != 0)
                 SETBIT(king_attacks[sq], sq - 9);
         }
     }
@@ -58,27 +58,27 @@ static void InitKnightAttacks() {
     for (int sq = 0; sq < 64; ++sq) {
 
         if (sq <= 47) {
-            if ((fileOf(sq)) < 7)
+            if (fileOf(sq) < 7)
                 SETBIT(knight_attacks[sq], sq + 17);
-            if ((fileOf(sq)) > 0)
+            if (fileOf(sq) > 0)
                 SETBIT(knight_attacks[sq], sq + 15);
         }
         if (sq <= 55) {
-            if ((fileOf(sq)) < 6)
+            if (fileOf(sq) < 6)
                 SETBIT(knight_attacks[sq], sq + 10);
-            if ((fileOf(sq)) > 1)
+            if (fileOf(sq) > 1)
                 SETBIT(knight_attacks[sq], sq + 6);
         }
         if (sq >= 8) {
-            if ((fileOf(sq)) < 6)
+            if (fileOf(sq) < 6)
                 SETBIT(knight_attacks[sq], sq - 6);
-            if ((fileOf(sq)) > 1)
+            if (fileOf(sq) > 1)
                 SETBIT(knight_attacks[sq], sq - 10);
         }
         if (sq >= 16) {
-            if ((fileOf(sq)) < 7)
+            if (fileOf(sq) < 7)
                 SETBIT(knight_attacks[sq], sq - 15);
-            if ((fileOf(sq)) > 0)
+            if (fileOf(sq) > 0)
                 SETBIT(knight_attacks[sq], sq - 17);
         }
     }
@@ -92,16 +92,16 @@ static void InitPawnAttacks() {
 
         // White
         if (rankOf(sq) != RANK_8) {
-            if ((fileOf(sq)) != 7)
+            if (fileOf(sq) != 7)
                 SETBIT(pawn_attacks[WHITE][sq], sq + 9);
-            if ((fileOf(sq)) != 0)
+            if (fileOf(sq) != 0)
                 SETBIT(pawn_attacks[WHITE][sq], sq + 7);
         }
         // Black
         if (rankOf(sq) != RANK_1) {
-            if ((fileOf(sq)) != 7)
+            if (fileOf(sq) != 7)
                 SETBIT(pawn_attacks[BLACK][sq], sq - 7);
-            if ((fileOf(sq)) != 0)
+            if (fileOf(sq) != 0)
                 SETBIT(pawn_attacks[BLACK][sq], sq - 9);
         }
     }
