@@ -91,15 +91,19 @@ static void InitPawnAttacks() {
     for (int sq = 0; sq < 64; ++sq) {
 
         // White
-        if ((fileOf(sq)) != 7)
-            SETBIT(pawn_attacks[WHITE][sq], sq + 9);
-        if ((fileOf(sq)) != 0)
-            SETBIT(pawn_attacks[WHITE][sq], sq + 7);
+        if (rankOf(sq) != RANK_8) {
+            if ((fileOf(sq)) != 7)
+                SETBIT(pawn_attacks[WHITE][sq], sq + 9);
+            if ((fileOf(sq)) != 0)
+                SETBIT(pawn_attacks[WHITE][sq], sq + 7);
+        }
         // Black
-        if ((fileOf(sq)) != 7)
-            SETBIT(pawn_attacks[BLACK][sq], sq - 7);
-        if ((fileOf(sq)) != 0)
-            SETBIT(pawn_attacks[BLACK][sq], sq - 9);
+        if (rankOf(sq) != RANK_1) {
+            if ((fileOf(sq)) != 7)
+                SETBIT(pawn_attacks[BLACK][sq], sq - 7);
+            if ((fileOf(sq)) != 0)
+                SETBIT(pawn_attacks[BLACK][sq], sq - 9);
+        }
     }
 }
 
