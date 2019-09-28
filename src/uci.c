@@ -118,6 +118,8 @@ static void ParsePosition(const char *lineIn, S_BOARD *pos) {
 
 static inline bool GetInput(char *line) {
 
+	memset(line, 0, INPUT_SIZE);
+
 	fgets(line, INPUT_SIZE, stdin);
 
 	return true;
