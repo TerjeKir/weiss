@@ -27,26 +27,26 @@ MAGIC mRookTable[64];
 // Inits the king attack bitboards
 static void InitKingAttacks() {
 
-    for (int sq = 0; sq < 64; ++sq) {
+    for (int sq = A1; sq <= H8; ++sq) {
 
-        if (sq <= 55) {
-            if ((fileOf(sq)) != 7)
+        if (rankOf(sq) < RANK_8) {
+            if (fileOf(sq) < FILE_H)
                 SETBIT(king_attacks[sq], sq + 9);
             SETBIT(king_attacks[sq], sq + 8);
-            if ((fileOf(sq)) != 0)
+            if (fileOf(sq) > FILE_A)
                 SETBIT(king_attacks[sq], sq + 7);
         }
 
-        if ((fileOf(sq)) != 7)
+        if (fileOf(sq) < FILE_H)
             SETBIT(king_attacks[sq], sq + 1);
-        if ((fileOf(sq)) != 0)
+        if (fileOf(sq) > FILE_A)
             SETBIT(king_attacks[sq], sq - 1);
 
-        if (sq >= 8) {
-            if ((fileOf(sq)) != 7)
+        if (rankOf(sq) > RANK_1) {
+            if (fileOf(sq) < FILE_H)
                 SETBIT(king_attacks[sq], sq - 7);
             SETBIT(king_attacks[sq], sq - 8);
-            if ((fileOf(sq)) != 0)
+            if (fileOf(sq) > FILE_A)
                 SETBIT(king_attacks[sq], sq - 9);
         }
     }
@@ -55,30 +55,30 @@ static void InitKingAttacks() {
 // Inits the knight attack bitboards
 static void InitKnightAttacks() {
 
-    for (int sq = 0; sq < 64; ++sq) {
+    for (int sq = A1; sq <= H8; ++sq) {
 
-        if (sq <= 47) {
-            if ((fileOf(sq)) < 7)
+        if (rankOf(sq) < RANK_7) {
+            if (fileOf(sq) < FILE_H)
                 SETBIT(knight_attacks[sq], sq + 17);
-            if ((fileOf(sq)) > 0)
+            if (fileOf(sq) > FILE_A)
                 SETBIT(knight_attacks[sq], sq + 15);
         }
-        if (sq <= 55) {
-            if ((fileOf(sq)) < 6)
+        if (rankOf(sq) < RANK_8) {
+            if (fileOf(sq) < FILE_G)
                 SETBIT(knight_attacks[sq], sq + 10);
-            if ((fileOf(sq)) > 1)
+            if (fileOf(sq) > FILE_B)
                 SETBIT(knight_attacks[sq], sq + 6);
         }
-        if (sq >= 8) {
-            if ((fileOf(sq)) < 6)
+        if (rankOf(sq) > RANK_1) {
+            if (fileOf(sq) < FILE_G)
                 SETBIT(knight_attacks[sq], sq - 6);
-            if ((fileOf(sq)) > 1)
+            if (fileOf(sq) > FILE_B)
                 SETBIT(knight_attacks[sq], sq - 10);
         }
-        if (sq >= 16) {
-            if ((fileOf(sq)) < 7)
+        if (rankOf(sq) > RANK_2) {
+            if (fileOf(sq) < FILE_H)
                 SETBIT(knight_attacks[sq], sq - 15);
-            if ((fileOf(sq)) > 0)
+            if (fileOf(sq) > FILE_A)
                 SETBIT(knight_attacks[sq], sq - 17);
         }
     }
@@ -88,18 +88,22 @@ static void InitKnightAttacks() {
 static void InitPawnAttacks() {
 
     // All squares needed despite pawns never being on 1. or 8. rank
-    for (int sq = 0; sq < 64; ++sq) {
+    for (int sq = A1; sq <= H8; ++sq) {
 
         // White
-        if ((fileOf(sq)) != 7)
-            SETBIT(pawn_attacks[WHITE][sq], sq + 9);
-        if ((fileOf(sq)) != 0)
-            SETBIT(pawn_attacks[WHITE][sq], sq + 7);
+        if (rankOf(sq) < RANK_8) {
+            if (fileOf(sq) < FILE_H)
+                SETBIT(pawn_attacks[WHITE][sq], sq + 9);
+            if (fileOf(sq) > FILE_A)
+                SETBIT(pawn_attacks[WHITE][sq], sq + 7);
+        }
         // Black
-        if ((fileOf(sq)) != 7)
-            SETBIT(pawn_attacks[BLACK][sq], sq - 7);
-        if ((fileOf(sq)) != 0)
-            SETBIT(pawn_attacks[BLACK][sq], sq - 9);
+        if (rankOf(sq) > RANK_1) {
+            if (fileOf(sq) < FILE_H)
+                SETBIT(pawn_attacks[BLACK][sq], sq - 7);
+            if (fileOf(sq) > FILE_A)
+                SETBIT(pawn_attacks[BLACK][sq], sq - 9);
+        }
     }
 }
 
@@ -133,7 +137,7 @@ static void InitSliderAttacks(MAGIC *table, bitboard *attackTable, const bitboar
 
     table[0].attacks = attackTable;
 
-    for (int sq = 0; sq < 64; ++sq) {
+    for (int sq = A1; sq <= H8; ++sq) {
 
         edges = ((rank1BB | rank8BB) & ~rankBBs[rankOf(sq)]) 
               | ((fileABB | fileHBB) & ~fileBBs[fileOf(sq)]);
@@ -144,7 +148,7 @@ static void InitSliderAttacks(MAGIC *table, bitboard *attackTable, const bitboar
         table[sq].shift = 64 - PopCount(table[sq].mask);
 #endif
 
-        table[sq].attacks = sq == 0 ? attackTable : table[sq - 1].attacks + size + 1;
+        table[sq].attacks = sq == A1 ? attackTable : table[sq - 1].attacks + size + 1;
 
         size = occupied = 0;
 

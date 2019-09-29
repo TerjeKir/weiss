@@ -20,6 +20,12 @@
 #define INPUT_SIZE 4096
 
 
+// Checks if a string begins with another string
+static inline bool BeginsWith(const char *string, const char *token) {
+	return strstr(string, token) == string;
+}
+
+// Parses a go command
 static void *ParseGo(void *searchThreadInfo) {
 
 	S_SEARCH_THREAD *sst = (S_SEARCH_THREAD*)searchThreadInfo;
@@ -28,50 +34,52 @@ static void *ParseGo(void *searchThreadInfo) {
 	S_SEARCHINFO *info   = sst->info;
 
 	info->starttime = GetTimeMs();
+	info->timeset = false;
 
 	int moveOverhead = 50;
 	int depth = -1, movestogo = 30, movetime = -1;
 	int time = -1, inc = 0;
 	char *ptr = NULL;
-	info->timeset = false;
 
+	// Read in relevant time constraints if any
 	if ((ptr = strstr(line, "infinite"))) {
 		;
 	}
-
+	// Increment
 	if ((ptr = strstr(line, "binc")) && pos->side == BLACK)
 		inc = atoi(ptr + 5);
-
 	if ((ptr = strstr(line, "winc")) && pos->side == WHITE)
 		inc = atoi(ptr + 5);
-
+	// Total remaining time
 	if ((ptr = strstr(line, "wtime")) && pos->side == WHITE)
 		time = atoi(ptr + 6);
-
 	if ((ptr = strstr(line, "btime")) && pos->side == BLACK)
 		time = atoi(ptr + 6);
-
+	// Moves left until next time control
 	if ((ptr = strstr(line, "movestogo")))
 		movestogo = atoi(ptr + 10);
-
+	// Time per move
 	if ((ptr = strstr(line, "movetime")))
 		movetime = atoi(ptr + 9);
-
+	// Max depth to search to
 	if ((ptr = strstr(line, "depth")))
 		depth = atoi(ptr + 6);
 
+	// In movetime mode we use all the time given each turn and expect more next move
 	if (movetime != -1) {
 		time = movetime;
 		movestogo = 1;
 	}
 
+	// Update search depth limit if we were given one
 	info->depth = depth == -1 ? MAXDEPTH : depth;
 
+	// Calculate how much time to use if given time constraints
 	if (time != -1) {
 		info->timeset = true;
 		int timeThisMove = (time / movestogo) + inc;	// Try to use 1/30 of remaining time + increment
 		int maxTime = time; 							// Most time we can use
-		info->stoptime = info->starttime;
+		info->stoptime  = info->starttime;
 		info->stoptime += timeThisMove > maxTime ? maxTime : timeThisMove;
 		info->stoptime -= moveOverhead;
 	}
@@ -81,52 +89,63 @@ static void *ParseGo(void *searchThreadInfo) {
 	return NULL;
 }
 
-static void ParsePosition(const char *lineIn, S_BOARD *pos) {
+// Parses a position command
+static void ParsePosition(const char *line, S_BOARD *pos) {
 
-	lineIn += 9;
-	const char *ptrChar = lineIn;
+	// Skip past "position "
+	line += 9;
 
-	if (strncmp(lineIn, "startpos", 8) == 0) {
+	// Set up original position, either normal start position,
+	if (BeginsWith(line, "startpos"))
 		ParseFen(START_FEN, pos);
-	} else {
-		ptrChar = strstr(lineIn, "fen");
-		if (ptrChar == NULL) {
-			ParseFen(START_FEN, pos);
-		} else {
-			ptrChar += 4;
-			ParseFen(ptrChar, pos);
-		}
-	}
+	// Or position given as FEN
+	else if (BeginsWith(line, "fen"))
+		ParseFen(line + 4, pos);
 
-	ptrChar = strstr(lineIn, "moves");
-	int move;
+	// Skip to "moves" and make them to get to current position
+	line = strstr(line, "moves");
+	if (line == NULL)
+		return;
 
-	if (ptrChar != NULL) {
-		ptrChar += 6;
-		while (*ptrChar) {
-			move = ParseMove(ptrChar, pos);
-			if (move == NOMOVE)
-				break;
-			MakeMove(pos, move);
-			pos->ply = 0;
-			while (*ptrChar && *ptrChar != ' ')
-				ptrChar++;
-			ptrChar++;
+	// Skip to the first move and loop until all moves are parsed
+	line += 6;
+	while (*line) {
+
+		// Parse a move
+		int move = ParseMove(line, pos);
+		if (move == NOMOVE) {
+			printf("Weiss failed to parse a move: %s\n", line);
+			exit(EXIT_SUCCESS);
 		}
+
+		// Make the move
+		if (!MakeMove(pos, move)) {
+			printf("Weiss thinks this move is illegal: %s\n", MoveToStr(move));
+			exit(EXIT_SUCCESS);
+		}
+
+		// Ply represents how deep in a search we are, it should be 0 before searching starts
+		pos->ply = 0;
+
+		// Skip to the next move if any
+		line = strstr(line, " ");
+		if (line == NULL)
+			return;
+		line += 1;
 	}
 }
 
+// Reads a line from stdin
 static inline bool GetInput(char *line) {
+
+	memset(line, 0, INPUT_SIZE);
 
 	fgets(line, INPUT_SIZE, stdin);
 
 	return true;
 }
 
-static inline bool BeginsWith(const char *string, const char *token) {
-	return strstr(string, token) == string;
-}
-
+// Waits for and reacts to input according to UCI protocol
 void Uci_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 
 	info->GAME_MODE = UCIMODE;

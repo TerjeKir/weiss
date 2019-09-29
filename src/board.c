@@ -26,16 +26,18 @@ void InitDistance() {
 // Update material lists to match pos->pieces
 static void UpdateListsMaterial(S_BOARD *pos) {
 
+	int piece, color;
+
 	// Loop through each square on the board
 	for (int sq = 0; sq < 64; ++sq) {
 
-		int piece = pos->pieces[sq];
+		piece = pos->pieces[sq];
 		assert(PieceValidEmpty(piece));
 
 		// If it isn't empty we update the relevant lists
 		if (piece != EMPTY) {
 
-			int color = PieceColor[piece];
+			color = PieceColor[piece];
 			assert(SideValid(color));
 
 			// Non pawn piece
@@ -78,35 +80,35 @@ static void UpdateBitboards(S_BOARD *pos) {
 // Resets the board
 static void ResetBoard(S_BOARD *pos) {
 
-	int index = 0;
+	int i, j;
 
 	// Bitboard representations
-	for (index = 0; index < 2; ++index)
-		pos->colors[index] = 0ULL;
+	for (i = 0; i < 2; ++i)
+		pos->colors[i] = 0ULL;
 
-	for (index = PAWN; index <= KING; ++index)
-		pos->pieceBBs[index] = 0ULL;
+	for (i = PAWN; i <= KING; ++i)
+		pos->pieceBBs[i] = 0ULL;
 
 	pos->allBB = 0ULL;
 
 	// Array representation
-	for (index = 0; index < 64; ++index)
-		pos->pieces[index] = EMPTY;
+	for (i = 0; i < 64; ++i)
+		pos->pieces[i] = EMPTY;
 
 	// Piece lists and counts
-	for (index = 0; index < 13; ++index) {
-		pos->pieceCounts[index] = 0;
-		for (int index2 = 0; index2 < 10; ++index2)
-			pos->pieceList[index][index2] = 0;
+	for (i = 0; i < 13; ++i) {
+		pos->pieceCounts[i] = 0;
+		for (j = 0; j < 10; ++j)
+			pos->pieceList[i][j] = 0;
 	}
 
 	// King squares
 	pos->KingSq[WHITE] = pos->KingSq[BLACK] = NO_SQ;
 
 	// Piece counts and material
-	for (index = 0; index < 2; ++index) {
-		pos->bigPieces[index] = 0;
-		pos->material[index] = 0;
+	for (i = 0; i < 2; ++i) {
+		pos->bigPieces[i] = 0;
+		pos->material[i] = 0;
 	}
 
 	// Misc
@@ -226,12 +228,12 @@ int ParseFen(const char *fen, S_BOARD *pos) {
 		pos->enPas = (8 * rank) + file;
 	}
 
+	// Generate position Key
+	pos->posKey = GeneratePosKey(pos);
+
 	// Update lists and bitboards
 	UpdateListsMaterial(pos);
 	UpdateBitboards(pos);
-
-	// Generate position Key
-	pos->posKey = GeneratePosKey(pos);
 
 	return 0;
 }
