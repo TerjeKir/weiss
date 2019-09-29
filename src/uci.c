@@ -25,6 +25,7 @@ static inline bool BeginsWith(const char *string, const char *token) {
 	return strstr(string, token) == string;
 }
 
+// Parses a go command
 static void *ParseGo(void *searchThreadInfo) {
 
 	S_SEARCH_THREAD *sst = (S_SEARCH_THREAD*)searchThreadInfo;
@@ -33,50 +34,52 @@ static void *ParseGo(void *searchThreadInfo) {
 	S_SEARCHINFO *info   = sst->info;
 
 	info->starttime = GetTimeMs();
+	info->timeset = false;
 
 	int moveOverhead = 50;
 	int depth = -1, movestogo = 30, movetime = -1;
 	int time = -1, inc = 0;
 	char *ptr = NULL;
-	info->timeset = false;
 
+	// Read in relevant time constraints if any
 	if ((ptr = strstr(line, "infinite"))) {
 		;
 	}
-
+	// Increment
 	if ((ptr = strstr(line, "binc")) && pos->side == BLACK)
 		inc = atoi(ptr + 5);
-
 	if ((ptr = strstr(line, "winc")) && pos->side == WHITE)
 		inc = atoi(ptr + 5);
-
+	// Total remaining time
 	if ((ptr = strstr(line, "wtime")) && pos->side == WHITE)
 		time = atoi(ptr + 6);
-
 	if ((ptr = strstr(line, "btime")) && pos->side == BLACK)
 		time = atoi(ptr + 6);
-
+	// Moves left until next time control
 	if ((ptr = strstr(line, "movestogo")))
 		movestogo = atoi(ptr + 10);
-
+	// Time per move
 	if ((ptr = strstr(line, "movetime")))
 		movetime = atoi(ptr + 9);
-
+	// Max depth to search to
 	if ((ptr = strstr(line, "depth")))
 		depth = atoi(ptr + 6);
 
+	// In movetime mode we use all the time given each turn and expect more next move
 	if (movetime != -1) {
 		time = movetime;
 		movestogo = 1;
 	}
 
+	// Update search depth limit if we were given one
 	info->depth = depth == -1 ? MAXDEPTH : depth;
 
+	// Calculate how much time to use if given time constraints
 	if (time != -1) {
 		info->timeset = true;
 		int timeThisMove = (time / movestogo) + inc;	// Try to use 1/30 of remaining time + increment
 		int maxTime = time; 							// Most time we can use
-		info->stoptime = info->starttime;
+		info->stoptime  = info->starttime;
 		info->stoptime += timeThisMove > maxTime ? maxTime : timeThisMove;
 		info->stoptime -= moveOverhead;
 	}
@@ -132,6 +135,7 @@ static void ParsePosition(const char *line, S_BOARD *pos) {
 	}
 }
 
+// Reads a line from stdin
 static inline bool GetInput(char *line) {
 
 	memset(line, 0, INPUT_SIZE);
@@ -141,6 +145,7 @@ static inline bool GetInput(char *line) {
 	return true;
 }
 
+// Waits for and reacts to input according to UCI protocol
 void Uci_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 
 	info->GAME_MODE = UCIMODE;
