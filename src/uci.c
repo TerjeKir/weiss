@@ -20,6 +20,11 @@
 #define INPUT_SIZE 4096
 
 
+// Checks if a string begins with another string
+static inline bool BeginsWith(const char *string, const char *token) {
+	return strstr(string, token) == string;
+}
+
 static void *ParseGo(void *searchThreadInfo) {
 
 	S_SEARCH_THREAD *sst = (S_SEARCH_THREAD*)searchThreadInfo;
@@ -81,38 +86,49 @@ static void *ParseGo(void *searchThreadInfo) {
 	return NULL;
 }
 
-static void ParsePosition(const char *lineIn, S_BOARD *pos) {
+// Parses a position command
+static void ParsePosition(const char *line, S_BOARD *pos) {
 
-	lineIn += 9;
-	const char *ptrChar = lineIn;
+	// Skip past "position "
+	line += 9;
 
-	if (strncmp(lineIn, "startpos", 8) == 0) {
+	// Set up original position, either normal start position,
+	if (BeginsWith(line, "startpos"))
 		ParseFen(START_FEN, pos);
-	} else {
-		ptrChar = strstr(lineIn, "fen");
-		if (ptrChar == NULL) {
-			ParseFen(START_FEN, pos);
-		} else {
-			ptrChar += 4;
-			ParseFen(ptrChar, pos);
-		}
-	}
+	// Or position given as FEN
+	else if (BeginsWith(line, "fen"))
+		ParseFen(line + 4, pos);
 
-	ptrChar = strstr(lineIn, "moves");
-	int move;
+	// Skip to "moves" and make them to get to current position
+	line = strstr(line, "moves");
+	if (line == NULL)
+		return;
 
-	if (ptrChar != NULL) {
-		ptrChar += 6;
-		while (*ptrChar) {
-			move = ParseMove(ptrChar, pos);
-			if (move == NOMOVE)
-				break;
-			MakeMove(pos, move);
-			pos->ply = 0;
-			while (*ptrChar && *ptrChar != ' ')
-				ptrChar++;
-			ptrChar++;
+	// Skip to the first move and loop until all moves are parsed
+	line += 6;
+	while (*line) {
+
+		// Parse a move
+		int move = ParseMove(line, pos);
+		if (move == NOMOVE) {
+			printf("Weiss failed to parse a move: %s\n", line);
+			exit(EXIT_SUCCESS);
 		}
+
+		// Make the move
+		if (!MakeMove(pos, move)) {
+			printf("Weiss thinks this move is illegal: %s\n", MoveToStr(move));
+			exit(EXIT_SUCCESS);
+		}
+
+		// Ply represents how deep in a search we are, it should be 0 before searching starts
+		pos->ply = 0;
+
+		// Skip to the next move if any
+		line = strstr(line, " ");
+		if (line == NULL)
+			return;
+		line += 1;
 	}
 }
 
@@ -123,10 +139,6 @@ static inline bool GetInput(char *line) {
 	fgets(line, INPUT_SIZE, stdin);
 
 	return true;
-}
-
-static inline bool BeginsWith(const char *string, const char *token) {
-	return strstr(string, token) == string;
 }
 
 void Uci_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
