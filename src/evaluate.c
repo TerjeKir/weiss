@@ -101,7 +101,7 @@ void InitEvalMasks() {
 	}
 
 	// For each square a pawn can be on
-	for (sq = A2; sq < H7; ++sq) {
+	for (sq = A2; sq <= H7; ++sq) {
 
 		// In front
 		for (tsq = sq + 8; tsq <= H8; tsq += 8)
