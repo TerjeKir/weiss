@@ -94,20 +94,20 @@ void InitEvalMasks() {
 	int sq, tsq;
 
 	// Start everything at 0
-	for (sq = 0; sq < 64; ++sq) {
+	for (sq = A1; sq <= H8; ++sq) {
 		IsolatedMask[sq] = 0ULL;
 		WhitePassedMask[sq] = 0ULL;
 		BlackPassedMask[sq] = 0ULL;
 	}
 
 	// For each square a pawn can be on
-	for (sq = 8; sq < 56; ++sq) {
+	for (sq = A2; sq < H7; ++sq) {
 
 		// In front
-		for (tsq = sq + 8; tsq < 64; tsq += 8)
+		for (tsq = sq + 8; tsq <= H8; tsq += 8)
 			WhitePassedMask[sq] |= (1ULL << tsq);
 
-		for (tsq = sq - 8; tsq >= 0; tsq -= 8)
+		for (tsq = sq - 8; tsq >= A1; tsq -= 8)
 			BlackPassedMask[sq] |= (1ULL << tsq);
 
 		// Left side
@@ -115,10 +115,10 @@ void InitEvalMasks() {
 
 			IsolatedMask[sq] |= fileBBs[fileOf(sq) - 1];
 
-			for (tsq = sq + 7; tsq < 64; tsq += 8)
+			for (tsq = sq + 7; tsq <= H8; tsq += 8)
 				WhitePassedMask[sq] |= (1ULL << tsq);
 
-			for (tsq = sq - 9; tsq >= 0; tsq -= 8)
+			for (tsq = sq - 9; tsq >= A1; tsq -= 8)
 				BlackPassedMask[sq] |= (1ULL << tsq);
 		}
 
@@ -127,10 +127,10 @@ void InitEvalMasks() {
 
 			IsolatedMask[sq] |= fileBBs[fileOf(sq) + 1];
 
-			for (tsq = sq + 9; tsq < 64; tsq += 8)
+			for (tsq = sq + 9; tsq <= H8; tsq += 8)
 				WhitePassedMask[sq] |= (1ULL << tsq);
 
-			for (tsq = sq - 7; tsq >= 0; tsq -= 8)
+			for (tsq = sq - 7; tsq >= A1; tsq -= 8)
 				BlackPassedMask[sq] |= (1ULL << tsq);
 		}
 	}
