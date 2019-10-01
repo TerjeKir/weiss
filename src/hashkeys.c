@@ -2,8 +2,7 @@
 
 #include <stdlib.h>
 
-#include "defs.h"
-#include "validate.h"
+#include "types.h"
 
 
 #define RAND_64 ((uint64_t)rand() |	   \
@@ -28,24 +27,19 @@ void InitHashKeys() {
 		for (int sq = 0; sq < 64; ++sq)
 			PieceKeys[piece][sq] = RAND_64;
 
-	for (int index = 0; index < 16; ++index)
-		CastleKeys[index] = RAND_64;
+	for (int i = 0; i < 16; ++i)
+		CastleKeys[i] = RAND_64;
 }
 
 uint64_t GeneratePosKey(const S_BOARD *pos) {
 
 	uint64_t posKey = 0;
-	int piece;
 
 	// Pieces
-	for (int sq = 0; sq < 64; ++sq) {
-
-		piece = pos->pieces[sq];
-
-		if (piece != EMPTY) {
-			assert(piece >= wP && piece <= bK);
+	for (int sq = A1; sq <= H8; ++sq) {
+		int piece = pos->pieces[sq];
+		if (piece != EMPTY)
 			posKey ^= PieceKeys[piece][sq];
-		}
 	}
 
 	// Side to play
@@ -53,14 +47,10 @@ uint64_t GeneratePosKey(const S_BOARD *pos) {
 		posKey ^= SideKey;
 
 	// En passant
-	if (pos->enPas != NO_SQ) {
-		assert((pos->enPas >= 16 && pos->enPas < 24 && pos->side == BLACK) 
-			|| (pos->enPas >= 40 && pos->enPas < 48 && pos->side == WHITE));
+	if (pos->enPas != NO_SQ)
 		posKey ^= PieceKeys[EMPTY][pos->enPas];
-	}
 
 	// Castling rights
-	assert(pos->castlePerm >= 0 && pos->castlePerm <= 15);
 	posKey ^= CastleKeys[pos->castlePerm];
 
 	return posKey;
