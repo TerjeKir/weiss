@@ -6,19 +6,19 @@
 #ifndef NDEBUG
 
 int ValidSquare(const int sq) {
-	return (sq >= 0 && sq < 64);
+	return A1 <= sq && sq <= H8;
 }
 
-int SideValid(const int side) {
-	return (side == WHITE || side == BLACK) ? 1 : 0;
+int ValidSide(const int side) {
+	return side == WHITE || side == BLACK;
 }
 
-int PieceValid(const int pce) {
-	return (pce >= wP && pce <= bK) ? 1 : 0;
+int ValidPiece(const int piece) {
+	return (wP <= piece && piece <= wK) || (bP <= piece && piece <= bK);
 }
 
-int PieceValidEmpty(const int pce) {
-	return (PieceValid(pce) || pce == EMPTY) ? 1 : 0;
+int ValidPieceOrEmpty(const int piece) {
+	return piece == EMPTY || ValidPiece(piece);
 }
 
 int MoveListOk(const S_MOVELIST *list, const S_BOARD *pos) {
@@ -36,7 +36,7 @@ int MoveListOk(const S_MOVELIST *list, const S_BOARD *pos) {
 		if (!ValidSquare(to) || !ValidSquare(from))
 			return false;
 
-		if (!PieceValid(pos->pieces[from])) {
+		if (!ValidPiece(pos->pieces[from])) {
 			PrintBoard(pos);
 			return false;
 		}

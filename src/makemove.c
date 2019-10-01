@@ -36,8 +36,8 @@ static void ClearPiece(const int sq, S_BOARD *pos) {
 	int color = PieceColor[piece];
 	int t_pieceCounts = -1;
 
-	assert(PieceValid(piece));
-	assert(SideValid(color));
+	assert(ValidPiece(piece));
+	assert(ValidSide(color));
 
 	// Hash out the piece
 	HASH_PCE(piece, sq);
@@ -73,11 +73,11 @@ static void ClearPiece(const int sq, S_BOARD *pos) {
 // Add a piece piece to a square
 static void AddPiece(const int sq, S_BOARD *pos, const int piece) {
 
-	assert(PieceValid(piece));
+	assert(ValidPiece(piece));
 	assert(ValidSquare(sq));
 
 	int color = PieceColor[piece];
-	assert(SideValid(color));
+	assert(ValidSide(color));
 
 	// Hash in piece at square
 	HASH_PCE(piece, sq);
@@ -109,7 +109,7 @@ static void MovePiece(const int from, const int to, S_BOARD *pos) {
 
 	int piece = pos->pieces[from];
 
-	assert(PieceValid(piece));
+	assert(ValidPiece(piece));
 
 	// Hash out piece on old square, in on new square
 	HASH_PCE(piece, from);
@@ -195,13 +195,13 @@ void TakeMove(S_BOARD *pos) {
 	// Add back captured piece if any
 	int captured = CAPTURED(move);
 	if (captured != EMPTY) {
-		assert(PieceValid(captured));
+		assert(ValidPiece(captured));
 		AddPiece(to, pos, captured);
 	}
 
 	// Remove promoted piece and put back the pawn
 	if (PROMOTION(move) != EMPTY) {
-		assert(PieceValid(PROMOTION(move)) && !PiecePawn[PROMOTION(move)]);
+		assert(ValidPiece(PROMOTION(move)) && !PiecePawn[PROMOTION(move)]);
 		ClearPiece(from, pos);
 		AddPiece(from, pos, (PieceColor[PROMOTION(move)] == WHITE ? wP : bP));
 	}
@@ -225,8 +225,8 @@ int MakeMove(S_BOARD *pos, const int move) {
 
 	assert(ValidSquare(from));
 	assert(ValidSquare(to));
-	assert(SideValid(side));
-	assert(PieceValid(pos->pieces[from]));
+	assert(ValidSide(side));
+	assert(ValidPiece(pos->pieces[from]));
 	assert(pos->hisPly >= 0 && pos->hisPly < MAXGAMEMOVES);
 	assert(pos->ply >= 0 && pos->ply < MAXDEPTH);
 
@@ -269,7 +269,7 @@ int MakeMove(S_BOARD *pos, const int move) {
 
 	// Remove captured piece if any
 	else if (captured != EMPTY) {
-		assert(PieceValid(captured));
+		assert(ValidPiece(captured));
 		ClearPiece(to, pos);
 
 		// Reset 50mr after a capture
@@ -299,7 +299,7 @@ int MakeMove(S_BOARD *pos, const int move) {
 
 		// Replace promoting pawn with new piece
 		else if (promo != EMPTY) {
-			assert(PieceValid(promo) && !PiecePawn[promo]);
+			assert(ValidPiece(promo) && !PiecePawn[promo]);
 			ClearPiece(to, pos);
 			AddPiece(to, pos, promo);
 		}

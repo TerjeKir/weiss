@@ -201,7 +201,7 @@ void InitAttacks() {
 int SqAttacked(const int sq, const int side, const S_BOARD *pos) {
 
     assert(ValidSquare(sq));
-    assert(SideValid(side));
+    assert(ValidSide(side));
     assert(CheckBoard(pos));
 
     bitboard bishops   = pos->colors[side] & (pos->pieceBBs[BISHOP] | pos->pieceBBs[QUEEN]);

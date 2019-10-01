@@ -32,13 +32,13 @@ static void UpdateListsMaterial(S_BOARD *pos) {
 	for (int sq = 0; sq < 64; ++sq) {
 
 		piece = pos->pieces[sq];
-		assert(PieceValidEmpty(piece));
+		assert(ValidPieceOrEmpty(piece));
 
 		// If it isn't empty we update the relevant lists
 		if (piece != EMPTY) {
 
 			color = PieceColor[piece];
-			assert(SideValid(color));
+			assert(ValidSide(color));
 
 			// Non pawn piece
 			if (PieceBig[piece]) 
@@ -67,7 +67,7 @@ static void UpdateBitboards(S_BOARD *pos) {
 	for (int sq = 0; sq < 64; ++sq) {
 
 		int piece = pos->pieces[sq];
-		assert(PieceValidEmpty(piece));
+		assert(ValidPieceOrEmpty(piece));
 
 		if (piece != EMPTY) {
 			SETBIT(pos->allBB,  sq);

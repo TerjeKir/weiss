@@ -63,7 +63,7 @@ static void AddCaptureMove(const S_BOARD *pos, const int move, S_MOVELIST *list)
 
 	assert(ValidSquare(from));
 	assert(ValidSquare(to));
-	assert(PieceValid(piece));
+	assert(ValidPiece(piece));
 	assert(CheckBoard(pos));
 
 	list->moves[list->count].move = move;
@@ -88,7 +88,7 @@ static void AddWhitePawnCapMove(const S_BOARD *pos, const int from, const int to
 
 	assert(ValidSquare(from));
 	assert(ValidSquare(to));
-	assert(PieceValidEmpty(cap));
+	assert(ValidPieceOrEmpty(cap));
 	assert(CheckBoard(pos));
 
 	if (rankOf(from) == RANK_7) {
@@ -119,7 +119,7 @@ static void AddBlackPawnCapMove(const S_BOARD *pos, const int from, const int to
 
 	assert(ValidSquare(from));
 	assert(ValidSquare(to));
-	assert(PieceValidEmpty(cap));
+	assert(ValidPieceOrEmpty(cap));
 	assert(CheckBoard(pos));
 
 	if (rankOf(from) == RANK_2) {
