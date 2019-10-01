@@ -3,10 +3,6 @@
 #pragma once
 
 
-extern char PceChar[];
-extern char SideChar[];
-extern char RankChar[];
-extern char FileChar[];
 
 extern int PieceBig[13];
 extern int PieceValues[13];

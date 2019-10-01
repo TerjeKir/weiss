@@ -240,6 +240,8 @@ int ParseFen(const char *fen, S_BOARD *pos) {
 // Print the board with misc info
 void PrintBoard(const S_BOARD *pos) {
 
+	const char PceChar[]  = ".PNBRQKpnbrqk";
+	const char SideChar[] = "bw-";
 	int sq, file, rank, piece;
 
 	printf("\nGame Board:\n\n");

@@ -3,11 +3,6 @@
 #include "types.h"
 
 
-const char PceChar[]  = ".PNBRQKpnbrqk";
-const char SideChar[] = "bw-";
-const char RankChar[] = "12345678";
-const char FileChar[] = "abcdefgh";
-
 const int PieceBig[13]    = { false, false,  true,  true,  true,  true, false, false,  true,  true,  true,  true, false }; // Used for NullMP
 const int PieceValues[13] = {     0,   100,   325,   325,   550,  1000, 50000,   100,   325,   325,   550,  1000, 50000 };
 const int PieceColor[13]  = {  BOTH, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK };
