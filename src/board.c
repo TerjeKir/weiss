@@ -70,7 +70,7 @@ static void UpdateBitboards(S_BOARD *pos) {
 		assert(ValidPieceOrEmpty(piece));
 
 		if (piece != EMPTY) {
-			SETBIT(pos->allBB,  sq);
+			SETBIT(pos->allBB, sq);
 			SETBIT(pos->colors[PieceColor[piece]], sq);
 			SETBIT(pos->pieceBBs[pieceType[piece]], sq);
 		}
@@ -83,7 +83,7 @@ static void ResetBoard(S_BOARD *pos) {
 	int i, j;
 
 	// Bitboard representations
-	for (i = 0; i < 2; ++i)
+	for (i = BLACK; i <= WHITE; ++i)
 		pos->colors[i] = 0ULL;
 
 	for (i = PAWN; i <= KING; ++i)
@@ -92,7 +92,7 @@ static void ResetBoard(S_BOARD *pos) {
 	pos->allBB = 0ULL;
 
 	// Array representation
-	for (i = 0; i < 64; ++i)
+	for (i = A1; i <= H8; ++i)
 		pos->pieces[i] = EMPTY;
 
 	// Piece lists and counts
@@ -106,9 +106,8 @@ static void ResetBoard(S_BOARD *pos) {
 	pos->KingSq[WHITE] = pos->KingSq[BLACK] = NO_SQ;
 
 	// Piece counts and material
-	for (i = 0; i < 2; ++i) {
-		pos->bigPieces[i] = 0;
-		pos->material[i] = 0;
+	for (i = BLACK; i <= WHITE; ++i) {
+		pos->bigPieces[i] = pos->material[i] = 0;
 	}
 
 	// Misc
