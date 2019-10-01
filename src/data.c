@@ -8,9 +8,9 @@ const char SideChar[] = "bw-";
 const char RankChar[] = "12345678";
 const char FileChar[] = "abcdefgh";
 
-const int PieceBig[13]    = { false, false, true, true, true, true, true, false, true, true, true, true, true }; // Used for NullMP
-const int PieceValues[13] = { 0, 100, 325, 325, 550, 1000, 50000, 100, 325, 325, 550, 1000, 50000 };
-const int PieceColor[13]  = { BOTH, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK };
+const int PieceBig[13]    = { false, false,  true,  true,  true,  true, false, false,  true,  true,  true,  true, false }; // Used for NullMP
+const int PieceValues[13] = {     0,   100,   325,   325,   550,  1000, 50000,   100,   325,   325,   550,  1000, 50000 };
+const int PieceColor[13]  = {  BOTH, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK };
 const int pieceType[13]	  = { -1, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING };
 
 const int PiecePawn[13]   = { false,  true, false, false, false, false, false,  true, false, false, false, false, false };
