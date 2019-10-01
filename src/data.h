@@ -3,7 +3,6 @@
 #pragma once
 
 
-
 extern int PieceBig[13];
 extern int PieceValues[13];
 extern int PieceColor[13];

@@ -3,7 +3,7 @@
 #include "types.h"
 
 
-const int PieceBig[13]    = { false, false,  true,  true,  true,  true, false, false,  true,  true,  true,  true, false }; // Used for NullMP
+const int PieceBig[13]    = { false, false,  true,  true,  true,  true, false, false,  true,  true,  true,  true, false };
 const int PieceValues[13] = {     0,   100,   325,   325,   550,  1000, 50000,   100,   325,   325,   550,  1000, 50000 };
 const int PieceColor[13]  = {  BOTH, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK };
 const int pieceType[13]	  = { -1, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING };
