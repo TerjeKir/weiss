@@ -84,13 +84,13 @@ void Perft(const int depth, S_BOARD *pos) {
 
 /* Other tests */
 // Checks evaluation is symmetric
-void mirrorEvalTest(S_BOARD *pos) {
+void MirrorEvalTest(S_BOARD *pos) {
 
 	char filename[] = "../EPDs/all.epd";
 
 	FILE *file;
 	if ((file = fopen(filename, "r")) == NULL) {
-		printf("mirrorEvalTest: %s not found.\n", filename);
+		printf("MirrorEvalTest: %s not found.\n", filename);
 		return;
 	}
 
@@ -103,16 +103,16 @@ void mirrorEvalTest(S_BOARD *pos) {
 		ParseFen(lineIn, pos);
 		positions++;
 		ev1 = EvalPosition(pos);
-		mirrorBoard(pos);
+		MirrorBoard(pos);
 		ev2 = EvalPosition(pos);
 
 		if (ev1 != ev2) {
 			printf("\n\n\n");
 			ParseFen(lineIn, pos);
 			PrintBoard(pos);
-			mirrorBoard(pos);
+			MirrorBoard(pos);
 			PrintBoard(pos);
-			printf("\n\nmirrorEvalTest Fail:\n%s\n", lineIn);
+			printf("\n\nMirrorEvalTest Fail:\n%s\n", lineIn);
 			getchar();
 			return;
 		}

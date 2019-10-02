@@ -48,7 +48,7 @@ int GetPvLine(const int depth, S_BOARD *pos) {
 }
 
 // Clears the hash table
-void ClearhashTable(S_HASHTABLE *table) {
+void ClearHashTable(S_HASHTABLE *table) {
 
 	S_HASHENTRY *tableEntry;
 
@@ -65,11 +65,11 @@ void ClearhashTable(S_HASHTABLE *table) {
 }
 
 // Initializes the hash table
-int InithashTable(S_HASHTABLE *table, uint64_t MB) {
+int InitHashTable(S_HASHTABLE *table, uint64_t MB) {
 
 	// Ignore if already initialized with this size
 	if (table->MB == MB) {
-		printf("hashTable already initialized to %I64u.\n", MB);
+		printf("HashTable already initialized to %I64u.\n", MB);
 		return MB;
 	}
 
@@ -89,7 +89,7 @@ int InithashTable(S_HASHTABLE *table, uint64_t MB) {
 	// If allocation fails, try half the size
 	if (table->pTable == NULL) {
 		printf("Hash Allocation Failed, trying %I64uMB...\n", MB / 2);
-		return InithashTable(table, MB / 2);
+		return InitHashTable(table, MB / 2);
 
 	// Success
 	} else {
@@ -97,7 +97,7 @@ int InithashTable(S_HASHTABLE *table, uint64_t MB) {
 		table->newWrite = 0;
 #endif
 		table->MB = MB;
-		printf("hashTable init complete with %d entries, using %I64uMB.\n", table->numEntries, MB);
+		printf("HashTable init complete with %d entries, using %I64uMB.\n", table->numEntries, MB);
 		return MB;
 	}
 }

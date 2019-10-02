@@ -124,8 +124,6 @@ static void ResetBoard(S_BOARD *pos) {
 	memset(pos->pvArray, 0, sizeof(pos->pvArray)); // TODO does this make sense???
 }
 
-
-
 // Parse FEN and set up board in the position described
 int ParseFen(const char *fen, S_BOARD *pos) {
 
@@ -354,7 +352,7 @@ int CheckBoard(const S_BOARD *pos) {
 
 #ifdef CLI
 // Reverse the colors
-void mirrorBoard(S_BOARD *pos) {
+void MirrorBoard(S_BOARD *pos) {
 
 	int SwapPiece[PIECE_NB] = {EMPTY, bP, bN, bB, bR, bQ, bK, wP, wN, wB, wR, wQ, wK};
 	int tempPiecesArray[64];
