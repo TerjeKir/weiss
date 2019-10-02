@@ -9,7 +9,7 @@
 #include "validate.h"
 
 
-#define ENDGAME_MAT (1 * PieceValues[wR] + 2 * PieceValues[wN] + 2 * PieceValues[wP] + PieceValues[wK])
+#define ENDGAME_MAT (1 * pieceValue[wR] + 2 * pieceValue[wN] + 2 * pieceValue[wP] + pieceValue[wK])
 
 
 bitboard BlackPassedMask[64];
@@ -94,20 +94,20 @@ void InitEvalMasks() {
 	int sq, tsq;
 
 	// Start everything at 0
-	for (sq = 0; sq < 64; ++sq) {
+	for (sq = A1; sq <= H8; ++sq) {
 		IsolatedMask[sq] = 0ULL;
 		WhitePassedMask[sq] = 0ULL;
 		BlackPassedMask[sq] = 0ULL;
 	}
 
 	// For each square a pawn can be on
-	for (sq = 8; sq < 56; ++sq) {
+	for (sq = A2; sq <= H7; ++sq) {
 
 		// In front
-		for (tsq = sq + 8; tsq < 64; tsq += 8)
+		for (tsq = sq + 8; tsq <= H8; tsq += 8)
 			WhitePassedMask[sq] |= (1ULL << tsq);
 
-		for (tsq = sq - 8; tsq >= 0; tsq -= 8)
+		for (tsq = sq - 8; tsq >= A1; tsq -= 8)
 			BlackPassedMask[sq] |= (1ULL << tsq);
 
 		// Left side
@@ -115,10 +115,10 @@ void InitEvalMasks() {
 
 			IsolatedMask[sq] |= fileBBs[fileOf(sq) - 1];
 
-			for (tsq = sq + 7; tsq < 64; tsq += 8)
+			for (tsq = sq + 7; tsq <= H8; tsq += 8)
 				WhitePassedMask[sq] |= (1ULL << tsq);
 
-			for (tsq = sq - 9; tsq >= 0; tsq -= 8)
+			for (tsq = sq - 9; tsq >= A1; tsq -= 8)
 				BlackPassedMask[sq] |= (1ULL << tsq);
 		}
 
@@ -127,10 +127,10 @@ void InitEvalMasks() {
 
 			IsolatedMask[sq] |= fileBBs[fileOf(sq) + 1];
 
-			for (tsq = sq + 9; tsq < 64; tsq += 8)
+			for (tsq = sq + 9; tsq <= H8; tsq += 8)
 				WhitePassedMask[sq] |= (1ULL << tsq);
 
-			for (tsq = sq - 7; tsq >= 0; tsq -= 8)
+			for (tsq = sq - 7; tsq >= A1; tsq -= 8)
 				BlackPassedMask[sq] |= (1ULL << tsq);
 		}
 	}
@@ -197,16 +197,16 @@ int EvalPosition(const S_BOARD *pos) {
 	int sq, i;
 	int score = pos->material[WHITE] - pos->material[BLACK];
 
-	bitboard whitePawns   = pos->colors[WHITE] & pos->pieceBBs[  PAWN];
-	// bitboard whiteKnights = pos->colors[WHITE] & pos->pieceBBs[KNIGHT];
-	// bitboard whiteBishops = pos->colors[WHITE] & pos->pieceBBs[BISHOP];
-	// bitboard whiteRooks   = pos->colors[WHITE] & pos->pieceBBs[  ROOK];
-	// bitboard whiteQueens  = pos->colors[WHITE] & pos->pieceBBs[ QUEEN];
-	bitboard blackPawns   = pos->colors[BLACK] & pos->pieceBBs[  PAWN];
-	// bitboard blackKnights = pos->colors[BLACK] & pos->pieceBBs[KNIGHT];
-	// bitboard blackBishops = pos->colors[BLACK] & pos->pieceBBs[BISHOP];
-	// bitboard blackRooks   = pos->colors[BLACK] & pos->pieceBBs[  ROOK];
-	// bitboard blackQueens  = pos->colors[BLACK] & pos->pieceBBs[ QUEEN];
+	bitboard whitePawns   = pos->colorBBs[WHITE] & pos->pieceBBs[  PAWN];
+	// bitboard whiteKnights = pos->colorBBs[WHITE] & pos->pieceBBs[KNIGHT];
+	// bitboard whiteBishops = pos->colorBBs[WHITE] & pos->pieceBBs[BISHOP];
+	// bitboard whiteRooks   = pos->colorBBs[WHITE] & pos->pieceBBs[  ROOK];
+	// bitboard whiteQueens  = pos->colorBBs[WHITE] & pos->pieceBBs[ QUEEN];
+	bitboard blackPawns   = pos->colorBBs[BLACK] & pos->pieceBBs[  PAWN];
+	// bitboard blackKnights = pos->colorBBs[BLACK] & pos->pieceBBs[KNIGHT];
+	// bitboard blackBishops = pos->colorBBs[BLACK] & pos->pieceBBs[BISHOP];
+	// bitboard blackRooks   = pos->colorBBs[BLACK] & pos->pieceBBs[  ROOK];
+	// bitboard blackQueens  = pos->colorBBs[BLACK] & pos->pieceBBs[ QUEEN];
 
 
 	// Bishop pair
@@ -234,7 +234,7 @@ int EvalPosition(const S_BOARD *pos) {
 		sq = pos->pieceList[bP][i];
 
 		// Position score
-		score -= PawnTable[Mirror[(sq)]];
+		score -= PawnTable[mirror[(sq)]];
 		// Isolation penalty
 		if (!(IsolatedMask[sq] & blackPawns))
 			score -= PawnIsolated;
@@ -252,7 +252,7 @@ int EvalPosition(const S_BOARD *pos) {
 	// Black knights
 	for (i = 0; i < pos->pieceCounts[bN]; ++i) {
 		sq = pos->pieceList[bN][i];
-		score -= KnightTable[Mirror[(sq)]];
+		score -= KnightTable[mirror[(sq)]];
 	}
 
 	// White bishops
@@ -264,7 +264,7 @@ int EvalPosition(const S_BOARD *pos) {
 	// Black bishops
 	for (i = 0; i < pos->pieceCounts[bB]; ++i) {
 		sq = pos->pieceList[bB][i];
-		score -= BishopTable[Mirror[(sq)]];
+		score -= BishopTable[mirror[(sq)]];
 	}
 
 	// White rooks
@@ -284,7 +284,7 @@ int EvalPosition(const S_BOARD *pos) {
 	for (i = 0; i < pos->pieceCounts[bR]; ++i) {
 		sq = pos->pieceList[bR][i];
 
-		score -= RookTable[Mirror[(sq)]];
+		score -= RookTable[mirror[(sq)]];
 
 		// Open/Semi-open file bonus
 		if (!(pos->pieceBBs[PAWN] & fileBBs[fileOf(sq)]))
@@ -316,12 +316,12 @@ int EvalPosition(const S_BOARD *pos) {
 	}
 
 	// White king
-	score += (pos->material[BLACK] <= ENDGAME_MAT) ?   KingEndgame[pos->KingSq[WHITE]] 
-												   : KingEarlygame[pos->KingSq[WHITE]];
+	score += (pos->material[BLACK] <= ENDGAME_MAT) ?   KingEndgame[pos->kingSq[WHITE]] 
+												   : KingEarlygame[pos->kingSq[WHITE]];
 
 	// Black king
-	score -= (pos->material[WHITE] <= ENDGAME_MAT) ?   KingEndgame[Mirror[(pos->KingSq[BLACK])]] 
-												   : KingEarlygame[Mirror[(pos->KingSq[BLACK])]];
+	score -= (pos->material[WHITE] <= ENDGAME_MAT) ?   KingEndgame[mirror[(pos->kingSq[BLACK])]] 
+												   : KingEarlygame[mirror[(pos->kingSq[BLACK])]];
 
 	assert(score > -INFINITE && score < INFINITE);
 

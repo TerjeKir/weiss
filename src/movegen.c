@@ -16,16 +16,16 @@ const bitboard bitB8C8D8 = (1ULL << 57) | (1ULL << 58) | (1ULL << 59);
 const bitboard bitF1G1   = (1ULL <<  5) | (1ULL <<  6);
 const bitboard bitF8G8   = (1ULL << 61) | (1ULL << 62);
 
-int MvvLvaScores[13][13];
+int MvvLvaScores[PIECE_NB][PIECE_NB];
 
 // Initializes the MostValuableVictim-LeastValuableAttacker scores used for ordering captures
 void InitMvvLva() {
 
-	const int VictimScore[13]   = {0, 106, 206, 306, 406, 506, 606, 106, 206, 306, 406, 506, 606};
-	const int AttackerScore[13] = {0,   1,   2,   3,   4,   5,   6,   1,   2,   3,   4,   5,   6};
+	const int VictimScore[PIECE_NB]   = {0, 106, 206, 306, 406, 506, 606, 106, 206, 306, 406, 506, 606};
+	const int AttackerScore[PIECE_NB] = {0,   1,   2,   3,   4,   5,   6,   1,   2,   3,   4,   5,   6};
 
-	for (int Attacker = wP; Attacker <= bK; ++Attacker)
-		for (int Victim = wP; Victim <= bK; ++Victim)
+	for (int Attacker = PIECE_MIN; Attacker < PIECE_NB; ++Attacker)
+		for (int Victim = PIECE_MIN; Victim < PIECE_NB; ++Victim)
 			MvvLvaScores[Victim][Attacker] = VictimScore[Victim] - AttackerScore[Attacker];
 }
 
@@ -63,7 +63,7 @@ static void AddCaptureMove(const S_BOARD *pos, const int move, S_MOVELIST *list)
 
 	assert(ValidSquare(from));
 	assert(ValidSquare(to));
-	assert(PieceValid(piece));
+	assert(ValidPiece(piece));
 	assert(CheckBoard(pos));
 
 	list->moves[list->count].move = move;
@@ -88,7 +88,7 @@ static void AddWhitePawnCapMove(const S_BOARD *pos, const int from, const int to
 
 	assert(ValidSquare(from));
 	assert(ValidSquare(to));
-	assert(PieceValidEmpty(cap));
+	assert(ValidPieceOrEmpty(cap));
 	assert(CheckBoard(pos));
 
 	if (rankOf(from) == RANK_7) {
@@ -119,7 +119,7 @@ static void AddBlackPawnCapMove(const S_BOARD *pos, const int from, const int to
 
 	assert(ValidSquare(from));
 	assert(ValidSquare(to));
-	assert(PieceValidEmpty(cap));
+	assert(ValidPieceOrEmpty(cap));
 	assert(CheckBoard(pos));
 
 	if (rankOf(from) == RANK_2) {
@@ -292,15 +292,15 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 	bitboard attacks, moves, tempQueen;
 	bitboard pawnMoves, pawnStarts, enPassers;
 
-	bitboard allPieces  = pos->allBB;
+	bitboard allPieces  = pos->colorBBs[BOTH];
 	bitboard empty		= ~allPieces;
-	bitboard enemies 	= pos->colors[!side];
+	bitboard enemies 	= pos->colorBBs[!side];
 
-	bitboard pawns 		= pos->colors[side] & pos->pieceBBs[  PAWN];
-	bitboard knights 	= pos->colors[side] & pos->pieceBBs[KNIGHT];
-	bitboard bishops 	= pos->colors[side] & pos->pieceBBs[BISHOP];
-	bitboard rooks 		= pos->colors[side] & pos->pieceBBs[  ROOK];
-	bitboard queens 	= pos->colors[side] & pos->pieceBBs[ QUEEN];
+	bitboard pawns 		= pos->colorBBs[side] & pos->pieceBBs[  PAWN];
+	bitboard knights 	= pos->colorBBs[side] & pos->pieceBBs[KNIGHT];
+	bitboard bishops 	= pos->colorBBs[side] & pos->pieceBBs[BISHOP];
+	bitboard rooks 		= pos->colorBBs[side] & pos->pieceBBs[  ROOK];
+	bitboard queens 	= pos->colorBBs[side] & pos->pieceBBs[ QUEEN];
 
 
 	// Pawns and castling
@@ -393,7 +393,7 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 	}
 
 	// King
-	sq = pos->KingSq[side];
+	sq = pos->kingSq[side];
 	GenerateKingCaptures(pos, list, sq, enemies, attacks, attack);
 	GenerateKingMoves   (pos, list, sq, empty, moves, move);
 
@@ -411,14 +411,14 @@ void GenerateAllCaptures(const S_BOARD *pos, S_MOVELIST *list) {
 
 	bitboard attacks, enPassers;
 
-	bitboard allPieces  = pos->allBB;
-	bitboard enemies 	= pos->colors[!side];
+	bitboard allPieces  = pos->colorBBs[BOTH];
+	bitboard enemies 	= pos->colorBBs[!side];
 
-	bitboard pawns 		= pos->colors[side] & pos->pieceBBs[  PAWN];
-	bitboard knights 	= pos->colors[side] & pos->pieceBBs[KNIGHT];
-	bitboard bishops 	= pos->colors[side] & pos->pieceBBs[BISHOP];
-	bitboard rooks 		= pos->colors[side] & pos->pieceBBs[  ROOK];
-	bitboard queens 	= pos->colors[side] & pos->pieceBBs[ QUEEN];
+	bitboard pawns 		= pos->colorBBs[side] & pos->pieceBBs[  PAWN];
+	bitboard knights 	= pos->colorBBs[side] & pos->pieceBBs[KNIGHT];
+	bitboard bishops 	= pos->colorBBs[side] & pos->pieceBBs[BISHOP];
+	bitboard rooks 		= pos->colorBBs[side] & pos->pieceBBs[  ROOK];
+	bitboard queens 	= pos->colorBBs[side] & pos->pieceBBs[ QUEEN];
 
 
 	// Pawns
@@ -481,7 +481,7 @@ void GenerateAllCaptures(const S_BOARD *pos, S_MOVELIST *list) {
 	}
 
 	// King
-	sq = pos->KingSq[side];
+	sq = pos->kingSq[side];
 	GenerateKingCaptures(pos, list, sq, enemies, attacks, attack);
 
 	assert(MoveListOk(list, pos));

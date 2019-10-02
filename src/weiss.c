@@ -33,8 +33,8 @@ int main() {
 	S_BOARD pos[1];
 	S_SEARCHINFO info[1];
 	info->quit = false;
-	pos->HashTable->pTable = NULL;
-	InitHashTable(pos->HashTable, DEFAULTHASH);
+	pos->hashTable->pTable = NULL;
+	InithashTable(pos->hashTable, DEFAULTHASH);
 
 	setbuf(stdin, NULL);
 	setbuf(stdout, NULL);
@@ -70,6 +70,6 @@ int main() {
 			printf("Invalid command. Type 'weiss' for console mode.\n> ");
 	}
 
-	free(pos->HashTable->pTable);
+	free(pos->hashTable->pTable);
 	return 0;
 }

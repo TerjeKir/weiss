@@ -182,7 +182,7 @@ void Uci_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 			ParsePosition(line, pos);
 
 		else if (BeginsWith(line, "ucinewgame"))
-			ClearHashTable(pos->HashTable);
+			ClearhashTable(pos->hashTable);
 
 		else if (BeginsWith(line, "stop")) {
 			info->stopped = true;
@@ -199,7 +199,7 @@ void Uci_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 
 		} else if (BeginsWith(line, "setoption name Hash value ")) {
 			sscanf(line, "%*s %*s %*s %*s %d", &MB);
-			InitHashTable(pos->HashTable, MB);
+			InithashTable(pos->hashTable, MB);
 
 #ifdef USE_TBS
 		} else if (BeginsWith(line, "setoption name SyzygyPath value ")) {

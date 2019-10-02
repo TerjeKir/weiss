@@ -18,15 +18,15 @@ unsigned int probeWDL(const S_BOARD *pos, const int depth) {
         ||  (pos->fiftyMove != 0))
         return TB_RESULT_FAILED;
 
-    int cardinality = PopCount(pos->allBB);
+    int cardinality = PopCount(pos->colorBBs[BOTH]);
 
     if (    (cardinality > (int)TB_LARGEST)
         ||  (cardinality == (int)TB_LARGEST && depth < (int)TB_PROBE_DEPTH))
         return TB_RESULT_FAILED;
 
     return tb_probe_wdl(
-        pos->colors[WHITE],
-        pos->colors[BLACK],
+        pos->colorBBs[WHITE],
+        pos->colorBBs[BLACK],
         pos->pieceBBs[KING],
         pos->pieceBBs[QUEEN],
         pos->pieceBBs[ROOK],

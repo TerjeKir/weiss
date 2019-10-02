@@ -3,22 +3,17 @@
 #pragma once
 
 
-extern char PceChar[];
-extern char SideChar[];
-extern char RankChar[];
-extern char FileChar[];
-
-extern int PieceBig[13];
-extern int PieceValues[13];
-extern int PieceColor[13];
-extern int pieceType[13];
+extern int pieceBig   [PIECE_NB];
+extern int pieceValue[PIECE_NB];
+extern int pieceColor [PIECE_NB];
+extern int pieceType  [PIECE_NB];
 
 // Mostly unused
-extern int PiecePawn[13];
-extern int PieceKnight[13];
-extern int PieceBishop[13];
-extern int PieceRook[13];
-extern int PieceQueen[13];
-extern int PieceKing[13];
+extern int piecePawn  [PIECE_NB];
+extern int pieceKnight[PIECE_NB];
+extern int pieceBishop[PIECE_NB];
+extern int pieceRook  [PIECE_NB];
+extern int pieceQueen [PIECE_NB];
+extern int pieceKing  [PIECE_NB];
 
-extern int Mirror[64];
+extern int mirror[64];

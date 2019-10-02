@@ -15,8 +15,8 @@ void InitDistance() {
 
     int vertical, horizontal;
 
-    for (int sq1 = 0; sq1 < 64; ++sq1)
-        for (int sq2 = 0; sq2 < 64; ++sq2) {
+    for (int sq1 = A1; sq1 <= H8; ++sq1)
+        for (int sq2 = A1; sq2 <= H8; ++sq2) {
             vertical   = abs(rankOf(sq1) - rankOf(sq2));
             horizontal = abs(fileOf(sq1) - fileOf(sq2));
             distance[sq1][sq2] = ((vertical > horizontal) ? vertical : horizontal);
@@ -29,23 +29,23 @@ static void UpdateListsMaterial(S_BOARD *pos) {
 	int piece, color;
 
 	// Loop through each square on the board
-	for (int sq = 0; sq < 64; ++sq) {
+	for (int sq = A1; sq <= H8; ++sq) {
 
 		piece = pos->pieces[sq];
-		assert(PieceValidEmpty(piece));
+		assert(ValidPieceOrEmpty(piece));
 
 		// If it isn't empty we update the relevant lists
 		if (piece != EMPTY) {
 
-			color = PieceColor[piece];
-			assert(SideValid(color));
+			color = pieceColor[piece];
+			assert(ValidSide(color));
 
 			// Non pawn piece
-			if (PieceBig[piece]) 
+			if (pieceBig[piece]) 
 				pos->bigPieces[color]++;
 
 			// Total material value for that side
-			pos->material[color] += PieceValues[piece];
+			pos->material[color] += pieceValue[piece];
 
 			assert(pos->pieceCounts[piece] < 10 && pos->pieceCounts[piece] >= 0);
 
@@ -54,8 +54,8 @@ static void UpdateListsMaterial(S_BOARD *pos) {
 			pos->pieceCounts[piece]++;
 
 			// King square
-			if      (piece == wK) pos->KingSq[WHITE] = sq;
-			else if (piece == bK) pos->KingSq[BLACK] = sq;
+			if      (piece == wK) pos->kingSq[WHITE] = sq;
+			else if (piece == bK) pos->kingSq[BLACK] = sq;
 		}
 	}
 }
@@ -64,14 +64,14 @@ static void UpdateListsMaterial(S_BOARD *pos) {
 static void UpdateBitboards(S_BOARD *pos) {
 
 	// Loop through each square and update bitboards if there's a piece there
-	for (int sq = 0; sq < 64; ++sq) {
+	for (int sq = A1; sq <= H8; ++sq) {
 
 		int piece = pos->pieces[sq];
-		assert(PieceValidEmpty(piece));
+		assert(ValidPieceOrEmpty(piece));
 
 		if (piece != EMPTY) {
-			SETBIT(pos->allBB,  sq);
-			SETBIT(pos->colors[PieceColor[piece]], sq);
+			SETBIT(pos->colorBBs[BOTH], sq);
+			SETBIT(pos->colorBBs[pieceColor[piece]], sq);
 			SETBIT(pos->pieceBBs[pieceType[piece]], sq);
 		}
 	}
@@ -83,32 +83,29 @@ static void ResetBoard(S_BOARD *pos) {
 	int i, j;
 
 	// Bitboard representations
-	for (i = 0; i < 2; ++i)
-		pos->colors[i] = 0ULL;
+	for (i = BLACK; i <= BOTH; ++i)
+		pos->colorBBs[i] = 0ULL;
 
 	for (i = PAWN; i <= KING; ++i)
 		pos->pieceBBs[i] = 0ULL;
 
-	pos->allBB = 0ULL;
-
 	// Array representation
-	for (i = 0; i < 64; ++i)
+	for (i = A1; i <= H8; ++i)
 		pos->pieces[i] = EMPTY;
 
 	// Piece lists and counts
-	for (i = 0; i < 13; ++i) {
+	for (i = 0; i < PIECE_NB; ++i) {
 		pos->pieceCounts[i] = 0;
 		for (j = 0; j < 10; ++j)
 			pos->pieceList[i][j] = 0;
 	}
 
 	// King squares
-	pos->KingSq[WHITE] = pos->KingSq[BLACK] = NO_SQ;
+	pos->kingSq[WHITE] = pos->kingSq[BLACK] = NO_SQ;
 
 	// Piece counts and material
-	for (i = 0; i < 2; ++i) {
-		pos->bigPieces[i] = 0;
-		pos->material[i] = 0;
+	for (i = BLACK; i <= WHITE; ++i) {
+		pos->bigPieces[i] = pos->material[i] = 0;
 	}
 
 	// Misc
@@ -124,7 +121,7 @@ static void ResetBoard(S_BOARD *pos) {
 	// Position key
 	pos->posKey = 0ULL;
 
-	memset(pos->PvArray, 0, sizeof(pos->PvArray)); // TODO does this make sense???
+	memset(pos->pvArray, 0, sizeof(pos->pvArray)); // TODO does this make sense???
 }
 
 
@@ -241,6 +238,8 @@ int ParseFen(const char *fen, S_BOARD *pos) {
 // Print the board with misc info
 void PrintBoard(const S_BOARD *pos) {
 
+	const char PceChar[]  = ".PNBRQKpnbrqk";
+	const char SideChar[] = "bw-";
 	int sq, file, rank, piece;
 
 	printf("\nGame Board:\n\n");
@@ -274,63 +273,63 @@ void PrintBoard(const S_BOARD *pos) {
 // Check board state makes sense
 int CheckBoard(const S_BOARD *pos) {
 
-	int t_pieceCounts[13] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-	int t_bigPieces[2] = {0, 0};
-	int t_material[2] = {0, 0};
+	int t_pieceCounts[PIECE_NB] = { 0 };
+	int t_bigPieces[2] = { 0, 0 };
+	int t_material[2] = { 0, 0 };
 
 	int sq, t_piece, t_pce_num, color;
 
 	// Bitboards
 	assert(PopCount(pos->pieceBBs[KING]) == 2);
 
-	assert(PopCount(pos->pieceBBs[  PAWN] & pos->colors[WHITE]) <= 8);
-	assert(PopCount(pos->pieceBBs[KNIGHT] & pos->colors[WHITE]) <= 10);
-	assert(PopCount(pos->pieceBBs[BISHOP] & pos->colors[WHITE]) <= 10);
-	assert(PopCount(pos->pieceBBs[  ROOK] & pos->colors[WHITE]) <= 10);
-	assert(PopCount(pos->pieceBBs[ QUEEN] & pos->colors[WHITE]) <= 9);
-	assert(PopCount(pos->pieceBBs[  KING] & pos->colors[WHITE]) == 1);
+	assert(PopCount(pos->pieceBBs[  PAWN] & pos->colorBBs[WHITE]) <= 8);
+	assert(PopCount(pos->pieceBBs[KNIGHT] & pos->colorBBs[WHITE]) <= 10);
+	assert(PopCount(pos->pieceBBs[BISHOP] & pos->colorBBs[WHITE]) <= 10);
+	assert(PopCount(pos->pieceBBs[  ROOK] & pos->colorBBs[WHITE]) <= 10);
+	assert(PopCount(pos->pieceBBs[ QUEEN] & pos->colorBBs[WHITE]) <= 9);
+	assert(PopCount(pos->pieceBBs[  KING] & pos->colorBBs[WHITE]) == 1);
 
-	assert(PopCount(pos->pieceBBs[  PAWN] & pos->colors[BLACK]) <= 8);
-	assert(PopCount(pos->pieceBBs[KNIGHT] & pos->colors[BLACK]) <= 10);
-	assert(PopCount(pos->pieceBBs[BISHOP] & pos->colors[BLACK]) <= 10);
-	assert(PopCount(pos->pieceBBs[  ROOK] & pos->colors[BLACK]) <= 10);
-	assert(PopCount(pos->pieceBBs[ QUEEN] & pos->colors[BLACK]) <= 9);
-	assert(PopCount(pos->pieceBBs[  KING] & pos->colors[BLACK]) == 1);
+	assert(PopCount(pos->pieceBBs[  PAWN] & pos->colorBBs[BLACK]) <= 8);
+	assert(PopCount(pos->pieceBBs[KNIGHT] & pos->colorBBs[BLACK]) <= 10);
+	assert(PopCount(pos->pieceBBs[BISHOP] & pos->colorBBs[BLACK]) <= 10);
+	assert(PopCount(pos->pieceBBs[  ROOK] & pos->colorBBs[BLACK]) <= 10);
+	assert(PopCount(pos->pieceBBs[ QUEEN] & pos->colorBBs[BLACK]) <= 9);
+	assert(PopCount(pos->pieceBBs[  KING] & pos->colorBBs[BLACK]) == 1);
 
-	assert(PopCount(pos->pieceBBs[  PAWN] & pos->colors[WHITE]) == pos->pieceCounts[wP]);
-	assert(PopCount(pos->pieceBBs[KNIGHT] & pos->colors[WHITE]) == pos->pieceCounts[wN]);
-	assert(PopCount(pos->pieceBBs[BISHOP] & pos->colors[WHITE]) == pos->pieceCounts[wB]);
-	assert(PopCount(pos->pieceBBs[  ROOK] & pos->colors[WHITE]) == pos->pieceCounts[wR]);
-	assert(PopCount(pos->pieceBBs[ QUEEN] & pos->colors[WHITE]) == pos->pieceCounts[wQ]);
+	assert(PopCount(pos->pieceBBs[  PAWN] & pos->colorBBs[WHITE]) == pos->pieceCounts[wP]);
+	assert(PopCount(pos->pieceBBs[KNIGHT] & pos->colorBBs[WHITE]) == pos->pieceCounts[wN]);
+	assert(PopCount(pos->pieceBBs[BISHOP] & pos->colorBBs[WHITE]) == pos->pieceCounts[wB]);
+	assert(PopCount(pos->pieceBBs[  ROOK] & pos->colorBBs[WHITE]) == pos->pieceCounts[wR]);
+	assert(PopCount(pos->pieceBBs[ QUEEN] & pos->colorBBs[WHITE]) == pos->pieceCounts[wQ]);
 
-	assert(PopCount(pos->pieceBBs[  PAWN] & pos->colors[BLACK]) == pos->pieceCounts[bP]);
-	assert(PopCount(pos->pieceBBs[KNIGHT] & pos->colors[BLACK]) == pos->pieceCounts[bN]);
-	assert(PopCount(pos->pieceBBs[BISHOP] & pos->colors[BLACK]) == pos->pieceCounts[bB]);
-	assert(PopCount(pos->pieceBBs[  ROOK] & pos->colors[BLACK]) == pos->pieceCounts[bR]);
-	assert(PopCount(pos->pieceBBs[ QUEEN] & pos->colors[BLACK]) == pos->pieceCounts[bQ]);
+	assert(PopCount(pos->pieceBBs[  PAWN] & pos->colorBBs[BLACK]) == pos->pieceCounts[bP]);
+	assert(PopCount(pos->pieceBBs[KNIGHT] & pos->colorBBs[BLACK]) == pos->pieceCounts[bN]);
+	assert(PopCount(pos->pieceBBs[BISHOP] & pos->colorBBs[BLACK]) == pos->pieceCounts[bB]);
+	assert(PopCount(pos->pieceBBs[  ROOK] & pos->colorBBs[BLACK]) == pos->pieceCounts[bR]);
+	assert(PopCount(pos->pieceBBs[ QUEEN] & pos->colorBBs[BLACK]) == pos->pieceCounts[bQ]);
 
-	assert(pos->allBB == (pos->colors[WHITE] | pos->colors[BLACK]));
+	assert(pos->colorBBs[BOTH] == (pos->colorBBs[WHITE] | pos->colorBBs[BLACK]));
 
 	// check piece lists
-	for (t_piece = wP; t_piece <= bK; ++t_piece)
+	for (t_piece = PIECE_MIN; t_piece < PIECE_NB; ++t_piece)
 		for (t_pce_num = 0; t_pce_num < pos->pieceCounts[t_piece]; ++t_pce_num) {
 			sq = pos->pieceList[t_piece][t_pce_num];
 			assert(pos->pieces[sq] == t_piece);
 		}
 
 	// check piece count and other counters
-	for (sq = 0; sq < 64; ++sq) {
+	for (sq = A1; sq <= H8; ++sq) {
 
 		t_piece = pos->pieces[sq];
 		t_pieceCounts[t_piece]++;
-		color = PieceColor[t_piece];
+		color = pieceColor[t_piece];
 
-		if (PieceBig[t_piece]) t_bigPieces[color]++;
+		if (pieceBig[t_piece]) t_bigPieces[color]++;
 
-		t_material[color] += PieceValues[t_piece];
+		t_material[color] += pieceValue[t_piece];
 	}
 
-	for (t_piece = wP; t_piece <= bK; ++t_piece)
+	for (t_piece = PIECE_MIN; t_piece < PIECE_NB; ++t_piece)
 		assert(t_pieceCounts[t_piece] == pos->pieceCounts[t_piece]);
 
 	assert(t_material[WHITE] == pos->material[WHITE] && t_material[BLACK] == pos->material[BLACK]);
@@ -342,8 +341,8 @@ int CheckBoard(const S_BOARD *pos) {
 	   || (pos->enPas >= 40 && pos->enPas < 48 && pos->side == WHITE) 
 	   || (pos->enPas >= 16 && pos->enPas < 24 && pos->side == BLACK));
 
-	assert(pos->pieces[pos->KingSq[WHITE]] == wK);
-	assert(pos->pieces[pos->KingSq[BLACK]] == bK);
+	assert(pos->pieces[pos->kingSq[WHITE]] == wK);
+	assert(pos->pieces[pos->kingSq[BLACK]] == bK);
 
 	assert(pos->castlePerm >= 0 && pos->castlePerm <= 15);
 
@@ -355,9 +354,9 @@ int CheckBoard(const S_BOARD *pos) {
 
 #ifdef CLI
 // Reverse the colors
-void MirrorBoard(S_BOARD *pos) {
+void mirrorBoard(S_BOARD *pos) {
 
-	int SwapPiece[13] = {EMPTY, bP, bN, bB, bR, bQ, bK, wP, wN, wB, wR, wQ, wK};
+	int SwapPiece[PIECE_NB] = {EMPTY, bP, bN, bB, bR, bQ, bK, wP, wN, wB, wR, wQ, wK};
 	int tempPiecesArray[64];
 	int tempEnPas, sq;
 
@@ -375,21 +374,21 @@ void MirrorBoard(S_BOARD *pos) {
 
 	// En passant
 	if (pos->enPas != NO_SQ)
-		tempEnPas = Mirror[pos->enPas];
+		tempEnPas = mirror[pos->enPas];
 	else
 		tempEnPas = NO_SQ;
 
 	// Array representation
-	for (sq = 0; sq < 64; ++sq)
-		tempPiecesArray[sq] = SwapPiece[pos->pieces[Mirror[sq]]];
+	for (sq = A1; sq <= H8; ++sq)
+		tempPiecesArray[sq] = SwapPiece[pos->pieces[mirror[sq]]];
 
 	// Clear the board
 	ResetBoard(pos);
 
 	// Fill the board with the stored mirrored data
-	for (sq = 0; sq < 64; ++sq) {
+	for (sq = A1; sq <= H8; ++sq)
 		pos->pieces[sq] = tempPiecesArray[sq];
-	}
+
 	pos->side = tempSide;
 	pos->enPas = tempEnPas;
 	pos->castlePerm = tempCastlePerm;

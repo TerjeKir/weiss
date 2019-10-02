@@ -84,13 +84,13 @@ void Perft(const int depth, S_BOARD *pos) {
 
 /* Other tests */
 // Checks evaluation is symmetric
-void MirrorEvalTest(S_BOARD *pos) {
+void mirrorEvalTest(S_BOARD *pos) {
 
 	char filename[] = "../EPDs/all.epd";
 
 	FILE *file;
 	if ((file = fopen(filename, "r")) == NULL) {
-		printf("MirrorEvalTest: %s not found.\n", filename);
+		printf("mirrorEvalTest: %s not found.\n", filename);
 		return;
 	}
 
@@ -103,16 +103,16 @@ void MirrorEvalTest(S_BOARD *pos) {
 		ParseFen(lineIn, pos);
 		positions++;
 		ev1 = EvalPosition(pos);
-		MirrorBoard(pos);
+		mirrorBoard(pos);
 		ev2 = EvalPosition(pos);
 
 		if (ev1 != ev2) {
 			printf("\n\n\n");
 			ParseFen(lineIn, pos);
 			PrintBoard(pos);
-			MirrorBoard(pos);
+			mirrorBoard(pos);
 			PrintBoard(pos);
-			printf("\n\nMirrorEvalTest Fail:\n%s\n", lineIn);
+			printf("\n\nmirrorEvalTest Fail:\n%s\n", lineIn);
 			getchar();
 			return;
 		}
@@ -190,7 +190,7 @@ void MateInXTest(S_BOARD *pos) {
 search:
 				SearchPosition(pos, info);
 
-				bestFound = pos->PvArray[0];
+				bestFound = pos->pvArray[0];
 
 				// Check if correct move is found
 				correct = 0;
@@ -218,9 +218,9 @@ search:
 				}
 
 				// Get pv score
-				int index = pos->posKey % pos->HashTable->numEntries;
-				if (pos->HashTable->pTable[index].posKey == pos->posKey)
-					foundScore = pos->HashTable->pTable[index].score;
+				int index = pos->posKey % pos->hashTable->numEntries;
+				if (pos->hashTable->pTable[index].posKey == pos->posKey)
+					foundScore = pos->hashTable->pTable[index].score;
 
 				// Translate score to mate depth
 				if (foundScore > ISMATE)

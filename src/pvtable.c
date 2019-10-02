@@ -12,15 +12,15 @@
 // Returns principal variation move in the position (if any)
 static int ProbePvMove(const S_BOARD *pos) {
 
-	int index = pos->posKey % pos->HashTable->numEntries;
+	int index = pos->posKey % pos->hashTable->numEntries;
 
-	if (pos->HashTable->pTable[index].posKey == pos->posKey)
-		return pos->HashTable->pTable[index].move;
+	if (pos->hashTable->pTable[index].posKey == pos->posKey)
+		return pos->hashTable->pTable[index].move;
 
 	return NOMOVE;
 }
 
-// Fills the PvArray of the position with the PV
+// Fills the pvArray of the position with the PV
 int GetPvLine(const int depth, S_BOARD *pos) {
 
 	assert(depth < MAXDEPTH && depth >= 1);
@@ -34,7 +34,7 @@ int GetPvLine(const int depth, S_BOARD *pos) {
 
 		if (MoveExists(pos, move)) {
 			MakeMove(pos, move);
-			pos->PvArray[count++] = move;
+			pos->pvArray[count++] = move;
 		} else
 			break;
 
@@ -48,7 +48,7 @@ int GetPvLine(const int depth, S_BOARD *pos) {
 }
 
 // Clears the hash table
-void ClearHashTable(S_HASHTABLE *table) {
+void ClearhashTable(S_HASHTABLE *table) {
 
 	S_HASHENTRY *tableEntry;
 
@@ -65,11 +65,11 @@ void ClearHashTable(S_HASHTABLE *table) {
 }
 
 // Initializes the hash table
-int InitHashTable(S_HASHTABLE *table, uint64_t MB) {
+int InithashTable(S_HASHTABLE *table, uint64_t MB) {
 
 	// Ignore if already initialized with this size
 	if (table->MB == MB) {
-		printf("HashTable already initialized to %I64u.\n", MB);
+		printf("hashTable already initialized to %I64u.\n", MB);
 		return MB;
 	}
 
@@ -89,7 +89,7 @@ int InitHashTable(S_HASHTABLE *table, uint64_t MB) {
 	// If allocation fails, try half the size
 	if (table->pTable == NULL) {
 		printf("Hash Allocation Failed, trying %I64uMB...\n", MB / 2);
-		return InitHashTable(table, MB / 2);
+		return InithashTable(table, MB / 2);
 
 	// Success
 	} else {
@@ -97,7 +97,7 @@ int InitHashTable(S_HASHTABLE *table, uint64_t MB) {
 		table->newWrite = 0;
 #endif
 		table->MB = MB;
-		printf("HashTable init complete with %d entries, using %I64uMB.\n", table->numEntries, MB);
+		printf("hashTable init complete with %d entries, using %I64uMB.\n", table->numEntries, MB);
 		return MB;
 	}
 }
@@ -125,32 +125,32 @@ int ProbeHashEntry(const S_BOARD *pos, int *move, int *score, const int alpha, c
 	assert(depth >= 1 && depth < MAXDEPTH);
 	assert(pos->ply >= 0 && pos->ply < MAXDEPTH);
 
-	int index = pos->posKey % pos->HashTable->numEntries;
+	int index = pos->posKey % pos->hashTable->numEntries;
 
-	assert(index >= 0 && index < pos->HashTable->numEntries);
+	assert(index >= 0 && index < pos->hashTable->numEntries);
 
 	// Look for an entry at the index
-	if (pos->HashTable->pTable[index].posKey == pos->posKey) {
+	if (pos->hashTable->pTable[index].posKey == pos->posKey) {
 
 		// Use the move as PV regardless of depth
-		*move = pos->HashTable->pTable[index].move;
+		*move = pos->hashTable->pTable[index].move;
 
 		// The score is only usable if the depth is equal or greater than current
-		if (pos->HashTable->pTable[index].depth >= depth) {
+		if (pos->hashTable->pTable[index].depth >= depth) {
 
-			assert(pos->HashTable->pTable[index].depth >= 1 && pos->HashTable->pTable[index].depth < MAXDEPTH);
-			assert(pos->HashTable->pTable[index].flag >= BOUND_UPPER && pos->HashTable->pTable[index].flag <= BOUND_EXACT);
+			assert(pos->hashTable->pTable[index].depth >= 1 && pos->hashTable->pTable[index].depth < MAXDEPTH);
+			assert(pos->hashTable->pTable[index].flag >= BOUND_UPPER && pos->hashTable->pTable[index].flag <= BOUND_EXACT);
 
-			*score = ScoreFromTT(pos->HashTable->pTable[index].score, pos->ply);
+			*score = ScoreFromTT(pos->hashTable->pTable[index].score, pos->ply);
 
 			assert(-INFINITE <= *score && *score <= INFINITE);
 
 #ifdef SEARCH_STATS
-			pos->HashTable->hit++;
+			pos->hashTable->hit++;
 #endif
 
 			// Return true if the score is usable
-			uint8_t flag = pos->HashTable->pTable[index].flag;
+			uint8_t flag = pos->hashTable->pTable[index].flag;
 			if (   (flag == BOUND_UPPER && *score <= alpha)
 				|| (flag == BOUND_LOWER && *score >= beta)
 				||  flag == BOUND_EXACT)
@@ -168,23 +168,23 @@ void StoreHashEntry(S_BOARD *pos, const int move, const int score, const int fla
 	assert(depth >= 1 && depth < MAXDEPTH);
 	assert(pos->ply >= 0 && pos->ply < MAXDEPTH);
 
-	int index = pos->posKey % pos->HashTable->numEntries;
+	int index = pos->posKey % pos->hashTable->numEntries;
 
-	assert(index >= 0 && index < pos->HashTable->numEntries);
+	assert(index >= 0 && index < pos->hashTable->numEntries);
 
-	pos->HashTable->pTable[index].posKey = pos->posKey;
-	pos->HashTable->pTable[index].move   = move;
-	pos->HashTable->pTable[index].depth  = depth;
-	pos->HashTable->pTable[index].score  = ScoreToTT(score, pos->ply);
-	pos->HashTable->pTable[index].flag   = flag;
+	pos->hashTable->pTable[index].posKey = pos->posKey;
+	pos->hashTable->pTable[index].move   = move;
+	pos->hashTable->pTable[index].depth  = depth;
+	pos->hashTable->pTable[index].score  = ScoreToTT(score, pos->ply);
+	pos->hashTable->pTable[index].flag   = flag;
 
-	assert(pos->HashTable->pTable[index].score >= -INFINITE);
-	assert(pos->HashTable->pTable[index].score <=  INFINITE);
+	assert(pos->hashTable->pTable[index].score >= -INFINITE);
+	assert(pos->hashTable->pTable[index].score <=  INFINITE);
 
 #ifdef SEARCH_STATS
-	if (pos->HashTable->pTable[index].posKey == 0)
-		pos->HashTable->newWrite++;
+	if (pos->hashTable->pTable[index].posKey == 0)
+		pos->hashTable->newWrite++;
 	else
-		pos->HashTable->overWrite++;
+		pos->hashTable->overWrite++;
 #endif
 }

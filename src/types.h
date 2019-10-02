@@ -10,26 +10,27 @@
 
 typedef uint64_t bitboard;
 
+enum Protocol { UCIMODE, CONSOLEMODE };
+
+enum Limit { MAXGAMEMOVES     = 512,
+	         MAXPOSITIONMOVES = 256,
+	         MAXDEPTH         = 128 };
+
+enum Score { INFINITE = 30000,
+			 ISMATE   = INFINITE - MAXDEPTH };
+
 typedef enum Color { BLACK, WHITE, BOTH } Color;
 
-enum { MAXGAMEMOVES 	= 512,
-	   MAXPOSITIONMOVES = 256,
-	   MAXDEPTH 		= 128 };
+// TODO: Have to fix fathom enums before naming these
+enum { NO_TYPE, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING, TYPE_NB };
 
-enum { INFINITE = 30000,
-	   ISMATE 	= INFINITE - MAXDEPTH };
+enum { EMPTY, PIECE_MIN, wP = 1, wN, wB, wR, wQ, wK, bP, bN, bB, bR, bQ, bK, PIECE_NB };
 
-enum { PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING };
+enum File { FILE_A, FILE_B, FILE_C, FILE_D, FILE_E, FILE_F, FILE_G, FILE_H, FILE_NONE };
 
-enum { EMPTY, wP, wN, wB, wR, wQ, wK, bP, bN, bB, bR, bQ, bK };
+enum Rank { RANK_1, RANK_2, RANK_3, RANK_4, RANK_5, RANK_6, RANK_7, RANK_8, RANK_NONE };
 
-enum { FILE_A, FILE_B, FILE_C, FILE_D, FILE_E, FILE_F, FILE_G, FILE_H, FILE_NONE };
-
-enum { RANK_1, RANK_2, RANK_3, RANK_4, RANK_5, RANK_6, RANK_7, RANK_8, RANK_NONE };
-
-enum { UCIMODE, CONSOLEMODE };
-
-enum {
+enum Square {
   A1, B1, C1, D1, E1, F1, G1, H1,
   A2, B2, C2, D2, E2, F2, G2, H2,
   A3, B3, C3, D3, E3, F3, G3, H3,
@@ -40,7 +41,7 @@ enum {
   A8, B8, C8, D8, E8, F8, G8, H8, NO_SQ = 99
 };
 
-enum { WKCA = 1, WQCA = 2, BKCA = 4, BQCA = 8 };
+enum CastlingRights { WKCA = 1, WQCA = 2, BKCA = 4, BQCA = 8 };
 
 /* STRUCTS */
 
@@ -86,18 +87,17 @@ typedef struct {
 
 typedef struct {
 
-	bitboard colors[2];
-	bitboard pieceBBs[6]; 	// 0 Pawn  1 Knight 2 Bishop 3 Rook 4 Queen 5 King
-	bitboard allBB;			// BB with all pieces
+	bitboard colorBBs[3];
+	bitboard pieceBBs[TYPE_NB];
 
-	int pieces[64];			// [square] -> empty/piece on that square
+	int pieces[64];
 
-	int pieceList[13][10]; 	// [piece type][#] -> square
-	int pieceCounts[13];	// # of each type of piece
+	int pieceList[PIECE_NB][10];
+	int pieceCounts[PIECE_NB];
 
-	int KingSq[2]; 			// Square king is on
-	int bigPieces[2];		// # of non-pawns
-	int material[2];		// Total value of pieces
+	int kingSq[2];
+	int bigPieces[2];
+	int material[2];
 
 	int side;
 	int enPas;
@@ -111,10 +111,10 @@ typedef struct {
 
 	S_UNDO history[MAXGAMEMOVES];
 
-	S_HASHTABLE HashTable[1];
-	int PvArray[MAXDEPTH];
+	S_HASHTABLE hashTable[1];
+	int pvArray[MAXDEPTH];
 
-	int searchHistory[13][64];
+	int searchHistory[PIECE_NB][64];
 	int searchKillers[2][MAXDEPTH];
 
 } S_BOARD;

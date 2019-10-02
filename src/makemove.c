@@ -33,21 +33,21 @@ static void ClearPiece(const int sq, S_BOARD *pos) {
 	assert(ValidSquare(sq));
 
 	int piece = pos->pieces[sq];
-	int color = PieceColor[piece];
+	int color = pieceColor[piece];
 	int t_pieceCounts = -1;
 
-	assert(PieceValid(piece));
-	assert(SideValid(color));
+	assert(ValidPiece(piece));
+	assert(ValidSide(color));
 
 	// Hash out the piece
 	HASH_PCE(piece, sq);
 
 	// Set square to empty and reduce material score
 	pos->pieces[sq] = EMPTY;
-	pos->material[color] -= PieceValues[piece];
+	pos->material[color] -= pieceValue[piece];
 
 	// Update various piece lists
-	if (PieceBig[piece])
+	if (pieceBig[piece])
 		pos->bigPieces[color]--;
 
 	for (int i = 0; i < pos->pieceCounts[piece]; ++i)
@@ -65,19 +65,19 @@ static void ClearPiece(const int sq, S_BOARD *pos) {
 	pos->pieceList[piece][t_pieceCounts] = pos->pieceList[piece][pos->pieceCounts[piece]];
 
 	// Update bitboards
-	CLRBIT(pos->allBB, sq);
-	CLRBIT(pos->colors[PieceColor[piece]], sq);
+	CLRBIT(pos->colorBBs[BOTH], sq);
+	CLRBIT(pos->colorBBs[pieceColor[piece]], sq);
 	CLRBIT(pos->pieceBBs[pieceType[piece]], sq);
 }
 
 // Add a piece piece to a square
 static void AddPiece(const int sq, S_BOARD *pos, const int piece) {
 
-	assert(PieceValid(piece));
+	assert(ValidPiece(piece));
 	assert(ValidSquare(sq));
 
-	int color = PieceColor[piece];
-	assert(SideValid(color));
+	int color = pieceColor[piece];
+	assert(ValidSide(color));
 
 	// Hash in piece at square
 	HASH_PCE(piece, sq);
@@ -86,15 +86,15 @@ static void AddPiece(const int sq, S_BOARD *pos, const int piece) {
 	pos->pieces[sq] = piece;
 
 	// Update various piece lists
-	if (PieceBig[piece])
+	if (pieceBig[piece])
 		pos->bigPieces[color]++;
 
-	pos->material[color] += PieceValues[piece];
+	pos->material[color] += pieceValue[piece];
 	pos->pieceList[piece][pos->pieceCounts[piece]++] = sq;
 
 	// Update bitboards
-	SETBIT(pos->allBB, sq);
-	SETBIT(pos->colors[PieceColor[piece]], sq);
+	SETBIT(pos->colorBBs[BOTH], sq);
+	SETBIT(pos->colorBBs[pieceColor[piece]], sq);
 	SETBIT(pos->pieceBBs[pieceType[piece]], sq);
 }
 
@@ -109,7 +109,7 @@ static void MovePiece(const int from, const int to, S_BOARD *pos) {
 
 	int piece = pos->pieces[from];
 
-	assert(PieceValid(piece));
+	assert(ValidPiece(piece));
 
 	// Hash out piece on old square, in on new square
 	HASH_PCE(piece, from);
@@ -131,11 +131,11 @@ static void MovePiece(const int from, const int to, S_BOARD *pos) {
 	assert(t_PieceNum);
 
 	// Update bitboards
-	CLRBIT(pos->allBB, from);
-	SETBIT(pos->allBB, to);
+	CLRBIT(pos->colorBBs[BOTH], from);
+	SETBIT(pos->colorBBs[BOTH], to);
 
-	CLRBIT(pos->colors[PieceColor[piece]], from);
-	SETBIT(pos->colors[PieceColor[piece]], to);
+	CLRBIT(pos->colorBBs[pieceColor[piece]], from);
+	SETBIT(pos->colorBBs[pieceColor[piece]], to);
 
 	CLRBIT(pos->pieceBBs[pieceType[piece]], from);
 	SETBIT(pos->pieceBBs[pieceType[piece]], to);
@@ -189,21 +189,21 @@ void TakeMove(S_BOARD *pos) {
 	MovePiece(to, from, pos);
 
 	// Update king position if king moved
-	if (PieceKing[pos->pieces[from]])
-		pos->KingSq[pos->side] = from;
+	if (pieceKing[pos->pieces[from]])
+		pos->kingSq[pos->side] = from;
 
 	// Add back captured piece if any
 	int captured = CAPTURED(move);
 	if (captured != EMPTY) {
-		assert(PieceValid(captured));
+		assert(ValidPiece(captured));
 		AddPiece(to, pos, captured);
 	}
 
 	// Remove promoted piece and put back the pawn
 	if (PROMOTION(move) != EMPTY) {
-		assert(PieceValid(PROMOTION(move)) && !PiecePawn[PROMOTION(move)]);
+		assert(ValidPiece(PROMOTION(move)) && !piecePawn[PROMOTION(move)]);
 		ClearPiece(from, pos);
-		AddPiece(from, pos, (PieceColor[PROMOTION(move)] == WHITE ? wP : bP));
+		AddPiece(from, pos, (pieceColor[PROMOTION(move)] == WHITE ? wP : bP));
 	}
 
 	// Get old poskey from history
@@ -225,8 +225,8 @@ int MakeMove(S_BOARD *pos, const int move) {
 
 	assert(ValidSquare(from));
 	assert(ValidSquare(to));
-	assert(SideValid(side));
-	assert(PieceValid(pos->pieces[from]));
+	assert(ValidSide(side));
+	assert(ValidPiece(pos->pieces[from]));
 	assert(pos->hisPly >= 0 && pos->hisPly < MAXGAMEMOVES);
 	assert(pos->ply >= 0 && pos->ply < MAXDEPTH);
 
@@ -269,7 +269,7 @@ int MakeMove(S_BOARD *pos, const int move) {
 
 	// Remove captured piece if any
 	else if (captured != EMPTY) {
-		assert(PieceValid(captured));
+		assert(ValidPiece(captured));
 		ClearPiece(to, pos);
 
 		// Reset 50mr after a capture
@@ -280,7 +280,7 @@ int MakeMove(S_BOARD *pos, const int move) {
 	MovePiece(from, to, pos);
 
 	// Pawn move specifics
-	if (PiecePawn[pos->pieces[to]]) {
+	if (piecePawn[pos->pieces[to]]) {
 
 		// Reset 50mr after a pawn move
 		pos->fiftyMove = 0;
@@ -299,14 +299,14 @@ int MakeMove(S_BOARD *pos, const int move) {
 
 		// Replace promoting pawn with new piece
 		else if (promo != EMPTY) {
-			assert(PieceValid(promo) && !PiecePawn[promo]);
+			assert(ValidPiece(promo) && !piecePawn[promo]);
 			ClearPiece(to, pos);
 			AddPiece(to, pos, promo);
 		}
 
 	// Update king position if king moved
-	} else if (PieceKing[pos->pieces[to]])
-		pos->KingSq[side] = to;
+	} else if (pieceKing[pos->pieces[to]])
+		pos->kingSq[side] = to;
 
 	// Change turn to play
 	pos->side ^= 1;
@@ -315,7 +315,7 @@ int MakeMove(S_BOARD *pos, const int move) {
 	assert(CheckBoard(pos));
 
 	// If own king is attacked after the move, take it back immediately
-	if (SqAttacked(pos->KingSq[side], pos->side, pos)) {
+	if (SqAttacked(pos->kingSq[side], pos->side, pos)) {
 		TakeMove(pos);
 		return false;
 	}
@@ -327,7 +327,7 @@ int MakeMove(S_BOARD *pos, const int move) {
 void MakeNullMove(S_BOARD *pos) {
 
 	assert(CheckBoard(pos));
-	assert(!SqAttacked(pos->KingSq[pos->side], pos->side ^ 1, pos));
+	assert(!SqAttacked(pos->kingSq[pos->side], pos->side ^ 1, pos));
 
 	// Save misc info for takeback
 	// pos->history[pos->hisPly].move    = NOMOVE;
