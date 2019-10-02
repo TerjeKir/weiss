@@ -13,7 +13,7 @@
 
 
 // Zobrist key tables
-uint64_t PieceKeys[PIECE_NB][64]; // 0 En passant, 1-12 White pawn - Black king
+uint64_t PieceKeys[PIECE_NB][64];
 uint64_t SideKey;
 uint64_t CastleKeys[16];
 
@@ -23,7 +23,14 @@ void InitHashKeys() {
 
 	SideKey = RAND_64;
 
-	for (int piece = 0; piece < PIECE_NB; ++piece)
+	for (int sq = A1; sq <= H8; ++sq)
+			PieceKeys[0][sq] = RAND_64;
+
+	for (int piece = wP; piece <= wK; ++piece)
+		for (int sq = A1; sq <= H8; ++sq)
+			PieceKeys[piece][sq] = RAND_64;
+
+	for (int piece = bP; piece <= bK; ++piece)
 		for (int sq = A1; sq <= H8; ++sq)
 			PieceKeys[piece][sq] = RAND_64;
 
