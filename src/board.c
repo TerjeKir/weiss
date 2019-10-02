@@ -15,8 +15,8 @@ void InitDistance() {
 
     int vertical, horizontal;
 
-    for (int sq1 = 0; sq1 < 64; ++sq1)
-        for (int sq2 = 0; sq2 < 64; ++sq2) {
+    for (int sq1 = A1; sq1 <= H8; ++sq1)
+        for (int sq2 = A1; sq2 <= H8; ++sq2) {
             vertical   = abs(rankOf(sq1) - rankOf(sq2));
             horizontal = abs(fileOf(sq1) - fileOf(sq2));
             distance[sq1][sq2] = ((vertical > horizontal) ? vertical : horizontal);
@@ -311,7 +311,7 @@ int CheckBoard(const S_BOARD *pos) {
 	assert(pos->colorBBs[BOTH] == (pos->colorBBs[WHITE] | pos->colorBBs[BLACK]));
 
 	// check piece lists
-	for (t_piece = wP; t_piece <= bK; ++t_piece)
+	for (t_piece = PIECE_MIN; t_piece < PIECE_NB; ++t_piece)
 		for (t_pce_num = 0; t_pce_num < pos->pieceCounts[t_piece]; ++t_pce_num) {
 			sq = pos->pieceList[t_piece][t_pce_num];
 			assert(pos->pieces[sq] == t_piece);
@@ -329,7 +329,7 @@ int CheckBoard(const S_BOARD *pos) {
 		t_material[color] += PieceValues[t_piece];
 	}
 
-	for (t_piece = wP; t_piece <= bK; ++t_piece)
+	for (t_piece = PIECE_MIN; t_piece < PIECE_NB; ++t_piece)
 		assert(t_pieceCounts[t_piece] == pos->pieceCounts[t_piece]);
 
 	assert(t_material[WHITE] == pos->material[WHITE] && t_material[BLACK] == pos->material[BLACK]);

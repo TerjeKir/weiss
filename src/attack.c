@@ -114,7 +114,7 @@ static bitboard MakeSliderAttacks(const int sq, const bitboard occupied, const i
     for (int dir = 0; dir < 4; ++dir)
 
         for (int tSq = sq + directions[dir];
-             (tSq >= 0) && (tSq < 64) && (Distance(tSq, tSq - directions[dir]) == 1);
+             (A1 <= tSq) && (tSq <= H8) && (Distance(tSq, tSq - directions[dir]) == 1);
              tSq += directions[dir]) {
 
             SETBIT(result, tSq);

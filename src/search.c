@@ -67,7 +67,7 @@ static void ClearForSearch(S_BOARD *pos, S_SEARCHINFO *info) {
 	int index, index2;
 
 	for (index = 0; index < PIECE_NB; ++index)
-		for (index2 = 0; index2 < 64; ++index2)
+		for (index2 = A1; index2 <= H8; ++index2)
 			pos->searchHistory[index][index2] = 0;
 
 	for (index = 0; index < 2; ++index)

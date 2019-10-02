@@ -14,12 +14,12 @@ const bitboard rankBBs[] = {         0xFF,         0xFF00,         0xFF0000,    
 
 void InitBitMasks() {
 
-	for (int i = 0; i < 64; ++i) {
+	for (int i = A1; i <= H8; ++i) {
 		SetMask[i]   = 0ULL;
 		ClearMask[i] = 0ULL;
 	}
 
-	for (int i = 0; i < 64; ++i) {
+	for (int i = A1; i <= H8; ++i) {
 		SetMask[i]  |= (1ULL << i);
 		ClearMask[i] = ~SetMask[i];
 	}
