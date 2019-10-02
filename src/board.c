@@ -37,11 +37,11 @@ static void UpdateListsMaterial(S_BOARD *pos) {
 		// If it isn't empty we update the relevant lists
 		if (piece != EMPTY) {
 
-			color = pieceColor[piece];
+			color = colorOf(piece);
 			assert(ValidSide(color));
 
 			// Non pawn piece
-			if (pieceBig[piece]) 
+			if (pieceBig[piece])
 				pos->bigPieces[color]++;
 
 			// Total material value for that side
@@ -71,8 +71,8 @@ static void UpdateBitboards(S_BOARD *pos) {
 
 		if (piece != EMPTY) {
 			SETBIT(pos->colorBBs[BOTH], sq);
-			SETBIT(pos->colorBBs[pieceColor[piece]], sq);
-			SETBIT(pos->pieceBBs[pieceType[piece]], sq);
+			SETBIT(pos->colorBBs[colorOf(piece)], sq);
+			SETBIT(pos->pieceBBs[pieceTypeOf(piece)], sq);
 		}
 	}
 }
@@ -320,7 +320,7 @@ int CheckBoard(const S_BOARD *pos) {
 
 		t_piece = pos->pieces[sq];
 		t_pieceCounts[t_piece]++;
-		color = pieceColor[t_piece];
+		color = colorOf(t_piece);
 
 		if (pieceBig[t_piece]) t_bigPieces[color]++;
 
@@ -354,7 +354,7 @@ int CheckBoard(const S_BOARD *pos) {
 // Reverse the colors
 void MirrorBoard(S_BOARD *pos) {
 
-	int SwapPiece[PIECE_NB] = {EMPTY, bP, bN, bB, bR, bQ, bK, wP, wN, wB, wR, wQ, wK};
+	int SwapPiece[PIECE_NB] = {EMPTY, wP, wN, wB, wR, wQ, wK, EMPTY, EMPTY, bP, bN, bB, bR, bQ, bK, EMPTY};
 	int tempPiecesArray[64];
 	int tempEnPas, sq;
 

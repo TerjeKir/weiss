@@ -22,9 +22,14 @@ enum Score { INFINITE = 30000,
 typedef enum Color { BLACK, WHITE, BOTH } Color;
 
 // TODO: Have to fix fathom enums before naming these
-enum { NO_TYPE, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING, TYPE_NB };
+enum { NO_TYPE, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING, TYPE_NB = 8 };
 
-enum { EMPTY, PIECE_MIN, wP = 1, wN, wB, wR, wQ, wK, bP, bN, bB, bR, bQ, bK, PIECE_NB };
+enum {
+	EMPTY, PIECE_MIN,
+	bP = 1, bN, bB, bR, bQ, bK,
+	wP = 9, wN, wB, wR, wQ, wK, 
+	PIECE_NB = 16
+};
 
 enum File { FILE_A, FILE_B, FILE_C, FILE_D, FILE_E, FILE_F, FILE_G, FILE_H, FILE_NONE };
 
@@ -161,4 +166,16 @@ static inline int fileOf(const int square) {
 
 static inline int rankOf(const int square) {
 	return square >> 3;
+}
+
+static inline int colorOf(const int piece) {
+	return piece >> 3;
+}
+
+static inline int pieceTypeOf(const int piece) {
+	return (piece & 7);
+}
+
+static inline int makePiece(const int color, const int type) {
+	return (color << 3) + type;
 }

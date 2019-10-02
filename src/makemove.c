@@ -33,7 +33,7 @@ static void ClearPiece(const int sq, S_BOARD *pos) {
 	assert(ValidSquare(sq));
 
 	int piece = pos->pieces[sq];
-	int color = pieceColor[piece];
+	int color = colorOf(piece);
 	int t_pieceCounts = -1;
 
 	assert(ValidPiece(piece));
@@ -66,8 +66,8 @@ static void ClearPiece(const int sq, S_BOARD *pos) {
 
 	// Update bitboards
 	CLRBIT(pos->colorBBs[BOTH], sq);
-	CLRBIT(pos->colorBBs[pieceColor[piece]], sq);
-	CLRBIT(pos->pieceBBs[pieceType[piece]], sq);
+	CLRBIT(pos->colorBBs[color], sq);
+	CLRBIT(pos->pieceBBs[pieceTypeOf(piece)], sq);
 }
 
 // Add a piece piece to a square
@@ -76,7 +76,7 @@ static void AddPiece(const int sq, S_BOARD *pos, const int piece) {
 	assert(ValidPiece(piece));
 	assert(ValidSquare(sq));
 
-	int color = pieceColor[piece];
+	int color = colorOf(piece);
 	assert(ValidSide(color));
 
 	// Hash in piece at square
@@ -94,8 +94,8 @@ static void AddPiece(const int sq, S_BOARD *pos, const int piece) {
 
 	// Update bitboards
 	SETBIT(pos->colorBBs[BOTH], sq);
-	SETBIT(pos->colorBBs[pieceColor[piece]], sq);
-	SETBIT(pos->pieceBBs[pieceType[piece]], sq);
+	SETBIT(pos->colorBBs[color], sq);
+	SETBIT(pos->pieceBBs[pieceTypeOf(piece)], sq);
 }
 
 // Move a piece from a square to another square
@@ -134,11 +134,11 @@ static void MovePiece(const int from, const int to, S_BOARD *pos) {
 	CLRBIT(pos->colorBBs[BOTH], from);
 	SETBIT(pos->colorBBs[BOTH], to);
 
-	CLRBIT(pos->colorBBs[pieceColor[piece]], from);
-	SETBIT(pos->colorBBs[pieceColor[piece]], to);
+	CLRBIT(pos->colorBBs[colorOf(piece)], from);
+	SETBIT(pos->colorBBs[colorOf(piece)], to);
 
-	CLRBIT(pos->pieceBBs[pieceType[piece]], from);
-	SETBIT(pos->pieceBBs[pieceType[piece]], to);
+	CLRBIT(pos->pieceBBs[pieceTypeOf(piece)], from);
+	SETBIT(pos->pieceBBs[pieceTypeOf(piece)], to);
 }
 
 // Take back the previous move
@@ -203,7 +203,7 @@ void TakeMove(S_BOARD *pos) {
 	if (PROMOTION(move) != EMPTY) {
 		assert(ValidPiece(PROMOTION(move)) && !piecePawn[PROMOTION(move)]);
 		ClearPiece(from, pos);
-		AddPiece(from, pos, (pieceColor[PROMOTION(move)] == WHITE ? wP : bP));
+		AddPiece(from, pos, (colorOf(PROMOTION(move)) == WHITE ? wP : bP));
 	}
 
 	// Get old poskey from history

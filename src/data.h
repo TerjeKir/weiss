@@ -4,11 +4,8 @@
 
 
 extern int pieceBig   [PIECE_NB];
-extern int pieceValue[PIECE_NB];
-extern int pieceColor [PIECE_NB];
-extern int pieceType  [PIECE_NB];
+extern int pieceValue [PIECE_NB];
 
-// Mostly unused
 extern int piecePawn  [PIECE_NB];
 extern int pieceKnight[PIECE_NB];
 extern int pieceBishop[PIECE_NB];
