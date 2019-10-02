@@ -143,6 +143,7 @@ static void MovePiece(const int from, const int to, S_BOARD *pos) {
 
 // Take back the previous move
 void TakeMove(S_BOARD *pos) {
+
 	assert(CheckBoard(pos));
 
 	// Decrement hisPly, ply
@@ -170,10 +171,7 @@ void TakeMove(S_BOARD *pos) {
 
 	// Add in pawn captured by en passant
 	if (FLAG_ENPAS & move)
-		if (pos->side == WHITE)
-			AddPiece(to - 8, pos, bP);
-		else
-			AddPiece(to + 8, pos, wP);
+		AddPiece(to + 8 - 16 * pos->side, pos, makePiece(!pos->side, PAWN));
 
 	// Move rook back if castling
 	else if (move & FLAG_CASTLE)
@@ -203,7 +201,7 @@ void TakeMove(S_BOARD *pos) {
 	if (PROMOTION(move) != EMPTY) {
 		assert(ValidPiece(PROMOTION(move)) && !piecePawn[PROMOTION(move)]);
 		ClearPiece(from, pos);
-		AddPiece(from, pos, (colorOf(PROMOTION(move)) == WHITE ? wP : bP));
+		AddPiece(from, pos, makePiece(colorOf(PROMOTION(move)), PAWN));
 	}
 
 	// Get old poskey from history
@@ -289,13 +287,13 @@ int MakeMove(S_BOARD *pos, const int move) {
 
 		// If the move is a pawnstart we set the en passant square and hash it in
 		if (move & FLAG_PAWNSTART) {
-			pos->enPas = to + (side ? -8 : 8);
+			pos->enPas = to + 8 - 16 * side;
 			assert((rankOf(pos->enPas) == RANK_3 && side) || rankOf(pos->enPas) == RANK_6);
 			HASH_EP;
 
 		// Remove pawn captured by en passant
 		} else if (move & FLAG_ENPAS)
-			ClearPiece(to + (side ? -8 : 8), pos);
+			ClearPiece(to + 8 - 16 * side, pos);
 
 		// Replace promoting pawn with new piece
 		else if (promo != EMPTY) {
@@ -359,6 +357,7 @@ void MakeNullMove(S_BOARD *pos) {
 
 // Take back a null move
 void TakeNullMove(S_BOARD *pos) {
+
 	assert(CheckBoard(pos));
 
 	// Decrease ply
