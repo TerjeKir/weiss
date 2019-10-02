@@ -87,9 +87,8 @@ typedef struct {
 
 typedef struct {
 
-	bitboard colors[2];
+	bitboard colorBBs[3];	// BLACK, WHITE, BOTH
 	bitboard pieceBBs[6]; 	// 0 Pawn  1 Knight 2 Bishop 3 Rook 4 Queen 5 King
-	bitboard allBB;			// BB with all pieces
 
 	int pieces[64];			// [square] -> empty/piece on that square
 

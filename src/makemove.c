@@ -65,8 +65,8 @@ static void ClearPiece(const int sq, S_BOARD *pos) {
 	pos->pieceList[piece][t_pieceCounts] = pos->pieceList[piece][pos->pieceCounts[piece]];
 
 	// Update bitboards
-	CLRBIT(pos->allBB, sq);
-	CLRBIT(pos->colors[PieceColor[piece]], sq);
+	CLRBIT(pos->colorBBs[BOTH], sq);
+	CLRBIT(pos->colorBBs[PieceColor[piece]], sq);
 	CLRBIT(pos->pieceBBs[pieceType[piece]], sq);
 }
 
@@ -93,8 +93,8 @@ static void AddPiece(const int sq, S_BOARD *pos, const int piece) {
 	pos->pieceList[piece][pos->pieceCounts[piece]++] = sq;
 
 	// Update bitboards
-	SETBIT(pos->allBB, sq);
-	SETBIT(pos->colors[PieceColor[piece]], sq);
+	SETBIT(pos->colorBBs[BOTH], sq);
+	SETBIT(pos->colorBBs[PieceColor[piece]], sq);
 	SETBIT(pos->pieceBBs[pieceType[piece]], sq);
 }
 
@@ -131,11 +131,11 @@ static void MovePiece(const int from, const int to, S_BOARD *pos) {
 	assert(t_PieceNum);
 
 	// Update bitboards
-	CLRBIT(pos->allBB, from);
-	SETBIT(pos->allBB, to);
+	CLRBIT(pos->colorBBs[BOTH], from);
+	SETBIT(pos->colorBBs[BOTH], to);
 
-	CLRBIT(pos->colors[PieceColor[piece]], from);
-	SETBIT(pos->colors[PieceColor[piece]], to);
+	CLRBIT(pos->colorBBs[PieceColor[piece]], from);
+	SETBIT(pos->colorBBs[PieceColor[piece]], to);
 
 	CLRBIT(pos->pieceBBs[pieceType[piece]], from);
 	SETBIT(pos->pieceBBs[pieceType[piece]], to);

@@ -46,15 +46,15 @@ static int DrawMaterial(const S_BOARD *pos) {
 	if (pos->pieceBBs[ROOK] || pos->pieceBBs[QUEEN])
 		return false;
 	// 3 knights can mate
-	if (PopCount(pos->colors[WHITE] & pos->pieceBBs[KNIGHT]) > 2 || PopCount(pos->colors[BLACK] & pos->pieceBBs[KNIGHT]) > 2)
+	if (PopCount(pos->colorBBs[WHITE] & pos->pieceBBs[KNIGHT]) > 2 || PopCount(pos->colorBBs[BLACK] & pos->pieceBBs[KNIGHT]) > 2)
 		return false;
 	// 2 bishops can mate
-	if (PopCount(pos->colors[WHITE] & pos->pieceBBs[BISHOP]) > 1 || PopCount(pos->colors[BLACK] & pos->pieceBBs[BISHOP]) > 1)
+	if (PopCount(pos->colorBBs[WHITE] & pos->pieceBBs[BISHOP]) > 1 || PopCount(pos->colorBBs[BLACK] & pos->pieceBBs[BISHOP]) > 1)
 		return false;
 	// Bishop + Knight can mate
-	if ((pos->colors[WHITE] & pos->pieceBBs[KNIGHT]) && (pos->colors[WHITE] & pos->pieceBBs[BISHOP]))
+	if ((pos->colorBBs[WHITE] & pos->pieceBBs[KNIGHT]) && (pos->colorBBs[WHITE] & pos->pieceBBs[BISHOP]))
 		return false;
-	if ((pos->colors[BLACK] & pos->pieceBBs[KNIGHT]) && (pos->colors[BLACK] & pos->pieceBBs[BISHOP]))
+	if ((pos->colorBBs[BLACK] & pos->pieceBBs[KNIGHT]) && (pos->colorBBs[BLACK] & pos->pieceBBs[BISHOP]))
 		return false;
 
 	return true;

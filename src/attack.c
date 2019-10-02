@@ -204,14 +204,14 @@ int SqAttacked(const int sq, const int side, const S_BOARD *pos) {
     assert(ValidSide(side));
     assert(CheckBoard(pos));
 
-    bitboard bishops   = pos->colors[side] & (pos->pieceBBs[BISHOP] | pos->pieceBBs[QUEEN]);
-    bitboard rooks     = pos->colors[side] & (pos->pieceBBs[  ROOK] | pos->pieceBBs[QUEEN]);
+    bitboard bishops   = pos->colorBBs[side] & (pos->pieceBBs[BISHOP] | pos->pieceBBs[QUEEN]);
+    bitboard rooks     = pos->colorBBs[side] & (pos->pieceBBs[  ROOK] | pos->pieceBBs[QUEEN]);
 
-    if (     pawn_attacks[!side][sq] & pos->pieceBBs[PAWN]   & pos->colors[side]
-        || knight_attacks[sq]        & pos->pieceBBs[KNIGHT] & pos->colors[side]
-        ||   king_attacks[sq]        & pos->pieceBBs[KING]   & pos->colors[side]
-        || bishops & SliderAttacks(sq, pos->allBB, mBishopTable)
-        || rooks   & SliderAttacks(sq, pos->allBB, mRookTable))
+    if (     pawn_attacks[!side][sq] & pos->pieceBBs[PAWN]   & pos->colorBBs[side]
+        || knight_attacks[sq]        & pos->pieceBBs[KNIGHT] & pos->colorBBs[side]
+        ||   king_attacks[sq]        & pos->pieceBBs[KING]   & pos->colorBBs[side]
+        || bishops & SliderAttacks(sq, pos->colorBBs[BOTH], mBishopTable)
+        || rooks   & SliderAttacks(sq, pos->colorBBs[BOTH], mRookTable))
         return true;
 
     return false;

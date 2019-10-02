@@ -292,15 +292,15 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 	bitboard attacks, moves, tempQueen;
 	bitboard pawnMoves, pawnStarts, enPassers;
 
-	bitboard allPieces  = pos->allBB;
+	bitboard allPieces  = pos->colorBBs[BOTH];
 	bitboard empty		= ~allPieces;
-	bitboard enemies 	= pos->colors[!side];
+	bitboard enemies 	= pos->colorBBs[!side];
 
-	bitboard pawns 		= pos->colors[side] & pos->pieceBBs[  PAWN];
-	bitboard knights 	= pos->colors[side] & pos->pieceBBs[KNIGHT];
-	bitboard bishops 	= pos->colors[side] & pos->pieceBBs[BISHOP];
-	bitboard rooks 		= pos->colors[side] & pos->pieceBBs[  ROOK];
-	bitboard queens 	= pos->colors[side] & pos->pieceBBs[ QUEEN];
+	bitboard pawns 		= pos->colorBBs[side] & pos->pieceBBs[  PAWN];
+	bitboard knights 	= pos->colorBBs[side] & pos->pieceBBs[KNIGHT];
+	bitboard bishops 	= pos->colorBBs[side] & pos->pieceBBs[BISHOP];
+	bitboard rooks 		= pos->colorBBs[side] & pos->pieceBBs[  ROOK];
+	bitboard queens 	= pos->colorBBs[side] & pos->pieceBBs[ QUEEN];
 
 
 	// Pawns and castling
@@ -411,14 +411,14 @@ void GenerateAllCaptures(const S_BOARD *pos, S_MOVELIST *list) {
 
 	bitboard attacks, enPassers;
 
-	bitboard allPieces  = pos->allBB;
-	bitboard enemies 	= pos->colors[!side];
+	bitboard allPieces  = pos->colorBBs[BOTH];
+	bitboard enemies 	= pos->colorBBs[!side];
 
-	bitboard pawns 		= pos->colors[side] & pos->pieceBBs[  PAWN];
-	bitboard knights 	= pos->colors[side] & pos->pieceBBs[KNIGHT];
-	bitboard bishops 	= pos->colors[side] & pos->pieceBBs[BISHOP];
-	bitboard rooks 		= pos->colors[side] & pos->pieceBBs[  ROOK];
-	bitboard queens 	= pos->colors[side] & pos->pieceBBs[ QUEEN];
+	bitboard pawns 		= pos->colorBBs[side] & pos->pieceBBs[  PAWN];
+	bitboard knights 	= pos->colorBBs[side] & pos->pieceBBs[KNIGHT];
+	bitboard bishops 	= pos->colorBBs[side] & pos->pieceBBs[BISHOP];
+	bitboard rooks 		= pos->colorBBs[side] & pos->pieceBBs[  ROOK];
+	bitboard queens 	= pos->colorBBs[side] & pos->pieceBBs[ QUEEN];
 
 
 	// Pawns
