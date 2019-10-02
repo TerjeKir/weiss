@@ -22,7 +22,7 @@ enum Score { INFINITE = 30000,
 typedef enum Color { BLACK, WHITE, BOTH } Color;
 
 // TODO: Have to fix fathom enums before naming these
-enum { PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING };
+enum { NO_TYPE, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING, TYPE_NB };
 
 enum { EMPTY, PIECE_MIN, wP = 1, wN, wB, wR, wQ, wK, bP, bN, bB, bR, bQ, bK, PIECE_NB };
 
@@ -87,17 +87,17 @@ typedef struct {
 
 typedef struct {
 
-	bitboard colorBBs[3];	// BLACK, WHITE, BOTH
-	bitboard pieceBBs[6]; 	// 0 Pawn  1 Knight 2 Bishop 3 Rook 4 Queen 5 King
+	bitboard colorBBs[3];
+	bitboard pieceBBs[TYPE_NB];
 
-	int pieces[64];			// [square] -> empty/piece on that square
+	int pieces[64];
 
-	int pieceList[PIECE_NB][10]; // [piece type][#] -> square
-	int pieceCounts[PIECE_NB];	 // # of each type of piece
+	int pieceList[PIECE_NB][10];
+	int pieceCounts[PIECE_NB];
 
-	int KingSq[2]; 			// Square king is on
-	int bigPieces[2];		// # of non-pawns
-	int material[2];		// Total value of pieces
+	int KingSq[2];
+	int bigPieces[2];
+	int material[2];
 
 	int side;
 	int enPas;
