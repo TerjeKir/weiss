@@ -95,7 +95,7 @@ typedef struct {
 	bitboard colorBBs[3];
 	bitboard pieceBBs[TYPE_NB];
 
-	int pieces[64];
+	int board[64];
 
 	int pieceList[PIECE_NB][10];
 	int pieceCounts[PIECE_NB];

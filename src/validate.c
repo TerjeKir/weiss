@@ -36,7 +36,7 @@ int MoveListOk(const S_MOVELIST *list, const S_BOARD *pos) {
 		if (!ValidSquare(to) || !ValidSquare(from))
 			return false;
 
-		if (!ValidPiece(pos->pieces[from])) {
+		if (!ValidPiece(pos->board[from])) {
 			PrintBoard(pos);
 			return false;
 		}

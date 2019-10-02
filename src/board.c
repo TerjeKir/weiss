@@ -23,7 +23,7 @@ void InitDistance() {
         }
 }
 
-// Update material lists to match pos->pieces
+// Update material lists to match pos->board
 static void UpdateListsMaterial(S_BOARD *pos) {
 
 	int piece, color;
@@ -31,7 +31,7 @@ static void UpdateListsMaterial(S_BOARD *pos) {
 	// Loop through each square on the board
 	for (int sq = A1; sq <= H8; ++sq) {
 
-		piece = pos->pieces[sq];
+		piece = pos->board[sq];
 		assert(ValidPieceOrEmpty(piece));
 
 		// If it isn't empty we update the relevant lists
@@ -60,13 +60,13 @@ static void UpdateListsMaterial(S_BOARD *pos) {
 	}
 }
 
-// Update bitboards to match pos->pieces
+// Update bitboards to match pos->board
 static void UpdateBitboards(S_BOARD *pos) {
 
 	// Loop through each square and update bitboards if there's a piece there
 	for (int sq = A1; sq <= H8; ++sq) {
 
-		int piece = pos->pieces[sq];
+		int piece = pos->board[sq];
 		assert(ValidPieceOrEmpty(piece));
 
 		if (piece != EMPTY) {
@@ -91,7 +91,7 @@ static void ResetBoard(S_BOARD *pos) {
 
 	// Array representation
 	for (i = A1; i <= H8; ++i)
-		pos->pieces[i] = EMPTY;
+		pos->board[i] = EMPTY;
 
 	// Piece lists and counts
 	for (i = 0; i < PIECE_NB; ++i) {
@@ -180,7 +180,7 @@ int ParseFen(const char *fen, S_BOARD *pos) {
 		for (i = 0; i < count; ++i) {
 			sq = rank * 8 + file;
 			if (piece != EMPTY)
-				pos->pieces[sq] = piece;
+				pos->board[sq] = piece;
 
 			file++;
 		}
@@ -246,7 +246,7 @@ void PrintBoard(const S_BOARD *pos) {
 		printf("%d  ", rank + 1);
 		for (file = FILE_A; file <= FILE_H; ++file) {
 			sq = (rank * 8) + file;
-			piece = pos->pieces[sq];
+			piece = pos->board[sq];
 			printf("%3c", PceChar[piece]);
 		}
 		printf("\n");
@@ -312,13 +312,13 @@ int CheckBoard(const S_BOARD *pos) {
 	for (t_piece = PIECE_MIN; t_piece < PIECE_NB; ++t_piece)
 		for (t_pce_num = 0; t_pce_num < pos->pieceCounts[t_piece]; ++t_pce_num) {
 			sq = pos->pieceList[t_piece][t_pce_num];
-			assert(pos->pieces[sq] == t_piece);
+			assert(pos->board[sq] == t_piece);
 		}
 
 	// check piece count and other counters
 	for (sq = A1; sq <= H8; ++sq) {
 
-		t_piece = pos->pieces[sq];
+		t_piece = pos->board[sq];
 		t_pieceCounts[t_piece]++;
 		color = colorOf(t_piece);
 
@@ -339,8 +339,8 @@ int CheckBoard(const S_BOARD *pos) {
 	   || (pos->enPas >= 40 && pos->enPas < 48 && pos->side == WHITE) 
 	   || (pos->enPas >= 16 && pos->enPas < 24 && pos->side == BLACK));
 
-	assert(pos->pieces[pos->kingSq[WHITE]] == wK);
-	assert(pos->pieces[pos->kingSq[BLACK]] == bK);
+	assert(pos->board[pos->kingSq[WHITE]] == wK);
+	assert(pos->board[pos->kingSq[BLACK]] == bK);
 
 	assert(pos->castlePerm >= 0 && pos->castlePerm <= 15);
 
@@ -378,14 +378,14 @@ void MirrorBoard(S_BOARD *pos) {
 
 	// Array representation
 	for (sq = A1; sq <= H8; ++sq)
-		tempPiecesArray[sq] = SwapPiece[pos->pieces[mirror[sq]]];
+		tempPiecesArray[sq] = SwapPiece[pos->board[mirror[sq]]];
 
 	// Clear the board
 	ResetBoard(pos);
 
 	// Fill the board with the stored mirrored data
 	for (sq = A1; sq <= H8; ++sq)
-		pos->pieces[sq] = tempPiecesArray[sq];
+		pos->board[sq] = tempPiecesArray[sq];
 
 	pos->side = tempSide;
 	pos->enPas = tempEnPas;

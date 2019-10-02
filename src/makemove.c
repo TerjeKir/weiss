@@ -32,7 +32,7 @@ static void ClearPiece(const int sq, S_BOARD *pos) {
 
 	assert(ValidSquare(sq));
 
-	int piece = pos->pieces[sq];
+	int piece = pos->board[sq];
 	int color = colorOf(piece);
 	int t_pieceCounts = -1;
 
@@ -43,7 +43,7 @@ static void ClearPiece(const int sq, S_BOARD *pos) {
 	HASH_PCE(piece, sq);
 
 	// Set square to empty and reduce material score
-	pos->pieces[sq] = EMPTY;
+	pos->board[sq] = EMPTY;
 	pos->material[color] -= pieceValue[piece];
 
 	// Update various piece lists
@@ -83,7 +83,7 @@ static void AddPiece(const int sq, S_BOARD *pos, const int piece) {
 	HASH_PCE(piece, sq);
 
 	// Update square
-	pos->pieces[sq] = piece;
+	pos->board[sq] = piece;
 
 	// Update various piece lists
 	if (pieceBig[piece])
@@ -107,7 +107,7 @@ static void MovePiece(const int from, const int to, S_BOARD *pos) {
 	assert(ValidSquare(from));
 	assert(ValidSquare(to));
 
-	int piece = pos->pieces[from];
+	int piece = pos->board[from];
 
 	assert(ValidPiece(piece));
 
@@ -116,8 +116,8 @@ static void MovePiece(const int from, const int to, S_BOARD *pos) {
 	HASH_PCE(piece, to);
 
 	// Set old square to empty, new to piece
-	pos->pieces[from] = EMPTY;
-	pos->pieces[to]   = piece;
+	pos->board[from] = EMPTY;
+	pos->board[to]   = piece;
 
 	// Update square for the piece in pieceList
 	for (int i = 0; i < pos->pieceCounts[piece]; ++i)
@@ -187,7 +187,7 @@ void TakeMove(S_BOARD *pos) {
 	MovePiece(to, from, pos);
 
 	// Update king position if king moved
-	if (pieceKing[pos->pieces[from]])
+	if (pieceKing[pos->board[from]])
 		pos->kingSq[pos->side] = from;
 
 	// Add back captured piece if any
@@ -224,7 +224,7 @@ int MakeMove(S_BOARD *pos, const int move) {
 	assert(ValidSquare(from));
 	assert(ValidSquare(to));
 	assert(ValidSide(side));
-	assert(ValidPiece(pos->pieces[from]));
+	assert(ValidPiece(pos->board[from]));
 	assert(pos->hisPly >= 0 && pos->hisPly < MAXGAMEMOVES);
 	assert(pos->ply >= 0 && pos->ply < MAXDEPTH);
 
@@ -278,7 +278,7 @@ int MakeMove(S_BOARD *pos, const int move) {
 	MovePiece(from, to, pos);
 
 	// Pawn move specifics
-	if (piecePawn[pos->pieces[to]]) {
+	if (piecePawn[pos->board[to]]) {
 
 		// Reset 50mr after a pawn move
 		pos->fiftyMove = 0;
@@ -303,7 +303,7 @@ int MakeMove(S_BOARD *pos, const int move) {
 		}
 
 	// Update king position if king moved
-	} else if (pieceKing[pos->pieces[to]])
+	} else if (pieceKing[pos->board[to]])
 		pos->kingSq[side] = to;
 
 	// Change turn to play

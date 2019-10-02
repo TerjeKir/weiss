@@ -348,7 +348,7 @@ standard_search:
 
 				// Update searchHistory if quiet move
 				if (!(list->moves[moveNum].move & MOVE_IS_CAPTURE))
-					pos->searchHistory[pos->pieces[FROMSQ(bestMove)]][TOSQ(bestMove)] += depth;
+					pos->searchHistory[pos->board[FROMSQ(bestMove)]][TOSQ(bestMove)] += depth;
 			}
 		}
 	}
