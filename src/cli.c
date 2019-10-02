@@ -95,7 +95,7 @@ static int checkresult(S_BOARD *pos) {
 	if (found != 0)
 		return false;
 
-	int InCheck = SqAttacked(pos->KingSq[pos->side], !pos->side, pos);
+	int InCheck = SqAttacked(pos->kingSq[pos->side], !pos->side, pos);
 
 	if (InCheck) {
 		if (pos->side == WHITE) {
@@ -184,7 +184,7 @@ void Console_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 
 		if (!strcmp(command, "mirrortest")) {
 			engineSide = BOTH;
-			MirrorEvalTest(pos);
+			mirrorEvalTest(pos);
 			continue;
 		}
 
@@ -197,7 +197,7 @@ void Console_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 		if (!strcmp(command, "eval")) {
 			PrintBoard(pos);
 			printf("Eval:%d", EvalPosition(pos));
-			MirrorBoard(pos);
+			mirrorBoard(pos);
 			PrintBoard(pos);
 			printf("Eval:%d", EvalPosition(pos));
 			continue;
@@ -262,7 +262,7 @@ void Console_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 		}
 
 		if (!strcmp(command, "new")) {
-			ClearHashTable(pos->HashTable);
+			ClearhashTable(pos->hashTable);
 			engineSide = BLACK;
 			ParseFen(START_FEN, pos);
 			continue;

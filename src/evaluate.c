@@ -9,7 +9,7 @@
 #include "validate.h"
 
 
-#define ENDGAME_MAT (1 * PieceValues[wR] + 2 * PieceValues[wN] + 2 * PieceValues[wP] + PieceValues[wK])
+#define ENDGAME_MAT (1 * pieceValue[wR] + 2 * pieceValue[wN] + 2 * pieceValue[wP] + pieceValue[wK])
 
 
 bitboard BlackPassedMask[64];
@@ -234,7 +234,7 @@ int EvalPosition(const S_BOARD *pos) {
 		sq = pos->pieceList[bP][i];
 
 		// Position score
-		score -= PawnTable[Mirror[(sq)]];
+		score -= PawnTable[mirror[(sq)]];
 		// Isolation penalty
 		if (!(IsolatedMask[sq] & blackPawns))
 			score -= PawnIsolated;
@@ -252,7 +252,7 @@ int EvalPosition(const S_BOARD *pos) {
 	// Black knights
 	for (i = 0; i < pos->pieceCounts[bN]; ++i) {
 		sq = pos->pieceList[bN][i];
-		score -= KnightTable[Mirror[(sq)]];
+		score -= KnightTable[mirror[(sq)]];
 	}
 
 	// White bishops
@@ -264,7 +264,7 @@ int EvalPosition(const S_BOARD *pos) {
 	// Black bishops
 	for (i = 0; i < pos->pieceCounts[bB]; ++i) {
 		sq = pos->pieceList[bB][i];
-		score -= BishopTable[Mirror[(sq)]];
+		score -= BishopTable[mirror[(sq)]];
 	}
 
 	// White rooks
@@ -284,7 +284,7 @@ int EvalPosition(const S_BOARD *pos) {
 	for (i = 0; i < pos->pieceCounts[bR]; ++i) {
 		sq = pos->pieceList[bR][i];
 
-		score -= RookTable[Mirror[(sq)]];
+		score -= RookTable[mirror[(sq)]];
 
 		// Open/Semi-open file bonus
 		if (!(pos->pieceBBs[PAWN] & fileBBs[fileOf(sq)]))
@@ -316,12 +316,12 @@ int EvalPosition(const S_BOARD *pos) {
 	}
 
 	// White king
-	score += (pos->material[BLACK] <= ENDGAME_MAT) ?   KingEndgame[pos->KingSq[WHITE]] 
-												   : KingEarlygame[pos->KingSq[WHITE]];
+	score += (pos->material[BLACK] <= ENDGAME_MAT) ?   KingEndgame[pos->kingSq[WHITE]] 
+												   : KingEarlygame[pos->kingSq[WHITE]];
 
 	// Black king
-	score -= (pos->material[WHITE] <= ENDGAME_MAT) ?   KingEndgame[Mirror[(pos->KingSq[BLACK])]] 
-												   : KingEarlygame[Mirror[(pos->KingSq[BLACK])]];
+	score -= (pos->material[WHITE] <= ENDGAME_MAT) ?   KingEndgame[mirror[(pos->kingSq[BLACK])]] 
+												   : KingEarlygame[mirror[(pos->kingSq[BLACK])]];
 
 	assert(score > -INFINITE && score < INFINITE);
 

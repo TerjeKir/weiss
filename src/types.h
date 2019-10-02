@@ -95,7 +95,7 @@ typedef struct {
 	int pieceList[PIECE_NB][10];
 	int pieceCounts[PIECE_NB];
 
-	int KingSq[2];
+	int kingSq[2];
 	int bigPieces[2];
 	int material[2];
 
@@ -111,8 +111,8 @@ typedef struct {
 
 	S_UNDO history[MAXGAMEMOVES];
 
-	S_HASHTABLE HashTable[1];
-	int PvArray[MAXDEPTH];
+	S_HASHTABLE hashTable[1];
+	int pvArray[MAXDEPTH];
 
 	int searchHistory[PIECE_NB][64];
 	int searchKillers[2][MAXDEPTH];

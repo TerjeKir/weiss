@@ -393,7 +393,7 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 	}
 
 	// King
-	sq = pos->KingSq[side];
+	sq = pos->kingSq[side];
 	GenerateKingCaptures(pos, list, sq, enemies, attacks, attack);
 	GenerateKingMoves   (pos, list, sq, empty, moves, move);
 
@@ -481,7 +481,7 @@ void GenerateAllCaptures(const S_BOARD *pos, S_MOVELIST *list) {
 	}
 
 	// King
-	sq = pos->KingSq[side];
+	sq = pos->kingSq[side];
 	GenerateKingCaptures(pos, list, sq, enemies, attacks, attack);
 
 	assert(MoveListOk(list, pos));

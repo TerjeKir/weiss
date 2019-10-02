@@ -37,15 +37,15 @@ static void UpdateListsMaterial(S_BOARD *pos) {
 		// If it isn't empty we update the relevant lists
 		if (piece != EMPTY) {
 
-			color = PieceColor[piece];
+			color = pieceColor[piece];
 			assert(ValidSide(color));
 
 			// Non pawn piece
-			if (PieceBig[piece]) 
+			if (pieceBig[piece]) 
 				pos->bigPieces[color]++;
 
 			// Total material value for that side
-			pos->material[color] += PieceValues[piece];
+			pos->material[color] += pieceValue[piece];
 
 			assert(pos->pieceCounts[piece] < 10 && pos->pieceCounts[piece] >= 0);
 
@@ -54,8 +54,8 @@ static void UpdateListsMaterial(S_BOARD *pos) {
 			pos->pieceCounts[piece]++;
 
 			// King square
-			if      (piece == wK) pos->KingSq[WHITE] = sq;
-			else if (piece == bK) pos->KingSq[BLACK] = sq;
+			if      (piece == wK) pos->kingSq[WHITE] = sq;
+			else if (piece == bK) pos->kingSq[BLACK] = sq;
 		}
 	}
 }
@@ -71,7 +71,7 @@ static void UpdateBitboards(S_BOARD *pos) {
 
 		if (piece != EMPTY) {
 			SETBIT(pos->colorBBs[BOTH], sq);
-			SETBIT(pos->colorBBs[PieceColor[piece]], sq);
+			SETBIT(pos->colorBBs[pieceColor[piece]], sq);
 			SETBIT(pos->pieceBBs[pieceType[piece]], sq);
 		}
 	}
@@ -101,7 +101,7 @@ static void ResetBoard(S_BOARD *pos) {
 	}
 
 	// King squares
-	pos->KingSq[WHITE] = pos->KingSq[BLACK] = NO_SQ;
+	pos->kingSq[WHITE] = pos->kingSq[BLACK] = NO_SQ;
 
 	// Piece counts and material
 	for (i = BLACK; i <= WHITE; ++i) {
@@ -121,7 +121,7 @@ static void ResetBoard(S_BOARD *pos) {
 	// Position key
 	pos->posKey = 0ULL;
 
-	memset(pos->PvArray, 0, sizeof(pos->PvArray)); // TODO does this make sense???
+	memset(pos->pvArray, 0, sizeof(pos->pvArray)); // TODO does this make sense???
 }
 
 
@@ -322,11 +322,11 @@ int CheckBoard(const S_BOARD *pos) {
 
 		t_piece = pos->pieces[sq];
 		t_pieceCounts[t_piece]++;
-		color = PieceColor[t_piece];
+		color = pieceColor[t_piece];
 
-		if (PieceBig[t_piece]) t_bigPieces[color]++;
+		if (pieceBig[t_piece]) t_bigPieces[color]++;
 
-		t_material[color] += PieceValues[t_piece];
+		t_material[color] += pieceValue[t_piece];
 	}
 
 	for (t_piece = PIECE_MIN; t_piece < PIECE_NB; ++t_piece)
@@ -341,8 +341,8 @@ int CheckBoard(const S_BOARD *pos) {
 	   || (pos->enPas >= 40 && pos->enPas < 48 && pos->side == WHITE) 
 	   || (pos->enPas >= 16 && pos->enPas < 24 && pos->side == BLACK));
 
-	assert(pos->pieces[pos->KingSq[WHITE]] == wK);
-	assert(pos->pieces[pos->KingSq[BLACK]] == bK);
+	assert(pos->pieces[pos->kingSq[WHITE]] == wK);
+	assert(pos->pieces[pos->kingSq[BLACK]] == bK);
 
 	assert(pos->castlePerm >= 0 && pos->castlePerm <= 15);
 
@@ -354,7 +354,7 @@ int CheckBoard(const S_BOARD *pos) {
 
 #ifdef CLI
 // Reverse the colors
-void MirrorBoard(S_BOARD *pos) {
+void mirrorBoard(S_BOARD *pos) {
 
 	int SwapPiece[PIECE_NB] = {EMPTY, bP, bN, bB, bR, bQ, bK, wP, wN, wB, wR, wQ, wK};
 	int tempPiecesArray[64];
@@ -374,13 +374,13 @@ void MirrorBoard(S_BOARD *pos) {
 
 	// En passant
 	if (pos->enPas != NO_SQ)
-		tempEnPas = Mirror[pos->enPas];
+		tempEnPas = mirror[pos->enPas];
 	else
 		tempEnPas = NO_SQ;
 
 	// Array representation
 	for (sq = A1; sq <= H8; ++sq)
-		tempPiecesArray[sq] = SwapPiece[pos->pieces[Mirror[sq]]];
+		tempPiecesArray[sq] = SwapPiece[pos->pieces[mirror[sq]]];
 
 	// Clear the board
 	ResetBoard(pos);

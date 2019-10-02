@@ -75,9 +75,9 @@ static void ClearForSearch(S_BOARD *pos, S_SEARCHINFO *info) {
 			pos->searchKillers[index][index2] = 0;
 
 #ifdef SEARCH_STATS
-	pos->HashTable->hit = 0;
-	pos->HashTable->cut = 0;
-	pos->HashTable->overWrite = 0;
+	pos->hashTable->hit = 0;
+	pos->hashTable->cut = 0;
+	pos->hashTable->overWrite = 0;
 
 	info->fh = 0;
 	info->fhf = 0;
@@ -215,7 +215,7 @@ static int AlphaBeta(int alpha, const int beta, int depth, S_BOARD *pos, S_SEARC
 	}
 
 	// Extend search if in check
-	int inCheck = SqAttacked(pos->KingSq[pos->side], !pos->side, pos);
+	int inCheck = SqAttacked(pos->kingSq[pos->side], !pos->side, pos);
 	if (inCheck) depth++;
 
 	int score = -INFINITE;
@@ -224,7 +224,7 @@ static int AlphaBeta(int alpha, const int beta, int depth, S_BOARD *pos, S_SEARC
 	// Probe transposition table
 	if (ProbeHashEntry(pos, &pvMove, &score, alpha, beta, depth)) {
 #ifdef SEARCH_STATS
-		pos->HashTable->cut++;
+		pos->hashTable->cut++;
 #endif
 		return score;
 	}
@@ -389,14 +389,14 @@ void SearchPosition(S_BOARD *pos, S_SEARCHINFO *info) {
 		PrintThinking(info, pos, bestScore, currentDepth);
 
 #ifdef SEARCH_STATS
-		printf("Stats: Hits: %d Overwrite: %d NewWrite: %d Cut: %d\nOrdering %.2f NullCut: %d\n", pos->HashTable->hit,
-			pos->HashTable->overWrite, pos->HashTable->newWrite, pos->HashTable->cut, (info->fhf/info->fh)*100, info->nullCut);
+		printf("Stats: Hits: %d Overwrite: %d NewWrite: %d Cut: %d\nOrdering %.2f NullCut: %d\n", pos->hashTable->hit,
+			pos->hashTable->overWrite, pos->hashTable->newWrite, pos->hashTable->cut, (info->fhf/info->fh)*100, info->nullCut);
 #endif
 	}
 
 	// Get and print best move when done thinking
-	int   bestMove = pos->PvArray[0];
-	int ponderMove = pos->PvArray[1];
+	int   bestMove = pos->pvArray[0];
+	int ponderMove = pos->pvArray[1];
 
 #ifdef CLI
 	if (info->GAME_MODE == CONSOLEMODE) {

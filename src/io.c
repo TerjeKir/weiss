@@ -11,10 +11,10 @@
 #include "validate.h"
 
 
-#define IsKnight(p) (PieceKnight[(p)])
-#define IsBishop(p) (PieceBishop[(p)])
-#define IsRook(p)   (PieceRook[(p)])
-#define IsQueen(p)  (PieceQueen[(p)])
+#define IsKnight(p) (pieceKnight[(p)])
+#define IsBishop(p) (pieceBishop[(p)])
+#define IsRook(p)   (pieceRook[(p)])
+#define IsQueen(p)  (pieceQueen[(p)])
 
 
 // Translates a move to a string for printing
@@ -76,7 +76,7 @@ void PrintThinking(const S_SEARCHINFO *info, S_BOARD *pos, const int bestScore, 
 		printf("pv");
 		pvMoves = GetPvLine(currentDepth, pos);
 		for (int pvNum = 0; pvNum < pvMoves; ++pvNum) {
-			printf(" %s", MoveToStr(pos->PvArray[pvNum]));
+			printf(" %s", MoveToStr(pos->pvArray[pvNum]));
 		}
 		printf("\n");
 
@@ -90,7 +90,7 @@ void PrintThinking(const S_SEARCHINFO *info, S_BOARD *pos, const int bestScore, 
 		printf("pv");
 		pvMoves = GetPvLine(currentDepth, pos);
 		for (int pvNum = 0; pvNum < pvMoves; ++pvNum)
-			printf(" %s", MoveToStr(pos->PvArray[pvNum]));
+			printf(" %s", MoveToStr(pos->pvArray[pvNum]));
 
 		printf("\n");
 	}
