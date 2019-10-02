@@ -21,8 +21,8 @@ int MvvLvaScores[PIECE_NB][PIECE_NB];
 // Initializes the MostValuableVictim-LeastValuableAttacker scores used for ordering captures
 void InitMvvLva() {
 
-	const int VictimScore[PIECE_NB]   = {0, 106, 206, 306, 406, 506, 606, 106, 206, 306, 406, 506, 606};
-	const int AttackerScore[PIECE_NB] = {0,   1,   2,   3,   4,   5,   6,   1,   2,   3,   4,   5,   6};
+	const int VictimScore[PIECE_NB]   = {0, 106, 206, 306, 406, 506, 606, 0, 0, 106, 206, 306, 406, 506, 606, 0};
+	const int AttackerScore[PIECE_NB] = {0,   1,   2,   3,   4,   5,   6, 0, 0,   1,   2,   3,   4,   5,   6, 0};
 
 	for (int Attacker = PIECE_MIN; Attacker < PIECE_NB; ++Attacker)
 		for (int Victim = PIECE_MIN; Victim < PIECE_NB; ++Victim)
@@ -49,7 +49,7 @@ static void AddQuietMove(const S_BOARD *pos, const int move, S_MOVELIST *list) {
 	else if (pos->searchKillers[1][pos->ply] == move)
 		list->moves[list->count].score = 800000;
 	else
-		list->moves[list->count].score = pos->searchHistory[pos->pieces[from]][to];
+		list->moves[list->count].score = pos->searchHistory[pos->board[from]][to];
 
 	list->count++;
 }
@@ -67,7 +67,7 @@ static void AddCaptureMove(const S_BOARD *pos, const int move, S_MOVELIST *list)
 	assert(CheckBoard(pos));
 
 	list->moves[list->count].move = move;
-	list->moves[list->count].score = MvvLvaScores[piece][pos->pieces[from]] + 1000000;
+	list->moves[list->count].score = MvvLvaScores[piece][pos->board[from]] + 1000000;
 	list->count++;
 }
 
@@ -193,7 +193,7 @@ static inline void GenerateKingCaptures(const S_BOARD *pos, S_MOVELIST *list, co
 	attacks = king_attacks[sq] & enemies;
 	while (attacks) {
 		attack = PopLsb(&attacks);
-		AddCaptureMove(pos, MOVE(sq, attack, pos->pieces[attack], EMPTY, 0), list);
+		AddCaptureMove(pos, MOVE(sq, attack, pos->board[attack], EMPTY, 0), list);
 	}
 }
 
@@ -252,7 +252,7 @@ static inline void GenerateWhitePawnCaptures(const S_BOARD *pos, S_MOVELIST *lis
 
 		while (attacks) {
 			attack = PopLsb(&attacks);
-			AddWhitePawnCapMove(pos, sq, attack, pos->pieces[attack], list);
+			AddWhitePawnCapMove(pos, sq, attack, pos->board[attack], list);
 		}
 	}
 }
@@ -275,7 +275,7 @@ static inline void GenerateBlackPawnCaptures(const S_BOARD *pos, S_MOVELIST *lis
 
 		while (attacks) {
 			attack = PopLsb(&attacks);
-			AddBlackPawnCapMove(pos, sq, attack, pos->pieces[attack], list);
+			AddBlackPawnCapMove(pos, sq, attack, pos->board[attack], list);
 		}
 	}
 }
@@ -329,7 +329,7 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 		attacks = knight_attacks[sq] & enemies;
 		while (attacks) {
 			attack = PopLsb(&attacks);
-			AddCaptureMove(pos, MOVE(sq, attack, pos->pieces[attack], EMPTY, 0), list);
+			AddCaptureMove(pos, MOVE(sq, attack, pos->board[attack], EMPTY, 0), list);
 		}
 		moves = knight_attacks[sq] & empty;
 		while (moves) {
@@ -346,7 +346,7 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 		attacks = SliderAttacks(sq, allPieces, mRookTable) & enemies;
 		while (attacks) {
 			attack = PopLsb(&attacks);
-			AddCaptureMove(pos, MOVE(sq, attack, pos->pieces[attack], EMPTY, 0), list);
+			AddCaptureMove(pos, MOVE(sq, attack, pos->board[attack], EMPTY, 0), list);
 		}
 		moves = SliderAttacks(sq, allPieces, mRookTable) & empty;
 		while (moves) {
@@ -363,7 +363,7 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 		attacks = SliderAttacks(sq, allPieces, mBishopTable) & enemies;
 		while (attacks) {
 			attack = PopLsb(&attacks);
-			AddCaptureMove(pos, MOVE(sq, attack, pos->pieces[attack], EMPTY, 0), list);
+			AddCaptureMove(pos, MOVE(sq, attack, pos->board[attack], EMPTY, 0), list);
 		}
 		moves = SliderAttacks(sq, allPieces, mBishopTable) & empty;
 		while (moves) {
@@ -383,7 +383,7 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 
 		while (attacks) {
 			attack = PopLsb(&attacks);
-			AddCaptureMove(pos, MOVE(sq, attack, pos->pieces[attack], EMPTY, 0), list);
+			AddCaptureMove(pos, MOVE(sq, attack, pos->board[attack], EMPTY, 0), list);
 		}
 
 		while (moves) {
@@ -435,7 +435,7 @@ void GenerateAllCaptures(const S_BOARD *pos, S_MOVELIST *list) {
 		attacks = knight_attacks[sq] & enemies;
 		while (attacks) {
 			attack = PopLsb(&attacks);
-			AddCaptureMove(pos, MOVE(sq, attack, pos->pieces[attack], EMPTY, 0), list);
+			AddCaptureMove(pos, MOVE(sq, attack, pos->board[attack], EMPTY, 0), list);
 		}
 	}
 
@@ -447,7 +447,7 @@ void GenerateAllCaptures(const S_BOARD *pos, S_MOVELIST *list) {
 		attacks = SliderAttacks(sq, allPieces, mRookTable) & enemies;
 		while (attacks) {
 			attack = PopLsb(&attacks);
-			AddCaptureMove(pos, MOVE(sq, attack, pos->pieces[attack], EMPTY, 0), list);
+			AddCaptureMove(pos, MOVE(sq, attack, pos->board[attack], EMPTY, 0), list);
 		}
 	}
 
@@ -459,7 +459,7 @@ void GenerateAllCaptures(const S_BOARD *pos, S_MOVELIST *list) {
 		attacks = SliderAttacks(sq, allPieces, mBishopTable) & enemies;
 		while (attacks) {
 			attack = PopLsb(&attacks);
-			AddCaptureMove(pos, MOVE(sq, attack, pos->pieces[attack], EMPTY, 0), list);
+			AddCaptureMove(pos, MOVE(sq, attack, pos->board[attack], EMPTY, 0), list);
 		}
 	}
 
@@ -471,12 +471,12 @@ void GenerateAllCaptures(const S_BOARD *pos, S_MOVELIST *list) {
 		attacks = SliderAttacks(sq, allPieces, mBishopTable) & enemies;
 		while (attacks) {
 			attack = PopLsb(&attacks);
-			AddCaptureMove(pos, MOVE(sq, attack, pos->pieces[attack], EMPTY, 0), list);
+			AddCaptureMove(pos, MOVE(sq, attack, pos->board[attack], EMPTY, 0), list);
 		}
 		attacks = SliderAttacks(sq, allPieces, mRookTable) & enemies;
 		while (attacks) {
 			attack = PopLsb(&attacks);
-			AddCaptureMove(pos, MOVE(sq, attack, pos->pieces[attack], EMPTY, 0), list);
+			AddCaptureMove(pos, MOVE(sq, attack, pos->board[attack], EMPTY, 0), list);
 		}
 	}
 

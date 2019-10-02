@@ -184,7 +184,7 @@ void Console_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 
 		if (!strcmp(command, "mirrortest")) {
 			engineSide = BOTH;
-			mirrorEvalTest(pos);
+			MirrorEvalTest(pos);
 			continue;
 		}
 
@@ -197,7 +197,7 @@ void Console_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 		if (!strcmp(command, "eval")) {
 			PrintBoard(pos);
 			printf("Eval:%d", EvalPosition(pos));
-			mirrorBoard(pos);
+			MirrorBoard(pos);
 			PrintBoard(pos);
 			printf("Eval:%d", EvalPosition(pos));
 			continue;
@@ -262,7 +262,7 @@ void Console_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 		}
 
 		if (!strcmp(command, "new")) {
-			ClearhashTable(pos->hashTable);
+			ClearHashTable(pos->hashTable);
 			engineSide = BLACK;
 			ParseFen(START_FEN, pos);
 			continue;

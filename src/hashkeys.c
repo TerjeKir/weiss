@@ -44,7 +44,7 @@ uint64_t GeneratePosKey(const S_BOARD *pos) {
 
 	// Pieces
 	for (int sq = A1; sq <= H8; ++sq) {
-		int piece = pos->pieces[sq];
+		int piece = pos->board[sq];
 		if (piece != EMPTY)
 			posKey ^= PieceKeys[piece][sq];
 	}

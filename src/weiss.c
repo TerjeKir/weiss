@@ -34,7 +34,7 @@ int main() {
 	S_SEARCHINFO info[1];
 	info->quit = false;
 	pos->hashTable->pTable = NULL;
-	InithashTable(pos->hashTable, DEFAULTHASH);
+	InitHashTable(pos->hashTable, DEFAULTHASH);
 
 	setbuf(stdin, NULL);
 	setbuf(stdout, NULL);
