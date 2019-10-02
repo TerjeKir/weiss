@@ -29,7 +29,7 @@ static void UpdateListsMaterial(S_BOARD *pos) {
 	int piece, color;
 
 	// Loop through each square on the board
-	for (int sq = 0; sq < 64; ++sq) {
+	for (int sq = A1; sq <= H8; ++sq) {
 
 		piece = pos->pieces[sq];
 		assert(ValidPieceOrEmpty(piece));
@@ -64,7 +64,7 @@ static void UpdateListsMaterial(S_BOARD *pos) {
 static void UpdateBitboards(S_BOARD *pos) {
 
 	// Loop through each square and update bitboards if there's a piece there
-	for (int sq = 0; sq < 64; ++sq) {
+	for (int sq = A1; sq <= H8; ++sq) {
 
 		int piece = pos->pieces[sq];
 		assert(ValidPieceOrEmpty(piece));
@@ -96,7 +96,7 @@ static void ResetBoard(S_BOARD *pos) {
 		pos->pieces[i] = EMPTY;
 
 	// Piece lists and counts
-	for (i = 0; i < 13; ++i) {
+	for (i = 0; i < PIECE_NB; ++i) {
 		pos->pieceCounts[i] = 0;
 		for (j = 0; j < 10; ++j)
 			pos->pieceList[i][j] = 0;
@@ -275,9 +275,9 @@ void PrintBoard(const S_BOARD *pos) {
 // Check board state makes sense
 int CheckBoard(const S_BOARD *pos) {
 
-	int t_pieceCounts[13] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-	int t_bigPieces[2] = {0, 0};
-	int t_material[2] = {0, 0};
+	int t_pieceCounts[PIECE_NB] = { 0 };
+	int t_bigPieces[2] = { 0, 0 };
+	int t_material[2] = { 0, 0 };
 
 	int sq, t_piece, t_pce_num, color;
 
@@ -320,7 +320,7 @@ int CheckBoard(const S_BOARD *pos) {
 		}
 
 	// check piece count and other counters
-	for (sq = 0; sq < 64; ++sq) {
+	for (sq = A1; sq <= H8; ++sq) {
 
 		t_piece = pos->pieces[sq];
 		t_pieceCounts[t_piece]++;
@@ -358,7 +358,7 @@ int CheckBoard(const S_BOARD *pos) {
 // Reverse the colors
 void MirrorBoard(S_BOARD *pos) {
 
-	int SwapPiece[13] = {EMPTY, bP, bN, bB, bR, bQ, bK, wP, wN, wB, wR, wQ, wK};
+	int SwapPiece[PIECE_NB] = {EMPTY, bP, bN, bB, bR, bQ, bK, wP, wN, wB, wR, wQ, wK};
 	int tempPiecesArray[64];
 	int tempEnPas, sq;
 
@@ -381,16 +381,16 @@ void MirrorBoard(S_BOARD *pos) {
 		tempEnPas = NO_SQ;
 
 	// Array representation
-	for (sq = 0; sq < 64; ++sq)
+	for (sq = A1; sq <= H8; ++sq)
 		tempPiecesArray[sq] = SwapPiece[pos->pieces[Mirror[sq]]];
 
 	// Clear the board
 	ResetBoard(pos);
 
 	// Fill the board with the stored mirrored data
-	for (sq = 0; sq < 64; ++sq) {
+	for (sq = A1; sq <= H8; ++sq)
 		pos->pieces[sq] = tempPiecesArray[sq];
-	}
+
 	pos->side = tempSide;
 	pos->enPas = tempEnPas;
 	pos->castlePerm = tempCastlePerm;

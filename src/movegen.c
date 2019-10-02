@@ -16,13 +16,13 @@ const bitboard bitB8C8D8 = (1ULL << 57) | (1ULL << 58) | (1ULL << 59);
 const bitboard bitF1G1   = (1ULL <<  5) | (1ULL <<  6);
 const bitboard bitF8G8   = (1ULL << 61) | (1ULL << 62);
 
-int MvvLvaScores[13][13];
+int MvvLvaScores[PIECE_NB][PIECE_NB];
 
 // Initializes the MostValuableVictim-LeastValuableAttacker scores used for ordering captures
 void InitMvvLva() {
 
-	const int VictimScore[13]   = {0, 106, 206, 306, 406, 506, 606, 106, 206, 306, 406, 506, 606};
-	const int AttackerScore[13] = {0,   1,   2,   3,   4,   5,   6,   1,   2,   3,   4,   5,   6};
+	const int VictimScore[PIECE_NB]   = {0, 106, 206, 306, 406, 506, 606, 106, 206, 306, 406, 506, 606};
+	const int AttackerScore[PIECE_NB] = {0,   1,   2,   3,   4,   5,   6,   1,   2,   3,   4,   5,   6};
 
 	for (int Attacker = wP; Attacker <= bK; ++Attacker)
 		for (int Victim = wP; Victim <= bK; ++Victim)

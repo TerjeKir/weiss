@@ -3,17 +3,17 @@
 #pragma once
 
 
-extern int PieceBig[13];
-extern int PieceValues[13];
-extern int PieceColor[13];
-extern int pieceType[13];
+extern int PieceBig   [PIECE_NB];
+extern int PieceValues[PIECE_NB];
+extern int PieceColor [PIECE_NB];
+extern int pieceType  [PIECE_NB];
 
 // Mostly unused
-extern int PiecePawn[13];
-extern int PieceKnight[13];
-extern int PieceBishop[13];
-extern int PieceRook[13];
-extern int PieceQueen[13];
-extern int PieceKing[13];
+extern int PiecePawn  [PIECE_NB];
+extern int PieceKnight[PIECE_NB];
+extern int PieceBishop[PIECE_NB];
+extern int PieceRook  [PIECE_NB];
+extern int PieceQueen [PIECE_NB];
+extern int PieceKing  [PIECE_NB];
 
 extern int Mirror[64];

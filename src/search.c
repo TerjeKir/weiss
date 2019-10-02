@@ -66,7 +66,7 @@ static void ClearForSearch(S_BOARD *pos, S_SEARCHINFO *info) {
 
 	int index, index2;
 
-	for (index = 0; index < 13; ++index)
+	for (index = 0; index < PIECE_NB; ++index)
 		for (index2 = 0; index2 < 64; ++index2)
 			pos->searchHistory[index][index2] = 0;
 

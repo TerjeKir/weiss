@@ -3,17 +3,17 @@
 #include "types.h"
 
 
-const int PieceBig[13]    = { false, false,  true,  true,  true,  true, false, false,  true,  true,  true,  true, false };
-const int PieceValues[13] = {     0,   100,   325,   325,   550,  1000, 50000,   100,   325,   325,   550,  1000, 50000 };
-const int PieceColor[13]  = {  BOTH, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK };
-const int pieceType[13]	  = { -1, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING };
+const int PieceBig   [PIECE_NB] = { false, false,  true,  true,  true,  true, false, false,  true,  true,  true,  true, false };
+const int PieceValues[PIECE_NB] = {     0,   100,   325,   325,   550,  1000, 50000,   100,   325,   325,   550,  1000, 50000 };
+const int PieceColor [PIECE_NB] = {  BOTH, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK };
+const int pieceType  [PIECE_NB] = {    -1,  PAWN,KNIGHT,BISHOP,  ROOK, QUEEN,  KING,  PAWN,KNIGHT,BISHOP,  ROOK, QUEEN,  KING };
 
-const int PiecePawn[13]   = { false,  true, false, false, false, false, false,  true, false, false, false, false, false };
-const int PieceKnight[13] = { false, false,  true, false, false, false, false, false,  true, false, false, false, false };
-const int PieceBishop[13] = { false, false, false,  true, false, false, false, false, false,  true, false, false, false };
-const int PieceRook[13]   = { false, false, false, false,  true, false, false, false, false, false,  true, false, false };
-const int PieceQueen[13]  = { false, false, false, false, false,  true, false, false, false, false, false,  true, false };
-const int PieceKing[13]   = { false, false, false, false, false, false,  true, false, false, false, false, false,  true };
+const int PiecePawn  [PIECE_NB] = { false,  true, false, false, false, false, false,  true, false, false, false, false, false };
+const int PieceKnight[PIECE_NB] = { false, false,  true, false, false, false, false, false,  true, false, false, false, false };
+const int PieceBishop[PIECE_NB] = { false, false, false,  true, false, false, false, false, false,  true, false, false, false };
+const int PieceRook  [PIECE_NB] = { false, false, false, false,  true, false, false, false, false, false,  true, false, false };
+const int PieceQueen [PIECE_NB] = { false, false, false, false, false,  true, false, false, false, false, false,  true, false };
+const int PieceKing  [PIECE_NB] = { false, false, false, false, false, false,  true, false, false, false, false, false,  true };
 
 const int Mirror[64] = {
 	56, 57, 58, 59, 60, 61, 62, 63,
