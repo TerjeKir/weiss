@@ -102,7 +102,6 @@ typedef struct {
 
 	int kingSq[2];
 	int bigPieces[2];
-	int material[2];
 
 	int side;
 	int enPas;
