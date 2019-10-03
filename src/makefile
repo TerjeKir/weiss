@@ -10,7 +10,7 @@ OUT		= ../bin/
 #generic flags
 STD		= -std=gnu11
 WFLAGS 	= -Wall -Wextra -Wshadow
-OPTIM	= -O3 -march=native -flto
+OPTIM	= -O3 -march=native -flto -funroll-loops
 POPTIM  = -O0 -march=native
 
 #pgo
