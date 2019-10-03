@@ -31,6 +31,14 @@ enum {
 	PIECE_NB = 16
 };
 
+enum PieceValue {
+	P_VAL =  100,
+	N_VAL =  325,
+	B_VAL =  325,
+	R_VAL =  550,
+	Q_VAL = 1000
+};
+
 enum File { FILE_A, FILE_B, FILE_C, FILE_D, FILE_E, FILE_F, FILE_G, FILE_H, FILE_NONE };
 
 enum Rank { RANK_1, RANK_2, RANK_3, RANK_4, RANK_5, RANK_6, RANK_7, RANK_8, RANK_NONE };
@@ -102,7 +110,6 @@ typedef struct {
 
 	int kingSq[2];
 	int bigPieces[2];
-	int material[2];
 
 	int side;
 	int enPas;

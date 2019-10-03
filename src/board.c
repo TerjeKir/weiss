@@ -44,9 +44,6 @@ static void UpdateListsMaterial(S_BOARD *pos) {
 			if (pieceBig[piece])
 				pos->bigPieces[color]++;
 
-			// Total material value for that side
-			pos->material[color] += pieceValue[piece];
-
 			assert(pos->pieceCounts[piece] < 10 && pos->pieceCounts[piece] >= 0);
 
 			// Piece list / count
@@ -103,9 +100,9 @@ static void ResetBoard(S_BOARD *pos) {
 	// King squares
 	pos->kingSq[WHITE] = pos->kingSq[BLACK] = NO_SQ;
 
-	// Piece counts and material
+	// Big piece counts
 	for (i = BLACK; i <= WHITE; ++i) {
-		pos->bigPieces[i] = pos->material[i] = 0;
+		pos->bigPieces[i] = 0;
 	}
 
 	// Misc
@@ -273,7 +270,6 @@ int CheckBoard(const S_BOARD *pos) {
 
 	int t_pieceCounts[PIECE_NB] = { 0 };
 	int t_bigPieces[2] = { 0, 0 };
-	int t_material[2] = { 0, 0 };
 
 	int sq, t_piece, t_pce_num, color;
 
@@ -323,14 +319,11 @@ int CheckBoard(const S_BOARD *pos) {
 		color = colorOf(t_piece);
 
 		if (pieceBig[t_piece]) t_bigPieces[color]++;
-
-		t_material[color] += pieceValue[t_piece];
 	}
 
 	for (t_piece = PIECE_MIN; t_piece < PIECE_NB; ++t_piece)
 		assert(t_pieceCounts[t_piece] == pos->pieceCounts[t_piece]);
 
-	assert(t_material[WHITE] == pos->material[WHITE] && t_material[BLACK] == pos->material[BLACK]);
 	assert(t_bigPieces[WHITE] == pos->bigPieces[WHITE] && t_bigPieces[BLACK] == pos->bigPieces[BLACK]);
 
 	assert(pos->side == WHITE || pos->side == BLACK);

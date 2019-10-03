@@ -42,9 +42,8 @@ static void ClearPiece(const int sq, S_BOARD *pos) {
 	// Hash out the piece
 	HASH_PCE(piece, sq);
 
-	// Set square to empty and reduce material score
+	// Set square to empty
 	pos->board[sq] = EMPTY;
-	pos->material[color] -= pieceValue[piece];
 
 	// Update various piece lists
 	if (pieceBig[piece])
@@ -89,7 +88,6 @@ static void AddPiece(const int sq, S_BOARD *pos, const int piece) {
 	if (pieceBig[piece])
 		pos->bigPieces[color]++;
 
-	pos->material[color] += pieceValue[piece];
 	pos->pieceList[piece][pos->pieceCounts[piece]++] = sq;
 
 	// Update bitboards

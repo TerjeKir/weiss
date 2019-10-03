@@ -22,6 +22,7 @@ void InitAll() {
 	InitBitMasks();
 	InitHashKeys();
 	InitEvalMasks();
+	InitPSQT();
 	InitMvvLva();
 	InitAttacks();
 }
