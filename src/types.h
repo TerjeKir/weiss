@@ -33,10 +33,10 @@ enum {
 
 enum PieceValue {
 	P_VAL =  100,
-	K_VAL =  325,
+	N_VAL =  325,
 	B_VAL =  325,
 	R_VAL =  550,
-	Q_VAL = 1000,
+	Q_VAL = 1000
 };
 
 enum File { FILE_A, FILE_B, FILE_C, FILE_D, FILE_E, FILE_F, FILE_G, FILE_H, FILE_NONE };
