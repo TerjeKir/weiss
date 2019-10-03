@@ -9,7 +9,7 @@
 #include "validate.h"
 
 
-#define ENDGAME_MAT (1 * pieceValue[wR] + 2 * pieceValue[wN] + 2 * pieceValue[wP] + pieceValue[wK])
+#define ENDGAME_MAT (pieceValue[wR] + 2 * pieceValue[wN] + 2 * pieceValue[wP])
 
 
 bitboard BlackPassedMask[64];
@@ -27,68 +27,15 @@ const int QueenSemiOpenFile = 3;
 const int BishopPair = 30;
 
 // Piece square tables
-const int PawnTable[64] = {
-	 0,   0,   0,   0,   0,   0,   0,   0,
-	10,  10,   0, -10, -10,   0,  10,  10,
-	 5,   0,   0,   5,   5,   0,   0,   5,
-	 0,   0,  10,  20,  20,  10,   0,   0,
-	 5,   5,   5,  10,  10,   5,   5,   5,
-	10,  10,  10,  20,  20,  10,  10,  10,
-	20,  20,  20,  30,  30,  20,  20,  20,
-	 0,   0,   0,   0,   0,   0,   0,   0};
-
-const int KnightTable[64] = {
-	 0, -10,   0,   0,   0,   0, -10,   0,
-	 0,   0,   0,   5,   5,   0,   0,   0,
-	 0,   0,  10,  10,  10,  10,   0,   0,
-	 0,   0,  10,  20,  20,  10,   5,   0,
-	 5,  10,  15,  20,  20,  15,  10,   5,
-	 5,  10,  10,  20,  20,  10,  10,   5,
-	 0,   0,   5,  10,  10,   5,   0,   0,
-	 0,   0,   0,   0,   0,   0,   0,   0};
-
-const int BishopTable[64] = {
-	 0,   0, -10,   0,   0, -10,   0,   0,
-	 0,   0,   0,  10,  10,   0,   0,   0,
-	 0,   0,  10,  15,  15,  10,   0,   0,
-	 0,  10,  15,  20,  20,  15,  10,   0,
-	 0,  10,  15,  20,  20,  15,  10,   0,
-	 0,   0,  10,  15,  15,  10,   0,   0,
-	 0,   0,   0,  10,  10,   0,   0,   0,
-	 0,   0,   0,   0,   0,   0,   0,   0};
-
-const int RookTable[64] = {
-	 0,   0,   5,  10,  10,   5,   0,   0,
-	 0,   0,   5,  10,  10,   5,   0,   0,
-	 0,   0,   5,  10,  10,   5,   0,   0,
-	 0,   0,   5,  10,  10,   5,   0,   0,
-	 0,   0,   5,  10,  10,   5,   0,   0,
-	 0,   0,   5,  10,  10,   5,   0,   0,
-	25,  25,  25,  25,  25,  25,  25,  25,
-	 0,   0,   5,  10,  10,   5,   0,   0};
-
-const int KingEarlygame[64] = {
-     0,   5,   5, -10, -10,   0,  10,   5,
-   -30, -30, -30, -30, -30, -30, -30, -30,
-   -50, -50, -50, -50, -50, -50, -50, -50,
-   -70, -70, -70, -70, -70, -70, -70, -70,
-   -70, -70, -70, -70, -70, -70, -70, -70,
-   -70, -70, -70, -70, -70, -70, -70, -70,
-   -70, -70, -70, -70, -70, -70, -70, -70,
-   -70, -70, -70, -70, -70, -70, -70, -70};
-
-const int KingEndgame[64] = {
-   -50, -10,   0,   0,   0,   0, -10, -50,
-   -10,   0,  10,  10,  10,  10,   0, -10,
-     0,  10,  20,  20,  20,  20,  10,   0,
-     0,  10,  20,  40,  40,  20,  10,   0,
-     0,  10,  20,  40,  40,  20,  10,   0,
-     0,  10,  20,  20,  20,  20,  10,   0,
-   -10,   0,  10,  10,  10,  10,   0, -10,
-   -50, -10,   0,   0,   0,   0, -10, -50};
+static int PawnTable    [64];
+static int KnightTable  [64];
+static int BishopTable  [64];
+static int RookTable    [64];
+static int KingEarlygame[64];
+static int KingEndgame  [64];
 
 
-// Initialize bit masks used for evaluations
+// Initialize evaluation bit masks
 void InitEvalMasks() {
 
 	int sq, tsq;
@@ -133,6 +80,78 @@ void InitEvalMasks() {
 			for (tsq = sq - 7; tsq >= A1; tsq -= 8)
 				BlackPassedMask[sq] |= (1ULL << tsq);
 		}
+	}
+}
+
+// Initialize the piece square tables with piece values included
+void InitPSQT() {
+	int TempPawnTable[64] = {
+		 0,   0,   0,   0,   0,   0,   0,   0,
+		10,  10,   0, -10, -10,   0,  10,  10,
+		 5,   0,   0,   5,   5,   0,   0,   5,
+		 0,   0,  10,  20,  20,  10,   0,   0,
+		 5,   5,   5,  10,  10,   5,   5,   5,
+		10,  10,  10,  20,  20,  10,  10,  10,
+		20,  20,  20,  30,  30,  20,  20,  20,
+		 0,   0,   0,   0,   0,   0,   0,   0};
+
+	int TempKnightTable[64] = {
+		0, -10,   0,   0,   0,   0, -10,   0,
+		0,   0,   0,   5,   5,   0,   0,   0,
+		0,   0,  10,  10,  10,  10,   0,   0,
+		0,   0,  10,  20,  20,  10,   5,   0,
+		5,  10,  15,  20,  20,  15,  10,   5,
+		5,  10,  10,  20,  20,  10,  10,   5,
+		0,   0,   5,  10,  10,   5,   0,   0,
+		0,   0,   0,   0,   0,   0,   0,   0};
+
+	int TempBishopTable[64] = {
+		0,   0, -10,   0,   0, -10,   0,   0,
+		0,   0,   0,  10,  10,   0,   0,   0,
+		0,   0,  10,  15,  15,  10,   0,   0,
+		0,  10,  15,  20,  20,  15,  10,   0,
+		0,  10,  15,  20,  20,  15,  10,   0,
+		0,   0,  10,  15,  15,  10,   0,   0,
+		0,   0,   0,  10,  10,   0,   0,   0,
+		0,   0,   0,   0,   0,   0,   0,   0};
+
+	int TempRookTable[64] = {
+         0,   0,   5,  10,  10,   5,   0,   0,
+         0,   0,   5,  10,  10,   5,   0,   0,
+         0,   0,   5,  10,  10,   5,   0,   0,
+         0,   0,   5,  10,  10,   5,   0,   0,
+         0,   0,   5,  10,  10,   5,   0,   0,
+         0,   0,   5,  10,  10,   5,   0,   0,
+        25,  25,  25,  25,  25,  25,  25,  25,
+         0,   0,   5,  10,  10,   5,   0,   0};
+
+	int TempKingEarlygame[64] = {
+         0,   5,   5, -10, -10,   0,  10,   5,
+       -30, -30, -30, -30, -30, -30, -30, -30,
+       -50, -50, -50, -50, -50, -50, -50, -50,
+       -70, -70, -70, -70, -70, -70, -70, -70,
+       -70, -70, -70, -70, -70, -70, -70, -70,
+       -70, -70, -70, -70, -70, -70, -70, -70,
+       -70, -70, -70, -70, -70, -70, -70, -70,
+       -70, -70, -70, -70, -70, -70, -70, -70};
+
+	int TempKingEndgame[64] = {
+       -50, -10,   0,   0,   0,   0, -10, -50,
+       -10,   0,  10,  10,  10,  10,   0, -10,
+         0,  10,  20,  20,  20,  20,  10,   0,
+         0,  10,  20,  40,  40,  20,  10,   0,
+         0,  10,  20,  40,  40,  20,  10,   0,
+         0,  10,  20,  20,  20,  20,  10,   0,
+       -10,   0,  10,  10,  10,  10,   0, -10,
+       -50, -10,   0,   0,   0,   0, -10, -50};
+
+	for (int sq = A1; sq <= H8; ++sq) {
+		PawnTable  [sq] = TempPawnTable  [sq] + pieceValue[PAWN];
+		KnightTable[sq] = TempKnightTable[sq] + pieceValue[KNIGHT];
+		BishopTable[sq] = TempBishopTable[sq] + pieceValue[BISHOP];
+		RookTable  [sq] = TempRookTable  [sq] + pieceValue[ROOK];
+		KingEarlygame[sq] = TempKingEarlygame[sq];
+		KingEndgame  [sq] = TempKingEndgame  [sq];
 	}
 }
 
@@ -195,7 +214,7 @@ int EvalPosition(const S_BOARD *pos) {
 #endif
 
 	int sq, i;
-	int score = pos->material[WHITE] - pos->material[BLACK];
+	int score = 0;
 
 	bitboard whitePawns   = pos->colorBBs[WHITE] & pos->pieceBBs[  PAWN];
 	// bitboard whiteKnights = pos->colorBBs[WHITE] & pos->pieceBBs[KNIGHT];
@@ -297,6 +316,8 @@ int EvalPosition(const S_BOARD *pos) {
 	for (i = 0; i < pos->pieceCounts[wQ]; ++i) {
 		sq = pos->pieceList[wQ][i];
 
+		score += pieceValue[QUEEN];
+
 		// Open/Semi-open file bonus
 		if (!(pos->pieceBBs[PAWN] & fileBBs[fileOf(sq)]))
 			score += QueenOpenFile;
@@ -308,6 +329,8 @@ int EvalPosition(const S_BOARD *pos) {
 	for (i = 0; i < pos->pieceCounts[bQ]; ++i) {
 		sq = pos->pieceList[bQ][i];
 
+		score -= pieceValue[QUEEN];
+
 		// Open/Semi-open file bonus
 		if (!(pos->pieceBBs[PAWN] & fileBBs[fileOf(sq)]))
 			score -= QueenOpenFile;
@@ -316,12 +339,22 @@ int EvalPosition(const S_BOARD *pos) {
 	}
 
 	// White king
-	score += (pos->material[BLACK] <= ENDGAME_MAT) ?   KingEndgame[pos->kingSq[WHITE]] 
-												   : KingEarlygame[pos->kingSq[WHITE]];
+	int blackMaterial = pieceValue[PAWN]   * pos->pieceCounts[bP]
+					  + pieceValue[KNIGHT] * pos->pieceCounts[bN]
+					  + pieceValue[BISHOP] * pos->pieceCounts[bB]
+					  + pieceValue[ROOK]   * pos->pieceCounts[bR]
+					  + pieceValue[QUEEN]  * pos->pieceCounts[bQ];
+	score += (blackMaterial <= ENDGAME_MAT) ?   KingEndgame[pos->kingSq[WHITE]] 
+											: KingEarlygame[pos->kingSq[WHITE]];
 
 	// Black king
-	score -= (pos->material[WHITE] <= ENDGAME_MAT) ?   KingEndgame[mirror[(pos->kingSq[BLACK])]] 
-												   : KingEarlygame[mirror[(pos->kingSq[BLACK])]];
+	int whiteMaterial = pieceValue[PAWN]   * pos->pieceCounts[wP]
+					  + pieceValue[KNIGHT] * pos->pieceCounts[wN]
+					  + pieceValue[BISHOP] * pos->pieceCounts[wB]
+					  + pieceValue[ROOK]   * pos->pieceCounts[wR]
+					  + pieceValue[QUEEN]  * pos->pieceCounts[wQ];
+	score -= (whiteMaterial <= ENDGAME_MAT) ?   KingEndgame[mirror[(pos->kingSq[BLACK])]] 
+											: KingEarlygame[mirror[(pos->kingSq[BLACK])]];
 
 	assert(score > -INFINITE && score < INFINITE);
 
