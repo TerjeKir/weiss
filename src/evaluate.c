@@ -1,6 +1,5 @@
 // evaluate.c
 
-#include <stdio.h>
 #include <stdlib.h>
 
 #include "bitboards.h"
@@ -12,10 +11,20 @@
 #define ENDGAME_MAT (pieceValue[wR] + 2 * pieceValue[wN] + 2 * pieceValue[wP])
 
 
+// Eval bit masks
 bitboard BlackPassedMask[64];
 bitboard WhitePassedMask[64];
 bitboard IsolatedMask[64];
 
+// Piece square tables
+static int PawnTable    [64];
+static int KnightTable  [64];
+static int BishopTable  [64];
+static int RookTable    [64];
+static int KingEarlygame[64];
+static int KingEndgame  [64];
+
+// Various bonuses and maluses
 const int PawnPassed[8] = { 0, 5, 10, 20, 35, 60, 100, 0 };
 const int PawnIsolated = -10;
 
@@ -25,14 +34,6 @@ const int  RookSemiOpenFile = 5;
 const int QueenSemiOpenFile = 3;
 
 const int BishopPair = 30;
-
-// Piece square tables
-static int PawnTable    [64];
-static int KnightTable  [64];
-static int BishopTable  [64];
-static int RookTable    [64];
-static int KingEarlygame[64];
-static int KingEndgame  [64];
 
 
 // Initialize evaluation bit masks
