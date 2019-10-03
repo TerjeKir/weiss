@@ -180,7 +180,8 @@ bitboard SliderAttacks(const int sq, bitboard occupied, const MAGIC *table) {
 }
 
 // Initializes all attack bitboards
-void InitAttacks() {
+static void InitAttacks() __attribute__((constructor));
+static void InitAttacks() {
 
     // Simple
     InitKingAttacks();

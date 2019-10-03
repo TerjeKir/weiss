@@ -19,7 +19,8 @@ const bitboard bitF8G8   = (1ULL << 61) | (1ULL << 62);
 int MvvLvaScores[PIECE_NB][PIECE_NB];
 
 // Initializes the MostValuableVictim-LeastValuableAttacker scores used for ordering captures
-void InitMvvLva() {
+static void InitMvvLva() __attribute__((constructor));
+static void InitMvvLva() {
 
 	const int VictimScore[PIECE_NB]   = {0, 106, 206, 306, 406, 506, 606, 0, 0, 106, 206, 306, 406, 506, 606, 0};
 	const int AttackerScore[PIECE_NB] = {0,   1,   2,   3,   4,   5,   6, 0, 0,   1,   2,   3,   4,   5,   6, 0};

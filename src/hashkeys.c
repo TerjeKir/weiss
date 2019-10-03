@@ -19,7 +19,8 @@ uint64_t CastleKeys[16];
 
 
 // Inits zobrist key tables
-void InitHashKeys() {
+static void InitHashKeys() __attribute__((constructor));
+static void InitHashKeys() {
 
 	SideKey = RAND_64;
 
