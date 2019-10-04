@@ -14,7 +14,7 @@ OPTIM	= -O3 -march=native -flto -funroll-loops
 POPTIM  = -O0 -march=native
 
 #pgo
-PGODIR  = "../prof"
+PGODIR  = "../pgo"
 PGOMAKE	= -fprofile-generate=$(PGODIR)
 PGOUSE  = -fprofile-use=$(PGODIR)
 
