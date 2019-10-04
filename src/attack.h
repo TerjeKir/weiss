@@ -62,7 +62,5 @@ MAGIC mBishopTable[64];
 MAGIC mRookTable[64];
 
 
-void InitAttacks();
-
 bitboard SliderAttacks(const int sq, bitboard occupied, const MAGIC *table);
 int SqAttacked(const int sq, const int side, const S_BOARD *pos);

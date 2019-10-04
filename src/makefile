@@ -10,11 +10,11 @@ OUT		= ../bin/
 #generic flags
 STD		= -std=gnu11
 WFLAGS 	= -Wall -Wextra -Wshadow
-OPTIM	= -O3 -march=native
+OPTIM	= -O3 -march=native -flto -funroll-loops
 POPTIM  = -O0 -march=native
 
 #pgo
-PGODIR  = "../prof"
+PGODIR  = "../pgo"
 PGOMAKE	= -fprofile-generate=$(PGODIR)
 PGOUSE  = -fprofile-use=$(PGODIR)
 

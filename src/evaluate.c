@@ -37,7 +37,8 @@ const int BishopPair = 30;
 
 
 // Initialize evaluation bit masks
-void InitEvalMasks() {
+static void InitEvalMasks() __attribute__((constructor));
+static void InitEvalMasks() {
 
 	int sq, tsq;
 
@@ -85,7 +86,8 @@ void InitEvalMasks() {
 }
 
 // Initialize the piece square tables with piece values included
-void InitPSQT() {
+static void InitPSQT() __attribute__((constructor));
+static void InitPSQT() {
 	int TempPawnTable[64] = {
 		 0,   0,   0,   0,   0,   0,   0,   0,
 		10,  10,   0, -10, -10,   0,  10,  10,

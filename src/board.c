@@ -11,7 +11,8 @@
 #include "validate.h"
 
 // Initialize distance lookup table
-void InitDistance() {
+static void InitDistance() __attribute__((constructor));
+static void InitDistance() {
 
     int vertical, horizontal;
 

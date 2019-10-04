@@ -36,8 +36,6 @@ bitboard ClearMask[64];
 const bitboard fileBBs[8];
 const bitboard rankBBs[8];
 
-void InitBitMasks();
-
 // void PrintBB(const bitboard bb);
 
 // Population count/Hamming weight

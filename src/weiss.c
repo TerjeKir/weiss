@@ -4,12 +4,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "attack.h"
-#include "bitboards.h"
-#include "board.h"
-#include "evaluate.h"
-#include "hashkeys.h"
-#include "movegen.h"
 #include "pvtable.h"
 #include "uci.h"
 
@@ -17,19 +11,7 @@
 #include "cli.h"
 #endif
 
-void InitAll() {
-	InitDistance();
-	InitBitMasks();
-	InitHashKeys();
-	InitEvalMasks();
-	InitPSQT();
-	InitMvvLva();
-	InitAttacks();
-}
-
 int main() {
-
-	InitAll();
 
 	S_BOARD pos[1];
 	S_SEARCHINFO info[1];

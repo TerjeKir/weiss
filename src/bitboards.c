@@ -12,7 +12,8 @@ const bitboard rankBBs[] = {         0xFF,         0xFF00,         0xFF0000,    
                              0xFF00000000, 0xFF0000000000, 0xFF000000000000, 0xFF00000000000000 };
 
 
-void InitBitMasks() {
+static void InitBitMasks() __attribute__((constructor));
+static void InitBitMasks() {
 
 	for (int i = A1; i <= H8; ++i) {
 		SetMask[i]   = 0ULL;
