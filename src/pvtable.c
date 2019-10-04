@@ -186,3 +186,16 @@ void StoreHashEntry(S_BOARD *pos, const int move, const int score, const int fla
 	assert(pos->hashTable->pTable[index].score >= -INFINITE);
 	assert(pos->hashTable->pTable[index].score <=  INFINITE);
 }
+
+// Estimates the load factor of the transposition table (1 = 0.1%)
+int HashFull(const S_BOARD *pos) {
+
+	uint64_t used = 0;
+	int samples = 1000;
+
+	for (int i = 0; i < samples; ++i)
+		if (pos->hashTable->pTable[i].move != NOMOVE)
+			used++;
+
+	return used / (samples / 1000);
+}

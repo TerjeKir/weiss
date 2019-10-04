@@ -22,3 +22,4 @@ int  ProbeHashEntry(S_BOARD *pos, int *move, int *score, const int alpha, const 
 int  ProbeHashEntry(const S_BOARD *pos, int *move, int *score, const int alpha, const int beta, const int depth);
 #endif
 void StoreHashEntry(S_BOARD *pos, const int move, const int score, const int flag, const int depth);
+int HashFull(const S_BOARD *pos);

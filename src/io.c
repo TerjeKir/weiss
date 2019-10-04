@@ -72,6 +72,9 @@ void PrintThinking(const S_SEARCHINFO *info, S_BOARD *pos, const int bestScore, 
 		if (timeElapsed > 0)
 			printf("nps %I64d ", ((info->nodes * 1000) / timeElapsed));
 
+		// Hashfull
+		printf("hashfull %d ", HashFull(pos));
+
 		// Principal variation
 		printf("pv");
 		pvMoves = GetPvLine(currentDepth, pos);
