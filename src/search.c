@@ -335,7 +335,7 @@ standard_search:
 					}
 
 #ifdef SEARCH_STATS
-					if (legal == 1) info->fhf++;
+					if (legalMoves == 1) info->fhf++;
 					info->fh++;
 #endif
 

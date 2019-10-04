@@ -111,7 +111,11 @@ static inline int ScoreFromTT (int score, const int ply) {
 }
 
 // Probe the hash table
+#ifdef SEARCH_STATS
+int ProbeHashEntry(S_BOARD *pos, int *move, int *score, const int alpha, const int beta, const int depth) {
+#else
 int ProbeHashEntry(const S_BOARD *pos, int *move, int *score, const int alpha, const int beta, const int depth) {
+#endif
 
 	assert(alpha < beta);
 	assert(alpha >= -INFINITE && alpha <= INFINITE);
@@ -166,19 +170,19 @@ void StoreHashEntry(S_BOARD *pos, const int move, const int score, const int fla
 
 	assert(index >= 0 && index < pos->hashTable->numEntries);
 
-	pos->hashTable->pTable[index].posKey = pos->posKey;
-	pos->hashTable->pTable[index].move   = move;
-	pos->hashTable->pTable[index].depth  = depth;
-	pos->hashTable->pTable[index].score  = ScoreToTT(score, pos->ply);
-	pos->hashTable->pTable[index].flag   = flag;
-
-	assert(pos->hashTable->pTable[index].score >= -INFINITE);
-	assert(pos->hashTable->pTable[index].score <=  INFINITE);
-
 #ifdef SEARCH_STATS
 	if (pos->hashTable->pTable[index].posKey == 0)
 		pos->hashTable->newWrite++;
 	else
 		pos->hashTable->overWrite++;
 #endif
+
+	pos->hashTable->pTable[index].posKey = pos->posKey;
+	pos->hashTable->pTable[index].move   = move;
+	pos->hashTable->pTable[index].score  = ScoreToTT(score, pos->ply);
+	pos->hashTable->pTable[index].depth  = depth;
+	pos->hashTable->pTable[index].flag   = flag;
+
+	assert(pos->hashTable->pTable[index].score >= -INFINITE);
+	assert(pos->hashTable->pTable[index].score <=  INFINITE);
 }
