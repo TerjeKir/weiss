@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "makemove.h"
 #include "move.h"
@@ -50,15 +51,8 @@ int GetPvLine(const int depth, S_BOARD *pos) {
 // Clears the hash table
 void ClearHashTable(S_HASHTABLE *table) {
 
-	S_HASHENTRY *tableEntry;
+	memset(table->pTable, 0, table->numEntries * sizeof(S_HASHENTRY));
 
-	for (tableEntry = table->pTable; tableEntry < table->pTable + table->numEntries; ++tableEntry) {
-		tableEntry->posKey = 0ULL;
-		tableEntry->move = NOMOVE;
-		tableEntry->depth = 0;
-		tableEntry->score = 0;
-		tableEntry->flag = 0;
-	}
 #ifdef SEARCH_STATS
 	table->newWrite = 0;
 #endif
