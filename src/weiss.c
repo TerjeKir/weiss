@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "pvtable.h"
+#include "transposition.h"
 #include "uci.h"
 
 #ifdef CLI
@@ -16,7 +16,7 @@ int main() {
 	S_BOARD pos[1];
 	S_SEARCHINFO info[1];
 	info->quit = false;
-	pos->hashTable->pTable = NULL;
+	pos->hashTable->TT = NULL;
 	InitHashTable(pos->hashTable, DEFAULTHASH);
 
 	setbuf(stdin, NULL);
@@ -53,6 +53,6 @@ int main() {
 			printf("Invalid command. Type 'weiss' for console mode.\n> ");
 	}
 
-	free(pos->hashTable->pTable);
+	free(pos->hashTable->TT);
 	return 0;
 }

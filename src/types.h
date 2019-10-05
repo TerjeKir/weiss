@@ -87,7 +87,7 @@ typedef struct {
 } S_HASHENTRY;
 
 typedef struct {
-	S_HASHENTRY *pTable;
+	S_HASHENTRY *TT;
 	int numEntries;
 	uint64_t MB;
 #ifdef SEARCH_STATS

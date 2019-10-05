@@ -15,7 +15,7 @@
 #include "move.h"
 #include "movegen.h"
 #include "misc.h"
-#include "pvtable.h"
+#include "transposition.h"
 #include "search.h"
 #include "tests.h"
 

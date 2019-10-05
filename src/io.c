@@ -7,7 +7,7 @@
 #include "misc.h"
 #include "move.h"
 #include "movegen.h"
-#include "pvtable.h"
+#include "transposition.h"
 #include "validate.h"
 
 
@@ -71,6 +71,10 @@ void PrintThinking(const S_SEARCHINFO *info, S_BOARD *pos, const int bestScore, 
 		// Nodes per second
 		if (timeElapsed > 0)
 			printf("nps %I64d ", ((info->nodes * 1000) / timeElapsed));
+
+		// Hashfull
+		if (info->nodes > (uint64_t)currentDepth)
+			printf("hashfull %d ", HashFull(pos));
 
 		// Principal variation
 		printf("pv");

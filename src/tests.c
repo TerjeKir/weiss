@@ -219,8 +219,8 @@ search:
 
 				// Get pv score
 				int index = pos->posKey % pos->hashTable->numEntries;
-				if (pos->hashTable->pTable[index].posKey == pos->posKey)
-					foundScore = pos->hashTable->pTable[index].score;
+				if (pos->hashTable->TT[index].posKey == pos->posKey)
+					foundScore = pos->hashTable->TT[index].score;
 
 				// Translate score to mate depth
 				if (foundScore > ISMATE)
