@@ -11,7 +11,7 @@
 #include "makemove.h"
 #include "misc.h"
 #include "move.h"
-#include "pvtable.h"
+#include "transposition.h"
 #include "search.h"
 #include "validate.h"
 

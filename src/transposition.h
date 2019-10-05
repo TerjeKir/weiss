@@ -1,4 +1,4 @@
-// pvtable.h
+// transposition.h
 
 #pragma once
 

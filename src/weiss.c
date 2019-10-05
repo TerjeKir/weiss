@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "pvtable.h"
+#include "transposition.h"
 #include "uci.h"
 
 #ifdef CLI

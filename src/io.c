@@ -7,7 +7,7 @@
 #include "misc.h"
 #include "move.h"
 #include "movegen.h"
-#include "pvtable.h"
+#include "transposition.h"
 #include "validate.h"
 
 

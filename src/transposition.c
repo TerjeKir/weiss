@@ -1,4 +1,4 @@
-// pvtable.c
+// transposition.c
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -7,7 +7,7 @@
 #include "makemove.h"
 #include "move.h"
 #include "movegen.h"
-#include "pvtable.h"
+#include "transposition.h"
 
 
 // Returns principal variation move in the position (if any)
