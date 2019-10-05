@@ -121,8 +121,6 @@ int ProbeHashEntry(const S_BOARD *pos, int *move, int *score, const int alpha, c
 
 	int index = pos->posKey % pos->hashTable->numEntries;
 
-	assert(index >= 0 && index < pos->hashTable->numEntries);
-
 	// Look for an entry at the index
 	if (pos->hashTable->TT[index].posKey == pos->posKey) {
 
@@ -163,8 +161,6 @@ void StoreHashEntry(S_BOARD *pos, const int move, const int score, const int fla
 	assert(pos->ply >= 0 && pos->ply < MAXDEPTH);
 
 	int index = pos->posKey % pos->hashTable->numEntries;
-
-	assert(index >= 0 && index < pos->hashTable->numEntries);
 
 #ifdef SEARCH_STATS
 	if (pos->hashTable->TT[index].posKey == 0)
