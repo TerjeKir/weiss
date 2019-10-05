@@ -117,8 +117,6 @@ void Console_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 	printf("\nweiss started in console mode\n");
 	printf("Type help for commands\n\n");
 
-	info->GAME_MODE = CONSOLEMODE;
-	info->POST_THINKING = true;
 	setbuf(stdin, NULL);
 	setbuf(stdout, NULL);
 
@@ -139,8 +137,6 @@ void Console_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 
 	while (true) {
 
-		fflush(stdout);
-
 		if (pos->side == engineSide && checkresult(pos) == false) {
 			info->starttime = GetTimeMs();
 			info->depth = depth;
@@ -151,26 +147,25 @@ void Console_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 			}
 
 			SearchPosition(pos, info);
+			PrintBoard(pos);
 		}
 
 		printf("\nweiss > ");
 
-		fflush(stdout);
-
 		memset(&inBuf[0], 0, sizeof(inBuf));
-		fflush(stdout);
+
 		if (!fgets(inBuf, 80, stdin))
 			continue;
 
 		sscanf(inBuf, "%s", command);
+
+		// Basic commands
 
 		if (!strcmp(command, "help")) {
 			printf("Commands:\n");
 			printf("quit - quit game\n");
 			printf("force - computer will not think\n");
 			printf("print - show board\n");
-			printf("post - show thinking\n");
-			printf("nopost - do not show thinking\n");
 			printf("new - start new game\n");
 			printf("go - set computer thinking\n");
 			printf("depth x - set depth to x\n");
@@ -182,17 +177,54 @@ void Console_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 			continue;
 		}
 
-		if (!strcmp(command, "mirrortest")) {
-			engineSide = BOTH;
-			MirrorEvalTest(pos);
+		if (!strcmp(command, "quit")) {
+			info->quit = true;
+			break;
+		}
+
+		// Search and make a move
+
+		if (!strcmp(command, "go")) {
+			engineSide = pos->side;
 			continue;
 		}
 
-		if (!strcmp(command, "matetest")) {
+		// Engine settings
+
+		if (!strcmp(command, "force")) {
 			engineSide = BOTH;
-			MateInXTest(pos);
 			continue;
 		}
+
+		if (!strcmp(command, "depth")) {
+			sscanf(inBuf, "depth %d", &depth);
+			if (depth == 0)
+				depth = MAXDEPTH;
+			continue;
+		}
+
+		if (!strcmp(command, "time")) {
+			sscanf(inBuf, "time %d", &movetime);
+			movetime *= 1000;
+			continue;
+		}
+
+		// Set gamestate
+
+		if (!strcmp(command, "position")) {
+			engineSide = BOTH;
+			ParseFen(inBuf + 9, pos);
+			continue;
+		}
+
+		if (!strcmp(command, "new")) {
+			ClearHashTable(pos->hashTable);
+			engineSide = BLACK;
+			ParseFen(START_FEN, pos);
+			continue;
+		}
+
+		// Show info about current state
 
 		if (!strcmp(command, "eval")) {
 			PrintBoard(pos);
@@ -203,34 +235,8 @@ void Console_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 			continue;
 		}
 
-		if (!strcmp(command, "setboard")) {
-			engineSide = BOTH;
-			ParseFen(inBuf + 9, pos);
-			continue;
-		}
-
-		if (!strcmp(command, "quit")) {
-			info->quit = true;
-			break;
-		}
-
-		if (!strcmp(command, "post")) {
-			info->POST_THINKING = true;
-			continue;
-		}
-
 		if (!strcmp(command, "print")) {
 			PrintBoard(pos);
-			continue;
-		}
-
-		if (!strcmp(command, "nopost")) {
-			info->POST_THINKING = false;
-			continue;
-		}
-
-		if (!strcmp(command, "force")) {
-			engineSide = BOTH;
 			continue;
 		}
 
@@ -248,30 +254,7 @@ void Console_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 			continue;
 		}
 
-		if (!strcmp(command, "depth")) {
-			sscanf(inBuf, "depth %d", &depth);
-			if (depth == 0)
-				depth = MAXDEPTH;
-			continue;
-		}
-
-		if (!strcmp(command, "time")) {
-			sscanf(inBuf, "time %d", &movetime);
-			movetime *= 1000;
-			continue;
-		}
-
-		if (!strcmp(command, "new")) {
-			ClearHashTable(pos->hashTable);
-			engineSide = BLACK;
-			ParseFen(START_FEN, pos);
-			continue;
-		}
-
-		if (!strcmp(command, "go")) {
-			engineSide = pos->side;
-			continue;
-		}
+		// Tests
 
 		if (!strcmp(command, "perft")) {
 
@@ -286,6 +269,20 @@ void Console_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 			Perft(perftDepth, board);
 			continue;
 		}
+
+		if (!strcmp(command, "mirrortest")) {
+			engineSide = BOTH;
+			MirrorEvalTest(pos);
+			continue;
+		}
+
+		if (!strcmp(command, "matetest")) {
+			engineSide = BOTH;
+			MateInXTest(pos);
+			continue;
+		}
+
+		// Parse user move
 
 		move = ParseMove(inBuf, pos);
 		if (move == NOMOVE) {
