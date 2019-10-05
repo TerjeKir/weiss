@@ -24,14 +24,11 @@ static int ProbePvMove(const S_BOARD *pos) {
 // Fills the pvArray of the position with the PV
 int GetPvLine(const int depth, S_BOARD *pos) {
 
-	assert(depth < MAXDEPTH && depth >= 1);
-
-	int move = ProbePvMove(pos);
+	int move;
 	int count = 0;
 
-	while (move != NOMOVE && count < depth) {
-
-		assert(count < MAXDEPTH);
+	do {
+		move = ProbePvMove(pos);
 
 		if (MoveExists(pos, move)) {
 			MakeMove(pos, move);
@@ -39,8 +36,7 @@ int GetPvLine(const int depth, S_BOARD *pos) {
 		} else
 			break;
 
-		move = ProbePvMove(pos);
-	}
+	} while (move != NOMOVE && count < depth);
 
 	while (pos->ply > 0)
 		TakeMove(pos);
