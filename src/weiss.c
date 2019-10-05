@@ -25,18 +25,11 @@ int main() {
 	printf("\nWelcome to weiss! Type 'weiss' for console mode.\n");
 
 	char line[256];
-	while (true) {
-		memset(&line[0], 0, sizeof(line));
-
-		fflush(stdout);
-		if (!fgets(line, 256, stdin))
-			continue;
+	while (fgets(line, 256, stdin)) {
 
 		if (!strncmp(line, "uci", 3)) {
 			Uci_Loop(pos, info);
-			if (info->quit)
-				break;
-			continue;
+			break;
 		}
 #ifdef CLI
 		if (!strncmp(line, "weiss", 5)) {
@@ -49,8 +42,9 @@ int main() {
 		if (!strncmp(line, "quit", 4))
 			break;
 
-		else
-			printf("Invalid command. Type 'weiss' for console mode.\n> ");
+		printf("Invalid command. Type 'weiss' for console mode.\n> ");
+
+		memset(&line[0], 0, sizeof(line));
 	}
 
 	free(pos->hashTable->TT);
