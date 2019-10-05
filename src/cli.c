@@ -117,8 +117,6 @@ void Console_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 	printf("\nweiss started in console mode\n");
 	printf("Type help for commands\n\n");
 
-	info->GAME_MODE = CONSOLEMODE;
-	info->POST_THINKING = true;
 	setbuf(stdin, NULL);
 	setbuf(stdout, NULL);
 
@@ -149,6 +147,7 @@ void Console_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 			}
 
 			SearchPosition(pos, info);
+			PrintBoard(pos);
 		}
 
 		printf("\nweiss > ");

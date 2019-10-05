@@ -51,53 +51,35 @@ void PrintThinking(const S_SEARCHINFO *info, S_BOARD *pos, const int bestScore, 
 	unsigned timeElapsed = GetTimeMs() - info->starttime;
 	int pvMoves;
 
-	// UCI mode
-	if (info->GAME_MODE == UCIMODE) {
+	printf("info score ");
 
-		printf("info score ");
+	// Score or mate
+	if (bestScore > ISMATE)
+		printf("mate %d ", ((INFINITE - bestScore) / 2) + 1);
+	else if (bestScore < -ISMATE)
+		printf("mate -%d ", (INFINITE + bestScore) / 2);
+	else
+		printf("cp %d ", bestScore);
 
-		// Score or mate
-		if (bestScore > ISMATE)
-			printf("mate %d ", ((INFINITE - bestScore) / 2) + 1);
-		else if (bestScore < -ISMATE)
-			printf("mate -%d ", (INFINITE + bestScore) / 2);
-		else
-			printf("cp %d ", bestScore);
+	// Basic info
+	printf("depth %d seldepth %d nodes %I64d tbhits %I64d time %d ",
+			currentDepth, info->seldepth, info->nodes, info->tbhits, timeElapsed);
 
-		// Basic info
-		printf("depth %d seldepth %d nodes %I64d tbhits %I64d time %d ",
-				currentDepth, info->seldepth, info->nodes, info->tbhits, timeElapsed);
+	// Nodes per second
+	if (timeElapsed > 0)
+		printf("nps %I64d ", ((info->nodes * 1000) / timeElapsed));
 
-		// Nodes per second
-		if (timeElapsed > 0)
-			printf("nps %I64d ", ((info->nodes * 1000) / timeElapsed));
+	// Hashfull
+	if (info->nodes > (uint64_t)currentDepth)
+		printf("hashfull %d ", HashFull(pos));
 
-		// Hashfull
-		if (info->nodes > (uint64_t)currentDepth)
-			printf("hashfull %d ", HashFull(pos));
-
-		// Principal variation
-		printf("pv");
-		pvMoves = GetPvLine(currentDepth, pos);
-		for (int pvNum = 0; pvNum < pvMoves; ++pvNum) {
-			printf(" %s", MoveToStr(pos->pvArray[pvNum]));
-		}
-		printf("\n");
-
-	// CLI mode
-	} else if (info->POST_THINKING) {
-		// Basic info
-		printf("score:%d depth:%d nodes:%I64d time:%d(ms) ",
-				bestScore, currentDepth, info->nodes, timeElapsed);
-
-		// Principal variation
-		printf("pv");
-		pvMoves = GetPvLine(currentDepth, pos);
-		for (int pvNum = 0; pvNum < pvMoves; ++pvNum)
-			printf(" %s", MoveToStr(pos->pvArray[pvNum]));
-
-		printf("\n");
+	// Principal variation
+	printf("pv");
+	pvMoves = GetPvLine(currentDepth, pos);
+	for (int pvNum = 0; pvNum < pvMoves; ++pvNum) {
+		printf(" %s", MoveToStr(pos->pvArray[pvNum]));
 	}
+	printf("\n");
 }
 
 // Translates a string to a move

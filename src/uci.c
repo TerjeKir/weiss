@@ -148,8 +148,6 @@ static inline bool GetInput(char *line) {
 // Waits for and reacts to input according to UCI protocol
 void Uci_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 
-	info->GAME_MODE = UCIMODE;
-
 	setbuf(stdin, NULL);
 	setbuf(stdout, NULL);
 

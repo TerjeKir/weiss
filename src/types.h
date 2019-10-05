@@ -10,8 +10,6 @@
 
 typedef uint64_t bitboard;
 
-enum Protocol { UCIMODE, CONSOLEMODE };
-
 enum Limit { MAXGAMEMOVES     = 512,
 	         MAXPOSITIONMOVES = 256,
 	         MAXDEPTH         = 128 };
@@ -151,9 +149,6 @@ typedef struct {
 	float fhf;
 	int nullCut;
 #endif
-
-	int GAME_MODE;
-	int POST_THINKING;
 
 	char syzygyPath[256];
 
