@@ -145,28 +145,28 @@ static inline bool GetInput(char *line) {
 	return true;
 }
 
-// Waits for and reacts to input according to UCI protocol
-void Uci_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
+// Sets up the engine and follows UCI protocol commands
+int main() {
 
+	// Init engine
+	S_BOARD pos[1];
+	S_SEARCHINFO info[1];
+	info->quit = false;
+	pos->hashTable->TT = NULL;
+	InitHashTable(pos->hashTable, DEFAULTHASH);
+
+	// Unbuffered IO
 	setbuf(stdin, NULL);
 	setbuf(stdout, NULL);
 
-	printf("id name %s\n", NAME);
-	printf("id author LoliSquad\n");
-	printf("option name Hash type spin default %d min 4 max %d\n", DEFAULTHASH, MAXHASH);
-	printf("option name Ponder type check default false\n"); // Turn on ponder stats in cutechess
-#ifdef USE_TBS
-	printf("option name SyzygyPath type string default <empty>\n");
-#endif
-	printf("uciok\n");
-
-	char line[INPUT_SIZE];
-	int MB;
+	// Search thread setup
 	pthread_t searchThread;
 	S_SEARCH_THREAD searchThreadInfo;
 	searchThreadInfo.info = info;
 	searchThreadInfo.pos  = pos;
 
+	// UCI loop
+	char line[INPUT_SIZE];
 	while (GetInput(line)) {
 
 		if (BeginsWith(line, "go")) {
@@ -193,9 +193,15 @@ void Uci_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 		} else if (BeginsWith(line, "uci")) {
 			printf("id name %s\n", NAME);
 			printf("id author LoliSquad\n");
+			printf("option name Hash type spin default %d min 4 max %d\n", DEFAULTHASH, MAXHASH);
+			printf("option name Ponder type check default false\n"); // Turn on ponder stats in cutechess
+#ifdef USE_TBS
+			printf("option name SyzygyPath type string default <empty>\n");
+#endif
 			printf("uciok\n");
 
 		} else if (BeginsWith(line, "setoption name Hash value ")) {
+			int MB;
 			sscanf(line, "%*s %*s %*s %*s %d", &MB);
 			InitHashTable(pos->hashTable, MB);
 
@@ -213,5 +219,14 @@ void Uci_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 			tb_init(info->syzygyPath);
 #endif
 		}
+		// Non UCI commands
+#ifdef CLI
+		else if (!strncmp(line, "weiss", 5)) {
+			Console_Loop(pos, info);
+			break;
+		}
+#endif
 	}
+	free(pos->hashTable->TT);
+	return 0;
 }
