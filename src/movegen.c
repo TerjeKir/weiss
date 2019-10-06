@@ -339,7 +339,7 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 		}
 	}
 
-		// Rooks
+	// Rooks
 	while (rooks) {
 
 		sq = PopLsb(&rooks);
