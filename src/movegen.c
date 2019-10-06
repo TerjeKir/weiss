@@ -344,12 +344,12 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 
 		sq = PopLsb(&rooks);
 
-		attacks = SliderAttacks(sq, allPieces, mRookTable) & enemies;
+		attacks = RookAttacks(sq, allPieces) & enemies;
 		while (attacks) {
 			attack = PopLsb(&attacks);
 			AddCaptureMove(pos, MOVE(sq, attack, pos->board[attack], EMPTY, 0), list);
 		}
-		moves = SliderAttacks(sq, allPieces, mRookTable) & empty;
+		moves = RookAttacks(sq, allPieces) & empty;
 		while (moves) {
 			move = PopLsb(&moves);
 			AddQuietMove(pos, MOVE(sq, move, EMPTY, EMPTY, 0), list);
@@ -361,12 +361,12 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 
 		sq = PopLsb(&bishops);
 
-		attacks = SliderAttacks(sq, allPieces, mBishopTable) & enemies;
+		attacks = BishopAttacks(sq, allPieces) & enemies;
 		while (attacks) {
 			attack = PopLsb(&attacks);
 			AddCaptureMove(pos, MOVE(sq, attack, pos->board[attack], EMPTY, 0), list);
 		}
-		moves = SliderAttacks(sq, allPieces, mBishopTable) & empty;
+		moves = BishopAttacks(sq, allPieces) & empty;
 		while (moves) {
 			move = PopLsb(&moves);
 			AddQuietMove(pos, MOVE(sq, move, EMPTY, EMPTY, 0), list);
@@ -378,7 +378,7 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 
 		sq = PopLsb(&queens);
 
-		tempQueen = SliderAttacks(sq, allPieces, mBishopTable) | SliderAttacks(sq, allPieces, mRookTable);
+		tempQueen = BishopAttacks(sq, allPieces) | RookAttacks(sq, allPieces);
 		attacks   = enemies & tempQueen;
 		moves     = empty   & tempQueen;
 
@@ -445,7 +445,7 @@ void GenerateAllCaptures(const S_BOARD *pos, S_MOVELIST *list) {
 
 		sq = PopLsb(&rooks);
 
-		attacks = SliderAttacks(sq, allPieces, mRookTable) & enemies;
+		attacks = RookAttacks(sq, allPieces) & enemies;
 		while (attacks) {
 			attack = PopLsb(&attacks);
 			AddCaptureMove(pos, MOVE(sq, attack, pos->board[attack], EMPTY, 0), list);
@@ -457,7 +457,7 @@ void GenerateAllCaptures(const S_BOARD *pos, S_MOVELIST *list) {
 
 		sq = PopLsb(&bishops);
 
-		attacks = SliderAttacks(sq, allPieces, mBishopTable) & enemies;
+		attacks = BishopAttacks(sq, allPieces) & enemies;
 		while (attacks) {
 			attack = PopLsb(&attacks);
 			AddCaptureMove(pos, MOVE(sq, attack, pos->board[attack], EMPTY, 0), list);
@@ -469,12 +469,12 @@ void GenerateAllCaptures(const S_BOARD *pos, S_MOVELIST *list) {
 
 		sq = PopLsb(&queens);
 
-		attacks = SliderAttacks(sq, allPieces, mBishopTable) & enemies;
+		attacks = BishopAttacks(sq, allPieces) & enemies;
 		while (attacks) {
 			attack = PopLsb(&attacks);
 			AddCaptureMove(pos, MOVE(sq, attack, pos->board[attack], EMPTY, 0), list);
 		}
-		attacks = SliderAttacks(sq, allPieces, mRookTable) & enemies;
+		attacks = RookAttacks(sq, allPieces) & enemies;
 		while (attacks) {
 			attack = PopLsb(&attacks);
 			AddCaptureMove(pos, MOVE(sq, attack, pos->board[attack], EMPTY, 0), list);

@@ -10,15 +10,25 @@
 #endif
 
 
+typedef struct {
+    bitboard *attacks;
+    bitboard mask;
+#ifndef USE_PEXT
+    uint64_t magic;
+    int shift;
+#endif
+} MAGIC;
+
+
 static bitboard bishop_attacks[0x1480];
 static bitboard rook_attacks[0x19000];
+
+static MAGIC mBishopTable[64];
+static MAGIC mRookTable[64];
 
 bitboard pawn_attacks[2][64];
 bitboard knight_attacks[64];
 bitboard king_attacks[64];
-
-MAGIC mBishopTable[64];
-MAGIC mRookTable[64];
 
 
 // Inits the king attack bitboards
@@ -164,15 +174,26 @@ static void InitSliderAttacks(MAGIC *table, bitboard *attackTable, const bitboar
 }
 
 // Returns the attack bitboard for a slider based on what squares are occupied
-bitboard SliderAttacks(const int sq, bitboard occupied, const MAGIC *table) {
-    bitboard *ptr = table[sq].attacks;
+bitboard BishopAttacks(const int sq, bitboard occupied) {
 #ifdef USE_PEXT
-    return ptr[_pext_u64(occupied, table[sq].mask)];
+    return mBishopTable[sq].attacks[_pext_u64(occupied, mBishopTable[sq].mask)];
 #else
-    occupied     &= table[sq].mask;
-    occupied     *= table[sq].magic;
-    occupied    >>= table[sq].shift;
-    return ptr[occupied];
+    occupied     &= mBishopTable[sq].mask;
+    occupied     *= mBishopTable[sq].magic;
+    occupied    >>= mBishopTable[sq].shift;
+    return mBishopTable[sq].attacks[occupied];
+#endif
+}
+
+// Returns the attack bitboard for a slider based on what squares are occupied
+bitboard RookAttacks(const int sq, bitboard occupied) {
+#ifdef USE_PEXT
+    return mRookTable[sq].attacks[_pext_u64(occupied, mRookTable[sq].mask)];
+#else
+    occupied     &= mRookTable[sq].mask;
+    occupied     *= mRookTable[sq].magic;
+    occupied    >>= mRookTable[sq].shift;
+    return mRookTable[sq].attacks[occupied];
 #endif
 }
 
@@ -211,8 +232,8 @@ int SqAttacked(const int sq, const int side, const S_BOARD *pos) {
     if (     pawn_attacks[!side][sq] & pos->pieceBBs[PAWN]   & pos->colorBBs[side]
         || knight_attacks[sq]        & pos->pieceBBs[KNIGHT] & pos->colorBBs[side]
         ||   king_attacks[sq]        & pos->pieceBBs[KING]   & pos->colorBBs[side]
-        || bishops & SliderAttacks(sq, pos->colorBBs[BOTH], mBishopTable)
-        || rooks   & SliderAttacks(sq, pos->colorBBs[BOTH], mRookTable))
+        || bishops & BishopAttacks(sq, pos->colorBBs[BOTH])
+        || rooks   & RookAttacks(sq, pos->colorBBs[BOTH]))
         return true;
 
     return false;
