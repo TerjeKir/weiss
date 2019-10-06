@@ -290,7 +290,7 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 	int sq, attack, move;
 	const int side = pos->side;
 
-	bitboard attacks, moves, tempQueen;
+	bitboard attacks, moves;
 	bitboard pawnMoves, pawnStarts, enPassers;
 
 	const bitboard allPieces  = pos->colorBBs[BOTH];
@@ -378,9 +378,9 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 
 		sq = PopLsb(&queens);
 
-		tempQueen = BishopAttacks(sq, allPieces) | RookAttacks(sq, allPieces);
-		attacks   = enemies & tempQueen;
-		moves     = empty   & tempQueen;
+		const bitboard tempQueen = BishopAttacks(sq, allPieces) | RookAttacks(sq, allPieces);
+		attacks = tempQueen & enemies;
+		moves   = tempQueen & empty;
 
 		while (attacks) {
 			attack = PopLsb(&attacks);
@@ -469,12 +469,7 @@ void GenerateAllCaptures(const S_BOARD *pos, S_MOVELIST *list) {
 
 		sq = PopLsb(&queens);
 
-		attacks = BishopAttacks(sq, allPieces) & enemies;
-		while (attacks) {
-			attack = PopLsb(&attacks);
-			AddCaptureMove(pos, MOVE(sq, attack, pos->board[attack], EMPTY, 0), list);
-		}
-		attacks = RookAttacks(sq, allPieces) & enemies;
+		attacks = (BishopAttacks(sq, allPieces) | RookAttacks(sq, allPieces)) & enemies;
 		while (attacks) {
 			attack = PopLsb(&attacks);
 			AddCaptureMove(pos, MOVE(sq, attack, pos->board[attack], EMPTY, 0), list);
