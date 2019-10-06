@@ -64,15 +64,15 @@ static int IsRepetition(const S_BOARD *pos) {
 // Get ready to start a search
 static void ClearForSearch(S_BOARD *pos, S_SEARCHINFO *info) {
 
-	int index, index2;
+	int i, j;
 
-	for (index = 0; index < PIECE_NB; ++index)
-		for (index2 = A1; index2 <= H8; ++index2)
-			pos->searchHistory[index][index2] = 0;
+	for (i = 0; i < PIECE_NB; ++i)
+		for (j = A1; j <= H8; ++j)
+			pos->searchHistory[i][j] = 0;
 
-	for (index = 0; index < 2; ++index)
-		for (index2 = 0; index2 < MAXDEPTH; ++index2)
-			pos->searchKillers[index][index2] = 0;
+	for (i = 0; i < 2; ++i)
+		for (j = 0; j < MAXDEPTH; ++j)
+			pos->searchKillers[i][j] = 0;
 
 #ifdef SEARCH_STATS
 	pos->hashTable->hit = 0;
@@ -215,7 +215,7 @@ static int AlphaBeta(int alpha, const int beta, int depth, S_BOARD *pos, S_SEARC
 	}
 
 	// Extend search if in check
-	int inCheck = SqAttacked(pos->kingSq[pos->side], !pos->side, pos);
+	const int inCheck = SqAttacked(pos->kingSq[pos->side], !pos->side, pos);
 	if (inCheck) depth++;
 
 	int score = -INFINITE;
@@ -285,7 +285,7 @@ standard_search:
 
 	int moveNum;
 	int legalMoves = 0;
-	int oldAlpha = alpha;
+	const int oldAlpha = alpha;
 	int bestMove = NOMOVE;
 	int bestScore = -INFINITE;
 
@@ -372,7 +372,7 @@ standard_search:
 	assert(bestScore <=  INFINITE);
 	assert(bestScore >= -INFINITE);
 
-	int flag = alpha != oldAlpha ? BOUND_EXACT : BOUND_UPPER;
+	const int flag = alpha != oldAlpha ? BOUND_EXACT : BOUND_UPPER;
 	StoreHashEntry(pos, bestMove, bestScore, flag, depth);
 
 	return bestScore;
@@ -404,8 +404,8 @@ void SearchPosition(S_BOARD *pos, S_SEARCHINFO *info) {
 	}
 
 	// Get and print best move when done thinking
-	int   bestMove = pos->pvArray[0];
-	int ponderMove = pos->pvArray[1];
+	const int   bestMove = pos->pvArray[0];
+	const int ponderMove = pos->pvArray[1];
 
 	printf("bestmove %s", MoveToStr(bestMove));
 	if (ponderMove != NOMOVE) 

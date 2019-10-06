@@ -17,7 +17,7 @@
 
 
 /* Perft */
-uint64_t leafNodes;
+static uint64_t leafNodes;
 
 
 static void RecursivePerft(const int depth, S_BOARD *pos) {
@@ -51,7 +51,7 @@ void Perft(const int depth, S_BOARD *pos) {
 
 	printf("\nStarting Test To Depth:%d\n\n", depth);
 
-	int start = GetTimeMs();
+	const int start = GetTimeMs();
 	leafNodes = 0;
 
 	S_MOVELIST list[1];
@@ -74,7 +74,7 @@ void Perft(const int depth, S_BOARD *pos) {
 		TakeMove(pos);
 	}
 
-	int timeElapsed = GetTimeMs() - start;
+	const int timeElapsed = GetTimeMs() - start;
 	printf("\nPerft Complete : %I64d nodes visited in %dms\n", leafNodes, timeElapsed);
 	if (timeElapsed > 0) 
 		printf("               : %I64d nps\n", ((leafNodes * 1000) / timeElapsed));
@@ -86,7 +86,7 @@ void Perft(const int depth, S_BOARD *pos) {
 // Checks evaluation is symmetric
 void MirrorEvalTest(S_BOARD *pos) {
 
-	char filename[] = "../EPDs/all.epd";
+	const char filename[] = "../EPDs/all.epd";
 
 	FILE *file;
 	if ((file = fopen(filename, "r")) == NULL) {

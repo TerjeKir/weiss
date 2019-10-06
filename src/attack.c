@@ -10,15 +10,12 @@
 #endif
 
 
-const int bishopDirections[4] = {7, 9, -7, -9};
-const int   rookDirections[4] = {8, 1, -8, -1};
-
+static bitboard bishop_attacks[0x1480];
+static bitboard rook_attacks[0x19000];
 
 bitboard pawn_attacks[2][64];
 bitboard knight_attacks[64];
 bitboard king_attacks[64];
-bitboard bishop_attacks[0x1480];
-bitboard rook_attacks[0x19000];
 
 MAGIC mBishopTable[64];
 MAGIC mRookTable[64];
@@ -183,6 +180,9 @@ bitboard SliderAttacks(const int sq, bitboard occupied, const MAGIC *table) {
 static void InitAttacks() __attribute__((constructor));
 static void InitAttacks() {
 
+    const int bishopDirections[4] = {7, 9, -7, -9};
+    const int   rookDirections[4] = {8, 1, -8, -1};
+
     // Simple
     InitKingAttacks();
     InitKnightAttacks();
@@ -205,8 +205,8 @@ int SqAttacked(const int sq, const int side, const S_BOARD *pos) {
     assert(ValidSide(side));
     assert(CheckBoard(pos));
 
-    bitboard bishops   = pos->colorBBs[side] & (pos->pieceBBs[BISHOP] | pos->pieceBBs[QUEEN]);
-    bitboard rooks     = pos->colorBBs[side] & (pos->pieceBBs[  ROOK] | pos->pieceBBs[QUEEN]);
+    const bitboard bishops   = pos->colorBBs[side] & (pos->pieceBBs[BISHOP] | pos->pieceBBs[QUEEN]);
+    const bitboard rooks     = pos->colorBBs[side] & (pos->pieceBBs[  ROOK] | pos->pieceBBs[QUEEN]);
 
     if (     pawn_attacks[!side][sq] & pos->pieceBBs[PAWN]   & pos->colorBBs[side]
         || knight_attacks[sq]        & pos->pieceBBs[KNIGHT] & pos->colorBBs[side]

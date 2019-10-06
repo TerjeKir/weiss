@@ -18,7 +18,7 @@ unsigned int probeWDL(const S_BOARD *pos, const int depth) {
         ||  (pos->fiftyMove != 0))
         return TB_RESULT_FAILED;
 
-    int cardinality = PopCount(pos->colorBBs[BOTH]);
+    const unsigned int cardinality = PopCount(pos->colorBBs[BOTH]);
 
     if (    (cardinality > (int)TB_LARGEST)
         ||  (cardinality == (int)TB_LARGEST && depth < (int)TB_PROBE_DEPTH))

@@ -11,12 +11,12 @@
 #include "validate.h"
 
 
-const bitboard bitB1C1D1 = (1ULL <<  1) | (1ULL <<  2) | (1ULL <<  3);
-const bitboard bitB8C8D8 = (1ULL << 57) | (1ULL << 58) | (1ULL << 59);
-const bitboard bitF1G1   = (1ULL <<  5) | (1ULL <<  6);
-const bitboard bitF8G8   = (1ULL << 61) | (1ULL << 62);
+static const bitboard bitB1C1D1 = (1ULL <<  1) | (1ULL <<  2) | (1ULL <<  3);
+static const bitboard bitB8C8D8 = (1ULL << 57) | (1ULL << 58) | (1ULL << 59);
+static const bitboard bitF1G1   = (1ULL <<  5) | (1ULL <<  6);
+static const bitboard bitF8G8   = (1ULL << 61) | (1ULL << 62);
 
-int MvvLvaScores[PIECE_NB][PIECE_NB];
+static int MvvLvaScores[PIECE_NB][PIECE_NB];
 
 // Initializes the MostValuableVictim-LeastValuableAttacker scores used for ordering captures
 static void InitMvvLva() __attribute__((constructor));
@@ -34,8 +34,8 @@ static void InitMvvLva() {
 
 static void AddQuietMove(const S_BOARD *pos, const int move, S_MOVELIST *list) {
 
-	int from = FROMSQ(move);
-	int   to =   TOSQ(move);
+	const int from = FROMSQ(move);
+	const int   to =   TOSQ(move);
 
 	assert(ValidSquare(from));
 	assert(ValidSquare(to));
@@ -57,10 +57,10 @@ static void AddQuietMove(const S_BOARD *pos, const int move, S_MOVELIST *list) {
 
 static void AddCaptureMove(const S_BOARD *pos, const int move, S_MOVELIST *list) {
 #ifndef NDEBUG
-	int to    = TOSQ(move);
+	const int to    = TOSQ(move);
 #endif
-	int from  = FROMSQ(move);
-	int piece = CAPTURED(move);
+	const int from  = FROMSQ(move);
+	const int piece = CAPTURED(move);
 
 	assert(ValidSquare(from));
 	assert(ValidSquare(to));
@@ -74,8 +74,8 @@ static void AddCaptureMove(const S_BOARD *pos, const int move, S_MOVELIST *list)
 
 static void AddEnPassantMove(const int move, S_MOVELIST *list) {
 #ifndef NDEBUG
-	int from = FROMSQ(move);
-	int   to =   TOSQ(move);
+	const int from = FROMSQ(move);
+	const int   to =   TOSQ(move);
 
 	assert(ValidSquare(from));
 	assert(ValidSquare(to));
@@ -288,14 +288,14 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 	list->count = 0;
 
 	int sq, attack, move;
-	int side = pos->side;
+	const int side = pos->side;
 
 	bitboard attacks, moves, tempQueen;
 	bitboard pawnMoves, pawnStarts, enPassers;
 
-	bitboard allPieces  = pos->colorBBs[BOTH];
-	bitboard empty		= ~allPieces;
-	bitboard enemies 	= pos->colorBBs[!side];
+	const bitboard allPieces  = pos->colorBBs[BOTH];
+	const bitboard empty		= ~allPieces;
+	const bitboard enemies 	= pos->colorBBs[!side];
 
 	bitboard pawns 		= pos->colorBBs[side] & pos->pieceBBs[  PAWN];
 	bitboard knights 	= pos->colorBBs[side] & pos->pieceBBs[KNIGHT];
@@ -339,7 +339,7 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 		}
 	}
 
-	// Rooks
+		// Rooks
 	while (rooks) {
 
 		sq = PopLsb(&rooks);
