@@ -2,7 +2,7 @@
 
 #general
 NAME	= weiss
-VER		= 0.3
+VER		= 0.4
 EXE		= $(NAME) $(VER)
 SRC     = *.c fathom/tbprobe.c
 OUT		= ../bin/

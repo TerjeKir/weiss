@@ -305,9 +305,18 @@ standard_search:
 		// Move the best move to front of queue
 		PickNextMove(moveNum, list);
 
-		// Recursively search the positions after making the moves, skipping illegal ones
+		// Make the next predicted best move, skipping illegal ones
 		if (!MakeMove(pos, list->moves[moveNum].move)) continue;
-		score = -AlphaBeta(-beta, -alpha, depth - 1, pos, info, true);
+
+		// Do zero-window searches around alpha on moves other than the PV
+		if (legalMoves > 0)
+			score = -AlphaBeta(-alpha - 1, -alpha, depth - 1, pos, info, true);
+
+		// Do normal search on PV, and non-PV if the zero-window indicates it beats PV
+		if ((score > alpha && score < beta) || legalMoves == 0)
+			score = -AlphaBeta(-beta, -alpha, depth - 1, pos, info, true);
+
+		// Undo the move
 		TakeMove(pos);
 
 		legalMoves++;
