@@ -147,23 +147,23 @@ static int Quiescence(int alpha, const int beta, S_BOARD *pos, S_SEARCHINFO *inf
 		if (info->stopped)
 			return 0;
 		
-		if (score > bestScore)
-			bestScore = score;
-
-		// If score beats alpha we update alpha
-		if (score > alpha) {
+		if (score > bestScore) {
 
 			// If score beats beta we have a cutoff
 			if (score >= beta) {
 
-#ifdef SEARCH_STATS
+	#ifdef SEARCH_STATS
 				if (legal == 1) info->fhf++;
 				info->fh++;
-#endif
-				return bestScore;
+	#endif
+				return score;
 			}
 
-			alpha = score;
+			bestScore = score;
+
+			// If score beats alpha we update alpha
+			if (score > alpha)
+				alpha = score;
 		}
 	}
 
@@ -329,29 +329,30 @@ standard_search:
 		// Found a new best move in this position
 		if (score > bestScore) {
 
+			// If score beats beta we have a cutoff
+			if (score >= beta) {
+
+				// Update killers if quiet move
+				if (!(list->moves[moveNum].move & MOVE_IS_CAPTURE)) {
+					pos->searchKillers[1][pos->ply] = pos->searchKillers[0][pos->ply];
+					pos->searchKillers[0][pos->ply] = list->moves[moveNum].move;
+				}
+
+#ifdef SEARCH_STATS
+				if (legalMoves == 1) info->fhf++;
+				info->fh++;
+#endif
+
+				StoreHashEntry(pos, list->moves[moveNum].move, score, BOUND_LOWER, depth);
+
+				return score;
+			}
+
 			bestScore = score;
 			bestMove = list->moves[moveNum].move;
 
 			// If score beats alpha we update alpha
 			if (score > alpha) {
-				// If score beats beta we have a cutoff
-				if (score >= beta) {
-
-					// Update killers if quiet move
-					if (!(list->moves[moveNum].move & MOVE_IS_CAPTURE)) {
-						pos->searchKillers[1][pos->ply] = pos->searchKillers[0][pos->ply];
-						pos->searchKillers[0][pos->ply] = list->moves[moveNum].move;
-					}
-
-#ifdef SEARCH_STATS
-					if (legalMoves == 1) info->fhf++;
-					info->fh++;
-#endif
-
-					StoreHashEntry(pos, bestMove, bestScore, BOUND_LOWER, depth);
-
-					return bestScore;
-				}
 
 				alpha = score;
 
