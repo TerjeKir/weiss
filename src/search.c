@@ -254,10 +254,12 @@ static int AlphaBeta(int alpha, const int beta, int depth, S_BOARD *pos, S_SEARC
 	}
 #endif
 
+	// Skip pruning while in check
 	if (inCheck)
 		goto standard_search;
-	else
-		score = EvalPosition(pos);
+
+	// Do a static evaluation for pruning consideration
+	score = EvalPosition(pos);
 
 	// Null Move Pruning
 	if (doNull && score >= beta && pos->ply && (pos->bigPieces[pos->side] > 0) && depth >= 4) {
