@@ -33,7 +33,7 @@ static void PickNextMove(const int moveNum, S_MOVELIST *list) {
 	int bestScore = 0;
 	int bestNum = moveNum;
 
-	for (int index = moveNum; index < list->count; ++index)
+	for (unsigned int index = moveNum; index < list->count; ++index)
 		if (list->moves[index].score > bestScore) {
 			bestScore = list->moves[index].score;
 			bestNum = index;
@@ -133,7 +133,7 @@ static int Quiescence(int alpha, const int beta, S_BOARD *pos, S_SEARCHINFO *inf
 	score = -INFINITE;
 
 	// Move loop
-	for (int moveNum = 0; moveNum < list->count; ++moveNum) {
+	for (unsigned int moveNum = 0; moveNum < list->count; ++moveNum) {
 
 		PickNextMove(moveNum, list);
 
@@ -283,8 +283,8 @@ standard_search:
 	// Generate all moves
 	GenerateAllMoves(pos, list);
 
-	int moveNum;
-	int legalMoves = 0;
+	unsigned int moveNum;
+	unsigned int legalMoves = 0;
 	const int oldAlpha = alpha;
 	int bestMove = NOMOVE;
 	int bestScore = -INFINITE;

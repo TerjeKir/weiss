@@ -492,7 +492,7 @@ int MoveExists(S_BOARD *pos, const int move) {
 	GenerateAllMoves(pos, list);
 
 	// Loop through them, looking for a match
-	for (int i = 0; i < list->count; ++i) {
+	for (unsigned int i = 0; i < list->count; ++i) {
 
 		if (!(list->moves[i].move == move))
 			continue;
