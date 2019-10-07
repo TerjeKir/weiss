@@ -128,7 +128,7 @@ static int Quiescence(int alpha, const int beta, S_BOARD *pos, S_SEARCHINFO *inf
 	S_MOVELIST list[1];
 	GenerateAllCaptures(pos, list);
 
-	int legal = 0;
+	int movesTried = 0;
 	int bestScore = score;
 	score = -INFINITE;
 
@@ -142,7 +142,7 @@ static int Quiescence(int alpha, const int beta, S_BOARD *pos, S_SEARCHINFO *inf
 		score = -Quiescence(-beta, -alpha, pos, info);
 		TakeMove(pos);
 
-		legal++;
+		movesTried++;
 
 		if (info->stopped)
 			return 0;
@@ -153,7 +153,7 @@ static int Quiescence(int alpha, const int beta, S_BOARD *pos, S_SEARCHINFO *inf
 			if (score >= beta) {
 
 	#ifdef SEARCH_STATS
-				if (legal == 1) info->fhf++;
+				if (movesTried == 1) info->fhf++;
 				info->fh++;
 	#endif
 				return score;
@@ -284,7 +284,7 @@ standard_search:
 	GenerateAllMoves(pos, list);
 
 	unsigned int moveNum;
-	unsigned int legalMoves = 0;
+	unsigned int movesTried = 0;
 	const int oldAlpha = alpha;
 	int bestMove = NOMOVE;
 	int bestScore = -INFINITE;
@@ -309,17 +309,17 @@ standard_search:
 		if (!MakeMove(pos, list->moves[moveNum].move)) continue;
 
 		// Do zero-window searches around alpha on moves other than the PV
-		if (legalMoves > 0)
+		if (movesTried > 0)
 			score = -AlphaBeta(-alpha - 1, -alpha, depth - 1, pos, info, true);
 
 		// Do normal search on PV, and non-PV if the zero-window indicates it beats PV
-		if ((score > alpha && score < beta) || legalMoves == 0)
+		if ((score > alpha && score < beta) || movesTried == 0)
 			score = -AlphaBeta(-beta, -alpha, depth - 1, pos, info, true);
 
 		// Undo the move
 		TakeMove(pos);
 
-		legalMoves++;
+		movesTried++;
 
 		if (info->stopped)
 			return 0;
@@ -339,7 +339,7 @@ standard_search:
 				}
 
 #ifdef SEARCH_STATS
-				if (legalMoves == 1) info->fhf++;
+				if (movesTried == 1) info->fhf++;
 				info->fh++;
 #endif
 
@@ -364,7 +364,7 @@ standard_search:
 	}
 
 	// Checkmate or stalemate
-	if (!legalMoves)
+	if (!movesTried)
 		return inCheck ? -INFINITE + pos->ply : 0;
 
 	assert(alpha >= oldAlpha);
