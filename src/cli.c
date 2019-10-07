@@ -82,7 +82,7 @@ static int checkresult(S_BOARD *pos) {
 	GenerateAllMoves(pos, list);
 
 	int found = 0;
-	for (int MoveNum = 0; MoveNum < list->count; ++MoveNum) {
+	for (unsigned int MoveNum = 0; MoveNum < list->count; ++MoveNum) {
 
 		if (!MakeMove(pos, list->moves[MoveNum].move))
 			continue;
