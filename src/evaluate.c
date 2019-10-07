@@ -12,9 +12,9 @@
 
 
 // Eval bit masks
-bitboard BlackPassedMask[64];
-bitboard WhitePassedMask[64];
-bitboard IsolatedMask[64];
+static bitboard BlackPassedMask[64];
+static bitboard WhitePassedMask[64];
+static bitboard IsolatedMask[64];
 
 // Piece square tables
 static int PawnTable    [64];
@@ -25,15 +25,15 @@ static int KingEarlygame[64];
 static int KingEndgame  [64];
 
 // Various bonuses and maluses
-const int PawnPassed[8] = { 0, 5, 10, 20, 35, 60, 100, 0 };
-const int PawnIsolated = -10;
+static const int PawnPassed[8] = { 0, 5, 10, 20, 35, 60, 100, 0 };
+static const int PawnIsolated = -10;
 
-const int  RookOpenFile = 10;
-const int QueenOpenFile = 5;
-const int  RookSemiOpenFile = 5;
-const int QueenSemiOpenFile = 3;
+static const int  RookOpenFile = 10;
+static const int QueenOpenFile = 5;
+static const int  RookSemiOpenFile = 5;
+static const int QueenSemiOpenFile = 3;
 
-const int BishopPair = 30;
+static const int BishopPair = 30;
 
 
 // Initialize evaluation bit masks

@@ -37,7 +37,7 @@ static void *ParseGo(void *searchThreadInfo) {
 	info->starttime = GetTimeMs();
 	info->timeset = false;
 
-	int moveOverhead = 50;
+	const int moveOverhead = 50;
 	int depth = -1, movestogo = 30, movetime = -1;
 	int time = -1, inc = 0;
 	char *ptr = NULL;

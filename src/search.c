@@ -33,7 +33,7 @@ static void PickNextMove(const int moveNum, S_MOVELIST *list) {
 	int bestScore = 0;
 	int bestNum = moveNum;
 
-	for (int index = moveNum; index < list->count; ++index)
+	for (unsigned int index = moveNum; index < list->count; ++index)
 		if (list->moves[index].score > bestScore) {
 			bestScore = list->moves[index].score;
 			bestNum = index;
@@ -64,15 +64,15 @@ static int IsRepetition(const S_BOARD *pos) {
 // Get ready to start a search
 static void ClearForSearch(S_BOARD *pos, S_SEARCHINFO *info) {
 
-	int index, index2;
+	int i, j;
 
-	for (index = 0; index < PIECE_NB; ++index)
-		for (index2 = A1; index2 <= H8; ++index2)
-			pos->searchHistory[index][index2] = 0;
+	for (i = 0; i < PIECE_NB; ++i)
+		for (j = A1; j <= H8; ++j)
+			pos->searchHistory[i][j] = 0;
 
-	for (index = 0; index < 2; ++index)
-		for (index2 = 0; index2 < MAXDEPTH; ++index2)
-			pos->searchKillers[index][index2] = 0;
+	for (i = 0; i < 2; ++i)
+		for (j = 0; j < MAXDEPTH; ++j)
+			pos->searchKillers[i][j] = 0;
 
 #ifdef SEARCH_STATS
 	pos->hashTable->hit = 0;
@@ -128,12 +128,12 @@ static int Quiescence(int alpha, const int beta, S_BOARD *pos, S_SEARCHINFO *inf
 	S_MOVELIST list[1];
 	GenerateAllCaptures(pos, list);
 
-	int legal = 0;
+	int movesTried = 0;
 	int bestScore = score;
 	score = -INFINITE;
 
 	// Move loop
-	for (int moveNum = 0; moveNum < list->count; ++moveNum) {
+	for (unsigned int moveNum = 0; moveNum < list->count; ++moveNum) {
 
 		PickNextMove(moveNum, list);
 
@@ -142,28 +142,28 @@ static int Quiescence(int alpha, const int beta, S_BOARD *pos, S_SEARCHINFO *inf
 		score = -Quiescence(-beta, -alpha, pos, info);
 		TakeMove(pos);
 
-		legal++;
+		movesTried++;
 
 		if (info->stopped)
 			return 0;
 		
-		if (score > bestScore)
-			bestScore = score;
-
-		// If score beats alpha we update alpha
-		if (score > alpha) {
+		if (score > bestScore) {
 
 			// If score beats beta we have a cutoff
 			if (score >= beta) {
 
-#ifdef SEARCH_STATS
-				if (legal == 1) info->fhf++;
+	#ifdef SEARCH_STATS
+				if (movesTried == 1) info->fhf++;
 				info->fh++;
-#endif
-				return bestScore;
+	#endif
+				return score;
 			}
 
-			alpha = score;
+			bestScore = score;
+
+			// If score beats alpha we update alpha
+			if (score > alpha)
+				alpha = score;
 		}
 	}
 
@@ -215,7 +215,7 @@ static int AlphaBeta(int alpha, const int beta, int depth, S_BOARD *pos, S_SEARC
 	}
 
 	// Extend search if in check
-	int inCheck = SqAttacked(pos->kingSq[pos->side], !pos->side, pos);
+	const int inCheck = SqAttacked(pos->kingSq[pos->side], !pos->side, pos);
 	if (inCheck) depth++;
 
 	int score = -INFINITE;
@@ -254,10 +254,12 @@ static int AlphaBeta(int alpha, const int beta, int depth, S_BOARD *pos, S_SEARC
 	}
 #endif
 
+	// Skip pruning while in check
 	if (inCheck)
 		goto standard_search;
-	else
-		score = EvalPosition(pos);
+
+	// Do a static evaluation for pruning consideration
+	score = EvalPosition(pos);
 
 	// Null Move Pruning
 	if (doNull && score >= beta && pos->ply && (pos->bigPieces[pos->side] > 0) && depth >= 4) {
@@ -283,9 +285,9 @@ standard_search:
 	// Generate all moves
 	GenerateAllMoves(pos, list);
 
-	int moveNum;
-	int legalMoves = 0;
-	int oldAlpha = alpha;
+	unsigned int moveNum;
+	unsigned int movesTried = 0;
+	const int oldAlpha = alpha;
 	int bestMove = NOMOVE;
 	int bestScore = -INFINITE;
 
@@ -309,17 +311,17 @@ standard_search:
 		if (!MakeMove(pos, list->moves[moveNum].move)) continue;
 
 		// Do zero-window searches around alpha on moves other than the PV
-		if (legalMoves > 0)
+		if (movesTried > 0)
 			score = -AlphaBeta(-alpha - 1, -alpha, depth - 1, pos, info, true);
 
 		// Do normal search on PV, and non-PV if the zero-window indicates it beats PV
-		if ((score > alpha && score < beta) || legalMoves == 0)
+		if ((score > alpha && score < beta) || movesTried == 0)
 			score = -AlphaBeta(-beta, -alpha, depth - 1, pos, info, true);
 
 		// Undo the move
 		TakeMove(pos);
 
-		legalMoves++;
+		movesTried++;
 
 		if (info->stopped)
 			return 0;
@@ -329,29 +331,30 @@ standard_search:
 		// Found a new best move in this position
 		if (score > bestScore) {
 
+			// If score beats beta we have a cutoff
+			if (score >= beta) {
+
+				// Update killers if quiet move
+				if (!(list->moves[moveNum].move & MOVE_IS_CAPTURE)) {
+					pos->searchKillers[1][pos->ply] = pos->searchKillers[0][pos->ply];
+					pos->searchKillers[0][pos->ply] = list->moves[moveNum].move;
+				}
+
+#ifdef SEARCH_STATS
+				if (movesTried == 1) info->fhf++;
+				info->fh++;
+#endif
+
+				StoreHashEntry(pos, list->moves[moveNum].move, score, BOUND_LOWER, depth);
+
+				return score;
+			}
+
 			bestScore = score;
 			bestMove = list->moves[moveNum].move;
 
 			// If score beats alpha we update alpha
 			if (score > alpha) {
-				// If score beats beta we have a cutoff
-				if (score >= beta) {
-
-					// Update killers if quiet move
-					if (!(list->moves[moveNum].move & MOVE_IS_CAPTURE)) {
-						pos->searchKillers[1][pos->ply] = pos->searchKillers[0][pos->ply];
-						pos->searchKillers[0][pos->ply] = list->moves[moveNum].move;
-					}
-
-#ifdef SEARCH_STATS
-					if (legalMoves == 1) info->fhf++;
-					info->fh++;
-#endif
-
-					StoreHashEntry(pos, bestMove, bestScore, BOUND_LOWER, depth);
-
-					return bestScore;
-				}
 
 				alpha = score;
 
@@ -363,7 +366,7 @@ standard_search:
 	}
 
 	// Checkmate or stalemate
-	if (!legalMoves)
+	if (!movesTried)
 		return inCheck ? -INFINITE + pos->ply : 0;
 
 	assert(alpha >= oldAlpha);
@@ -372,7 +375,7 @@ standard_search:
 	assert(bestScore <=  INFINITE);
 	assert(bestScore >= -INFINITE);
 
-	int flag = alpha != oldAlpha ? BOUND_EXACT : BOUND_UPPER;
+	const int flag = alpha != oldAlpha ? BOUND_EXACT : BOUND_UPPER;
 	StoreHashEntry(pos, bestMove, bestScore, flag, depth);
 
 	return bestScore;
@@ -404,8 +407,8 @@ void SearchPosition(S_BOARD *pos, S_SEARCHINFO *info) {
 	}
 
 	// Get and print best move when done thinking
-	int   bestMove = pos->pvArray[0];
-	int ponderMove = pos->pvArray[1];
+	const int   bestMove = pos->pvArray[0];
+	const int ponderMove = pos->pvArray[1];
 
 	printf("bestmove %s", MoveToStr(bestMove));
 	if (ponderMove != NOMOVE) 

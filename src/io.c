@@ -102,7 +102,7 @@ int ParseMove(const char *ptrChar, S_BOARD *pos) {
 
 	int move, promotion;
 
-	for (int moveNum = 0; moveNum < list->count; ++moveNum) {
+	for (unsigned int moveNum = 0; moveNum < list->count; ++moveNum) {
 
 		move = list->moves[moveNum].move;
 		if (FROMSQ(move) == from && TOSQ(move) == to) {
@@ -153,7 +153,7 @@ int ParseEPDMove(const char *ptrChar, S_BOARD *pos) {
 
 	int move, promotion;
 
-	for (int moveNum = 0; moveNum < list->count; ++moveNum) {
+	for (unsigned int moveNum = 0; moveNum < list->count; ++moveNum) {
 
 		move = list->moves[moveNum].move;
 		if (FROMSQ(move) == from && TOSQ(move) == to) {

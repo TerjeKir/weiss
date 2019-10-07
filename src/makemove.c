@@ -15,7 +15,7 @@
 #define HASH_EP             (pos->posKey ^= (PieceKeys[EMPTY][(pos->enPas)]))
 
 
-const int CastlePerm[64] = {
+static const int CastlePerm[64] = {
 	13, 15, 15, 15, 12, 15, 15, 14,
 	15, 15, 15, 15, 15, 15, 15, 15,
 	15, 15, 15, 15, 15, 15, 15, 15,
@@ -32,8 +32,8 @@ static void ClearPiece(const int sq, S_BOARD *pos) {
 
 	assert(ValidSquare(sq));
 
-	int piece = pos->board[sq];
-	int color = colorOf(piece);
+	const int piece = pos->board[sq];
+	const int color = colorOf(piece);
 	int t_pieceCounts = -1;
 
 	assert(ValidPiece(piece));
@@ -75,7 +75,7 @@ static void AddPiece(const int sq, S_BOARD *pos, const int piece) {
 	assert(ValidPiece(piece));
 	assert(ValidSquare(sq));
 
-	int color = colorOf(piece);
+	const int color = colorOf(piece);
 	assert(ValidSide(color));
 
 	// Hash in piece at square
@@ -105,7 +105,7 @@ static void MovePiece(const int from, const int to, S_BOARD *pos) {
 	assert(ValidSquare(from));
 	assert(ValidSquare(to));
 
-	int piece = pos->board[from];
+	const int piece = pos->board[from];
 
 	assert(ValidPiece(piece));
 
@@ -160,9 +160,9 @@ void TakeMove(S_BOARD *pos) {
 	assert(pos->ply >= 0 && pos->ply < MAXDEPTH);
 
 	// Get the move from history
-	int move = pos->history[pos->hisPly].move;
-	int from = FROMSQ(move);
-	int   to =   TOSQ(move);
+	const int move = pos->history[pos->hisPly].move;
+	const int from = FROMSQ(move);
+	const int   to =   TOSQ(move);
 
 	assert(ValidSquare(from));
 	assert(ValidSquare(to));
@@ -213,11 +213,11 @@ int MakeMove(S_BOARD *pos, const int move) {
 
 	assert(CheckBoard(pos));
 
-	int from 	 = FROMSQ(move);
-	int to		 = TOSQ(move);
-	int captured = CAPTURED(move);
+	const int from     = FROMSQ(move);
+	const int to       = TOSQ(move);
+	const int captured = CAPTURED(move);
 
-	int side = pos->side;
+	const int side = pos->side;
 
 	assert(ValidSquare(from));
 	assert(ValidSquare(to));

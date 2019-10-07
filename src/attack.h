@@ -45,22 +45,11 @@ static const uint64_t BishopMagics[64] = {
 };
 #endif
 
-typedef struct {
-    bitboard *attacks;
-    bitboard mask;
-#ifndef USE_PEXT
-    uint64_t magic;
-    int shift;
-#endif
-} MAGIC;
-
 bitboard king_attacks[64];
 bitboard knight_attacks[64];
 bitboard pawn_attacks[2][64];
 
-MAGIC mBishopTable[64];
-MAGIC mRookTable[64];
 
-
-bitboard SliderAttacks(const int sq, bitboard occupied, const MAGIC *table);
+bitboard BishopAttacks(const int sq, bitboard occupied);
+bitboard   RookAttacks(const int sq, bitboard occupied);
 int SqAttacked(const int sq, const int side, const S_BOARD *pos);
