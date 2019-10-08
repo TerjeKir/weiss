@@ -381,18 +381,52 @@ standard_search:
 	return bestScore;
 }
 
+// Aspiration window
+int AspirationWindow(S_BOARD *pos, S_SEARCHINFO *info, const int depth, int previousScore) {
+
+	// Dynamic bonus increasing initial window and delta
+	const int bonus = (previousScore * previousScore) / 8;
+	// Delta used for initial window and widening
+	const int delta = (P_VAL / 2) + bonus;
+	// Initial window
+	int alpha = previousScore - delta / 4;
+	int beta  = previousScore + delta / 4;
+	// Counter for failed searches, bounds are relaxed more for each successive fail
+	unsigned int fails = 0;
+
+	while (true) {
+		int result = AlphaBeta(alpha, beta, depth, pos, info, true);
+		// Result within the bounds is accepted as correct
+		if ((result >= alpha && result <= beta) || info->stopped)
+			return result;
+		// Failed low, relax lower bound and search again
+		else if (result < alpha) {
+			alpha -= delta << fails++;
+			alpha = alpha < -INFINITE ? -INFINITE : alpha;
+		// Failed high, relax upper bound and search again
+		} else if (result > beta) {
+			beta += delta << fails++;
+			beta = beta > INFINITE ? INFINITE : beta;
+		}
+	}
+}
+
 // Root of search
 void SearchPosition(S_BOARD *pos, S_SEARCHINFO *info) {
 
-	int bestScore, currentDepth;
+	int bestScore;
+	unsigned int currentDepth;
 
 	ClearForSearch(pos, info);
 
 	// Iterative deepening
 	for (currentDepth = 1; currentDepth <= info->depth; ++currentDepth) {
 
-		// Search position
-		bestScore = AlphaBeta(-INFINITE, INFINITE, currentDepth, pos, info, true);
+		// Search position, using aspiration windows for higher depths
+		if (currentDepth > 6)
+			bestScore = AspirationWindow(pos, info, currentDepth, bestScore);
+		else
+			bestScore = AlphaBeta(-INFINITE, INFINITE, currentDepth, pos, info, true);
 
 		// Stop search if applicable
 		if (info->stopped) break;
