@@ -355,7 +355,7 @@ void MirrorBoard(S_BOARD *pos) {
 	// Save info about current position, but mirrored
 
 	// Side to play
-	int tempSide = pos->side ^ 1;
+	int tempSide = !pos->side;
 
 	// Castling rights
 	int tempCastlePerm = 0;

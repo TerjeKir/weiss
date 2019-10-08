@@ -323,7 +323,7 @@ int MakeMove(S_BOARD *pos, const int move) {
 void MakeNullMove(S_BOARD *pos) {
 
 	assert(CheckBoard(pos));
-	assert(!SqAttacked(pos->kingSq[pos->side], pos->side ^ 1, pos));
+	assert(!SqAttacked(pos->kingSq[pos->side], !pos->side, pos));
 
 	// Save misc info for takeback
 	// pos->history[pos->hisPly].move    = NOMOVE;
