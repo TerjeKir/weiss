@@ -121,6 +121,8 @@ static int Quiescence(int alpha, const int beta, S_BOARD *pos, S_SEARCHINFO *inf
 	int score = EvalPosition(pos);
 	if (score >= beta)
 		return score;
+	if ((score + Q_VAL * 2) < alpha) // Very pessimistic (forced by poor eval) delta pruning
+		return alpha;
 	if (score > alpha)
 		alpha = score;
 
