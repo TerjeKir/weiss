@@ -1,6 +1,5 @@
 // search.c
 
-#include <stdio.h>
 #include <stdlib.h>
 
 #include "fathom/tbprobe.h"
@@ -27,10 +26,11 @@ static void CheckTime(S_SEARCHINFO *info) {
 }
 
 // Move best move to the front of the queue
-static void PickNextMove(const int moveNum, S_MOVELIST *list) {
+static int PickNextMove(S_MOVELIST *list) {
 
 	S_MOVE temp;
 	int bestScore = 0;
+	int moveNum = list->next++;
 	int bestNum = moveNum;
 
 	for (unsigned int index = moveNum; index < list->count; ++index)
@@ -46,6 +46,8 @@ static void PickNextMove(const int moveNum, S_MOVELIST *list) {
 	temp = list->moves[moveNum];
 	list->moves[moveNum] = list->moves[bestNum];
 	list->moves[bestNum] = temp;
+
+	return list->moves[moveNum].move;
 }
 
 // Checks whether position has already occurred
@@ -137,10 +139,10 @@ static int Quiescence(int alpha, const int beta, S_BOARD *pos, S_SEARCHINFO *inf
 	// Move loop
 	for (unsigned int moveNum = 0; moveNum < list->count; ++moveNum) {
 
-		PickNextMove(moveNum, list);
+		int move = PickNextMove(list);
 
 		// Recursively search the positions after making the moves, skipping illegal ones
-		if (!MakeMove(pos, list->moves[moveNum].move)) continue;
+		if (!MakeMove(pos, move)) continue;
 		score = -Quiescence(-beta, -alpha, pos, info);
 		TakeMove(pos);
 
@@ -148,7 +150,7 @@ static int Quiescence(int alpha, const int beta, S_BOARD *pos, S_SEARCHINFO *inf
 
 		if (info->stopped)
 			return 0;
-		
+
 		if (score > bestScore) {
 
 			// If score beats beta we have a cutoff
@@ -307,10 +309,10 @@ standard_search:
 	for (moveNum = 0; moveNum < list->count; ++moveNum) {
 
 		// Move the best move to front of queue
-		PickNextMove(moveNum, list);
+		int move = PickNextMove(list);
 
 		// Make the next predicted best move, skipping illegal ones
-		if (!MakeMove(pos, list->moves[moveNum].move)) continue;
+		if (!MakeMove(pos, move)) continue;
 
 		// Do zero-window searches around alpha on moves other than the PV
 		if (movesTried > 0)
@@ -435,19 +437,8 @@ void SearchPosition(S_BOARD *pos, S_SEARCHINFO *info) {
 
 		// Print thinking
 		PrintThinking(info, pos, bestScore, currentDepth);
-
-#ifdef SEARCH_STATS
-		printf("Stats: Hits: %d Overwrite: %d NewWrite: %d Cut: %d\nOrdering %.2f NullCut: %d\n", pos->hashTable->hit,
-			pos->hashTable->overWrite, pos->hashTable->newWrite, pos->hashTable->cut, (info->fhf/info->fh)*100, info->nullCut);
-#endif
 	}
 
-	// Get and print best move when done thinking
-	const int   bestMove = pos->pvArray[0];
-	const int ponderMove = pos->pvArray[1];
-
-	printf("bestmove %s", MoveToStr(bestMove));
-	if (ponderMove != NOMOVE) 
-		printf(" ponder %s\n", MoveToStr(ponderMove));
-	printf("\n");
+	// Print conclusion
+	PrintConclusion(pos);
 }

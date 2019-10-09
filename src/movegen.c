@@ -285,7 +285,7 @@ static inline void GenerateBlackPawnCaptures(const S_BOARD *pos, S_MOVELIST *lis
 void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 	assert(CheckBoard(pos));
 
-	list->count = 0;
+	list->count = list->next = 0;
 
 	int sq, attack, move;
 	const int side = pos->side;
@@ -405,7 +405,7 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 void GenerateAllCaptures(const S_BOARD *pos, S_MOVELIST *list) {
 	assert(CheckBoard(pos));
 
-	list->count = 0;
+	list->count = list->next = 0;
 
 	int sq, attack;
 	const int side = pos->side;

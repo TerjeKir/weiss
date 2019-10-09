@@ -80,6 +80,24 @@ void PrintThinking(const S_SEARCHINFO *info, S_BOARD *pos, const int bestScore, 
 		printf(" %s", MoveToStr(pos->pvArray[pvNum]));
 	}
 	printf("\n");
+	
+#ifdef SEARCH_STATS
+	if (info->nodes > (uint64_t)currentDepth)
+		printf("Stats: Hits: %d Overwrite: %d NewWrite: %d Cut: %d\nOrdering %.2f NullCut: %d\n", pos->hashTable->hit,
+			pos->hashTable->overWrite, pos->hashTable->newWrite, pos->hashTable->cut, (info->fhf/info->fh)*100, info->nullCut);
+#endif
+}
+
+// Prints conclusion of search - best move and ponder move
+void PrintConclusion(const S_BOARD *pos) {
+
+	const int   bestMove = pos->pvArray[0];
+	const int ponderMove = pos->pvArray[1];
+
+	printf("bestmove %s", MoveToStr(bestMove));
+	if (ponderMove != NOMOVE) 
+		printf(" ponder %s\n", MoveToStr(ponderMove));
+	printf("\n");
 }
 
 // Translates a string to a move

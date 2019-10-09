@@ -64,6 +64,7 @@ typedef struct {
 typedef struct {
 	S_MOVE moves[MAXPOSITIONMOVES];
 	unsigned int count;
+	unsigned int next;
 } S_MOVELIST;
 
 typedef struct {

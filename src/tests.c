@@ -122,6 +122,7 @@ void MirrorEvalTest(S_BOARD *pos) {
 
 		memset(&lineIn[0], 0, sizeof(lineIn));
 	}
+	printf("\n\nMirrorEvalTest Successful\n\n");
 
 	fclose(file);
 }
