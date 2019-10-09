@@ -17,12 +17,7 @@ static bitboard WhitePassedMask[64];
 static bitboard IsolatedMask[64];
 
 // Piece square tables
-static int PawnTable    [64];
-static int KnightTable  [64];
-static int BishopTable  [64];
-static int RookTable    [64];
-static int KingEarlygame[64];
-static int KingEndgame  [64];
+static int PSQT[8][64];
 
 // Various bonuses and maluses
 static const int PawnPassed[8] = { 0, 5, 10, 20, 35, 60, 100, 0 };
@@ -149,12 +144,12 @@ static void InitPSQT() {
        -50, -10,   0,   0,   0,   0, -10, -50};
 
 	for (int sq = A1; sq <= H8; ++sq) {
-		PawnTable  [sq] = TempPawnTable  [sq] + pieceValue[PAWN];
-		KnightTable[sq] = TempKnightTable[sq] + pieceValue[KNIGHT];
-		BishopTable[sq] = TempBishopTable[sq] + pieceValue[BISHOP];
-		RookTable  [sq] = TempRookTable  [sq] + pieceValue[ROOK];
-		KingEarlygame[sq] = TempKingEarlygame[sq];
-		KingEndgame  [sq] = TempKingEndgame  [sq];
+		PSQT[PAWN  ][sq] = TempPawnTable    [sq] + pieceValue[PAWN];
+		PSQT[KNIGHT][sq] = TempKnightTable  [sq] + pieceValue[KNIGHT];
+		PSQT[BISHOP][sq] = TempBishopTable  [sq] + pieceValue[BISHOP];
+		PSQT[ROOK  ][sq] = TempRookTable    [sq] + pieceValue[ROOK];
+		PSQT[KING  ][sq] = TempKingEarlygame[sq];
+		PSQT[KING+1][sq] = TempKingEndgame  [sq];
 	}
 }
 
@@ -242,7 +237,7 @@ int EvalPosition(const S_BOARD *pos) {
 		sq = pos->pieceList[wP][i];
 
 		// Position score
-		score += PawnTable[sq];
+		score += PSQT[PAWN][sq];
 		// Isolation penalty
 		if (!(IsolatedMask[sq] & whitePawns))
 			score += PawnIsolated;
@@ -256,7 +251,7 @@ int EvalPosition(const S_BOARD *pos) {
 		sq = pos->pieceList[bP][i];
 
 		// Position score
-		score -= PawnTable[mirror[(sq)]];
+		score -= PSQT[PAWN][mirror[(sq)]];
 		// Isolation penalty
 		if (!(IsolatedMask[sq] & blackPawns))
 			score -= PawnIsolated;
@@ -268,32 +263,32 @@ int EvalPosition(const S_BOARD *pos) {
 	// White knights
 	for (i = 0; i < pos->pieceCounts[wN]; ++i) {
 		sq = pos->pieceList[wN][i];
-		score += KnightTable[sq];
+		score += PSQT[KNIGHT][sq];
 	}
 
 	// Black knights
 	for (i = 0; i < pos->pieceCounts[bN]; ++i) {
 		sq = pos->pieceList[bN][i];
-		score -= KnightTable[mirror[(sq)]];
+		score -= PSQT[KNIGHT][mirror[(sq)]];
 	}
 
 	// White bishops
 	for (i = 0; i < pos->pieceCounts[wB]; ++i) {
 		sq = pos->pieceList[wB][i];
-		score += BishopTable[sq];
+		score += PSQT[BISHOP][sq];
 	}
 
 	// Black bishops
 	for (i = 0; i < pos->pieceCounts[bB]; ++i) {
 		sq = pos->pieceList[bB][i];
-		score -= BishopTable[mirror[(sq)]];
+		score -= PSQT[BISHOP][mirror[(sq)]];
 	}
 
 	// White rooks
 	for (i = 0; i < pos->pieceCounts[wR]; ++i) {
 		sq = pos->pieceList[wR][i];
 
-		score += RookTable[sq];
+		score += PSQT[ROOK][sq];
 
 		// Open/Semi-open file bonus
 		if (!(pos->pieceBBs[PAWN] & fileBBs[fileOf(sq)]))
@@ -306,7 +301,7 @@ int EvalPosition(const S_BOARD *pos) {
 	for (i = 0; i < pos->pieceCounts[bR]; ++i) {
 		sq = pos->pieceList[bR][i];
 
-		score -= RookTable[mirror[(sq)]];
+		score -= PSQT[ROOK][mirror[(sq)]];
 
 		// Open/Semi-open file bonus
 		if (!(pos->pieceBBs[PAWN] & fileBBs[fileOf(sq)]))
@@ -342,22 +337,20 @@ int EvalPosition(const S_BOARD *pos) {
 	}
 
 	// White king
-	int blackMaterial = pieceValue[PAWN]   * pos->pieceCounts[bP]
+	int bMaterial = pieceValue[PAWN]       * pos->pieceCounts[bP]
 					  + pieceValue[KNIGHT] * pos->pieceCounts[bN]
 					  + pieceValue[BISHOP] * pos->pieceCounts[bB]
 					  + pieceValue[ROOK]   * pos->pieceCounts[bR]
 					  + pieceValue[QUEEN]  * pos->pieceCounts[bQ];
-	score += (blackMaterial <= ENDGAME_MAT) ?   KingEndgame[pos->kingSq[WHITE]] 
-											: KingEarlygame[pos->kingSq[WHITE]];
+	score += PSQT[KING+(bMaterial <= ENDGAME_MAT)][pos->kingSq[WHITE]];
 
 	// Black king
-	int whiteMaterial = pieceValue[PAWN]   * pos->pieceCounts[wP]
+	int wMaterial = pieceValue[PAWN]   * pos->pieceCounts[wP]
 					  + pieceValue[KNIGHT] * pos->pieceCounts[wN]
 					  + pieceValue[BISHOP] * pos->pieceCounts[wB]
 					  + pieceValue[ROOK]   * pos->pieceCounts[wR]
 					  + pieceValue[QUEEN]  * pos->pieceCounts[wQ];
-	score -= (whiteMaterial <= ENDGAME_MAT) ?   KingEndgame[mirror[(pos->kingSq[BLACK])]] 
-											: KingEarlygame[mirror[(pos->kingSq[BLACK])]];
+	score -= PSQT[KING+(wMaterial <= ENDGAME_MAT)][mirror[(pos->kingSq[BLACK])]];
 
 	assert(score > -INFINITE && score < INFINITE);
 
