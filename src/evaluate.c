@@ -17,7 +17,7 @@ static bitboard WhitePassedMask[64];
 static bitboard IsolatedMask[64];
 
 // Piece square tables
-static int PSQT[8][64];
+static int PSQT[PIECE_NB][64];
 
 // Various bonuses and maluses
 static const int PawnPassed[8] = { 0, 5, 10, 20, 35, 60, 100, 0 };
@@ -83,7 +83,7 @@ static void InitEvalMasks() {
 // Initialize the piece square tables with piece values included
 static void InitPSQT() __attribute__((constructor));
 static void InitPSQT() {
-	int TempPSQT[8][64] = {
+	int tempPSQT[8][64] = {
 		{ 0 }, // Unused
 		{ // Pawn
 		 0,   0,   0,   0,   0,   0,   0,   0,
@@ -148,12 +148,18 @@ static void InitPSQT() {
        -50, -10,   0,   0,   0,   0, -10, -50}};
 
 	for (int sq = A1; sq <= H8; ++sq) {
-		PSQT[PAWN  ][sq] = TempPSQT[PAWN]  [sq] + pieceValue[PAWN];
-		PSQT[KNIGHT][sq] = TempPSQT[KNIGHT][sq] + pieceValue[KNIGHT];
-		PSQT[BISHOP][sq] = TempPSQT[BISHOP][sq] + pieceValue[BISHOP];
-		PSQT[ROOK  ][sq] = TempPSQT[ROOK]  [sq] + pieceValue[ROOK];
-		PSQT[KING  ][sq] = TempPSQT[KING]  [sq];
-		PSQT[KING+1][sq] = TempPSQT[KING+1][sq];
+		PSQT[bP  ][sq] = tempPSQT[PAWN  ][sq] + pieceValue[PAWN];
+		PSQT[bN  ][sq] = tempPSQT[KNIGHT][sq] + pieceValue[KNIGHT];
+		PSQT[bB  ][sq] = tempPSQT[BISHOP][sq] + pieceValue[BISHOP];
+		PSQT[bR  ][sq] = tempPSQT[ROOK  ][sq] + pieceValue[ROOK];
+		PSQT[bK  ][sq] = tempPSQT[KING  ][sq];
+		PSQT[bK+1][sq] = tempPSQT[KING+1][sq];
+		PSQT[wP  ][mirror[sq]] = PSQT[bP  ][sq];
+		PSQT[wN  ][mirror[sq]] = PSQT[bN  ][sq];
+		PSQT[wB  ][mirror[sq]] = PSQT[bB  ][sq];
+		PSQT[wR  ][mirror[sq]] = PSQT[bR  ][sq];
+		PSQT[wK  ][mirror[sq]] = PSQT[bK  ][sq];
+		PSQT[wK+1][mirror[sq]] = PSQT[bK+1][sq];
 	}
 }
 
@@ -241,7 +247,7 @@ int EvalPosition(const S_BOARD *pos) {
 		sq = pos->pieceList[wP][i];
 
 		// Position score
-		score += PSQT[PAWN][mirror[(sq)]];
+		score += PSQT[wP][sq];
 		// Isolation penalty
 		if (!(IsolatedMask[sq] & whitePawns))
 			score += PawnIsolated;
@@ -255,7 +261,7 @@ int EvalPosition(const S_BOARD *pos) {
 		sq = pos->pieceList[bP][i];
 
 		// Position score
-		score -= PSQT[PAWN][sq];
+		score -= PSQT[bP][sq];
 		// Isolation penalty
 		if (!(IsolatedMask[sq] & blackPawns))
 			score -= PawnIsolated;
@@ -267,32 +273,32 @@ int EvalPosition(const S_BOARD *pos) {
 	// White knights
 	for (i = 0; i < pos->pieceCounts[wN]; ++i) {
 		sq = pos->pieceList[wN][i];
-		score += PSQT[KNIGHT][mirror[sq]];
+		score += PSQT[wN][sq];
 	}
 
 	// Black knights
 	for (i = 0; i < pos->pieceCounts[bN]; ++i) {
 		sq = pos->pieceList[bN][i];
-		score -= PSQT[KNIGHT][sq];
+		score -= PSQT[bN][sq];
 	}
 
 	// White bishops
 	for (i = 0; i < pos->pieceCounts[wB]; ++i) {
 		sq = pos->pieceList[wB][i];
-		score += PSQT[BISHOP][mirror[sq]];
+		score += PSQT[wB][sq];
 	}
 
 	// Black bishops
 	for (i = 0; i < pos->pieceCounts[bB]; ++i) {
 		sq = pos->pieceList[bB][i];
-		score -= PSQT[BISHOP][sq];
+		score -= PSQT[bB][sq];
 	}
 
 	// White rooks
 	for (i = 0; i < pos->pieceCounts[wR]; ++i) {
 		sq = pos->pieceList[wR][i];
 
-		score += PSQT[ROOK][mirror[sq]];
+		score += PSQT[wR][sq];
 
 		// Open/Semi-open file bonus
 		if (!(pos->pieceBBs[PAWN] & fileBBs[fileOf(sq)]))
@@ -305,7 +311,7 @@ int EvalPosition(const S_BOARD *pos) {
 	for (i = 0; i < pos->pieceCounts[bR]; ++i) {
 		sq = pos->pieceList[bR][i];
 
-		score -= PSQT[ROOK][sq];
+		score -= PSQT[bR][sq];
 
 		// Open/Semi-open file bonus
 		if (!(pos->pieceBBs[PAWN] & fileBBs[fileOf(sq)]))
@@ -347,7 +353,7 @@ int EvalPosition(const S_BOARD *pos) {
 				  + pieceValue[ROOK]   * pos->pieceCounts[bR]
 				  + pieceValue[QUEEN]  * pos->pieceCounts[bQ];
 
-	score += PSQT[KING+(bMaterial <= ENDGAME_MAT)][mirror[pos->kingSq[WHITE]]];
+	score += PSQT[wK+(bMaterial <= ENDGAME_MAT)][pos->kingSq[WHITE]];
 
 	// Black king
 	int wMaterial = pieceValue[PAWN]   * pos->pieceCounts[wP]
@@ -356,7 +362,7 @@ int EvalPosition(const S_BOARD *pos) {
 				  + pieceValue[ROOK]   * pos->pieceCounts[wR]
 				  + pieceValue[QUEEN]  * pos->pieceCounts[wQ];
 
-	score -= PSQT[KING+(wMaterial <= ENDGAME_MAT)][pos->kingSq[BLACK]];
+	score -= PSQT[bK+(wMaterial <= ENDGAME_MAT)][pos->kingSq[BLACK]];
 
 	assert(score > -INFINITE && score < INFINITE);
 
