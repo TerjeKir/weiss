@@ -7,6 +7,7 @@
 #include "bitboards.h"
 #include "board.h"
 #include "data.h"
+#include "evaluate.h"
 #include "hashkeys.h"
 #include "validate.h"
 
@@ -44,6 +45,9 @@ static void UpdateListsMaterial(S_BOARD *pos) {
 			// Non pawn piece
 			if (pieceBig[piece])
 				pos->bigPieces[color]++;
+
+			// Update material score
+			pos->material += PSQT[piece][sq];
 
 			assert(pos->pieceCounts[piece] < 10 && pos->pieceCounts[piece] >= 0);
 
@@ -102,9 +106,11 @@ static void ResetBoard(S_BOARD *pos) {
 	pos->kingSq[WHITE] = pos->kingSq[BLACK] = NO_SQ;
 
 	// Big piece counts
-	for (i = BLACK; i <= WHITE; ++i) {
+	for (i = BLACK; i <= WHITE; ++i)
 		pos->bigPieces[i] = 0;
-	}
+
+	// Material
+	pos->material = 0;
 
 	// Misc
 	pos->side = BOTH;

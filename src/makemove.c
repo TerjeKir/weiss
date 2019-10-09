@@ -4,6 +4,7 @@
 #include "bitboards.h"
 #include "board.h"
 #include "data.h"
+#include "evaluate.h"
 #include "hashkeys.h"
 #include "move.h"
 #include "validate.h"
@@ -45,6 +46,9 @@ static void ClearPiece(const int sq, S_BOARD *pos) {
 	// Set square to empty
 	pos->board[sq] = EMPTY;
 
+	// Update material
+	pos->material -= PSQT[piece][sq];
+
 	// Update various piece lists
 	if (pieceBig[piece])
 		pos->bigPieces[color]--;
@@ -83,6 +87,9 @@ static void AddPiece(const int sq, S_BOARD *pos, const int piece) {
 
 	// Update square
 	pos->board[sq] = piece;
+
+	// Update material
+	pos->material += PSQT[piece][sq];
 
 	// Update various piece lists
 	if (pieceBig[piece])
@@ -127,6 +134,9 @@ static void MovePiece(const int from, const int to, S_BOARD *pos) {
 			break;
 		}
 	assert(t_PieceNum);
+
+	// Update material
+	pos->material += PSQT[piece][to] - PSQT[piece][from];
 
 	// Update bitboards
 	CLRBIT(pos->colorBBs[BOTH], from);
