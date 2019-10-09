@@ -1,6 +1,5 @@
 // search.c
 
-#include <stdio.h>
 #include <stdlib.h>
 
 #include "fathom/tbprobe.h"
@@ -440,12 +439,6 @@ void SearchPosition(S_BOARD *pos, S_SEARCHINFO *info) {
 		PrintThinking(info, pos, bestScore, currentDepth);
 	}
 
-	// Get and print best move when done thinking
-	const int   bestMove = pos->pvArray[0];
-	const int ponderMove = pos->pvArray[1];
-
-	printf("bestmove %s", MoveToStr(bestMove));
-	if (ponderMove != NOMOVE) 
-		printf(" ponder %s\n", MoveToStr(ponderMove));
-	printf("\n");
+	// Print conclusion
+	PrintConclusion(pos);
 }

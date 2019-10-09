@@ -88,6 +88,18 @@ void PrintThinking(const S_SEARCHINFO *info, S_BOARD *pos, const int bestScore, 
 #endif
 }
 
+// Prints conclusion of search - best move and ponder move
+void PrintConclusion(const S_BOARD *pos) {
+
+	const int   bestMove = pos->pvArray[0];
+	const int ponderMove = pos->pvArray[1];
+
+	printf("bestmove %s", MoveToStr(bestMove));
+	if (ponderMove != NOMOVE) 
+		printf(" ponder %s\n", MoveToStr(ponderMove));
+	printf("\n");
+}
+
 // Translates a string to a move
 int ParseMove(const char *ptrChar, S_BOARD *pos) {
 
