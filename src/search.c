@@ -27,10 +27,11 @@ static void CheckTime(S_SEARCHINFO *info) {
 }
 
 // Move best move to the front of the queue
-static void PickNextMove(const int moveNum, S_MOVELIST *list) {
+static int PickNextMove(S_MOVELIST *list) {
 
 	S_MOVE temp;
 	int bestScore = 0;
+	int moveNum = list->next++;
 	int bestNum = moveNum;
 
 	for (unsigned int index = moveNum; index < list->count; ++index)
@@ -46,6 +47,8 @@ static void PickNextMove(const int moveNum, S_MOVELIST *list) {
 	temp = list->moves[moveNum];
 	list->moves[moveNum] = list->moves[bestNum];
 	list->moves[bestNum] = temp;
+
+	return list->moves[moveNum].move;
 }
 
 // Checks whether position has already occurred
@@ -137,10 +140,10 @@ static int Quiescence(int alpha, const int beta, S_BOARD *pos, S_SEARCHINFO *inf
 	// Move loop
 	for (unsigned int moveNum = 0; moveNum < list->count; ++moveNum) {
 
-		PickNextMove(moveNum, list);
+		int move = PickNextMove(list);
 
 		// Recursively search the positions after making the moves, skipping illegal ones
-		if (!MakeMove(pos, list->moves[moveNum].move)) continue;
+		if (!MakeMove(pos, move)) continue;
 		score = -Quiescence(-beta, -alpha, pos, info);
 		TakeMove(pos);
 
@@ -307,10 +310,10 @@ standard_search:
 	for (moveNum = 0; moveNum < list->count; ++moveNum) {
 
 		// Move the best move to front of queue
-		PickNextMove(moveNum, list);
+		int move = PickNextMove(list);
 
 		// Make the next predicted best move, skipping illegal ones
-		if (!MakeMove(pos, list->moves[moveNum].move)) continue;
+		if (!MakeMove(pos, move)) continue;
 
 		// Do zero-window searches around alpha on moves other than the PV
 		if (movesTried > 0)
