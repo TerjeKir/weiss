@@ -83,7 +83,9 @@ static void InitEvalMasks() {
 // Initialize the piece square tables with piece values included
 static void InitPSQT() __attribute__((constructor));
 static void InitPSQT() {
-	int TempPawnTable[64] = {
+	int TempPSQT[8][64] = {
+		{ 0 }, // Unused
+		{ // Pawn
 		 0,   0,   0,   0,   0,   0,   0,   0,
 		10,  10,   0, -10, -10,   0,  10,  10,
 		 5,   0,   0,   5,   5,   0,   0,   5,
@@ -91,9 +93,9 @@ static void InitPSQT() {
 		 5,   5,   5,  10,  10,   5,   5,   5,
 		10,  10,  10,  20,  20,  10,  10,  10,
 		20,  20,  20,  30,  30,  20,  20,  20,
-		 0,   0,   0,   0,   0,   0,   0,   0};
+		 0,   0,   0,   0,   0,   0,   0,   0},
 
-	int TempKnightTable[64] = {
+		{ // Knight
 		0, -10,   0,   0,   0,   0, -10,   0,
 		0,   0,   0,   5,   5,   0,   0,   0,
 		0,   0,  10,  10,  10,  10,   0,   0,
@@ -101,9 +103,9 @@ static void InitPSQT() {
 		5,  10,  15,  20,  20,  15,  10,   5,
 		5,  10,  10,  20,  20,  10,  10,   5,
 		0,   0,   5,  10,  10,   5,   0,   0,
-		0,   0,   0,   0,   0,   0,   0,   0};
+		0,   0,   0,   0,   0,   0,   0,   0},
 
-	int TempBishopTable[64] = {
+		{ // Bishop
 		0,   0, -10,   0,   0, -10,   0,   0,
 		0,   0,   0,  10,  10,   0,   0,   0,
 		0,   0,  10,  15,  15,  10,   0,   0,
@@ -111,9 +113,9 @@ static void InitPSQT() {
 		0,  10,  15,  20,  20,  15,  10,   0,
 		0,   0,  10,  15,  15,  10,   0,   0,
 		0,   0,   0,  10,  10,   0,   0,   0,
-		0,   0,   0,   0,   0,   0,   0,   0};
+		0,   0,   0,   0,   0,   0,   0,   0},
 
-	int TempRookTable[64] = {
+		{ // Rook
          0,   0,   5,  10,  10,   5,   0,   0,
          0,   0,   5,  10,  10,   5,   0,   0,
          0,   0,   5,  10,  10,   5,   0,   0,
@@ -121,9 +123,11 @@ static void InitPSQT() {
          0,   0,   5,  10,  10,   5,   0,   0,
          0,   0,   5,  10,  10,   5,   0,   0,
         25,  25,  25,  25,  25,  25,  25,  25,
-         0,   0,   5,  10,  10,   5,   0,   0};
+         0,   0,   5,  10,  10,   5,   0,   0},
 
-	int TempKingEarlygame[64] = {
+		{ 0 }, // Queen 
+
+		{ // King
          0,   5,   5, -10, -10,   0,  10,   5,
        -30, -30, -30, -30, -30, -30, -30, -30,
        -50, -50, -50, -50, -50, -50, -50, -50,
@@ -131,9 +135,9 @@ static void InitPSQT() {
        -70, -70, -70, -70, -70, -70, -70, -70,
        -70, -70, -70, -70, -70, -70, -70, -70,
        -70, -70, -70, -70, -70, -70, -70, -70,
-       -70, -70, -70, -70, -70, -70, -70, -70};
+       -70, -70, -70, -70, -70, -70, -70, -70},
 
-	int TempKingEndgame[64] = {
+		{ // King
        -50, -10,   0,   0,   0,   0, -10, -50,
        -10,   0,  10,  10,  10,  10,   0, -10,
          0,  10,  20,  20,  20,  20,  10,   0,
@@ -141,15 +145,15 @@ static void InitPSQT() {
          0,  10,  20,  40,  40,  20,  10,   0,
          0,  10,  20,  20,  20,  20,  10,   0,
        -10,   0,  10,  10,  10,  10,   0, -10,
-       -50, -10,   0,   0,   0,   0, -10, -50};
+       -50, -10,   0,   0,   0,   0, -10, -50}};
 
 	for (int sq = A1; sq <= H8; ++sq) {
-		PSQT[PAWN  ][sq] = TempPawnTable    [sq] + pieceValue[PAWN];
-		PSQT[KNIGHT][sq] = TempKnightTable  [sq] + pieceValue[KNIGHT];
-		PSQT[BISHOP][sq] = TempBishopTable  [sq] + pieceValue[BISHOP];
-		PSQT[ROOK  ][sq] = TempRookTable    [sq] + pieceValue[ROOK];
-		PSQT[KING  ][sq] = TempKingEarlygame[sq];
-		PSQT[KING+1][sq] = TempKingEndgame  [sq];
+		PSQT[PAWN  ][sq] = TempPSQT[PAWN]  [sq] + pieceValue[PAWN];
+		PSQT[KNIGHT][sq] = TempPSQT[KNIGHT][sq] + pieceValue[KNIGHT];
+		PSQT[BISHOP][sq] = TempPSQT[BISHOP][sq] + pieceValue[BISHOP];
+		PSQT[ROOK  ][sq] = TempPSQT[ROOK]  [sq] + pieceValue[ROOK];
+		PSQT[KING  ][sq] = TempPSQT[KING]  [sq];
+		PSQT[KING+1][sq] = TempPSQT[KING+1][sq];
 	}
 }
 
