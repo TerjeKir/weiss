@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include "types.h"
+
 
 extern int pieceBig   [PIECE_NB];
 extern int pieceValue [PIECE_NB];

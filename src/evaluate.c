@@ -5,6 +5,7 @@
 #include "bitboards.h"
 #include "board.h"
 #include "data.h"
+#include "psqt.h"
 #include "validate.h"
 
 
@@ -15,14 +16,6 @@
 static bitboard BlackPassedMask[64];
 static bitboard WhitePassedMask[64];
 static bitboard IsolatedMask[64];
-
-// Piece square tables
-static int PawnTable    [64];
-static int KnightTable  [64];
-static int BishopTable  [64];
-static int RookTable    [64];
-static int KingEarlygame[64];
-static int KingEndgame  [64];
 
 // Various bonuses and maluses
 static const int PawnPassed[8] = { 0, 5, 10, 20, 35, 60, 100, 0 };
@@ -85,79 +78,6 @@ static void InitEvalMasks() {
 	}
 }
 
-// Initialize the piece square tables with piece values included
-static void InitPSQT() __attribute__((constructor));
-static void InitPSQT() {
-	int TempPawnTable[64] = {
-		 0,   0,   0,   0,   0,   0,   0,   0,
-		10,  10,   0, -10, -10,   0,  10,  10,
-		 5,   0,   0,   5,   5,   0,   0,   5,
-		 0,   0,  10,  20,  20,  10,   0,   0,
-		 5,   5,   5,  10,  10,   5,   5,   5,
-		10,  10,  10,  20,  20,  10,  10,  10,
-		20,  20,  20,  30,  30,  20,  20,  20,
-		 0,   0,   0,   0,   0,   0,   0,   0};
-
-	int TempKnightTable[64] = {
-		0, -10,   0,   0,   0,   0, -10,   0,
-		0,   0,   0,   5,   5,   0,   0,   0,
-		0,   0,  10,  10,  10,  10,   0,   0,
-		0,   0,  10,  20,  20,  10,   5,   0,
-		5,  10,  15,  20,  20,  15,  10,   5,
-		5,  10,  10,  20,  20,  10,  10,   5,
-		0,   0,   5,  10,  10,   5,   0,   0,
-		0,   0,   0,   0,   0,   0,   0,   0};
-
-	int TempBishopTable[64] = {
-		0,   0, -10,   0,   0, -10,   0,   0,
-		0,   0,   0,  10,  10,   0,   0,   0,
-		0,   0,  10,  15,  15,  10,   0,   0,
-		0,  10,  15,  20,  20,  15,  10,   0,
-		0,  10,  15,  20,  20,  15,  10,   0,
-		0,   0,  10,  15,  15,  10,   0,   0,
-		0,   0,   0,  10,  10,   0,   0,   0,
-		0,   0,   0,   0,   0,   0,   0,   0};
-
-	int TempRookTable[64] = {
-         0,   0,   5,  10,  10,   5,   0,   0,
-         0,   0,   5,  10,  10,   5,   0,   0,
-         0,   0,   5,  10,  10,   5,   0,   0,
-         0,   0,   5,  10,  10,   5,   0,   0,
-         0,   0,   5,  10,  10,   5,   0,   0,
-         0,   0,   5,  10,  10,   5,   0,   0,
-        25,  25,  25,  25,  25,  25,  25,  25,
-         0,   0,   5,  10,  10,   5,   0,   0};
-
-	int TempKingEarlygame[64] = {
-         0,   5,   5, -10, -10,   0,  10,   5,
-       -30, -30, -30, -30, -30, -30, -30, -30,
-       -50, -50, -50, -50, -50, -50, -50, -50,
-       -70, -70, -70, -70, -70, -70, -70, -70,
-       -70, -70, -70, -70, -70, -70, -70, -70,
-       -70, -70, -70, -70, -70, -70, -70, -70,
-       -70, -70, -70, -70, -70, -70, -70, -70,
-       -70, -70, -70, -70, -70, -70, -70, -70};
-
-	int TempKingEndgame[64] = {
-       -50, -10,   0,   0,   0,   0, -10, -50,
-       -10,   0,  10,  10,  10,  10,   0, -10,
-         0,  10,  20,  20,  20,  20,  10,   0,
-         0,  10,  20,  40,  40,  20,  10,   0,
-         0,  10,  20,  40,  40,  20,  10,   0,
-         0,  10,  20,  20,  20,  20,  10,   0,
-       -10,   0,  10,  10,  10,  10,   0, -10,
-       -50, -10,   0,   0,   0,   0, -10, -50};
-
-	for (int sq = A1; sq <= H8; ++sq) {
-		PawnTable  [sq] = TempPawnTable  [sq] + pieceValue[PAWN];
-		KnightTable[sq] = TempKnightTable[sq] + pieceValue[KNIGHT];
-		BishopTable[sq] = TempBishopTable[sq] + pieceValue[BISHOP];
-		RookTable  [sq] = TempRookTable  [sq] + pieceValue[ROOK];
-		KingEarlygame[sq] = TempKingEarlygame[sq];
-		KingEndgame  [sq] = TempKingEndgame  [sq];
-	}
-}
-
 #ifdef CHECK_MAT_DRAW
 // Check if the board is (likely) drawn, logic from sjeng
 static int MaterialDraw(const S_BOARD *pos) {
@@ -216,20 +136,14 @@ int EvalPosition(const S_BOARD *pos) {
 	if (MaterialDraw(pos)) return 0;
 #endif
 
-	int sq, i;
-	int score = 0;
+	int sq, i, score;
 
 	bitboard whitePawns   = pos->colorBBs[WHITE] & pos->pieceBBs[  PAWN];
-	// bitboard whiteKnights = pos->colorBBs[WHITE] & pos->pieceBBs[KNIGHT];
-	// bitboard whiteBishops = pos->colorBBs[WHITE] & pos->pieceBBs[BISHOP];
-	// bitboard whiteRooks   = pos->colorBBs[WHITE] & pos->pieceBBs[  ROOK];
-	// bitboard whiteQueens  = pos->colorBBs[WHITE] & pos->pieceBBs[ QUEEN];
 	bitboard blackPawns   = pos->colorBBs[BLACK] & pos->pieceBBs[  PAWN];
-	// bitboard blackKnights = pos->colorBBs[BLACK] & pos->pieceBBs[KNIGHT];
-	// bitboard blackBishops = pos->colorBBs[BLACK] & pos->pieceBBs[BISHOP];
-	// bitboard blackRooks   = pos->colorBBs[BLACK] & pos->pieceBBs[  ROOK];
-	// bitboard blackQueens  = pos->colorBBs[BLACK] & pos->pieceBBs[ QUEEN];
 
+
+	// Material
+	score = pos->material;
 
 	// Bishop pair
 	if (pos->pieceCounts[wB] >= 2)
@@ -241,8 +155,6 @@ int EvalPosition(const S_BOARD *pos) {
 	for (i = 0; i < pos->pieceCounts[wP]; ++i) {
 		sq = pos->pieceList[wP][i];
 
-		// Position score
-		score += PawnTable[sq];
 		// Isolation penalty
 		if (!(IsolatedMask[sq] & whitePawns))
 			score += PawnIsolated;
@@ -255,8 +167,6 @@ int EvalPosition(const S_BOARD *pos) {
 	for (i = 0; i < pos->pieceCounts[bP]; ++i) {
 		sq = pos->pieceList[bP][i];
 
-		// Position score
-		score -= PawnTable[mirror[(sq)]];
 		// Isolation penalty
 		if (!(IsolatedMask[sq] & blackPawns))
 			score -= PawnIsolated;
@@ -266,34 +176,28 @@ int EvalPosition(const S_BOARD *pos) {
 	}
 
 	// White knights
-	for (i = 0; i < pos->pieceCounts[wN]; ++i) {
-		sq = pos->pieceList[wN][i];
-		score += KnightTable[sq];
-	}
+	// for (i = 0; i < pos->pieceCounts[wN]; ++i) {
+	// 	sq = pos->pieceList[wN][i];
+	// }
 
-	// Black knights
-	for (i = 0; i < pos->pieceCounts[bN]; ++i) {
-		sq = pos->pieceList[bN][i];
-		score -= KnightTable[mirror[(sq)]];
-	}
+	// // Black knights
+	// for (i = 0; i < pos->pieceCounts[bN]; ++i) {
+	// 	sq = pos->pieceList[bN][i];
+	// }
 
-	// White bishops
-	for (i = 0; i < pos->pieceCounts[wB]; ++i) {
-		sq = pos->pieceList[wB][i];
-		score += BishopTable[sq];
-	}
+	// // White bishops
+	// for (i = 0; i < pos->pieceCounts[wB]; ++i) {
+	// 	sq = pos->pieceList[wB][i];
+	// }
 
-	// Black bishops
-	for (i = 0; i < pos->pieceCounts[bB]; ++i) {
-		sq = pos->pieceList[bB][i];
-		score -= BishopTable[mirror[(sq)]];
-	}
+	// // Black bishops
+	// for (i = 0; i < pos->pieceCounts[bB]; ++i) {
+	// 	sq = pos->pieceList[bB][i];
+	// }
 
 	// White rooks
 	for (i = 0; i < pos->pieceCounts[wR]; ++i) {
 		sq = pos->pieceList[wR][i];
-
-		score += RookTable[sq];
 
 		// Open/Semi-open file bonus
 		if (!(pos->pieceBBs[PAWN] & fileBBs[fileOf(sq)]))
@@ -306,8 +210,6 @@ int EvalPosition(const S_BOARD *pos) {
 	for (i = 0; i < pos->pieceCounts[bR]; ++i) {
 		sq = pos->pieceList[bR][i];
 
-		score -= RookTable[mirror[(sq)]];
-
 		// Open/Semi-open file bonus
 		if (!(pos->pieceBBs[PAWN] & fileBBs[fileOf(sq)]))
 			score -= RookOpenFile;
@@ -318,8 +220,6 @@ int EvalPosition(const S_BOARD *pos) {
 	// White queens
 	for (i = 0; i < pos->pieceCounts[wQ]; ++i) {
 		sq = pos->pieceList[wQ][i];
-
-		score += pieceValue[QUEEN];
 
 		// Open/Semi-open file bonus
 		if (!(pos->pieceBBs[PAWN] & fileBBs[fileOf(sq)]))
@@ -332,8 +232,6 @@ int EvalPosition(const S_BOARD *pos) {
 	for (i = 0; i < pos->pieceCounts[bQ]; ++i) {
 		sq = pos->pieceList[bQ][i];
 
-		score -= pieceValue[QUEEN];
-
 		// Open/Semi-open file bonus
 		if (!(pos->pieceBBs[PAWN] & fileBBs[fileOf(sq)]))
 			score -= QueenOpenFile;
@@ -341,23 +239,24 @@ int EvalPosition(const S_BOARD *pos) {
 			score -= QueenSemiOpenFile;
 	}
 
-	// White king
-	int blackMaterial = pieceValue[PAWN]   * pos->pieceCounts[bP]
-					  + pieceValue[KNIGHT] * pos->pieceCounts[bN]
-					  + pieceValue[BISHOP] * pos->pieceCounts[bB]
-					  + pieceValue[ROOK]   * pos->pieceCounts[bR]
-					  + pieceValue[QUEEN]  * pos->pieceCounts[bQ];
-	score += (blackMaterial <= ENDGAME_MAT) ?   KingEndgame[pos->kingSq[WHITE]] 
-											: KingEarlygame[pos->kingSq[WHITE]];
+	// White king -- Kings use different PSQTs in the endgame
+	int bMaterial = pieceValue[PAWN]   * pos->pieceCounts[bP]
+				  + pieceValue[KNIGHT] * pos->pieceCounts[bN]
+				  + pieceValue[BISHOP] * pos->pieceCounts[bB]
+				  + pieceValue[ROOK]   * pos->pieceCounts[bR]
+				  + pieceValue[QUEEN]  * pos->pieceCounts[bQ];
+	if (bMaterial <= ENDGAME_MAT)
+		score += PSQT[wK+1][pos->kingSq[WHITE]] - PSQT[wK][pos->kingSq[WHITE]];
 
 	// Black king
-	int whiteMaterial = pieceValue[PAWN]   * pos->pieceCounts[wP]
-					  + pieceValue[KNIGHT] * pos->pieceCounts[wN]
-					  + pieceValue[BISHOP] * pos->pieceCounts[wB]
-					  + pieceValue[ROOK]   * pos->pieceCounts[wR]
-					  + pieceValue[QUEEN]  * pos->pieceCounts[wQ];
-	score -= (whiteMaterial <= ENDGAME_MAT) ?   KingEndgame[mirror[(pos->kingSq[BLACK])]] 
-											: KingEarlygame[mirror[(pos->kingSq[BLACK])]];
+	int wMaterial = pieceValue[PAWN]   * pos->pieceCounts[wP]
+				  + pieceValue[KNIGHT] * pos->pieceCounts[wN]
+				  + pieceValue[BISHOP] * pos->pieceCounts[wB]
+				  + pieceValue[ROOK]   * pos->pieceCounts[wR]
+				  + pieceValue[QUEEN]  * pos->pieceCounts[wQ];
+
+	if (wMaterial <= ENDGAME_MAT)
+		score -= PSQT[bK+1][pos->kingSq[BLACK]] - PSQT[bK][pos->kingSq[BLACK]];
 
 	assert(score > -INFINITE && score < INFINITE);
 

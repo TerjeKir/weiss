@@ -30,8 +30,8 @@ static int PickNextMove(S_MOVELIST *list) {
 
 	S_MOVE temp;
 	int bestScore = 0;
-	int moveNum = list->next++;
-	int bestNum = moveNum;
+	unsigned int moveNum = list->next++;
+	unsigned int bestNum = moveNum;
 
 	for (unsigned int index = moveNum; index < list->count; ++index)
 		if (list->moves[index].score > bestScore) {
@@ -39,8 +39,8 @@ static int PickNextMove(S_MOVELIST *list) {
 			bestNum = index;
 		}
 
-	assert(moveNum >= 0 && moveNum < list->count);
-	assert(bestNum >= 0 && bestNum < list->count);
+	assert(moveNum < list->count);
+	assert(bestNum < list->count);
 	assert(bestNum >= moveNum);
 
 	temp = list->moves[moveNum];
