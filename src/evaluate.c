@@ -5,6 +5,7 @@
 #include "bitboards.h"
 #include "board.h"
 #include "data.h"
+#include "psqt.h"
 #include "validate.h"
 
 
@@ -15,9 +16,6 @@
 static bitboard BlackPassedMask[64];
 static bitboard WhitePassedMask[64];
 static bitboard IsolatedMask[64];
-
-// Piece square tables
-int PSQT[PIECE_NB][64];
 
 // Various bonuses and maluses
 static const int PawnPassed[8] = { 0, 5, 10, 20, 35, 60, 100, 0 };
@@ -77,85 +75,6 @@ static void InitEvalMasks() {
 			for (tsq = sq - 7; tsq >= A1; tsq -= 8)
 				BlackPassedMask[sq] |= (1ULL << tsq);
 		}
-	}
-}
-
-// Initialize the piece square tables with piece values included
-static void InitPSQT() __attribute__((constructor));
-static void InitPSQT() {
-	int tempPSQT[8][64] = {
-		{ 0 }, // Unused
-		{ // Pawn
-		 0,   0,   0,   0,   0,   0,   0,   0,
-		20,  20,  20,  30,  30,  20,  20,  20,
-		10,  10,  10,  20,  20,  10,  10,  10,
-		 5,   5,   5,  10,  10,   5,   5,   5,
-		 0,   0,  10,  20,  20,  10,   0,   0,
-		 5,   0,   0,   5,   5,   0,   0,   5,
-		10,  10,   0, -10, -10,   0,  10,  10,
-		 0,   0,   0,   0,   0,   0,   0,   0},
-
-		{ // Knight
-		0,   0,   0,   0,   0,   0,   0,   0,
-		0,   0,   5,  10,  10,   5,   0,   0,
-		5,  10,  10,  20,  20,  10,  10,   5,
-		5,  10,  15,  20,  20,  15,  10,   5,
-		0,   0,  10,  20,  20,  10,   5,   0,
-		0,   0,  10,  10,  10,  10,   0,   0,
-		0,   0,   0,   5,   5,   0,   0,   0,
-		0, -10,   0,   0,   0,   0, -10,   0},
-
-		{ // Bishop
-		0,   0,   0,   0,   0,   0,   0,   0,
-		0,   0,   0,  10,  10,   0,   0,   0,
-		0,   0,  10,  15,  15,  10,   0,   0,
-		0,  10,  15,  20,  20,  15,  10,   0,
-		0,  10,  15,  20,  20,  15,  10,   0,
-		0,   0,  10,  15,  15,  10,   0,   0,
-		0,   0,   0,  10,  10,   0,   0,   0,
-		0,   0, -10,   0,   0, -10,   0,   0},
-
-		{ // Rook
-         0,   0,   5,  10,  10,   5,   0,   0,
-        25,  25,  25,  25,  25,  25,  25,  25,
-         0,   0,   5,  10,  10,   5,   0,   0,
-         0,   0,   5,  10,  10,   5,   0,   0,
-         0,   0,   5,  10,  10,   5,   0,   0,
-         0,   0,   5,  10,  10,   5,   0,   0,
-         0,   0,   5,  10,  10,   5,   0,   0,
-         0,   0,   5,  10,  10,   5,   0,   0},
-
-		{ 0 }, // Queen 
-
-		{ // King early
-       -70, -70, -70, -70, -70, -70, -70, -70,
-       -70, -70, -70, -70, -70, -70, -70, -70,
-       -70, -70, -70, -70, -70, -70, -70, -70,
-       -70, -70, -70, -70, -70, -70, -70, -70,
-       -70, -70, -70, -70, -70, -70, -70, -70,
-       -50, -50, -50, -50, -50, -50, -50, -50,
-       -30, -30, -30, -30, -30, -30, -30, -30,
-         0,   5,   5, -10, -10,   0,  10,   5},
-
-		{ // King endgame
-       -50, -10,   0,   0,   0,   0, -10, -50,
-       -10,   0,  10,  10,  10,  10,   0, -10,
-         0,  10,  20,  20,  20,  20,  10,   0,
-         0,  10,  20,  40,  40,  20,  10,   0,
-         0,  10,  20,  40,  40,  20,  10,   0,
-         0,  10,  20,  20,  20,  20,  10,   0,
-       -10,   0,  10,  10,  10,  10,   0, -10,
-       -50, -10,   0,   0,   0,   0, -10, -50}};
-
-	for (int piece = bP; piece <= bK; ++piece)
-		for (int sq = A1; sq <= H8; ++sq) {
-			PSQT[piece][sq] = -(tempPSQT[piece][sq] + pieceValue[piece]);
-			PSQT[piece+8][mirror[sq]] = -PSQT[piece][sq];
-		}
-
-	for (int sq = A1; sq <= H8; ++sq) {
-		PSQT[bK+1][sq]         = -tempPSQT[KING+1][sq];
-		PSQT[wK+1][mirror[sq]] = -PSQT[bK+1][sq];
 	}
 }
 
@@ -320,7 +239,7 @@ int EvalPosition(const S_BOARD *pos) {
 			score -= QueenSemiOpenFile;
 	}
 
-	// White king
+	// White king -- Kings use different PSQTs in the endgame
 	int bMaterial = pieceValue[PAWN]   * pos->pieceCounts[bP]
 				  + pieceValue[KNIGHT] * pos->pieceCounts[bN]
 				  + pieceValue[BISHOP] * pos->pieceCounts[bB]

@@ -7,7 +7,7 @@
 #include "bitboards.h"
 #include "board.h"
 #include "data.h"
-#include "evaluate.h"
+#include "psqt.h"
 #include "hashkeys.h"
 #include "validate.h"
 
