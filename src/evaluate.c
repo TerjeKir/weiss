@@ -147,18 +147,14 @@ static void InitPSQT() {
        -10,   0,  10,  10,  10,  10,   0, -10,
        -50, -10,   0,   0,   0,   0, -10, -50}};
 
+	for (int piece = bP; piece <= bK; ++piece)
+		for (int sq = A1; sq <= H8; ++sq) {
+			PSQT[piece][sq] = tempPSQT[piece][sq] + pieceValue[piece];
+			PSQT[piece+8][mirror[sq]] = PSQT[piece][sq];
+		}
+
 	for (int sq = A1; sq <= H8; ++sq) {
-		PSQT[bP  ][sq] = tempPSQT[PAWN  ][sq] + pieceValue[PAWN];
-		PSQT[bN  ][sq] = tempPSQT[KNIGHT][sq] + pieceValue[KNIGHT];
-		PSQT[bB  ][sq] = tempPSQT[BISHOP][sq] + pieceValue[BISHOP];
-		PSQT[bR  ][sq] = tempPSQT[ROOK  ][sq] + pieceValue[ROOK];
-		PSQT[bK  ][sq] = tempPSQT[KING  ][sq];
-		PSQT[bK+1][sq] = tempPSQT[KING+1][sq];
-		PSQT[wP  ][mirror[sq]] = PSQT[bP  ][sq];
-		PSQT[wN  ][mirror[sq]] = PSQT[bN  ][sq];
-		PSQT[wB  ][mirror[sq]] = PSQT[bB  ][sq];
-		PSQT[wR  ][mirror[sq]] = PSQT[bR  ][sq];
-		PSQT[wK  ][mirror[sq]] = PSQT[bK  ][sq];
+		PSQT[bK+1][sq]         = tempPSQT[KING+1][sq];
 		PSQT[wK+1][mirror[sq]] = PSQT[bK+1][sq];
 	}
 }
@@ -324,7 +320,7 @@ int EvalPosition(const S_BOARD *pos) {
 	for (i = 0; i < pos->pieceCounts[wQ]; ++i) {
 		sq = pos->pieceList[wQ][i];
 
-		score += pieceValue[QUEEN];
+		score += PSQT[wQ][sq];
 
 		// Open/Semi-open file bonus
 		if (!(pos->pieceBBs[PAWN] & fileBBs[fileOf(sq)]))
@@ -337,7 +333,7 @@ int EvalPosition(const S_BOARD *pos) {
 	for (i = 0; i < pos->pieceCounts[bQ]; ++i) {
 		sq = pos->pieceList[bQ][i];
 
-		score -= pieceValue[QUEEN];
+		score -= PSQT[bQ][sq];
 
 		// Open/Semi-open file bonus
 		if (!(pos->pieceBBs[PAWN] & fileBBs[fileOf(sq)]))
