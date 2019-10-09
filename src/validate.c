@@ -23,12 +23,12 @@ int ValidPieceOrEmpty(const int piece) {
 
 int MoveListOk(const S_MOVELIST *list, const S_BOARD *pos) {
 
-	if (list->count < 0 || list->count >= MAXPOSITIONMOVES)
+	if (list->count >= MAXPOSITIONMOVES)
 		return false;
 
 	int from, to;
 
-	for (int MoveNum = 0; MoveNum < list->count; ++MoveNum) {
+	for (unsigned int MoveNum = 0; MoveNum < list->count; ++MoveNum) {
 
 		to 	 =   TOSQ(list->moves[MoveNum].move);
 		from = FROMSQ(list->moves[MoveNum].move);
