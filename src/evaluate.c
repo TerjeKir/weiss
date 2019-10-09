@@ -87,55 +87,55 @@ static void InitPSQT() {
 		{ 0 }, // Unused
 		{ // Pawn
 		 0,   0,   0,   0,   0,   0,   0,   0,
-		10,  10,   0, -10, -10,   0,  10,  10,
-		 5,   0,   0,   5,   5,   0,   0,   5,
-		 0,   0,  10,  20,  20,  10,   0,   0,
-		 5,   5,   5,  10,  10,   5,   5,   5,
-		10,  10,  10,  20,  20,  10,  10,  10,
 		20,  20,  20,  30,  30,  20,  20,  20,
+		10,  10,  10,  20,  20,  10,  10,  10,
+		 5,   5,   5,  10,  10,   5,   5,   5,
+		 0,   0,  10,  20,  20,  10,   0,   0,
+		 5,   0,   0,   5,   5,   0,   0,   5,
+		10,  10,   0, -10, -10,   0,  10,  10,
 		 0,   0,   0,   0,   0,   0,   0,   0},
 
 		{ // Knight
-		0, -10,   0,   0,   0,   0, -10,   0,
-		0,   0,   0,   5,   5,   0,   0,   0,
-		0,   0,  10,  10,  10,  10,   0,   0,
-		0,   0,  10,  20,  20,  10,   5,   0,
-		5,  10,  15,  20,  20,  15,  10,   5,
-		5,  10,  10,  20,  20,  10,  10,   5,
+		0,   0,   0,   0,   0,   0,   0,   0,
 		0,   0,   5,  10,  10,   5,   0,   0,
-		0,   0,   0,   0,   0,   0,   0,   0},
+		5,  10,  10,  20,  20,  10,  10,   5,
+		5,  10,  15,  20,  20,  15,  10,   5,
+		0,   0,  10,  20,  20,  10,   5,   0,
+		0,   0,  10,  10,  10,  10,   0,   0,
+		0,   0,   0,   5,   5,   0,   0,   0,
+		0, -10,   0,   0,   0,   0, -10,   0},
 
 		{ // Bishop
-		0,   0, -10,   0,   0, -10,   0,   0,
+		0,   0,   0,   0,   0,   0,   0,   0,
 		0,   0,   0,  10,  10,   0,   0,   0,
 		0,   0,  10,  15,  15,  10,   0,   0,
 		0,  10,  15,  20,  20,  15,  10,   0,
 		0,  10,  15,  20,  20,  15,  10,   0,
 		0,   0,  10,  15,  15,  10,   0,   0,
 		0,   0,   0,  10,  10,   0,   0,   0,
-		0,   0,   0,   0,   0,   0,   0,   0},
+		0,   0, -10,   0,   0, -10,   0,   0},
 
 		{ // Rook
          0,   0,   5,  10,  10,   5,   0,   0,
-         0,   0,   5,  10,  10,   5,   0,   0,
-         0,   0,   5,  10,  10,   5,   0,   0,
-         0,   0,   5,  10,  10,   5,   0,   0,
-         0,   0,   5,  10,  10,   5,   0,   0,
-         0,   0,   5,  10,  10,   5,   0,   0,
         25,  25,  25,  25,  25,  25,  25,  25,
+         0,   0,   5,  10,  10,   5,   0,   0,
+         0,   0,   5,  10,  10,   5,   0,   0,
+         0,   0,   5,  10,  10,   5,   0,   0,
+         0,   0,   5,  10,  10,   5,   0,   0,
+         0,   0,   5,  10,  10,   5,   0,   0,
          0,   0,   5,  10,  10,   5,   0,   0},
 
 		{ 0 }, // Queen 
 
 		{ // King
-         0,   5,   5, -10, -10,   0,  10,   5,
-       -30, -30, -30, -30, -30, -30, -30, -30,
+       -70, -70, -70, -70, -70, -70, -70, -70,
+       -70, -70, -70, -70, -70, -70, -70, -70,
+       -70, -70, -70, -70, -70, -70, -70, -70,
+       -70, -70, -70, -70, -70, -70, -70, -70,
+       -70, -70, -70, -70, -70, -70, -70, -70,
        -50, -50, -50, -50, -50, -50, -50, -50,
-       -70, -70, -70, -70, -70, -70, -70, -70,
-       -70, -70, -70, -70, -70, -70, -70, -70,
-       -70, -70, -70, -70, -70, -70, -70, -70,
-       -70, -70, -70, -70, -70, -70, -70, -70,
-       -70, -70, -70, -70, -70, -70, -70, -70},
+       -30, -30, -30, -30, -30, -30, -30, -30,
+         0,   5,   5, -10, -10,   0,  10,   5},
 
 		{ // King
        -50, -10,   0,   0,   0,   0, -10, -50,
@@ -241,7 +241,7 @@ int EvalPosition(const S_BOARD *pos) {
 		sq = pos->pieceList[wP][i];
 
 		// Position score
-		score += PSQT[PAWN][sq];
+		score += PSQT[PAWN][mirror[(sq)]];
 		// Isolation penalty
 		if (!(IsolatedMask[sq] & whitePawns))
 			score += PawnIsolated;
@@ -255,7 +255,7 @@ int EvalPosition(const S_BOARD *pos) {
 		sq = pos->pieceList[bP][i];
 
 		// Position score
-		score -= PSQT[PAWN][mirror[(sq)]];
+		score -= PSQT[PAWN][sq];
 		// Isolation penalty
 		if (!(IsolatedMask[sq] & blackPawns))
 			score -= PawnIsolated;
@@ -267,32 +267,32 @@ int EvalPosition(const S_BOARD *pos) {
 	// White knights
 	for (i = 0; i < pos->pieceCounts[wN]; ++i) {
 		sq = pos->pieceList[wN][i];
-		score += PSQT[KNIGHT][sq];
+		score += PSQT[KNIGHT][mirror[sq]];
 	}
 
 	// Black knights
 	for (i = 0; i < pos->pieceCounts[bN]; ++i) {
 		sq = pos->pieceList[bN][i];
-		score -= PSQT[KNIGHT][mirror[(sq)]];
+		score -= PSQT[KNIGHT][sq];
 	}
 
 	// White bishops
 	for (i = 0; i < pos->pieceCounts[wB]; ++i) {
 		sq = pos->pieceList[wB][i];
-		score += PSQT[BISHOP][sq];
+		score += PSQT[BISHOP][mirror[sq]];
 	}
 
 	// Black bishops
 	for (i = 0; i < pos->pieceCounts[bB]; ++i) {
 		sq = pos->pieceList[bB][i];
-		score -= PSQT[BISHOP][mirror[(sq)]];
+		score -= PSQT[BISHOP][sq];
 	}
 
 	// White rooks
 	for (i = 0; i < pos->pieceCounts[wR]; ++i) {
 		sq = pos->pieceList[wR][i];
 
-		score += PSQT[ROOK][sq];
+		score += PSQT[ROOK][mirror[sq]];
 
 		// Open/Semi-open file bonus
 		if (!(pos->pieceBBs[PAWN] & fileBBs[fileOf(sq)]))
@@ -305,7 +305,7 @@ int EvalPosition(const S_BOARD *pos) {
 	for (i = 0; i < pos->pieceCounts[bR]; ++i) {
 		sq = pos->pieceList[bR][i];
 
-		score -= PSQT[ROOK][mirror[(sq)]];
+		score -= PSQT[ROOK][sq];
 
 		// Open/Semi-open file bonus
 		if (!(pos->pieceBBs[PAWN] & fileBBs[fileOf(sq)]))
@@ -347,7 +347,7 @@ int EvalPosition(const S_BOARD *pos) {
 				  + pieceValue[ROOK]   * pos->pieceCounts[bR]
 				  + pieceValue[QUEEN]  * pos->pieceCounts[bQ];
 
-	score += PSQT[KING+(bMaterial <= ENDGAME_MAT)][pos->kingSq[WHITE]];
+	score += PSQT[KING+(bMaterial <= ENDGAME_MAT)][mirror[pos->kingSq[WHITE]]];
 
 	// Black king
 	int wMaterial = pieceValue[PAWN]   * pos->pieceCounts[wP]
@@ -356,7 +356,7 @@ int EvalPosition(const S_BOARD *pos) {
 				  + pieceValue[ROOK]   * pos->pieceCounts[wR]
 				  + pieceValue[QUEEN]  * pos->pieceCounts[wQ];
 
-	score -= PSQT[KING+(wMaterial <= ENDGAME_MAT)][mirror[(pos->kingSq[BLACK])]];
+	score -= PSQT[KING+(wMaterial <= ENDGAME_MAT)][pos->kingSq[BLACK]];
 
 	assert(score > -INFINITE && score < INFINITE);
 
