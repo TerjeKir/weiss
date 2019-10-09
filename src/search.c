@@ -151,7 +151,7 @@ static int Quiescence(int alpha, const int beta, S_BOARD *pos, S_SEARCHINFO *inf
 
 		if (info->stopped)
 			return 0;
-		
+
 		if (score > bestScore) {
 
 			// If score beats beta we have a cutoff
@@ -438,11 +438,6 @@ void SearchPosition(S_BOARD *pos, S_SEARCHINFO *info) {
 
 		// Print thinking
 		PrintThinking(info, pos, bestScore, currentDepth);
-
-#ifdef SEARCH_STATS
-		printf("Stats: Hits: %d Overwrite: %d NewWrite: %d Cut: %d\nOrdering %.2f NullCut: %d\n", pos->hashTable->hit,
-			pos->hashTable->overWrite, pos->hashTable->newWrite, pos->hashTable->cut, (info->fhf/info->fh)*100, info->nullCut);
-#endif
 	}
 
 	// Get and print best move when done thinking
