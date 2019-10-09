@@ -337,19 +337,21 @@ int EvalPosition(const S_BOARD *pos) {
 	}
 
 	// White king
-	int bMaterial = pieceValue[PAWN]       * pos->pieceCounts[bP]
-					  + pieceValue[KNIGHT] * pos->pieceCounts[bN]
-					  + pieceValue[BISHOP] * pos->pieceCounts[bB]
-					  + pieceValue[ROOK]   * pos->pieceCounts[bR]
-					  + pieceValue[QUEEN]  * pos->pieceCounts[bQ];
+	int bMaterial = pieceValue[PAWN]   * pos->pieceCounts[bP]
+				  + pieceValue[KNIGHT] * pos->pieceCounts[bN]
+				  + pieceValue[BISHOP] * pos->pieceCounts[bB]
+				  + pieceValue[ROOK]   * pos->pieceCounts[bR]
+				  + pieceValue[QUEEN]  * pos->pieceCounts[bQ];
+
 	score += PSQT[KING+(bMaterial <= ENDGAME_MAT)][pos->kingSq[WHITE]];
 
 	// Black king
 	int wMaterial = pieceValue[PAWN]   * pos->pieceCounts[wP]
-					  + pieceValue[KNIGHT] * pos->pieceCounts[wN]
-					  + pieceValue[BISHOP] * pos->pieceCounts[wB]
-					  + pieceValue[ROOK]   * pos->pieceCounts[wR]
-					  + pieceValue[QUEEN]  * pos->pieceCounts[wQ];
+				  + pieceValue[KNIGHT] * pos->pieceCounts[wN]
+				  + pieceValue[BISHOP] * pos->pieceCounts[wB]
+				  + pieceValue[ROOK]   * pos->pieceCounts[wR]
+				  + pieceValue[QUEEN]  * pos->pieceCounts[wQ];
+
 	score -= PSQT[KING+(wMaterial <= ENDGAME_MAT)][mirror[(pos->kingSq[BLACK])]];
 
 	assert(score > -INFINITE && score < INFINITE);
