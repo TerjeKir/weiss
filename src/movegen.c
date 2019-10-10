@@ -198,7 +198,7 @@ static inline void GenerateKingCaptures(const S_BOARD *pos, S_MOVELIST *list, co
 	}
 }
 
-// Pawn
+// White pawn
 static inline void GenerateWhitePawnMoves(const S_BOARD *pos, S_MOVELIST *list, const bitboard pawns, const bitboard empty) {
 
 	int sq;
@@ -219,28 +219,6 @@ static inline void GenerateWhitePawnMoves(const S_BOARD *pos, S_MOVELIST *list, 
 		AddQuietMove(pos, MOVE((sq - 16), sq, EMPTY, EMPTY, FLAG_PAWNSTART), list);
 	}
 }
-
-static inline void GenerateBlackPawnMoves(const S_BOARD *pos, S_MOVELIST *list, const bitboard pawns, const bitboard empty) {
-
-	int sq;
-	bitboard pawnMoves, pawnStarts;
-
-	pawnMoves  = empty & pawns >> 8;
-	pawnStarts = empty & (pawnMoves & rank6BB) >> 8;
-
-	// Pawn moves
-	while (pawnMoves) {
-		sq = PopLsb(&pawnMoves);
-		AddBlackPawnMove(pos, (sq + 8), sq, list);
-	}
-
-	// Pawn starts
-	while (pawnStarts) {
-		sq = PopLsb(&pawnStarts);
-		AddQuietMove(pos, MOVE((sq + 16), sq, EMPTY, EMPTY, FLAG_PAWNSTART), list);
-	}
-}
-
 static inline void GenerateWhitePawnCaptures(const S_BOARD *pos, S_MOVELIST *list, bitboard pawns, const bitboard enemies) {
 
 	int i, sq, attack;
@@ -265,7 +243,34 @@ static inline void GenerateWhitePawnCaptures(const S_BOARD *pos, S_MOVELIST *lis
 		}
 	}
 }
+static inline void GenerateWhitePawnBoth(const S_BOARD *pos, S_MOVELIST *list, const bitboard enemies, const bitboard empty) {
 
+	bitboard pawns = pos->colorBBs[WHITE] & pos->pieceBBs[PAWN];
+
+	GenerateWhitePawnCaptures(pos, list, pawns, enemies);
+	GenerateWhitePawnMoves   (pos, list, pawns, empty  );
+}
+// Black pawn
+static inline void GenerateBlackPawnMoves(const S_BOARD *pos, S_MOVELIST *list, const bitboard pawns, const bitboard empty) {
+
+	int sq;
+	bitboard pawnMoves, pawnStarts;
+
+	pawnMoves  = empty & pawns >> 8;
+	pawnStarts = empty & (pawnMoves & rank6BB) >> 8;
+
+	// Pawn moves
+	while (pawnMoves) {
+		sq = PopLsb(&pawnMoves);
+		AddBlackPawnMove(pos, (sq + 8), sq, list);
+	}
+
+	// Pawn starts
+	while (pawnStarts) {
+		sq = PopLsb(&pawnStarts);
+		AddQuietMove(pos, MOVE((sq + 16), sq, EMPTY, EMPTY, FLAG_PAWNSTART), list);
+	}
+}
 static inline void GenerateBlackPawnCaptures(const S_BOARD *pos, S_MOVELIST *list, bitboard pawns, const bitboard enemies) {
 
 	int i, sq, attack;
@@ -290,15 +295,6 @@ static inline void GenerateBlackPawnCaptures(const S_BOARD *pos, S_MOVELIST *lis
 		}
 	}
 }
-
-static inline void GenerateWhitePawnBoth(const S_BOARD *pos, S_MOVELIST *list, const bitboard enemies, const bitboard empty) {
-
-	bitboard pawns = pos->colorBBs[WHITE] & pos->pieceBBs[PAWN];
-
-	GenerateWhitePawnCaptures(pos, list, pawns, enemies);
-	GenerateWhitePawnMoves   (pos, list, pawns, empty  );
-}
-
 static inline void GenerateBlackPawnBoth(const S_BOARD *pos, S_MOVELIST *list, const bitboard enemies, const bitboard empty) {
 
 	bitboard pawns = pos->colorBBs[BLACK] & pos->pieceBBs[PAWN];
