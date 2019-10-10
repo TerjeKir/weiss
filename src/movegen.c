@@ -372,7 +372,7 @@ static inline void GenerateBlackKnightCaptures(const S_BOARD *pos, S_MOVELIST *l
 static inline void GenerateWhiteBishopBoth(const S_BOARD *pos, S_MOVELIST *list, const bitboard enemies, const bitboard empty, const bitboard occupied) {
 
 	int sq, attack;
-	bitboard attacks, moves;
+	bitboard attacks, moves, temp;
 
 	bitboard bishops = pos->colorBBs[WHITE] & pos->pieceBBs[BISHOP];
 
@@ -380,12 +380,13 @@ static inline void GenerateWhiteBishopBoth(const S_BOARD *pos, S_MOVELIST *list,
 
 		sq = PopLsb(&bishops);
 
-		attacks = BishopAttacks(sq, occupied) & enemies;
+		temp = BishopAttacks(sq, occupied);
+		attacks = temp & enemies;
 		while (attacks) {
 			attack = PopLsb(&attacks);
 			AddCaptureMove(pos, MOVE(sq, attack, pos->board[attack], EMPTY, 0), list);
 		}
-		moves = BishopAttacks(sq, occupied) & empty;
+		moves = temp & empty;
 		while (moves)
 			AddQuietMove(pos, MOVE(sq, PopLsb(&moves), EMPTY, EMPTY, 0), list);
 	}
@@ -413,7 +414,7 @@ static inline void GenerateWhiteBishopCaptures(const S_BOARD *pos, S_MOVELIST *l
 static inline void GenerateBlackBishopBoth(const S_BOARD *pos, S_MOVELIST *list, const bitboard enemies, const bitboard empty, const bitboard occupied) {
 
 	int sq, attack;
-	bitboard attacks, moves;
+	bitboard attacks, moves, temp;
 
 	bitboard bishops = pos->colorBBs[BLACK] & pos->pieceBBs[BISHOP];
 
@@ -421,12 +422,13 @@ static inline void GenerateBlackBishopBoth(const S_BOARD *pos, S_MOVELIST *list,
 
 		sq = PopLsb(&bishops);
 
-		attacks = BishopAttacks(sq, occupied) & enemies;
+		temp = BishopAttacks(sq, occupied);
+		attacks = temp & enemies;
 		while (attacks) {
 			attack = PopLsb(&attacks);
 			AddCaptureMove(pos, MOVE(sq, attack, pos->board[attack], EMPTY, 0), list);
 		}
-		moves = BishopAttacks(sq, occupied) & empty;
+		moves = temp & empty;
 		while (moves)
 			AddQuietMove(pos, MOVE(sq, PopLsb(&moves), EMPTY, EMPTY, 0), list);
 	}
@@ -454,7 +456,7 @@ static inline void GenerateBlackBishopCaptures(const S_BOARD *pos, S_MOVELIST *l
 static inline void GenerateWhiteRookBoth(const S_BOARD *pos, S_MOVELIST *list, const bitboard enemies, const bitboard empty, const bitboard occupied) {
 
 	int sq, attack;
-	bitboard attacks, moves;
+	bitboard attacks, moves, temp;
 
 	bitboard rooks = pos->colorBBs[WHITE] & pos->pieceBBs[ROOK];
 
@@ -462,12 +464,13 @@ static inline void GenerateWhiteRookBoth(const S_BOARD *pos, S_MOVELIST *list, c
 
 		sq = PopLsb(&rooks);
 
-		attacks = RookAttacks(sq, occupied) & enemies;
+		temp = RookAttacks(sq, occupied);
+		attacks = temp & enemies;
 		while (attacks) {
 			attack = PopLsb(&attacks);
 			AddCaptureMove(pos, MOVE(sq, attack, pos->board[attack], EMPTY, 0), list);
 		}
-		moves = RookAttacks(sq, occupied) & empty;
+		moves = temp & empty;
 		while (moves)
 			AddQuietMove(pos, MOVE(sq, PopLsb(&moves), EMPTY, EMPTY, 0), list);
 	}
@@ -495,7 +498,7 @@ static inline void GenerateWhiteRookCaptures(const S_BOARD *pos, S_MOVELIST *lis
 static inline void GenerateBlackRookBoth(const S_BOARD *pos, S_MOVELIST *list, const bitboard enemies, const bitboard empty, const bitboard occupied) {
 
 	int sq, attack;
-	bitboard attacks, moves;
+	bitboard attacks, moves, temp;
 
 	bitboard rooks = pos->colorBBs[BLACK] & pos->pieceBBs[ROOK];
 
@@ -503,12 +506,13 @@ static inline void GenerateBlackRookBoth(const S_BOARD *pos, S_MOVELIST *list, c
 
 		sq = PopLsb(&rooks);
 
-		attacks = RookAttacks(sq, occupied) & enemies;
+		temp = RookAttacks(sq, occupied);
+		attacks = temp & enemies;
 		while (attacks) {
 			attack = PopLsb(&attacks);
 			AddCaptureMove(pos, MOVE(sq, attack, pos->board[attack], EMPTY, 0), list);
 		}
-		moves = RookAttacks(sq, occupied) & empty;
+		moves = temp & empty;
 		while (moves)
 			AddQuietMove(pos, MOVE(sq, PopLsb(&moves), EMPTY, EMPTY, 0), list);
 	}
@@ -536,7 +540,7 @@ static inline void GenerateBlackRookCaptures(const S_BOARD *pos, S_MOVELIST *lis
 static inline void GenerateWhiteQueenBoth(const S_BOARD *pos, S_MOVELIST *list, const bitboard enemies, const bitboard empty, const bitboard occupied) {
 
 	int sq, attack;
-	bitboard attacks, moves;
+	bitboard attacks, moves, temp;
 
 	bitboard queens  = pos->colorBBs[WHITE] & pos->pieceBBs[ QUEEN];
 
@@ -544,15 +548,13 @@ static inline void GenerateWhiteQueenBoth(const S_BOARD *pos, S_MOVELIST *list, 
 
 		sq = PopLsb(&queens);
 
-		const bitboard tempQueen = BishopAttacks(sq, occupied) | RookAttacks(sq, occupied);
-		attacks = tempQueen & enemies;
-		moves   = tempQueen & empty;
-
+		temp = BishopAttacks(sq, occupied) | RookAttacks(sq, occupied);
+		attacks = temp & enemies;
 		while (attacks) {
 			attack = PopLsb(&attacks);
 			AddCaptureMove(pos, MOVE(sq, attack, pos->board[attack], EMPTY, 0), list);
 		}
-
+		moves = temp & empty;
 		while (moves)
 			AddQuietMove(pos, MOVE(sq, PopLsb(&moves), EMPTY, EMPTY, 0), list);
 	}
@@ -580,7 +582,7 @@ static inline void GenerateWhiteQueenCaptures(const S_BOARD *pos, S_MOVELIST *li
 static inline void GenerateBlackQueenBoth(const S_BOARD *pos, S_MOVELIST *list, const bitboard enemies, const bitboard empty, const bitboard occupied) {
 
 	int sq, attack;
-	bitboard attacks, moves;
+	bitboard attacks, moves, temp;
 
 	bitboard queens  = pos->colorBBs[BLACK] & pos->pieceBBs[ QUEEN];
 
@@ -588,15 +590,13 @@ static inline void GenerateBlackQueenBoth(const S_BOARD *pos, S_MOVELIST *list, 
 
 		sq = PopLsb(&queens);
 
-		const bitboard tempQueen = BishopAttacks(sq, occupied) | RookAttacks(sq, occupied);
-		attacks = tempQueen & enemies;
-		moves   = tempQueen & empty;
-
+		temp = BishopAttacks(sq, occupied) | RookAttacks(sq, occupied);
+		attacks = temp & enemies;
 		while (attacks) {
 			attack = PopLsb(&attacks);
 			AddCaptureMove(pos, MOVE(sq, attack, pos->board[attack], EMPTY, 0), list);
 		}
-
+		moves = temp & empty;
 		while (moves)
 			AddQuietMove(pos, MOVE(sq, PopLsb(&moves), EMPTY, EMPTY, 0), list);
 	}
@@ -639,15 +639,15 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 		GenerateWhiteCastling  (pos, list, occupied);
 		GenerateWhitePawnBoth  (pos, list, enemies, empty);
 		GenerateWhiteKnightBoth(pos, list, enemies, empty);
-		GenerateWhiteBishopBoth(pos, list, enemies, empty, occupied);
 		GenerateWhiteRookBoth  (pos, list, enemies, empty, occupied);
+		GenerateWhiteBishopBoth(pos, list, enemies, empty, occupied);
 		GenerateWhiteQueenBoth (pos, list, enemies, empty, occupied);
 	} else {
 		GenerateBlackCastling  (pos, list, occupied);
 		GenerateBlackPawnBoth  (pos, list, enemies, empty);
 		GenerateBlackKnightBoth(pos, list, enemies, empty);
-		GenerateBlackBishopBoth(pos, list, enemies, empty, occupied);
 		GenerateBlackRookBoth  (pos, list, enemies, empty, occupied);
+		GenerateBlackBishopBoth(pos, list, enemies, empty, occupied);
 		GenerateBlackQueenBoth (pos, list, enemies, empty, occupied);
 	}
 
