@@ -164,7 +164,6 @@ static inline void GenerateWhiteCastling(const S_BOARD *pos, S_MOVELIST *list, c
 			if (!SqAttacked(E1, BLACK, pos) && !SqAttacked(D1, BLACK, pos))
 				AddQuietMove(pos, MOVE(E1, C1, EMPTY, EMPTY, FLAG_CASTLE), list);
 }
-
 static inline void GenerateBlackCastling(const S_BOARD *pos, S_MOVELIST *list, const bitboard occupied) {
 
 	// King side castle
@@ -179,7 +178,6 @@ static inline void GenerateBlackCastling(const S_BOARD *pos, S_MOVELIST *list, c
 			if (!SqAttacked(E8, WHITE, pos) && !SqAttacked(D8, WHITE, pos))
 				AddQuietMove(pos, MOVE(E8, C8, EMPTY, EMPTY, FLAG_CASTLE), list);
 }
-
 static inline void GenerateKingMoves(const S_BOARD *pos, S_MOVELIST *list, const int sq, const bitboard empty) {
 
 	bitboard moves = king_attacks[sq] & empty;
@@ -187,7 +185,6 @@ static inline void GenerateKingMoves(const S_BOARD *pos, S_MOVELIST *list, const
 		AddQuietMove(pos, MOVE(sq, PopLsb(&moves), EMPTY, EMPTY, 0), list);
 	}
 }
-
 static inline void GenerateKingCaptures(const S_BOARD *pos, S_MOVELIST *list, const int sq, const bitboard enemies) {
 
 	bitboard attacks = king_attacks[sq] & enemies;
@@ -301,6 +298,7 @@ static inline void GenerateBlackPawnBoth(const S_BOARD *pos, S_MOVELIST *list, c
 	GenerateBlackPawnCaptures(pos, list, pawns, enemies);
 	GenerateBlackPawnMoves   (pos, list, pawns, empty  );
 }
+
 // White knight
 static inline void GenerateWhiteKnightBoth(const S_BOARD *pos, S_MOVELIST *list, const bitboard enemies, const bitboard empty) {
 
@@ -388,7 +386,7 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 
 	list->count = list->next = 0;
 
-	int sq, attack, move;
+	int sq, attack;
 	const int side = pos->side;
 
 	bitboard attacks, moves;
@@ -436,10 +434,8 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 			AddCaptureMove(pos, MOVE(sq, attack, pos->board[attack], EMPTY, 0), list);
 		}
 		moves = RookAttacks(sq, occupied) & empty;
-		while (moves) {
-			move = PopLsb(&moves);
-			AddQuietMove(pos, MOVE(sq, move, EMPTY, EMPTY, 0), list);
-		}
+		while (moves)
+			AddQuietMove(pos, MOVE(sq, PopLsb(&moves), EMPTY, EMPTY, 0), list);
 	}
 
 	// Bishops
@@ -453,10 +449,8 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 			AddCaptureMove(pos, MOVE(sq, attack, pos->board[attack], EMPTY, 0), list);
 		}
 		moves = BishopAttacks(sq, occupied) & empty;
-		while (moves) {
-			move = PopLsb(&moves);
-			AddQuietMove(pos, MOVE(sq, move, EMPTY, EMPTY, 0), list);
-		}
+		while (moves)
+			AddQuietMove(pos, MOVE(sq, PopLsb(&moves), EMPTY, EMPTY, 0), list);
 	}
 
 	// Queens
@@ -473,10 +467,8 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 			AddCaptureMove(pos, MOVE(sq, attack, pos->board[attack], EMPTY, 0), list);
 		}
 
-		while (moves) {
-			move = PopLsb(&moves);
-			AddQuietMove(pos, MOVE(sq, move, EMPTY, EMPTY, 0), list);
-		}
+		while (moves)
+			AddQuietMove(pos, MOVE(sq, PopLsb(&moves), EMPTY, EMPTY, 0), list);
 	}
 
 	// King
