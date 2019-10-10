@@ -30,7 +30,7 @@ static void InitMvvLva() {
 			MvvLvaScores[Victim][Attacker] = VictimScore[Victim] - AttackerScore[Attacker];
 }
 
-/* Functions that add moves to the movelist */
+/* Functions that add moves to the movelist - called by generators */
 
 static void AddQuietMove(const S_BOARD *pos, const int move, S_MOVELIST *list) {
 
@@ -54,7 +54,6 @@ static void AddQuietMove(const S_BOARD *pos, const int move, S_MOVELIST *list) {
 
 	list->count++;
 }
-
 static void AddCaptureMove(const S_BOARD *pos, const int move, S_MOVELIST *list) {
 #ifndef NDEBUG
 	const int to    = TOSQ(move);
@@ -71,7 +70,6 @@ static void AddCaptureMove(const S_BOARD *pos, const int move, S_MOVELIST *list)
 	list->moves[list->count].score = MvvLvaScores[piece][pos->board[from]] + 1000000;
 	list->count++;
 }
-
 static void AddEnPassantMove(const int move, S_MOVELIST *list) {
 #ifndef NDEBUG
 	const int from = FROMSQ(move);
@@ -84,7 +82,6 @@ static void AddEnPassantMove(const int move, S_MOVELIST *list) {
 	list->moves[list->count].score = 105 + 1000000;
 	list->count++;
 }
-
 static void AddWhitePawnCapMove(const S_BOARD *pos, const int from, const int to, const int cap, S_MOVELIST *list) {
 
 	assert(ValidSquare(from));
@@ -100,7 +97,6 @@ static void AddWhitePawnCapMove(const S_BOARD *pos, const int from, const int to
 	} else
 		AddCaptureMove(pos, MOVE(from, to, cap, EMPTY, 0), list);
 }
-
 static void AddWhitePawnMove(const S_BOARD *pos, const int from, const int to, S_MOVELIST *list) {
 
 	assert(ValidSquare(from));
@@ -115,7 +111,6 @@ static void AddWhitePawnMove(const S_BOARD *pos, const int from, const int to, S
 	} else
 		AddQuietMove(pos, MOVE(from, to, EMPTY, EMPTY, 0), list);
 }
-
 static void AddBlackPawnCapMove(const S_BOARD *pos, const int from, const int to, const int cap, S_MOVELIST *list) {
 
 	assert(ValidSquare(from));
@@ -131,7 +126,6 @@ static void AddBlackPawnCapMove(const S_BOARD *pos, const int from, const int to
 	} else
 		AddCaptureMove(pos, MOVE(from, to, cap, EMPTY, 0), list);
 }
-
 static void AddBlackPawnMove(const S_BOARD *pos, const int from, const int to, S_MOVELIST *list) {
 
 	assert(ValidSquare(from));
@@ -147,7 +141,7 @@ static void AddBlackPawnMove(const S_BOARD *pos, const int from, const int to, S
 		AddQuietMove(pos, MOVE(from, to, EMPTY, EMPTY, 0), list);
 }
 
-/* Functions that generate specific color/piece moves */
+/* Generators for specific color/piece combinations - called by generic generators*/
 
 // King
 static inline void GenerateWhiteCastling(const S_BOARD *pos, S_MOVELIST *list, const bitboard occupied) {
@@ -195,27 +189,7 @@ static inline void GenerateKingCaptures(const S_BOARD *pos, S_MOVELIST *list, co
 }
 
 // White pawn
-static inline void GenerateWhitePawnMoves(const S_BOARD *pos, S_MOVELIST *list, const bitboard pawns, const bitboard empty) {
-
-	int sq;
-	bitboard pawnMoves, pawnStarts;
-
-	pawnMoves  = empty & pawns << 8;
-	pawnStarts = empty & (pawnMoves & rank3BB) << 8;
-
-	// Pawn moves
-	while (pawnMoves) {
-		sq = PopLsb(&pawnMoves);
-		AddWhitePawnMove(pos, (sq - 8), sq, list);
-	}
-
-	// Pawn starts
-	while (pawnStarts) {
-		sq = PopLsb(&pawnStarts);
-		AddQuietMove(pos, MOVE((sq - 16), sq, EMPTY, EMPTY, FLAG_PAWNSTART), list);
-	}
-}
-static inline void GenerateWhitePawnCaptures(const S_BOARD *pos, S_MOVELIST *list, bitboard pawns, const bitboard enemies) {
+static inline void GenerateWhitePawnCaptures(const S_BOARD *pos, S_MOVELIST *list, const bitboard enemies, bitboard pawns) {
 
 	int i, sq, attack;
 	bitboard attacks, enPassers;
@@ -243,31 +217,28 @@ static inline void GenerateWhitePawnBoth(const S_BOARD *pos, S_MOVELIST *list, c
 
 	bitboard pawns = pos->colorBBs[WHITE] & pos->pieceBBs[PAWN];
 
-	GenerateWhitePawnCaptures(pos, list, pawns, enemies);
-	GenerateWhitePawnMoves   (pos, list, pawns, empty  );
-}
-// Black pawn
-static inline void GenerateBlackPawnMoves(const S_BOARD *pos, S_MOVELIST *list, const bitboard pawns, const bitboard empty) {
+	GenerateWhitePawnCaptures(pos, list, enemies, pawns);
 
 	int sq;
 	bitboard pawnMoves, pawnStarts;
 
-	pawnMoves  = empty & pawns >> 8;
-	pawnStarts = empty & (pawnMoves & rank6BB) >> 8;
+	pawnMoves  = empty & pawns << 8;
+	pawnStarts = empty & (pawnMoves & rank3BB) << 8;
 
 	// Pawn moves
 	while (pawnMoves) {
 		sq = PopLsb(&pawnMoves);
-		AddBlackPawnMove(pos, (sq + 8), sq, list);
+		AddWhitePawnMove(pos, (sq - 8), sq, list);
 	}
 
 	// Pawn starts
 	while (pawnStarts) {
 		sq = PopLsb(&pawnStarts);
-		AddQuietMove(pos, MOVE((sq + 16), sq, EMPTY, EMPTY, FLAG_PAWNSTART), list);
+		AddQuietMove(pos, MOVE((sq - 16), sq, EMPTY, EMPTY, FLAG_PAWNSTART), list);
 	}
 }
-static inline void GenerateBlackPawnCaptures(const S_BOARD *pos, S_MOVELIST *list, bitboard pawns, const bitboard enemies) {
+// Black pawn
+static inline void GenerateBlackPawnCaptures(const S_BOARD *pos, S_MOVELIST *list, const bitboard enemies, bitboard pawns) {
 
 	int i, sq, attack;
 	bitboard attacks, enPassers;
@@ -295,8 +266,25 @@ static inline void GenerateBlackPawnBoth(const S_BOARD *pos, S_MOVELIST *list, c
 
 	bitboard pawns = pos->colorBBs[BLACK] & pos->pieceBBs[PAWN];
 
-	GenerateBlackPawnCaptures(pos, list, pawns, enemies);
-	GenerateBlackPawnMoves   (pos, list, pawns, empty  );
+	GenerateBlackPawnCaptures(pos, list, enemies, pawns);
+
+	int sq;
+	bitboard pawnMoves, pawnStarts;
+
+	pawnMoves  = empty & pawns >> 8;
+	pawnStarts = empty & (pawnMoves & rank6BB) >> 8;
+
+	// Pawn moves
+	while (pawnMoves) {
+		sq = PopLsb(&pawnMoves);
+		AddBlackPawnMove(pos, (sq + 8), sq, list);
+	}
+
+	// Pawn starts
+	while (pawnStarts) {
+		sq = PopLsb(&pawnStarts);
+		AddQuietMove(pos, MOVE((sq + 16), sq, EMPTY, EMPTY, FLAG_PAWNSTART), list);
+	}
 }
 
 // White knight
@@ -632,8 +620,11 @@ static inline void GenerateBlackQueenCaptures(const S_BOARD *pos, S_MOVELIST *li
 	}
 }
 
+/* Generic generators */
+
 // Generate all possible moves
 void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
+
 	assert(CheckBoard(pos));
 
 	list->count = list->next = 0;
@@ -668,6 +659,7 @@ void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 
 // Generate all moves that capture pieces
 void GenerateAllCaptures(const S_BOARD *pos, S_MOVELIST *list) {
+
 	assert(CheckBoard(pos));
 
 	list->count = list->next = 0;
@@ -681,13 +673,13 @@ void GenerateAllCaptures(const S_BOARD *pos, S_MOVELIST *list) {
 
 	// Pawns
 	if (side == WHITE) {
-		GenerateWhitePawnCaptures  (pos, list, pawns, enemies);
+		GenerateWhitePawnCaptures  (pos, list, enemies, pawns);
 		GenerateWhiteKnightCaptures(pos, list, enemies);
 		GenerateWhiteBishopCaptures(pos, list, enemies, occupied);
 		GenerateWhiteRookCaptures  (pos, list, enemies, occupied);
 		GenerateWhiteQueenCaptures (pos, list, enemies, occupied);
 	} else {
-		GenerateBlackPawnCaptures  (pos, list, pawns, enemies);
+		GenerateBlackPawnCaptures  (pos, list, enemies, pawns);
 		GenerateBlackKnightCaptures(pos, list, enemies);
 		GenerateBlackBishopCaptures(pos, list, enemies, occupied);
 		GenerateBlackRookCaptures  (pos, list, enemies, occupied);
