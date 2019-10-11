@@ -175,14 +175,14 @@ static inline void GenWPawnNoisy(const S_BOARD *pos, S_MOVELIST *list, const bit
 	int sq;
 	bitboard enPassers;
 
-	bitboard pawns       = pos->colorBBs[WHITE] & pos->pieceBBs[PAWN];
-	bitboard lAttacks    = ((pawns & ~fileABB) << 7) & enemies;
-	bitboard rAttacks    = ((pawns & ~fileHBB) << 9) & enemies;
-	bitboard lNormalCap  = lAttacks & ~rank8BB;
-	bitboard lPromoCap   = lAttacks &  rank8BB;
-	bitboard rNormalCap  = rAttacks & ~rank8BB;
-	bitboard rPromoCap   = rAttacks &  rank8BB;
-	bitboard promotions  = empty & (pawns & rank7BB) << 8;
+	bitboard pawns      = pos->colorBBs[WHITE] & pos->pieceBBs[PAWN];
+	bitboard lAttacks   = ((pawns & ~fileABB) << 7) & enemies;
+	bitboard rAttacks   = ((pawns & ~fileHBB) << 9) & enemies;
+	bitboard lNormalCap = lAttacks & ~rank8BB;
+	bitboard lPromoCap  = lAttacks &  rank8BB;
+	bitboard rNormalCap = rAttacks & ~rank8BB;
+	bitboard rPromoCap  = rAttacks &  rank8BB;
+	bitboard promotions = empty & (pawns & rank7BB) << 8;
 
 	// Promoting captures
 	while (lPromoCap) {
@@ -243,14 +243,14 @@ static inline void GenBPawnNoisy(const S_BOARD *pos, S_MOVELIST *list, const bit
 	int sq;
 	bitboard enPassers;
 
-	bitboard pawns       = pos->colorBBs[BLACK] & pos->pieceBBs[PAWN];
-	bitboard lAttacks    = ((pawns & ~fileHBB) >> 7) & enemies;
-	bitboard rAttacks    = ((pawns & ~fileABB) >> 9) & enemies;
-	bitboard lNormalCap  = lAttacks & ~rank1BB;
-	bitboard lPromoCap   = lAttacks &  rank1BB;
-	bitboard rNormalCap  = rAttacks & ~rank1BB;
-	bitboard rPromoCap   = rAttacks &  rank1BB;
-	bitboard promotions  = empty & (pawns & rank2BB) >> 8;
+	bitboard pawns      = pos->colorBBs[BLACK] & pos->pieceBBs[PAWN];
+	bitboard lAttacks   = ((pawns & ~fileHBB) >> 7) & enemies;
+	bitboard rAttacks   = ((pawns & ~fileABB) >> 9) & enemies;
+	bitboard lNormalCap = lAttacks & ~rank1BB;
+	bitboard lPromoCap  = lAttacks &  rank1BB;
+	bitboard rNormalCap = rAttacks & ~rank1BB;
+	bitboard rPromoCap  = rAttacks &  rank1BB;
+	bitboard promotions = empty & (pawns & rank2BB) >> 8;
 
 	// Promoting captures
 	while (lPromoCap) {
