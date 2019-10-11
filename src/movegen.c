@@ -162,7 +162,7 @@ static inline void GenKingMoves(const S_BOARD *pos, S_MOVELIST *list, const int 
 		AddQuiet(pos, sq, PopLsb(&moves), EMPTY, 0, list);
 	}
 }
-static inline void GenKingCaptures(const S_BOARD *pos, S_MOVELIST *list, const int sq, const bitboard enemies) {
+static inline void GenKingNoisy(const S_BOARD *pos, S_MOVELIST *list, const int sq, const bitboard enemies) {
 
 	bitboard attacks = king_attacks[sq] & enemies;
 	while (attacks)
@@ -170,7 +170,7 @@ static inline void GenKingCaptures(const S_BOARD *pos, S_MOVELIST *list, const i
 }
 
 // White pawn
-static inline void GenWPawnCaptures(const S_BOARD *pos, S_MOVELIST *list, const bitboard enemies, const bitboard empty) {
+static inline void GenWPawnNoisy(const S_BOARD *pos, S_MOVELIST *list, const bitboard enemies, const bitboard empty) {
 
 	int sq;
 	bitboard enPassers;
@@ -184,7 +184,7 @@ static inline void GenWPawnCaptures(const S_BOARD *pos, S_MOVELIST *list, const 
 	bitboard rPromoCap   = rAttacks &  rank8BB;
 	bitboard promotions  = empty & (pawns & rank7BB) << 8;
 
-	// Capture promotions
+	// Promoting captures
 	while (lPromoCap) {
 		sq = PopLsb(&lPromoCap);
 		AddWPromoCapture(pos, sq - 7, sq, list);
@@ -193,12 +193,12 @@ static inline void GenWPawnCaptures(const S_BOARD *pos, S_MOVELIST *list, const 
 		sq = PopLsb(&rPromoCap);
 		AddWPromoCapture(pos, sq - 9, sq, list);
 	}
-	// Normal promotions
+	// Promotions
 	while (promotions) {
 		sq = PopLsb(&promotions);
 		AddWPromo(pos, (sq - 8), sq, list);
 	}
-	// Pawn captures
+	// Captures
 	while (lNormalCap) {
 		sq = PopLsb(&lNormalCap);
 		AddCapture(pos, sq - 7, sq, EMPTY, list);
@@ -216,7 +216,7 @@ static inline void GenWPawnCaptures(const S_BOARD *pos, S_MOVELIST *list, const 
 }
 static inline void GenWPawnBoth(const S_BOARD *pos, S_MOVELIST *list, const bitboard enemies, const bitboard empty) {
 
-	GenWPawnCaptures(pos, list, enemies, empty);
+	GenWPawnNoisy(pos, list, enemies, empty);
 
 	int sq;
 	bitboard pawnMoves, pawnStarts, pawnsNot7th;
@@ -238,7 +238,7 @@ static inline void GenWPawnBoth(const S_BOARD *pos, S_MOVELIST *list, const bitb
 	}
 }
 // Black pawn
-static inline void GenBPawnCaptures(const S_BOARD *pos, S_MOVELIST *list, const bitboard enemies, const bitboard empty) {
+static inline void GenBPawnNoisy(const S_BOARD *pos, S_MOVELIST *list, const bitboard enemies, const bitboard empty) {
 
 	int sq;
 	bitboard enPassers;
@@ -266,7 +266,7 @@ static inline void GenBPawnCaptures(const S_BOARD *pos, S_MOVELIST *list, const 
 		sq = PopLsb(&promotions);
 		AddBPromo(pos, (sq + 8), sq, list);
 	}
-	// Pawn captures
+	// Captures
 	while (lNormalCap) {
 		sq = PopLsb(&lNormalCap);
 		AddCapture(pos, sq + 7, sq, EMPTY, list);
@@ -284,7 +284,7 @@ static inline void GenBPawnCaptures(const S_BOARD *pos, S_MOVELIST *list, const 
 }
 static inline void GenBPawnBoth(const S_BOARD *pos, S_MOVELIST *list, const bitboard enemies, const bitboard empty) {
 
-	GenBPawnCaptures(pos, list, enemies, empty);
+	GenBPawnNoisy(pos, list, enemies, empty);
 
 	int sq;
 	bitboard pawnMoves, pawnStarts, pawnsNot7th;
@@ -327,7 +327,7 @@ static inline void GenWKnightBoth(const S_BOARD *pos, S_MOVELIST *list, const bi
 			AddQuiet(pos, sq, PopLsb(&moves), EMPTY, 0, list);
 	}
 }
-static inline void GenWKnightCaptures(const S_BOARD *pos, S_MOVELIST *list, const bitboard enemies) {
+static inline void GenWKnightNoisy(const S_BOARD *pos, S_MOVELIST *list, const bitboard enemies) {
 
 	int sq;
 	bitboard attacks;
@@ -364,7 +364,7 @@ static inline void GenBKnightBoth(const S_BOARD *pos, S_MOVELIST *list, const bi
 			AddQuiet(pos, sq, PopLsb(&moves), EMPTY, 0, list);
 	}
 }
-static inline void GenBKnightCaptures(const S_BOARD *pos, S_MOVELIST *list, const bitboard enemies) {
+static inline void GenBKnightNoisy(const S_BOARD *pos, S_MOVELIST *list, const bitboard enemies) {
 
 	int sq;
 	bitboard attacks;
@@ -403,7 +403,7 @@ static inline void GenWBishopBoth(const S_BOARD *pos, S_MOVELIST *list, const bi
 			AddQuiet(pos, sq, PopLsb(&moves), EMPTY, 0, list);
 	}
 }
-static inline void GenWBishopCaptures(const S_BOARD *pos, S_MOVELIST *list, const bitboard enemies, const bitboard occupied) {
+static inline void GenWBishopNoisy(const S_BOARD *pos, S_MOVELIST *list, const bitboard enemies, const bitboard occupied) {
 
 	int sq;
 	bitboard attacks;
@@ -441,7 +441,7 @@ static inline void GenBBishopBoth(const S_BOARD *pos, S_MOVELIST *list, const bi
 			AddQuiet(pos, sq, PopLsb(&moves), EMPTY, 0, list);
 	}
 }
-static inline void GenBBishopCaptures(const S_BOARD *pos, S_MOVELIST *list, const bitboard enemies, const bitboard occupied) {
+static inline void GenBBishopNoisy(const S_BOARD *pos, S_MOVELIST *list, const bitboard enemies, const bitboard occupied) {
 
 	int sq;
 	bitboard attacks;
@@ -480,7 +480,7 @@ static inline void GenWRookBoth(const S_BOARD *pos, S_MOVELIST *list, const bitb
 			AddQuiet(pos, sq, PopLsb(&moves), EMPTY, 0, list);
 	}
 }
-static inline void GenWRookCaptures(const S_BOARD *pos, S_MOVELIST *list, const bitboard enemies, const bitboard occupied) {
+static inline void GenWRookNoisy(const S_BOARD *pos, S_MOVELIST *list, const bitboard enemies, const bitboard occupied) {
 
 	int sq;
 	bitboard attacks;
@@ -518,7 +518,7 @@ static inline void GenBRookBoth(const S_BOARD *pos, S_MOVELIST *list, const bitb
 			AddQuiet(pos, sq, PopLsb(&moves), EMPTY, 0, list);
 	}
 }
-static inline void GenBRookCaptures(const S_BOARD *pos, S_MOVELIST *list, const bitboard enemies, const bitboard occupied) {
+static inline void GenBRookNoisy(const S_BOARD *pos, S_MOVELIST *list, const bitboard enemies, const bitboard occupied) {
 
 	int sq;
 	bitboard attacks;
@@ -557,7 +557,7 @@ static inline void GenWQueenBoth(const S_BOARD *pos, S_MOVELIST *list, const bit
 			AddQuiet(pos, sq, PopLsb(&moves), EMPTY, 0, list);
 	}
 }
-static inline void GenWQueenCaptures(const S_BOARD *pos, S_MOVELIST *list, const bitboard enemies, const bitboard occupied) {
+static inline void GenWQueenNoisy(const S_BOARD *pos, S_MOVELIST *list, const bitboard enemies, const bitboard occupied) {
 
 	int sq;
 	bitboard attacks;
@@ -595,7 +595,7 @@ static inline void GenBQueenBoth(const S_BOARD *pos, S_MOVELIST *list, const bit
 			AddQuiet(pos, sq, PopLsb(&moves), EMPTY, 0, list);
 	}
 }
-static inline void GenBQueenCaptures(const S_BOARD *pos, S_MOVELIST *list, const bitboard enemies, const bitboard occupied) {
+static inline void GenBQueenNoisy(const S_BOARD *pos, S_MOVELIST *list, const bitboard enemies, const bitboard occupied) {
 
 	int sq;
 	bitboard attacks;
@@ -643,7 +643,7 @@ void GenAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 		GenBQueenBoth (pos, list, enemies, empty, occupied);
 	}
 
-	GenKingCaptures(pos, list, pos->kingSq[side], enemies);
+	GenKingNoisy(pos, list, pos->kingSq[side], enemies);
 	GenKingMoves   (pos, list, pos->kingSq[side], empty  );
 
 	assert(MoveListOk(list, pos));
@@ -664,21 +664,21 @@ void GenNoisyMoves(const S_BOARD *pos, S_MOVELIST *list) {
 
 	// Pawns
 	if (side == WHITE) {
-		GenWPawnCaptures  (pos, list, enemies, empty);
-		GenWKnightCaptures(pos, list, enemies);
-		GenWRookCaptures  (pos, list, enemies, occupied);
-		GenWBishopCaptures(pos, list, enemies, occupied);
-		GenWQueenCaptures (pos, list, enemies, occupied);
+		GenWPawnNoisy  (pos, list, enemies, empty);
+		GenWKnightNoisy(pos, list, enemies);
+		GenWRookNoisy  (pos, list, enemies, occupied);
+		GenWBishopNoisy(pos, list, enemies, occupied);
+		GenWQueenNoisy (pos, list, enemies, occupied);
 
 	} else {
-		GenBPawnCaptures  (pos, list, enemies, empty);
-		GenBKnightCaptures(pos, list, enemies);
-		GenBRookCaptures  (pos, list, enemies, occupied);
-		GenBBishopCaptures(pos, list, enemies, occupied);
-		GenBQueenCaptures (pos, list, enemies, occupied);
+		GenBPawnNoisy  (pos, list, enemies, empty);
+		GenBKnightNoisy(pos, list, enemies);
+		GenBRookNoisy  (pos, list, enemies, occupied);
+		GenBBishopNoisy(pos, list, enemies, occupied);
+		GenBQueenNoisy (pos, list, enemies, occupied);
 	}
 
-	GenKingCaptures(pos, list, pos->kingSq[side], enemies);
+	GenKingNoisy(pos, list, pos->kingSq[side], enemies);
 
 	assert(MoveListOk(list, pos));
 }
