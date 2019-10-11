@@ -173,19 +173,25 @@ static inline void GenerateKingCaptures(const S_BOARD *pos, S_MOVELIST *list, co
 static inline void GenerateWhitePawnCaptures(const S_BOARD *pos, S_MOVELIST *list, const bitboard enemies, const bitboard empty) {
 
 	int sq;
-	bitboard attacks, enPassers, promotions, pawns, pawns7th, pawnsNot7th;
+	bitboard enPassers;
 
-	pawns = pos->colorBBs[WHITE] & pos->pieceBBs[PAWN];
-	pawnsNot7th = pawns & ~rank7BB;
-	pawns7th    = pawns &  rank7BB;
-	promotions  = empty & pawns7th << 8;
+	bitboard pawns       = pos->colorBBs[WHITE] & pos->pieceBBs[PAWN];
+	bitboard lAttacks    = ((pawns & ~fileABB) << 7) & enemies;
+	bitboard rAttacks    = ((pawns & ~fileHBB) << 9) & enemies;
+	bitboard lNormalCap  = lAttacks & ~rank7BB;
+	bitboard lPromoCap   = lAttacks &  rank7BB;
+	bitboard rNormalCap  = rAttacks & ~rank7BB;
+	bitboard rPromoCap   = rAttacks &  rank7BB;
+	bitboard promotions  = empty & (pawns & rank7BB) << 8;
 
 	// Capture promotions
-	while (pawns7th) {
-		sq = PopLsb(&pawns7th);
-		attacks = pawn_attacks[WHITE][sq] & enemies;
-		while (attacks)
-			AddWhitePawnCapturePromotion(pos, sq, PopLsb(&attacks), list);
+	while (lPromoCap) {
+		sq = PopLsb(&lPromoCap);
+		AddWhitePawnCapturePromotion(pos, sq - 7, sq, list);
+	}
+	while (rPromoCap) {
+		sq = PopLsb(&rPromoCap);
+		AddWhitePawnCapturePromotion(pos, sq - 9, sq, list);
 	}
 	// Normal promotions
 	while (promotions) {
@@ -193,11 +199,13 @@ static inline void GenerateWhitePawnCaptures(const S_BOARD *pos, S_MOVELIST *lis
 		AddWhitePawnPromotion(pos, (sq - 8), sq, list);
 	}
 	// Pawn captures
-	while (pawnsNot7th) {
-		sq = PopLsb(&pawnsNot7th);
-		attacks = pawn_attacks[WHITE][sq] & enemies;
-		while (attacks)
-			AddCaptureMove(pos, sq, PopLsb(&attacks), EMPTY, list);
+	while (lNormalCap) {
+		sq = PopLsb(&lNormalCap);
+		AddCaptureMove(pos, sq - 7, sq, EMPTY, list);
+	}
+	while (rNormalCap) {
+		sq = PopLsb(&rNormalCap);
+		AddCaptureMove(pos, sq - 9, sq, EMPTY, list);
 	}
 	// En passant
 	if (pos->enPas != NO_SQ) {
@@ -232,20 +240,27 @@ static inline void GenerateWhitePawnBoth(const S_BOARD *pos, S_MOVELIST *list, c
 // Black pawn
 static inline void GenerateBlackPawnCaptures(const S_BOARD *pos, S_MOVELIST *list, const bitboard enemies, const bitboard empty) {
 
-	int sq;
-	bitboard attacks, enPassers, promotions, pawns, pawns7th, pawnsNot7th;
 
-	pawns = pos->colorBBs[BLACK] & pos->pieceBBs[PAWN];
-	pawnsNot7th = pawns & ~rank2BB;
-	pawns7th    = pawns & rank2BB;
-	promotions  = empty & pawns7th >> 8;
+	int sq;
+	bitboard enPassers;
+
+	bitboard pawns       = pos->colorBBs[BLACK] & pos->pieceBBs[PAWN];
+	bitboard lAttacks    = ((pawns & ~fileHBB) >> 7) & enemies;
+	bitboard rAttacks    = ((pawns & ~fileABB) >> 9) & enemies;
+	bitboard lNormalCap  = lAttacks & ~rank2BB;
+	bitboard lPromoCap   = lAttacks &  rank2BB;
+	bitboard rNormalCap  = rAttacks & ~rank2BB;
+	bitboard rPromoCap   = rAttacks &  rank2BB;
+	bitboard promotions  = empty & (pawns & rank2BB) >> 8;
 
 	// Promoting captures
-	while (pawns7th) {
-		sq = PopLsb(&pawns7th);
-		attacks = pawn_attacks[BLACK][sq] & enemies;
-		while (attacks)
-			AddBlackPawnCapturePromotion(pos, sq, PopLsb(&attacks), list);
+	while (lPromoCap) {
+		sq = PopLsb(&lPromoCap);
+		AddBlackPawnCapturePromotion(pos, sq + 7, sq, list);
+	}
+	while (rPromoCap) {
+		sq = PopLsb(&rPromoCap);
+		AddBlackPawnCapturePromotion(pos, sq + 9, sq, list);
 	}
 	// Promotions
 	while (promotions) {
@@ -253,11 +268,13 @@ static inline void GenerateBlackPawnCaptures(const S_BOARD *pos, S_MOVELIST *lis
 		AddBlackPawnPromotion(pos, (sq + 8), sq, list);
 	}
 	// Pawn captures
-	while (pawnsNot7th) {
-		sq = PopLsb(&pawnsNot7th);
-		attacks = pawn_attacks[BLACK][sq] & enemies;
-		while (attacks)
-			AddCaptureMove(pos, sq, PopLsb(&attacks), EMPTY, list);
+	while (lNormalCap) {
+		sq = PopLsb(&lNormalCap);
+		AddCaptureMove(pos, sq + 7, sq, EMPTY, list);
+	}
+	while (rNormalCap) {
+		sq = PopLsb(&rNormalCap);
+		AddCaptureMove(pos, sq + 9, sq, EMPTY, list);
 	}
 	// En passant
 	if (pos->enPas != NO_SQ) {
