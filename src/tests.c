@@ -30,7 +30,7 @@ static void RecursivePerft(const int depth, S_BOARD *pos) {
 	}
 
 	S_MOVELIST list[1];
-	GenerateAllMoves(pos, list);
+	GenAllMoves(pos, list);
 
 	for (unsigned int MoveNum = 0; MoveNum < list->count; ++MoveNum) {
 
@@ -55,7 +55,7 @@ void Perft(const int depth, S_BOARD *pos) {
 	leafNodes = 0;
 
 	S_MOVELIST list[1];
-	GenerateAllMoves(pos, list);
+	GenAllMoves(pos, list);
 
 	for (unsigned int MoveNum = 0; MoveNum < list->count; ++MoveNum) {
 

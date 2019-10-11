@@ -79,7 +79,7 @@ static int checkresult(S_BOARD *pos) {
 	}
 
 	S_MOVELIST list[1];
-	GenerateAllMoves(pos, list);
+	GenAllMoves(pos, list);
 
 	int found = 0;
 	for (unsigned int MoveNum = 0; MoveNum < list->count; ++MoveNum) {

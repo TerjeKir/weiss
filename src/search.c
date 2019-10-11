@@ -130,7 +130,7 @@ static int Quiescence(int alpha, const int beta, S_BOARD *pos, S_SEARCHINFO *inf
 
 	// Generate all moves
 	S_MOVELIST list[1];
-	GenerateAllCaptures(pos, list);
+	GenNoisyMoves(pos, list);
 
 	int movesTried = 0;
 	int bestScore = score;
@@ -287,7 +287,7 @@ static int AlphaBeta(int alpha, const int beta, int depth, S_BOARD *pos, S_SEARC
 standard_search:
 
 	// Generate all moves
-	GenerateAllMoves(pos, list);
+	GenAllMoves(pos, list);
 
 	unsigned int moveNum;
 	unsigned int movesTried = 0;
