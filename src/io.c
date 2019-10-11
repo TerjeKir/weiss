@@ -116,7 +116,7 @@ int ParseMove(const char *ptrChar, S_BOARD *pos) {
 	assert(ValidSquare(from) && ValidSquare(to));
 
 	S_MOVELIST list[1];
-	GenerateAllMoves(pos, list);
+	GenAllMoves(pos, list);
 
 	int move, promotion;
 
@@ -167,7 +167,7 @@ int ParseEPDMove(const char *ptrChar, S_BOARD *pos) {
 	assert(ValidSquare(from) && ValidSquare(to));
 
 	S_MOVELIST list[1];
-	GenerateAllMoves(pos, list);
+	GenAllMoves(pos, list);
 
 	int move, promotion;
 
