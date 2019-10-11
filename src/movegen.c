@@ -178,10 +178,10 @@ static inline void GenWPawnCaptures(const S_BOARD *pos, S_MOVELIST *list, const 
 	bitboard pawns       = pos->colorBBs[WHITE] & pos->pieceBBs[PAWN];
 	bitboard lAttacks    = ((pawns & ~fileABB) << 7) & enemies;
 	bitboard rAttacks    = ((pawns & ~fileHBB) << 9) & enemies;
-	bitboard lNormalCap  = lAttacks & ~rank7BB;
-	bitboard lPromoCap   = lAttacks &  rank7BB;
-	bitboard rNormalCap  = rAttacks & ~rank7BB;
-	bitboard rPromoCap   = rAttacks &  rank7BB;
+	bitboard lNormalCap  = lAttacks & ~rank8BB;
+	bitboard lPromoCap   = lAttacks &  rank8BB;
+	bitboard rNormalCap  = rAttacks & ~rank8BB;
+	bitboard rPromoCap   = rAttacks &  rank8BB;
 	bitboard promotions  = empty & (pawns & rank7BB) << 8;
 
 	// Capture promotions
@@ -240,17 +240,16 @@ static inline void GenWPawnBoth(const S_BOARD *pos, S_MOVELIST *list, const bitb
 // Black pawn
 static inline void GenBPawnCaptures(const S_BOARD *pos, S_MOVELIST *list, const bitboard enemies, const bitboard empty) {
 
-
 	int sq;
 	bitboard enPassers;
 
 	bitboard pawns       = pos->colorBBs[BLACK] & pos->pieceBBs[PAWN];
 	bitboard lAttacks    = ((pawns & ~fileHBB) >> 7) & enemies;
 	bitboard rAttacks    = ((pawns & ~fileABB) >> 9) & enemies;
-	bitboard lNormalCap  = lAttacks & ~rank2BB;
-	bitboard lPromoCap   = lAttacks &  rank2BB;
-	bitboard rNormalCap  = rAttacks & ~rank2BB;
-	bitboard rPromoCap   = rAttacks &  rank2BB;
+	bitboard lNormalCap  = lAttacks & ~rank1BB;
+	bitboard lPromoCap   = lAttacks &  rank1BB;
+	bitboard rNormalCap  = rAttacks & ~rank1BB;
+	bitboard rPromoCap   = rAttacks &  rank1BB;
 	bitboard promotions  = empty & (pawns & rank2BB) >> 8;
 
 	// Promoting captures
