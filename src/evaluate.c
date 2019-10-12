@@ -136,14 +136,13 @@ int EvalPosition(const S_BOARD *pos) {
 	if (MaterialDraw(pos)) return 0;
 #endif
 
-	int sq, i, score;
+	int sq, i;
 
-	bitboard whitePawns   = pos->colorBBs[WHITE] & pos->pieceBBs[  PAWN];
-	bitboard blackPawns   = pos->colorBBs[BLACK] & pos->pieceBBs[  PAWN];
-
+	bitboard whitePawns = pos->colorBBs[WHITE] & pos->pieceBBs[PAWN];
+	bitboard blackPawns = pos->colorBBs[BLACK] & pos->pieceBBs[PAWN];
 
 	// Material
-	score = pos->material;
+	int score = pos->material;
 
 	// Bishop pair
 	if (pos->pieceCounts[wB] >= 2)

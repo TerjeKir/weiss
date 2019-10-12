@@ -112,7 +112,7 @@ void MirrorEvalTest(S_BOARD *pos) {
 			PrintBoard(pos);
 			MirrorBoard(pos);
 			PrintBoard(pos);
-			printf("\n\nMirrorEvalTest Fail:\n%s\n", lineIn);
+			printf("\n\nMirrorEvalTest Fail: %d - %d\n%s\n", ev1, ev2, lineIn);
 			getchar();
 			return;
 		}

@@ -20,7 +20,8 @@
 #include "tests.h"
 
 
-#define START_FEN  "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+#define START_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+#define PERFT_FEN "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1"
 
 
 static int ThreeFoldRep(const S_BOARD *pos) {
@@ -120,16 +121,12 @@ void Console_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 	setbuf(stdin, NULL);
 	setbuf(stdout, NULL);
 
-	int depth = MAXDEPTH, movetime = 3000;
+	int depth = MAXDEPTH, movetime = 5000;
 	int engineSide = BLACK;
 	int move = NOMOVE;
 	char inBuf[80], command[80];
 
 	ParseFen(START_FEN, pos);
-
-	// Perft vars
-	S_BOARD board[1];
-	int perftDepth = 3;
 
 #ifdef USE_TBS
 	tb_init("F:\\Syzygy");
@@ -137,6 +134,7 @@ void Console_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 
 	while (true) {
 
+		// If engine's turn to play, search and play before continuing
 		if (pos->side == engineSide && checkresult(pos) == false) {
 			info->starttime = GetTimeMs();
 			info->depth = depth;
@@ -163,16 +161,15 @@ void Console_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 
 		if (!strcmp(command, "help")) {
 			printf("Commands:\n");
-			printf("quit - quit game\n");
-			printf("force - computer will not think\n");
-			printf("print - show board\n");
-			printf("new - start new game\n");
-			printf("go - set computer thinking\n");
-			printf("depth x - set depth to x\n");
-			printf("time x - set thinking time to x seconds (depth still applies if set)\n");
-			printf("view - show current depth and movetime settings\n");
-			printf("setboard x - set position to fen x\n");
-			printf("** note ** - to reset time and depth, set to 0\n");
+			printf("quit   - quit\n");
+			printf("new    - new game, engine plays black unless given a go on white's turn\n");
+			printf("go     - engine will play a move, and play this color from now on\n");
+			printf("force  - engine will not play either color until given a go or new\n");
+			printf("print  - print the current board state\n");
+			printf("limits - print the current depth and movetime limits\n");
+			printf("depth x - set search depth limit to x half-moves\n");
+			printf("time  x - set search time limit to x ms (depth still applies if set)\n");
+			printf("position x - set position to fen x\n");
 			printf("enter moves using b7b8q notation\n");
 			continue;
 		}
@@ -182,7 +179,7 @@ void Console_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 			break;
 		}
 
-		// Search and make a move
+		// Search and make a move, automatically plays for current side after
 
 		if (!strcmp(command, "go")) {
 			engineSide = pos->side;
@@ -200,12 +197,13 @@ void Console_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 			sscanf(inBuf, "depth %d", &depth);
 			if (depth == 0)
 				depth = MAXDEPTH;
+			printf("Depth limit: %d\n", depth);
 			continue;
 		}
 
 		if (!strcmp(command, "time")) {
 			sscanf(inBuf, "time %d", &movetime);
-			movetime *= 1000;
+			printf("Movetime limit: %dms\n", movetime);
 			continue;
 		}
 
@@ -227,11 +225,10 @@ void Console_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 		// Show info about current state
 
 		if (!strcmp(command, "eval")) {
-			PrintBoard(pos);
-			printf("Eval:%d", EvalPosition(pos));
+			printf("Eval     : %d\n", EvalPosition(pos));
 			MirrorBoard(pos);
-			PrintBoard(pos);
-			printf("Eval:%d", EvalPosition(pos));
+			printf("Mirrored : %d\n", EvalPosition(pos));
+			MirrorBoard(pos);
 			continue;
 		}
 
@@ -240,16 +237,16 @@ void Console_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 			continue;
 		}
 
-		if (!strcmp(command, "view")) {
+		if (!strcmp(command, "limits")) {
 			if (depth == MAXDEPTH)
-				printf("depth not set ");
+				printf("Depth limit    : none\n");
 			else
-				printf("depth %d", depth);
+				printf("Depth limit    : %d\n", depth);
 
-			if (movetime != 0)
-				printf(" movetime %ds\n", movetime / 1000);
+			if (movetime == 0)
+				printf("Movetime limit : none\n");
 			else
-				printf(" movetime not set\n");
+				printf("Movetime limit : %dms\n", movetime);
 
 			continue;
 		}
@@ -258,15 +255,18 @@ void Console_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 
 		if (!strcmp(command, "perft")) {
 
+			S_BOARD perftBoard[1];
+			int perftDepth = 5;
 			sscanf(inBuf, "perft %d", &perftDepth);
+			perftDepth = perftDepth > 6 ? 6 : perftDepth;
 			char *perftFen = inBuf + 8;
-			
-			if (!*perftFen)
-				ParseFen(START_FEN, board);
-			else
-				ParseFen(perftFen, board);
 
-			Perft(perftDepth, board);
+			if (!*perftFen)
+				ParseFen(PERFT_FEN, perftBoard);
+			else
+				ParseFen(perftFen, perftBoard);
+
+			Perft(perftDepth, perftBoard);
 			continue;
 		}
 
@@ -283,12 +283,15 @@ void Console_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 		}
 
 		// Parse user move
-
 		move = ParseMove(inBuf, pos);
+
+		// If we got here and ParseMove failed, the input was wrong
 		if (move == NOMOVE) {
-			printf("Command unknown:%s\n", inBuf);
+			printf("Unknown command: %s\n", inBuf);
 			continue;
 		}
+
+		// Make the move
 		MakeMove(pos, move);
 		pos->ply = 0;
 	}
