@@ -358,8 +358,6 @@ void MirrorBoard(S_BOARD *pos) {
 	int tempPiecesArray[64];
 	int tempEnPas, sq;
 
-	// Save info about current position, but mirrored
-
 	// Side to play
 	int tempSide = !pos->side;
 
@@ -371,19 +369,16 @@ void MirrorBoard(S_BOARD *pos) {
 	if (pos->castlePerm & BQCA) tempCastlePerm |= WQCA;
 
 	// En passant
-	if (pos->enPas != NO_SQ)
-		tempEnPas = mirror[pos->enPas];
-	else
-		tempEnPas = NO_SQ;
+	tempEnPas = pos->enPas == NO_SQ ? NO_SQ : mirror[pos->enPas];
 
-	// Array representation
+	// Save a temporary mirrored board
 	for (sq = A1; sq <= H8; ++sq)
 		tempPiecesArray[sq] = SwapPiece[pos->board[mirror[sq]]];
 
 	// Clear the board
 	ResetBoard(pos);
 
-	// Fill the board with the stored mirrored data
+	// Copy the mirrored board over the old board
 	for (sq = A1; sq <= H8; ++sq)
 		pos->board[sq] = tempPiecesArray[sq];
 
