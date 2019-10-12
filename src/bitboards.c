@@ -41,4 +41,5 @@ static void InitBitMasks() {
 //         }
 //         printf("\n");
 //     }
+//     fflush(stdout);
 // }

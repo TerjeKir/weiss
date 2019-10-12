@@ -86,6 +86,7 @@ void PrintThinking(const S_SEARCHINFO *info, S_BOARD *pos, const int bestScore, 
 		printf("Stats: Hits: %d Overwrite: %d NewWrite: %d Cut: %d\nOrdering %.2f NullCut: %d\n", pos->hashTable->hit,
 			pos->hashTable->overWrite, pos->hashTable->newWrite, pos->hashTable->cut, (info->fhf/info->fh)*100, info->nullCut);
 #endif
+	fflush(stdout);
 }
 
 // Prints conclusion of search - best move and ponder move
@@ -98,6 +99,7 @@ void PrintConclusion(const S_BOARD *pos) {
 	if (ponderMove != NOMOVE) 
 		printf(" ponder %s\n", MoveToStr(ponderMove));
 	printf("\n");
+	fflush(stdout);
 }
 
 // Translates a string to a move

@@ -178,6 +178,7 @@ int ParseFen(const char *fen, S_BOARD *pos) {
 
 			default:
 				printf("FEN error \n");
+				fflush(stdout);
 				return -1;
 		}
 
@@ -269,6 +270,7 @@ void PrintBoard(const S_BOARD *pos) {
 		   pos->castlePerm & BKCA ? 'k' : '-',
 		   pos->castlePerm & BQCA ? 'q' : '-');
 	printf("PosKey: %I64u\n", pos->posKey);
+	fflush(stdout);
 }
 
 #ifndef NDEBUG

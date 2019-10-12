@@ -50,6 +50,7 @@ void Perft(const int depth, S_BOARD *pos) {
 	assert(CheckBoard(pos));
 
 	printf("\nStarting Test To Depth:%d\n\n", depth);
+	fflush(stdout);
 
 	const int start = GetTimeMs();
 	leafNodes = 0;
@@ -63,6 +64,7 @@ void Perft(const int depth, S_BOARD *pos) {
 
 		if (!MakeMove(pos, move)){
 			printf("move %d : %s : Illegal\n", MoveNum + 1, MoveToStr(move));
+			fflush(stdout);
 			continue;
 		}
 
@@ -70,6 +72,7 @@ void Perft(const int depth, S_BOARD *pos) {
 		RecursivePerft(depth - 1, pos);
 		uint64_t newNodes = leafNodes - oldCount;
 		printf("move %d : %s : %I64d\n", MoveNum + 1, MoveToStr(move), newNodes);
+		fflush(stdout);
 
 		TakeMove(pos);
 	}
@@ -78,6 +81,7 @@ void Perft(const int depth, S_BOARD *pos) {
 	printf("\nPerft Complete : %I64d nodes visited in %dms\n", leafNodes, timeElapsed);
 	if (timeElapsed > 0) 
 		printf("               : %I64d nps\n", ((leafNodes * 1000) / timeElapsed));
+	fflush(stdout);
 
 	return;
 }
@@ -91,6 +95,7 @@ void MirrorEvalTest(S_BOARD *pos) {
 	FILE *file;
 	if ((file = fopen(filename, "r")) == NULL) {
 		printf("MirrorEvalTest: %s not found.\n", filename);
+		fflush(stdout);
 		return;
 	}
 
@@ -113,17 +118,19 @@ void MirrorEvalTest(S_BOARD *pos) {
 			MirrorBoard(pos);
 			PrintBoard(pos);
 			printf("\n\nMirrorEvalTest Fail: %d - %d\n%s\n", ev1, ev2, lineIn);
-			getchar();
+			fflush(stdout);
 			return;
 		}
 
-		if (positions % 100 == 0)
+		if (positions % 100 == 0) {
 			printf("position %d\n", positions);
+			fflush(stdout);
+		}
 
 		memset(&lineIn[0], 0, sizeof(lineIn));
 	}
 	printf("\n\nMirrorEvalTest Successful\n\n");
-
+	fflush(stdout);
 	fclose(file);
 }
 
@@ -150,6 +157,7 @@ void MateInXTest(S_BOARD *pos) {
 
 			if ((file = fopen(filename, "r")) == NULL) {
 				printf("MateInXTest: %s not found.\n", filename);
+				fflush(stdout);
 				return;
 			}
 
@@ -169,6 +177,7 @@ void MateInXTest(S_BOARD *pos) {
 				ParseFen(lineIn, pos);
 				lineCnt++;
 				printf("Line %d in file: %s\n", lineCnt, filename);
+				fflush(stdout);
 
 				bm = strstr(lineIn, "bm") + 3;
 				ce = strstr(lineIn, "ce");
@@ -198,6 +207,7 @@ search:
 				for (int i = 0; i <= bmCnt; ++i)
 					if (bestFound == bestMoves[i]){
 						printf("\nBest Found: %s\n\n", MoveToStr(bestFound));
+						fflush(stdout);
 						correct = 1;
 					}
 
@@ -214,6 +224,7 @@ search:
 					printf("Line %d in file: %s\n", lineCnt, filename);
 					for (int i = 0; i < bmCnt; ++i)
 						printf("Accepted answer: %s\n", MoveToStr(bestMoves[i]));
+					fflush(stdout);
 					getchar();
 					continue;
 				}
@@ -243,6 +254,7 @@ search:
 					printf("\n\nMateInXTest Fail: Wrong depth.\n%s", lineIn);
 					printf("Line %d in file: %s\n", lineCnt, filename);
 					printf("Mate depth should be %d, was %d.\n", mateDepth, foundDepth);
+					fflush(stdout);
 					failures += 1;
 					getchar();
 					continue;
@@ -254,6 +266,7 @@ search:
 		}
 	}
 	printf("MateInXTest Complete!\n Failures: %d\n\n", failures);
+	fflush(stdout);
 	fclose(file);
 }
 #endif
