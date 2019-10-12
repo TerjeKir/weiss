@@ -87,7 +87,7 @@ static int MaterialDraw(const S_BOARD *pos) {
 	// No draw with queens or pawns
 	if (pos->pieceCounts[wQ] || pos->pieceCounts[bQ] || pos->pieceCounts[wP] || pos->pieceCounts[bP])
 		return false;
-	
+
 	// No rooks
 	if (!pos->pieceCounts[wR] && !pos->pieceCounts[bR]) {
 
@@ -255,7 +255,7 @@ int EvalPosition(const S_BOARD *pos) {
 				  + pieceValue[QUEEN]  * pos->pieceCounts[wQ];
 
 	if (wMaterial <= ENDGAME_MAT)
-		score -= PSQT[bK+1][pos->kingSq[BLACK]] - PSQT[bK][pos->kingSq[BLACK]];
+		score += PSQT[bK+1][pos->kingSq[BLACK]] - PSQT[bK][pos->kingSq[BLACK]];
 
 	assert(score > -INFINITE && score < INFINITE);
 
