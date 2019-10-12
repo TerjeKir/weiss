@@ -116,12 +116,14 @@ static void ParsePosition(const char *line, S_BOARD *pos) {
 		int move = ParseMove(line, pos);
 		if (move == NOMOVE) {
 			printf("Weiss failed to parse a move: %s\n", line);
+			fflush(stdout);
 			exit(EXIT_SUCCESS);
 		}
 
 		// Make the move
 		if (!MakeMove(pos, move)) {
 			printf("Weiss thinks this move is illegal: %s\n", MoveToStr(move));
+			fflush(stdout);
 			exit(EXIT_SUCCESS);
 		}
 
@@ -157,8 +159,8 @@ int main() {
 	InitHashTable(pos->hashTable, DEFAULTHASH);
 
 	// Unbuffered IO
-	setbuf(stdin, NULL);
-	setbuf(stdout, NULL);
+	// setbuf(stdin, NULL);
+	// setbuf(stdout, NULL);
 
 	// Search thread setup
 	pthread_t searchThread;
@@ -174,10 +176,10 @@ int main() {
 			strncpy(searchThreadInfo.line, line, INPUT_SIZE);
 			pthread_create(&searchThread, NULL, &ParseGo, &searchThreadInfo);
 
-		} else if (BeginsWith(line, "isready"))
-			printf("readyok\n");
+		} else if (BeginsWith(line, "isready")) {
+			printf("readyok\n"); fflush(stdout);
 
-		else if (BeginsWith(line, "position"))
+		} else if (BeginsWith(line, "position"))
 			ParsePosition(line, pos);
 
 		else if (BeginsWith(line, "ucinewgame"))
@@ -199,7 +201,7 @@ int main() {
 #ifdef USE_TBS
 			printf("option name SyzygyPath type string default <empty>\n");
 #endif
-			printf("uciok\n");
+			printf("uciok\n"); fflush(stdout);
 
 		} else if (BeginsWith(line, "setoption name Hash value ")) {
 			int MB;

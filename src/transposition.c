@@ -60,6 +60,7 @@ int InitHashTable(S_HASHTABLE *table, uint64_t MB) {
 	// Ignore if already initialized with this size
 	if (table->MB == MB) {
 		printf("HashTable already initialized to %I64u.\n", MB);
+		fflush(stdout);
 		return MB;
 	}
 
@@ -79,6 +80,7 @@ int InitHashTable(S_HASHTABLE *table, uint64_t MB) {
 	// If allocation fails, try half the size
 	if (table->TT == NULL) {
 		printf("Hash Allocation Failed, trying %I64uMB...\n", MB / 2);
+		fflush(stdout);
 		return InitHashTable(table, MB / 2);
 
 	// Success
@@ -88,6 +90,7 @@ int InitHashTable(S_HASHTABLE *table, uint64_t MB) {
 #endif
 		table->MB = MB;
 		printf("HashTable init complete with %d entries, using %I64uMB.\n", table->numEntries, MB);
+		fflush(stdout);
 		return MB;
 	}
 }
