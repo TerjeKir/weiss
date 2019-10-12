@@ -1,6 +1,7 @@
 // search.c
 
 #include <stdlib.h>
+#include <string.h>
 
 #include "fathom/tbprobe.h"
 #include "attack.h"
@@ -28,7 +29,7 @@ static void CheckTime(S_SEARCHINFO *info) {
 // Move best move to the front of the queue
 static int PickNextMove(S_MOVELIST *list) {
 
-	S_MOVE temp;
+	int bestMove;
 	int bestScore = 0;
 	unsigned int moveNum = list->next++;
 	unsigned int bestNum = moveNum;
@@ -43,11 +44,10 @@ static int PickNextMove(S_MOVELIST *list) {
 	assert(bestNum < list->count);
 	assert(bestNum >= moveNum);
 
-	temp = list->moves[moveNum];
-	list->moves[moveNum] = list->moves[bestNum];
-	list->moves[bestNum] = temp;
+	bestMove = list->moves[bestNum].move;
+	list->moves[bestNum] = list->moves[moveNum];
 
-	return list->moves[moveNum].move;
+	return bestMove;
 }
 
 // Checks whether position has already occurred
@@ -339,9 +339,9 @@ standard_search:
 			if (score >= beta) {
 
 				// Update killers if quiet move
-				if (!(list->moves[moveNum].move & MOVE_IS_CAPTURE)) {
+				if (!(move & MOVE_IS_CAPTURE)) {
 					pos->searchKillers[1][pos->ply] = pos->searchKillers[0][pos->ply];
-					pos->searchKillers[0][pos->ply] = list->moves[moveNum].move;
+					pos->searchKillers[0][pos->ply] = move;
 				}
 
 #ifdef SEARCH_STATS
@@ -349,13 +349,13 @@ standard_search:
 				info->fh++;
 #endif
 
-				StoreHashEntry(pos, list->moves[moveNum].move, score, BOUND_LOWER, depth);
+				StoreHashEntry(pos, move, score, BOUND_LOWER, depth);
 
 				return score;
 			}
 
 			bestScore = score;
-			bestMove = list->moves[moveNum].move;
+			bestMove = move;
 
 			// If score beats alpha we update alpha
 			if (score > alpha) {
@@ -363,7 +363,7 @@ standard_search:
 				alpha = score;
 
 				// Update searchHistory if quiet move
-				if (!(list->moves[moveNum].move & MOVE_IS_CAPTURE))
+				if (!(move & MOVE_IS_CAPTURE))
 					pos->searchHistory[pos->board[FROMSQ(bestMove)]][TOSQ(bestMove)] += depth;
 			}
 		}
