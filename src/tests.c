@@ -14,6 +14,40 @@
 #include "move.h"
 #include "movegen.h"
 #include "search.h"
+#include "transposition.h"
+
+
+/* Benchmark */
+static const char *BenchmarkFENs[] = {
+	#include "bench.csv"
+	""
+};
+
+void benchmark(int depth, S_BOARD *pos, S_SEARCHINFO *info) {
+
+	uint64_t nodes = 0ULL;
+
+	info->depth = depth;
+	info->timeset = false;
+
+	int startTime = GetTimeMs();
+
+	for (int i = 0; strcmp(BenchmarkFENs[i], ""); ++i) {
+		printf("Bench %d: %s\n", i + 1, BenchmarkFENs[i]);
+		ParseFen(BenchmarkFENs[i], pos);
+		info->starttime = GetTimeMs();
+		SearchPosition(pos, info);
+		nodes += info->nodes;
+		ClearHashTable(pos->hashTable);
+	}
+
+	int endTime = GetTimeMs();
+
+	printf("Benchmark complete:\n");
+	printf("Time : %dms\n", endTime - startTime);
+	printf("Nodes: %I64d\n", nodes);
+	printf("NPS  : %I64d\n", nodes / ((endTime - startTime) / 1000));
+}
 
 
 /* Perft */

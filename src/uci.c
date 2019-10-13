@@ -12,6 +12,7 @@
 #include "makemove.h"
 #include "misc.h"
 #include "move.h"
+#include "tests.h"
 #include "transposition.h"
 #include "search.h"
 #include "validate.h"
@@ -149,8 +150,11 @@ static inline bool GetInput(char *line) {
 }
 
 // Sets up the engine and follows UCI protocol commands
+#ifdef CLI
+int main(int argc, char **argv) {
+#else
 int main() {
-
+#endif
 	// Init engine
 	S_BOARD pos[1];
 	S_SEARCHINFO info[1];
@@ -158,9 +162,15 @@ int main() {
 	pos->hashTable->TT = NULL;
 	InitHashTable(pos->hashTable, DEFAULTHASH);
 
-	// Unbuffered IO
-	// setbuf(stdin, NULL);
-	// setbuf(stdout, NULL);
+	#ifdef CLI
+	if (argc > 1 && strstr(argv[1], "bench")) {
+		if (argc > 2)
+			benchmark(atoi(argv[2]), pos, info);
+		else
+			benchmark(8, pos, info);
+		return 0;
+	}
+	#endif
 
 	// Search thread setup
 	pthread_t searchThread;
