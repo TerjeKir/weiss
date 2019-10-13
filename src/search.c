@@ -45,12 +45,7 @@ static int PickNextMove(S_MOVELIST *list) {
 	assert(bestNum >= moveNum);
 
 	bestMove = list->moves[bestNum].move;
-
-	// Stable, slower
-	memmove(&list->moves[list->next], &list->moves[moveNum], (bestNum - moveNum) * sizeof(S_MOVE));
-
-	// Unstable, faster
-	// list->moves[bestNum] = list->moves[moveNum];
+	list->moves[bestNum] = list->moves[moveNum];
 
 	return bestMove;
 }
@@ -135,6 +130,7 @@ static int Quiescence(int alpha, const int beta, S_BOARD *pos, S_SEARCHINFO *inf
 
 	// Generate all moves
 	S_MOVELIST list[1];
+	list->count = list->next = 0;
 	GenNoisyMoves(pos, list);
 
 	int movesTried = 0;
@@ -191,6 +187,7 @@ static int AlphaBeta(int alpha, const int beta, int depth, S_BOARD *pos, S_SEARC
 	assert(beta  >= -INFINITE);
 
 	S_MOVELIST list[1];
+	list->count = list->next = 0;
 
 	// Quiescence at the end of search
 	if (depth <= 0) 
