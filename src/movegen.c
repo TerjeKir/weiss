@@ -89,8 +89,10 @@ static inline void AddWPromo(const S_BOARD *pos, const int from, const int to, S
 
 	AddQuiet(pos, from, to, wQ, 0, list);
 	AddQuiet(pos, from, to, wN, 0, list);
+#ifdef CLI
 	AddQuiet(pos, from, to, wR, 0, list);
 	AddQuiet(pos, from, to, wB, 0, list);
+#endif
 }
 static inline void AddWPromoCapture(const S_BOARD *pos, const int from, const int to, S_MOVELIST *list) {
 
@@ -100,8 +102,10 @@ static inline void AddWPromoCapture(const S_BOARD *pos, const int from, const in
 
 	AddCapture(pos, from, to, wQ, list);
 	AddCapture(pos, from, to, wN, list);
+#ifdef CLI
 	AddCapture(pos, from, to, wR, list);
 	AddCapture(pos, from, to, wB, list);
+#endif
 }
 static inline void AddBPromo(const S_BOARD *pos, const int from, const int to, S_MOVELIST *list) {
 
@@ -111,8 +115,10 @@ static inline void AddBPromo(const S_BOARD *pos, const int from, const int to, S
 
 	AddQuiet(pos, from, to, bQ, 0, list);
 	AddQuiet(pos, from, to, bN, 0, list);
+#ifdef CLI
 	AddQuiet(pos, from, to, bR, 0, list);
 	AddQuiet(pos, from, to, bB, 0, list);
+#endif
 }
 static inline void AddBPromoCapture(const S_BOARD *pos, const int from, const int to, S_MOVELIST *list) {
 
@@ -122,8 +128,10 @@ static inline void AddBPromoCapture(const S_BOARD *pos, const int from, const in
 
 	AddCapture(pos, from, to, bQ, list);
 	AddCapture(pos, from, to, bN, list);
+#ifdef CLI
 	AddCapture(pos, from, to, bR, list);
 	AddCapture(pos, from, to, bB, list);
+#endif
 }
 
 /* Generators for specific color/piece combinations - called by generic generators*/
