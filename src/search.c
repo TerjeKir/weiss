@@ -45,12 +45,7 @@ static int PickNextMove(S_MOVELIST *list) {
 	assert(bestNum >= moveNum);
 
 	bestMove = list->moves[bestNum].move;
-
-	// Stable, slower
-	memmove(&list->moves[list->next], &list->moves[moveNum], (bestNum - moveNum) * sizeof(S_MOVE));
-
-	// Unstable, faster
-	// list->moves[bestNum] = list->moves[moveNum];
+	list->moves[bestNum] = list->moves[moveNum];
 
 	return bestMove;
 }
