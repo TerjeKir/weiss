@@ -48,6 +48,8 @@ static inline void AddQuiet(const S_BOARD *pos, const int from, const int to, co
 		list->moves[list->count].score = 900000;
 	else if (pos->searchKillers[1][pos->ply] == move)
 		list->moves[list->count].score = 800000;
+	else if (promo)
+		list->moves[list->count].score = 700000;
 	else
 		list->moves[list->count].score = pos->searchHistory[pos->board[from]][to];
 
@@ -86,9 +88,9 @@ static inline void AddWPromo(const S_BOARD *pos, const int from, const int to, S
 	assert(CheckBoard(pos));
 
 	AddQuiet(pos, from, to, wQ, 0, list);
+	AddQuiet(pos, from, to, wN, 0, list);
 	AddQuiet(pos, from, to, wR, 0, list);
 	AddQuiet(pos, from, to, wB, 0, list);
-	AddQuiet(pos, from, to, wN, 0, list);
 }
 static inline void AddWPromoCapture(const S_BOARD *pos, const int from, const int to, S_MOVELIST *list) {
 
@@ -97,9 +99,9 @@ static inline void AddWPromoCapture(const S_BOARD *pos, const int from, const in
 	assert(CheckBoard(pos));
 
 	AddCapture(pos, from, to, wQ, list);
+	AddCapture(pos, from, to, wN, list);
 	AddCapture(pos, from, to, wR, list);
 	AddCapture(pos, from, to, wB, list);
-	AddCapture(pos, from, to, wN, list);
 }
 static inline void AddBPromo(const S_BOARD *pos, const int from, const int to, S_MOVELIST *list) {
 
@@ -108,9 +110,9 @@ static inline void AddBPromo(const S_BOARD *pos, const int from, const int to, S
 	assert(CheckBoard(pos));
 
 	AddQuiet(pos, from, to, bQ, 0, list);
+	AddQuiet(pos, from, to, bN, 0, list);
 	AddQuiet(pos, from, to, bR, 0, list);
 	AddQuiet(pos, from, to, bB, 0, list);
-	AddQuiet(pos, from, to, bN, 0, list);
 }
 static inline void AddBPromoCapture(const S_BOARD *pos, const int from, const int to, S_MOVELIST *list) {
 
@@ -119,9 +121,9 @@ static inline void AddBPromoCapture(const S_BOARD *pos, const int from, const in
 	assert(CheckBoard(pos));
 
 	AddCapture(pos, from, to, bQ, list);
+	AddCapture(pos, from, to, bN, list);
 	AddCapture(pos, from, to, bR, list);
 	AddCapture(pos, from, to, bB, list);
-	AddCapture(pos, from, to, bN, list);
 }
 
 /* Generators for specific color/piece combinations - called by generic generators*/
