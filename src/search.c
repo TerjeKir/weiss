@@ -16,17 +16,17 @@
 #include "syzygy.h"
 
 
-// Check if time up, or interrupt from GUI
+// Check time situation
 static void CheckTime(S_SEARCHINFO *info) {
 
 	if (  (info->nodes & 8192) == 0
 		&& info->timeset 
-		&& GetTimeMs() > info->stoptime) {
+		&& GetTimeMs() >= info->stoptime)
+
 		info->stopped = true;
-	}
 }
 
-// Move best move to the front of the queue
+// Return the next best move
 static int PickNextMove(S_MOVELIST *list) {
 
 	int bestMove;
@@ -50,8 +50,8 @@ static int PickNextMove(S_MOVELIST *list) {
 	return bestMove;
 }
 
-// Checks whether position has already occurred
-static int IsRepetition(const S_BOARD *pos) {
+// Check if current position is a repetition
+static bool IsRepetition(const S_BOARD *pos) {
 
 	for (int index = pos->hisPly - pos->fiftyMove; index < pos->hisPly - 1; ++index) {
 
@@ -76,19 +76,18 @@ static void ClearForSearch(S_BOARD *pos, S_SEARCHINFO *info) {
 		for (j = 0; j < MAXDEPTH; ++j)
 			pos->searchKillers[i][j] = 0;
 
+	pos->ply       = 0;
+	info->nodes    = 0;
+	info->tbhits   = 0;
+	info->stopped  = 0;
+	info->seldepth = 0;
 #ifdef SEARCH_STATS
 	pos->hashTable->hit = 0;
 	pos->hashTable->cut = 0;
 	pos->hashTable->overWrite = 0;
-
-	info->fh = 0;
+	info->fh  = 0;
 	info->fhf = 0;
 #endif
-	pos->ply = 0;
-	info->nodes = 0;
-	info->tbhits = 0;
-	info->stopped = 0;
-	info->seldepth = 0;
 }
 
 // Quiescence

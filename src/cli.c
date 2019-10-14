@@ -37,7 +37,7 @@ static int ThreeFoldRep(const S_BOARD *pos) {
 	return repeats;
 }
 
-static int DrawMaterial(const S_BOARD *pos) {
+static bool DrawMaterial(const S_BOARD *pos) {
 	assert(CheckBoard(pos));
 
 	// Pawns can promote to pieces that can mate
@@ -61,7 +61,7 @@ static int DrawMaterial(const S_BOARD *pos) {
 	return true;
 }
 
-static int checkresult(S_BOARD *pos) {
+static bool checkresult(S_BOARD *pos) {
 	assert(CheckBoard(pos));
 
 	if (pos->fiftyMove > 100) {
@@ -175,8 +175,7 @@ void Console_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 		}
 
 		if (!strcmp(command, "quit")) {
-			info->quit = true;
-			break;
+			return;
 		}
 
 		// Search and make a move, automatically plays for current side after

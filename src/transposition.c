@@ -55,13 +55,13 @@ void ClearHashTable(S_HASHTABLE *table) {
 }
 
 // Initializes the hash table
-int InitHashTable(S_HASHTABLE *table, uint64_t MB) {
+void InitHashTable(S_HASHTABLE *table, uint64_t MB) {
 
 	// Ignore if already initialized with this size
 	if (table->MB == MB) {
 		printf("HashTable already initialized to %I64u.\n", MB);
 		fflush(stdout);
-		return MB;
+		return;
 	}
 
 	uint64_t HashSize = 0x100000LL * MB;
@@ -81,7 +81,7 @@ int InitHashTable(S_HASHTABLE *table, uint64_t MB) {
 	if (table->TT == NULL) {
 		printf("Hash Allocation Failed, trying %I64uMB...\n", MB / 2);
 		fflush(stdout);
-		return InitHashTable(table, MB / 2);
+		InitHashTable(table, MB / 2);
 
 	// Success
 	} else {
@@ -91,7 +91,6 @@ int InitHashTable(S_HASHTABLE *table, uint64_t MB) {
 		table->MB = MB;
 		printf("HashTable init complete with %d entries, using %I64uMB.\n", table->numEntries, MB);
 		fflush(stdout);
-		return MB;
 	}
 }
 
@@ -111,9 +110,9 @@ static inline int ScoreFromTT (int score, const int ply) {
 
 // Probe the hash table
 #ifdef SEARCH_STATS
-int ProbeHashEntry(S_BOARD *pos, int *move, int *score, const int alpha, const int beta, const int depth) {
+bool ProbeHashEntry(S_BOARD *pos, int *move, int *score, const int alpha, const int beta, const int depth) {
 #else
-int ProbeHashEntry(const S_BOARD *pos, int *move, int *score, const int alpha, const int beta, const int depth) {
+bool ProbeHashEntry(const S_BOARD *pos, int *move, int *score, const int alpha, const int beta, const int depth) {
 #endif
 
 	assert(alpha < beta);

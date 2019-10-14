@@ -54,7 +54,7 @@ enum Square {
 
 enum CastlingRights { WKCA = 1, WQCA = 2, BKCA = 4, BQCA = 8 };
 
-/* STRUCTS */
+/* Structs */
 
 typedef struct {
 	int move;
@@ -144,7 +144,6 @@ typedef struct {
 	uint64_t nodes;
 	uint64_t tbhits;
 
-	int quit;
 	int stopped;
 
 #ifdef SEARCH_STATS
@@ -164,6 +163,8 @@ typedef struct {
 	char line[4096];
 
 } S_SEARCH_THREAD;
+
+/* Functions */
 
 static inline int fileOf(const int square) {
 	return square & 7;

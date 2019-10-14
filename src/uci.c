@@ -139,6 +139,18 @@ static void ParsePosition(const char *line, S_BOARD *pos) {
 	}
 }
 
+// Prints UCI info
+static void PrintUCI() {
+	printf("id name %s\n", NAME);
+	printf("id author LoliSquad\n");
+	printf("option name Hash type spin default %d min 4 max %d\n", DEFAULTHASH, MAXHASH);
+	printf("option name Ponder type check default false\n"); // Turn on ponder stats in cutechess gui
+#ifdef USE_TBS
+	printf("option name SyzygyPath type string default <empty>\n");
+#endif
+	printf("uciok\n"); fflush(stdout);
+}
+
 // Reads a line from stdin
 static inline bool GetInput(char *line) {
 
@@ -158,7 +170,6 @@ int main() {
 	// Init engine
 	S_BOARD pos[1];
 	S_SEARCHINFO info[1];
-	info->quit = false;
 	pos->hashTable->TT = NULL;
 	InitHashTable(pos->hashTable, DEFAULTHASH);
 
@@ -200,20 +211,12 @@ int main() {
 			pthread_join(searchThread, NULL);
 
 		} else if (BeginsWith(line, "quit")) {
-			info->quit = true;
 			break;
 
-		} else if (BeginsWith(line, "uci")) {
-			printf("id name %s\n", NAME);
-			printf("id author LoliSquad\n");
-			printf("option name Hash type spin default %d min 4 max %d\n", DEFAULTHASH, MAXHASH);
-			printf("option name Ponder type check default false\n"); // Turn on ponder stats in cutechess
-#ifdef USE_TBS
-			printf("option name SyzygyPath type string default <empty>\n");
-#endif
-			printf("uciok\n"); fflush(stdout);
+		} else if (BeginsWith(line, "uci"))
+			PrintUCI();
 
-		} else if (BeginsWith(line, "setoption name Hash value ")) {
+		else if (BeginsWith(line, "setoption name Hash value ")) {
 			int MB;
 			sscanf(line, "%*s %*s %*s %*s %d", &MB);
 			InitHashTable(pos->hashTable, MB);

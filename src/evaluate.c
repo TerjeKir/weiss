@@ -80,7 +80,7 @@ static void InitEvalMasks() {
 
 #ifdef CHECK_MAT_DRAW
 // Check if the board is (likely) drawn, logic from sjeng
-static int MaterialDraw(const S_BOARD *pos) {
+static bool MaterialDraw(const S_BOARD *pos) {
 
 	assert(CheckBoard(pos));
 
@@ -245,7 +245,7 @@ int EvalPosition(const S_BOARD *pos) {
 				  + pieceValue[ROOK]   * pos->pieceCounts[bR]
 				  + pieceValue[QUEEN]  * pos->pieceCounts[bQ];
 	if (bMaterial <= ENDGAME_MAT)
-		score += PSQT[wK+1][pos->kingSq[WHITE]] - PSQT[wK][pos->kingSq[WHITE]];
+		score += PSQT[wK+1][pos->kingSq[WHITE]];
 
 	// Black king
 	int wMaterial = pieceValue[PAWN]   * pos->pieceCounts[wP]
@@ -255,7 +255,7 @@ int EvalPosition(const S_BOARD *pos) {
 				  + pieceValue[QUEEN]  * pos->pieceCounts[wQ];
 
 	if (wMaterial <= ENDGAME_MAT)
-		score += PSQT[bK+1][pos->kingSq[BLACK]] - PSQT[bK][pos->kingSq[BLACK]];
+		score += PSQT[bK+1][pos->kingSq[BLACK]];
 
 	assert(score > -INFINITE && score < INFINITE);
 

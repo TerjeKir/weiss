@@ -17,7 +17,7 @@
 #include "transposition.h"
 
 
-/* Benchmark */
+/* Benchmark heavily inspired by Ethereal*/
 static const char *BenchmarkFENs[] = {
 	#include "bench.csv"
 	""

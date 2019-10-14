@@ -5,23 +5,23 @@
 
 #ifndef NDEBUG
 
-int ValidSquare(const int sq) {
+bool ValidSquare(const int sq) {
 	return A1 <= sq && sq <= H8;
 }
 
-int ValidSide(const int side) {
+bool ValidSide(const int side) {
 	return side == WHITE || side == BLACK;
 }
 
-int ValidPiece(const int piece) {
+bool ValidPiece(const int piece) {
 	return (wP <= piece && piece <= wK) || (bP <= piece && piece <= bK);
 }
 
-int ValidPieceOrEmpty(const int piece) {
+bool ValidPieceOrEmpty(const int piece) {
 	return piece == EMPTY || ValidPiece(piece);
 }
 
-int MoveListOk(const S_MOVELIST *list, const S_BOARD *pos) {
+bool MoveListOk(const S_MOVELIST *list, const S_BOARD *pos) {
 
 	if (list->count >= MAXPOSITIONMOVES)
 		return false;

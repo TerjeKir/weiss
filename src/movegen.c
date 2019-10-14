@@ -659,7 +659,7 @@ void GenAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 }
 
 // Checks the given move is legal in the given position
-int MoveExists(S_BOARD *pos, const int move) {
+bool MoveExists(S_BOARD *pos, const int move) {
 
 	S_MOVELIST list[1];
 

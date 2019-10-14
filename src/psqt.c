@@ -73,7 +73,7 @@ static void InitPSQT() {
        -10,   0,  10,  10,  10,  10,   0, -10,
        -50, -10,   0,   0,   0,   0, -10, -50}};
 
-	// Black scores are negated (white double negated -> positive)
+	// Black scores are negative (white double negated -> positive)
 	for (int piece = bP; piece <= bK; ++piece)
 		for (int sq = A1; sq <= H8; ++sq) {
 			PSQT[piece][sq] = -(tempPSQT[piece][sq] + pieceValue[piece]);
@@ -82,7 +82,7 @@ static void InitPSQT() {
 
 	// Different PSQT for kings in the endgame
 	for (int sq = A1; sq <= H8; ++sq) {
-		PSQT[bK+1][sq]         = -tempPSQT[KING+1][sq];
+		PSQT[bK+1][sq]         = -tempPSQT[KING+1][sq] + tempPSQT[KING][sq];
 		PSQT[wK+1][mirror[sq]] = -PSQT[bK+1][sq];
 	}
 }

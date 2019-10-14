@@ -103,7 +103,7 @@ static void AddPiece(const int sq, S_BOARD *pos, const int piece) {
 	SETBIT(pos->pieceBBs[pieceTypeOf(piece)], sq);
 }
 
-// Move a piece from a square to another square
+// Move a piece from one square to another
 static void MovePiece(const int from, const int to, S_BOARD *pos) {
 #ifndef NDEBUG
 	int t_PieceNum = false;
@@ -218,8 +218,8 @@ void TakeMove(S_BOARD *pos) {
 	assert(CheckBoard(pos));
 }
 
-// Make a move, advancing the board to the next state
-int MakeMove(S_BOARD *pos, const int move) {
+// Make a move - take it back and return false if move was illegal
+bool MakeMove(S_BOARD *pos, const int move) {
 
 	assert(CheckBoard(pos));
 

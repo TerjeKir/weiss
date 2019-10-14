@@ -275,7 +275,7 @@ void PrintBoard(const S_BOARD *pos) {
 
 #ifndef NDEBUG
 // Check board state makes sense
-int CheckBoard(const S_BOARD *pos) {
+bool CheckBoard(const S_BOARD *pos) {
 
 	int t_pieceCounts[PIECE_NB] = { 0 };
 	int t_bigPieces[2] = { 0, 0 };
