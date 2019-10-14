@@ -5,4 +5,4 @@
 #include "types.h"
 
 
-int EvalPosition(const S_BOARD *pos);
+int EvalPosition(const Position *pos);

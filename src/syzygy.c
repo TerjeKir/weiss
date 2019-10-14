@@ -9,7 +9,7 @@
 
 
 // Calls fathom to probe syzygy tablebases - heavily inspired by ethereal
-unsigned int probeWDL(const S_BOARD *pos, const int depth) {
+unsigned int probeWDL(const Position *pos, const int depth) {
 
     assert(CheckBoard(pos));
 

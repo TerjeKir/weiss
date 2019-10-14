@@ -17,7 +17,7 @@
 
 
 // Check time situation
-static void CheckTime(S_SEARCHINFO *info) {
+static void CheckTime(SearchInfo *info) {
 
 	if (  (info->nodes & 8192) == 0
 		&& info->timeset 
@@ -27,7 +27,7 @@ static void CheckTime(S_SEARCHINFO *info) {
 }
 
 // Return the next best move
-static int PickNextMove(S_MOVELIST *list) {
+static int PickNextMove(MoveList *list) {
 
 	int bestMove;
 	int bestScore = 0;
@@ -51,7 +51,7 @@ static int PickNextMove(S_MOVELIST *list) {
 }
 
 // Check if current position is a repetition
-static bool IsRepetition(const S_BOARD *pos) {
+static bool IsRepetition(const Position *pos) {
 
 	for (int index = pos->hisPly - pos->fiftyMove; index < pos->hisPly - 1; ++index) {
 
@@ -64,7 +64,7 @@ static bool IsRepetition(const S_BOARD *pos) {
 }
 
 // Get ready to start a search
-static void ClearForSearch(S_BOARD *pos, S_SEARCHINFO *info) {
+static void ClearForSearch(Position *pos, SearchInfo *info) {
 
 	int i, j;
 
@@ -91,7 +91,7 @@ static void ClearForSearch(S_BOARD *pos, S_SEARCHINFO *info) {
 }
 
 // Quiescence
-static int Quiescence(int alpha, const int beta, S_BOARD *pos, S_SEARCHINFO *info) {
+static int Quiescence(int alpha, const int beta, Position *pos, SearchInfo *info) {
 
 	assert(CheckBoard(pos));
 	assert(beta > alpha);
@@ -128,7 +128,7 @@ static int Quiescence(int alpha, const int beta, S_BOARD *pos, S_SEARCHINFO *inf
 		alpha = score;
 
 	// Generate all moves
-	S_MOVELIST list[1];
+	MoveList list[1];
 	list->count = list->next = 0;
 	GenNoisyMoves(pos, list);
 
@@ -175,7 +175,7 @@ static int Quiescence(int alpha, const int beta, S_BOARD *pos, S_SEARCHINFO *inf
 }
 
 // Alpha Beta
-static int AlphaBeta(int alpha, const int beta, int depth, S_BOARD *pos, S_SEARCHINFO *info, const int doNull) {
+static int AlphaBeta(int alpha, const int beta, int depth, Position *pos, SearchInfo *info, const int doNull) {
 
 	assert(CheckBoard(pos));
 	assert(beta > alpha);
@@ -185,7 +185,7 @@ static int AlphaBeta(int alpha, const int beta, int depth, S_BOARD *pos, S_SEARC
 	assert(beta  <=  INFINITE);
 	assert(beta  >= -INFINITE);
 
-	S_MOVELIST list[1];
+	MoveList list[1];
 	list->count = list->next = 0;
 
 	// Quiescence at the end of search
@@ -387,7 +387,7 @@ standard_search:
 }
 
 // Aspiration window
-int AspirationWindow(S_BOARD *pos, S_SEARCHINFO *info, const int depth, int previousScore) {
+int AspirationWindow(Position *pos, SearchInfo *info, const int depth, int previousScore) {
 
 	// Dynamic bonus increasing initial window and delta
 	const int bonus = (previousScore * previousScore) / 8;
@@ -417,7 +417,7 @@ int AspirationWindow(S_BOARD *pos, S_SEARCHINFO *info, const int depth, int prev
 }
 
 // Root of search
-void SearchPosition(S_BOARD *pos, S_SEARCHINFO *info) {
+void SearchPosition(Position *pos, SearchInfo *info) {
 
 	int bestScore;
 	unsigned int currentDepth;

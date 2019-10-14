@@ -44,7 +44,7 @@ static void InitHashKeys() {
 		CastleKeys[i] = RAND_64;
 }
 
-uint64_t GeneratePosKey(const S_BOARD *pos) {
+uint64_t GeneratePosKey(const Position *pos) {
 
 	uint64_t posKey = 0;
 

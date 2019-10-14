@@ -21,7 +21,7 @@ bool ValidPieceOrEmpty(const int piece) {
 	return piece == EMPTY || ValidPiece(piece);
 }
 
-bool MoveListOk(const S_MOVELIST *list, const S_BOARD *pos) {
+bool MoveListOk(const MoveList *list, const Position *pos) {
 
 	if (list->count >= MAXPOSITIONMOVES)
 		return false;

@@ -24,7 +24,7 @@
 #define PERFT_FEN "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1"
 
 
-static int ThreeFoldRep(const S_BOARD *pos) {
+static int ThreeFoldRep(const Position *pos) {
 
 	assert(CheckBoard(pos));
 
@@ -37,7 +37,7 @@ static int ThreeFoldRep(const S_BOARD *pos) {
 	return repeats;
 }
 
-static bool DrawMaterial(const S_BOARD *pos) {
+static bool DrawMaterial(const Position *pos) {
 	assert(CheckBoard(pos));
 
 	// Pawns can promote to pieces that can mate
@@ -61,7 +61,7 @@ static bool DrawMaterial(const S_BOARD *pos) {
 	return true;
 }
 
-static bool checkresult(S_BOARD *pos) {
+static bool checkresult(Position *pos) {
 	assert(CheckBoard(pos));
 
 	if (pos->fiftyMove > 100) {
@@ -79,7 +79,7 @@ static bool checkresult(S_BOARD *pos) {
 		return true;
 	}
 
-	S_MOVELIST list[1];
+	MoveList list[1];
 	GenAllMoves(pos, list);
 
 	int found = 0;
@@ -113,7 +113,7 @@ static bool checkresult(S_BOARD *pos) {
 	return false;
 }
 
-void Console_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
+void Console_Loop(Position *pos, SearchInfo *info) {
 
 	printf("\nweiss started in console mode\n");
 	printf("Type help for commands\n\n");
@@ -254,7 +254,7 @@ void Console_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 
 		if (!strcmp(command, "perft")) {
 
-			S_BOARD perftBoard[1];
+			Position perftBoard[1];
 			int perftDepth = 5;
 			sscanf(inBuf, "perft %d", &perftDepth);
 			perftDepth = perftDepth > 6 ? 6 : perftDepth;

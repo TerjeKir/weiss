@@ -30,10 +30,10 @@ static inline bool BeginsWith(const char *string, const char *token) {
 // Parses a go command
 static void *ParseGo(void *searchThreadInfo) {
 
-	S_SEARCH_THREAD *sst = (S_SEARCH_THREAD*)searchThreadInfo;
+	SearchThread *sst = (SearchThread*)searchThreadInfo;
 	char *line           = sst->line;
-	S_BOARD *pos         = sst->pos;
-	S_SEARCHINFO *info   = sst->info;
+	Position *pos         = sst->pos;
+	SearchInfo *info   = sst->info;
 
 	info->starttime = GetTimeMs();
 	info->timeset = false;
@@ -92,7 +92,7 @@ static void *ParseGo(void *searchThreadInfo) {
 }
 
 // Parses a position command
-static void ParsePosition(const char *line, S_BOARD *pos) {
+static void ParsePosition(const char *line, Position *pos) {
 
 	// Skip past "position "
 	line += 9;
@@ -168,8 +168,8 @@ int main(int argc, char **argv) {
 int main() {
 #endif
 	// Init engine
-	S_BOARD pos[1];
-	S_SEARCHINFO info[1];
+	Position pos[1];
+	SearchInfo info[1];
 	pos->hashTable->TT = NULL;
 	InitHashTable(pos->hashTable, DEFAULTHASH);
 
@@ -185,7 +185,7 @@ int main() {
 
 	// Search thread setup
 	pthread_t searchThread;
-	S_SEARCH_THREAD searchThreadInfo;
+	SearchThread searchThreadInfo;
 	searchThreadInfo.info = info;
 	searchThreadInfo.pos  = pos;
 

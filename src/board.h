@@ -8,10 +8,10 @@
 uint8_t distance[64][64];
 
 
-bool CheckBoard(const S_BOARD *pos);
-int ParseFen(const char *fen, S_BOARD *pos);
-void PrintBoard(const S_BOARD *pos);
-void MirrorBoard(S_BOARD *pos);
+bool CheckBoard(const Position *pos);
+int ParseFen(const char *fen, Position *pos);
+void PrintBoard(const Position *pos);
+void MirrorBoard(Position *pos);
 
 // Returns distance between sq1 and sq2
 static inline int Distance(const int sq1, const int sq2) {

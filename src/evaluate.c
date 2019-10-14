@@ -80,7 +80,7 @@ static void InitEvalMasks() {
 
 #ifdef CHECK_MAT_DRAW
 // Check if the board is (likely) drawn, logic from sjeng
-static bool MaterialDraw(const S_BOARD *pos) {
+static bool MaterialDraw(const Position *pos) {
 
 	assert(CheckBoard(pos));
 
@@ -128,7 +128,7 @@ static bool MaterialDraw(const S_BOARD *pos) {
 #endif
 
 // Calculate a static evaluation of a position
-int EvalPosition(const S_BOARD *pos) {
+int EvalPosition(const Position *pos) {
 
 	assert(CheckBoard(pos));
 

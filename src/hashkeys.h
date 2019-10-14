@@ -11,4 +11,4 @@ extern uint64_t CastleKeys[16];
 extern uint64_t SideKey;
 
 
-uint64_t GeneratePosKey(const S_BOARD *pos);
+uint64_t GeneratePosKey(const Position *pos);

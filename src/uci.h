@@ -5,4 +5,4 @@
 #include "types.h"
 
 
-void Uci_Loop(S_BOARD *pos, S_SEARCHINFO *info);
+void Uci_Loop(Position *pos, SearchInfo *info);

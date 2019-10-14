@@ -23,7 +23,7 @@ static const char *BenchmarkFENs[] = {
 	""
 };
 
-void benchmark(int depth, S_BOARD *pos, S_SEARCHINFO *info) {
+void benchmark(int depth, Position *pos, SearchInfo *info) {
 
 	uint64_t nodes = 0ULL;
 
@@ -54,7 +54,7 @@ void benchmark(int depth, S_BOARD *pos, S_SEARCHINFO *info) {
 static uint64_t leafNodes;
 
 
-static void RecursivePerft(const int depth, S_BOARD *pos) {
+static void RecursivePerft(const int depth, Position *pos) {
 
 	assert(CheckBoard(pos));
 
@@ -63,7 +63,7 @@ static void RecursivePerft(const int depth, S_BOARD *pos) {
 		return;
 	}
 
-	S_MOVELIST list[1];
+	MoveList list[1];
 	GenAllMoves(pos, list);
 
 	for (unsigned int MoveNum = 0; MoveNum < list->count; ++MoveNum) {
@@ -79,7 +79,7 @@ static void RecursivePerft(const int depth, S_BOARD *pos) {
 }
 
 // Counts number of moves that can be made in a position to some depth
-void Perft(const int depth, S_BOARD *pos) {
+void Perft(const int depth, Position *pos) {
 
 	assert(CheckBoard(pos));
 
@@ -89,7 +89,7 @@ void Perft(const int depth, S_BOARD *pos) {
 	const int start = GetTimeMs();
 	leafNodes = 0;
 
-	S_MOVELIST list[1];
+	MoveList list[1];
 	GenAllMoves(pos, list);
 
 	for (unsigned int MoveNum = 0; MoveNum < list->count; ++MoveNum) {
@@ -122,7 +122,7 @@ void Perft(const int depth, S_BOARD *pos) {
 
 /* Other tests */
 // Checks evaluation is symmetric
-void MirrorEvalTest(S_BOARD *pos) {
+void MirrorEvalTest(Position *pos) {
 
 	const char filename[] = "../EPDs/all.epd";
 
@@ -169,14 +169,14 @@ void MirrorEvalTest(S_BOARD *pos) {
 }
 
 // Checks engine can find mates
-void MateInXTest(S_BOARD *pos) {
+void MateInXTest(Position *pos) {
 
 	char filename[] = "../EPDs/mate_-_.epd"; 				// _s are placeholders
 	FILE *file;
 
 	int failures = 0;
 
-	S_SEARCHINFO info[1];
+	SearchInfo info[1];
 	char lineIn[1024];
 	char *bm, *ce;
 
