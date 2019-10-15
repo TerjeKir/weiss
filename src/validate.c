@@ -17,10 +17,6 @@ bool ValidPiece(const int piece) {
 	return (wP <= piece && piece <= wK) || (bP <= piece && piece <= bK);
 }
 
-bool ValidPieceOrEmpty(const int piece) {
-	return piece == EMPTY || ValidPiece(piece);
-}
-
 bool MoveListOk(const MoveList *list, const Position *pos) {
 
 	if (list->count >= MAXPOSITIONMOVES)

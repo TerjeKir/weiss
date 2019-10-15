@@ -52,7 +52,6 @@ void benchmark(int depth, Position *pos, SearchInfo *info) {
 /* Perft */
 static uint64_t leafNodes;
 
-
 static void RecursivePerft(const int depth, Position *pos) {
 
 	assert(CheckBoard(pos));
@@ -119,7 +118,6 @@ void Perft(const int depth, Position *pos) {
 	return;
 }
 
-/* Other tests */
 // Checks evaluation is symmetric
 void MirrorEvalTest(Position *pos) {
 
@@ -170,7 +168,7 @@ void MirrorEvalTest(Position *pos) {
 // Checks engine can find mates
 void MateInXTest(Position *pos) {
 
-	char filename[] = "../EPDs/mate_-_.epd"; 				// _s are placeholders
+	char filename[] = "../EPDs/mate_-_.epd"; 				// '_'s are placeholders
 	FILE *file;
 
 	int failures = 0;
@@ -185,7 +183,7 @@ void MateInXTest(Position *pos) {
 
 	for (char depth = '1'; depth < '9'; ++depth) {
 		filename[12] = depth;
-		for (char side = 'b'; side >= 'b'; side += 21) { 	// Hacky way to alternate 'b' <-> 'w', overflowing goes below 'b'
+		for (char side = 'b'; side >= 'b'; side += 21) { 	// Alternates 'b' <-> 'w', overflowing goes below 'b'
 			filename[14] = side;
 
 			if ((file = fopen(filename, "r")) == NULL) {
@@ -197,8 +195,6 @@ void MateInXTest(Position *pos) {
 			int lineCnt = 0;
 
 			while (fgets(lineIn, 1024, file) != NULL) {
-
-				// 1k1r4/2p2ppp/8/8/Qb6/2R1Pn2/PP2KPPP/3r4 b - - bm Nf3-g1+; ce +M1; pv Nf3-g1+;
 
 				// Reset
 				memset(bestMoves, 0, sizeof(bestMoves));

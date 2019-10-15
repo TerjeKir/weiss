@@ -1,5 +1,6 @@
 // search.c
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -88,6 +89,63 @@ static void ClearForSearch(Position *pos, SearchInfo *info) {
 	info->fh  = 0;
 	info->fhf = 0;
 #endif
+}
+
+// Print thinking
+static void PrintThinking(const SearchInfo *info, Position *pos, const int bestScore, const int currentDepth) {
+
+	unsigned timeElapsed = GetTimeMs() - info->starttime;
+	int pvMoves;
+
+	printf("info score ");
+
+	// Score or mate
+	if (bestScore > ISMATE)
+		printf("mate %d ", ((INFINITE - bestScore) / 2) + 1);
+	else if (bestScore < -ISMATE)
+		printf("mate -%d ", (INFINITE + bestScore) / 2);
+	else
+		printf("cp %d ", bestScore);
+
+	// Basic info
+	printf("depth %d seldepth %d nodes %I64d tbhits %I64d time %d ",
+			currentDepth, info->seldepth, info->nodes, info->tbhits, timeElapsed);
+
+	// Nodes per second
+	if (timeElapsed > 0)
+		printf("nps %I64d ", ((info->nodes * 1000) / timeElapsed));
+
+	// Hashfull
+	if (info->nodes > (uint64_t)currentDepth)
+		printf("hashfull %d ", HashFull(pos));
+
+	// Principal variation
+	printf("pv");
+	pvMoves = GetPvLine(currentDepth, pos);
+	for (int pvNum = 0; pvNum < pvMoves; ++pvNum) {
+		printf(" %s", MoveToStr(pos->pvArray[pvNum]));
+	}
+	printf("\n");
+	
+#ifdef SEARCH_STATS
+	if (info->nodes > (uint64_t)currentDepth)
+		printf("Stats: Hits: %d Overwrite: %d NewWrite: %d Cut: %d\nOrdering %.2f NullCut: %d\n", pos->hashTable->hit,
+			pos->hashTable->overWrite, pos->hashTable->newWrite, pos->hashTable->cut, (info->fhf/info->fh)*100, info->nullCut);
+#endif
+	fflush(stdout);
+}
+
+// Print conclusion of search - best move and ponder move
+static void PrintConclusion(const Position *pos) {
+
+	const int   bestMove = pos->pvArray[0];
+	const int ponderMove = pos->pvArray[1];
+
+	printf("bestmove %s", MoveToStr(bestMove));
+	if (ponderMove != NOMOVE) 
+		printf(" ponder %s\n", MoveToStr(ponderMove));
+	printf("\n");
+	fflush(stdout);
 }
 
 // Quiescence
