@@ -6,9 +6,9 @@
 
 
 char *MoveToStr(const int move);
-void PrintThinking(const S_SEARCHINFO *info, S_BOARD *pos, const int bestScore, const int currentDepth);
-void PrintConclusion(const S_BOARD *pos);
-int ParseMove(const char *ptrChar, S_BOARD *pos);
+void PrintThinking(const SearchInfo *info, Position *pos, const int bestScore, const int currentDepth);
+void PrintConclusion(const Position *pos);
+int ParseMove(const char *ptrChar, Position *pos);
 #ifdef CLI
-int ParseEPDMove(const char *ptrChar, S_BOARD *pos);
+int ParseEPDMove(const char *ptrChar, Position *pos);
 #endif

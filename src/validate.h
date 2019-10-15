@@ -6,9 +6,9 @@
 
 
 #ifndef NDEBUG
-int ValidSquare(const int sq);
-int ValidSide(const int side);
-int ValidPiece(const int piece);
-int ValidPieceOrEmpty(const int piece);
-int MoveListOk(const S_MOVELIST *list,  const S_BOARD *pos);
+bool ValidSquare(const int sq);
+bool ValidSide(const int side);
+bool ValidPiece(const int piece);
+bool ValidPieceOrEmpty(const int piece);
+bool MoveListOk(const MoveList *list,  const Position *pos);
 #endif

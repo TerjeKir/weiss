@@ -8,9 +8,11 @@
 #include <assert.h>
 
 
-/* Functionality, should probably be in makefile */
-
+/* Probes syzygy tablebases through fathom. */
 // #define USE_TBS
+
+/* Check for material draw in eval - should use unless using TBs + adjudication. */
 #define CHECK_MAT_DRAW
-#define USE_PEXT
+
+/* Prints various search stats while searching. */
 // #define SEARCH_STATS

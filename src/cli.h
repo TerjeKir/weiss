@@ -7,5 +7,5 @@
 #include "types.h"
 
 
-void Console_Loop(S_BOARD *pos, S_SEARCHINFO *info);
+void Console_Loop(Position *pos, SearchInfo *info);
 #endif

@@ -46,7 +46,7 @@ char *MoveToStr(const int move) {
 }
 
 // Print thinking
-void PrintThinking(const S_SEARCHINFO *info, S_BOARD *pos, const int bestScore, const int currentDepth) {
+void PrintThinking(const SearchInfo *info, Position *pos, const int bestScore, const int currentDepth) {
 
 	unsigned timeElapsed = GetTimeMs() - info->starttime;
 	int pvMoves;
@@ -90,7 +90,7 @@ void PrintThinking(const S_SEARCHINFO *info, S_BOARD *pos, const int bestScore, 
 }
 
 // Prints conclusion of search - best move and ponder move
-void PrintConclusion(const S_BOARD *pos) {
+void PrintConclusion(const Position *pos) {
 
 	const int   bestMove = pos->pvArray[0];
 	const int ponderMove = pos->pvArray[1];
@@ -103,7 +103,7 @@ void PrintConclusion(const S_BOARD *pos) {
 }
 
 // Translates a string to a move
-int ParseMove(const char *ptrChar, S_BOARD *pos) {
+int ParseMove(const char *ptrChar, Position *pos) {
 
 	assert(CheckBoard(pos));
 
@@ -117,7 +117,7 @@ int ParseMove(const char *ptrChar, S_BOARD *pos) {
 
 	assert(ValidSquare(from) && ValidSquare(to));
 
-	S_MOVELIST list[1];
+	MoveList list[1];
 	GenAllMoves(pos, list);
 
 	int move, promotion;
@@ -149,7 +149,7 @@ int ParseMove(const char *ptrChar, S_BOARD *pos) {
 
 #ifdef CLI
 // Translates a string from a .epd file to a move
-int ParseEPDMove(const char *ptrChar, S_BOARD *pos) {
+int ParseEPDMove(const char *ptrChar, Position *pos) {
 
 	assert(CheckBoard(pos));
 
@@ -168,7 +168,7 @@ int ParseEPDMove(const char *ptrChar, S_BOARD *pos) {
 
 	assert(ValidSquare(from) && ValidSquare(to));
 
-	S_MOVELIST list[1];
+	MoveList list[1];
 	GenAllMoves(pos, list);
 
 	int move, promotion;

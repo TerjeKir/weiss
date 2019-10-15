@@ -54,28 +54,26 @@ enum Square {
 
 enum CastlingRights { WKCA = 1, WQCA = 2, BKCA = 4, BQCA = 8 };
 
-/* STRUCTS */
+/* Structs */
 
 typedef struct {
 	int move;
 	int score;
-} S_MOVE;
+} MoveListEntry;
 
 typedef struct {
-	S_MOVE moves[MAXPOSITIONMOVES];
+	MoveListEntry moves[MAXPOSITIONMOVES];
 	unsigned int count;
 	unsigned int next;
-} S_MOVELIST;
+} MoveList;
 
 typedef struct {
-
 	int move;
 	int enPas;
 	int fiftyMove;
 	int castlePerm;
 	uint64_t posKey;
-
-} S_UNDO;
+} Undo;
 
 typedef struct {
 	uint64_t posKey;
@@ -83,10 +81,10 @@ typedef struct {
 	int16_t score;
 	uint8_t depth;
 	uint8_t flag;
-} S_HASHENTRY;
+} HashEntry;
 
 typedef struct {
-	S_HASHENTRY *TT;
+	HashEntry *TT;
 	int numEntries;
 	uint64_t MB;
 #ifdef SEARCH_STATS
@@ -95,7 +93,7 @@ typedef struct {
 	int hit;
 	int cut;
 #endif
-} S_HASHTABLE;
+} HashTable;
 
 typedef struct {
 
@@ -122,15 +120,15 @@ typedef struct {
 
 	uint64_t posKey;
 
-	S_UNDO history[MAXGAMEMOVES];
+	Undo history[MAXGAMEMOVES];
 
-	S_HASHTABLE hashTable[1];
+	HashTable hashTable[1];
 	int pvArray[MAXDEPTH];
 
 	int searchHistory[PIECE_NB][64];
 	int searchKillers[2][MAXDEPTH];
 
-} S_BOARD;
+} Position;
 
 typedef struct {
 
@@ -144,7 +142,6 @@ typedef struct {
 	uint64_t nodes;
 	uint64_t tbhits;
 
-	int quit;
 	int stopped;
 
 #ifdef SEARCH_STATS
@@ -155,15 +152,17 @@ typedef struct {
 
 	char syzygyPath[256];
 
-} S_SEARCHINFO;
+} SearchInfo;
 
 typedef struct {
 
-	S_BOARD *pos;
-	S_SEARCHINFO *info;
+	Position *pos;
+	SearchInfo *info;
 	char line[4096];
 
-} S_SEARCH_THREAD;
+} SearchThread;
+
+/* Functions */
 
 static inline int fileOf(const int square) {
 	return square & 7;

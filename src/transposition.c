@@ -11,7 +11,7 @@
 
 
 // Returns principal variation move in the position (if any)
-static int ProbePvMove(const S_BOARD *pos) {
+static int ProbePvMove(const Position *pos) {
 
 	int index = pos->posKey % pos->hashTable->numEntries;
 
@@ -22,7 +22,7 @@ static int ProbePvMove(const S_BOARD *pos) {
 }
 
 // Fills the pvArray of the position with the PV
-int GetPvLine(const int depth, S_BOARD *pos) {
+int GetPvLine(const int depth, Position *pos) {
 
 	int move;
 	int count = 0;
@@ -45,9 +45,9 @@ int GetPvLine(const int depth, S_BOARD *pos) {
 }
 
 // Clears the hash table
-void ClearHashTable(S_HASHTABLE *table) {
+void ClearHashTable(HashTable *table) {
 
-	memset(table->TT, 0, table->numEntries * sizeof(S_HASHENTRY));
+	memset(table->TT, 0, table->numEntries * sizeof(HashEntry));
 
 #ifdef SEARCH_STATS
 	table->newWrite = 0;
@@ -55,17 +55,17 @@ void ClearHashTable(S_HASHTABLE *table) {
 }
 
 // Initializes the hash table
-int InitHashTable(S_HASHTABLE *table, uint64_t MB) {
+void InitHashTable(HashTable *table, uint64_t MB) {
 
 	// Ignore if already initialized with this size
 	if (table->MB == MB) {
 		printf("HashTable already initialized to %I64u.\n", MB);
 		fflush(stdout);
-		return MB;
+		return;
 	}
 
 	uint64_t HashSize = 0x100000LL * MB;
-	table->numEntries = HashSize / sizeof(S_HASHENTRY);
+	table->numEntries = HashSize / sizeof(HashEntry);
 
 	MB = MB < MINHASH ? MINHASH : MB; // Don't go under minhash
 	MB = MB > MAXHASH ? MAXHASH : MB; // Don't go over maxhash
@@ -75,13 +75,13 @@ int InitHashTable(S_HASHTABLE *table, uint64_t MB) {
 		free(table->TT);
 
 	// Allocate memory
-	table->TT = (S_HASHENTRY *)calloc(table->numEntries, sizeof(S_HASHENTRY));
+	table->TT = (HashEntry *)calloc(table->numEntries, sizeof(HashEntry));
 
 	// If allocation fails, try half the size
 	if (table->TT == NULL) {
 		printf("Hash Allocation Failed, trying %I64uMB...\n", MB / 2);
 		fflush(stdout);
-		return InitHashTable(table, MB / 2);
+		InitHashTable(table, MB / 2);
 
 	// Success
 	} else {
@@ -91,7 +91,6 @@ int InitHashTable(S_HASHTABLE *table, uint64_t MB) {
 		table->MB = MB;
 		printf("HashTable init complete with %d entries, using %I64uMB.\n", table->numEntries, MB);
 		fflush(stdout);
-		return MB;
 	}
 }
 
@@ -111,9 +110,9 @@ static inline int ScoreFromTT (int score, const int ply) {
 
 // Probe the hash table
 #ifdef SEARCH_STATS
-int ProbeHashEntry(S_BOARD *pos, int *move, int *score, const int alpha, const int beta, const int depth) {
+bool ProbeHashEntry(Position *pos, int *move, int *score, const int alpha, const int beta, const int depth) {
 #else
-int ProbeHashEntry(const S_BOARD *pos, int *move, int *score, const int alpha, const int beta, const int depth) {
+bool ProbeHashEntry(const Position *pos, int *move, int *score, const int alpha, const int beta, const int depth) {
 #endif
 
 	assert(alpha < beta);
@@ -156,7 +155,7 @@ int ProbeHashEntry(const S_BOARD *pos, int *move, int *score, const int alpha, c
 }
 
 // Store an entry in the hash table
-void StoreHashEntry(S_BOARD *pos, const int move, const int score, const int flag, const int depth) {
+void StoreHashEntry(Position *pos, const int move, const int score, const int flag, const int depth) {
 
 	assert(-INFINITE <= score && score <= INFINITE);
 	assert(flag >= BOUND_UPPER && flag <= BOUND_EXACT);
@@ -183,7 +182,7 @@ void StoreHashEntry(S_BOARD *pos, const int move, const int score, const int fla
 }
 
 // Estimates the load factor of the transposition table (1 = 0.1%)
-int HashFull(const S_BOARD *pos) {
+int HashFull(const Position *pos) {
 
 	uint64_t used = 0;
 	const int samples = 1000;

@@ -1,10 +1,13 @@
 # weiss
-Chess engine based on VICE by Bluefever
+Chess engine built with VICE by Bluefever as a base
 
-Watch his amazing video tutorial on youtube: 
+If you are interested in getting into chess programming, watch his awesome video tutorial on youtube:
 https://www.youtube.com/playlist?list=PLZ1QII7yudbc-Ky058TEaOstZHVbT-2hg
 
 
-I'd like to express my gratitude to all the folks hanging out in TCEC chat 
-for all the help and insight they've given me from day 1 of this project.
-Without you guys I'd never have even taken the first step, thank you all.
+Also inspired by Ethereal and Stockfish. Let your idle CPU cores help them out by running test games:
+http://chess.grantnet.us/index/ / https://github.com/AndyGrant/OpenBench/
+http://tests.stockfishchess.org/tests
+
+
+Big thank you to everyone in TCEC chat for helping me out with both chess specifics as well as general programming!

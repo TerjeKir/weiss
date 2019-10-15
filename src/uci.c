@@ -30,10 +30,10 @@ static inline bool BeginsWith(const char *string, const char *token) {
 // Parses a go command
 static void *ParseGo(void *searchThreadInfo) {
 
-	S_SEARCH_THREAD *sst = (S_SEARCH_THREAD*)searchThreadInfo;
+	SearchThread *sst = (SearchThread*)searchThreadInfo;
 	char *line           = sst->line;
-	S_BOARD *pos         = sst->pos;
-	S_SEARCHINFO *info   = sst->info;
+	Position *pos         = sst->pos;
+	SearchInfo *info   = sst->info;
 
 	info->starttime = GetTimeMs();
 	info->timeset = false;
@@ -92,7 +92,7 @@ static void *ParseGo(void *searchThreadInfo) {
 }
 
 // Parses a position command
-static void ParsePosition(const char *line, S_BOARD *pos) {
+static void ParsePosition(const char *line, Position *pos) {
 
 	// Skip past "position "
 	line += 9;
@@ -139,6 +139,18 @@ static void ParsePosition(const char *line, S_BOARD *pos) {
 	}
 }
 
+// Prints UCI info
+static void PrintUCI() {
+	printf("id name %s\n", NAME);
+	printf("id author LoliSquad\n");
+	printf("option name Hash type spin default %d min 4 max %d\n", DEFAULTHASH, MAXHASH);
+	printf("option name Ponder type check default false\n"); // Turn on ponder stats in cutechess gui
+#ifdef USE_TBS
+	printf("option name SyzygyPath type string default <empty>\n");
+#endif
+	printf("uciok\n"); fflush(stdout);
+}
+
 // Reads a line from stdin
 static inline bool GetInput(char *line) {
 
@@ -150,19 +162,15 @@ static inline bool GetInput(char *line) {
 }
 
 // Sets up the engine and follows UCI protocol commands
-#ifdef CLI
 int main(int argc, char **argv) {
-#else
-int main() {
-#endif
+
 	// Init engine
-	S_BOARD pos[1];
-	S_SEARCHINFO info[1];
-	info->quit = false;
+	Position pos[1];
+	SearchInfo info[1];
 	pos->hashTable->TT = NULL;
 	InitHashTable(pos->hashTable, DEFAULTHASH);
 
-	#ifdef CLI
+	// Benchmark
 	if (argc > 1 && strstr(argv[1], "bench")) {
 		if (argc > 2)
 			benchmark(atoi(argv[2]), pos, info);
@@ -170,11 +178,10 @@ int main() {
 			benchmark(8, pos, info);
 		return 0;
 	}
-	#endif
 
 	// Search thread setup
 	pthread_t searchThread;
-	S_SEARCH_THREAD searchThreadInfo;
+	SearchThread searchThreadInfo;
 	searchThreadInfo.info = info;
 	searchThreadInfo.pos  = pos;
 
@@ -200,20 +207,12 @@ int main() {
 			pthread_join(searchThread, NULL);
 
 		} else if (BeginsWith(line, "quit")) {
-			info->quit = true;
 			break;
 
-		} else if (BeginsWith(line, "uci")) {
-			printf("id name %s\n", NAME);
-			printf("id author LoliSquad\n");
-			printf("option name Hash type spin default %d min 4 max %d\n", DEFAULTHASH, MAXHASH);
-			printf("option name Ponder type check default false\n"); // Turn on ponder stats in cutechess
-#ifdef USE_TBS
-			printf("option name SyzygyPath type string default <empty>\n");
-#endif
-			printf("uciok\n"); fflush(stdout);
+		} else if (BeginsWith(line, "uci"))
+			PrintUCI();
 
-		} else if (BeginsWith(line, "setoption name Hash value ")) {
+		else if (BeginsWith(line, "setoption name Hash value ")) {
 			int MB;
 			sscanf(line, "%*s %*s %*s %*s %d", &MB);
 			InitHashTable(pos->hashTable, MB);

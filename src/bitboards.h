@@ -39,7 +39,7 @@ const bitboard rankBBs[8];
 // void PrintBB(const bitboard bb);
 
 // Population count/Hamming weight
-static inline int PopCount(bitboard bb) {
+static inline int PopCount(const bitboard bb) {
 
     return __builtin_popcountll(bb);
 }

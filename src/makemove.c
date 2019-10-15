@@ -29,7 +29,7 @@ static const int CastlePerm[64] = {
 
 
 // Remove a piece from a square sq
-static void ClearPiece(const int sq, S_BOARD *pos) {
+static void ClearPiece(const int sq, Position *pos) {
 
 	assert(ValidSquare(sq));
 
@@ -74,7 +74,7 @@ static void ClearPiece(const int sq, S_BOARD *pos) {
 }
 
 // Add a piece piece to a square
-static void AddPiece(const int sq, S_BOARD *pos, const int piece) {
+static void AddPiece(const int sq, Position *pos, const int piece) {
 
 	assert(ValidPiece(piece));
 	assert(ValidSquare(sq));
@@ -103,8 +103,8 @@ static void AddPiece(const int sq, S_BOARD *pos, const int piece) {
 	SETBIT(pos->pieceBBs[pieceTypeOf(piece)], sq);
 }
 
-// Move a piece from a square to another square
-static void MovePiece(const int from, const int to, S_BOARD *pos) {
+// Move a piece from one square to another
+static void MovePiece(const int from, const int to, Position *pos) {
 #ifndef NDEBUG
 	int t_PieceNum = false;
 #endif
@@ -150,7 +150,7 @@ static void MovePiece(const int from, const int to, S_BOARD *pos) {
 }
 
 // Take back the previous move
-void TakeMove(S_BOARD *pos) {
+void TakeMove(Position *pos) {
 
 	assert(CheckBoard(pos));
 
@@ -218,8 +218,8 @@ void TakeMove(S_BOARD *pos) {
 	assert(CheckBoard(pos));
 }
 
-// Make a move, advancing the board to the next state
-int MakeMove(S_BOARD *pos, const int move) {
+// Make a move - take it back and return false if move was illegal
+bool MakeMove(Position *pos, const int move) {
 
 	assert(CheckBoard(pos));
 
@@ -330,7 +330,7 @@ int MakeMove(S_BOARD *pos, const int move) {
 }
 
 // Pass the turn without moving
-void MakeNullMove(S_BOARD *pos) {
+void MakeNullMove(Position *pos) {
 
 	assert(CheckBoard(pos));
 	assert(!SqAttacked(pos->kingSq[pos->side], !pos->side, pos));
@@ -364,7 +364,7 @@ void MakeNullMove(S_BOARD *pos) {
 }
 
 // Take back a null move
-void TakeNullMove(S_BOARD *pos) {
+void TakeNullMove(Position *pos) {
 
 	assert(CheckBoard(pos));
 

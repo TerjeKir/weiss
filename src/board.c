@@ -26,7 +26,7 @@ static void InitDistance() {
 }
 
 // Update material lists to match pos->board
-static void UpdateListsMaterial(S_BOARD *pos) {
+static void UpdateListsMaterial(Position *pos) {
 
 	int piece, color;
 
@@ -63,7 +63,7 @@ static void UpdateListsMaterial(S_BOARD *pos) {
 }
 
 // Update bitboards to match pos->board
-static void UpdateBitboards(S_BOARD *pos) {
+static void UpdateBitboards(Position *pos) {
 
 	// Loop through each square and update bitboards if there's a piece there
 	for (int sq = A1; sq <= H8; ++sq) {
@@ -80,7 +80,7 @@ static void UpdateBitboards(S_BOARD *pos) {
 }
 
 // Resets the board
-static void ResetBoard(S_BOARD *pos) {
+static void ResetBoard(Position *pos) {
 
 	int i, j;
 
@@ -129,7 +129,7 @@ static void ResetBoard(S_BOARD *pos) {
 }
 
 // Parse FEN and set up board in the position described
-int ParseFen(const char *fen, S_BOARD *pos) {
+int ParseFen(const char *fen, Position *pos) {
 
 	assert(fen != NULL);
 	assert(pos != NULL);
@@ -239,7 +239,7 @@ int ParseFen(const char *fen, S_BOARD *pos) {
 }
 
 // Print the board with misc info
-void PrintBoard(const S_BOARD *pos) {
+void PrintBoard(const Position *pos) {
 
 	const char PceChar[]  = ".pnbrqk..PNBRQK";
 	const char SideChar[] = "bw-";
@@ -275,7 +275,7 @@ void PrintBoard(const S_BOARD *pos) {
 
 #ifndef NDEBUG
 // Check board state makes sense
-int CheckBoard(const S_BOARD *pos) {
+bool CheckBoard(const Position *pos) {
 
 	int t_pieceCounts[PIECE_NB] = { 0 };
 	int t_bigPieces[2] = { 0, 0 };
@@ -354,7 +354,7 @@ int CheckBoard(const S_BOARD *pos) {
 
 #ifdef CLI
 // Reverse the colors
-void MirrorBoard(S_BOARD *pos) {
+void MirrorBoard(Position *pos) {
 
 	int SwapPiece[PIECE_NB] = {EMPTY, wP, wN, wB, wR, wQ, wK, EMPTY, EMPTY, bP, bN, bB, bR, bQ, bK, EMPTY};
 	int tempPiecesArray[64];

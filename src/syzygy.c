@@ -8,7 +8,8 @@
 #define TB_PROBE_DEPTH 0
 
 
-unsigned int probeWDL(const S_BOARD *pos, const int depth) {
+// Calls fathom to probe syzygy tablebases - heavily inspired by ethereal
+unsigned int probeWDL(const Position *pos, const int depth) {
 
     assert(CheckBoard(pos));
 
@@ -20,8 +21,8 @@ unsigned int probeWDL(const S_BOARD *pos, const int depth) {
 
     const unsigned int cardinality = PopCount(pos->colorBBs[BOTH]);
 
-    if (    (cardinality > (int)TB_LARGEST)
-        ||  (cardinality == (int)TB_LARGEST && depth < (int)TB_PROBE_DEPTH))
+    if (    (cardinality >  (unsigned)TB_LARGEST)
+        ||  (cardinality == (unsigned)TB_LARGEST && depth < (int)TB_PROBE_DEPTH))
         return TB_RESULT_FAILED;
 
     return tb_probe_wdl(
@@ -33,7 +34,7 @@ unsigned int probeWDL(const S_BOARD *pos, const int depth) {
         pos->pieceBBs[BISHOP],
         pos->pieceBBs[KNIGHT],
         pos->pieceBBs[PAWN],
-        0,                      // If we get here, it should be 0
+        0,
         pos->side);
 }
 #endif

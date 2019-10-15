@@ -17,14 +17,14 @@ typedef struct {
     uint64_t magic;
     int shift;
 #endif
-} MAGIC;
+} Magic;
 
 
 static bitboard bishop_attacks[0x1480];
 static bitboard rook_attacks[0x19000];
 
-static MAGIC mBishopTable[64];
-static MAGIC mRookTable[64];
+static Magic mBishopTable[64];
+static Magic mRookTable[64];
 
 bitboard pawn_attacks[2][64];
 bitboard knight_attacks[64];
@@ -135,9 +135,9 @@ static bitboard MakeSliderAttacks(const int sq, const bitboard occupied, const i
 
 // Inits the magic shit
 #ifdef USE_PEXT
-static void InitSliderAttacks(MAGIC *table, bitboard *attackTable, const int *dir) {
+static void InitSliderAttacks(Magic *table, bitboard *attackTable, const int *dir) {
 #else
-static void InitSliderAttacks(MAGIC *table, bitboard *attackTable, const bitboard *magics, const int *dir) {
+static void InitSliderAttacks(Magic *table, bitboard *attackTable, const bitboard *magics, const int *dir) {
 #endif
     int size, index;
     bitboard edges, occupied;
@@ -173,6 +173,28 @@ static void InitSliderAttacks(MAGIC *table, bitboard *attackTable, const bitboar
     }
 }
 
+// Initializes all attack bitboards
+static void InitAttacks() __attribute__((constructor));
+static void InitAttacks() {
+
+    const int bishopDirections[4] = {7, 9, -7, -9};
+    const int   rookDirections[4] = {8, 1, -8, -1};
+
+    // Simple
+    InitKingAttacks();
+    InitKnightAttacks();
+    InitPawnAttacks();
+
+    // Magic
+#ifdef USE_PEXT
+    InitSliderAttacks(mBishopTable, bishop_attacks, bishopDirections);
+    InitSliderAttacks(  mRookTable,   rook_attacks,   rookDirections);
+#else
+    InitSliderAttacks(mBishopTable, bishop_attacks, BishopMagics, bishopDirections);
+    InitSliderAttacks(  mRookTable,   rook_attacks,   RookMagics,   rookDirections);
+#endif
+}
+
 // Returns the attack bitboard for a slider based on what squares are occupied
 bitboard BishopAttacks(const int sq, bitboard occupied) {
 #ifdef USE_PEXT
@@ -197,30 +219,8 @@ bitboard RookAttacks(const int sq, bitboard occupied) {
 #endif
 }
 
-// Initializes all attack bitboards
-static void InitAttacks() __attribute__((constructor));
-static void InitAttacks() {
-
-    const int bishopDirections[4] = {7, 9, -7, -9};
-    const int   rookDirections[4] = {8, 1, -8, -1};
-
-    // Simple
-    InitKingAttacks();
-    InitKnightAttacks();
-    InitPawnAttacks();
-
-    // Magic
-#ifdef USE_PEXT
-    InitSliderAttacks(mBishopTable, bishop_attacks, bishopDirections);
-    InitSliderAttacks(  mRookTable,   rook_attacks,   rookDirections);
-#else
-    InitSliderAttacks(mBishopTable, bishop_attacks, BishopMagics, bishopDirections);
-    InitSliderAttacks(  mRookTable,   rook_attacks,   RookMagics,   rookDirections);
-#endif
-}
-
 // Returns true if sq is attacked by side
-int SqAttacked(const int sq, const int side, const S_BOARD *pos) {
+bool SqAttacked(const int sq, const int side, const Position *pos) {
 
     assert(ValidSquare(sq));
     assert(ValidSide(side));

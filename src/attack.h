@@ -52,4 +52,4 @@ bitboard pawn_attacks[2][64];
 
 bitboard BishopAttacks(const int sq, bitboard occupied);
 bitboard   RookAttacks(const int sq, bitboard occupied);
-int SqAttacked(const int sq, const int side, const S_BOARD *pos);
+bool SqAttacked(const int sq, const int side, const Position *pos);
