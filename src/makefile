@@ -23,20 +23,20 @@ PGOMAKE	= -fprofile-generate=$(PGODIR)
 PGOUSE  = -fprofile-use=$(PGODIR)
 
 
-basic:	# for openBench
+basic: # for openBench
 	gcc $(CFLAGS) $(SRC) -o $(EXE)
 
-dev: 	# for tests not included in the others
+dev:   # for tests not included in the others
 	gcc $(CFLAGS) $(SRC) $(PEXT) $(CLI)     -o "$(EXE)-dev.exe"
 
-pext: 	# for basic compile
+pext:  # for basic compile
 	gcc $(CFLAGS) $(SRC) $(PEXT)            -o "$(OUT)$(EXE)-pext.exe"
 
-pgo:	# for pgo-compile
-	gcc $(CFLAGS) $(SRC) $(PEXT) $(PGOUSE)  -o "$(OUT)$(EXE)-pext-pgo.exe"
-
-pgomake: # for generating profile data -> pgo
-	gcc $(CFLAGS) $(SRC) $(PEXT) $(PGOMAKE) -o "$(EXE)-pgo-temp.exe"
-
-gprof:	# for gprof profiling
+gprof: # for gprof profiling
 	gcc $(PFLAGS) $(SRC) $(PEXT)            -o "$(OUT)$(EXE)-prof.exe"
+
+pgo:   # profile guided optimization, for windows
+	gcc $(CFLAGS) $(SRC) $(PEXT) $(PGOMAKE) -o "$(EXE)-temp.exe"
+	$(EXE)-temp.exe bench 5
+	gcc $(CFLAGS) $(SRC) $(PEXT) $(PGOUSE)  -o "$(OUT)$(EXE)-pext-pgo.exe"
+	rmdir /s /q "../pgo"
