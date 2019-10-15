@@ -40,3 +40,4 @@ pgo:   # profile guided optimization, for windows
 	$(EXE)-temp.exe bench 5
 	gcc $(CFLAGS) $(SRC) $(PEXT) $(PGOUSE)  -o "$(OUT)$(EXE)-pext-pgo.exe"
 	rmdir /s /q "../pgo"
+	del /f "$(EXE)-temp.exe"
