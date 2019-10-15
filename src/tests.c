@@ -1,7 +1,5 @@
 // tests.c
 
-#ifdef CLI
-
 #include <stdio.h>
 #include <string.h>
 
@@ -49,6 +47,7 @@ void benchmark(int depth, Position *pos, SearchInfo *info) {
 	printf("NPS  : %I64d\n", nodes / ((endTime - startTime) / 1000));
 }
 
+#ifdef CLI
 
 /* Perft */
 static uint64_t leafNodes;
