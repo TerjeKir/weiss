@@ -25,7 +25,7 @@ static void InitDistance() {
         }
 }
 
-// Update the rest of position to match pos->board
+// Update the rest of a position to match pos->board
 static void UpdatePosition(Position *pos) {
 
 	int sq, piece, color;
@@ -334,39 +334,36 @@ bool CheckBoard(const Position *pos) {
 // Reverse the colors
 void MirrorBoard(Position *pos) {
 
+	assert(CheckBoard(pos));
+
 	int SwapPiece[PIECE_NB] = {EMPTY, wP, wN, wB, wR, wQ, wK, EMPTY, EMPTY, bP, bN, bB, bR, bQ, bK, EMPTY};
 	int tempPiecesArray[64];
 	int tempEnPas, tempCastlePerm, tempSide, sq;
 
-	// Side to play
-	tempSide = !pos->side;
+	// Save the necessary position info mirrored
+	for (sq = A1; sq <= H8; ++sq)
+		tempPiecesArray[sq] = SwapPiece[pos->board[mirror[sq]]];
 
-	// Castling rights
+	tempSide  = !pos->side;
+	tempEnPas = pos->enPas == NO_SQ ? NO_SQ : mirror[pos->enPas];
 	tempCastlePerm = 0;
 	if (pos->castlePerm & WKCA) tempCastlePerm |= BKCA;
 	if (pos->castlePerm & WQCA) tempCastlePerm |= BQCA;
 	if (pos->castlePerm & BKCA) tempCastlePerm |= WKCA;
 	if (pos->castlePerm & BQCA) tempCastlePerm |= WQCA;
 
-	// En passant
-	tempEnPas = pos->enPas == NO_SQ ? NO_SQ : mirror[pos->enPas];
-
-	// Save a temporary mirrored board
-	for (sq = A1; sq <= H8; ++sq)
-		tempPiecesArray[sq] = SwapPiece[pos->board[mirror[sq]]];
-
-	// Clear the board
+	// Clear the position
 	ClearPosition(pos);
 
-	// Copy the mirrored board over the old board
+	// Fill in the mirrored position info
 	for (sq = A1; sq <= H8; ++sq)
 		pos->board[sq] = tempPiecesArray[sq];
 
-	pos->side = tempSide;
+	pos->side  = tempSide;
 	pos->enPas = tempEnPas;
 	pos->castlePerm = tempCastlePerm;
 
-	// Update the rest of position to match pos->board
+	// Update the rest of the position to match pos->board
 	UpdatePosition(pos);
 
 	assert(CheckBoard(pos));
