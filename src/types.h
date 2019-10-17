@@ -17,17 +17,20 @@ enum Limit { MAXGAMEMOVES     = 512,
 enum Score { INFINITE = 30000,
 			 ISMATE   = INFINITE - MAXDEPTH };
 
-typedef enum Color { BLACK, WHITE, BOTH } Color;
+typedef enum Color { 
+	BLACK, WHITE, BOTH
+} Color;
 
-// TODO: Have to fix fathom enums before naming these
-enum { NO_TYPE, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING, TYPE_NB = 8 };
+typedef enum PieceType {
+	NO_TYPE, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING, TYPE_NB = 8
+} PieceType;
 
-enum {
+typedef enum Piece {
 	EMPTY, PIECE_MIN,
 	bP = 1, bN, bB, bR, bQ, bK,
-	wP = 9, wN, wB, wR, wQ, wK, 
+	wP = 9, wN, wB, wR, wQ, wK,
 	PIECE_NB = 16
-};
+} Piece;
 
 enum PieceValue {
 	P_VAL =  100,
