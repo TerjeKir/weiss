@@ -130,8 +130,6 @@ static bool MaterialDraw(const Position *pos) {
 // Calculate a static evaluation of a position
 int EvalPosition(const Position *pos) {
 
-	assert(CheckBoard(pos));
-
 #ifdef CHECK_MAT_DRAW
 	if (MaterialDraw(pos)) return 0;
 #endif

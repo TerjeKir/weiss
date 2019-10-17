@@ -27,6 +27,8 @@ int GetPvLine(const int depth, Position *pos) {
 	int move;
 	int count = 0;
 
+	memset(pos->pvArray, 0, sizeof(pos->pvArray));
+
 	do {
 		move = ProbePvMove(pos);
 

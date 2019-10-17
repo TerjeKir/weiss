@@ -15,72 +15,60 @@
 static void InitDistance() __attribute__((constructor));
 static void InitDistance() {
 
-    int vertical, horizontal;
+	int sq1, sq2, vertical, horizontal;
 
-    for (int sq1 = A1; sq1 <= H8; ++sq1)
-        for (int sq2 = A1; sq2 <= H8; ++sq2) {
+    for (sq1 = A1; sq1 <= H8; ++sq1)
+        for (sq2 = A1; sq2 <= H8; ++sq2) {
             vertical   = abs(rankOf(sq1) - rankOf(sq2));
             horizontal = abs(fileOf(sq1) - fileOf(sq2));
             distance[sq1][sq2] = ((vertical > horizontal) ? vertical : horizontal);
         }
 }
 
-// Update material lists to match pos->board
-static void UpdateListsMaterial(Position *pos) {
+// Update the rest of a position to match pos->board
+static void UpdatePosition(Position *pos) {
 
-	int piece, color;
+	int sq, piece, color;
+
+	// Generate the position key
+	pos->posKey = GeneratePosKey(pos);
 
 	// Loop through each square on the board
-	for (int sq = A1; sq <= H8; ++sq) {
+	for (sq = A1; sq <= H8; ++sq) {
 
 		piece = pos->board[sq];
-		assert(ValidPieceOrEmpty(piece));
 
 		// If it isn't empty we update the relevant lists
 		if (piece != EMPTY) {
 
 			color = colorOf(piece);
-			assert(ValidSide(color));
 
-			// Non pawn piece
+			// Bitboards
+			SETBIT(pos->colorBBs[BOTH], sq);
+			SETBIT(pos->colorBBs[colorOf(piece)], sq);
+			SETBIT(pos->pieceBBs[pieceTypeOf(piece)], sq);
+
+			// Non pawn piece count
 			if (pieceBig[piece])
 				pos->bigPieces[color]++;
 
-			// Update material score
+			// Material score
 			pos->material += PSQT[piece][sq];
-
-			assert(pos->pieceCounts[piece] < 10 && pos->pieceCounts[piece] >= 0);
 
 			// Piece list / count
 			pos->pieceList[piece][pos->pieceCounts[piece]] = sq;
 			pos->pieceCounts[piece]++;
 
 			// King square
-			if      (piece == wK) pos->kingSq[WHITE] = sq;
-			else if (piece == bK) pos->kingSq[BLACK] = sq;
+			if (piece == wK) pos->kingSq[WHITE] = sq;
+			if (piece == bK) pos->kingSq[BLACK] = sq;
 		}
 	}
+	assert(CheckBoard(pos));
 }
 
-// Update bitboards to match pos->board
-static void UpdateBitboards(Position *pos) {
-
-	// Loop through each square and update bitboards if there's a piece there
-	for (int sq = A1; sq <= H8; ++sq) {
-
-		int piece = pos->board[sq];
-		assert(ValidPieceOrEmpty(piece));
-
-		if (piece != EMPTY) {
-			SETBIT(pos->colorBBs[BOTH], sq);
-			SETBIT(pos->colorBBs[colorOf(piece)], sq);
-			SETBIT(pos->pieceBBs[pieceTypeOf(piece)], sq);
-		}
-	}
-}
-
-// Resets the board
-static void ResetBoard(Position *pos) {
+// Clears the board
+static void ClearPosition(Position *pos) {
 
 	int i, j;
 
@@ -109,10 +97,8 @@ static void ResetBoard(Position *pos) {
 	for (i = BLACK; i <= WHITE; ++i)
 		pos->bigPieces[i] = 0;
 
-	// Material
-	pos->material = 0;
-
 	// Misc
+	pos->material = 0;
 	pos->side = BOTH;
 	pos->enPas = NO_SQ;
 	pos->fiftyMove = 0;
@@ -124,21 +110,18 @@ static void ResetBoard(Position *pos) {
 
 	// Position key
 	pos->posKey = 0ULL;
-
-	memset(pos->pvArray, 0, sizeof(pos->pvArray)); // TODO does this make sense???
 }
 
-// Parse FEN and set up board in the position described
-int ParseFen(const char *fen, Position *pos) {
+// Parse FEN and set up the position as described
+void ParseFen(const char *fen, Position *pos) {
 
 	assert(fen != NULL);
-	assert(pos != NULL);
 
 	int rank = RANK_8;
 	int file = FILE_A;
 	int piece, count, i, sq;
 
-	ResetBoard(pos);
+	ClearPosition(pos);
 
 	// Piece locations
 	while ((rank >= RANK_1) && *fen) {
@@ -177,9 +160,9 @@ int ParseFen(const char *fen, Position *pos) {
 				continue;
 
 			default:
-				printf("FEN error \n");
+				printf("FEN error!\n");
 				fflush(stdout);
-				return -1;
+				return;
 		}
 
 		for (i = 0; i < count; ++i) {
@@ -194,7 +177,6 @@ int ParseFen(const char *fen, Position *pos) {
 
 	// Side to move
 	assert(*fen == 'w' || *fen == 'b');
-
 	pos->side = (*fen == 'w') ? WHITE : BLACK;
 	fen += 2;
 
@@ -228,14 +210,10 @@ int ParseFen(const char *fen, Position *pos) {
 		pos->enPas = (8 * rank) + file;
 	}
 
-	// Generate position Key
-	pos->posKey = GeneratePosKey(pos);
+	// Update the rest of position to match pos->board
+	UpdatePosition(pos);
 
-	// Update lists and bitboards
-	UpdateListsMaterial(pos);
-	UpdateBitboards(pos);
-
-	return 0;
+	assert(CheckBoard(pos));
 }
 
 // Print the board with misc info
@@ -356,44 +334,37 @@ bool CheckBoard(const Position *pos) {
 // Reverse the colors
 void MirrorBoard(Position *pos) {
 
+	assert(CheckBoard(pos));
+
 	int SwapPiece[PIECE_NB] = {EMPTY, wP, wN, wB, wR, wQ, wK, EMPTY, EMPTY, bP, bN, bB, bR, bQ, bK, EMPTY};
 	int tempPiecesArray[64];
-	int tempEnPas, sq;
+	int tempEnPas, tempCastlePerm, tempSide, sq;
 
-	// Side to play
-	int tempSide = !pos->side;
+	// Save the necessary position info mirrored
+	for (sq = A1; sq <= H8; ++sq)
+		tempPiecesArray[sq] = SwapPiece[pos->board[mirror[sq]]];
 
-	// Castling rights
-	int tempCastlePerm = 0;
+	tempSide  = !pos->side;
+	tempEnPas = pos->enPas == NO_SQ ? NO_SQ : mirror[pos->enPas];
+	tempCastlePerm = 0;
 	if (pos->castlePerm & WKCA) tempCastlePerm |= BKCA;
 	if (pos->castlePerm & WQCA) tempCastlePerm |= BQCA;
 	if (pos->castlePerm & BKCA) tempCastlePerm |= WKCA;
 	if (pos->castlePerm & BQCA) tempCastlePerm |= WQCA;
 
-	// En passant
-	tempEnPas = pos->enPas == NO_SQ ? NO_SQ : mirror[pos->enPas];
+	// Clear the position
+	ClearPosition(pos);
 
-	// Save a temporary mirrored board
-	for (sq = A1; sq <= H8; ++sq)
-		tempPiecesArray[sq] = SwapPiece[pos->board[mirror[sq]]];
-
-	// Clear the board
-	ResetBoard(pos);
-
-	// Copy the mirrored board over the old board
+	// Fill in the mirrored position info
 	for (sq = A1; sq <= H8; ++sq)
 		pos->board[sq] = tempPiecesArray[sq];
 
-	pos->side = tempSide;
+	pos->side  = tempSide;
 	pos->enPas = tempEnPas;
 	pos->castlePerm = tempCastlePerm;
 
-	// Update lists and bitboards based on array rep
-	UpdateListsMaterial(pos);
-	UpdateBitboards(pos);
-
-	// Generate new position key
-	pos->posKey = GeneratePosKey(pos);
+	// Update the rest of the position to match pos->board
+	UpdatePosition(pos);
 
 	assert(CheckBoard(pos));
 }

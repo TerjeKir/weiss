@@ -8,7 +8,7 @@
 #include <assert.h>
 
 
-/* Probes syzygy tablebases through fathom. */
+/* Probes syzygy tablebases through fathom. Currently buggy */
 // #define USE_TBS
 
 /* Check for material draw in eval - should use unless using TBs + adjudication. */

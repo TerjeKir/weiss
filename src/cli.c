@@ -10,7 +10,6 @@
 #include "bitboards.h"
 #include "board.h"
 #include "evaluate.h"
-#include "io.h"
 #include "makemove.h"
 #include "move.h"
 #include "movegen.h"

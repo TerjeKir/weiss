@@ -195,7 +195,7 @@ static void InitAttacks() {
 #endif
 }
 
-// Returns the attack bitboard for a slider based on what squares are occupied
+// Returns the attack bitboard for a bishop based on what squares are occupied
 bitboard BishopAttacks(const int sq, bitboard occupied) {
 #ifdef USE_PEXT
     return mBishopTable[sq].attacks[_pext_u64(occupied, mBishopTable[sq].mask)];
@@ -207,7 +207,7 @@ bitboard BishopAttacks(const int sq, bitboard occupied) {
 #endif
 }
 
-// Returns the attack bitboard for a slider based on what squares are occupied
+// Returns the attack bitboard for a rook based on what squares are occupied
 bitboard RookAttacks(const int sq, bitboard occupied) {
 #ifdef USE_PEXT
     return mRookTable[sq].attacks[_pext_u64(occupied, mRookTable[sq].mask)];
@@ -226,8 +226,8 @@ bool SqAttacked(const int sq, const int side, const Position *pos) {
     assert(ValidSide(side));
     assert(CheckBoard(pos));
 
-    const bitboard bishops   = pos->colorBBs[side] & (pos->pieceBBs[BISHOP] | pos->pieceBBs[QUEEN]);
-    const bitboard rooks     = pos->colorBBs[side] & (pos->pieceBBs[  ROOK] | pos->pieceBBs[QUEEN]);
+    const bitboard bishops = pos->colorBBs[side] & (pos->pieceBBs[BISHOP] | pos->pieceBBs[QUEEN]);
+    const bitboard rooks   = pos->colorBBs[side] & (pos->pieceBBs[  ROOK] | pos->pieceBBs[QUEEN]);
 
     if (     pawn_attacks[!side][sq] & pos->pieceBBs[PAWN]   & pos->colorBBs[side]
         || knight_attacks[sq]        & pos->pieceBBs[KNIGHT] & pos->colorBBs[side]
