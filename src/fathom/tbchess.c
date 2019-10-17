@@ -21,14 +21,15 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-// LoliEDIT: Moved here, renamed TB_ to avoid clashing with my own
-// Note: WHITE, BLACK values are reverse of Stockfish
-// typedef enum Color { BLACK, WHITE } Color;
-typedef enum PieceType { TB_PAWN=1, TB_KNIGHT, TB_BISHOP, TB_ROOK, TB_QUEEN, TB_KING } PieceType;
-typedef enum Piece {
-  W_PAWN = 1, W_KNIGHT, W_BISHOP, W_ROOK, W_QUEEN, W_KING,
-  B_PAWN = 9, B_KNIGHT, B_BISHOP, B_ROOK, B_QUEEN, B_KING
-} Piece;
+#include "../types.h"
+#include "tbprobe.h"
+
+#define TB_PAWN 1
+#define TB_KNIGHT 2
+#define TB_BISHOP 3
+#define TB_ROOK 4
+#define TB_QUEEN 5
+#define TB_KING 6
 
 #define TB_WPAWN TB_PAWN
 #define TB_BPAWN (TB_PAWN | 8)
@@ -137,15 +138,8 @@ static PieceType char_to_piece_type(char c) {
 #define knight_attacks(s)       TB_KNIGHT_ATTACKS(s)
 #define bishop_attacks(s, occ)  TB_BISHOP_ATTACKS(s, occ)
 #define rook_attacks(s, occ)    TB_ROOK_ATTACKS(s, occ)
-
-#ifdef TB_QUEEN_ATTACKS
-#define queen_attacks(s, occ)   TB_QUEEN_ATTACKS(s, occ)
-#else       /* TB_QUEEN_ATTACKS */
 #define queen_attacks(s, occ)   \
     (rook_attacks((s), (occ)) | bishop_attacks((s), (occ)))
-#endif      /* TB_QUEEN_ATTACKS */
-
-
 
 
 /*
@@ -232,7 +226,6 @@ static inline int type_of_piece_moved(Pos *pos, TbMove move) {
 #define MOVE_STALEMATE          0xFFFF
 #define MOVE_CHECKMATE          0xFFFE
 
-#if 0
 static TbMove *add_move(TbMove *moves, bool promotes, unsigned from,
     unsigned to)
 {
@@ -492,6 +485,7 @@ static bool is_check(const Pos *pos)
 /*
  * Test if the position is valid.
  */
+#if 0
 static bool is_valid(const Pos *pos)
 {
     if (popcount(pos->kings) != 2)
@@ -540,6 +534,7 @@ static bool is_valid(const Pos *pos)
         return false;
     return is_legal(pos);
 }
+#endif
 
 #define do_bb_move(b, from, to)                                         \
     (((b) & (~board(to)) & (~board(from))) |                            \
@@ -611,6 +606,7 @@ static bool legal_move(const Pos *pos, TbMove move) {
 /*
  * Test if the king is in checkmate.
  */
+#if 0
 static bool is_mate(const Pos *pos)
 {
     if (!is_check(pos))

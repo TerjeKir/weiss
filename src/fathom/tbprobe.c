@@ -30,6 +30,10 @@ SOFTWARE.
 
 #include "tbprobe.h"
 
+enum {
+  W_PAWN = 1, W_KNIGHT, W_BISHOP, W_ROOK, W_QUEEN, W_KING,
+  B_PAWN = 9, B_KNIGHT, B_BISHOP, B_ROOK, B_QUEEN, B_KING
+};
 
 #define TB_PIECES 7
 #define TB_HASHBITS  (TB_PIECES < 7 ?  11 : 12)
@@ -1639,123 +1643,122 @@ inline static int fill_squares(const Pos *pos, uint8_t *pc, bool flip, int mirro
 }
 
 int probe_table(const Pos *pos, int s, int *success, const int type) {
-    // Obtain the position's material-signature key
-    uint64_t key = calc_key(pos,false);
+  // Obtain the position's material-signature key
+  uint64_t key = calc_key(pos,false);
 
-    // LoliEDIT: Won't call in KvK
-    // Test for KvK
-    // Note: Cfish has key == 2ULL for KvK but we have 0  
-    //   if (type == WDL && key == 0ULL) 
-    //     return 0;
+  // Test for KvK
+  // Note: Cfish has key == 2ULL for KvK but we have 0
+  if (type == WDL && key == 0ULL)
+    return 0;
 
-    int hashIdx = key >> (64 - TB_HASHBITS);
-    while (tbHash[hashIdx].key && tbHash[hashIdx].key != key)
-        hashIdx = (hashIdx + 1) & ((1 << TB_HASHBITS) - 1);
-    if (!tbHash[hashIdx].ptr) {
+  int hashIdx = key >> (64 - TB_HASHBITS);
+  while (tbHash[hashIdx].key && tbHash[hashIdx].key != key)
+    hashIdx = (hashIdx + 1) & ((1 << TB_HASHBITS) - 1);
+  if (!tbHash[hashIdx].ptr) {
+    *success = 0;
+    return 0;
+  }
+
+  struct BaseEntry *be = tbHash[hashIdx].ptr;
+  if ((type == DTM && !be->hasDtm) || (type == DTZ && !be->hasDtz)) {
+    *success = 0;
+    return 0;
+  }
+
+  // Use double-checked locking to reduce locking overhead
+  if (!atomic_load_explicit(&be->ready[type], memory_order_acquire)) {
+    LOCK(tbMutex);
+    if (!atomic_load_explicit(&be->ready[type], memory_order_relaxed)) {
+      char str[16];
+      prt_str(pos, str, be->key != key);
+      if (!init_table(be, str, type)) {
+        tbHash[hashIdx].ptr = NULL; // mark as deleted
         *success = 0;
-        return 0;
-    }
-
-    struct BaseEntry *be = tbHash[hashIdx].ptr;
-    if ((type == DTM && !be->hasDtm) || (type == DTZ && !be->hasDtz)) {
-        *success = 0;
-        return 0;
-    }
-
-    // Use double-checked locking to reduce locking overhead
-    if (!atomic_load_explicit(&be->ready[type], memory_order_acquire)) {
-        LOCK(tbMutex);
-        if (!atomic_load_explicit(&be->ready[type], memory_order_relaxed)) {
-            char str[16];
-            prt_str(pos, str, be->key != key);
-            if (!init_table(be, str, type)) {
-                tbHash[hashIdx].ptr = NULL; // mark as deleted
-                *success = 0;
-                UNLOCK(tbMutex);
-                return 0;
-            }
-            atomic_store_explicit(&be->ready[type], true, memory_order_release);
-        }
         UNLOCK(tbMutex);
+        return 0;
+      }
+      atomic_store_explicit(&be->ready[type], true, memory_order_release);
     }
+    UNLOCK(tbMutex);
+  }
 
-    bool bside, flip;
-    if (!be->symmetric) {
-        flip = key != be->key;
-        bside = (pos->turn == WHITE) == flip;
-        if (type == DTM && be->hasPawns && PAWN(be)->dtmSwitched) {
-            flip = !flip;
-            bside = !bside;
-        }
-    } else {
-        flip = pos->turn != WHITE;
-        bside = false;
+  bool bside, flip;
+  if (!be->symmetric) {
+    flip = key != be->key;
+    bside = (pos->turn == WHITE) == flip;
+    if (type == DTM && be->hasPawns && PAWN(be)->dtmSwitched) {
+      flip = !flip;
+      bside = !bside;
     }
+  } else {
+    flip = pos->turn != WHITE;
+    bside = false;
+  }
 
-    struct EncInfo *ei = first_ei(be, type);
-    int p[TB_PIECES];
-    size_t idx;
-    int t = 0;
-    uint8_t flags = 0; // initialize to fix GCC warning
+  struct EncInfo *ei = first_ei(be, type);
+  int p[TB_PIECES];
+  size_t idx;
+  int t = 0;
+  uint8_t flags = 0; // initialize to fix GCC warning
 
-    if (!be->hasPawns) {
-        if (type == DTZ) {
-            flags = PIECE(be)->dtzFlags;
-            if ((flags & 1) != bside && !be->symmetric) {
-                *success = -1;
-                return 0;
-            }
-        }
-        ei = type != DTZ ? &ei[bside] : ei;
-        for (int i = 0; i < be->num;)
-            i = fill_squares(pos, ei->pieces, flip, 0, p, i);
-        idx = encode_piece(p, ei, be);
-    } else {
-        int i = fill_squares(pos, ei->pieces, flip, flip ? 0x38 : 0, p, 0);
-        t = leading_pawn(p, be, type != DTM ? FILE_ENC : RANK_ENC);
-        if (type == DTZ) {
-            flags = PAWN(be)->dtzFlags[t];
-            if ((flags & 1) != bside && !be->symmetric) {
-                *success = -1;
-                return 0;
-            }
-        }
-        ei =  type == WDL ? &ei[t + 4 * bside]
-            : type == DTM ? &ei[t + 6 * bside] : &ei[t];
-        while (i < be->num)
-            i = fill_squares(pos, ei->pieces, flip, flip ? 0x38 : 0, p, i);
-        idx = type != DTM ? encode_pawn_f(p, ei, be) : encode_pawn_r(p, ei, be);
+  if (!be->hasPawns) {
+    if (type == DTZ) {
+      flags = PIECE(be)->dtzFlags;
+      if ((flags & 1) != bside && !be->symmetric) {
+        *success = -1;
+        return 0;
+      }
     }
-
-    uint8_t *w = decompress_pairs(ei->precomp, idx);
-
-    if (type == WDL)
-        return (int)w[0] - 2;
-
-    int v = w[0] + ((w[1] & 0x0f) << 8);
-
-    if (type == DTM) {
-        if (!be->dtmLossOnly)
-            v = (int)from_le_u16(be->hasPawns
-                        ? PAWN(be)->dtmMap[PAWN(be)->dtmMapIdx[t][bside][s] + v]
-                            : PIECE(be)->dtmMap[PIECE(be)->dtmMapIdx[bside][s] + v]);
-    } else {
-        if (flags & 2) {
-            int m = WdlToMap[s + 2];
-            if (!(flags & 16))
-                v =  be->hasPawns
-                ? ((uint8_t *)PAWN(be)->dtzMap)[PAWN(be)->dtzMapIdx[t][m] + v]
-                : ((uint8_t *)PIECE(be)->dtzMap)[PIECE(be)->dtzMapIdx[m] + v];
-            else
-                v = (int)from_le_u16(be->hasPawns
-                                ? ((uint16_t *)PAWN(be)->dtzMap)[PAWN(be)->dtzMapIdx[t][m] + v]
-                                : ((uint16_t *)PIECE(be)->dtzMap)[PIECE(be)->dtzMapIdx[m] + v]);
-        }
-        if (!(flags & PAFlags[s + 2]) || (s & 1))
-            v *= 2;
+    ei = type != DTZ ? &ei[bside] : ei;
+    for (int i = 0; i < be->num;)
+      i = fill_squares(pos, ei->pieces, flip, 0, p, i);
+    idx = encode_piece(p, ei, be);
+  } else {
+    int i = fill_squares(pos, ei->pieces, flip, flip ? 0x38 : 0, p, 0);
+    t = leading_pawn(p, be, type != DTM ? FILE_ENC : RANK_ENC);
+    if (type == DTZ) {
+      flags = PAWN(be)->dtzFlags[t];
+      if ((flags & 1) != bside && !be->symmetric) {
+        *success = -1;
+        return 0;
+      }
     }
+    ei =  type == WDL ? &ei[t + 4 * bside]
+        : type == DTM ? &ei[t + 6 * bside] : &ei[t];
+    while (i < be->num)
+      i = fill_squares(pos, ei->pieces, flip, flip ? 0x38 : 0, p, i);
+    idx = type != DTM ? encode_pawn_f(p, ei, be) : encode_pawn_r(p, ei, be);
+  }
 
-    return v;
+  uint8_t *w = decompress_pairs(ei->precomp, idx);
+
+  if (type == WDL)
+    return (int)w[0] - 2;
+
+  int v = w[0] + ((w[1] & 0x0f) << 8);
+
+  if (type == DTM) {
+    if (!be->dtmLossOnly)
+      v = (int)from_le_u16(be->hasPawns
+                       ? PAWN(be)->dtmMap[PAWN(be)->dtmMapIdx[t][bside][s] + v]
+                        : PIECE(be)->dtmMap[PIECE(be)->dtmMapIdx[bside][s] + v]);
+  } else {
+    if (flags & 2) {
+      int m = WdlToMap[s + 2];
+      if (!(flags & 16))
+        v =  be->hasPawns
+           ? ((uint8_t *)PAWN(be)->dtzMap)[PAWN(be)->dtzMapIdx[t][m] + v]
+           : ((uint8_t *)PIECE(be)->dtzMap)[PIECE(be)->dtzMapIdx[m] + v];
+      else
+        v = (int)from_le_u16(be->hasPawns
+                         ? ((uint16_t *)PAWN(be)->dtzMap)[PAWN(be)->dtzMapIdx[t][m] + v]
+                          : ((uint16_t *)PIECE(be)->dtzMap)[PIECE(be)->dtzMapIdx[m] + v]);
+    }
+    if (!(flags & PAFlags[s + 2]) || (s & 1))
+      v *= 2;
+  }
+
+  return v;
 }
 
 static int probe_wdl_table(const Pos *pos, int *success)
@@ -1773,6 +1776,7 @@ static int probe_dtz_table(const Pos *pos, int wdl, int *success)
 {
   return probe_table(pos, wdl, success, DTZ);
 }
+#endif
 
 // probe_ab() is not called for positions with en passant captures.
 static int probe_ab(const Pos *pos, int alpha, int beta, int *success)
@@ -1804,7 +1808,6 @@ static int probe_ab(const Pos *pos, int alpha, int beta, int *success)
 
   return alpha >= v ? alpha : v;
 }
-#endif
 
 // Probe the WDL table for a particular position.
 //
@@ -1825,7 +1828,6 @@ int probe_wdl(Pos *pos, int *success)
 {
   *success = 1;
 
-#if 0
   // Generate (at least) all legal captures including (under)promotions.
   TbMove moves0[TB_MAX_CAPTURES];
   TbMove *m = moves0;
@@ -1840,28 +1842,26 @@ int probe_wdl(Pos *pos, int *success)
     Pos pos1;
     TbMove move = *m;
     if (!is_capture(pos, move))
-        continue;
+      continue;
     if (!do_move(&pos1, pos, move))
-        continue; // illegal move
+      continue; // illegal move
     int v = -probe_ab(&pos1, -2, -bestCap, success);
     if (*success == 0) return 0;
     if (v > bestCap) {
-        if (v == 2) {
-            *success = 2;
-            return 2;
-        }
-        if (!is_en_passant(pos,move))
-            bestCap = v;
-        else if (v > bestEp)
-            bestEp = v;
+      if (v == 2) {
+        *success = 2;
+        return 2;
+      }
+      if (!is_en_passant(pos,move))
+        bestCap = v;
+      else if (v > bestEp)
+        bestEp = v;
     }
   }
-#endif
 
   int v = probe_wdl_table(pos, success);
   if (*success == 0) return 0;
 
-#if 0
   // Now max(v, bestCap) is the WDL value of the position without ep rights.
   // If the position without ep rights is not stalemate or no ep captures
   // exist, then the value of the position is max(v, bestCap, bestEp).
@@ -1902,7 +1902,6 @@ int probe_wdl(Pos *pos, int *success)
     }
   }
   // Stalemate / en passant not an issue, so v is the correct value.
-#endif
 
   return v;
 }
