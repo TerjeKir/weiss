@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include "types.h"
+
 /* Move contents - total 23bits used
 0000 0000 0000 0000 0011 1111 -> From              0x3F
 0000 0000 0000 1111 1100 0000 -> To        >> 6    0x3F
@@ -30,3 +32,10 @@
 
 // Move either has enpas flag or a captured piece
 #define MOVE_IS_CAPTURE 0x10F000
+
+
+char *MoveToStr(const int move);
+int ParseMove(const char *ptrChar, Position *pos);
+#ifdef CLI
+int ParseEPDMove(const char *ptrChar, Position *pos);
+#endif

@@ -8,7 +8,6 @@
 #include "fathom/tbprobe.h"
 #include "board.h"
 #include "cli.h"
-#include "io.h"
 #include "makemove.h"
 #include "misc.h"
 #include "move.h"

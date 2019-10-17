@@ -6,7 +6,6 @@
 #include "board.h"
 #include "data.h"
 #include "evaluate.h"
-#include "io.h"
 #include "makemove.h"
 #include "misc.h"
 #include "move.h"

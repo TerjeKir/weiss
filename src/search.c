@@ -8,7 +8,6 @@
 #include "attack.h"
 #include "board.h"
 #include "evaluate.h"
-#include "io.h"
 #include "makemove.h"
 #include "misc.h"
 #include "move.h"
