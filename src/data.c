@@ -3,16 +3,12 @@
 #include "types.h"
 
 
-//                                  EMPTY,    bP,    bN,    bB,    bR,    bQ,    bK, EMPTY, EMPTY,    wP,    wN,    wB,    wR,    wQ,    wK, EMPTY
-const int pieceBig   [PIECE_NB] = { false, false,  true,  true,  true,  true, false, false, false, false,  true,  true,  true,  true, false, false };
-const int pieceValue [PIECE_NB] = {     0, P_VAL, N_VAL, B_VAL, R_VAL, Q_VAL,     0,     0,     0, P_VAL, N_VAL, B_VAL, R_VAL, Q_VAL,     0,     0 };
+//                                 EMPTY,    bP,    bN,    bB,    bR,    bQ,    bK, EMPTY, EMPTY,    wP,    wN,    wB,    wR,    wQ,    wK, EMPTY
+const int pieceBig  [PIECE_NB] = { false, false,  true,  true,  true,  true, false, false, false, false,  true,  true,  true,  true, false, false };
+const int pieceValue[PIECE_NB] = {     0, P_VAL, N_VAL, B_VAL, R_VAL, Q_VAL,     0,     0,     0, P_VAL, N_VAL, B_VAL, R_VAL, Q_VAL,     0,     0 };
 
-const int piecePawn  [PIECE_NB] = { false,  true, false, false, false, false, false, false, false,  true, false, false, false, false, false, false };
-const int pieceKnight[PIECE_NB] = { false, false,  true, false, false, false, false, false, false, false,  true, false, false, false, false, false };
-const int pieceBishop[PIECE_NB] = { false, false, false,  true, false, false, false, false, false, false, false,  true, false, false, false, false };
-const int pieceRook  [PIECE_NB] = { false, false, false, false,  true, false, false, false, false, false, false, false,  true, false, false, false };
-const int pieceQueen [PIECE_NB] = { false, false, false, false, false,  true, false, false, false, false, false, false, false,  true, false, false };
-const int pieceKing  [PIECE_NB] = { false, false, false, false, false, false,  true, false, false, false, false, false, false, false,  true, false };
+const int piecePawn [PIECE_NB] = { false,  true, false, false, false, false, false, false, false,  true, false, false, false, false, false, false };
+const int pieceKing [PIECE_NB] = { false, false, false, false, false, false,  true, false, false, false, false, false, false, false,  true, false };
 
 const int mirror[64] = {
 	56, 57, 58, 59, 60, 61, 62, 63,
