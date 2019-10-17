@@ -298,8 +298,8 @@ static int AlphaBeta(int alpha, const int beta, int depth, Position *pos, Search
 
 		info->tbhits++;
 
-		int val = tbresult == TB_LOSS ? -INFINITE + pos->ply + 1
-				: tbresult == TB_WIN  ?  INFINITE - pos->ply - 1
+		int val = tbresult == TB_LOSS ? -INFINITE + MAXDEPTH + pos->ply + 1
+				: tbresult == TB_WIN  ?  INFINITE - MAXDEPTH - pos->ply - 1
 									  :  0;
 
         int flag = tbresult == TB_LOSS ? BOUND_UPPER
