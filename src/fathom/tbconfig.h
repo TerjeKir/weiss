@@ -116,18 +116,10 @@
  * Define TB_BISHOP_ATTACKS(square, occ) to return the bishop attacks bitboard
  * for a bishop at `square' assuming the given `occ' occupancy bitboard.
  */
-#define TB_BISHOP_ATTACKS(square, occ) SliderAttacks(square, occ, mBishopTable)
+#define TB_BISHOP_ATTACKS(square, occ) BishopAttacks(square, occ)
 
 /*
  * Define TB_ROOK_ATTACKS(square, occ) to return the rook attacks bitboard
  * for a rook at `square' assuming the given `occ' occupancy bitboard.
  */
-#define TB_ROOK_ATTACKS(square, occ) SliderAttacks(square, occ, mRookTable)
-
-/*
- * Define TB_QUEEN_ATTACKS(square, occ) to return the queen attacks bitboard
- * for a queen at `square' assuming the given `occ' occupancy bitboard.
- * NOTE: If no definition is provided then tbprobe will use:
- *       TB_ROOK_ATTACKS(square, occ) | TB_BISHOP_ATTACKS(square, occ)
- */
-/* #define TB_QUEEN_ATTACKS(square, occ)    <DEFINITION> */
+#define TB_ROOK_ATTACKS(square, occ) RookAttacks(square, occ)
