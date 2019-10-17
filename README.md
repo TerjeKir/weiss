@@ -1,7 +1,7 @@
 # weiss
 Chess engine built with VICE by Bluefever as a base
 
-If you are interested in getting into chess programming, watch his awesome video tutorial on youtube\
+If you are interested in getting into chess programming, check out his video tutorials on youtube\
 https://www.youtube.com/playlist?list=PLZ1QII7yudbc-Ky058TEaOstZHVbT-2hg
 
 
