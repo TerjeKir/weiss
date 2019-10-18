@@ -7,7 +7,7 @@
 
 void benchmark(int depth, Position *pos, SearchInfo *info);
 
-#ifdef CLI
+#ifdef DEV
 void Perft(const int depth, Position *pos);
 void MirrorEvalTest(Position *pos);
 void MateInXTest(Position *pos);

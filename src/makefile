@@ -6,7 +6,7 @@ SRC    = *.c fathom/tbprobe.c
 OUT	   = ../bin/
 
 # Defines
-CLI    = -DCLI
+DEV    = -DDEV
 PEXT   = -DUSE_PEXT -mbmi2
 
 # Flags
@@ -28,7 +28,7 @@ basic: # for openBench
 	gcc $(CFLAGS) $(SRC) -o $(EXE)
 
 dev:   # for tests not included in the others
-	gcc $(CFLAGS) $(SRC) $(PEXT) $(CLI)    -o "$(EXE)-dev.exe"
+	gcc $(CFLAGS) $(SRC) $(PEXT) $(DEV)    -o "$(EXE)-dev.exe"
 
 pext:  # for basic compile
 	gcc $(CFLAGS) $(SRC) $(PEXT)           -o "$(OUT)$(EXE)-pext.exe"
