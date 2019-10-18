@@ -11,7 +11,7 @@ PEXT   = -DUSE_PEXT -mbmi2
 
 # Flags
 STD    = -std=gnu11
-LIBS   = -lpthread
+LIBS   = -pthread
 WARN   = -Wall -Wextra -Wshadow
 OPTIM  = -O3 -march=native -flto -funroll-loops
 
