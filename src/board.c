@@ -247,7 +247,7 @@ void PrintBoard(const Position *pos) {
 		   pos->castlePerm & WQCA ? 'Q' : '-',
 		   pos->castlePerm & BKCA ? 'k' : '-',
 		   pos->castlePerm & BQCA ? 'q' : '-');
-	printf("PosKey: %I64u\n", pos->posKey);
+	printf("PosKey: %" PRIu64 "\n", pos->posKey);
 	fflush(stdout);
 }
 

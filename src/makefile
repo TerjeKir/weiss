@@ -11,11 +11,12 @@ PEXT   = -DUSE_PEXT -mbmi2
 
 # Flags
 STD    = -std=gnu11
+LIBS   = -pthread
 WARN   = -Wall -Wextra -Wshadow
 OPTIM  = -O3 -march=native -flto -funroll-loops
 
-CFLAGS = $(STD) $(WARN) $(OPTIM)
-PFLAGS = $(STD) $(WARN) -O0 -march=native -pg -p
+CFLAGS = $(STD) $(WARN) $(LIBS) $(OPTIM)
+PFLAGS = $(STD) $(WARN) $(LIBS) -O0 -march=native -pg -p
 
 # PGO
 PGODIR = "../pgo"

@@ -42,8 +42,8 @@ void benchmark(int depth, Position *pos, SearchInfo *info) {
 
 	printf("Benchmark complete:\n");
 	printf("Time : %dms\n", endTime - startTime);
-	printf("Nodes: %I64d\n", nodes);
-	printf("NPS  : %I64d\n", nodes / ((endTime - startTime) / 1000));
+	printf("Nodes: %" PRId64 "\n", nodes);
+	printf("NPS  : %" PRId64 "\n", nodes / ((endTime - startTime) / 1000));
 }
 
 #ifdef CLI
@@ -102,16 +102,16 @@ void Perft(const int depth, Position *pos) {
 		uint64_t oldCount = leafNodes;
 		RecursivePerft(depth - 1, pos);
 		uint64_t newNodes = leafNodes - oldCount;
-		printf("move %d : %s : %I64d\n", MoveNum + 1, MoveToStr(move), newNodes);
+		printf("move %d : %s : %" PRId64 "\n", MoveNum + 1, MoveToStr(move), newNodes);
 		fflush(stdout);
 
 		TakeMove(pos);
 	}
 
 	const int timeElapsed = GetTimeMs() - start;
-	printf("\nPerft Complete : %I64d nodes visited in %dms\n", leafNodes, timeElapsed);
+	printf("\nPerft Complete : %" PRId64 " nodes visited in %dms\n", leafNodes, timeElapsed);
 	if (timeElapsed > 0) 
-		printf("               : %I64d nps\n", ((leafNodes * 1000) / timeElapsed));
+		printf("               : %" PRId64 " nps\n", ((leafNodes * 1000) / timeElapsed));
 	fflush(stdout);
 
 	return;
