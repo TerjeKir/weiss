@@ -107,12 +107,12 @@ static void PrintThinking(const SearchInfo *info, Position *pos, const int bestS
 		printf("cp %d ", bestScore);
 
 	// Basic info
-	printf("depth %d seldepth %d nodes %I64d tbhits %I64d time %d ",
+	printf("depth %d seldepth %d nodes %" PRId64 " tbhits %" PRId64 " time %d ",
 			currentDepth, info->seldepth, info->nodes, info->tbhits, timeElapsed);
 
 	// Nodes per second
 	if (timeElapsed > 0)
-		printf("nps %I64d ", ((info->nodes * 1000) / timeElapsed));
+		printf("nps %" PRId64 " ", ((info->nodes * 1000) / timeElapsed));
 
 	// Hashfull
 	if (info->nodes > (uint64_t)currentDepth)

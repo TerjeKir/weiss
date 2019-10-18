@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include <inttypes.h>
 #include <stdint.h>
 #include <stdbool.h>
 
