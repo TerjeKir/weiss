@@ -155,7 +155,8 @@ static inline bool GetInput(char *line) {
 
 	memset(line, 0, INPUT_SIZE);
 
-	fgets(line, INPUT_SIZE, stdin);
+	if (fgets(line, INPUT_SIZE, stdin) == NULL)
+		return false;
 
 	return true;
 }
