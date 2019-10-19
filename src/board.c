@@ -70,32 +70,22 @@ static void UpdatePosition(Position *pos) {
 // Clears the board
 static void ClearPosition(Position *pos) {
 
-	int i, j;
-
 	// Bitboard representations
-	for (i = BLACK; i <= BOTH; ++i)
-		pos->colorBBs[i] = 0ULL;
-
-	for (i = PAWN; i <= KING; ++i)
-		pos->pieceBBs[i] = 0ULL;
+	memset(pos->colorBBs, 0ULL, sizeof(pos->colorBBs));
+	memset(pos->pieceBBs, 0ULL, sizeof(pos->pieceBBs));
 
 	// Array representation
-	for (i = A1; i <= H8; ++i)
-		pos->board[i] = EMPTY;
+	memset(pos->board, 0ULL, sizeof(pos->board));
 
 	// Piece lists and counts
-	for (i = 0; i < PIECE_NB; ++i) {
-		pos->pieceCounts[i] = 0;
-		for (j = 0; j < 10; ++j)
-			pos->pieceList[i][j] = 0;
-	}
+	memset(pos->pieceCounts, 0, sizeof(pos->pieceCounts));
+	memset(pos->pieceList,   0, sizeof(pos->pieceList));
 
 	// King squares
-	pos->kingSq[WHITE] = pos->kingSq[BLACK] = NO_SQ;
+	pos->kingSq[BLACK] = pos->kingSq[WHITE] = NO_SQ;
 
 	// Big piece counts
-	for (i = BLACK; i <= WHITE; ++i)
-		pos->bigPieces[i] = 0;
+	pos->bigPieces[BLACK] = pos->bigPieces[WHITE] = 0;
 
 	// Misc
 	pos->material = 0;
