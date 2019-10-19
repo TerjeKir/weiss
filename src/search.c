@@ -66,15 +66,8 @@ static bool IsRepetition(const Position *pos) {
 // Get ready to start a search
 static void ClearForSearch(Position *pos, SearchInfo *info) {
 
-	int i, j;
-
-	for (i = 0; i < PIECE_NB; ++i)
-		for (j = A1; j <= H8; ++j)
-			pos->searchHistory[i][j] = 0;
-
-	for (i = 0; i < 2; ++i)
-		for (j = 0; j < MAXDEPTH; ++j)
-			pos->searchKillers[i][j] = 0;
+	memset(pos->searchHistory, 0, sizeof(pos->searchHistory));
+	memset(pos->searchKillers, 0, sizeof(pos->searchKillers));
 
 	pos->ply       = 0;
 	info->nodes    = 0;
