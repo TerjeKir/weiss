@@ -232,7 +232,7 @@ int main(int argc, char **argv) {
 #endif
 		}
 		// Non UCI commands
-#ifdef CLI
+#ifdef DEV
 		else if (!strncmp(line, "weiss", 5)) {
 			Console_Loop(pos, info);
 			break;

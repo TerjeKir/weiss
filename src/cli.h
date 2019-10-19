@@ -1,6 +1,6 @@
 // cli.h
 
-#ifdef CLI
+#ifdef DEV
 
 #pragma once
 

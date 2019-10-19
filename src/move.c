@@ -90,7 +90,7 @@ int ParseMove(const char *ptrChar, Position *pos) {
 	return NOMOVE;
 }
 
-#ifdef CLI
+#ifdef DEV
 // Translates a string from an .epd file to a move
 // Nf3-g1+, f3-g1+, Nf3-g1, f3-g1N+
 int ParseEPDMove(const char *ptrChar, Position *pos) {

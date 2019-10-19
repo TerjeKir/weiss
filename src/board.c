@@ -330,7 +330,7 @@ bool CheckBoard(const Position *pos) {
 }
 #endif
 
-#ifdef CLI
+#ifdef DEV
 // Reverse the colors
 void MirrorBoard(Position *pos) {
 

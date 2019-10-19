@@ -46,7 +46,7 @@ void benchmark(int depth, Position *pos, SearchInfo *info) {
 	printf("NPS  : %" PRId64 "\n", nodes / ((endTime - startTime) / 1000));
 }
 
-#ifdef CLI
+#ifdef DEV
 
 /* Perft */
 static uint64_t leafNodes;

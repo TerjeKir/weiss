@@ -36,6 +36,6 @@
 
 char *MoveToStr(const int move);
 int ParseMove(const char *ptrChar, Position *pos);
-#ifdef CLI
+#ifdef DEV
 int ParseEPDMove(const char *ptrChar, Position *pos);
 #endif

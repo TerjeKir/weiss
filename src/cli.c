@@ -1,6 +1,6 @@
 // cli.c
 
-#ifdef CLI
+#ifdef DEV
 
 #include <stdio.h>
 #include <string.h>
