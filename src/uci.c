@@ -158,6 +158,8 @@ static inline bool GetInput(char *line) {
 	if (fgets(line, INPUT_SIZE, stdin) == NULL)
 		return false;
 
+	line[strcspn(line, "\r\n")] = '\0';
+
 	return true;
 }
 
