@@ -1,6 +1,7 @@
 // bitboards.c
 
 #include <stdio.h>
+#include <string.h>
 
 #include "bitboards.h"
 
@@ -14,11 +15,6 @@ const bitboard rankBBs[] = {         0xFF,         0xFF00,         0xFF0000,    
 
 static void InitBitMasks() __attribute__((constructor));
 static void InitBitMasks() {
-
-	for (int i = A1; i <= H8; ++i) {
-		SetMask[i]   = 0ULL;
-		ClearMask[i] = 0ULL;
-	}
 
 	for (int i = A1; i <= H8; ++i) {
 		SetMask[i]  |= (1ULL << i);

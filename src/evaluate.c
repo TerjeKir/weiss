@@ -1,6 +1,7 @@
 // evaluate.c
 
 #include <stdlib.h>
+#include <string.h>
 
 #include "bitboards.h"
 #include "board.h"
@@ -34,13 +35,6 @@ static void InitEvalMasks() __attribute__((constructor));
 static void InitEvalMasks() {
 
 	int sq, tsq;
-
-	// Start everything at 0
-	for (sq = A1; sq <= H8; ++sq) {
-		IsolatedMask[sq] = 0ULL;
-		WhitePassedMask[sq] = 0ULL;
-		BlackPassedMask[sq] = 0ULL;
-	}
 
 	// For each square a pawn can be on
 	for (sq = A2; sq <= H7; ++sq) {
