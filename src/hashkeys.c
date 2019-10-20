@@ -1,16 +1,19 @@
 // hashkeys.c
 
-#include <stdlib.h>
-
 #include "types.h"
 
+uint64_t rand64() {
 
-#define RAND_64 ((uint64_t)rand() |	   \
-				 (uint64_t)rand() << 15 | \
-				 (uint64_t)rand() << 30 | \
-				 (uint64_t)rand() << 45 | \
-				 ((uint64_t)rand() & 0xf) << 60)
+    // http://vigna.di.unimi.it/ftp/papers/xorshift.pdf
 
+    static uint64_t seed = 1070372ull;
+
+    seed ^= seed >> 12;
+    seed ^= seed << 25;
+    seed ^= seed >> 27;
+
+    return seed * 2685821657736338717ull;
+}
 
 // Zobrist key tables
 uint64_t PieceKeys[PIECE_NB][64];
@@ -23,25 +26,25 @@ static void InitHashKeys() __attribute__((constructor));
 static void InitHashKeys() {
 
 	// Side to play
-	SideKey = RAND_64;
+	SideKey = rand64();
 
 	// En passant
 	for (int sq = A1; sq <= H8; ++sq)
-			PieceKeys[0][sq] = RAND_64;
+		PieceKeys[0][sq] = rand64();
 
 	// White pieces
 	for (int piece = wP; piece <= wK; ++piece)
 		for (int sq = A1; sq <= H8; ++sq)
-			PieceKeys[piece][sq] = RAND_64;
+			PieceKeys[piece][sq] = rand64();
 
 	// Black pieces
 	for (int piece = bP; piece <= bK; ++piece)
 		for (int sq = A1; sq <= H8; ++sq)
-			PieceKeys[piece][sq] = RAND_64;
+			PieceKeys[piece][sq] = rand64();
 
 	// Castling rights
 	for (int i = 0; i < 16; ++i)
-		CastleKeys[i] = RAND_64;
+		CastleKeys[i] = rand64();
 }
 
 uint64_t GeneratePosKey(const Position *pos) {
