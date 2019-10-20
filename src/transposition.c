@@ -60,7 +60,7 @@ void ClearHashTable(HashTable *table) {
 void InitHashTable(HashTable *table, uint64_t MB) {
 
 	// Ignore if already initialized with this size
-	if (table->MB == MB) {
+	if (table->TT != NULL && table->MB == MB) {
 		printf("HashTable already initialized to %" PRIu64 ".\n", MB);
 		fflush(stdout);
 		return;
