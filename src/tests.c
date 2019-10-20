@@ -38,12 +38,12 @@ void benchmark(int depth, Position *pos, SearchInfo *info) {
 		ClearHashTable(pos->hashTable);
 	}
 
-	int endTime = GetTimeMs();
+	int elapsed = GetTimeMs() - startTime;
 
 	printf("Benchmark complete:\n");
-	printf("Time : %dms\n", endTime - startTime);
+	printf("Time : %dms\n", elapsed);
 	printf("Nodes: %" PRId64 "\n", nodes);
-	printf("NPS  : %" PRId64 "\n", nodes / ((endTime - startTime) / 1000));
+	printf("NPS  : %" PRId64 "\n", 1000 * nodes / (1 + elapsed));
 }
 
 #ifdef DEV
