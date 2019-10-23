@@ -8,10 +8,10 @@
 // Calls fathom to probe syzygy tablebases - heavily inspired by ethereal
 unsigned int probeWDL(const Position *pos) {
 
-    // Don't probe at root, when en passant is possible (not sure what fathom
-    // expects as input here), when castling is possible, or when the position
-    // didn't change in nature previous move (pawn move / capture). Finally,
-    // there is obviously no point if there are more pieces than we have TBs for.
+    // Don't probe at root, when en passant is possible, when castling is
+    // possible, or when 50 move rule was not reset by the last move.
+    // Finally, there is obviously no point if there are more pieces than
+    // we have TBs for.
     if (   (pos->ply        == 0)
         || (pos->enPas      != NO_SQ)
         || (pos->castlePerm != 0)
