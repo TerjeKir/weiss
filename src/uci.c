@@ -144,9 +144,7 @@ static void PrintUCI() {
 	printf("id author LoliSquad\n");
 	printf("option name Hash type spin default %d min 4 max %d\n", DEFAULTHASH, MAXHASH);
 	printf("option name Ponder type check default false\n"); // Turn on ponder stats in cutechess gui
-#ifdef USE_TBS
 	printf("option name SyzygyPath type string default <empty>\n");
-#endif
 	printf("uciok\n"); fflush(stdout);
 }
 
@@ -219,7 +217,6 @@ int main(int argc, char **argv) {
 			sscanf(line, "%*s %*s %*s %*s %d", &MB);
 			InitHashTable(pos->hashTable, MB);
 
-#ifdef USE_TBS
 		} else if (BeginsWith(line, "setoption name SyzygyPath value ")) {
 
 			char *path = line + strlen("setoption name SyzygyPath value ");
@@ -231,7 +228,6 @@ int main(int argc, char **argv) {
 
 			strcpy(info->syzygyPath, path);
 			tb_init(info->syzygyPath);
-#endif
 		}
 		// Non UCI commands
 #ifdef DEV

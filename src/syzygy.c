@@ -4,7 +4,6 @@
 #include "bitboards.h"
 #include "board.h"
 
-#ifdef USE_TBS
 #define TB_PROBE_DEPTH 0
 
 
@@ -37,4 +36,3 @@ unsigned int probeWDL(const Position *pos, const int depth) {
         0,
         pos->side);
 }
-#endif

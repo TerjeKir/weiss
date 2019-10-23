@@ -284,8 +284,6 @@ static int AlphaBeta(int alpha, const int beta, int depth, Position *pos, Search
 		return score;
 	}
 
-	// Syzygy
-#ifdef USE_TBS
 	unsigned tbresult;
 	if ((tbresult = probeWDL(pos, depth)) != TB_RESULT_FAILED) {
 
@@ -307,7 +305,6 @@ static int AlphaBeta(int alpha, const int beta, int depth, Position *pos, Search
             return val;
         }
 	}
-#endif
 
 	// Skip pruning while in check
 	if (inCheck)

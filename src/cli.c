@@ -127,9 +127,7 @@ void Console_Loop(Position *pos, SearchInfo *info) {
 
 	ParseFen(START_FEN, pos);
 
-#ifdef USE_TBS
 	tb_init("F:\\Syzygy");
-#endif
 
 	while (true) {
 
