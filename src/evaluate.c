@@ -6,6 +6,7 @@
 #include "bitboards.h"
 #include "board.h"
 #include "data.h"
+#include "evaluate.h"
 #include "psqt.h"
 #include "validate.h"
 
@@ -19,15 +20,15 @@ static bitboard WhitePassedMask[64];
 static bitboard IsolatedMask[64];
 
 // Various bonuses and maluses
-static const int PawnPassed[8] = { 0, 5, 10, 20, 35, 60, 100, 0 };
-static const int PawnIsolated = -10;
+static const int PawnPassed[8] = { 0, S(5, 5), S(10, 10), S(20, 20), S(35, 35), S(60, 60), S(100, 100), 0 };
+static const int PawnIsolated = S(-10, -10);
 
-static const int  RookOpenFile = 10;
-static const int QueenOpenFile = 5;
-static const int  RookSemiOpenFile = 5;
-static const int QueenSemiOpenFile = 3;
+static const int  RookOpenFile = S(10, 10);
+static const int QueenOpenFile = S(5, 5);
+static const int  RookSemiOpenFile = S(5, 5);
+static const int QueenSemiOpenFile = S(3, 3);
 
-static const int BishopPair = 30;
+static const int BishopPair = S(30, 30);
 
 
 // Initialize evaluation bit masks
@@ -237,7 +238,7 @@ int EvalPosition(const Position *pos) {
 				  + pieceValue[ROOK]   * pos->pieceCounts[bR]
 				  + pieceValue[QUEEN]  * pos->pieceCounts[bQ];
 	if (bMaterial <= ENDGAME_MAT)
-		score += PSQT[wK+1][pos->kingSq[WHITE]];
+		score += EgScore(PSQT[wK][pos->kingSq[WHITE]]);
 
 	// Black king
 	int wMaterial = pieceValue[PAWN]   * pos->pieceCounts[wP]
@@ -247,9 +248,11 @@ int EvalPosition(const Position *pos) {
 				  + pieceValue[QUEEN]  * pos->pieceCounts[wQ];
 
 	if (wMaterial <= ENDGAME_MAT)
-		score += PSQT[bK+1][pos->kingSq[BLACK]];
+		score += EgScore(PSQT[bK][pos->kingSq[BLACK]]);
 
 	assert(score > -INFINITE && score < INFINITE);
+
+	score = MgScore(score);
 
 	// Return score
 	return pos->side == WHITE ? score : -score;
