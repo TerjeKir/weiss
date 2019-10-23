@@ -2,6 +2,7 @@
 
 #include "types.h"
 
+
 uint64_t rand64() {
 
     // http://vigna.di.unimi.it/ftp/papers/xorshift.pdf

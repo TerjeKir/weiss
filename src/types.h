@@ -18,7 +18,7 @@ enum Limit { MAXGAMEMOVES     = 512,
 enum Score { INFINITE = 30000,
 			 ISMATE   = INFINITE - MAXDEPTH };
 
-typedef enum Color { 
+typedef enum Color {
 	BLACK, WHITE, BOTH
 } Color;
 

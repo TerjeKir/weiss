@@ -305,8 +305,8 @@ bool CheckBoard(const Position *pos) {
 
 	assert(pos->side == WHITE || pos->side == BLACK);
 
-	assert(pos->enPas == NO_SQ 
-	   || (pos->enPas >= 40 && pos->enPas < 48 && pos->side == WHITE) 
+	assert(pos->enPas == NO_SQ
+	   || (pos->enPas >= 40 && pos->enPas < 48 && pos->side == WHITE)
 	   || (pos->enPas >= 16 && pos->enPas < 24 && pos->side == BLACK));
 
 	assert(pos->board[pos->kingSq[WHITE]] == wK);

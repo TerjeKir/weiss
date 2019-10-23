@@ -118,7 +118,7 @@ static inline uint64_t pieces_by_type(const Pos *pos, Color c, PieceType p) {
 }
 
 static const char piece_to_char[] = " PNBRQK  pnbrqk";
-  
+
 // map upper-case characters to piece types
 static PieceType char_to_piece_type(char c) {
     for (int i = TB_PAWN; i <= TB_KING; i++)
@@ -323,7 +323,7 @@ static TbMove *gen_moves(const Pos *pos, TbMove *moves)
     uint64_t us = (pos->turn? pos->white: pos->black),
              them = (pos->turn? pos->black: pos->white);
     uint64_t b, att;
-    
+
     {
         unsigned from = lsb(pos->kings & us);
         for (att = king_attacks(from) & ~us; att; att = poplsb(att))
@@ -542,32 +542,32 @@ static bool is_valid(const Pos *pos)
 
 static bool do_move(Pos *pos, const Pos *pos0, TbMove move)
 {
-    unsigned from = move_from(move); 
-    unsigned to = move_to(move);  
-    unsigned promotes = move_promotes(move);  
+    unsigned from = move_from(move);
+    unsigned to = move_to(move);
+    unsigned promotes = move_promotes(move);
     pos->turn = !pos0->turn;
     pos->white = do_bb_move(pos0->white, from, to);
     pos->black = do_bb_move(pos0->black, from, to);
     pos->kings = do_bb_move(pos0->kings, from, to);
-    pos->queens = do_bb_move(pos0->queens, from, to); 
+    pos->queens = do_bb_move(pos0->queens, from, to);
     pos->rooks = do_bb_move(pos0->rooks, from, to);
-    pos->bishops = do_bb_move(pos0->bishops, from, to);  
-    pos->knights = do_bb_move(pos0->knights, from, to);  
+    pos->bishops = do_bb_move(pos0->bishops, from, to);
+    pos->knights = do_bb_move(pos0->knights, from, to);
     pos->pawns = do_bb_move(pos0->pawns, from, to);
     pos->ep = 0;
-    if (promotes != TB_PROMOTES_NONE) 
-    {  
+    if (promotes != TB_PROMOTES_NONE)
+    {
         pos->pawns &= ~board(to);       // Promotion
         switch (promotes)
-        { 
+        {
             case TB_PROMOTES_QUEEN:
                 pos->queens |= board(to); break;
-            case TB_PROMOTES_ROOK: 
-                pos->rooks |= board(to); break; 
-            case TB_PROMOTES_BISHOP:  
-                pos->bishops |= board(to); break;  
-            case TB_PROMOTES_KNIGHT:  
-                pos->knights |= board(to); break;  
+            case TB_PROMOTES_ROOK:
+                pos->rooks |= board(to); break;
+            case TB_PROMOTES_BISHOP:
+                pos->bishops |= board(to); break;
+            case TB_PROMOTES_KNIGHT:
+                pos->knights |= board(to); break;
         }
         pos->rule50 = 0;
     }

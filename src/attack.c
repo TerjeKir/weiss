@@ -146,7 +146,7 @@ static void InitSliderAttacks(Magic *table, bitboard *attackTable, const bitboar
 
     for (int sq = A1; sq <= H8; ++sq) {
 
-        edges = ((rank1BB | rank8BB) & ~rankBBs[rankOf(sq)]) 
+        edges = ((rank1BB | rank8BB) & ~rankBBs[rankOf(sq)])
               | ((fileABB | fileHBB) & ~fileBBs[fileOf(sq)]);
 
         table[sq].mask  = MakeSliderAttacks(sq, 0, dir) & ~edges;
@@ -165,7 +165,7 @@ static void InitSliderAttacks(Magic *table, bitboard *attackTable, const bitboar
 #else
             index = (occupied * table[sq].magic) >> table[sq].shift;
 #endif
-            if (index > size) 
+            if (index > size)
                 size = index;
             table[sq].attacks[index] = MakeSliderAttacks(sq, occupied, dir);
             occupied = (occupied - table[sq].mask) & table[sq].mask; // Carry rippler

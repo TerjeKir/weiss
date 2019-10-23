@@ -3,6 +3,7 @@
 #include "data.h"
 #include "types.h"
 
+
 int PSQT[PIECE_NB][64];
 
 
@@ -51,7 +52,7 @@ static void InitPSQT() {
          0,   0,   5,  10,  10,   5,   0,   0,
          0,   0,   5,  10,  10,   5,   0,   0},
 
-		{ 0 }, // Queen 
+		{ 0 }, // Queen
 
 		{ // King early
        -70, -70, -70, -70, -70, -70, -70, -70,
