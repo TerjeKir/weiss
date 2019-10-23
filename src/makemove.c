@@ -236,7 +236,7 @@ bool MakeMove(Position *pos, const int move) {
 	assert(pos->hisPly >= 0 && pos->hisPly < MAXGAMEMOVES);
 	assert(pos->ply >= 0 && pos->ply < MAXDEPTH);
 
-	// Save position 
+	// Save position
 	pos->history[pos->hisPly].move 		 = move;
 	pos->history[pos->hisPly].enPas 	 = pos->enPas;
 	pos->history[pos->hisPly].fiftyMove  = pos->fiftyMove;
@@ -290,7 +290,7 @@ bool MakeMove(Position *pos, const int move) {
 
 		// Reset 50mr after a pawn move
 		pos->fiftyMove = 0;
-		
+
 		int promo = PROMOTION(move);
 
 		// If the move is a pawnstart we set the en passant square and hash it in

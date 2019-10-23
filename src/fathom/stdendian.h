@@ -46,7 +46,7 @@
  *                        macro is present for OpenCL compatibility
  *
  *   The implementation provides a uniform interface to endian macros using only
- *   system headers on recent Linux, Darwin, FreeBSD, Solaris and Windows systems. 
+ *   system headers on recent Linux, Darwin, FreeBSD, Solaris and Windows systems.
  *
  *   This approach is intended to avoid the need for preflight configure scripts.
  *   An alternative approach would be to test compiler CPU architecture marcros.

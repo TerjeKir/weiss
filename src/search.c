@@ -20,7 +20,7 @@
 static void CheckTime(SearchInfo *info) {
 
 	if (  (info->nodes & 8192) == 0
-		&& info->timeset 
+		&& info->timeset
 		&& GetTimeMs() >= info->stoptime)
 
 		info->stopped = true;
@@ -54,7 +54,7 @@ static int PickNextMove(MoveList *list) {
 static bool IsRepetition(const Position *pos) {
 
 	for (int i = pos->hisPly - 2; i >= pos->hisPly - pos->fiftyMove; i -= 2) {
- 
+
 		assert(i >= 0 && i < MAXGAMEMOVES);
 		if (pos->posKey == pos->history[i].posKey)
 			return true;
@@ -118,7 +118,7 @@ static void PrintThinking(const SearchInfo *info, Position *pos, const int bestS
 		printf(" %s", MoveToStr(pos->pvArray[pvNum]));
 	}
 	printf("\n");
-	
+
 #ifdef SEARCH_STATS
 	if (info->nodes > (uint64_t)currentDepth)
 		printf("Stats: Hits: %d Overwrite: %d NewWrite: %d Cut: %d\nOrdering %.2f NullCut: %d\n", pos->hashTable->hit,
@@ -134,7 +134,7 @@ static void PrintConclusion(const Position *pos) {
 	const int ponderMove = pos->pvArray[1];
 
 	printf("bestmove %s", MoveToStr(bestMove));
-	if (ponderMove != NOMOVE) 
+	if (ponderMove != NOMOVE)
 		printf(" ponder %s\n", MoveToStr(ponderMove));
 	printf("\n");
 	fflush(stdout);
@@ -239,7 +239,7 @@ static int AlphaBeta(int alpha, const int beta, int depth, Position *pos, Search
 	list->count = list->next = 0;
 
 	// Quiescence at the end of search
-	if (depth <= 0) 
+	if (depth <= 0)
 		return Quiescence(alpha, beta, pos, info);
 
 	// Check time situation
@@ -248,7 +248,7 @@ static int AlphaBeta(int alpha, const int beta, int depth, Position *pos, Search
 	info->nodes++;
 
 	// Update selective depth
-	if (pos->ply > info->seldepth) 
+	if (pos->ply > info->seldepth)
 		info->seldepth = pos->ply;
 
 	// Early exits (not in root node)
@@ -259,7 +259,7 @@ static int AlphaBeta(int alpha, const int beta, int depth, Position *pos, Search
 			return 0;
 
 		// Max depth reached
-		if (pos->ply >= MAXDEPTH) 
+		if (pos->ply >= MAXDEPTH)
 			return EvalPosition(pos);
 
 		// Mate distance pruning -- TODO doesn't work properly
@@ -296,7 +296,7 @@ static int AlphaBeta(int alpha, const int beta, int depth, Position *pos, Search
 									  :  0;
 
         int flag = tbresult == TB_LOSS ? BOUND_UPPER
-                 : tbresult == TB_WIN  ? BOUND_LOWER 
+                 : tbresult == TB_WIN  ? BOUND_LOWER
 									   : BOUND_EXACT;
 
         if (    flag == BOUND_EXACT

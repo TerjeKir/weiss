@@ -110,7 +110,7 @@ void Perft(const int depth, Position *pos) {
 
 	const int timeElapsed = GetTimeMs() - start;
 	printf("\nPerft Complete : %" PRId64 " nodes visited in %dms\n", leafNodes, timeElapsed);
-	if (timeElapsed > 0) 
+	if (timeElapsed > 0)
 		printf("               : %" PRId64 " nps\n", ((leafNodes * 1000) / timeElapsed));
 	fflush(stdout);
 
