@@ -285,7 +285,7 @@ static int AlphaBeta(int alpha, const int beta, int depth, Position *pos, Search
 	}
 
 	unsigned tbresult;
-	if ((tbresult = probeWDL(pos, depth)) != TB_RESULT_FAILED) {
+	if ((tbresult = probeWDL(pos)) != TB_RESULT_FAILED) {
 
 		info->tbhits++;
 

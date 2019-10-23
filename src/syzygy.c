@@ -4,26 +4,22 @@
 #include "bitboards.h"
 #include "board.h"
 
-#define TB_PROBE_DEPTH 0
-
 
 // Calls fathom to probe syzygy tablebases - heavily inspired by ethereal
-unsigned int probeWDL(const Position *pos, const int depth) {
+unsigned int probeWDL(const Position *pos) {
 
-    assert(CheckBoard(pos));
-
-    if (    (pos->ply == 0)
-        ||  (pos->enPas != NO_SQ)
-        ||  (pos->castlePerm != 0)
-        ||  (pos->fiftyMove != 0))
+    // Don't probe at root, when en passant is possible, when castling is
+    // possible, or when 50 move rule was not reset by the last move.
+    // Finally, there is obviously no point if there are more pieces than
+    // we have TBs for.
+    if (   (pos->ply        == 0)
+        || (pos->enPas      != NO_SQ)
+        || (pos->castlePerm != 0)
+        || (pos->fiftyMove  != 0)
+        || ((unsigned)PopCount(pos->colorBBs[BOTH]) > TB_LARGEST))
         return TB_RESULT_FAILED;
 
-    const unsigned int cardinality = PopCount(pos->colorBBs[BOTH]);
-
-    if (    (cardinality >  (unsigned)TB_LARGEST)
-        ||  (cardinality == (unsigned)TB_LARGEST && depth < (int)TB_PROBE_DEPTH))
-        return TB_RESULT_FAILED;
-
+    // Call fathom
     return tb_probe_wdl(
         pos->colorBBs[WHITE],
         pos->colorBBs[BLACK],
