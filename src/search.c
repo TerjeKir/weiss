@@ -53,10 +53,10 @@ static int PickNextMove(MoveList *list) {
 // Check if current position is a repetition
 static bool IsRepetition(const Position *pos) {
 
-	for (int index = pos->hisPly - pos->fiftyMove; index < pos->hisPly - 1; ++index) {
-
-		assert(index >= 0 && index < MAXGAMEMOVES);
-		if (pos->posKey == pos->history[index].posKey)
+	for (int i = pos->hisPly - 2; i >= pos->hisPly - pos->fiftyMove; i -= 2) {
+ 
+		assert(i >= 0 && i < MAXGAMEMOVES);
+		if (pos->posKey == pos->history[i].posKey)
 			return true;
 	}
 
