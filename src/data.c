@@ -1,14 +1,15 @@
 // data.c
 
 #include "types.h"
+#include "evaluate.h"
 
+const int pieceValue[PIECE_NB] = { 0, S(P_MG, P_EG), S(N_MG, N_EG), S(B_MG, B_EG), S(R_MG, R_EG), S(Q_MG, Q_EG), 0, 0,
+								   0, S(P_MG, P_EG), S(N_MG, N_EG), S(B_MG, B_EG), S(R_MG, R_EG), S(Q_MG, Q_EG), 0, 0 };
 
-//                                 EMPTY,    bP,    bN,    bB,    bR,    bQ,    bK, EMPTY, EMPTY,    wP,    wN,    wB,    wR,    wQ,    wK, EMPTY
-const int pieceBig  [PIECE_NB] = { false, false,  true,  true,  true,  true, false, false, false, false,  true,  true,  true,  true, false, false };
-const int pieceValue[PIECE_NB] = {     0, P_VAL, N_VAL, B_VAL, R_VAL, Q_VAL,     0,     0,     0, P_VAL, N_VAL, B_VAL, R_VAL, Q_VAL,     0,     0 };
-
-const int piecePawn [PIECE_NB] = { false,  true, false, false, false, false, false, false, false,  true, false, false, false, false, false, false };
-const int pieceKing [PIECE_NB] = { false, false, false, false, false, false,  true, false, false, false, false, false, false, false,  true, false };
+//                                EMPTY,    bP,    bN,    bB,    bR,    bQ,    bK, EMPTY, EMPTY,    wP,    wN,    wB,    wR,    wQ,    wK, EMPTY
+const int pieceBig [PIECE_NB] = { false, false,  true,  true,  true,  true, false, false, false, false,  true,  true,  true,  true, false, false };
+const int piecePawn[PIECE_NB] = { false,  true, false, false, false, false, false, false, false,  true, false, false, false, false, false, false };
+const int pieceKing[PIECE_NB] = { false, false, false, false, false, false,  true, false, false, false, false, false, false, false,  true, false };
 
 const int mirror[64] = {
 	56, 57, 58, 59, 60, 61, 62, 63,
