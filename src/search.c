@@ -172,7 +172,7 @@ static int Quiescence(int alpha, const int beta, Position *pos, SearchInfo *info
 	int score = EvalPosition(pos);
 	if (score >= beta)
 		return score;
-	if ((score + Q_VAL * 2) < alpha) // Very pessimistic (forced by poor eval) delta pruning
+	if ((score + Q_MG * 2) < alpha) // Very pessimistic (forced by poor eval) delta pruning
 		return alpha;
 	if (score > alpha)
 		alpha = score;
@@ -439,7 +439,7 @@ int AspirationWindow(Position *pos, SearchInfo *info, const int depth, int previ
 	// Dynamic bonus increasing initial window and delta
 	const int bonus = (previousScore * previousScore) / 8;
 	// Delta used for initial window and widening
-	const int delta = (P_VAL / 2) + bonus;
+	const int delta = (P_MG / 2) + bonus;
 	// Initial window
 	int alpha = previousScore - delta / 4;
 	int beta  = previousScore + delta / 4;

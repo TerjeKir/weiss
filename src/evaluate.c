@@ -6,11 +6,9 @@
 #include "bitboards.h"
 #include "board.h"
 #include "data.h"
+#include "evaluate.h"
 #include "psqt.h"
 #include "validate.h"
-
-
-#define ENDGAME_MAT (pieceValue[wR] + 2 * pieceValue[wN] + 2 * pieceValue[wP])
 
 
 // Eval bit masks
@@ -19,15 +17,15 @@ static bitboard WhitePassedMask[64];
 static bitboard IsolatedMask[64];
 
 // Various bonuses and maluses
-static const int PawnPassed[8] = { 0, 5, 10, 20, 35, 60, 100, 0 };
-static const int PawnIsolated = -10;
+static const int PawnPassed[8] = { 0, S(5, 5), S(10, 10), S(20, 20), S(35, 35), S(60, 60), S(100, 100), 0 };
+static const int PawnIsolated = S(-10, -10);
 
-static const int  RookOpenFile = 10;
-static const int QueenOpenFile = 5;
-static const int  RookSemiOpenFile = 5;
-static const int QueenSemiOpenFile = 3;
+static const int  RookOpenFile = S(10, 10);
+static const int QueenOpenFile = S(5, 5);
+static const int  RookSemiOpenFile = S(5, 5);
+static const int QueenSemiOpenFile = S(3, 3);
 
-static const int BishopPair = 30;
+static const int BishopPair = S(30, 30);
 
 
 // Initialize evaluation bit masks
@@ -230,24 +228,19 @@ int EvalPosition(const Position *pos) {
 			score -= QueenSemiOpenFile;
 	}
 
-	// White king -- Kings use different PSQTs in the endgame
-	int bMaterial = pieceValue[PAWN]   * pos->pieceCounts[bP]
-				  + pieceValue[KNIGHT] * pos->pieceCounts[bN]
-				  + pieceValue[BISHOP] * pos->pieceCounts[bB]
-				  + pieceValue[ROOK]   * pos->pieceCounts[bR]
-				  + pieceValue[QUEEN]  * pos->pieceCounts[bQ];
-	if (bMaterial <= ENDGAME_MAT)
-		score += PSQT[wK+1][pos->kingSq[WHITE]];
+	const int basePhase = 24;
+	int phase = basePhase;
+	phase -= 1 * pos->pieceCounts[bN]
+		   + 1 * pos->pieceCounts[bB]
+		   + 2 * pos->pieceCounts[bR]
+		   + 4 * pos->pieceCounts[bQ]
+		   + 1 * pos->pieceCounts[wN]
+		   + 1 * pos->pieceCounts[wB]
+		   + 2 * pos->pieceCounts[wR]
+		   + 4 * pos->pieceCounts[wQ];
+	phase = (phase * 256 + (basePhase / 2)) / basePhase;
 
-	// Black king
-	int wMaterial = pieceValue[PAWN]   * pos->pieceCounts[wP]
-				  + pieceValue[KNIGHT] * pos->pieceCounts[wN]
-				  + pieceValue[BISHOP] * pos->pieceCounts[wB]
-				  + pieceValue[ROOK]   * pos->pieceCounts[wR]
-				  + pieceValue[QUEEN]  * pos->pieceCounts[wQ];
-
-	if (wMaterial <= ENDGAME_MAT)
-		score += PSQT[bK+1][pos->kingSq[BLACK]];
+	score = ((MgScore(score) * (256 - phase)) + (EgScore(score) * phase)) / 256;
 
 	assert(score > -INFINITE && score < INFINITE);
 
