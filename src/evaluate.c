@@ -11,9 +11,6 @@
 #include "validate.h"
 
 
-#define ENDGAME_MAT (pieceValue[wR] + 2 * pieceValue[wN] + 2 * pieceValue[wP])
-
-
 // Eval bit masks
 static bitboard BlackPassedMask[64];
 static bitboard WhitePassedMask[64];
@@ -231,28 +228,21 @@ int EvalPosition(const Position *pos) {
 			score -= QueenSemiOpenFile;
 	}
 
-	// White king -- Kings use different PSQTs in the endgame
-	int bMaterial = pieceValue[PAWN]   * pos->pieceCounts[bP]
-				  + pieceValue[KNIGHT] * pos->pieceCounts[bN]
-				  + pieceValue[BISHOP] * pos->pieceCounts[bB]
-				  + pieceValue[ROOK]   * pos->pieceCounts[bR]
-				  + pieceValue[QUEEN]  * pos->pieceCounts[bQ];
-	if (bMaterial <= ENDGAME_MAT)
-		score += EgScore(PSQT[wK][pos->kingSq[WHITE]]);
+	const int basePhase = 24;
+	int phase = basePhase;
+	phase -= 1 * pos->pieceCounts[bN]
+		   + 1 * pos->pieceCounts[bB]
+		   + 2 * pos->pieceCounts[bR]
+		   + 4 * pos->pieceCounts[bQ]
+		   + 1 * pos->pieceCounts[wN]
+		   + 1 * pos->pieceCounts[wB]
+		   + 2 * pos->pieceCounts[wR]
+		   + 4 * pos->pieceCounts[wQ];
+	phase = (phase * 256 + (basePhase / 2)) / basePhase;
 
-	// Black king
-	int wMaterial = pieceValue[PAWN]   * pos->pieceCounts[wP]
-				  + pieceValue[KNIGHT] * pos->pieceCounts[wN]
-				  + pieceValue[BISHOP] * pos->pieceCounts[wB]
-				  + pieceValue[ROOK]   * pos->pieceCounts[wR]
-				  + pieceValue[QUEEN]  * pos->pieceCounts[wQ];
-
-	if (wMaterial <= ENDGAME_MAT)
-		score += EgScore(PSQT[bK][pos->kingSq[BLACK]]);
+	score = ((MgScore(score) * (256 - phase)) + (EgScore(score) * phase)) / 256;
 
 	assert(score > -INFINITE && score < INFINITE);
-
-	score = MgScore(score);
 
 	// Return score
 	return pos->side == WHITE ? score : -score;
