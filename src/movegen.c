@@ -5,7 +5,6 @@
 #include "attack.h"
 #include "board.h"
 #include "bitboards.h"
-#include "data.h"
 #include "makemove.h"
 #include "move.h"
 #include "validate.h"
