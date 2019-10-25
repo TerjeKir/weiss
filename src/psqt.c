@@ -1,6 +1,6 @@
 // psqt.c
 
-#include "data.h"
+#include "board.h"
 #include "evaluate.h"
 #include "types.h"
 
@@ -11,7 +11,11 @@ int PSQT[PIECE_NB][64];
 // Initialize the piece square tables with piece values included
 static void InitPSQT() __attribute__((constructor));
 static void InitPSQT() {
-	int tempPSQT[7][64] = {
+
+	const int pieceValue[PIECE_NB] = { 0, S(P_MG, P_EG), S(N_MG, N_EG), S(B_MG, B_EG), S(R_MG, R_EG), S(Q_MG, Q_EG), 0, 0,
+								   	   0, S(P_MG, P_EG), S(N_MG, N_EG), S(B_MG, B_EG), S(R_MG, R_EG), S(Q_MG, Q_EG), 0, 0 };
+
+	const int tempPSQT[7][64] = {
 		{ 0 }, // Unused
 		{ // Pawn
 		S( 0,  0), S( 0,  0), S( 0,  0), S(  0,   0), S(  0,   0), S( 0,  0), S( 0,  0), S( 0,  0),
@@ -55,7 +59,7 @@ static void InitPSQT() {
 
 		{ 0 }, // Queen
 
-		{ // King early
+		{ // King
         S(-70, -50), S(-70, -10), S(-70,  0), S(-70,  0), S(-70,  0), S(-70,  0), S(-70, -10), S(-70, -50),
         S(-70, -10), S(-70,   0), S(-70, 10), S(-70, 10), S(-70, 10), S(-70, 10), S(-70,   0), S(-70, -10),
         S(-70,   0), S(-70,  10), S(-70, 20), S(-70, 20), S(-70, 20), S(-70, 20), S(-70,  10), S(-70,   0),
@@ -69,6 +73,6 @@ static void InitPSQT() {
 	for (int piece = bP; piece <= bK; ++piece)
 		for (int sq = A1; sq <= H8; ++sq) {
 			PSQT[piece][sq] = -(tempPSQT[piece][sq] + pieceValue[piece]);
-			PSQT[piece+8][mirror[sq]] = -PSQT[piece][sq];
+			PSQT[piece+8][mirror_square[sq]] = -PSQT[piece][sq];
 		}
 }

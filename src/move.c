@@ -3,7 +3,6 @@
 #include <stdio.h>
 
 #include "board.h"
-#include "data.h"
 #include "misc.h"
 #include "move.h"
 #include "movegen.h"

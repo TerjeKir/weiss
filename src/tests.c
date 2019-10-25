@@ -4,7 +4,6 @@
 #include <string.h>
 
 #include "board.h"
-#include "data.h"
 #include "evaluate.h"
 #include "makemove.h"
 #include "misc.h"

@@ -3,7 +3,6 @@
 #include "attack.h"
 #include "bitboards.h"
 #include "board.h"
-#include "data.h"
 #include "psqt.h"
 #include "hashkeys.h"
 #include "move.h"
