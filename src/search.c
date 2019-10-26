@@ -107,14 +107,13 @@ static void PrintThinking(const SearchInfo *info, Position *pos, const PV pv, co
 		printf("nps %" PRId64 " ", ((info->nodes * 1000) / timeElapsed));
 
 	// Hashfull
-	if (info->nodes > (uint64_t)currentDepth)
-		printf("hashfull %d ", HashFull(pos));
+	printf("hashfull %d ", HashFull(pos));
 
 	// Principal variation
 	printf("pv");
-	for (int i = 0; i < pv.length; i++) {
+	for (int i = 0; i < pv.length; i++)
 		printf(" %s", MoveToStr(pv.line[i]));
-	}
+
 	printf("\n");
 
 #ifdef SEARCH_STATS
@@ -242,6 +241,8 @@ static int AlphaBeta(int alpha, const int beta, int depth, Position *pos, Search
 	assert(beta  <=  INFINITE);
 	assert(beta  >= -INFINITE);
 
+	const bool pvNode = alpha != beta - 1;
+
 	PV pv_from_here;
     pv->length = 0;
 
@@ -287,7 +288,8 @@ static int AlphaBeta(int alpha, const int beta, int depth, Position *pos, Search
 	int pvMove = NOMOVE;
 
 	// Probe transposition table
-	if (ProbeHashEntry(pos, &pvMove, &score, alpha, beta, depth)) {
+	if (ProbeHashEntry(pos, &pvMove, &score, alpha, beta, depth)
+		&& (depth == 0 || !pvNode)) {
 #ifdef SEARCH_STATS
 		pos->hashTable->cut++;
 #endif
