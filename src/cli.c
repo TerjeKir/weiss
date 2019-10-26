@@ -127,6 +127,8 @@ void Console_Loop(Position *pos, SearchInfo *info) {
 
 	ParseFen(START_FEN, pos);
 
+	InitHashTable(pos->hashTable, 256);
+
 	tb_init("F:\\Syzygy");
 
 	while (true) {

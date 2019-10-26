@@ -196,7 +196,6 @@ void MateInXTest(Position *pos) {
 
 				// Reset
 				memset(bestMoves, 0, sizeof(bestMoves));
-				memset(info, 0, sizeof(info));
 				foundScore = 0;
 				bestFound = 0;
 
@@ -289,6 +288,8 @@ search:
 
 				// Clear lineIn for reuse
 				memset(&lineIn[0], 0, sizeof(lineIn));
+				// Clear TT
+				ClearHashTable(pos->hashTable);
 			}
 		}
 	}
