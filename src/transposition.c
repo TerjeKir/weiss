@@ -10,42 +10,6 @@
 #include "transposition.h"
 
 
-// Returns principal variation move in the position (if any)
-static int ProbePvMove(const Position *pos) {
-
-	int index = pos->posKey % pos->hashTable->numEntries;
-
-	if (pos->hashTable->TT[index].posKey == pos->posKey)
-		return pos->hashTable->TT[index].move;
-
-	return NOMOVE;
-}
-
-// Fills the pvArray of the position with the PV
-int GetPvLine(const int depth, Position *pos) {
-
-	int move;
-	int count = 0;
-
-	memset(pos->pvArray, 0, sizeof(pos->pvArray));
-
-	do {
-		move = ProbePvMove(pos);
-
-		if (MoveExists(pos, move)) {
-			MakeMove(pos, move);
-			pos->pvArray[count++] = move;
-		} else
-			break;
-
-	} while (move != NOMOVE && count < depth);
-
-	while (pos->ply > 0)
-		TakeMove(pos);
-
-	return count;
-}
-
 // Clears the hash table
 void ClearHashTable(HashTable *table) {
 

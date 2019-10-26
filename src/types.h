@@ -60,6 +60,11 @@ enum CastlingRights { WKCA = 1, WQCA = 2, BKCA = 4, BQCA = 8 };
 
 /* Structs */
 
+typedef struct PV {
+    int length;
+    int line[MAXDEPTH];
+} PV;
+
 typedef struct {
 	int move;
 	int score;
@@ -127,7 +132,6 @@ typedef struct {
 	Undo history[MAXGAMEMOVES];
 
 	HashTable hashTable[1];
-	int pvArray[MAXDEPTH];
 
 	int searchHistory[PIECE_NB][64];
 	int searchKillers[2][MAXDEPTH];
@@ -152,6 +156,10 @@ typedef struct {
 	float fh;
 	float fhf;
 	int nullCut;
+#endif
+
+#ifdef DEV
+	PV pv;
 #endif
 
 	char syzygyPath[256];

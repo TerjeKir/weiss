@@ -84,10 +84,9 @@ static void ClearForSearch(Position *pos, SearchInfo *info) {
 }
 
 // Print thinking
-static void PrintThinking(const SearchInfo *info, Position *pos, const int bestScore, const int currentDepth) {
+static void PrintThinking(const SearchInfo *info, Position *pos, const PV pv, const int bestScore, const int currentDepth) {
 
 	unsigned timeElapsed = GetTimeMs() - info->starttime;
-	int pvMoves;
 
 	printf("info score ");
 
@@ -108,15 +107,13 @@ static void PrintThinking(const SearchInfo *info, Position *pos, const int bestS
 		printf("nps %" PRId64 " ", ((info->nodes * 1000) / timeElapsed));
 
 	// Hashfull
-	if (info->nodes > (uint64_t)currentDepth)
-		printf("hashfull %d ", HashFull(pos));
+	printf("hashfull %d ", HashFull(pos));
 
 	// Principal variation
 	printf("pv");
-	pvMoves = GetPvLine(currentDepth, pos);
-	for (int pvNum = 0; pvNum < pvMoves; ++pvNum) {
-		printf(" %s", MoveToStr(pos->pvArray[pvNum]));
-	}
+	for (int i = 0; i < pv.length; i++)
+		printf(" %s", MoveToStr(pv.line[i]));
+
 	printf("\n");
 
 #ifdef SEARCH_STATS
@@ -128,20 +125,23 @@ static void PrintThinking(const SearchInfo *info, Position *pos, const int bestS
 }
 
 // Print conclusion of search - best move and ponder move
-static void PrintConclusion(const Position *pos) {
+static void PrintConclusion(const PV pv) {
 
-	const int   bestMove = pos->pvArray[0];
-	const int ponderMove = pos->pvArray[1];
+	const int   bestMove = pv.line[0];
+	const int ponderMove = pv.line[1];
 
 	printf("bestmove %s", MoveToStr(bestMove));
-	if (ponderMove != NOMOVE)
-		printf(" ponder %s\n", MoveToStr(ponderMove));
-	printf("\n");
+	if (pv.length > 1)
+		printf(" ponder %s", MoveToStr(ponderMove));
+	printf("\n\n");
 	fflush(stdout);
 }
 
 // Quiescence
-static int Quiescence(int alpha, const int beta, Position *pos, SearchInfo *info) {
+static int Quiescence(int alpha, const int beta, Position *pos, SearchInfo *info, PV *pv) {
+
+	PV pvFromHere;
+    pv->length = 0;
 
 	assert(CheckBoard(pos));
 	assert(beta > alpha);
@@ -193,7 +193,7 @@ static int Quiescence(int alpha, const int beta, Position *pos, SearchInfo *info
 
 		// Recursively search the positions after making the moves, skipping illegal ones
 		if (!MakeMove(pos, move)) continue;
-		score = -Quiescence(-beta, -alpha, pos, info);
+		score = -Quiescence(-beta, -alpha, pos, info, &pvFromHere);
 		TakeMove(pos);
 
 		movesTried++;
@@ -203,21 +203,27 @@ static int Quiescence(int alpha, const int beta, Position *pos, SearchInfo *info
 
 		if (score > bestScore) {
 
-			// If score beats beta we have a cutoff
-			if (score >= beta) {
-
-	#ifdef SEARCH_STATS
-				if (movesTried == 1) info->fhf++;
-				info->fh++;
-	#endif
-				return score;
-			}
-
 			bestScore = score;
 
 			// If score beats alpha we update alpha
-			if (score > alpha)
+			if (score > alpha) {
 				alpha = score;
+
+				// Update the Principle Variation
+                pv->length = 1 + pvFromHere.length;
+                pv->line[0] = move;
+                memcpy(pv->line + 1, pvFromHere.line, sizeof(int) * pvFromHere.length);
+
+				// If score beats beta we have a cutoff
+				if (score >= beta) {
+
+		#ifdef SEARCH_STATS
+					if (movesTried == 1) info->fhf++;
+					info->fh++;
+		#endif
+					return score;
+				}
+			}
 		}
 	}
 
@@ -225,7 +231,7 @@ static int Quiescence(int alpha, const int beta, Position *pos, SearchInfo *info
 }
 
 // Alpha Beta
-static int AlphaBeta(int alpha, const int beta, int depth, Position *pos, SearchInfo *info, const int doNull) {
+static int AlphaBeta(int alpha, const int beta, int depth, Position *pos, SearchInfo *info, PV *pv, const int doNull) {
 
 	assert(CheckBoard(pos));
 	assert(beta > alpha);
@@ -235,12 +241,17 @@ static int AlphaBeta(int alpha, const int beta, int depth, Position *pos, Search
 	assert(beta  <=  INFINITE);
 	assert(beta  >= -INFINITE);
 
+	const bool pvNode = alpha != beta - 1;
+
+	PV pv_from_here;
+    pv->length = 0;
+
 	MoveList list[1];
 	list->count = list->next = 0;
 
 	// Quiescence at the end of search
 	if (depth <= 0)
-		return Quiescence(alpha, beta, pos, info);
+		return Quiescence(alpha, beta, pos, info, &pv_from_here);
 
 	// Check time situation
 	CheckTime(info);
@@ -277,7 +288,8 @@ static int AlphaBeta(int alpha, const int beta, int depth, Position *pos, Search
 	int pvMove = NOMOVE;
 
 	// Probe transposition table
-	if (ProbeHashEntry(pos, &pvMove, &score, alpha, beta, depth)) {
+	if (ProbeHashEntry(pos, &pvMove, &score, alpha, beta, depth)
+		&& (depth == 0 || !pvNode)) {
 #ifdef SEARCH_STATS
 		pos->hashTable->cut++;
 #endif
@@ -317,7 +329,7 @@ static int AlphaBeta(int alpha, const int beta, int depth, Position *pos, Search
 	if (doNull && score >= beta && pos->ply && (pos->bigPieces[pos->side] > 0) && depth >= 4) {
 
 		MakeNullMove(pos);
-		score = -AlphaBeta(-beta, -beta + 1, depth - 4, pos, info, false);
+		score = -AlphaBeta(-beta, -beta + 1, depth - 4, pos, info, &pv_from_here, false);
 		TakeNullMove(pos);
 
 		// Cutoff
@@ -364,11 +376,11 @@ standard_search:
 
 		// Do zero-window searches around alpha on moves other than the PV
 		if (movesTried > 0)
-			score = -AlphaBeta(-alpha - 1, -alpha, depth - 1, pos, info, true);
+			score = -AlphaBeta(-alpha - 1, -alpha, depth - 1, pos, info, &pv_from_here, true);
 
 		// Do normal search on PV, and non-PV if the zero-window indicates it beats PV
 		if ((score > alpha && score < beta) || movesTried == 0)
-			score = -AlphaBeta(-beta, -alpha, depth - 1, pos, info, true);
+			score = -AlphaBeta(-beta, -alpha, depth - 1, pos, info, &pv_from_here, true);
 
 		// Undo the move
 		TakeMove(pos);
@@ -383,25 +395,6 @@ standard_search:
 		// Found a new best move in this position
 		if (score > bestScore) {
 
-			// If score beats beta we have a cutoff
-			if (score >= beta) {
-
-				// Update killers if quiet move
-				if (!(move & MOVE_IS_CAPTURE)) {
-					pos->searchKillers[1][pos->ply] = pos->searchKillers[0][pos->ply];
-					pos->searchKillers[0][pos->ply] = move;
-				}
-
-#ifdef SEARCH_STATS
-				if (movesTried == 1) info->fhf++;
-				info->fh++;
-#endif
-
-				StoreHashEntry(pos, move, score, BOUND_LOWER, depth);
-
-				return score;
-			}
-
 			bestScore = score;
 			bestMove = move;
 
@@ -410,7 +403,31 @@ standard_search:
 
 				alpha = score;
 
-				// Update searchHistory if quiet move
+				// Update the Principle Variation
+                pv->length = 1 + pv_from_here.length;
+                pv->line[0] = move;
+                memcpy(pv->line + 1, pv_from_here.line, sizeof(int) * pv_from_here.length);
+
+				// If score beats beta we have a cutoff
+				if (score >= beta) {
+
+					// Update killers if quiet move
+					if (!(move & MOVE_IS_CAPTURE)) {
+						pos->searchKillers[1][pos->ply] = pos->searchKillers[0][pos->ply];
+						pos->searchKillers[0][pos->ply] = move;
+					}
+
+	#ifdef SEARCH_STATS
+					if (movesTried == 1) info->fhf++;
+					info->fh++;
+	#endif
+
+					StoreHashEntry(pos, move, score, BOUND_LOWER, depth);
+
+					return score;
+				}
+
+				// Update searchHistory if quiet move and not beta cutoff
 				if (!(move & MOVE_IS_CAPTURE))
 					pos->searchHistory[pos->board[FROMSQ(bestMove)]][TOSQ(bestMove)] += depth;
 			}
@@ -434,7 +451,7 @@ standard_search:
 }
 
 // Aspiration window
-int AspirationWindow(Position *pos, SearchInfo *info, const int depth, int previousScore) {
+int AspirationWindow(Position *pos, SearchInfo *info, const int depth, int previousScore, PV *pv) {
 
 	// Dynamic bonus increasing initial window and delta
 	const int bonus = (previousScore * previousScore) / 8;
@@ -447,7 +464,7 @@ int AspirationWindow(Position *pos, SearchInfo *info, const int depth, int previ
 	unsigned int fails = 0;
 
 	while (true) {
-		int result = AlphaBeta(alpha, beta, depth, pos, info, true);
+		int result = AlphaBeta(alpha, beta, depth, pos, info, pv, true);
 		// Result within the bounds is accepted as correct
 		if ((result >= alpha && result <= beta) || info->stopped)
 			return result;
@@ -468,6 +485,7 @@ void SearchPosition(Position *pos, SearchInfo *info) {
 
 	int bestScore;
 	unsigned int currentDepth;
+	PV pv;
 
 	ClearForSearch(pos, info);
 
@@ -476,17 +494,21 @@ void SearchPosition(Position *pos, SearchInfo *info) {
 
 		// Search position, using aspiration windows for higher depths
 		if (currentDepth > 6)
-			bestScore = AspirationWindow(pos, info, currentDepth, bestScore);
+			bestScore = AspirationWindow(pos, info, currentDepth, bestScore, &pv);
 		else
-			bestScore = AlphaBeta(-INFINITE, INFINITE, currentDepth, pos, info, true);
+			bestScore = AlphaBeta(-INFINITE, INFINITE, currentDepth, pos, info, &pv, true);
 
 		// Stop search if applicable
 		if (info->stopped) break;
 
 		// Print thinking
-		PrintThinking(info, pos, bestScore, currentDepth);
+		PrintThinking(info, pos, pv, bestScore, currentDepth);
 	}
 
 	// Print conclusion
-	PrintConclusion(pos);
+	PrintConclusion(pv);
+
+#ifdef DEV
+	info->pv = pv;
+#endif
 }
