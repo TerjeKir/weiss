@@ -13,7 +13,6 @@
 enum { BOUND_NONE, BOUND_UPPER, BOUND_LOWER, BOUND_EXACT };
 
 
-int  GetPvLine(const int depth, Position *pos);
 void ClearHashTable(HashTable *table);
 void  InitHashTable(HashTable *table, uint64_t MB);
 #ifdef SEARCH_STATS

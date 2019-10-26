@@ -227,7 +227,7 @@ void MateInXTest(Position *pos) {
 search:
 				SearchPosition(pos, info);
 
-				bestFound = pos->pvArray[0];
+				bestFound = info->pv.line[0];
 
 				// Check if correct move is found
 				correct = 0;

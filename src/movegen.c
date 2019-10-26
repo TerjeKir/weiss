@@ -650,28 +650,28 @@ void GenAllMoves(const Position *pos, MoveList *list) {
 }
 
 // Checks the given move is legal in the given position
-bool MoveExists(Position *pos, const int move) {
+// bool MoveExists(Position *pos, const int move) {
 
-	MoveList list[1];
+// 	MoveList list[1];
 
-	// Generate all moves in the position
-	GenAllMoves(pos, list);
+// 	// Generate all moves in the position
+// 	GenAllMoves(pos, list);
 
-	// Loop through them, looking for a match
-	for (unsigned int i = 0; i < list->count; ++i) {
+// 	// Loop through them, looking for a match
+// 	for (unsigned int i = 0; i < list->count; ++i) {
 
-		if (!(list->moves[i].move == move))
-			continue;
+// 		if (!(list->moves[i].move == move))
+// 			continue;
 
-		// The movegen gens some illegal moves, so we must verify it is legal.
-		// If it isn't legal then the given move is not legal in the position.
-		// MakeMove takes it back immediately so we just break and return false.
-		if (!MakeMove(pos, list->moves[i].move))
-			break;
+// 		// The movegen gens some illegal moves, so we must verify it is legal.
+// 		// If it isn't legal then the given move is not legal in the position.
+// 		// MakeMove takes it back immediately so we just break and return false.
+// 		if (!MakeMove(pos, list->moves[i].move))
+// 			break;
 
-		// If it's legal we take it back and return true.
-		TakeMove(pos);
-		return true;
-	}
-	return false;
-}
+// 		// If it's legal we take it back and return true.
+// 		TakeMove(pos);
+// 		return true;
+// 	}
+// 	return false;
+// }

@@ -8,4 +8,4 @@
 void GenAllMoves(const Position *pos, MoveList *list);
 void GenNoisyMoves(const Position *pos, MoveList *list);
 void GenQuietMoves(const Position *pos, MoveList *list);
-bool MoveExists(Position *pos, const int move);
+// bool MoveExists(Position *pos, const int move);
