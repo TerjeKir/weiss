@@ -2,6 +2,8 @@
 
 #include <stdio.h>
 
+#include "attack.h"
+#include "bitboards.h"
 #include "board.h"
 #include "misc.h"
 #include "move.h"
@@ -9,6 +11,69 @@
 #include "transposition.h"
 #include "validate.h"
 
+
+static const bitboard bitB1C1D1 = (1ULL <<  1) | (1ULL <<  2) | (1ULL <<  3);
+static const bitboard bitB8C8D8 = (1ULL << 57) | (1ULL << 58) | (1ULL << 59);
+static const bitboard bitF1G1   = (1ULL <<  5) | (1ULL <<  6);
+static const bitboard bitF8G8   = (1ULL << 61) | (1ULL << 62);
+
+
+// Checks whether a move is psuedo-legal (assuming it is psuedo-legal in some position)
+bool MoveIsPsuedoLegal(const Position *pos, const int move) {
+
+	const int from  = FROMSQ(move);
+	const int to    = TOSQ(move);
+	const int piece = pos->board[from];
+	const int color = colorOf(piece);
+
+	const int capt1 = CAPTURED(move);
+	const int capt2 = pos->board[to];
+
+	if (   piece == EMPTY
+		|| color != pos->side
+		|| move  == NOMOVE
+		|| capt1 != capt2)
+		return false;
+
+	const int type          = pieceTypeOf(piece);
+	const bitboard occupied = pos->colorBBs[BOTH];
+	const bitboard toBB     = 1ULL << to;
+
+	switch (type) {
+		case KNIGHT: return toBB & knight_attacks[from];
+		case BISHOP: return toBB & BishopAttacks(from, occupied);
+		case ROOK  : return toBB &   RookAttacks(from, occupied);
+		case QUEEN : return toBB & (BishopAttacks(from, occupied) | RookAttacks(from, occupied));
+		case PAWN  :
+			if (move & FLAG_ENPAS)
+				return to == pos->enPas;
+			if (move & FLAG_PAWNSTART)
+				return !(pos->board[to] || pos->board[to - 8 + 16 * color]);
+			return !pos->board[to];
+		case KING  :
+			if (move & FLAG_CASTLE)
+				switch (to) {
+					case C1: return    (pos->castlePerm & WQCA)
+									&& !(occupied & bitB1C1D1)
+									&& !SqAttacked(E1, BLACK, pos)
+									&& !SqAttacked(D1, BLACK, pos);
+					case G1: return    (pos->castlePerm & WKCA)
+									&& !(occupied & bitF1G1)
+									&& !SqAttacked(E1, BLACK, pos)
+									&& !SqAttacked(F1, BLACK, pos);
+					case C8: return    (pos->castlePerm & BQCA)
+									&& !(occupied & bitB8C8D8)
+									&& !SqAttacked(E8, WHITE, pos)
+									&& !SqAttacked(D8, WHITE, pos);
+					case G8: return    (pos->castlePerm & BKCA)
+									&& !(occupied & bitF8G8)
+									&& !SqAttacked(E8, WHITE, pos)
+									&& !SqAttacked(F8, WHITE, pos);
+				}
+			return toBB & king_attacks[from];
+	}
+	return false;
+}
 
 // Translates a move to a string
 char *MoveToStr(const int move) {
