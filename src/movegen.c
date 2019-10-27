@@ -146,13 +146,13 @@ static inline void GenBCastling(const Position *pos, MoveList *list, const bitbo
 
 	// King side castle
 	if (pos->castlePerm & BKCA)
-		if (!((occupied & bitF8G8)))
+		if (!(occupied & bitF8G8))
 			if (!SqAttacked(E8, WHITE, pos) && !SqAttacked(F8, WHITE, pos))
 				AddQuiet(pos, E8, G8, EMPTY, FLAG_CASTLE, list);
 
 	// Queen side castle
 	if (pos->castlePerm & BQCA)
-		if (!((occupied & bitB8C8D8)))
+		if (!(occupied & bitB8C8D8))
 			if (!SqAttacked(E8, WHITE, pos) && !SqAttacked(D8, WHITE, pos))
 				AddQuiet(pos, E8, C8, EMPTY, FLAG_CASTLE, list);
 }
