@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "attack.h"
 #include "bitboards.h"
 #include "board.h"
 #include "evaluate.h"
@@ -25,6 +26,8 @@ static const int  RookSemiOpenFile = S(5, 5);
 static const int QueenSemiOpenFile = S(3, 3);
 
 static const int BishopPair = S(30, 30);
+
+static const int KingLineVulnerability = S(-5, 0);
 
 
 // Initialize evaluation bit masks
@@ -227,6 +230,13 @@ int EvalPosition(const Position *pos) {
 			score -= QueenSemiOpenFile;
 	}
 
+	// Kings
+	score += KingLineVulnerability * PopCount(  RookAttacks(pos->kingSq[WHITE], pos->colorBBs[WHITE] | pos->pieceBBs[PAWN])
+											| BishopAttacks(pos->kingSq[WHITE], pos->colorBBs[WHITE] | pos->pieceBBs[PAWN]));
+	score -= KingLineVulnerability * PopCount(  RookAttacks(pos->kingSq[BLACK], pos->colorBBs[BLACK] | pos->pieceBBs[PAWN])
+											| BishopAttacks(pos->kingSq[BLACK], pos->colorBBs[BLACK] | pos->pieceBBs[PAWN]));
+
+	// Adjust score by phase
 	const int basePhase = 24;
 	int phase = basePhase;
 	phase -= 1 * pos->pieceCounts[bN]
