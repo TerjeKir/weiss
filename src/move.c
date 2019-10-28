@@ -43,8 +43,10 @@ bool MoveIsPsuedoLegal(const Position *pos, const int move) {
 			if (move & FLAG_ENPAS)
 				return to == pos->enPas;
 			if (move & FLAG_PAWNSTART)
-				return !(pos->board[to] || pos->board[to - 8 + 16 * color]);
-			return !pos->board[to];
+				return pos->board[to - 8 + 16 * color] == EMPTY;
+			if (capt1)
+				return toBB & pawn_attacks[color][from];
+			return (to - 8 + 16 * color) == from;
 		case KING  :
 			if (move & FLAG_CASTLE)
 				switch (to) {
