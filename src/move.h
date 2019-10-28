@@ -34,6 +34,7 @@
 #define MOVE_IS_CAPTURE 0x10F000
 
 
+bool MoveIsPsuedoLegal(const Position *pos, const int move);
 char *MoveToStr(const int move);
 int ParseMove(const char *ptrChar, Position *pos);
 #ifdef DEV

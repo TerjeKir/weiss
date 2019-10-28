@@ -12,12 +12,6 @@
 #include "validate.h"
 
 
-static const bitboard bitB1C1D1 = (1ULL <<  1) | (1ULL <<  2) | (1ULL <<  3);
-static const bitboard bitB8C8D8 = (1ULL << 57) | (1ULL << 58) | (1ULL << 59);
-static const bitboard bitF1G1   = (1ULL <<  5) | (1ULL <<  6);
-static const bitboard bitF8G8   = (1ULL << 61) | (1ULL << 62);
-
-
 // Checks whether a move is psuedo-legal (assuming it is psuedo-legal in some position)
 bool MoveIsPsuedoLegal(const Position *pos, const int move) {
 
@@ -29,17 +23,18 @@ bool MoveIsPsuedoLegal(const Position *pos, const int move) {
 	const int capt1 = CAPTURED(move);
 	const int capt2 = pos->board[to];
 
+	// Easy sanity tests
 	if (   piece == EMPTY
 		|| color != pos->side
-		|| move  == NOMOVE
-		|| capt1 != capt2)
+		|| capt1 != capt2
+		|| move  == NOMOVE)
 		return false;
 
-	const int type          = pieceTypeOf(piece);
 	const bitboard occupied = pos->colorBBs[BOTH];
 	const bitboard toBB     = 1ULL << to;
 
-	switch (type) {
+	// Make sure the piece at 'from' can move to 'to' (ignoring pins/moving into check)
+	switch (pieceTypeOf(piece)) {
 		case KNIGHT: return toBB & knight_attacks[from];
 		case BISHOP: return toBB & BishopAttacks(from, occupied);
 		case ROOK  : return toBB &   RookAttacks(from, occupied);

@@ -29,6 +29,12 @@ enum {
     rank8BB = 0xFF00000000000000,
 };
 
+// Used for checking legality of castling
+static const bitboard bitB1C1D1 = (1ULL << B1) | (1ULL << C1) | (1ULL << D1);
+static const bitboard bitB8C8D8 = (1ULL << B8) | (1ULL << C8) | (1ULL << D8);
+static const bitboard bitF1G1   = (1ULL << F1) | (1ULL << G1);
+static const bitboard bitF8G8   = (1ULL << F8) | (1ULL << G8);
+
 
 bitboard   SetMask[64];
 bitboard ClearMask[64];
