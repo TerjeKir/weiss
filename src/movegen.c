@@ -10,11 +10,6 @@
 #include "validate.h"
 
 
-static const bitboard bitB1C1D1 = (1ULL <<  1) | (1ULL <<  2) | (1ULL <<  3);
-static const bitboard bitB8C8D8 = (1ULL << 57) | (1ULL << 58) | (1ULL << 59);
-static const bitboard bitF1G1   = (1ULL <<  5) | (1ULL <<  6);
-static const bitboard bitF8G8   = (1ULL << 61) | (1ULL << 62);
-
 static int MvvLvaScores[PIECE_NB][PIECE_NB];
 
 // Initializes the MostValuableVictim-LeastValuableAttacker scores used for ordering captures
@@ -146,13 +141,13 @@ static inline void GenBCastling(const Position *pos, MoveList *list, const bitbo
 
 	// King side castle
 	if (pos->castlePerm & BKCA)
-		if (!((occupied & bitF8G8)))
+		if (!(occupied & bitF8G8))
 			if (!SqAttacked(E8, WHITE, pos) && !SqAttacked(F8, WHITE, pos))
 				AddQuiet(pos, E8, G8, EMPTY, FLAG_CASTLE, list);
 
 	// Queen side castle
 	if (pos->castlePerm & BQCA)
-		if (!((occupied & bitB8C8D8)))
+		if (!(occupied & bitB8C8D8))
 			if (!SqAttacked(E8, WHITE, pos) && !SqAttacked(D8, WHITE, pos))
 				AddQuiet(pos, E8, C8, EMPTY, FLAG_CASTLE, list);
 }
