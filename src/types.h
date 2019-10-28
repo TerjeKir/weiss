@@ -34,11 +34,11 @@ typedef enum Piece {
 } Piece;
 
 enum PieceValue {
-	P_MG =  100, P_EG =  100,
-	N_MG =  325, N_EG =  325,
-	B_MG =  325, B_EG =  325,
-	R_MG =  550, R_EG =  550,
-	Q_MG = 1000, Q_EG = 1000
+	P_MG =  100, P_EG =  110,
+	N_MG =  335, N_EG =  350,
+	B_MG =  335, B_EG =  350,
+	R_MG =  550, R_EG =  580,
+	Q_MG = 1000, Q_EG = 1100
 };
 
 enum File { FILE_A, FILE_B, FILE_C, FILE_D, FILE_E, FILE_F, FILE_G, FILE_H, FILE_NONE };
