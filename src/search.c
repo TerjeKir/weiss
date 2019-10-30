@@ -86,28 +86,22 @@ static void ClearForSearch(Position *pos, SearchInfo *info) {
 // Print thinking
 static void PrintThinking(const SearchInfo *info, Position *pos, const PV pv, const int bestScore, const int currentDepth) {
 
-	unsigned timeElapsed = GetTimeMs() - info->starttime;
+	// Convert score to mate score when applicable
+	int score = bestScore >  ISMATE ? (INFINITE - bestScore) / 2 + 1
+			  : bestScore < -ISMATE ? (INFINITE + bestScore) / 2
+			  : bestScore;
 
-	printf("info score ");
+	char *scoreType = bestScore >  ISMATE ? "mate"
+					: bestScore < -ISMATE ? "mate"
+					: "cp";
 
-	// Score or mate
-	if (bestScore > ISMATE)
-		printf("mate %d ", ((INFINITE - bestScore) / 2) + 1);
-	else if (bestScore < -ISMATE)
-		printf("mate -%d ", (INFINITE + bestScore) / 2);
-	else
-		printf("cp %d ", bestScore);
+	int elapsed  = GetTimeMs() - info->starttime;
+	int hashFull = HashFull(pos);
+	int nps      = (int)(1000 * (info->nodes / (elapsed + 1)));
 
 	// Basic info
-	printf("depth %d seldepth %d nodes %" PRId64 " tbhits %" PRId64 " time %d ",
-			currentDepth, info->seldepth, info->nodes, info->tbhits, timeElapsed);
-
-	// Nodes per second
-	if (timeElapsed > 0)
-		printf("nps %" PRId64 " ", ((info->nodes * 1000) / timeElapsed));
-
-	// Hashfull
-	printf("hashfull %d ", HashFull(pos));
+	printf("info score %s %d depth %d seldepth %d nodes %" PRId64 " nps %d tbhits %" PRId64 " time %d hashfull %d ",
+			scoreType, score, currentDepth, info->seldepth, info->nodes, nps, info->tbhits, elapsed, hashFull);
 
 	// Principal variation
 	printf("pv");
