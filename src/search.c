@@ -231,7 +231,7 @@ static int Quiescence(int alpha, const int beta, Position *pos, SearchInfo *info
 }
 
 // Alpha Beta
-static int AlphaBeta(int alpha, const int beta, int depth, Position *pos, SearchInfo *info, PV *pv, const int doNull) {
+static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *info, PV *pv, const int doNull) {
 
 	assert(CheckBoard(pos));
 	assert(beta > alpha);
@@ -273,29 +273,29 @@ static int AlphaBeta(int alpha, const int beta, int depth, Position *pos, Search
 		if (pos->ply >= MAXDEPTH)
 			return EvalPosition(pos);
 
-		// Mate distance pruning -- TODO doesn't work properly
-		// alpha = alpha > -ISMATE + pos->ply     ? alpha : -ISMATE + pos->ply;
-		// beta  = beta  <  ISMATE - pos->ply - 1 ? beta  :  ISMATE - pos->ply - 1;
-		// if (alpha >= beta)
-		// 	return alpha;
+		// Mate distance pruning
+		alpha = alpha > -INFINITE + pos->ply     ? alpha : -INFINITE + pos->ply;
+		beta  = beta  <  INFINITE - pos->ply - 1 ? beta  :  INFINITE - pos->ply - 1;
+		if (alpha >= beta)
+			return alpha;
 	}
 
 	// Extend search if in check
-	const int inCheck = SqAttacked(pos->kingSq[pos->side], !pos->side, pos);
+	const bool inCheck = SqAttacked(pos->kingSq[pos->side], !pos->side, pos);
 	if (inCheck) depth++;
 
 	int score = -INFINITE;
 	int pvMove = NOMOVE;
 
 	// Probe transposition table
-	if (ProbeHashEntry(pos, &pvMove, &score, alpha, beta, depth)
-		&& (depth == 0 || !pvNode)) {
+	if (ProbeHashEntry(pos, &pvMove, &score, alpha, beta, depth) && !pvNode) {
 #ifdef SEARCH_STATS
 		pos->hashTable->cut++;
 #endif
 		return score;
 	}
 
+	// Probe syzygy TBs
 	unsigned tbresult;
 	if ((tbresult = probeWDL(pos)) != TB_RESULT_FAILED) {
 
