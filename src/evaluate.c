@@ -231,10 +231,10 @@ int EvalPosition(const Position *pos) {
 	}
 
 	// Kings
-	score += KingLineVulnerability * PopCount(  RookAttacks(pos->kingSq[WHITE], pos->colorBBs[WHITE] | pos->pieceBBs[PAWN])
-											| BishopAttacks(pos->kingSq[WHITE], pos->colorBBs[WHITE] | pos->pieceBBs[PAWN]));
-	score -= KingLineVulnerability * PopCount(  RookAttacks(pos->kingSq[BLACK], pos->colorBBs[BLACK] | pos->pieceBBs[PAWN])
-											| BishopAttacks(pos->kingSq[BLACK], pos->colorBBs[BLACK] | pos->pieceBBs[PAWN]));
+	score += KingLineVulnerability * PopCount(  RookAttacks(pos->kingSq[WHITE], whitePawns)
+											| BishopAttacks(pos->kingSq[WHITE], whitePawns));
+	score -= KingLineVulnerability * PopCount(  RookAttacks(pos->kingSq[BLACK], blackPawns)
+											| BishopAttacks(pos->kingSq[BLACK], blackPawns));
 
 	// Adjust score by phase
 	const int basePhase = 24;
