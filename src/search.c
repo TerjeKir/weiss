@@ -12,6 +12,7 @@
 #include "misc.h"
 #include "move.h"
 #include "movegen.h"
+#include "movepicker.h"
 #include "transposition.h"
 #include "syzygy.h"
 
@@ -24,30 +25,6 @@ static void CheckTime(SearchInfo *info) {
 		&& GetTimeMs() >= info->stoptime)
 
 		info->stopped = true;
-}
-
-// Return the next best move
-static int PickNextMove(MoveList *list) {
-
-	int bestMove;
-	int bestScore = 0;
-	unsigned int moveNum = list->next++;
-	unsigned int bestNum = moveNum;
-
-	for (unsigned int index = moveNum; index < list->count; ++index)
-		if (list->moves[index].score > bestScore) {
-			bestScore = list->moves[index].score;
-			bestNum = index;
-		}
-
-	assert(moveNum < list->count);
-	assert(bestNum < list->count);
-	assert(bestNum >= moveNum);
-
-	bestMove = list->moves[bestNum].move;
-	list->moves[bestNum] = list->moves[moveNum];
-
-	return bestMove;
 }
 
 // Check if current position is a repetition
@@ -171,19 +148,24 @@ static int Quiescence(int alpha, const int beta, Position *pos, SearchInfo *info
 	if (score > alpha)
 		alpha = score;
 
-	// Generate all moves
+
+	MovePicker mp;
+
 	MoveList list[1];
 	list->count = list->next = 0;
-	GenNoisyMoves(pos, list);
+	mp.list = list;
+	mp.onlyNoisy = true;
+	mp.pos = pos;
+	mp.stage = GEN_NOISY;
+	mp.ttMove = NOMOVE;
 
 	int movesTried = 0;
 	int bestScore = score;
 	score = -INFINITE;
 
 	// Move loop
-	for (unsigned int moveNum = 0; moveNum < list->count; ++moveNum) {
-
-		int move = PickNextMove(list);
+	int move;
+	while ((move = NextMove(&mp))) {
 
 		// Recursively search the positions after making the moves, skipping illegal ones
 		if (!MakeMove(pos, move)) continue;
@@ -240,8 +222,7 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
 	PV pv_from_here;
     pv->length = 0;
 
-	MoveList list[1];
-	list->count = list->next = 0;
+	MovePicker mp;
 
 	// Quiescence at the end of search
 	if (depth <= 0)
@@ -279,10 +260,10 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
 	if (inCheck) depth++;
 
 	int score = -INFINITE;
-	int pvMove = NOMOVE;
+	int ttMove = NOMOVE;
 
 	// Probe transposition table
-	if (ProbeHashEntry(pos, &pvMove, &score, alpha, beta, depth) && !pvNode) {
+	if (ProbeHashEntry(pos, &ttMove, &score, alpha, beta, depth) && !pvNode) {
 #ifdef SEARCH_STATS
 		pos->hashTable->cut++;
 #endif
@@ -313,57 +294,48 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
 	}
 
 	// Skip pruning while in check
-	if (inCheck)
-		goto standard_search;
+	if (!inCheck) {
 
-	// Do a static evaluation for pruning consideration
-	score = EvalPosition(pos);
+		// Do a static evaluation for pruning consideration
+		score = EvalPosition(pos);
 
-	// Null Move Pruning
-	if (doNull && score >= beta && pos->ply && (pos->bigPieces[pos->side] > 0) && depth >= 4) {
+		// Null Move Pruning
+		if (doNull && score >= beta && pos->ply && (pos->bigPieces[pos->side] > 0) && depth >= 4) {
 
-		MakeNullMove(pos);
-		score = -AlphaBeta(-beta, -beta + 1, depth - 4, pos, info, &pv_from_here, false);
-		TakeNullMove(pos);
+			MakeNullMove(pos);
+			score = -AlphaBeta(-beta, -beta + 1, depth - 4, pos, info, &pv_from_here, false);
+			TakeNullMove(pos);
 
-		// Cutoff
-		if (score >= beta) {
+			// Cutoff
+			if (score >= beta) {
 #ifdef SEARCH_STATS
-			info->nullCut++;
+				info->nullCut++;
 #endif
-			// Don't return unproven mate scores
-			if (score >= ISMATE)
-				score = beta;
-			return score;
+				// Don't return unproven mate scores
+				if (score >= ISMATE)
+					score = beta;
+				return score;
+			}
 		}
 	}
 
-standard_search:
+	MoveList list[1];
+	list->count = list->next = 0;
+	mp.list = list;
+	mp.onlyNoisy = false;
+	mp.pos = pos;
+	mp.stage = TTMOVE;
+	mp.ttMove = ttMove;
 
-	// Generate all moves
-	GenAllMoves(pos, list);
-
-	unsigned int moveNum;
 	unsigned int movesTried = 0;
 	const int oldAlpha = alpha;
 	int bestMove = NOMOVE;
 	int bestScore = -INFINITE;
-
 	score = -INFINITE;
 
-	// Set score of PV move
-	if (pvMove != NOMOVE)
-		for (moveNum = 0; moveNum < list->count; ++moveNum)
-			if (list->moves[moveNum].move == pvMove) {
-				list->moves[moveNum].score = 2000000;
-				break;
-			}
-
 	// Move loop
-	for (moveNum = 0; moveNum < list->count; ++moveNum) {
-
-		// Move the best move to front of queue
-		int move = PickNextMove(list);
+	int move;
+	while ((move = NextMove(&mp))) {
 
 		// Make the next predicted best move, skipping illegal ones
 		if (!MakeMove(pos, move)) continue;
