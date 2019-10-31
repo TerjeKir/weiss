@@ -62,10 +62,9 @@ int NextMove(MovePicker *mp) {
 
             // fall through
         case GEN_QUIET:
-            if (mp->onlyNoisy) {
-                mp->stage = DONE;
+            if (mp->onlyNoisy)
                 return NOMOVE;
-            }
+
             GenQuietMoves(mp->pos, mp->list);
             mp->stage++;
 
@@ -75,7 +74,6 @@ int NextMove(MovePicker *mp) {
                 if ((move = PickNextMove(mp->list, mp->ttMove)))
                     return move;
 
-            mp->stage = DONE;
             return NOMOVE;
 
         default:

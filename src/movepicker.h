@@ -4,7 +4,7 @@
 
 
 typedef enum MPStage {
-    TTMOVE, GEN_NOISY, NOISY, GEN_QUIET, QUIET, DONE = -1
+    TTMOVE, GEN_NOISY, NOISY, GEN_QUIET, QUIET
 } MPStage;
 
 typedef struct MovePicker {
