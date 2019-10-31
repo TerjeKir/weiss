@@ -12,8 +12,8 @@
 #include "validate.h"
 
 
-// Checks whether a move is psuedo-legal (assuming it is psuedo-legal in some position)
-bool MoveIsPsuedoLegal(const Position *pos, const int move) {
+// Checks whether a move is pseudo-legal (assuming it is pseudo-legal in some position)
+bool MoveIsPseudoLegal(const Position *pos, const int move) {
 
 	const int from  = FROMSQ(move);
 	const int to    = TOSQ(move);

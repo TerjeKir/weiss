@@ -23,13 +23,10 @@ static int PickNextMove(MoveList *list, int ttMove) {
 			bestNum   = i;
 		}
 
-	assert(moveNum < list->count);
-	assert(bestNum < list->count);
-	assert(bestNum >= moveNum);
-
 	bestMove = list->moves[bestNum].move;
 	list->moves[bestNum] = list->moves[moveNum];
 
+    // Avoid returning the ttMove again
 	if (bestMove == ttMove)
 		return PickNextMove(list, ttMove);
 
@@ -47,7 +44,7 @@ int NextMove(MovePicker *mp) {
 
         case TTMOVE:
             mp->stage++;
-            if (MoveIsPsuedoLegal(mp->pos, mp->ttMove))
+            if (MoveIsPseudoLegal(mp->pos, mp->ttMove))
                 return mp->ttMove;
 
             // fall through
@@ -57,11 +54,10 @@ int NextMove(MovePicker *mp) {
 
             // fall through
         case NOISY:
-            if (mp->list->next < mp->list->count) {
-                move = PickNextMove(mp->list, mp->ttMove);
-                if (move)
+            if (mp->list->next < mp->list->count)
+                if ((move = PickNextMove(mp->list, mp->ttMove)))
                     return move;
-            }
+
             mp->stage++;
 
             // fall through
@@ -75,12 +71,10 @@ int NextMove(MovePicker *mp) {
 
             // fall through
         case QUIET:
-
-            if (mp->list->next < mp->list->count) {
-                move = PickNextMove(mp->list, mp->ttMove);
-                if (move)
+            if (mp->list->next < mp->list->count)
+                if ((move = PickNextMove(mp->list, mp->ttMove)))
                     return move;
-            }
+
             mp->stage = DONE;
             return NOMOVE;
 
