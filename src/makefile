@@ -24,21 +24,33 @@ PGOGEN = -fprofile-generate=$(PGODIR)
 PGOUSE = -fprofile-use=$(PGODIR)
 
 
-basic: # for openBench
-	gcc $(CFLAGS) $(SRC) -o $(EXE)
+# For OpenBench
+bench-basic:
+	gcc $(CFLAGS) $(SRC)         -o $(EXE)
 
-dev:   # for tests not included in the others
-	gcc $(CFLAGS) $(SRC) $(PEXT) $(DEV)    -o "$(EXE)-dev.exe"
+bench-pext:
+	gcc $(CFLAGS) $(SRC) $(PEXT) -o $(EXE)
 
-pext:  # for basic compile
-	gcc $(CFLAGS) $(SRC) $(PEXT)           -o "$(OUT)$(EXE)-pext.exe"
+bench-pgo:
+	gcc $(CFLAGS) $(SRC) $(PEXT) $(PGOGEN) -o "$(EXE)-temp.exe"
+	$(EXE)-temp.exe bench 6
+	gcc $(CFLAGS) $(SRC) $(PEXT) $(PGOUSE) -o $(EXE)
+	rmdir /s /q "../pgo"
+	del /f "$(EXE)-temp.exe"
 
-gprof: # for gprof profiling
-	gcc $(PFLAGS) $(SRC) $(PEXT)           -o "$(OUT)$(EXE)-prof.exe"
+# For normal use
+dev:
+	gcc $(CFLAGS) $(SRC) $(PEXT) $(DEV)    -o "$(EXE)-dev"
 
-pgo:   # profile guided optimization, for windows
+pext:
+	gcc $(CFLAGS) $(SRC) $(PEXT)           -o "$(OUT)$(EXE)-pext"
+
+pgo:
 	gcc $(CFLAGS) $(SRC) $(PEXT) $(PGOGEN) -o "$(EXE)-temp.exe"
 	$(EXE)-temp.exe bench 6
 	gcc $(CFLAGS) $(SRC) $(PEXT) $(PGOUSE) -o "$(OUT)$(EXE)-pext-pgo.exe"
 	rmdir /s /q "../pgo"
 	del /f "$(EXE)-temp.exe"
+
+gprof:
+	gcc $(PFLAGS) $(SRC) $(PEXT)           -o "$(OUT)$(EXE)-prof"
