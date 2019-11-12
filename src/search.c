@@ -111,15 +111,18 @@ static void PrintConclusion(const PV pv) {
 // Quiescence
 static int Quiescence(int alpha, const int beta, Position *pos, SearchInfo *info, PV *pv) {
 
-	PV pvFromHere;
-    pv->length = 0;
-
 	assert(CheckBoard(pos));
 	assert(beta > alpha);
 	assert(beta <=  INFINITE);
 	assert(beta >= -INFINITE);
 	assert(alpha <=  INFINITE);
 	assert(alpha >= -INFINITE);
+
+	PV pvFromHere;
+    pv->length = 0;
+
+	MovePicker mp;
+	MoveList list;
 
 	// Check time situation
 	CheckTime(info);
@@ -148,16 +151,7 @@ static int Quiescence(int alpha, const int beta, Position *pos, SearchInfo *info
 	if (score > alpha)
 		alpha = score;
 
-
-	MovePicker mp;
-
-	MoveList list[1];
-	list->count = list->next = 0;
-	mp.list = list;
-	mp.onlyNoisy = true;
-	mp.pos = pos;
-	mp.stage = GEN_NOISY;
-	mp.ttMove = NOMOVE;
+	InitNoisyMP(&mp, &list, pos);
 
 	int movesTried = 0;
 	int bestScore = score;
@@ -223,6 +217,7 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
     pv->length = 0;
 
 	MovePicker mp;
+    MoveList list;
 
 	// Quiescence at the end of search
 	if (depth <= 0)
@@ -319,13 +314,7 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
 		}
 	}
 
-	MoveList list[1];
-	list->count = list->next = 0;
-	mp.list = list;
-	mp.onlyNoisy = false;
-	mp.pos = pos;
-	mp.stage = TTMOVE;
-	mp.ttMove = ttMove;
+	InitNormalMP(&mp, &list, pos, ttMove);
 
 	unsigned int movesTried = 0;
 	const int oldAlpha = alpha;

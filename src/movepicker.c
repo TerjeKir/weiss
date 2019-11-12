@@ -81,3 +81,23 @@ int NextMove(MovePicker *mp) {
             return NOMOVE;
         }
 }
+
+// Init normal movepicker
+void InitNormalMP(MovePicker *mp, MoveList *list, Position *pos, int ttMove) {
+	list->count   = list->next = 0;
+	mp->list      = list;
+	mp->onlyNoisy = false;
+	mp->pos       = pos;
+	mp->stage     = TTMOVE;
+	mp->ttMove    = ttMove;
+}
+
+// Init noisy movepicker
+void InitNoisyMP(MovePicker *mp, MoveList *list, Position *pos) {
+	list->count   = list->next = 0;
+	mp->list      = list;
+	mp->onlyNoisy = true;
+	mp->pos       = pos;
+	mp->stage     = GEN_NOISY;
+	mp->ttMove    = NOMOVE;
+}

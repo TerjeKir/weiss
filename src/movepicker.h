@@ -17,3 +17,5 @@ typedef struct MovePicker {
 
 
 int NextMove(MovePicker *mp);
+void InitNormalMP(MovePicker *mp, MoveList *list, Position *pos, int ttMove);
+void InitNoisyMP(MovePicker *mp, MoveList *list, Position *pos);
