@@ -175,7 +175,7 @@ int main(int argc, char **argv) {
 		if (argc > 2)
 			benchmark(atoi(argv[2]), pos, info);
 		else
-			benchmark(8, pos, info);
+			benchmark(10, pos, info);
 		return 0;
 	}
 

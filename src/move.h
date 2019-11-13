@@ -32,6 +32,7 @@
 
 // Move either has enpas flag or a captured piece
 #define MOVE_IS_CAPTURE 0x10F000
+#define MOVE_IS_NOISY   0x1FF000
 
 
 bool MoveIsPseudoLegal(const Position *pos, const int move);

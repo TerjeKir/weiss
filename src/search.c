@@ -329,12 +329,19 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
 		// Make the next predicted best move, skipping illegal ones
 		if (!MakeMove(pos, move)) continue;
 
-		// Do zero-window searches around alpha on moves other than the PV
-		if (movesTried > 0)
+		bool moveIsNoisy = move & MOVE_IS_NOISY;
+		bool doLMR = depth > 2 && movesTried > 1 && pos->ply && !moveIsNoisy;
+
+		// Reduced depth zero-window search (-1 depth)
+		if (doLMR)
+			score = -AlphaBeta(-alpha - 1, -alpha, depth - 2, pos, info, &pv_from_here, true);
+
+		// Full depth zero-window search
+		if ((doLMR && score > alpha) || (!doLMR && (!pvNode || movesTried > 0)))
 			score = -AlphaBeta(-alpha - 1, -alpha, depth - 1, pos, info, &pv_from_here, true);
 
-		// Do normal search on PV, and non-PV if the zero-window indicates it beats PV
-		if ((score > alpha && score < beta) || movesTried == 0)
+		// Full depth alpha-beta window search
+		if (pvNode && ((score > alpha && score < beta) || movesTried == 0))
 			score = -AlphaBeta(-beta, -alpha, depth - 1, pos, info, &pv_from_here, true);
 
 		// Undo the move
