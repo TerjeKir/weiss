@@ -316,7 +316,7 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
 
 	InitNormalMP(&mp, &list, pos, ttMove);
 
-	unsigned int movesTried = 0;
+	int movesTried = 0;
 	const int oldAlpha = alpha;
 	int bestMove = NOMOVE;
 	int bestScore = -INFINITE;
@@ -332,7 +332,7 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
 		movesTried++;
 
 		bool moveIsNoisy = move & MOVE_IS_NOISY;
-		bool doLMR = depth > 2 && movesTried > 1 && pos->ply && !moveIsNoisy;
+		bool doLMR = depth > 2 && movesTried > (1 + 2 * pvNode) && pos->ply && !moveIsNoisy;
 
 		// Reduced depth zero-window search (-1 depth)
 		if (doLMR)
