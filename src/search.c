@@ -316,7 +316,7 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
 
 	InitNormalMP(&mp, &list, pos, ttMove);
 
-	unsigned int movesTried = 0;
+	int movesTried = 0;
 	const int oldAlpha = alpha;
 	int bestMove = NOMOVE;
 	int bestScore = -INFINITE;
@@ -329,25 +329,25 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
 		// Make the next predicted best move, skipping illegal ones
 		if (!MakeMove(pos, move)) continue;
 
+		movesTried++;
+
 		bool moveIsNoisy = move & MOVE_IS_NOISY;
-		bool doLMR = depth > 2 && movesTried > 1 && pos->ply && !moveIsNoisy;
+		bool doLMR = depth > 2 && movesTried > (2 + pvNode) && pos->ply && !moveIsNoisy;
 
 		// Reduced depth zero-window search (-1 depth)
 		if (doLMR)
 			score = -AlphaBeta(-alpha - 1, -alpha, depth - 2, pos, info, &pv_from_here, true);
 
 		// Full depth zero-window search
-		if ((doLMR && score > alpha) || (!doLMR && (!pvNode || movesTried > 0)))
+		if ((doLMR && score > alpha) || (!doLMR && (!pvNode || movesTried > 1)))
 			score = -AlphaBeta(-alpha - 1, -alpha, depth - 1, pos, info, &pv_from_here, true);
 
 		// Full depth alpha-beta window search
-		if (pvNode && ((score > alpha && score < beta) || movesTried == 0))
+		if (pvNode && ((score > alpha && score < beta) || movesTried == 1))
 			score = -AlphaBeta(-beta, -alpha, depth - 1, pos, info, &pv_from_here, true);
 
 		// Undo the move
 		TakeMove(pos);
-
-		movesTried++;
 
 		if (info->stopped)
 			return 0;
