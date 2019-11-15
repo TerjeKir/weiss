@@ -1,5 +1,6 @@
 // search.c
 
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -16,6 +17,19 @@
 #include "transposition.h"
 #include "syzygy.h"
 
+
+int Reductions[32][32];
+
+
+// Initializes the late move reduction array
+static void InitReductions() __attribute__((constructor));
+static void InitReductions() {
+
+	for (int depth = 0; depth < 32; ++depth)
+		for (int moves = 0; moves < 32; ++moves)
+			// log((depth * moves^2) / 2) - 2, staying >= 0 always
+			Reductions[depth][moves] = MAX(0, log((depth * pow(moves, 2)) / 2.0) - 2);
+}
 
 // Check time situation
 static void CheckTime(SearchInfo *info) {
@@ -219,6 +233,8 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
 	MovePicker mp;
     MoveList list;
 
+	int R;
+
 	// Quiescence at the end of search
 	if (depth <= 0)
 		return Quiescence(alpha, beta, pos, info, &pv_from_here);
@@ -335,9 +351,17 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
 		bool doLMR = depth > 2 && movesTried > (2 + pvNode) && pos->ply && !moveIsNoisy;
 
 		// Reduced depth zero-window search (-1 depth)
-		if (doLMR)
-			score = -AlphaBeta(-alpha - 1, -alpha, depth - 2, pos, info, &pv_from_here, true);
+		if (doLMR) {
+			// Base reduction
+			R  = Reductions[MIN(31, depth)][MIN(31, movesTried)];
+			// Reduce more in non-pv nodes
+			R += !pvNode;
 
+			// Depth after reductions, avoiding going straight to quiescence
+			int RDepth = MAX(1, depth - 1 - MAX(R, 1));
+
+			score = -AlphaBeta(-alpha - 1, -alpha, RDepth, pos, info, &pv_from_here, true);
+		}
 		// Full depth zero-window search
 		if ((doLMR && score > alpha) || (!doLMR && (!pvNode || movesTried > 1)))
 			score = -AlphaBeta(-alpha - 1, -alpha, depth - 1, pos, info, &pv_from_here, true);
