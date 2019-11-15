@@ -16,6 +16,8 @@ const int pieceBig [PIECE_NB] = { false, false,  true,  true,  true,  true, fals
 const int piecePawn[PIECE_NB] = { false,  true, false, false, false, false, false, false, false,  true, false, false, false, false, false, false };
 const int pieceKing[PIECE_NB] = { false, false, false, false, false, false,  true, false, false, false, false, false, false, false,  true, false };
 
+const int phaseValue[PIECE_NB] = {    0,     0,     1,     1,     2,     4,     0,     0,     0,     0,     1,     1,     2,     4,     0,     0 };
+
 const int mirror_square[64] = {
 	56, 57, 58, 59, 60, 61, 62, 63,
 	48, 49, 50, 51, 52, 53, 54, 55,
@@ -72,6 +74,9 @@ static void UpdatePosition(Position *pos) {
 			// Material score
 			pos->material += PSQT[piece][sq];
 
+			// Phase
+			pos->phase -= phaseValue[piece];
+
 			// Piece list / count
 			pos->pieceList[piece][pos->pieceCounts[piece]] = sq;
 			pos->pieceCounts[piece]++;
@@ -105,10 +110,11 @@ static void ClearPosition(Position *pos) {
 	pos->bigPieces[BLACK] = pos->bigPieces[WHITE] = 0;
 
 	// Misc
-	pos->material = 0;
-	pos->side = BOTH;
-	pos->enPas = NO_SQ;
-	pos->fiftyMove = 0;
+	pos->material   = 0;
+	pos->phase      = 24;
+	pos->side       = BOTH;
+	pos->enPas      = NO_SQ;
+	pos->fiftyMove  = 0;
 	pos->castlePerm = 0;
 
 	// Ply

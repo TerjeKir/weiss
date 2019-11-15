@@ -118,6 +118,7 @@ typedef struct {
 	int bigPieces[2];
 
 	int material;
+	int phase;
 
 	int side;
 	int enPas;
