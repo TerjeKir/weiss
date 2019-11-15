@@ -48,6 +48,9 @@ static void ClearPiece(const int sq, Position *pos) {
 	// Update material
 	pos->material -= PSQT[piece][sq];
 
+	// Update phase
+	pos->phase += phaseValue[piece];
+
 	// Update various piece lists
 	if (pieceBig[piece])
 		pos->bigPieces[color]--;
@@ -89,6 +92,9 @@ static void AddPiece(const int sq, Position *pos, const int piece) {
 
 	// Update material
 	pos->material += PSQT[piece][sq];
+
+	// Update phase
+	pos->phase -= phaseValue[piece];
 
 	// Update various piece lists
 	if (pieceBig[piece])

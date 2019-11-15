@@ -12,6 +12,8 @@ const int pieceBig [PIECE_NB];
 const int piecePawn[PIECE_NB];
 const int pieceKing[PIECE_NB];
 
+const int phaseValue[PIECE_NB];
+
 const int mirror_square[64];
 
 bool CheckBoard(const Position *pos);

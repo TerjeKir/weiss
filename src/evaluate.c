@@ -238,15 +238,7 @@ int EvalPosition(const Position *pos) {
 
 	// Adjust score by phase
 	const int basePhase = 24;
-	int phase = basePhase;
-	phase -= 1 * pos->pieceCounts[bN]
-		   + 1 * pos->pieceCounts[bB]
-		   + 2 * pos->pieceCounts[bR]
-		   + 4 * pos->pieceCounts[bQ]
-		   + 1 * pos->pieceCounts[wN]
-		   + 1 * pos->pieceCounts[wB]
-		   + 2 * pos->pieceCounts[wR]
-		   + 4 * pos->pieceCounts[wQ];
+	int phase = pos->phase;
 	phase = (phase * 256 + (basePhase / 2)) / basePhase;
 
 	score = ((MgScore(score) * (256 - phase)) + (EgScore(score) * phase)) / 256;
