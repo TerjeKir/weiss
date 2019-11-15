@@ -33,7 +33,7 @@ bench-pext:
 
 bench-pgo:
 	gcc $(CFLAGS) $(SRC) $(LIBS) $(PEXT) $(PGOGEN) -o "$(EXE)-temp.exe"
-	$(EXE)-temp.exe bench 8
+	$(EXE)-temp.exe bench 12
 	gcc $(CFLAGS) $(SRC) $(LIBS) $(PEXT) $(PGOUSE) -o $(EXE)
 	rmdir /s /q "../pgo"
 	del /f "$(EXE)-temp.exe"
@@ -47,7 +47,7 @@ pext:
 
 pgo:
 	gcc $(CFLAGS) $(SRC) $(LIBS) $(PEXT) $(PGOGEN) -o "$(EXE)-temp.exe"
-	$(EXE)-temp.exe bench 8
+	$(EXE)-temp.exe bench 12
 	gcc $(CFLAGS) $(SRC) $(LIBS) $(PEXT) $(PGOUSE) -o "$(OUT)$(EXE)-pext-pgo.exe"
 	rmdir /s /q "../pgo"
 	del /f "$(EXE)-temp.exe"
