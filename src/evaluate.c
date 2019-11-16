@@ -129,9 +129,16 @@ int EvalPosition(const Position *pos) {
 #endif
 
 	int sq, i;
+	int mobility = 0;
 
 	bitboard whitePawns = pos->colorBBs[WHITE] & pos->pieceBBs[PAWN];
 	bitboard blackPawns = pos->colorBBs[BLACK] & pos->pieceBBs[PAWN];
+
+	// bitboard blockedPawns[2];
+	// blockedPawns[BLACK] = blackPawns & pos->colorBBs[BOTH] << 8;
+	// blockedPawns[WHITE] = whitePawns & pos->colorBBs[BOTH] >> 8;
+
+	bitboard occupied = pos->colorBBs[BOTH];
 
 	// Material
 	int score = pos->material;
@@ -167,24 +174,36 @@ int EvalPosition(const Position *pos) {
 	}
 
 	// White knights
-	// for (i = 0; i < pos->pieceCounts[wN]; ++i) {
-	// 	sq = pos->pieceList[wN][i];
-	// }
+	for (i = 0; i < pos->pieceCounts[wN]; ++i) {
+		sq = pos->pieceList[wN][i];
 
-	// // Black knights
-	// for (i = 0; i < pos->pieceCounts[bN]; ++i) {
-	// 	sq = pos->pieceList[bN][i];
-	// }
+		// Mobility
+		mobility += PopCount(knight_attacks[sq] & ~pos->colorBBs[BLACK]);
+	}
 
-	// // White bishops
-	// for (i = 0; i < pos->pieceCounts[wB]; ++i) {
-	// 	sq = pos->pieceList[wB][i];
-	// }
+	// Black knights
+	for (i = 0; i < pos->pieceCounts[bN]; ++i) {
+		sq = pos->pieceList[bN][i];
 
-	// // Black bishops
-	// for (i = 0; i < pos->pieceCounts[bB]; ++i) {
-	// 	sq = pos->pieceList[bB][i];
-	// }
+		// Mobility
+		mobility -= PopCount(knight_attacks[sq] & ~pos->colorBBs[WHITE]);
+	}
+
+	// White bishops
+	for (i = 0; i < pos->pieceCounts[wB]; ++i) {
+		sq = pos->pieceList[wB][i];
+
+		// Mobility
+		mobility += PopCount(BishopAttacks(sq, occupied));
+	}
+
+	// Black bishops
+	for (i = 0; i < pos->pieceCounts[bB]; ++i) {
+		sq = pos->pieceList[bB][i];
+
+		// Mobility
+		mobility -= PopCount(BishopAttacks(sq, occupied));
+	}
 
 	// White rooks
 	for (i = 0; i < pos->pieceCounts[wR]; ++i) {
@@ -195,6 +214,9 @@ int EvalPosition(const Position *pos) {
 			score += RookOpenFile;
 		else if (!(whitePawns & fileBBs[fileOf(sq)]))
 			score += RookSemiOpenFile;
+
+		// Mobility
+		mobility += PopCount(RookAttacks(sq, occupied));
 	}
 
 	// Black rooks
@@ -206,6 +228,9 @@ int EvalPosition(const Position *pos) {
 			score -= RookOpenFile;
 		else if (!(blackPawns & fileBBs[fileOf(sq)]))
 			score -= RookSemiOpenFile;
+
+		// Mobility
+		mobility -= PopCount(RookAttacks(sq, occupied));
 	}
 
 	// White queens
@@ -217,6 +242,9 @@ int EvalPosition(const Position *pos) {
 			score += QueenOpenFile;
 		else if (!(whitePawns & fileBBs[fileOf(sq)]))
 			score += QueenSemiOpenFile;
+
+		// Mobility
+		mobility += PopCount(BishopAttacks(sq, occupied) | RookAttacks(sq, occupied));
 	}
 
 	// Black queens
@@ -228,6 +256,9 @@ int EvalPosition(const Position *pos) {
 			score -= QueenOpenFile;
 		else if (!(blackPawns & fileBBs[fileOf(sq)]))
 			score -= QueenSemiOpenFile;
+
+		// Mobility
+		mobility -= PopCount(BishopAttacks(sq, occupied) | RookAttacks(sq, occupied));
 	}
 
 	// Kings
@@ -242,6 +273,8 @@ int EvalPosition(const Position *pos) {
 	phase = (phase * 256 + (basePhase / 2)) / basePhase;
 
 	score = ((MgScore(score) * (256 - phase)) + (EgScore(score) * phase)) / 256;
+
+	score += mobility;
 
 	assert(score > -INFINITE && score < INFINITE);
 
