@@ -27,7 +27,6 @@ static void InitReductions() {
 
 	for (int depth = 0; depth < 32; ++depth)
 		for (int moves = 0; moves < 32; ++moves)
-			// log((depth * moves^2) / 2) - 2, staying >= 0 always
             Reductions[depth][moves] = 0.75 + log(depth) * log(moves) / 2.25;
 }
 
@@ -112,12 +111,9 @@ static void PrintThinking(const SearchInfo *info, Position *pos, const PV pv, co
 // Print conclusion of search - best move and ponder move
 static void PrintConclusion(const PV pv) {
 
-	const int   bestMove = pv.line[0];
-	const int ponderMove = pv.line[1];
-
-	printf("bestmove %s", MoveToStr(bestMove));
+	printf("bestmove %s", MoveToStr(pv.line[0]));
 	if (pv.length > 1)
-		printf(" ponder %s", MoveToStr(ponderMove));
+		printf(" ponder %s", MoveToStr(pv.line[1]));
 	printf("\n\n");
 	fflush(stdout);
 }
@@ -126,11 +122,6 @@ static void PrintConclusion(const PV pv) {
 static int Quiescence(int alpha, const int beta, Position *pos, SearchInfo *info, PV *pv) {
 
 	assert(CheckBoard(pos));
-	assert(beta > alpha);
-	assert(beta <=  INFINITE);
-	assert(beta >= -INFINITE);
-	assert(alpha <=  INFINITE);
-	assert(alpha >= -INFINITE);
 
 	PV pvFromHere;
     pv->length = 0;
@@ -218,12 +209,6 @@ static int Quiescence(int alpha, const int beta, Position *pos, SearchInfo *info
 static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *info, PV *pv, const int doNull) {
 
 	assert(CheckBoard(pos));
-	assert(beta > alpha);
-	assert(depth >= 0);
-	assert(alpha <=  INFINITE);
-	assert(alpha >= -INFINITE);
-	assert(beta  <=  INFINITE);
-	assert(beta  >= -INFINITE);
 
 	const bool pvNode = alpha != beta - 1;
 
@@ -260,8 +245,8 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
 			return EvalPosition(pos);
 
 		// Mate distance pruning
-		alpha = alpha > -INFINITE + pos->ply     ? alpha : -INFINITE + pos->ply;
-		beta  = beta  <  INFINITE - pos->ply - 1 ? beta  :  INFINITE - pos->ply - 1;
+		alpha = MAX(alpha, -INFINITE + pos->ply);
+		beta  = MIN(beta,   INFINITE - pos->ply - 1);
 		if (alpha >= beta)
 			return alpha;
 	}
@@ -457,11 +442,11 @@ int AspirationWindow(Position *pos, SearchInfo *info, const int depth, int previ
 		// Failed low, relax lower bound and search again
 		else if (result < alpha) {
 			alpha -= delta << fails++;
-			alpha = alpha < -INFINITE ? -INFINITE : alpha;
+			alpha  = MAX(alpha, -INFINITE);
 		// Failed high, relax upper bound and search again
 		} else if (result > beta) {
 			beta += delta << fails++;
-			beta = beta > INFINITE ? INFINITE : beta;
+			beta  = MIN(beta, INFINITE);
 		}
 	}
 }
