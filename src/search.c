@@ -28,7 +28,7 @@ static void InitReductions() {
 	for (int depth = 0; depth < 32; ++depth)
 		for (int moves = 0; moves < 32; ++moves)
 			// log((depth * moves^2) / 2) - 2, staying >= 0 always
-			Reductions[depth][moves] = MAX(0, log((depth * pow(moves, 2)) / 2.5) - 2);
+            Reductions[depth][moves] = 0.75 + log(depth) * log(moves) / 2.25;
 }
 
 // Check time situation
