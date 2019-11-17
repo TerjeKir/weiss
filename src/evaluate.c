@@ -165,7 +165,7 @@ int EvalPosition(const Position *pos) {
 	blockedPawns[WHITE] = whitePawns & pos->colorBBs[BOTH] >> 8;
 
 	unmovedPawns[BLACK] = blackPawns & rank7BB;
-	unmovedPawns[WHITE] = blackPawns & rank2BB;
+	unmovedPawns[WHITE] = whitePawns & rank2BB;
 
 	attackedByPawns[BLACK] = ((blackPawns & ~fileABB) >> 9) | ((blackPawns & ~fileHBB) >> 7);
 	attackedByPawns[WHITE] = ((whitePawns & ~fileABB) << 7) | ((whitePawns & ~fileHBB) << 9);
