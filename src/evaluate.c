@@ -29,6 +29,28 @@ static const int BishopPair = S(30, 30);
 
 static const int KingLineVulnerability = S(-5, 0);
 
+// Mobility
+static const int KnightMobility[9] = {
+	S(-50, -50), S(-25, -25), S(-15, -15), S(0, 0), S(15, 15), S(25, 25), S(35, 35), S(40, 40), S(50, 50)
+};
+
+static const int BishopMobility[14] = {
+	S(-50, -50), S(-35, -35), S(-25, -25), S(-10, -10), S( 0,  0), S(10, 10), S(15, 15),
+	S( 20,  20), S( 25,  25), S( 30,  30), S( 35,  35), S(40, 40), S(45, 45), S(50, 50)
+};
+
+static const int RookMobility[15] = {
+	S(-50, -50), S(-35, -35), S(-25, -25), S(-10, -10), S( 0,  0), S(10, 10), S(15, 15),
+	S( 20,  20), S( 25,  25), S( 30,  30), S( 35,  35), S(40, 40), S(45, 45), S(50, 50), S(55, 55)
+};
+
+static const int QueenMobility[28] = {
+	S(-50, -50), S(-45, -45), S(-40, -40), S(-35, -35), S(-30, -30), S(-25, -25), S(-20, -20),
+	S(-15, -15), S(-10, -10), S( -5,  -5), S(  0,   0), S(  5,   5), S( 10,  10), S( 15,  15),
+	S( 20,  20), S( 25,  25), S( 30,  30), S( 35,  35), S( 40,  40), S( 45,  45), S( 50,  50),
+	S( 55,  55), S( 60,  60), S( 65,  65), S( 70,  70), S( 75,  75), S( 80,  80), S( 85,  85)
+};
+
 
 // Initialize evaluation bit masks
 static void InitEvalMasks() __attribute__((constructor));
@@ -178,7 +200,7 @@ int EvalPosition(const Position *pos) {
 		sq = pos->pieceList[wN][i];
 
 		// Mobility
-		mobility += PopCount(knight_attacks[sq] & ~pos->colorBBs[BLACK]);
+		mobility += KnightMobility[PopCount(knight_attacks[sq] & ~pos->colorBBs[BLACK])];
 	}
 
 	// Black knights
@@ -186,7 +208,7 @@ int EvalPosition(const Position *pos) {
 		sq = pos->pieceList[bN][i];
 
 		// Mobility
-		mobility -= PopCount(knight_attacks[sq] & ~pos->colorBBs[WHITE]);
+		mobility -= KnightMobility[PopCount(knight_attacks[sq] & ~pos->colorBBs[WHITE])];
 	}
 
 	// White bishops
@@ -194,7 +216,7 @@ int EvalPosition(const Position *pos) {
 		sq = pos->pieceList[wB][i];
 
 		// Mobility
-		mobility += PopCount(BishopAttacks(sq, occupied));
+		mobility += BishopMobility[PopCount(BishopAttacks(sq, occupied))];
 	}
 
 	// Black bishops
@@ -202,7 +224,7 @@ int EvalPosition(const Position *pos) {
 		sq = pos->pieceList[bB][i];
 
 		// Mobility
-		mobility -= PopCount(BishopAttacks(sq, occupied));
+		mobility -= BishopMobility[PopCount(BishopAttacks(sq, occupied))];
 	}
 
 	// White rooks
@@ -216,7 +238,7 @@ int EvalPosition(const Position *pos) {
 			score += RookSemiOpenFile;
 
 		// Mobility
-		mobility += PopCount(RookAttacks(sq, occupied));
+		mobility += RookMobility[PopCount(RookAttacks(sq, occupied))];
 	}
 
 	// Black rooks
@@ -230,7 +252,7 @@ int EvalPosition(const Position *pos) {
 			score -= RookSemiOpenFile;
 
 		// Mobility
-		mobility -= PopCount(RookAttacks(sq, occupied));
+		mobility -= RookMobility[PopCount(RookAttacks(sq, occupied))];
 	}
 
 	// White queens
@@ -244,7 +266,7 @@ int EvalPosition(const Position *pos) {
 			score += QueenSemiOpenFile;
 
 		// Mobility
-		mobility += PopCount(BishopAttacks(sq, occupied) | RookAttacks(sq, occupied));
+		mobility += QueenMobility[PopCount(BishopAttacks(sq, occupied) | RookAttacks(sq, occupied))];
 	}
 
 	// Black queens
@@ -258,7 +280,7 @@ int EvalPosition(const Position *pos) {
 			score -= QueenSemiOpenFile;
 
 		// Mobility
-		mobility -= PopCount(BishopAttacks(sq, occupied) | RookAttacks(sq, occupied));
+		mobility -= QueenMobility[PopCount(BishopAttacks(sq, occupied) | RookAttacks(sq, occupied))];
 	}
 
 	// Kings
@@ -272,9 +294,9 @@ int EvalPosition(const Position *pos) {
 	int phase = pos->phase;
 	phase = (phase * 256 + (basePhase / 2)) / basePhase;
 
-	score = ((MgScore(score) * (256 - phase)) + (EgScore(score) * phase)) / 256;
-
 	score += mobility;
+
+	score = ((MgScore(score) * (256 - phase)) + (EgScore(score) * phase)) / 256;
 
 	assert(score > -INFINITE && score < INFINITE);
 
