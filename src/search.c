@@ -216,6 +216,10 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
 
     int R;
 
+    // Extend search if in check
+    const bool inCheck = SqAttacked(pos->kingSq[pos->side], !pos->side, pos);
+    if (inCheck) depth++;
+
     // Quiescence at the end of search
     if (depth <= 0)
         return Quiescence(alpha, beta, pos, info, &pv_from_here);
@@ -246,10 +250,6 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
         if (alpha >= beta)
             return alpha;
     }
-
-    // Extend search if in check
-    const bool inCheck = SqAttacked(pos->kingSq[pos->side], !pos->side, pos);
-    if (inCheck) depth++;
 
     int score = -INFINITE;
     int ttMove = NOMOVE;
