@@ -20,6 +20,8 @@
 
 int Reductions[32][32];
 
+extern bool ABORT_SIGNAL;
+
 
 // Initializes the late move reduction array
 static void InitReductions() __attribute__((constructor));
@@ -31,13 +33,15 @@ static void InitReductions() {
 }
 
 // Check time situation
-static void CheckTime(SearchInfo *info) {
+static bool OutOfTime(SearchInfo *info) {
 
     if (  (info->nodes & 8192) == 0
         && info->timeset
         && GetTimeMs() >= info->stoptime)
 
-        info->stopped = true;
+        return true;
+
+    return false;
 }
 
 // Check if current position is a repetition
@@ -59,7 +63,6 @@ static void ClearForSearch(Position *pos, SearchInfo *info) {
     pos->ply       = 0;
     info->nodes    = 0;
     info->tbhits   = 0;
-    info->stopped  = 0;
     info->seldepth = 0;
 #ifdef SEARCH_STATS
     pos->hashTable->hit = 0;
@@ -71,7 +74,7 @@ static void ClearForSearch(Position *pos, SearchInfo *info) {
 }
 
 // Print thinking
-static void PrintThinking(const SearchInfo *info, Position *pos, const PV pv, int score, const int depth) {
+static void PrintThinking(const SearchInfo *info, Position *pos, int score, const int depth) {
 
     // Determine whether we have a centipawn or mate score
     char *scoreType = abs(score) > ISMATE ? "mate" : "cp";
@@ -91,8 +94,8 @@ static void PrintThinking(const SearchInfo *info, Position *pos, const PV pv, in
 
     // Principal variation
     printf("pv");
-    for (int i = 0; i < pv.length; i++)
-        printf(" %s", MoveToStr(pv.line[i]));
+    for (int i = 0; i < info->pv.length; i++)
+        printf(" %s", MoveToStr(info->pv.line[i]));
 
     printf("\n");
 
@@ -153,11 +156,11 @@ static int Quiescence(int alpha, const int beta, Position *pos, SearchInfo *info
     MoveList list;
 
     // Check time situation
-    CheckTime(info);
+    if (OutOfTime(info) || ABORT_SIGNAL)
+        longjmp(info->jumpBuffer, true);
 
+    // Update node count and selective depth
     info->nodes++;
-
-    // Update selective depth
     if (pos->ply > info->seldepth)
         info->seldepth = pos->ply;
 
@@ -183,7 +186,6 @@ static int Quiescence(int alpha, const int beta, Position *pos, SearchInfo *info
 
     int movesTried = 0;
     int bestScore = score;
-    score = -INFINITE;
 
     // Move loop
     int move;
@@ -195,9 +197,6 @@ static int Quiescence(int alpha, const int beta, Position *pos, SearchInfo *info
         TakeMove(pos);
 
         movesTried++;
-
-        if (info->stopped)
-            return 0;
 
         if (score > bestScore) {
 
@@ -252,11 +251,11 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
         return Quiescence(alpha, beta, pos, info, &pv_from_here);
 
     // Check time situation
-    CheckTime(info);
+    if (OutOfTime(info) || ABORT_SIGNAL)
+        longjmp(info->jumpBuffer, true);
 
+    // Update node count and selective depth
     info->nodes++;
-
-    // Update selective depth
     if (pos->ply > info->seldepth)
         info->seldepth = pos->ply;
 
@@ -381,11 +380,6 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
         // Undo the move
         TakeMove(pos);
 
-        if (info->stopped)
-            return 0;
-
-        assert(-INFINITE <= score && score <=  INFINITE);
-
         // Found a new best move in this position
         if (score > bestScore) {
 
@@ -460,7 +454,7 @@ int AspirationWindow(Position *pos, SearchInfo *info, const int depth, int previ
     while (true) {
         int result = AlphaBeta(alpha, beta, depth, pos, info, pv, true);
         // Result within the bounds is accepted as correct
-        if ((result >= alpha && result <= beta) || info->stopped)
+        if (result >= alpha && result <= beta)
             return result;
         // Failed low, relax lower bound and search again
         else if (result < alpha) {
@@ -479,30 +473,24 @@ void SearchPosition(Position *pos, SearchInfo *info) {
 
     int score;
     unsigned depth;
-    PV pv;
 
     ClearForSearch(pos, info);
 
     // Iterative deepening
     for (depth = 1; depth <= info->depth; ++depth) {
 
+        if (setjmp(info->jumpBuffer)) break;
+
         // Search position, using aspiration windows for higher depths
         if (depth > 6)
-            score = AspirationWindow(pos, info, depth, score, &pv);
+            score = AspirationWindow(pos, info, depth, score, &info->pv);
         else
-            score = AlphaBeta(-INFINITE, INFINITE, depth, pos, info, &pv, true);
-
-        // Stop search if applicable
-        if (info->stopped) break;
+            score = AlphaBeta(-INFINITE, INFINITE, depth, pos, info, &info->pv, true);
 
         // Print thinking
-        PrintThinking(info, pos, pv, score, depth);
+        PrintThinking(info, pos, score, depth);
     }
 
     // Print conclusion
-    PrintConclusion(pv);
-
-#ifdef DEV
-    info->pv = pv;
-#endif
+    PrintConclusion(info->pv);
 }

@@ -3,6 +3,7 @@
 #pragma once
 
 #include <inttypes.h>
+#include <setjmp.h>
 #include <stdint.h>
 #include <stdbool.h>
 
@@ -155,17 +156,15 @@ typedef struct {
 	uint64_t nodes;
 	uint64_t tbhits;
 
-	int stopped;
-
 #ifdef SEARCH_STATS
 	float fh;
 	float fhf;
 	int nullCut;
 #endif
 
-#ifdef DEV
 	PV pv;
-#endif
+
+	jmp_buf jumpBuffer;
 
 	char syzygyPath[256];
 
