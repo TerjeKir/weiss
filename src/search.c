@@ -114,6 +114,33 @@ static void PrintConclusion(const PV pv) {
     fflush(stdout);
 }
 
+static uint64_t relativeRank7(const int side) {
+    return side ? rank7BB : rank2BB;
+}
+
+static bool pawnOn7th(const Position *pos) {
+    return pos->colorBBs[pos->side] & pos->pieceBBs[PAWN] & relativeRank7(pos->side);
+}
+
+// Dynamic delta pruning margin
+static int QuiescenceDeltaMargin(const Position *pos) {
+
+    // Optimistic to improve our position by a pawn, or if we have
+    // a pawn on the 7th we can hope to improve by a queen instead
+    const int DeltaBase = pawnOn7th(pos) ? Q_MG : P_MG;
+
+    // Look for possible captures on the board
+    const bitboard enemy = pos->colorBBs[!pos->side];
+
+    // Find the most valuable piece we could take and add to our base
+    // TODO: Faster with pos->pieceCounts?
+    return (enemy & pos->pieceBBs[QUEEN ]) ? DeltaBase + Q_MG
+         : (enemy & pos->pieceBBs[ROOK  ]) ? DeltaBase + R_MG
+         : (enemy & pos->pieceBBs[BISHOP]) ? DeltaBase + B_MG
+         : (enemy & pos->pieceBBs[KNIGHT]) ? DeltaBase + N_MG
+                                           : DeltaBase + P_MG;
+}
+
 // Quiescence
 static int Quiescence(int alpha, const int beta, Position *pos, SearchInfo *info, PV *pv) {
 
@@ -147,7 +174,7 @@ static int Quiescence(int alpha, const int beta, Position *pos, SearchInfo *info
     int score = EvalPosition(pos);
     if (score >= beta)
         return score;
-    if ((score + Q_MG * 2) < alpha) // Very pessimistic (forced by poor eval) delta pruning
+    if (score + QuiescenceDeltaMargin(pos) < alpha)
         return alpha;
     if (score > alpha)
         alpha = score;
