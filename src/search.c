@@ -125,15 +125,15 @@ static bool pawnOn7th(const Position *pos) {
 // Dynamic delta pruning margin
 static int QuiescenceDeltaMargin(const Position *pos) {
 
-    // Optimistic to improve our position by a pawn
-    int DeltaBase = P_MG;
-
-    if (pawnOn7th(pos)) DeltaBase = Q_MG;
+    // Optimistic to improve our position by a pawn, or if we have
+    // a pawn on the 7th we can hope to improve by a queen instead
+    const int DeltaBase = pawnOn7th(pos) ? Q_MG : P_MG;
 
     // Look for possible captures on the board
     const bitboard enemy = pos->colorBBs[!pos->side];
 
     // Find the most valuable piece we could take and add to our base
+    // TODO: Faster with pos->pieceCounts?
     return (enemy & pos->pieceBBs[QUEEN ]) ? DeltaBase + Q_MG
          : (enemy & pos->pieceBBs[ROOK  ]) ? DeltaBase + R_MG
          : (enemy & pos->pieceBBs[BISHOP]) ? DeltaBase + B_MG
