@@ -17,33 +17,33 @@
 typedef uint64_t bitboard;
 
 enum Limit { MAXGAMEMOVES     = 512,
-	         MAXPOSITIONMOVES = 256,
-	         MAXDEPTH         = 128 };
+             MAXPOSITIONMOVES = 256,
+             MAXDEPTH         = 128 };
 
 enum Score { INFINITE = 30000,
-			 ISMATE   = INFINITE - MAXDEPTH };
+             ISMATE   = INFINITE - MAXDEPTH };
 
 typedef enum Color {
-	BLACK, WHITE, BOTH
+    BLACK, WHITE, BOTH
 } Color;
 
 typedef enum PieceType {
-	NO_TYPE, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING, TYPE_NB = 8
+    NO_TYPE, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING, TYPE_NB = 8
 } PieceType;
 
 typedef enum Piece {
-	EMPTY, PIECE_MIN,
-	bP = 1, bN, bB, bR, bQ, bK,
-	wP = 9, wN, wB, wR, wQ, wK,
-	PIECE_NB = 16
+    EMPTY, PIECE_MIN,
+    bP = 1, bN, bB, bR, bQ, bK,
+    wP = 9, wN, wB, wR, wQ, wK,
+    PIECE_NB = 16
 } Piece;
 
 enum PieceValue {
-	P_MG =  100, P_EG =  110,
-	N_MG =  335, N_EG =  350,
-	B_MG =  335, B_EG =  350,
-	R_MG =  550, R_EG =  580,
-	Q_MG = 1000, Q_EG = 1100
+    P_MG =  100, P_EG =  110,
+    N_MG =  335, N_EG =  350,
+    B_MG =  335, B_EG =  350,
+    R_MG =  550, R_EG =  580,
+    Q_MG = 1000, Q_EG = 1100
 };
 
 enum File { FILE_A, FILE_B, FILE_C, FILE_D, FILE_E, FILE_F, FILE_G, FILE_H, FILE_NONE };
@@ -71,136 +71,136 @@ typedef struct PV {
 } PV;
 
 typedef struct {
-	int move;
-	int score;
+    int move;
+    int score;
 } MoveListEntry;
 
 typedef struct {
-	MoveListEntry moves[MAXPOSITIONMOVES];
-	unsigned int count;
-	unsigned int next;
+    MoveListEntry moves[MAXPOSITIONMOVES];
+    unsigned int count;
+    unsigned int next;
 } MoveList;
 
 typedef struct {
-	int move;
-	int enPas;
-	int fiftyMove;
-	int castlePerm;
-	uint64_t posKey;
+    int move;
+    int enPas;
+    int fiftyMove;
+    int castlePerm;
+    uint64_t posKey;
 } Undo;
 
 typedef struct {
-	uint64_t posKey;
-	int move;
-	int16_t score;
-	uint8_t depth;
-	uint8_t flag;
+    uint64_t posKey;
+    int move;
+    int16_t score;
+    uint8_t depth;
+    uint8_t flag;
 } HashEntry;
 
 typedef struct {
-	HashEntry *TT;
-	int numEntries;
-	uint64_t MB;
+    HashEntry *TT;
+    int numEntries;
+    uint64_t MB;
 #ifdef SEARCH_STATS
-	int newWrite;
-	int overWrite;
-	int hit;
-	int cut;
+    int newWrite;
+    int overWrite;
+    int hit;
+    int cut;
 #endif
 } HashTable;
 
 typedef struct {
 
-	bitboard colorBBs[3];
-	bitboard pieceBBs[TYPE_NB];
+    bitboard colorBBs[3];
+    bitboard pieceBBs[TYPE_NB];
 
-	int board[64];
+    int board[64];
 
-	int pieceList[PIECE_NB][10];
-	int pieceCounts[PIECE_NB];
+    int pieceList[PIECE_NB][10];
+    int pieceCounts[PIECE_NB];
 
-	int kingSq[2];
-	int bigPieces[2];
+    int kingSq[2];
+    int bigPieces[2];
 
-	int material;
-	int phase;
+    int material;
+    int phase;
 
-	int side;
-	int enPas;
-	int fiftyMove;
-	int castlePerm;
+    int side;
+    int enPas;
+    int fiftyMove;
+    int castlePerm;
 
-	int ply;
-	int hisPly;
+    int ply;
+    int hisPly;
 
-	uint64_t posKey;
+    uint64_t posKey;
 
-	Undo history[MAXGAMEMOVES];
+    Undo history[MAXGAMEMOVES];
 
-	HashTable hashTable[1];
+    HashTable hashTable[1];
 
-	int searchHistory[PIECE_NB][64];
-	int searchKillers[2][MAXDEPTH];
+    int searchHistory[PIECE_NB][64];
+    int searchKillers[2][MAXDEPTH];
 
 } Position;
 
 typedef struct {
 
-	int starttime;
-	int stoptime;
-	int depth;
-	int seldepth;
-	int timeset;
-	int movestogo;
+    int starttime;
+    int stoptime;
+    int depth;
+    int seldepth;
+    int timeset;
+    int movestogo;
 
-	uint64_t nodes;
-	uint64_t tbhits;
+    uint64_t nodes;
+    uint64_t tbhits;
 
 #ifdef SEARCH_STATS
-	float fh;
-	float fhf;
-	int nullCut;
+    float fh;
+    float fhf;
+    int nullCut;
 #endif
 
-	PV pv;
-	int bestMove;
-	int ponderMove;
+    PV pv;
+    int bestMove;
+    int ponderMove;
 
-	jmp_buf jumpBuffer;
+    jmp_buf jumpBuffer;
 
-	int score;
-	int IDDepth;
+    int score;
+    int IDDepth;
 
-	char syzygyPath[256];
+    char syzygyPath[256];
 
 } SearchInfo;
 
 typedef struct {
 
-	Position *pos;
-	SearchInfo *info;
-	char line[4096];
+    Position *pos;
+    SearchInfo *info;
+    char line[4096];
 
 } SearchThread;
 
 /* Functions */
 
 static inline int fileOf(const int square) {
-	return square & 7;
+    return square & 7;
 }
 
 static inline int rankOf(const int square) {
-	return square >> 3;
+    return square >> 3;
 }
 
 static inline int colorOf(const int piece) {
-	return piece >> 3;
+    return piece >> 3;
 }
 
 static inline int pieceTypeOf(const int piece) {
-	return (piece & 7);
+    return (piece & 7);
 }
 
 static inline int makePiece(const int color, const int type) {
-	return (color << 3) + type;
+    return (color << 3) + type;
 }

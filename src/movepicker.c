@@ -13,24 +13,24 @@ static int PickNextMove(MoveList *list, int ttMove) {
         return NOMOVE;
 
     int bestMove;
-	int bestScore = 0;
-	unsigned int moveNum = list->next++;
-	unsigned int bestNum = moveNum;
+    int bestScore = 0;
+    unsigned int moveNum = list->next++;
+    unsigned int bestNum = moveNum;
 
-	for (unsigned int i = moveNum; i < list->count; ++i)
-		if (list->moves[i].score > bestScore) {
-			bestScore = list->moves[i].score;
-			bestNum   = i;
-		}
+    for (unsigned int i = moveNum; i < list->count; ++i)
+        if (list->moves[i].score > bestScore) {
+            bestScore = list->moves[i].score;
+            bestNum   = i;
+        }
 
-	bestMove = list->moves[bestNum].move;
-	list->moves[bestNum] = list->moves[moveNum];
+    bestMove = list->moves[bestNum].move;
+    list->moves[bestNum] = list->moves[moveNum];
 
     // Avoid returning the ttMove again
-	if (bestMove == ttMove)
-		return PickNextMove(list, ttMove);
+    if (bestMove == ttMove)
+        return PickNextMove(list, ttMove);
 
-	return bestMove;
+    return bestMove;
 }
 
 // Returns the next move to try in a position
@@ -84,20 +84,20 @@ int NextMove(MovePicker *mp) {
 
 // Init normal movepicker
 void InitNormalMP(MovePicker *mp, MoveList *list, Position *pos, int ttMove) {
-	list->count   = list->next = 0;
-	mp->list      = list;
-	mp->onlyNoisy = false;
-	mp->pos       = pos;
-	mp->stage     = TTMOVE;
-	mp->ttMove    = ttMove;
+    list->count   = list->next = 0;
+    mp->list      = list;
+    mp->onlyNoisy = false;
+    mp->pos       = pos;
+    mp->stage     = TTMOVE;
+    mp->ttMove    = ttMove;
 }
 
 // Init noisy movepicker
 void InitNoisyMP(MovePicker *mp, MoveList *list, Position *pos) {
-	list->count   = list->next = 0;
-	mp->list      = list;
-	mp->onlyNoisy = true;
-	mp->pos       = pos;
-	mp->stage     = GEN_NOISY;
-	mp->ttMove    = NOMOVE;
+    list->count   = list->next = 0;
+    mp->list      = list;
+    mp->onlyNoisy = true;
+    mp->pos       = pos;
+    mp->stage     = GEN_NOISY;
+    mp->ttMove    = NOMOVE;
 }
