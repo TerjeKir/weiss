@@ -294,6 +294,8 @@ int EvalPosition(const Position *pos) {
         mobility -= QueenMobility[PopCount((BishopAttacks(sq, occupied) | RookAttacks(sq, occupied)) & mobilityArea[BLACK])];
     }
 
+    score += mobility;
+
     // Kings
     score += KingLineVulnerability * PopCount(  RookAttacks(pos->kingSq[WHITE], pos->colorBBs[WHITE] | pos->pieceBBs[PAWN])
                                             | BishopAttacks(pos->kingSq[WHITE], pos->colorBBs[WHITE] | pos->pieceBBs[PAWN]));
@@ -301,12 +303,7 @@ int EvalPosition(const Position *pos) {
                                             | BishopAttacks(pos->kingSq[BLACK], pos->colorBBs[BLACK] | pos->pieceBBs[PAWN]));
 
     // Adjust score by phase
-    const int basePhase = 24;
-    int phase = pos->phase;
-    phase = (phase * 256 + (basePhase / 2)) / basePhase;
-
-    score += mobility;
-
+    const int phase = pos->phase;
     score = ((MgScore(score) * (256 - phase)) + (EgScore(score) * phase)) / 256;
 
     assert(score > -INFINITE && score < INFINITE);

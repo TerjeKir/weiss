@@ -123,6 +123,7 @@ typedef struct {
     int bigPieces[2];
 
     int material;
+    int basePhase;
     int phase;
 
     int side;

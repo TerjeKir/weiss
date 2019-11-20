@@ -75,7 +75,7 @@ static void UpdatePosition(Position *pos) {
             pos->material += PSQT[piece][sq];
 
             // Phase
-            pos->phase -= phaseValue[piece];
+            pos->basePhase -= phaseValue[piece];
 
             // Piece list / count
             pos->pieceList[piece][pos->pieceCounts[piece]] = sq;
@@ -86,6 +86,9 @@ static void UpdatePosition(Position *pos) {
             if (piece == bK) pos->kingSq[BLACK] = sq;
         }
     }
+
+    pos->phase = (pos->basePhase * 256 + 12) / 24;
+
     assert(CheckBoard(pos));
 }
 
@@ -111,7 +114,7 @@ static void ClearPosition(Position *pos) {
 
     // Misc
     pos->material   = 0;
-    pos->phase      = 24;
+    pos->basePhase  = 24;
     pos->side       = BOTH;
     pos->enPas      = NO_SQ;
     pos->fiftyMove  = 0;
