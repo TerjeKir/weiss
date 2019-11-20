@@ -20,6 +20,8 @@
 
 int Reductions[32][32];
 
+extern bool ABORT_SIGNAL;
+
 
 // Initializes the late move reduction array
 static void InitReductions() __attribute__((constructor));
@@ -31,13 +33,15 @@ static void InitReductions() {
 }
 
 // Check time situation
-static void CheckTime(SearchInfo *info) {
+static bool OutOfTime(SearchInfo *info) {
 
     if (  (info->nodes & 8192) == 0
         && info->timeset
         && GetTimeMs() >= info->stoptime)
 
-        info->stopped = true;
+        return true;
+
+    return false;
 }
 
 // Check if current position is a repetition
@@ -59,7 +63,6 @@ static void ClearForSearch(Position *pos, SearchInfo *info) {
     pos->ply       = 0;
     info->nodes    = 0;
     info->tbhits   = 0;
-    info->stopped  = 0;
     info->seldepth = 0;
 #ifdef SEARCH_STATS
     pos->hashTable->hit = 0;
@@ -71,28 +74,34 @@ static void ClearForSearch(Position *pos, SearchInfo *info) {
 }
 
 // Print thinking
-static void PrintThinking(const SearchInfo *info, Position *pos, const PV pv, int score, const int depth) {
+static void PrintThinking(const SearchInfo *info, Position *pos) {
+
+    int score = info->score;
 
     // Determine whether we have a centipawn or mate score
-    char *scoreType = abs(score) > ISMATE ? "mate" : "cp";
+    char *type = abs(score) > ISMATE ? "mate" : "cp";
 
     // Convert score to mate score when applicable
     score = score >  ISMATE ?  ((INFINITE - score) / 2) + 1
           : score < -ISMATE ? -((INFINITE + score) / 2)
           : score;
 
+    int depth    = info->IDDepth;
+    int seldepth = info->seldepth;
     int elapsed  = GetTimeMs() - info->starttime;
     int hashFull = HashFull(pos);
     int nps      = (int)(1000 * (info->nodes / (elapsed + 1)));
+    uint64_t nodes  = info->nodes;
+    uint64_t tbhits = info->tbhits;
 
     // Basic info
     printf("info score %s %d depth %d seldepth %d nodes %" PRId64 " nps %d tbhits %" PRId64 " time %d hashfull %d ",
-            scoreType, score, depth, info->seldepth, info->nodes, nps, info->tbhits, elapsed, hashFull);
+            type, score, depth, seldepth, nodes, nps, tbhits, elapsed, hashFull);
 
     // Principal variation
     printf("pv");
-    for (int i = 0; i < pv.length; i++)
-        printf(" %s", MoveToStr(pv.line[i]));
+    for (int i = 0; i < info->pv.length; i++)
+        printf(" %s", MoveToStr(info->pv.line[i]));
 
     printf("\n");
 
@@ -105,11 +114,11 @@ static void PrintThinking(const SearchInfo *info, Position *pos, const PV pv, in
 }
 
 // Print conclusion of search - best move and ponder move
-static void PrintConclusion(const PV pv) {
+static void PrintConclusion(const SearchInfo *info) {
 
-    printf("bestmove %s", MoveToStr(pv.line[0]));
-    if (pv.length > 1)
-        printf(" ponder %s", MoveToStr(pv.line[1]));
+    printf("bestmove %s", MoveToStr(info->bestMove));
+    if (info->ponderMove)
+        printf(" ponder %s", MoveToStr(info->ponderMove));
     printf("\n\n");
     fflush(stdout);
 }
@@ -153,11 +162,11 @@ static int Quiescence(int alpha, const int beta, Position *pos, SearchInfo *info
     MoveList list;
 
     // Check time situation
-    CheckTime(info);
+    if (OutOfTime(info) || ABORT_SIGNAL)
+        longjmp(info->jumpBuffer, true);
 
+    // Update node count and selective depth
     info->nodes++;
-
-    // Update selective depth
     if (pos->ply > info->seldepth)
         info->seldepth = pos->ply;
 
@@ -183,7 +192,6 @@ static int Quiescence(int alpha, const int beta, Position *pos, SearchInfo *info
 
     int movesTried = 0;
     int bestScore = score;
-    score = -INFINITE;
 
     // Move loop
     int move;
@@ -195,9 +203,6 @@ static int Quiescence(int alpha, const int beta, Position *pos, SearchInfo *info
         TakeMove(pos);
 
         movesTried++;
-
-        if (info->stopped)
-            return 0;
 
         if (score > bestScore) {
 
@@ -252,11 +257,11 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
         return Quiescence(alpha, beta, pos, info, &pv_from_here);
 
     // Check time situation
-    CheckTime(info);
+    if (OutOfTime(info) || ABORT_SIGNAL)
+        longjmp(info->jumpBuffer, true);
 
+    // Update node count and selective depth
     info->nodes++;
-
-    // Update selective depth
     if (pos->ply > info->seldepth)
         info->seldepth = pos->ply;
 
@@ -381,11 +386,6 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
         // Undo the move
         TakeMove(pos);
 
-        if (info->stopped)
-            return 0;
-
-        assert(-INFINITE <= score && score <=  INFINITE);
-
         // Found a new best move in this position
         if (score > bestScore) {
 
@@ -445,22 +445,23 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
 }
 
 // Aspiration window
-int AspirationWindow(Position *pos, SearchInfo *info, const int depth, int previousScore, PV *pv) {
+static int AspirationWindow(Position *pos, SearchInfo *info) {
 
+    const int score = info->score;
     // Dynamic bonus increasing initial window and delta
-    const int bonus = (previousScore * previousScore) / 8;
+    const int bonus = (score * score) / 8;
     // Delta used for initial window and widening
     const int delta = (P_MG / 2) + bonus;
     // Initial window
-    int alpha = previousScore - delta / 4;
-    int beta  = previousScore + delta / 4;
+    int alpha = score - delta / 4;
+    int beta  = score + delta / 4;
     // Counter for failed searches, bounds are relaxed more for each successive fail
     unsigned fails = 0;
 
     while (true) {
-        int result = AlphaBeta(alpha, beta, depth, pos, info, pv, true);
+        int result = AlphaBeta(alpha, beta, info->IDDepth, pos, info, &info->pv, true);
         // Result within the bounds is accepted as correct
-        if ((result >= alpha && result <= beta) || info->stopped)
+        if (result >= alpha && result <= beta)
             return result;
         // Failed low, relax lower bound and search again
         else if (result < alpha) {
@@ -477,32 +478,27 @@ int AspirationWindow(Position *pos, SearchInfo *info, const int depth, int previ
 // Root of search
 void SearchPosition(Position *pos, SearchInfo *info) {
 
-    int score;
-    unsigned depth;
-    PV pv;
-
     ClearForSearch(pos, info);
 
     // Iterative deepening
-    for (depth = 1; depth <= info->depth; ++depth) {
+    for (info->IDDepth = 1; info->IDDepth <= info->depth; ++info->IDDepth) {
+
+        if (setjmp(info->jumpBuffer)) break;
 
         // Search position, using aspiration windows for higher depths
-        if (depth > 6)
-            score = AspirationWindow(pos, info, depth, score, &pv);
+        if (info->IDDepth > 6)
+            info->score = AspirationWindow(pos, info);
         else
-            score = AlphaBeta(-INFINITE, INFINITE, depth, pos, info, &pv, true);
-
-        // Stop search if applicable
-        if (info->stopped) break;
+            info->score = AlphaBeta(-INFINITE, INFINITE, info->IDDepth, pos, info, &info->pv, true);
 
         // Print thinking
-        PrintThinking(info, pos, pv, score, depth);
+        PrintThinking(info, pos);
+
+        // Save bestMove and ponderMove before overwriting the pv next iteration
+        info->bestMove   = info->pv.line[0];
+        info->ponderMove = info->pv.length > 1 ? info->pv.line[1] : NOMOVE;
     }
 
     // Print conclusion
-    PrintConclusion(pv);
-
-#ifdef DEV
-    info->pv = pv;
-#endif
+    PrintConclusion(info);
 }

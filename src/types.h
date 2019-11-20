@@ -3,6 +3,7 @@
 #pragma once
 
 #include <inttypes.h>
+#include <setjmp.h>
 #include <stdint.h>
 #include <stdbool.h>
 
@@ -147,7 +148,7 @@ typedef struct {
 
 	int starttime;
 	int stoptime;
-	unsigned int depth;
+	int depth;
 	int seldepth;
 	int timeset;
 	int movestogo;
@@ -155,17 +156,20 @@ typedef struct {
 	uint64_t nodes;
 	uint64_t tbhits;
 
-	int stopped;
-
 #ifdef SEARCH_STATS
 	float fh;
 	float fhf;
 	int nullCut;
 #endif
 
-#ifdef DEV
 	PV pv;
-#endif
+	int bestMove;
+	int ponderMove;
+
+	jmp_buf jumpBuffer;
+
+	int score;
+	int IDDepth;
 
 	char syzygyPath[256];
 

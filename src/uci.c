@@ -21,6 +21,9 @@
 #define INPUT_SIZE 4096
 
 
+bool ABORT_SIGNAL = false;
+
+
 // Checks if a string begins with another string
 static inline bool BeginsWith(const char *string, const char *token) {
 	return strstr(string, token) == string;
@@ -30,9 +33,9 @@ static inline bool BeginsWith(const char *string, const char *token) {
 static void *ParseGo(void *searchThreadInfo) {
 
 	SearchThread *sst = (SearchThread*)searchThreadInfo;
-	char *line           = sst->line;
-	Position *pos         = sst->pos;
-	SearchInfo *info   = sst->info;
+	char *line        = sst->line;
+	Position *pos     = sst->pos;
+	SearchInfo *info  = sst->info;
 
 	info->starttime = GetTimeMs();
 	info->timeset = false;
@@ -190,6 +193,7 @@ int main(int argc, char **argv) {
 	while (GetInput(line)) {
 
 		if (BeginsWith(line, "go")) {
+			ABORT_SIGNAL = false;
 			strncpy(searchThreadInfo.line, line, INPUT_SIZE);
 			pthread_create(&searchThread, NULL, &ParseGo, &searchThreadInfo);
 
@@ -203,7 +207,7 @@ int main(int argc, char **argv) {
 			ClearHashTable(pos->hashTable);
 
 		else if (BeginsWith(line, "stop")) {
-			info->stopped = true;
+			ABORT_SIGNAL = true;
 			pthread_join(searchThread, NULL);
 
 		} else if (BeginsWith(line, "quit")) {
