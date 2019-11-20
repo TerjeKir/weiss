@@ -148,7 +148,7 @@ typedef struct {
 
 	int starttime;
 	int stoptime;
-	unsigned int depth;
+	int depth;
 	int seldepth;
 	int timeset;
 	int movestogo;
@@ -163,8 +163,13 @@ typedef struct {
 #endif
 
 	PV pv;
+	int bestMove;
+	int ponderMove;
 
 	jmp_buf jumpBuffer;
+
+	int score;
+	int IDDepth;
 
 	char syzygyPath[256];
 
