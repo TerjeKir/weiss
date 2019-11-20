@@ -486,7 +486,7 @@ void SearchPosition(Position *pos, SearchInfo *info) {
         if (setjmp(info->jumpBuffer)) break;
 
         // Search position, using aspiration windows for higher depths
-        if (info->depth > 6)
+        if (info->IDDepth > 6)
             info->score = AspirationWindow(pos, info);
         else
             info->score = AlphaBeta(-INFINITE, INFINITE, info->IDDepth, pos, info, &info->pv, true);
