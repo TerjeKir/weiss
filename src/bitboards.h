@@ -59,8 +59,8 @@ static inline int Lsb(const bitboard bb) {
 // Returns the index of the least significant bit and unsets it
 static inline int PopLsb(bitboard *bb) {
 
-	int lsb = Lsb(*bb);
-	*bb &= (*bb - 1);
+    int lsb = Lsb(*bb);
+    *bb &= (*bb - 1);
 
-	return lsb;
+    return lsb;
 }
