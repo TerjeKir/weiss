@@ -453,8 +453,8 @@ static int AspirationWindow(Position *pos, SearchInfo *info) {
     // Delta used for initial window and widening
     const int delta = (P_MG / 2) + bonus;
     // Initial window
-    int alpha = score - delta / 4;
-    int beta  = score + delta / 4;
+    int alpha = MAX(score - delta / 4, -INFINITE);
+    int beta  = MIN(score + delta / 4,  INFINITE);
     // Counter for failed searches, bounds are relaxed more for each successive fail
     unsigned fails = 0;
 
