@@ -445,20 +445,21 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
 }
 
 // Aspiration window
-int AspirationWindow(Position *pos, SearchInfo *info, PV *pv) {
+static int AspirationWindow(Position *pos, SearchInfo *info) {
 
+    const int score = info->score;
     // Dynamic bonus increasing initial window and delta
-    const int bonus = (info->score * info->score) / 8;
+    const int bonus = (score * score) / 8;
     // Delta used for initial window and widening
     const int delta = (P_MG / 2) + bonus;
     // Initial window
-    int alpha = info->score - delta / 4;
-    int beta  = info->score + delta / 4;
+    int alpha = score - delta / 4;
+    int beta  = score + delta / 4;
     // Counter for failed searches, bounds are relaxed more for each successive fail
     unsigned fails = 0;
 
     while (true) {
-        int result = AlphaBeta(alpha, beta, info->IDDepth, pos, info, pv, true);
+        int result = AlphaBeta(alpha, beta, info->IDDepth, pos, info, &info->pv, true);
         // Result within the bounds is accepted as correct
         if (result >= alpha && result <= beta)
             return result;
@@ -486,7 +487,7 @@ void SearchPosition(Position *pos, SearchInfo *info) {
 
         // Search position, using aspiration windows for higher depths
         if (info->depth > 6)
-            info->score = AspirationWindow(pos, info, &info->pv);
+            info->score = AspirationWindow(pos, info);
         else
             info->score = AlphaBeta(-INFINITE, INFINITE, info->IDDepth, pos, info, &info->pv, true);
 
