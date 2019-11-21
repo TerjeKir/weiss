@@ -143,7 +143,7 @@ static bool MaterialDraw(const Position *pos) {
 #endif
 
 // Evaluates pawns
-static inline int evalPawns(const Position *pos, const int color, EvalInfo *ei) {
+static inline int evalPawns(const EvalInfo *ei, const Position *pos, const int color) {
 
     int eval = 0;
     int pawns = makePiece(color, PAWN);
@@ -163,7 +163,7 @@ static inline int evalPawns(const Position *pos, const int color, EvalInfo *ei) 
 }
 
 // Evaluates knights
-static inline int evalKnights(const Position *pos, const int color, EvalInfo *ei) {
+static inline int evalKnights(const EvalInfo *ei, const Position *pos, const int color) {
 
     int eval = 0;
     int knights = makePiece(color, KNIGHT);
@@ -179,7 +179,7 @@ static inline int evalKnights(const Position *pos, const int color, EvalInfo *ei
 }
 
 // Evaluates bishops
-static inline int evalBishops(const Position *pos, const int color, EvalInfo *ei) {
+static inline int evalBishops(const EvalInfo *ei, const Position *pos, const int color) {
 
     int eval = 0;
     int bishops = makePiece(color, BISHOP);
@@ -199,7 +199,7 @@ static inline int evalBishops(const Position *pos, const int color, EvalInfo *ei
 }
 
 // Evaluates rooks
-static inline int evalRooks(const Position *pos, const int color, EvalInfo *ei) {
+static inline int evalRooks(const EvalInfo *ei, const Position *pos, const int color) {
 
     int eval = 0;
     int rooks = makePiece(color, ROOK);
@@ -221,7 +221,7 @@ static inline int evalRooks(const Position *pos, const int color, EvalInfo *ei) 
 }
 
 // Evaluates queens
-static inline int evalQueens(const Position *pos, const int color, EvalInfo *ei) {
+static inline int evalQueens(const EvalInfo *ei, const Position *pos, const int color) {
 
     int eval = 0;
     int queens = makePiece(color, QUEEN);
@@ -288,11 +288,11 @@ int EvalPosition(const Position *pos) {
     int eval = pos->material;
 
     // Evaluate pieces
-    eval += evalPawns  (pos, WHITE, &ei) - evalPawns  (pos, BLACK, &ei);
-    eval += evalKnights(pos, WHITE, &ei) - evalKnights(pos, BLACK, &ei);
-    eval += evalBishops(pos, WHITE, &ei) - evalBishops(pos, BLACK, &ei);
-    eval += evalRooks  (pos, WHITE, &ei) - evalRooks  (pos, BLACK, &ei);
-    eval += evalQueens (pos, WHITE, &ei) - evalQueens (pos, BLACK, &ei);
+    eval += evalPawns  (&ei, pos, WHITE) - evalPawns  (&ei, pos, BLACK);
+    eval += evalKnights(&ei, pos, WHITE) - evalKnights(&ei, pos, BLACK);
+    eval += evalBishops(&ei, pos, WHITE) - evalBishops(&ei, pos, BLACK);
+    eval += evalRooks  (&ei, pos, WHITE) - evalRooks  (&ei, pos, BLACK);
+    eval += evalQueens (&ei, pos, WHITE) - evalQueens (&ei, pos, BLACK);
     eval += evalKings  (pos, WHITE)      - evalKings  (pos, BLACK);
 
     // Adjust score by phase
