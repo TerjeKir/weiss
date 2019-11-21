@@ -143,7 +143,7 @@ static bool MaterialDraw(const Position *pos) {
 #endif
 
 // Evaluates pawns
-static inline int evalPawns(const Position *pos, const int color, EvalInfo ei) {
+static inline int evalPawns(const Position *pos, const int color, EvalInfo *ei) {
 
     int eval = 0;
     int pawns = makePiece(color, PAWN);
@@ -152,10 +152,10 @@ static inline int evalPawns(const Position *pos, const int color, EvalInfo ei) {
         int sq = pos->pieceList[pawns][i];
 
         // Isolation penalty
-        if (!(IsolatedMask[sq] & ei.pawnsBB[color]))
+        if (!(IsolatedMask[sq] & ei->pawnsBB[color]))
             eval += PawnIsolated;
         // Passed bonus
-        if (!((PassedMask[color][sq]) & ei.pawnsBB[!color]))
+        if (!((PassedMask[color][sq]) & ei->pawnsBB[!color]))
             eval += PawnPassed[color ? rankOf(sq) : 7 - rankOf(sq)];
     }
 
@@ -163,7 +163,7 @@ static inline int evalPawns(const Position *pos, const int color, EvalInfo ei) {
 }
 
 // Evaluates knights
-static inline int evalKnights(const Position *pos, const int color, EvalInfo ei) {
+static inline int evalKnights(const Position *pos, const int color, EvalInfo *ei) {
 
     int eval = 0;
     int knights = makePiece(color, KNIGHT);
@@ -172,14 +172,14 @@ static inline int evalKnights(const Position *pos, const int color, EvalInfo ei)
         int sq = pos->pieceList[knights][i];
 
         // Mobility
-        eval += KnightMobility[PopCount(knight_attacks[sq] & ei.mobilityArea[color])];
+        eval += KnightMobility[PopCount(knight_attacks[sq] & ei->mobilityArea[color])];
     }
 
     return eval;
 }
 
 // Evaluates bishops
-static inline int evalBishops(const Position *pos, const int color, EvalInfo ei) {
+static inline int evalBishops(const Position *pos, const int color, EvalInfo *ei) {
 
     int eval = 0;
     int bishops = makePiece(color, BISHOP);
@@ -188,7 +188,7 @@ static inline int evalBishops(const Position *pos, const int color, EvalInfo ei)
         int sq = pos->pieceList[bishops][i];
 
         // Mobility
-        eval += BishopMobility[PopCount(BishopAttacks(sq, pos->colorBBs[BOTH]) & ei.mobilityArea[color])];
+        eval += BishopMobility[PopCount(BishopAttacks(sq, pos->colorBBs[BOTH]) & ei->mobilityArea[color])];
     }
 
     // Bishop pair
@@ -199,7 +199,7 @@ static inline int evalBishops(const Position *pos, const int color, EvalInfo ei)
 }
 
 // Evaluates rooks
-static inline int evalRooks(const Position *pos, const int color, EvalInfo ei) {
+static inline int evalRooks(const Position *pos, const int color, EvalInfo *ei) {
 
     int eval = 0;
     int rooks = makePiece(color, ROOK);
@@ -210,18 +210,18 @@ static inline int evalRooks(const Position *pos, const int color, EvalInfo ei) {
         // Open/Semi-open file bonus
         if (!(pos->pieceBBs[PAWN] & fileBBs[fileOf(sq)]))
             eval += RookOpenFile;
-        else if (!(ei.pawnsBB[color] & fileBBs[fileOf(sq)]))
+        else if (!(ei->pawnsBB[color] & fileBBs[fileOf(sq)]))
             eval += RookSemiOpenFile;
 
         // Mobility
-        eval += RookMobility[PopCount(RookAttacks(sq, pos->colorBBs[BOTH]) & ei.mobilityArea[color])];
+        eval += RookMobility[PopCount(RookAttacks(sq, pos->colorBBs[BOTH]) & ei->mobilityArea[color])];
     }
 
     return eval;
 }
 
 // Evaluates queens
-static inline int evalQueens(const Position *pos, const int color, EvalInfo ei) {
+static inline int evalQueens(const Position *pos, const int color, EvalInfo *ei) {
 
     int eval = 0;
     int queens = makePiece(color, QUEEN);
@@ -232,12 +232,12 @@ static inline int evalQueens(const Position *pos, const int color, EvalInfo ei) 
         // Open/Semi-open file bonus
         if (!(pos->pieceBBs[PAWN] & fileBBs[fileOf(sq)]))
             eval += QueenOpenFile;
-        else if (!(ei.pawnsBB[color] & fileBBs[fileOf(sq)]))
+        else if (!(ei->pawnsBB[color] & fileBBs[fileOf(sq)]))
             eval += QueenSemiOpenFile;
 
         // Mobility
         eval += QueenMobility[PopCount((BishopAttacks(sq, pos->colorBBs[BOTH])
-                                        | RookAttacks(sq, pos->colorBBs[BOTH])) & ei.mobilityArea[color])];
+                                        | RookAttacks(sq, pos->colorBBs[BOTH])) & ei->mobilityArea[color])];
     }
 
     return eval;
@@ -288,12 +288,12 @@ int EvalPosition(const Position *pos) {
     int eval = pos->material;
 
     // Evaluate pieces
-    eval += evalPawns  (pos, WHITE, ei) - evalPawns  (pos, BLACK, ei);
-    eval += evalKnights(pos, WHITE, ei) - evalKnights(pos, BLACK, ei);
-    eval += evalBishops(pos, WHITE, ei) - evalBishops(pos, BLACK, ei);
-    eval += evalRooks  (pos, WHITE, ei) - evalRooks  (pos, BLACK, ei);
-    eval += evalQueens (pos, WHITE, ei) - evalQueens (pos, BLACK, ei);
-    eval += evalKings  (pos, WHITE)     - evalKings  (pos, BLACK);
+    eval += evalPawns  (pos, WHITE, &ei) - evalPawns  (pos, BLACK, &ei);
+    eval += evalKnights(pos, WHITE, &ei) - evalKnights(pos, BLACK, &ei);
+    eval += evalBishops(pos, WHITE, &ei) - evalBishops(pos, BLACK, &ei);
+    eval += evalRooks  (pos, WHITE, &ei) - evalRooks  (pos, BLACK, &ei);
+    eval += evalQueens (pos, WHITE, &ei) - evalQueens (pos, BLACK, &ei);
+    eval += evalKings  (pos, WHITE)      - evalKings  (pos, BLACK);
 
     // Adjust score by phase
     const int phase = pos->phase;
