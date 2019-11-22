@@ -24,8 +24,8 @@
 bool ABORT_SIGNAL = false;
 
 
-// Checks if a string begins with the token string
-static inline bool BeginsWith(const char *string, const char *token) {
+// Checks if a string begins with another string
+INLINE bool BeginsWith(const char *string, const char *token) {
     return strstr(string, token) == string;
 }
 
@@ -177,7 +177,7 @@ static void PrintUCI() {
 }
 
 // Reads a line from stdin
-static inline bool GetInput(char *line) {
+INLINE bool GetInput(char *line) {
 
     memset(line, 0, INPUT_SIZE);
 

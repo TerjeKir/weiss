@@ -13,8 +13,7 @@
 static int MvvLvaScores[PIECE_NB][PIECE_NB];
 
 // Initializes the MostValuableVictim-LeastValuableAttacker scores used for ordering captures
-static void InitMvvLva() __attribute__((constructor));
-static void InitMvvLva() {
+CONSTR InitMvvLva() {
 
     const int VictimScore[PIECE_NB]   = {0, 106, 206, 306, 406, 506, 606, 0, 0, 106, 206, 306, 406, 506, 606, 0};
     const int AttackerScore[PIECE_NB] = {0,   1,   2,   3,   4,   5,   6, 0, 0,   1,   2,   3,   4,   5,   6, 0};
@@ -26,7 +25,7 @@ static void InitMvvLva() {
 
 /* Functions that add moves to the movelist - called by generators */
 
-static inline void AddQuiet(const Position *pos, const int from, const int to, const int promo, const int flag, MoveList *list) {
+INLINE void AddQuiet(const Position *pos, const int from, const int to, const int promo, const int flag, MoveList *list) {
 
     assert(ValidSquare(from));
     assert(ValidSquare(to));
@@ -49,7 +48,7 @@ static inline void AddQuiet(const Position *pos, const int from, const int to, c
 
     list->count++;
 }
-static inline void AddCapture(const Position *pos, const int from, const int to, const int promo, MoveList *list) {
+INLINE void AddCapture(const Position *pos, const int from, const int to, const int promo, MoveList *list) {
 
     const int captured = pos->board[to];
     const int move     = MOVE(from, to, captured, promo, 0);
@@ -63,7 +62,7 @@ static inline void AddCapture(const Position *pos, const int from, const int to,
     list->moves[list->count].score = MvvLvaScores[captured][pos->board[from]] + 1000000;
     list->count++;
 }
-static inline void AddEnPas(const int move, MoveList *list) {
+INLINE void AddEnPas(const int move, MoveList *list) {
 #ifndef NDEBUG
     const int from = FROMSQ(move);
     const int   to =   TOSQ(move);

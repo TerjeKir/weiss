@@ -23,8 +23,7 @@ uint64_t SideKey;
 
 
 // Inits zobrist key tables
-static void InitHashKeys() __attribute__((constructor));
-static void InitHashKeys() {
+CONSTR InitHashKeys() {
 
     // Side to play
     SideKey = rand64();

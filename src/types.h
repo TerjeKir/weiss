@@ -13,6 +13,9 @@
 #define MIN(A, B) ((A) < (B) ? (A) : (B))
 #define MAX(A, B) ((A) > (B) ? (A) : (B))
 
+#define INLINE static inline __attribute__((always_inline))
+#define CONSTR static __attribute__((constructor)) void
+
 
 typedef uint64_t bitboard;
 
@@ -186,22 +189,22 @@ typedef struct {
 
 /* Functions */
 
-static inline int fileOf(const int square) {
+INLINE int fileOf(const int square) {
     return square & 7;
 }
 
-static inline int rankOf(const int square) {
+INLINE int rankOf(const int square) {
     return square >> 3;
 }
 
-static inline int colorOf(const int piece) {
+INLINE int colorOf(const int piece) {
     return piece >> 3;
 }
 
-static inline int pieceTypeOf(const int piece) {
+INLINE int pieceTypeOf(const int piece) {
     return (piece & 7);
 }
 
-static inline int makePiece(const int color, const int type) {
+INLINE int makePiece(const int color, const int type) {
     return (color << 3) + type;
 }
