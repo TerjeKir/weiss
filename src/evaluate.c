@@ -143,10 +143,9 @@ static bool MaterialDraw(const Position *pos) {
 #endif
 
 // Evaluates pawns
-static inline int evalPawns(const EvalInfo *ei, const Position *pos, const int color) {
+static inline int evalPawns(const EvalInfo *ei, const Position *pos, const int pawns, const int color) {
 
     int eval = 0;
-    int pawns = makePiece(color, PAWN);
 
     for (int i = 0; i < pos->pieceCounts[pawns]; ++i) {
         int sq = pos->pieceList[pawns][i];
@@ -163,10 +162,9 @@ static inline int evalPawns(const EvalInfo *ei, const Position *pos, const int c
 }
 
 // Evaluates knights
-static inline int evalKnights(const EvalInfo *ei, const Position *pos, const int color) {
+static inline int evalKnights(const EvalInfo *ei, const Position *pos, const int knights, const int color) {
 
     int eval = 0;
-    int knights = makePiece(color, KNIGHT);
 
     for (int i = 0; i < pos->pieceCounts[knights]; ++i) {
         int sq = pos->pieceList[knights][i];
@@ -179,10 +177,9 @@ static inline int evalKnights(const EvalInfo *ei, const Position *pos, const int
 }
 
 // Evaluates bishops
-static inline int evalBishops(const EvalInfo *ei, const Position *pos, const int color) {
+static inline int evalBishops(const EvalInfo *ei, const Position *pos, const int bishops, const int color) {
 
     int eval = 0;
-    int bishops = makePiece(color, BISHOP);
 
     for (int i = 0; i < pos->pieceCounts[bishops]; ++i) {
         int sq = pos->pieceList[bishops][i];
@@ -199,10 +196,9 @@ static inline int evalBishops(const EvalInfo *ei, const Position *pos, const int
 }
 
 // Evaluates rooks
-static inline int evalRooks(const EvalInfo *ei, const Position *pos, const int color) {
+static inline int evalRooks(const EvalInfo *ei, const Position *pos, const int rooks, const int color) {
 
     int eval = 0;
-    int rooks = makePiece(color, ROOK);
 
     for (int i = 0; i < pos->pieceCounts[rooks]; ++i) {
         int sq = pos->pieceList[rooks][i];
@@ -221,10 +217,9 @@ static inline int evalRooks(const EvalInfo *ei, const Position *pos, const int c
 }
 
 // Evaluates queens
-static inline int evalQueens(const EvalInfo *ei, const Position *pos, const int color) {
+static inline int evalQueens(const EvalInfo *ei, const Position *pos, const int queens, const int color) {
 
     int eval = 0;
-    int queens = makePiece(color, QUEEN);
 
     for (int i = 0; i < pos->pieceCounts[queens]; ++i) {
         int sq = pos->pieceList[queens][i];
@@ -288,12 +283,12 @@ int EvalPosition(const Position *pos) {
     int eval = pos->material;
 
     // Evaluate pieces
-    eval += evalPawns  (&ei, pos, WHITE) - evalPawns  (&ei, pos, BLACK);
-    eval += evalKnights(&ei, pos, WHITE) - evalKnights(&ei, pos, BLACK);
-    eval += evalBishops(&ei, pos, WHITE) - evalBishops(&ei, pos, BLACK);
-    eval += evalRooks  (&ei, pos, WHITE) - evalRooks  (&ei, pos, BLACK);
-    eval += evalQueens (&ei, pos, WHITE) - evalQueens (&ei, pos, BLACK);
-    eval += evalKings  (pos, WHITE)      - evalKings  (pos, BLACK);
+    eval += evalPawns  (&ei, pos, wP, WHITE) - evalPawns  (&ei, pos, bP, BLACK);
+    eval += evalKnights(&ei, pos, wN, WHITE) - evalKnights(&ei, pos, bN, BLACK);
+    eval += evalBishops(&ei, pos, wB, WHITE) - evalBishops(&ei, pos, bB, BLACK);
+    eval += evalRooks  (&ei, pos, wR, WHITE) - evalRooks  (&ei, pos, bR, BLACK);
+    eval += evalQueens (&ei, pos, wQ, WHITE) - evalQueens (&ei, pos, bQ, BLACK);
+    eval += evalKings  (pos, WHITE)          - evalKings  (pos, BLACK);
 
     // Adjust score by phase
     const int phase = pos->phase;
