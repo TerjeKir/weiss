@@ -11,4 +11,12 @@
 #define EgScore(s) ((int16_t)((uint16_t)((unsigned)((s) + 0x8000) >> 16)))
 
 
+typedef struct EvalInfo {
+
+    bitboard pawnsBB[2];
+    bitboard mobilityArea[2];
+
+} EvalInfo;
+
+
 int EvalPosition(const Position *pos);

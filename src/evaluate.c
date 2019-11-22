@@ -12,8 +12,7 @@
 
 
 // Eval bit masks
-static bitboard BlackPassedMask[64];
-static bitboard WhitePassedMask[64];
+static bitboard PassedMask[2][64];
 static bitboard IsolatedMask[64];
 
 // Various bonuses and maluses
@@ -63,10 +62,10 @@ static void InitEvalMasks() {
 
         // In front
         for (tsq = sq + 8; tsq <= H8; tsq += 8)
-            WhitePassedMask[sq] |= (1ULL << tsq);
+            PassedMask[WHITE][sq] |= (1ULL << tsq);
 
         for (tsq = sq - 8; tsq >= A1; tsq -= 8)
-            BlackPassedMask[sq] |= (1ULL << tsq);
+            PassedMask[BLACK][sq] |= (1ULL << tsq);
 
         // Left side
         if (fileOf(sq) > FILE_A) {
@@ -74,10 +73,10 @@ static void InitEvalMasks() {
             IsolatedMask[sq] |= fileBBs[fileOf(sq) - 1];
 
             for (tsq = sq + 7; tsq <= H8; tsq += 8)
-                WhitePassedMask[sq] |= (1ULL << tsq);
+                PassedMask[WHITE][sq] |= (1ULL << tsq);
 
             for (tsq = sq - 9; tsq >= A1; tsq -= 8)
-                BlackPassedMask[sq] |= (1ULL << tsq);
+                PassedMask[BLACK][sq] |= (1ULL << tsq);
         }
 
         // Right side
@@ -86,10 +85,10 @@ static void InitEvalMasks() {
             IsolatedMask[sq] |= fileBBs[fileOf(sq) + 1];
 
             for (tsq = sq + 9; tsq <= H8; tsq += 8)
-                WhitePassedMask[sq] |= (1ULL << tsq);
+                PassedMask[WHITE][sq] |= (1ULL << tsq);
 
             for (tsq = sq - 7; tsq >= A1; tsq -= 8)
-                BlackPassedMask[sq] |= (1ULL << tsq);
+                PassedMask[BLACK][sq] |= (1ULL << tsq);
         }
     }
 }
@@ -143,6 +142,114 @@ static bool MaterialDraw(const Position *pos) {
 }
 #endif
 
+// Evaluates pawns
+static inline int evalPawns(const EvalInfo *ei, const Position *pos, const int pawns, const int color) {
+
+    int eval = 0;
+
+    for (int i = 0; i < pos->pieceCounts[pawns]; ++i) {
+        int sq = pos->pieceList[pawns][i];
+
+        // Isolation penalty
+        if (!(IsolatedMask[sq] & ei->pawnsBB[color]))
+            eval += PawnIsolated;
+        // Passed bonus
+        if (!((PassedMask[color][sq]) & ei->pawnsBB[!color]))
+            eval += PawnPassed[color ? rankOf(sq) : 7 - rankOf(sq)];
+    }
+
+    return eval;
+}
+
+// Evaluates knights
+static inline int evalKnights(const EvalInfo *ei, const Position *pos, const int knights, const int color) {
+
+    int eval = 0;
+
+    for (int i = 0; i < pos->pieceCounts[knights]; ++i) {
+        int sq = pos->pieceList[knights][i];
+
+        // Mobility
+        eval += KnightMobility[PopCount(knight_attacks[sq] & ei->mobilityArea[color])];
+    }
+
+    return eval;
+}
+
+// Evaluates bishops
+static inline int evalBishops(const EvalInfo *ei, const Position *pos, const int bishops, const int color) {
+
+    int eval = 0;
+
+    for (int i = 0; i < pos->pieceCounts[bishops]; ++i) {
+        int sq = pos->pieceList[bishops][i];
+
+        // Mobility
+        eval += BishopMobility[PopCount(BishopAttacks(sq, pos->colorBBs[BOTH]) & ei->mobilityArea[color])];
+    }
+
+    // Bishop pair
+    if (pos->pieceCounts[bishops] >= 2)
+        eval += BishopPair;
+
+    return eval;
+}
+
+// Evaluates rooks
+static inline int evalRooks(const EvalInfo *ei, const Position *pos, const int rooks, const int color) {
+
+    int eval = 0;
+
+    for (int i = 0; i < pos->pieceCounts[rooks]; ++i) {
+        int sq = pos->pieceList[rooks][i];
+
+        // Open/Semi-open file bonus
+        if (!(pos->pieceBBs[PAWN] & fileBBs[fileOf(sq)]))
+            eval += RookOpenFile;
+        else if (!(ei->pawnsBB[color] & fileBBs[fileOf(sq)]))
+            eval += RookSemiOpenFile;
+
+        // Mobility
+        eval += RookMobility[PopCount(RookAttacks(sq, pos->colorBBs[BOTH]) & ei->mobilityArea[color])];
+    }
+
+    return eval;
+}
+
+// Evaluates queens
+static inline int evalQueens(const EvalInfo *ei, const Position *pos, const int queens, const int color) {
+
+    int eval = 0;
+
+    for (int i = 0; i < pos->pieceCounts[queens]; ++i) {
+        int sq = pos->pieceList[queens][i];
+
+        // Open/Semi-open file bonus
+        if (!(pos->pieceBBs[PAWN] & fileBBs[fileOf(sq)]))
+            eval += QueenOpenFile;
+        else if (!(ei->pawnsBB[color] & fileBBs[fileOf(sq)]))
+            eval += QueenSemiOpenFile;
+
+        // Mobility
+        eval += QueenMobility[PopCount((BishopAttacks(sq, pos->colorBBs[BOTH])
+                                        | RookAttacks(sq, pos->colorBBs[BOTH])) & ei->mobilityArea[color])];
+    }
+
+    return eval;
+}
+
+// Evaluates kings
+static inline int evalKings(const Position *pos, const int color) {
+
+    int eval = 0;
+
+    // King safety
+    eval += KingLineVulnerability * PopCount(BishopAttacks(pos->kingSq[color], pos->colorBBs[color] | pos->pieceBBs[PAWN])
+                                             | RookAttacks(pos->kingSq[color], pos->colorBBs[color] | pos->pieceBBs[PAWN]));
+
+    return eval;
+}
+
 // Calculate a static evaluation of a position
 int EvalPosition(const Position *pos) {
 
@@ -150,164 +257,45 @@ int EvalPosition(const Position *pos) {
     if (MaterialDraw(pos)) return 0;
 #endif
 
-    int sq, i;
-    int mobility = 0;
+    EvalInfo ei;
 
-    bitboard blockedPawns[2], unmovedPawns[2], attackedByPawns[2], mobilityArea[2];
+    bitboard blockedPawns[2], unmovedPawns[2], attackedByPawns[2];
 
-    bitboard whitePawns = pos->colorBBs[WHITE] & pos->pieceBBs[PAWN];
-    bitboard blackPawns = pos->colorBBs[BLACK] & pos->pieceBBs[PAWN];
-
-    bitboard occupied = pos->colorBBs[BOTH];
+    ei.pawnsBB[WHITE] = pos->colorBBs[WHITE] & pos->pieceBBs[PAWN];
+    ei.pawnsBB[BLACK] = pos->colorBBs[BLACK] & pos->pieceBBs[PAWN];
 
     // Mobility area
-    blockedPawns[BLACK] = blackPawns & pos->colorBBs[BOTH] << 8;
-    blockedPawns[WHITE] = whitePawns & pos->colorBBs[BOTH] >> 8;
+    blockedPawns[BLACK] = ei.pawnsBB[BLACK] & pos->colorBBs[BOTH] << 8;
+    blockedPawns[WHITE] = ei.pawnsBB[WHITE] & pos->colorBBs[BOTH] >> 8;
 
-    unmovedPawns[BLACK] = blackPawns & rank7BB;
-    unmovedPawns[WHITE] = whitePawns & rank2BB;
+    unmovedPawns[BLACK] = ei.pawnsBB[BLACK] & rank7BB;
+    unmovedPawns[WHITE] = ei.pawnsBB[WHITE] & rank2BB;
 
-    attackedByPawns[BLACK] = ((blackPawns & ~fileABB) >> 9) | ((blackPawns & ~fileHBB) >> 7);
-    attackedByPawns[WHITE] = ((whitePawns & ~fileABB) << 7) | ((whitePawns & ~fileHBB) << 9);
+    attackedByPawns[BLACK] = ((ei.pawnsBB[BLACK] & ~fileABB) >> 9)
+                           | ((ei.pawnsBB[BLACK] & ~fileHBB) >> 7);
+    attackedByPawns[WHITE] = ((ei.pawnsBB[WHITE] & ~fileABB) << 7)
+                           | ((ei.pawnsBB[WHITE] & ~fileHBB) << 9);
 
-    mobilityArea[BLACK] = ~(blockedPawns[BLACK] | unmovedPawns[BLACK] | attackedByPawns[WHITE]);
-    mobilityArea[WHITE] = ~(blockedPawns[WHITE] | unmovedPawns[WHITE] | attackedByPawns[BLACK]);
+    ei.mobilityArea[BLACK] = ~(blockedPawns[BLACK] | unmovedPawns[BLACK] | attackedByPawns[WHITE]);
+    ei.mobilityArea[WHITE] = ~(blockedPawns[WHITE] | unmovedPawns[WHITE] | attackedByPawns[BLACK]);
 
     // Material
-    int score = pos->material;
+    int eval = pos->material;
 
-    // Bishop pair
-    if (pos->pieceCounts[wB] >= 2)
-        score += BishopPair;
-    if (pos->pieceCounts[bB] >= 2)
-        score -= BishopPair;
-
-    // White pawns
-    for (i = 0; i < pos->pieceCounts[wP]; ++i) {
-        sq = pos->pieceList[wP][i];
-
-        // Isolation penalty
-        if (!(IsolatedMask[sq] & whitePawns))
-            score += PawnIsolated;
-        // Passed bonus
-        if (!(WhitePassedMask[sq] & blackPawns))
-            score += PawnPassed[rankOf(sq)];
-    }
-
-    // Black pawns
-    for (i = 0; i < pos->pieceCounts[bP]; ++i) {
-        sq = pos->pieceList[bP][i];
-
-        // Isolation penalty
-        if (!(IsolatedMask[sq] & blackPawns))
-            score -= PawnIsolated;
-        // Passed bonus
-        if (!(BlackPassedMask[sq] & whitePawns))
-            score -= PawnPassed[7 - rankOf(sq)];
-    }
-
-    // White knights
-    for (i = 0; i < pos->pieceCounts[wN]; ++i) {
-        sq = pos->pieceList[wN][i];
-
-        // Mobility
-        mobility += KnightMobility[PopCount(knight_attacks[sq] & mobilityArea[WHITE])];
-    }
-
-    // Black knights
-    for (i = 0; i < pos->pieceCounts[bN]; ++i) {
-        sq = pos->pieceList[bN][i];
-
-        // Mobility
-        mobility -= KnightMobility[PopCount(knight_attacks[sq] & mobilityArea[BLACK])];
-    }
-
-    // White bishops
-    for (i = 0; i < pos->pieceCounts[wB]; ++i) {
-        sq = pos->pieceList[wB][i];
-
-        // Mobility
-        mobility += BishopMobility[PopCount(BishopAttacks(sq, occupied) & mobilityArea[WHITE])];
-    }
-
-    // Black bishops
-    for (i = 0; i < pos->pieceCounts[bB]; ++i) {
-        sq = pos->pieceList[bB][i];
-
-        // Mobility
-        mobility -= BishopMobility[PopCount(BishopAttacks(sq, occupied) & mobilityArea[BLACK])];
-    }
-
-    // White rooks
-    for (i = 0; i < pos->pieceCounts[wR]; ++i) {
-        sq = pos->pieceList[wR][i];
-
-        // Open/Semi-open file bonus
-        if (!(pos->pieceBBs[PAWN] & fileBBs[fileOf(sq)]))
-            score += RookOpenFile;
-        else if (!(whitePawns & fileBBs[fileOf(sq)]))
-            score += RookSemiOpenFile;
-
-        // Mobility
-        mobility += RookMobility[PopCount(RookAttacks(sq, occupied) & mobilityArea[WHITE])];
-    }
-
-    // Black rooks
-    for (i = 0; i < pos->pieceCounts[bR]; ++i) {
-        sq = pos->pieceList[bR][i];
-
-        // Open/Semi-open file bonus
-        if (!(pos->pieceBBs[PAWN] & fileBBs[fileOf(sq)]))
-            score -= RookOpenFile;
-        else if (!(blackPawns & fileBBs[fileOf(sq)]))
-            score -= RookSemiOpenFile;
-
-        // Mobility
-        mobility -= RookMobility[PopCount(RookAttacks(sq, occupied) & mobilityArea[BLACK])];
-    }
-
-    // White queens
-    for (i = 0; i < pos->pieceCounts[wQ]; ++i) {
-        sq = pos->pieceList[wQ][i];
-
-        // Open/Semi-open file bonus
-        if (!(pos->pieceBBs[PAWN] & fileBBs[fileOf(sq)]))
-            score += QueenOpenFile;
-        else if (!(whitePawns & fileBBs[fileOf(sq)]))
-            score += QueenSemiOpenFile;
-
-        // Mobility
-        mobility += QueenMobility[PopCount((BishopAttacks(sq, occupied) | RookAttacks(sq, occupied)) & mobilityArea[WHITE])];
-    }
-
-    // Black queens
-    for (i = 0; i < pos->pieceCounts[bQ]; ++i) {
-        sq = pos->pieceList[bQ][i];
-
-        // Open/Semi-open file bonus
-        if (!(pos->pieceBBs[PAWN] & fileBBs[fileOf(sq)]))
-            score -= QueenOpenFile;
-        else if (!(blackPawns & fileBBs[fileOf(sq)]))
-            score -= QueenSemiOpenFile;
-
-        // Mobility
-        mobility -= QueenMobility[PopCount((BishopAttacks(sq, occupied) | RookAttacks(sq, occupied)) & mobilityArea[BLACK])];
-    }
-
-    score += mobility;
-
-    // Kings
-    score += KingLineVulnerability * PopCount(  RookAttacks(pos->kingSq[WHITE], pos->colorBBs[WHITE] | pos->pieceBBs[PAWN])
-                                            | BishopAttacks(pos->kingSq[WHITE], pos->colorBBs[WHITE] | pos->pieceBBs[PAWN]));
-    score -= KingLineVulnerability * PopCount(  RookAttacks(pos->kingSq[BLACK], pos->colorBBs[BLACK] | pos->pieceBBs[PAWN])
-                                            | BishopAttacks(pos->kingSq[BLACK], pos->colorBBs[BLACK] | pos->pieceBBs[PAWN]));
+    // Evaluate pieces
+    eval += evalPawns  (&ei, pos, wP, WHITE) - evalPawns  (&ei, pos, bP, BLACK);
+    eval += evalKnights(&ei, pos, wN, WHITE) - evalKnights(&ei, pos, bN, BLACK);
+    eval += evalBishops(&ei, pos, wB, WHITE) - evalBishops(&ei, pos, bB, BLACK);
+    eval += evalRooks  (&ei, pos, wR, WHITE) - evalRooks  (&ei, pos, bR, BLACK);
+    eval += evalQueens (&ei, pos, wQ, WHITE) - evalQueens (&ei, pos, bQ, BLACK);
+    eval += evalKings  (pos, WHITE)          - evalKings  (pos, BLACK);
 
     // Adjust score by phase
     const int phase = pos->phase;
-    score = ((MgScore(score) * (256 - phase)) + (EgScore(score) * phase)) / 256;
+    eval = ((MgScore(eval) * (256 - phase)) + (EgScore(eval) * phase)) / 256;
 
-    assert(score > -INFINITE && score < INFINITE);
+    assert(eval > -INFINITE && eval < INFINITE);
 
-    // Return score
-    return pos->side == WHITE ? score : -score;
+    // Return the evaluation, negated if we are black
+    return pos->side == WHITE ? eval : -eval;
 }
