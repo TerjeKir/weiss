@@ -171,8 +171,8 @@ static void PrintUCI() {
     printf("id name %s\n", NAME);
     printf("id author LoliSquad\n");
     printf("option name Hash type spin default %d min 4 max %d\n", DEFAULTHASH, MAXHASH);
-    printf("option name Ponder type check default false\n"); // Turn on ponder stats in cutechess gui
     printf("option name SyzygyPath type string default <empty>\n");
+    printf("option name Ponder type check default false\n"); // Turn on ponder stats in cutechess gui
     printf("uciok\n"); fflush(stdout);
 }
 
