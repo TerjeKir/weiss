@@ -174,8 +174,7 @@ static void InitSliderAttacks(Magic *table, bitboard *attackTable, const bitboar
 }
 
 // Initializes all attack bitboards
-static void InitAttacks() __attribute__((constructor));
-static void InitAttacks() {
+CONSTR InitAttacks() {
 
     const int bishopDirections[4] = {7, 9, -7, -9};
     const int   rookDirections[4] = {8, 1, -8, -1};

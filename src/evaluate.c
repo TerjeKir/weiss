@@ -52,8 +52,7 @@ static const int QueenMobility[28] = {
 
 
 // Initialize evaluation bit masks
-static void InitEvalMasks() __attribute__((constructor));
-static void InitEvalMasks() {
+CONSTR InitEvalMasks() {
 
     int sq, tsq;
 
@@ -143,7 +142,7 @@ static bool MaterialDraw(const Position *pos) {
 #endif
 
 // Evaluates pawns
-static inline int evalPawns(const EvalInfo *ei, const Position *pos, const int pawns, const int color) {
+INLINE int evalPawns(const EvalInfo *ei, const Position *pos, const int pawns, const int color) {
 
     int eval = 0;
 
@@ -162,7 +161,7 @@ static inline int evalPawns(const EvalInfo *ei, const Position *pos, const int p
 }
 
 // Evaluates knights
-static inline int evalKnights(const EvalInfo *ei, const Position *pos, const int knights, const int color) {
+INLINE int evalKnights(const EvalInfo *ei, const Position *pos, const int knights, const int color) {
 
     int eval = 0;
 
@@ -177,7 +176,7 @@ static inline int evalKnights(const EvalInfo *ei, const Position *pos, const int
 }
 
 // Evaluates bishops
-static inline int evalBishops(const EvalInfo *ei, const Position *pos, const int bishops, const int color) {
+INLINE int evalBishops(const EvalInfo *ei, const Position *pos, const int bishops, const int color) {
 
     int eval = 0;
 
@@ -196,7 +195,7 @@ static inline int evalBishops(const EvalInfo *ei, const Position *pos, const int
 }
 
 // Evaluates rooks
-static inline int evalRooks(const EvalInfo *ei, const Position *pos, const int rooks, const int color) {
+INLINE int evalRooks(const EvalInfo *ei, const Position *pos, const int rooks, const int color) {
 
     int eval = 0;
 
@@ -217,7 +216,7 @@ static inline int evalRooks(const EvalInfo *ei, const Position *pos, const int r
 }
 
 // Evaluates queens
-static inline int evalQueens(const EvalInfo *ei, const Position *pos, const int queens, const int color) {
+INLINE int evalQueens(const EvalInfo *ei, const Position *pos, const int queens, const int color) {
 
     int eval = 0;
 
@@ -239,7 +238,7 @@ static inline int evalQueens(const EvalInfo *ei, const Position *pos, const int 
 }
 
 // Evaluates kings
-static inline int evalKings(const Position *pos, const int color) {
+INLINE int evalKings(const Position *pos, const int color) {
 
     int eval = 0;
 
@@ -248,6 +247,22 @@ static inline int evalKings(const Position *pos, const int color) {
                                              | RookAttacks(pos->kingSq[color], pos->colorBBs[color] | pos->pieceBBs[PAWN]));
 
     return eval;
+}
+
+INLINE int evalPieces(const EvalInfo ei, const Position *pos) {
+
+    return  evalPawns  (&ei, pos, wP, WHITE)
+          - evalPawns  (&ei, pos, bP, BLACK)
+          + evalKnights(&ei, pos, wN, WHITE)
+          - evalKnights(&ei, pos, bN, BLACK)
+          + evalBishops(&ei, pos, wB, WHITE)
+          - evalBishops(&ei, pos, bB, BLACK)
+          + evalRooks  (&ei, pos, wR, WHITE)
+          - evalRooks  (&ei, pos, bR, BLACK)
+          + evalQueens (&ei, pos, wQ, WHITE)
+          - evalQueens (&ei, pos, bQ, BLACK)
+          + evalKings  (pos, WHITE)
+          - evalKings  (pos, BLACK);
 }
 
 // Calculate a static evaluation of a position
@@ -283,12 +298,7 @@ int EvalPosition(const Position *pos) {
     int eval = pos->material;
 
     // Evaluate pieces
-    eval += evalPawns  (&ei, pos, wP, WHITE) - evalPawns  (&ei, pos, bP, BLACK);
-    eval += evalKnights(&ei, pos, wN, WHITE) - evalKnights(&ei, pos, bN, BLACK);
-    eval += evalBishops(&ei, pos, wB, WHITE) - evalBishops(&ei, pos, bB, BLACK);
-    eval += evalRooks  (&ei, pos, wR, WHITE) - evalRooks  (&ei, pos, bR, BLACK);
-    eval += evalQueens (&ei, pos, wQ, WHITE) - evalQueens (&ei, pos, bQ, BLACK);
-    eval += evalKings  (pos, WHITE)          - evalKings  (pos, BLACK);
+    eval += evalPieces(ei, pos);
 
     // Adjust score by phase
     const int phase = pos->phase;

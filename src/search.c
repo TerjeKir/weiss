@@ -24,8 +24,7 @@ extern bool ABORT_SIGNAL;
 
 
 // Initializes the late move reduction array
-static void InitReductions() __attribute__((constructor));
-static void InitReductions() {
+CONSTR InitReductions() {
 
     for (int depth = 0; depth < 32; ++depth)
         for (int moves = 0; moves < 32; ++moves)

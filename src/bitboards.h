@@ -45,19 +45,19 @@ const bitboard rankBBs[8];
 // void PrintBB(const bitboard bb);
 
 // Population count/Hamming weight
-static inline int PopCount(const bitboard bb) {
+INLINE int PopCount(const bitboard bb) {
 
     return __builtin_popcountll(bb);
 }
 
 // Returns the index of the least significant bit
-static inline int Lsb(const bitboard bb) {
+INLINE int Lsb(const bitboard bb) {
 
     return __builtin_ctzll(bb);
 }
 
 // Returns the index of the least significant bit and unsets it
-static inline int PopLsb(bitboard *bb) {
+INLINE int PopLsb(bitboard *bb) {
 
     int lsb = Lsb(*bb);
     *bb &= (*bb - 1);

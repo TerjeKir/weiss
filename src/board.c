@@ -31,8 +31,7 @@ const int mirror_square[64] = {
 
 
 // Initialize distance lookup table
-static void InitDistance() __attribute__((constructor));
-static void InitDistance() {
+CONSTR InitDistance() {
 
     int sq1, sq2, vertical, horizontal;
 

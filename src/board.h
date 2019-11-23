@@ -22,6 +22,6 @@ void PrintBoard(const Position *pos);
 void MirrorBoard(Position *pos);
 
 // Returns distance between sq1 and sq2
-static inline int Distance(const int sq1, const int sq2) {
+INLINE int Distance(const int sq1, const int sq2) {
     return distance[sq1][sq2];
 }

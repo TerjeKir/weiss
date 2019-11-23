@@ -9,8 +9,7 @@ int PSQT[PIECE_NB][64];
 
 
 // Initialize the piece square tables with piece values included
-static void InitPSQT() __attribute__((constructor));
-static void InitPSQT() {
+CONSTR InitPSQT() {
 
     const int pieceValue[PIECE_NB] = { 0, S(P_MG, P_EG), S(N_MG, N_EG), S(B_MG, B_EG), S(R_MG, R_EG), S(Q_MG, Q_EG), 0, 0,
                                        0, S(P_MG, P_EG), S(N_MG, N_EG), S(B_MG, B_EG), S(R_MG, R_EG), S(Q_MG, Q_EG), 0, 0 };
