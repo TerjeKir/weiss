@@ -232,6 +232,9 @@ int main(int argc, char **argv) {
 
             strcpy(info->syzygyPath, path);
             tb_init(info->syzygyPath);
+
+            if (TB_LARGEST > 0)
+                printf("TableBase init complete - largest found: %d\n", TB_LARGEST);
         }
         // Non UCI commands
 #ifdef DEV
