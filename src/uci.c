@@ -24,12 +24,12 @@
 bool ABORT_SIGNAL = false;
 
 
-// Checks if a string begins with another string
+// Checks if a string begins with the token string
 static inline bool BeginsWith(const char *string, const char *token) {
     return strstr(string, token) == string;
 }
 
-// Parses a go command
+// Parses a 'go' and starts a search
 static void *ParseGo(void *searchThreadInfo) {
 
     SearchThread *sst = (SearchThread*)searchThreadInfo;
@@ -93,7 +93,7 @@ static void *ParseGo(void *searchThreadInfo) {
     return NULL;
 }
 
-// Parses a position command
+// Parses a 'position' and sets up the board
 static void ParsePosition(const char *line, Position *pos) {
 
     // Skip past "position "
@@ -141,6 +141,31 @@ static void ParsePosition(const char *line, Position *pos) {
     }
 }
 
+// Parses a 'setoption' and updates settings
+static void SetOption(Position *pos, SearchInfo *info, char *line) {
+
+    if (BeginsWith(line, "setoption name Hash value ")) {
+        int MB;
+        sscanf(line, "%*s %*s %*s %*s %d", &MB);
+        InitHashTable(pos->hashTable, MB);
+
+    } else if (BeginsWith(line, "setoption name SyzygyPath value ")) {
+
+        char *path = line + strlen("setoption name SyzygyPath value ");
+
+        // Strip newline
+        line[strcspn(line, "\r\n")] = '\0';
+
+        strcpy(info->syzygyPath, path);
+        tb_init(info->syzygyPath);
+
+        if (TB_LARGEST > 0)
+            printf("TableBase init complete - largest found: %d.\n", TB_LARGEST);
+        else
+            printf("TableBase init failed - not found.\n");
+    }
+}
+
 // Prints UCI info
 static void PrintUCI() {
     printf("id name %s\n", NAME);
@@ -159,6 +184,7 @@ static inline bool GetInput(char *line) {
     if (fgets(line, INPUT_SIZE, stdin) == NULL)
         return false;
 
+    // Strip newline
     line[strcspn(line, "\r\n")] = '\0';
 
     return true;
@@ -192,47 +218,33 @@ int main(int argc, char **argv) {
     char line[INPUT_SIZE];
     while (GetInput(line)) {
 
-        if (BeginsWith(line, "go")) {
-            ABORT_SIGNAL = false;
-            strncpy(searchThreadInfo.line, line, INPUT_SIZE);
+        if (BeginsWith(line, "go"))
+            ABORT_SIGNAL = false,
+            strncpy(searchThreadInfo.line, line, INPUT_SIZE),
             pthread_create(&searchThread, NULL, &ParseGo, &searchThreadInfo);
 
-        } else if (BeginsWith(line, "isready")) {
-            printf("readyok\n"); fflush(stdout);
+        else if (BeginsWith(line, "isready"))
+            printf("readyok\n"), fflush(stdout);
 
-        } else if (BeginsWith(line, "position"))
+        else if (BeginsWith(line, "position"))
             ParsePosition(line, pos);
 
         else if (BeginsWith(line, "ucinewgame"))
             ClearHashTable(pos->hashTable);
 
-        else if (BeginsWith(line, "stop")) {
-            ABORT_SIGNAL = true;
+        else if (BeginsWith(line, "stop"))
+            ABORT_SIGNAL = true,
             pthread_join(searchThread, NULL);
 
-        } else if (BeginsWith(line, "quit")) {
+        else if (BeginsWith(line, "quit"))
             break;
 
-        } else if (BeginsWith(line, "uci"))
+        else if (BeginsWith(line, "uci"))
             PrintUCI();
 
-        else if (BeginsWith(line, "setoption name Hash value ")) {
-            int MB;
-            sscanf(line, "%*s %*s %*s %*s %d", &MB);
-            InitHashTable(pos->hashTable, MB);
+        else if (BeginsWith(line, "setoption"))
+            SetOption(pos, info, line);
 
-        } else if (BeginsWith(line, "setoption name SyzygyPath value ")) {
-
-            char *path = line + strlen("setoption name SyzygyPath value ");
-
-            // Replace newline with null
-            char *newline;
-            if ((newline = strchr(path, '\n')))
-                path[newline-path] = '\0';
-
-            strcpy(info->syzygyPath, path);
-            tb_init(info->syzygyPath);
-        }
         // Non UCI commands
 #ifdef DEV
         else if (!strncmp(line, "weiss", 5)) {
