@@ -159,6 +159,7 @@ static inline bool GetInput(char *line) {
     if (fgets(line, INPUT_SIZE, stdin) == NULL)
         return false;
 
+    // Strip newline
     line[strcspn(line, "\r\n")] = '\0';
 
     return true;
@@ -225,10 +226,8 @@ int main(int argc, char **argv) {
 
             char *path = line + strlen("setoption name SyzygyPath value ");
 
-            // Replace newline with null
-            char *newline;
-            if ((newline = strchr(path, '\n')))
-                path[newline-path] = '\0';
+            // Strip newline
+            line[strcspn(line, "\r\n")] = '\0';
 
             strcpy(info->syzygyPath, path);
             tb_init(info->syzygyPath);
