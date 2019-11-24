@@ -26,8 +26,7 @@ CONSTR InitMvvLva() {
             MvvLvaScores[Victim][Attacker] = VictimScore[Victim] - AttackerScore[Attacker];
 }
 
-/* Functions that add moves to the movelist - called by generators */
-
+// Constructs and adds a move to the move list
 INLINE void AddMove(const Position *pos, const int from, const int to, const int promo, const int flag, MoveList *list, const int type) {
 
     assert(ValidSquare(from));
@@ -35,21 +34,24 @@ INLINE void AddMove(const Position *pos, const int from, const int to, const int
     assert(CheckBoard(pos));
     assert(pos->ply >= 0 && pos->ply < MAXDEPTH);
 
+    int *moveScore = &list->moves[list->count].score;
+
     const int captured = pos->board[to];
     const int move = MOVE(from, to, captured, promo, flag);
 
     // Add scores to help move ordering based on search history heuristics / mvvlva
     if (type == NOISY)
-        list->moves[list->count].score = MvvLvaScores[captured][pos->board[from]] + 1000000;
+        *moveScore = MvvLvaScores[captured][pos->board[from]] + 1000000;
+
     if (type == QUIET) {
         if (pos->searchKillers[0][pos->ply] == move)
-            list->moves[list->count].score = 900000;
+            *moveScore = 900000;
         else if (pos->searchKillers[1][pos->ply] == move)
-            list->moves[list->count].score = 800000;
+            *moveScore = 800000;
         else if (promo)
-            list->moves[list->count].score = 700000;
+            *moveScore = 700000;
         else
-            list->moves[list->count].score = pos->searchHistory[pos->board[from]][to];
+            *moveScore = pos->searchHistory[pos->board[from]][to];
     }
 
     list->moves[list->count].move = move;
@@ -80,8 +82,6 @@ INLINE void AddSpecialPawn(const Position *pos, MoveList *list, const int from, 
         AddMove(pos, from, to, makePiece(color, BISHOP), 0, list, NOISY);
     }
 }
-
-/* Generators for specific color/piece combinations - called by generic generators*/
 
 // King
 INLINE void GenCastling(const Position *pos, MoveList *list, const int color, const int type) {
@@ -133,7 +133,7 @@ INLINE int relSqDiff(const int color, const int sq, const int diff) {
     return color == WHITE ? sq - diff : sq + diff;
 }
 
-// White pawn
+// Pawn
 INLINE void GenPawn(const Position *pos, MoveList *list, const int color, const int type) {
 
     int sq;
@@ -216,7 +216,7 @@ INLINE void GenPawn(const Position *pos, MoveList *list, const int color, const 
     }
 }
 
-// White knight
+// Knight, bishop, rook and queen
 INLINE void GenPieceType(const Position *pos, MoveList *list, const int color, const int type, const int pt) {
 
     int sq;
@@ -287,8 +287,7 @@ INLINE void GenPieceType(const Position *pos, MoveList *list, const int color, c
     }
 }
 
-/* Generic generators */
-
+// Generate moves
 static void GenMoves(const Position *pos, MoveList *list, const int color, const int type) {
 
     assert(CheckBoard(pos));
