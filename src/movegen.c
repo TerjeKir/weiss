@@ -10,6 +10,8 @@
 #include "validate.h"
 
 
+enum { QUIET, NOISY };
+
 static int MvvLvaScores[PIECE_NB][PIECE_NB];
 
 // Initializes the MostValuableVictim-LeastValuableAttacker scores used for ordering captures
@@ -298,7 +300,7 @@ static inline void GenBPawnQuiet(const Position *pos, MoveList *list, const bitb
 }
 
 // White knight
-INLINE void GenKnightQuiet(const Position *pos, MoveList *list, const bitboard empty, const int color) {
+INLINE void GenKnight(const Position *pos, MoveList *list, const bitboard enemies, const bitboard empty, const int color, const int type) {
 
     int sq;
     bitboard moves;
@@ -309,30 +311,23 @@ INLINE void GenKnightQuiet(const Position *pos, MoveList *list, const bitboard e
 
         sq = PopLsb(&knights);
 
-        moves = knight_attacks[sq] & empty;
-        while (moves)
-            AddQuiet(pos, sq, PopLsb(&moves), EMPTY, 0, list);
-    }
-}
-INLINE void GenKnightNoisy(const Position *pos, MoveList *list, const bitboard enemies, const int color) {
 
-    int sq;
-    bitboard attacks;
+        if (type == NOISY) {
+            moves = knight_attacks[sq] & enemies;
+            while (moves)
+                AddCapture(pos, sq, PopLsb(&moves), EMPTY, list);
+        }
 
-    bitboard knights = pos->colorBBs[color] & pos->pieceBBs[KNIGHT];
-
-    while (knights) {
-
-        sq = PopLsb(&knights);
-
-        attacks = knight_attacks[sq] & enemies;
-        while (attacks)
-            AddCapture(pos, sq, PopLsb(&attacks), EMPTY, list);
+        if (type == QUIET) {
+            moves = knight_attacks[sq] & empty;
+            while (moves)
+                AddQuiet(pos, sq, PopLsb(&moves), EMPTY, 0, list);
+        }
     }
 }
 
 // White bishop
-INLINE void GenBishopQuiet(const Position *pos, MoveList *list, const bitboard empty, const bitboard occupied, const int color) {
+INLINE void GenBishop(const Position *pos, MoveList *list, const bitboard enemies, const bitboard empty, const bitboard occupied, const int color, const int type) {
 
     int sq;
     bitboard moves;
@@ -343,30 +338,22 @@ INLINE void GenBishopQuiet(const Position *pos, MoveList *list, const bitboard e
 
         sq = PopLsb(&bishops);
 
-        moves = BishopAttacks(sq, occupied) & empty;
-        while (moves)
-            AddQuiet(pos, sq, PopLsb(&moves), EMPTY, 0, list);
-    }
-}
-INLINE void GenBishopNoisy(const Position *pos, MoveList *list, const bitboard enemies, const bitboard occupied, const int color) {
+        if (type == NOISY) {
+            moves = BishopAttacks(sq, occupied) & enemies;
+            while (moves)
+                AddCapture(pos, sq, PopLsb(&moves), 0, list);
+        }
 
-    int sq;
-    bitboard attacks;
-
-    bitboard bishops = pos->colorBBs[color] & pos->pieceBBs[BISHOP];
-
-    while (bishops) {
-
-        sq = PopLsb(&bishops);
-
-        attacks = BishopAttacks(sq, occupied) & enemies;
-        while (attacks)
-            AddCapture(pos, sq, PopLsb(&attacks), 0, list);
+        if (type == QUIET) {
+            moves = BishopAttacks(sq, occupied) & empty;
+            while (moves)
+                AddQuiet(pos, sq, PopLsb(&moves), EMPTY, 0, list);
+        }
     }
 }
 
 // White rook
-INLINE void GenRookQuiet(const Position *pos, MoveList *list, const bitboard empty, const bitboard occupied, const int color) {
+INLINE void GenRook(const Position *pos, MoveList *list, const bitboard enemies, const bitboard empty, const bitboard occupied, const int color, const int type) {
 
     int sq;
     bitboard moves;
@@ -377,30 +364,22 @@ INLINE void GenRookQuiet(const Position *pos, MoveList *list, const bitboard emp
 
         sq = PopLsb(&rooks);
 
-        moves = RookAttacks(sq, occupied) & empty;
-        while (moves)
-            AddQuiet(pos, sq, PopLsb(&moves), EMPTY, 0, list);
-    }
-}
-INLINE void GenRookNoisy(const Position *pos, MoveList *list, const bitboard enemies, const bitboard occupied, const int color) {
+        if (type == NOISY) {
+            moves = RookAttacks(sq, occupied) & enemies;
+            while (moves)
+                AddCapture(pos, sq, PopLsb(&moves), 0, list);
+        }
 
-    int sq;
-    bitboard attacks;
-
-    bitboard rooks = pos->colorBBs[color] & pos->pieceBBs[ROOK];
-
-    while (rooks) {
-
-        sq = PopLsb(&rooks);
-
-        attacks = RookAttacks(sq, occupied) & enemies;
-        while (attacks)
-            AddCapture(pos, sq, PopLsb(&attacks), 0, list);
+        if (type == QUIET) {
+            moves = RookAttacks(sq, occupied) & empty;
+            while (moves)
+                AddQuiet(pos, sq, PopLsb(&moves), EMPTY, 0, list);
+        }
     }
 }
 
 // White queen
-INLINE void GenQueenQuiet(const Position *pos, MoveList *list, const bitboard empty, const bitboard occupied, const int color) {
+INLINE void GenQueen(const Position *pos, MoveList *list, const bitboard enemies, const bitboard empty, const bitboard occupied, const int color, const int type) {
 
     int sq;
     bitboard moves;
@@ -411,25 +390,17 @@ INLINE void GenQueenQuiet(const Position *pos, MoveList *list, const bitboard em
 
         sq = PopLsb(&queens);
 
-        moves = (BishopAttacks(sq, occupied) | RookAttacks(sq, occupied)) & empty;
-        while (moves)
-            AddQuiet(pos, sq, PopLsb(&moves), EMPTY, 0, list);
-    }
-}
-INLINE void GenQueenNoisy(const Position *pos, MoveList *list, const bitboard enemies, const bitboard occupied, const int color) {
+        if (type == NOISY) {
+            moves = (BishopAttacks(sq, occupied) | RookAttacks(sq, occupied)) & enemies;
+            while (moves)
+                AddCapture(pos, sq, PopLsb(&moves), 0, list);
+        }
 
-    int sq;
-    bitboard attacks;
-
-    bitboard queens = pos->colorBBs[color] & pos->pieceBBs[QUEEN];
-
-    while (queens) {
-
-        sq = PopLsb(&queens);
-
-        attacks = (BishopAttacks(sq, occupied) | RookAttacks(sq, occupied)) & enemies;
-        while (attacks)
-            AddCapture(pos, sq, PopLsb(&attacks), 0, list);
+        if (type == QUIET) {
+            moves = (BishopAttacks(sq, occupied) | RookAttacks(sq, occupied)) & empty;
+            while (moves)
+                AddQuiet(pos, sq, PopLsb(&moves), EMPTY, 0, list);
+        }
     }
 }
 
@@ -448,17 +419,17 @@ void GenQuietMoves(const Position *pos, MoveList *list) {
     if (side == WHITE) {
         GenWCastling   (pos, list, occupied);
         GenWPawnQuiet  (pos, list, empty);
-        GenKnightQuiet(pos, list, empty, WHITE);
-        GenRookQuiet  (pos, list, empty, occupied, WHITE);
-        GenBishopQuiet(pos, list, empty, occupied, WHITE);
-        GenQueenQuiet (pos, list, empty, occupied, WHITE);
+        GenKnight(pos, list, 0ULL, empty, WHITE, QUIET);
+        GenRook  (pos, list, 0ULL, empty, occupied, WHITE, QUIET);
+        GenBishop(pos, list, 0ULL, empty, occupied, WHITE, QUIET);
+        GenQueen (pos, list, 0ULL, empty, occupied, WHITE, QUIET);
     } else {
         GenBCastling   (pos, list, occupied);
         GenBPawnQuiet  (pos, list, empty);
-        GenKnightQuiet(pos, list, empty, BLACK);
-        GenRookQuiet  (pos, list, empty, occupied, BLACK);
-        GenBishopQuiet(pos, list, empty, occupied, BLACK);
-        GenQueenQuiet (pos, list, empty, occupied, BLACK);
+        GenKnight(pos, list, 0ULL, empty, BLACK, QUIET);
+        GenRook  (pos, list, 0ULL, empty, occupied, BLACK, QUIET);
+        GenBishop(pos, list, 0ULL, empty, occupied, BLACK, QUIET);
+        GenQueen (pos, list, 0ULL, empty, occupied, BLACK, QUIET);
     }
 
     GenKingQuiet(pos, list, pos->kingSq[side], empty);
@@ -480,17 +451,17 @@ void GenNoisyMoves(const Position *pos, MoveList *list) {
     // Pawns
     if (side == WHITE) {
         GenWPawnNoisy  (pos, list, enemies, empty);
-        GenKnightNoisy(pos, list, enemies, WHITE);
-        GenRookNoisy  (pos, list, enemies, occupied, WHITE);
-        GenBishopNoisy(pos, list, enemies, occupied, WHITE);
-        GenQueenNoisy (pos, list, enemies, occupied, WHITE);
+        GenKnight(pos, list, enemies, empty, WHITE, NOISY);
+        GenRook  (pos, list, enemies, empty, occupied, WHITE, NOISY);
+        GenBishop(pos, list, enemies, empty, occupied, WHITE, NOISY);
+        GenQueen (pos, list, enemies, empty, occupied, WHITE, NOISY);
 
     } else {
         GenBPawnNoisy  (pos, list, enemies, empty);
-        GenKnightNoisy(pos, list, enemies, BLACK);
-        GenRookNoisy  (pos, list, enemies, occupied, BLACK);
-        GenBishopNoisy(pos, list, enemies, occupied, BLACK);
-        GenQueenNoisy (pos, list, enemies, occupied, BLACK);
+        GenKnight(pos, list, enemies, empty, BLACK, NOISY);
+        GenRook  (pos, list, enemies, empty, occupied, BLACK, NOISY);
+        GenBishop(pos, list, enemies, empty, occupied, BLACK, NOISY);
+        GenQueen (pos, list, enemies, empty, occupied, BLACK, NOISY);
     }
 
     GenKingNoisy(pos, list, pos->kingSq[side], enemies);
