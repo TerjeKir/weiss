@@ -132,136 +132,87 @@ INLINE void GenKing(const Position *pos, MoveList *list, const bitboard targets,
     }
 }
 
+INLINE int relSqDiff(const int color, const int sq, const int diff) {
+    return color == WHITE ? sq - diff : sq + diff;
+}
+
 // White pawn
-static inline void GenWPawnNoisy(const Position *pos, MoveList *list, const bitboard enemies, const bitboard empty) {
+INLINE void GenPawnNoisy(const Position *pos, MoveList *list, const bitboard enemies, const bitboard empty, const int color) {
 
     int sq;
     bitboard enPassers;
 
-    bitboard pawns      = pos->colorBBs[WHITE] & pos->pieceBBs[PAWN];
-    bitboard lAttacks   = ((pawns & ~fileABB) << 7) & enemies;
-    bitboard rAttacks   = ((pawns & ~fileHBB) << 9) & enemies;
-    bitboard lNormalCap = lAttacks & ~rank8BB;
-    bitboard lPromoCap  = lAttacks &  rank8BB;
-    bitboard rNormalCap = rAttacks & ~rank8BB;
-    bitboard rPromoCap  = rAttacks &  rank8BB;
-    bitboard promotions = empty & (pawns & rank7BB) << 8;
+    bitboard relativeRank8BB = color == WHITE ? rank8BB : rank1BB;
+
+    bitboard pawns      = pos->colorBBs[color] & pos->pieceBBs[PAWN];
+    bitboard lAttacks   = color == WHITE ? ((pawns & ~fileABB) << 7) & enemies
+                                         : ((pawns & ~fileHBB) >> 7) & enemies;
+
+    bitboard rAttacks   = color == WHITE ? ((pawns & ~fileHBB) << 9) & enemies
+                                         : ((pawns & ~fileABB) >> 9) & enemies;
+
+    bitboard promotions = color == WHITE ? ((pawns & rank7BB) << 8) & empty
+                                         : ((pawns & rank2BB) >> 8) & empty;
+
+    bitboard lNormalCap = lAttacks & ~relativeRank8BB;
+    bitboard lPromoCap  = lAttacks &  relativeRank8BB;
+    bitboard rNormalCap = rAttacks & ~relativeRank8BB;
+    bitboard rPromoCap  = rAttacks &  relativeRank8BB;
 
     // Promoting captures
     while (lPromoCap) {
         sq = PopLsb(&lPromoCap);
-        AddSpecialPawn(pos, list, sq - 7, sq, WHITE, PROMOCAP);
+        AddSpecialPawn(pos, list, relSqDiff(color, sq, 7), sq, color, PROMOCAP);
     }
     while (rPromoCap) {
         sq = PopLsb(&rPromoCap);
-        AddSpecialPawn(pos, list, sq - 9, sq, WHITE, PROMOCAP);
+        AddSpecialPawn(pos, list, relSqDiff(color, sq, 9), sq, color, PROMOCAP);
     }
     // Promotions
     while (promotions) {
         sq = PopLsb(&promotions);
-        AddSpecialPawn(pos, list, (sq - 8), sq, WHITE, PROMO);
+        AddSpecialPawn(pos, list, relSqDiff(color, sq, 8), sq, color, PROMO);
     }
     // Captures
     while (lNormalCap) {
         sq = PopLsb(&lNormalCap);
-        AddCapture(pos, sq - 7, sq, EMPTY, list);
+        AddCapture(pos, relSqDiff(color, sq, 7), sq, EMPTY, list);
     }
     while (rNormalCap) {
         sq = PopLsb(&rNormalCap);
-        AddCapture(pos, sq - 9, sq, EMPTY, list);
+        AddCapture(pos, relSqDiff(color, sq, 9), sq, EMPTY, list);
     }
     // En passant
     if (pos->enPas != NO_SQ) {
-        enPassers = pawns & pawn_attacks[BLACK][pos->enPas];
+        enPassers = pawns & pawn_attacks[!color][pos->enPas];
         while (enPassers)
-            AddSpecialPawn(pos, list, PopLsb(&enPassers), pos->enPas, WHITE, ENPAS);
+            AddSpecialPawn(pos, list, PopLsb(&enPassers), pos->enPas, color, ENPAS);
     }
 }
-static inline void GenWPawnQuiet(const Position *pos, MoveList *list, const bitboard empty) {
+INLINE void GenPawnQuiet(const Position *pos, MoveList *list, const bitboard empty, const int color) {
 
     int sq;
     bitboard pawnMoves, pawnStarts, pawnsNot7th;
 
-    pawnsNot7th = pos->colorBBs[WHITE] & pos->pieceBBs[PAWN] & ~rank7BB;
+    bitboard relRank7BB = color == WHITE ? rank7BB : rank2BB;
 
-    pawnMoves  = empty & pawnsNot7th << 8;
-    pawnStarts = empty & (pawnMoves & rank3BB) << 8;
+    pawnsNot7th = pos->colorBBs[color] & pos->pieceBBs[PAWN] & ~relRank7BB;
 
-    // Normal pawn moves
-    while (pawnMoves) {
-        sq = PopLsb(&pawnMoves);
-        AddQuiet(pos, (sq - 8), sq, EMPTY, 0, list);
-    }
-    // Pawn starts
-    while (pawnStarts) {
-        sq = PopLsb(&pawnStarts);
-        AddQuiet(pos, (sq - 16), sq, EMPTY, FLAG_PAWNSTART, list);
-    }
-}
-// Black pawn
-static inline void GenBPawnNoisy(const Position *pos, MoveList *list, const bitboard enemies, const bitboard empty) {
+    pawnMoves  = color == WHITE ? empty & pawnsNot7th << 8
+                                : empty & pawnsNot7th >> 8;
 
-    int sq;
-    bitboard enPassers;
-
-    bitboard pawns      = pos->colorBBs[BLACK] & pos->pieceBBs[PAWN];
-    bitboard lAttacks   = ((pawns & ~fileHBB) >> 7) & enemies;
-    bitboard rAttacks   = ((pawns & ~fileABB) >> 9) & enemies;
-    bitboard lNormalCap = lAttacks & ~rank1BB;
-    bitboard lPromoCap  = lAttacks &  rank1BB;
-    bitboard rNormalCap = rAttacks & ~rank1BB;
-    bitboard rPromoCap  = rAttacks &  rank1BB;
-    bitboard promotions = empty & (pawns & rank2BB) >> 8;
-
-    // Promoting captures
-    while (lPromoCap) {
-        sq = PopLsb(&lPromoCap);
-        AddSpecialPawn(pos, list, sq + 7, sq, BLACK, PROMOCAP);
-    }
-    while (rPromoCap) {
-        sq = PopLsb(&rPromoCap);
-        AddSpecialPawn(pos, list, sq + 9, sq, BLACK, PROMOCAP);
-    }
-    // Promotions
-    while (promotions) {
-        sq = PopLsb(&promotions);
-        AddSpecialPawn(pos, list, (sq + 8), sq, BLACK, PROMO);
-    }
-    // Captures
-    while (lNormalCap) {
-        sq = PopLsb(&lNormalCap);
-        AddCapture(pos, sq + 7, sq, EMPTY, list);
-    }
-    while (rNormalCap) {
-        sq = PopLsb(&rNormalCap);
-        AddCapture(pos, sq + 9, sq, EMPTY, list);
-    }
-    // En passant
-    if (pos->enPas != NO_SQ) {
-        enPassers = pawns & pawn_attacks[WHITE][pos->enPas];
-        while (enPassers)
-            AddSpecialPawn(pos, list, PopLsb(&enPassers), pos->enPas, BLACK, ENPAS);
-    }
-}
-static inline void GenBPawnQuiet(const Position *pos, MoveList *list, const bitboard empty) {
-
-    int sq;
-    bitboard pawnMoves, pawnStarts, pawnsNot7th;
-
-    pawnsNot7th = pos->colorBBs[BLACK] & pos->pieceBBs[PAWN] & ~rank2BB;
-
-    pawnMoves  = empty & pawnsNot7th >> 8;
-    pawnStarts = empty & (pawnMoves & rank6BB) >> 8;
+    pawnStarts = color == WHITE ? empty & (pawnMoves & rank3BB) << 8
+                                : empty & (pawnMoves & rank6BB) >> 8;
 
     // Normal pawn moves
     while (pawnMoves) {
         sq = PopLsb(&pawnMoves);
-        AddQuiet(pos, (sq + 8), sq, EMPTY, 0, list);
+        AddQuiet(pos, relSqDiff(color, sq, 8), sq, EMPTY, 0, list);
     }
     // Pawn starts
     while (pawnStarts) {
         sq = PopLsb(&pawnStarts);
-        AddQuiet(pos, (sq + 16), sq, EMPTY, FLAG_PAWNSTART, list);
+        AddQuiet(pos, relSqDiff(color, sq, 16), sq, EMPTY, FLAG_PAWNSTART, list);
     }
 }
 
@@ -349,16 +300,16 @@ void GenQuietMoves(const Position *pos, MoveList *list) {
     const bitboard empty    = ~occupied;
 
     if (color == WHITE) {
-        GenCastling  (pos, list, occupied, WHITE);
-        GenWPawnQuiet(pos, list, empty);
+        GenCastling (pos, list, occupied, WHITE);
+        GenPawnQuiet(pos, list, empty, WHITE);
         GenPieceType(pos, list, WHITE, QUIET, KNIGHT);
         GenPieceType(pos, list, WHITE, QUIET, ROOK);
         GenPieceType(pos, list, WHITE, QUIET, BISHOP);
         GenPieceType(pos, list, WHITE, QUIET, QUEEN);
         GenKing     (pos, list, empty, WHITE, QUIET);
     } else {
-        GenCastling  (pos, list, occupied, BLACK);
-        GenBPawnQuiet(pos, list, empty);
+        GenCastling (pos, list, occupied, BLACK);
+        GenPawnQuiet(pos, list, empty, BLACK);
         GenPieceType(pos, list, BLACK, QUIET, KNIGHT);
         GenPieceType(pos, list, BLACK, QUIET, ROOK);
         GenPieceType(pos, list, BLACK, QUIET, BISHOP);
@@ -382,14 +333,14 @@ void GenNoisyMoves(const Position *pos, MoveList *list) {
 
     // Pawns
     if (color == WHITE) {
-        GenWPawnNoisy(pos, list, enemies, empty);
+        GenPawnNoisy(pos, list, enemies, empty, WHITE);
         GenPieceType(pos, list, WHITE, NOISY, KNIGHT);
         GenPieceType(pos, list, WHITE, NOISY, ROOK);
         GenPieceType(pos, list, WHITE, NOISY, BISHOP);
         GenPieceType(pos, list, WHITE, NOISY, QUEEN);
         GenKing     (pos, list, enemies, WHITE, NOISY);
     } else {
-        GenBPawnNoisy(pos, list, enemies, empty);
+        GenPawnNoisy(pos, list, enemies, empty, BLACK);
         GenPieceType(pos, list, BLACK, NOISY, KNIGHT);
         GenPieceType(pos, list, BLACK, NOISY, ROOK);
         GenPieceType(pos, list, BLACK, NOISY, BISHOP);
