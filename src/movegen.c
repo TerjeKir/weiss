@@ -124,46 +124,42 @@ static inline void AddBPromoCapture(const Position *pos, const int from, const i
 /* Generators for specific color/piece combinations - called by generic generators*/
 
 // King
-static inline void GenWCastling(const Position *pos, MoveList *list, const bitboard occupied) {
+INLINE void GenCastling(const Position *pos, MoveList *list, const bitboard occupied, const int color) {
+
+    const int KCA = color == WHITE ? WKCA : BKCA;
+    const int QCA = color == WHITE ? WQCA : BQCA;
+    const bitboard kingbits  = color == WHITE ? bitF1G1 : bitF8G8;
+    const bitboard queenbits = color == WHITE ? bitB1C1D1 : bitB8C8D8;
+    const int from = color == WHITE ? E1 : E8;
+    const int ksto = color == WHITE ? G1 : G8;
+    const int qsto = color == WHITE ? C1 : C8;
+    const int ksmiddle = color == WHITE ? F1 : F8;
+    const int qsmiddle = color == WHITE ? D1 : D8;
 
     // King side castle
-    if (pos->castlePerm & WKCA)
-        if (!(occupied & bitF1G1))
-            if (!SqAttacked(E1, BLACK, pos) && !SqAttacked(F1, BLACK, pos))
-                AddQuiet(pos, E1, G1, EMPTY, FLAG_CASTLE, list);
+    if (pos->castlePerm & KCA)
+        if (!(occupied & kingbits))
+            if (   !SqAttacked(from, !color, pos)
+                && !SqAttacked(ksmiddle, !color, pos))
+                AddQuiet(pos, from, ksto, EMPTY, FLAG_CASTLE, list);
 
     // Queen side castle
-    if (pos->castlePerm & WQCA)
-        if (!(occupied & bitB1C1D1))
-            if (!SqAttacked(E1, BLACK, pos) && !SqAttacked(D1, BLACK, pos))
-                AddQuiet(pos, E1, C1, EMPTY, FLAG_CASTLE, list);
+    if (pos->castlePerm & QCA)
+        if (!(occupied & queenbits))
+            if (   !SqAttacked(from, !color, pos)
+                && !SqAttacked(qsmiddle, !color, pos))
+                AddQuiet(pos, from, qsto, EMPTY, FLAG_CASTLE, list);
 }
-static inline void GenBCastling(const Position *pos, MoveList *list, const bitboard occupied) {
+INLINE void GenKing(const Position *pos, MoveList *list, const bitboard targets, const int color, const int type) {
 
-    // King side castle
-    if (pos->castlePerm & BKCA)
-        if (!(occupied & bitF8G8))
-            if (!SqAttacked(E8, WHITE, pos) && !SqAttacked(F8, WHITE, pos))
-                AddQuiet(pos, E8, G8, EMPTY, FLAG_CASTLE, list);
-
-    // Queen side castle
-    if (pos->castlePerm & BQCA)
-        if (!(occupied & bitB8C8D8))
-            if (!SqAttacked(E8, WHITE, pos) && !SqAttacked(D8, WHITE, pos))
-                AddQuiet(pos, E8, C8, EMPTY, FLAG_CASTLE, list);
-}
-static inline void GenKingQuiet(const Position *pos, MoveList *list, const int sq, const bitboard empty) {
-
-    bitboard moves = king_attacks[sq] & empty;
+    const int sq = pos->kingSq[color];
+    bitboard moves = king_attacks[sq] & targets;
     while (moves) {
-        AddQuiet(pos, sq, PopLsb(&moves), EMPTY, 0, list);
+        if (type == NOISY)
+            AddCapture(pos, sq, PopLsb(&moves), 0, list);
+        if (type == QUIET)
+            AddQuiet(pos, sq, PopLsb(&moves), EMPTY, 0, list);
     }
-}
-static inline void GenKingNoisy(const Position *pos, MoveList *list, const int sq, const bitboard enemies) {
-
-    bitboard attacks = king_attacks[sq] & enemies;
-    while (attacks)
-        AddCapture(pos, sq, PopLsb(&attacks), 0, list);
 }
 
 // White pawn
@@ -417,22 +413,22 @@ void GenQuietMoves(const Position *pos, MoveList *list) {
     const bitboard empty    = ~occupied;
 
     if (side == WHITE) {
-        GenWCastling   (pos, list, occupied);
-        GenWPawnQuiet  (pos, list, empty);
+        GenCastling  (pos, list, occupied, WHITE);
+        GenWPawnQuiet(pos, list, empty);
         GenKnight(pos, list, 0ULL, empty, WHITE, QUIET);
         GenRook  (pos, list, 0ULL, empty, occupied, WHITE, QUIET);
         GenBishop(pos, list, 0ULL, empty, occupied, WHITE, QUIET);
         GenQueen (pos, list, 0ULL, empty, occupied, WHITE, QUIET);
+        GenKing  (pos, list, empty, WHITE, QUIET);
     } else {
-        GenBCastling   (pos, list, occupied);
-        GenBPawnQuiet  (pos, list, empty);
+        GenCastling  (pos, list, occupied, BLACK);
+        GenBPawnQuiet(pos, list, empty);
         GenKnight(pos, list, 0ULL, empty, BLACK, QUIET);
         GenRook  (pos, list, 0ULL, empty, occupied, BLACK, QUIET);
         GenBishop(pos, list, 0ULL, empty, occupied, BLACK, QUIET);
         GenQueen (pos, list, 0ULL, empty, occupied, BLACK, QUIET);
+        GenKing  (pos, list, empty, BLACK, QUIET);
     }
-
-    GenKingQuiet(pos, list, pos->kingSq[side], empty);
 
     assert(MoveListOk(list, pos));
 }
@@ -455,6 +451,7 @@ void GenNoisyMoves(const Position *pos, MoveList *list) {
         GenRook  (pos, list, enemies, empty, occupied, WHITE, NOISY);
         GenBishop(pos, list, enemies, empty, occupied, WHITE, NOISY);
         GenQueen (pos, list, enemies, empty, occupied, WHITE, NOISY);
+        GenKing  (pos, list, enemies, WHITE, NOISY);
 
     } else {
         GenBPawnNoisy  (pos, list, enemies, empty);
@@ -462,9 +459,9 @@ void GenNoisyMoves(const Position *pos, MoveList *list) {
         GenRook  (pos, list, enemies, empty, occupied, BLACK, NOISY);
         GenBishop(pos, list, enemies, empty, occupied, BLACK, NOISY);
         GenQueen (pos, list, enemies, empty, occupied, BLACK, NOISY);
+        GenKing  (pos, list, enemies, BLACK, NOISY);
     }
 
-    GenKingNoisy(pos, list, pos->kingSq[side], enemies);
 
     assert(MoveListOk(list, pos));
 }
