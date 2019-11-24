@@ -28,41 +28,31 @@ CONSTR InitMvvLva() {
 
 /* Functions that add moves to the movelist - called by generators */
 
-INLINE void AddQuiet(const Position *pos, const int from, const int to, const int promo, const int flag, MoveList *list) {
+INLINE void AddMove(const Position *pos, const int from, const int to, const int promo, const int flag, MoveList *list, const int type) {
 
     assert(ValidSquare(from));
     assert(ValidSquare(to));
     assert(CheckBoard(pos));
     assert(pos->ply >= 0 && pos->ply < MAXDEPTH);
 
-    int move = MOVE(from, to, EMPTY, promo, flag);
-
-    list->moves[list->count].move = move;
-
-    // Add scores to help move ordering based on search history heuristics
-    if (pos->searchKillers[0][pos->ply] == move)
-        list->moves[list->count].score = 900000;
-    else if (pos->searchKillers[1][pos->ply] == move)
-        list->moves[list->count].score = 800000;
-    else if (promo)
-        list->moves[list->count].score = 700000;
-    else
-        list->moves[list->count].score = pos->searchHistory[pos->board[from]][to];
-
-    list->count++;
-}
-INLINE void AddCapture(const Position *pos, const int from, const int to, const int promo, MoveList *list) {
-
     const int captured = pos->board[to];
-    const int move     = MOVE(from, to, captured, promo, 0);
+    const int move = MOVE(from, to, captured, promo, flag);
 
-    assert(ValidSquare(from));
-    assert(ValidSquare(to));
-    assert(ValidPiece(captured));
-    assert(CheckBoard(pos));
+    // Add scores to help move ordering based on search history heuristics / mvvlva
+    if (type == NOISY)
+        list->moves[list->count].score = MvvLvaScores[captured][pos->board[from]] + 1000000;
+    if (type == QUIET) {
+        if (pos->searchKillers[0][pos->ply] == move)
+            list->moves[list->count].score = 900000;
+        else if (pos->searchKillers[1][pos->ply] == move)
+            list->moves[list->count].score = 800000;
+        else if (promo)
+            list->moves[list->count].score = 700000;
+        else
+            list->moves[list->count].score = pos->searchHistory[pos->board[from]][to];
+    }
 
     list->moves[list->count].move = move;
-    list->moves[list->count].score = MvvLvaScores[captured][pos->board[from]] + 1000000;
     list->count++;
 }
 INLINE void AddSpecialPawn(const Position *pos, MoveList *list, const int from, const int to, const int color, const int type) {
@@ -78,16 +68,16 @@ INLINE void AddSpecialPawn(const Position *pos, MoveList *list, const int from, 
         list->count++;
     }
     if (type == PROMO) {
-        AddQuiet(pos, from, to, makePiece(color, QUEEN ), 0, list);
-        AddQuiet(pos, from, to, makePiece(color, KNIGHT), 0, list);
-        AddQuiet(pos, from, to, makePiece(color, ROOK  ), 0, list);
-        AddQuiet(pos, from, to, makePiece(color, BISHOP), 0, list);
+        AddMove(pos, from, to, makePiece(color, QUEEN ), 0, list, QUIET);
+        AddMove(pos, from, to, makePiece(color, KNIGHT), 0, list, QUIET);
+        AddMove(pos, from, to, makePiece(color, ROOK  ), 0, list, QUIET);
+        AddMove(pos, from, to, makePiece(color, BISHOP), 0, list, QUIET);
     }
     if (type == PROMOCAP) {
-        AddCapture(pos, from, to, makePiece(color, QUEEN ), list);
-        AddCapture(pos, from, to, makePiece(color, KNIGHT), list);
-        AddCapture(pos, from, to, makePiece(color, ROOK  ), list);
-        AddCapture(pos, from, to, makePiece(color, BISHOP), list);
+        AddMove(pos, from, to, makePiece(color, QUEEN ), 0, list, NOISY);
+        AddMove(pos, from, to, makePiece(color, KNIGHT), 0, list, NOISY);
+        AddMove(pos, from, to, makePiece(color, ROOK  ), 0, list, NOISY);
+        AddMove(pos, from, to, makePiece(color, BISHOP), 0, list, NOISY);
     }
 }
 
@@ -115,14 +105,14 @@ INLINE void GenCastling(const Position *pos, MoveList *list, const int color, co
         if (!(occupied & kingbits))
             if (   !SqAttacked(from, !color, pos)
                 && !SqAttacked(ksmiddle, !color, pos))
-                AddQuiet(pos, from, ksto, EMPTY, FLAG_CASTLE, list);
+                AddMove(pos, from, ksto, EMPTY, FLAG_CASTLE, list, QUIET);
 
     // Queen side castle
     if (pos->castlePerm & QCA)
         if (!(occupied & queenbits))
             if (   !SqAttacked(from, !color, pos)
                 && !SqAttacked(qsmiddle, !color, pos))
-                AddQuiet(pos, from, qsto, EMPTY, FLAG_CASTLE, list);
+                AddMove(pos, from, qsto, EMPTY, FLAG_CASTLE, list, QUIET);
 }
 INLINE void GenKing(const Position *pos, MoveList *list, const int color, const int type) {
 
@@ -133,9 +123,9 @@ INLINE void GenKing(const Position *pos, MoveList *list, const int color, const 
     bitboard moves = king_attacks[sq] & targets;
     while (moves) {
         if (type == NOISY)
-            AddCapture(pos, sq, PopLsb(&moves), 0, list);
+            AddMove(pos, sq, PopLsb(&moves), EMPTY, 0, list, NOISY);
         if (type == QUIET)
-            AddQuiet(pos, sq, PopLsb(&moves), EMPTY, 0, list);
+            AddMove(pos, sq, PopLsb(&moves), EMPTY, 0, list, QUIET);
     }
 }
 
@@ -166,12 +156,12 @@ INLINE void GenPawn(const Position *pos, MoveList *list, const int color, const 
         // Normal pawn moves
         while (pawnMoves) {
             sq = PopLsb(&pawnMoves);
-            AddQuiet(pos, relSqDiff(color, sq, 8), sq, EMPTY, 0, list);
+            AddMove(pos, relSqDiff(color, sq, 8), sq, EMPTY, 0, list, QUIET);
         }
         // Pawn starts
         while (pawnStarts) {
             sq = PopLsb(&pawnStarts);
-            AddQuiet(pos, relSqDiff(color, sq, 16), sq, EMPTY, FLAG_PAWNSTART, list);
+            AddMove(pos, relSqDiff(color, sq, 16), sq, EMPTY, FLAG_PAWNSTART, list, QUIET);
         }
         return;
     }
@@ -212,11 +202,11 @@ INLINE void GenPawn(const Position *pos, MoveList *list, const int color, const 
     // Captures
     while (lNormalCap) {
         sq = PopLsb(&lNormalCap);
-        AddCapture(pos, relSqDiff(color, sq, 7), sq, EMPTY, list);
+        AddMove(pos, relSqDiff(color, sq, 7), sq, EMPTY, 0, list, NOISY);
     }
     while (rNormalCap) {
         sq = PopLsb(&rNormalCap);
-        AddCapture(pos, relSqDiff(color, sq, 9), sq, EMPTY, list);
+        AddMove(pos, relSqDiff(color, sq, 9), sq, EMPTY, 0, list, NOISY);
     }
     // En passant
     if (pos->enPas != NO_SQ) {
@@ -246,52 +236,52 @@ INLINE void GenPieceType(const Position *pos, MoveList *list, const int color, c
             if (type == NOISY) {
                 moves = knight_attacks[sq] & enemies;
                 while (moves)
-                    AddCapture(pos, sq, PopLsb(&moves), EMPTY, list);
+                    AddMove(pos, sq, PopLsb(&moves), EMPTY, 0, list, NOISY);
             }
 
             if (type == QUIET) {
                 moves = knight_attacks[sq] & empty;
                 while (moves)
-                    AddQuiet(pos, sq, PopLsb(&moves), EMPTY, 0, list);
+                    AddMove(pos, sq, PopLsb(&moves), EMPTY, 0, list, QUIET);
             }
         }
         if (pt == BISHOP) {
             if (type == NOISY) {
                 moves = BishopAttacks(sq, occupied) & enemies;
                 while (moves)
-                    AddCapture(pos, sq, PopLsb(&moves), 0, list);
+                    AddMove(pos, sq, PopLsb(&moves), EMPTY, 0, list, NOISY);
             }
 
             if (type == QUIET) {
                 moves = BishopAttacks(sq, occupied) & empty;
                 while (moves)
-                    AddQuiet(pos, sq, PopLsb(&moves), EMPTY, 0, list);
+                    AddMove(pos, sq, PopLsb(&moves), EMPTY, 0, list, QUIET);
             }
         }
         if (pt == ROOK) {
             if (type == NOISY) {
                 moves = RookAttacks(sq, occupied) & enemies;
                 while (moves)
-                    AddCapture(pos, sq, PopLsb(&moves), 0, list);
+                    AddMove(pos, sq, PopLsb(&moves), EMPTY, 0, list, NOISY);
             }
 
             if (type == QUIET) {
                 moves = RookAttacks(sq, occupied) & empty;
                 while (moves)
-                    AddQuiet(pos, sq, PopLsb(&moves), EMPTY, 0, list);
+                    AddMove(pos, sq, PopLsb(&moves), EMPTY, 0, list, QUIET);
             }
         }
         if (pt == QUEEN) {
             if (type == NOISY) {
                 moves = (BishopAttacks(sq, occupied) | RookAttacks(sq, occupied)) & enemies;
                 while (moves)
-                    AddCapture(pos, sq, PopLsb(&moves), 0, list);
+                    AddMove(pos, sq, PopLsb(&moves), EMPTY, 0, list, NOISY);
             }
 
             if (type == QUIET) {
                 moves = (BishopAttacks(sq, occupied) | RookAttacks(sq, occupied)) & empty;
                 while (moves)
-                    AddQuiet(pos, sq, PopLsb(&moves), EMPTY, 0, list);
+                    AddMove(pos, sq, PopLsb(&moves), EMPTY, 0, list, QUIET);
             }
         }
     }
