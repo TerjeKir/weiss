@@ -11,6 +11,7 @@
 
 
 enum { QUIET, NOISY };
+enum { ENPAS, PROMO, PROMOCAP };
 
 static int MvvLvaScores[PIECE_NB][PIECE_NB];
 
@@ -64,39 +65,30 @@ INLINE void AddCapture(const Position *pos, const int from, const int to, const 
     list->moves[list->count].score = MvvLvaScores[captured][pos->board[from]] + 1000000;
     list->count++;
 }
-INLINE void AddEnPas(const int move, MoveList *list) {
-#ifndef NDEBUG
-    const int from = FROMSQ(move);
-    const int   to =   TOSQ(move);
-
-    assert(ValidSquare(from));
-    assert(ValidSquare(to));
-#endif
-    list->moves[list->count].move = move;
-    list->moves[list->count].score = 105 + 1000000;
-    list->count++;
-}
-INLINE void AddPromo(const Position *pos, MoveList *list, const int from, const int to, const int color) {
+INLINE void AddSpecialPawn(const Position *pos, MoveList *list, const int from, const int to, const int color, const int type) {
 
     assert(ValidSquare(from));
     assert(ValidSquare(to));
     assert(CheckBoard(pos));
 
-    AddQuiet(pos, from, to, makePiece(color, QUEEN ), 0, list);
-    AddQuiet(pos, from, to, makePiece(color, KNIGHT), 0, list);
-    AddQuiet(pos, from, to, makePiece(color, ROOK  ), 0, list);
-    AddQuiet(pos, from, to, makePiece(color, BISHOP), 0, list);
-}
-INLINE void AddPromoCapture(const Position *pos, MoveList *list, const int from, const int to, const int color) {
-
-    assert(ValidSquare(from));
-    assert(ValidSquare(to));
-    assert(CheckBoard(pos));
-
-    AddCapture(pos, from, to, makePiece(color, QUEEN ), list);
-    AddCapture(pos, from, to, makePiece(color, KNIGHT), list);
-    AddCapture(pos, from, to, makePiece(color, ROOK  ), list);
-    AddCapture(pos, from, to, makePiece(color, BISHOP), list);
+    if (type == ENPAS) {
+        int move = MOVE(from, to, EMPTY, EMPTY, FLAG_ENPAS);
+        list->moves[list->count].move = move;
+        list->moves[list->count].score = 105 + 1000000;
+        list->count++;
+    }
+    if (type == PROMO) {
+        AddQuiet(pos, from, to, makePiece(color, QUEEN ), 0, list);
+        AddQuiet(pos, from, to, makePiece(color, KNIGHT), 0, list);
+        AddQuiet(pos, from, to, makePiece(color, ROOK  ), 0, list);
+        AddQuiet(pos, from, to, makePiece(color, BISHOP), 0, list);
+    }
+    if (type == PROMOCAP) {
+        AddCapture(pos, from, to, makePiece(color, QUEEN ), list);
+        AddCapture(pos, from, to, makePiece(color, KNIGHT), list);
+        AddCapture(pos, from, to, makePiece(color, ROOK  ), list);
+        AddCapture(pos, from, to, makePiece(color, BISHOP), list);
+    }
 }
 
 /* Generators for specific color/piece combinations - called by generic generators*/
@@ -158,16 +150,16 @@ static inline void GenWPawnNoisy(const Position *pos, MoveList *list, const bitb
     // Promoting captures
     while (lPromoCap) {
         sq = PopLsb(&lPromoCap);
-        AddPromoCapture(pos, list, sq - 7, sq, WHITE);
+        AddSpecialPawn(pos, list, sq - 7, sq, WHITE, PROMOCAP);
     }
     while (rPromoCap) {
         sq = PopLsb(&rPromoCap);
-        AddPromoCapture(pos, list, sq - 9, sq, WHITE);
+        AddSpecialPawn(pos, list, sq - 9, sq, WHITE, PROMOCAP);
     }
     // Promotions
     while (promotions) {
         sq = PopLsb(&promotions);
-        AddPromo(pos, list, (sq - 8), sq, WHITE);
+        AddSpecialPawn(pos, list, (sq - 8), sq, WHITE, PROMO);
     }
     // Captures
     while (lNormalCap) {
@@ -182,7 +174,7 @@ static inline void GenWPawnNoisy(const Position *pos, MoveList *list, const bitb
     if (pos->enPas != NO_SQ) {
         enPassers = pawns & pawn_attacks[BLACK][pos->enPas];
         while (enPassers)
-            AddEnPas(MOVE(PopLsb(&enPassers), pos->enPas, EMPTY, EMPTY, FLAG_ENPAS), list);
+            AddSpecialPawn(pos, list, PopLsb(&enPassers), pos->enPas, WHITE, ENPAS);
     }
 }
 static inline void GenWPawnQuiet(const Position *pos, MoveList *list, const bitboard empty) {
@@ -224,16 +216,16 @@ static inline void GenBPawnNoisy(const Position *pos, MoveList *list, const bitb
     // Promoting captures
     while (lPromoCap) {
         sq = PopLsb(&lPromoCap);
-        AddPromoCapture(pos, list, sq + 7, sq, BLACK);
+        AddSpecialPawn(pos, list, sq + 7, sq, BLACK, PROMOCAP);
     }
     while (rPromoCap) {
         sq = PopLsb(&rPromoCap);
-        AddPromoCapture(pos, list, sq + 9, sq, BLACK);
+        AddSpecialPawn(pos, list, sq + 9, sq, BLACK, PROMOCAP);
     }
     // Promotions
     while (promotions) {
         sq = PopLsb(&promotions);
-        AddPromo(pos, list, (sq + 8), sq, BLACK);
+        AddSpecialPawn(pos, list, (sq + 8), sq, BLACK, PROMO);
     }
     // Captures
     while (lNormalCap) {
@@ -248,7 +240,7 @@ static inline void GenBPawnNoisy(const Position *pos, MoveList *list, const bitb
     if (pos->enPas != NO_SQ) {
         enPassers = pawns & pawn_attacks[WHITE][pos->enPas];
         while (enPassers)
-            AddEnPas(MOVE(PopLsb(&enPassers), pos->enPas, EMPTY, EMPTY, FLAG_ENPAS), list);
+            AddSpecialPawn(pos, list, PopLsb(&enPassers), pos->enPas, BLACK, ENPAS);
     }
 }
 static inline void GenBPawnQuiet(const Position *pos, MoveList *list, const bitboard empty) {
