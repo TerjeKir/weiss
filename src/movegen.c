@@ -94,7 +94,7 @@ INLINE void AddSpecialPawn(const Position *pos, MoveList *list, const int from, 
 /* Generators for specific color/piece combinations - called by generic generators*/
 
 // King
-INLINE void GenCastling(const Position *pos, MoveList *list, const bitboard occupied, const int color) {
+INLINE void GenCastling(const Position *pos, MoveList *list, const int color) {
 
     const int KCA = color == WHITE ? WKCA : BKCA;
     const int QCA = color == WHITE ? WQCA : BQCA;
@@ -105,6 +105,8 @@ INLINE void GenCastling(const Position *pos, MoveList *list, const bitboard occu
     const int qsto = color == WHITE ? C1 : C8;
     const int ksmiddle = color == WHITE ? F1 : F8;
     const int qsmiddle = color == WHITE ? D1 : D8;
+
+    const bitboard occupied = pos->colorBBs[BOTH];
 
     // King side castle
     if (pos->castlePerm & KCA)
@@ -120,7 +122,10 @@ INLINE void GenCastling(const Position *pos, MoveList *list, const bitboard occu
                 && !SqAttacked(qsmiddle, !color, pos))
                 AddQuiet(pos, from, qsto, EMPTY, FLAG_CASTLE, list);
 }
-INLINE void GenKing(const Position *pos, MoveList *list, const bitboard targets, const int color, const int type) {
+INLINE void GenKing(const Position *pos, MoveList *list, const int color, const int type) {
+
+    const bitboard targets = type == QUIET ? ~pos->colorBBs[BOTH]
+                                           :  pos->colorBBs[!color];
 
     const int sq = pos->kingSq[color];
     bitboard moves = king_attacks[sq] & targets;
@@ -137,10 +142,13 @@ INLINE int relSqDiff(const int color, const int sq, const int diff) {
 }
 
 // White pawn
-INLINE void GenPawnNoisy(const Position *pos, MoveList *list, const bitboard enemies, const bitboard empty, const int color) {
+INLINE void GenPawnNoisy(const Position *pos, MoveList *list, const int color) {
 
     int sq;
     bitboard enPassers;
+
+    const bitboard enemies =  pos->colorBBs[!color];
+    const bitboard empty   = ~pos->colorBBs[BOTH];
 
     bitboard relativeRank8BB = color == WHITE ? rank8BB : rank1BB;
 
@@ -189,10 +197,12 @@ INLINE void GenPawnNoisy(const Position *pos, MoveList *list, const bitboard ene
             AddSpecialPawn(pos, list, PopLsb(&enPassers), pos->enPas, color, ENPAS);
     }
 }
-INLINE void GenPawnQuiet(const Position *pos, MoveList *list, const bitboard empty, const int color) {
+INLINE void GenPawnQuiet(const Position *pos, MoveList *list, const int color) {
 
     int sq;
     bitboard pawnMoves, pawnStarts, pawnsNot7th;
+
+    const bitboard empty = ~pos->colorBBs[BOTH];
 
     bitboard relRank7BB = color == WHITE ? rank7BB : rank2BB;
 
@@ -289,77 +299,44 @@ INLINE void GenPieceType(const Position *pos, MoveList *list, const int color, c
 
 /* Generic generators */
 
-// Generate all quiet moves
-void GenQuietMoves(const Position *pos, MoveList *list) {
+static void GenMoves(const Position *pos, MoveList *list, const int color, const int type) {
 
     assert(CheckBoard(pos));
 
-    const int color = pos->side;
+    if (type == NOISY)
+        GenPawnNoisy(pos, list, color);
 
-    const bitboard occupied = pos->colorBBs[BOTH];
-    const bitboard empty    = ~occupied;
-
-    if (color == WHITE) {
-        GenCastling (pos, list, occupied, WHITE);
-        GenPawnQuiet(pos, list, empty, WHITE);
-        GenPieceType(pos, list, WHITE, QUIET, KNIGHT);
-        GenPieceType(pos, list, WHITE, QUIET, ROOK);
-        GenPieceType(pos, list, WHITE, QUIET, BISHOP);
-        GenPieceType(pos, list, WHITE, QUIET, QUEEN);
-        GenKing     (pos, list, empty, WHITE, QUIET);
-    } else {
-        GenCastling (pos, list, occupied, BLACK);
-        GenPawnQuiet(pos, list, empty, BLACK);
-        GenPieceType(pos, list, BLACK, QUIET, KNIGHT);
-        GenPieceType(pos, list, BLACK, QUIET, ROOK);
-        GenPieceType(pos, list, BLACK, QUIET, BISHOP);
-        GenPieceType(pos, list, BLACK, QUIET, QUEEN);
-        GenKing     (pos, list, empty, BLACK, QUIET);
+    if (type == QUIET) {
+        GenCastling (pos, list, color);
+        GenPawnQuiet(pos, list, color);
     }
 
+    GenPieceType(pos, list, color, type, KNIGHT);
+    GenPieceType(pos, list, color, type, ROOK);
+    GenPieceType(pos, list, color, type, BISHOP);
+    GenPieceType(pos, list, color, type, QUEEN);
+    GenKing     (pos, list, color, type);
+
     assert(MoveListOk(list, pos));
+}
+
+// Generate all quiet moves
+void GenQuietMoves(const Position *pos, MoveList *list) {
+
+    GenMoves(pos, list, pos->side, QUIET);
 }
 
 // Generate all noisy moves
 void GenNoisyMoves(const Position *pos, MoveList *list) {
 
-    assert(CheckBoard(pos));
-
-    const int color = pos->side;
-
-    const bitboard occupied = pos->colorBBs[BOTH];
-    const bitboard enemies  = pos->colorBBs[!color];
-    const bitboard empty    = ~occupied;
-
-    // Pawns
-    if (color == WHITE) {
-        GenPawnNoisy(pos, list, enemies, empty, WHITE);
-        GenPieceType(pos, list, WHITE, NOISY, KNIGHT);
-        GenPieceType(pos, list, WHITE, NOISY, ROOK);
-        GenPieceType(pos, list, WHITE, NOISY, BISHOP);
-        GenPieceType(pos, list, WHITE, NOISY, QUEEN);
-        GenKing     (pos, list, enemies, WHITE, NOISY);
-    } else {
-        GenPawnNoisy(pos, list, enemies, empty, BLACK);
-        GenPieceType(pos, list, BLACK, NOISY, KNIGHT);
-        GenPieceType(pos, list, BLACK, NOISY, ROOK);
-        GenPieceType(pos, list, BLACK, NOISY, BISHOP);
-        GenPieceType(pos, list, BLACK, NOISY, QUEEN);
-        GenKing     (pos, list, enemies, BLACK, NOISY);
-    }
-
-    assert(MoveListOk(list, pos));
+    GenMoves(pos, list, pos->side, NOISY);
 }
 
 // Generate all pseudo legal moves
 void GenAllMoves(const Position *pos, MoveList *list) {
 
-    assert(CheckBoard(pos));
-
     list->count = list->next = 0;
 
     GenNoisyMoves(pos, list);
     GenQuietMoves(pos, list);
-
-    assert(MoveListOk(list, pos));
 }
