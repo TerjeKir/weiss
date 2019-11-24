@@ -112,6 +112,10 @@ INLINE void GenCastling(const Position *pos, MoveList *list, const int color, co
                 AddMove(pos, list, from, qsto, EMPTY, FLAG_CASTLE, QUIET);
 }
 
+// Returns a square behind (relative to color)
+// 7 : diagonally to the left
+// 8 : directly behind
+// 9 : diagonally to the right
 INLINE int relBackward(const int color, const int sq, const int diff) {
     return color == WHITE ? sq - diff : sq + diff;
 }
