@@ -26,6 +26,7 @@
 #define NOMOVE 0
 
 // Possible flags
+#define FLAG_NONE       0
 #define FLAG_ENPAS      0x100000
 #define FLAG_PAWNSTART  0x200000
 #define FLAG_CASTLE     0x400000

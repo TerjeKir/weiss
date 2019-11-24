@@ -27,12 +27,10 @@ CONSTR InitMvvLva() {
 }
 
 // Constructs and adds a move to the move list
-INLINE void AddMove(const Position *pos, const int from, const int to, const int promo, const int flag, MoveList *list, const int type) {
+INLINE void AddMove(const Position *pos, MoveList *list, const int from, const int to, const int promo, const int flag, const int type) {
 
     assert(ValidSquare(from));
     assert(ValidSquare(to));
-    assert(CheckBoard(pos));
-    assert(pos->ply >= 0 && pos->ply < MAXDEPTH);
 
     int *moveScore = &list->moves[list->count].score;
 
@@ -61,7 +59,6 @@ INLINE void AddSpecialPawn(const Position *pos, MoveList *list, const int from, 
 
     assert(ValidSquare(from));
     assert(ValidSquare(to));
-    assert(CheckBoard(pos));
 
     if (type == ENPAS) {
         int move = MOVE(from, to, EMPTY, EMPTY, FLAG_ENPAS);
@@ -70,20 +67,20 @@ INLINE void AddSpecialPawn(const Position *pos, MoveList *list, const int from, 
         list->count++;
     }
     if (type == PROMO) {
-        AddMove(pos, from, to, makePiece(color, QUEEN ), 0, list, QUIET);
-        AddMove(pos, from, to, makePiece(color, KNIGHT), 0, list, QUIET);
-        AddMove(pos, from, to, makePiece(color, ROOK  ), 0, list, QUIET);
-        AddMove(pos, from, to, makePiece(color, BISHOP), 0, list, QUIET);
+        AddMove(pos, list, from, to, makePiece(color, QUEEN ), FLAG_NONE, QUIET);
+        AddMove(pos, list, from, to, makePiece(color, KNIGHT), FLAG_NONE, QUIET);
+        AddMove(pos, list, from, to, makePiece(color, ROOK  ), FLAG_NONE, QUIET);
+        AddMove(pos, list, from, to, makePiece(color, BISHOP), FLAG_NONE, QUIET);
     }
     if (type == PROMOCAP) {
-        AddMove(pos, from, to, makePiece(color, QUEEN ), 0, list, NOISY);
-        AddMove(pos, from, to, makePiece(color, KNIGHT), 0, list, NOISY);
-        AddMove(pos, from, to, makePiece(color, ROOK  ), 0, list, NOISY);
-        AddMove(pos, from, to, makePiece(color, BISHOP), 0, list, NOISY);
+        AddMove(pos, list, from, to, makePiece(color, QUEEN ), FLAG_NONE, NOISY);
+        AddMove(pos, list, from, to, makePiece(color, KNIGHT), FLAG_NONE, NOISY);
+        AddMove(pos, list, from, to, makePiece(color, ROOK  ), FLAG_NONE, NOISY);
+        AddMove(pos, list, from, to, makePiece(color, BISHOP), FLAG_NONE, NOISY);
     }
 }
 
-// King
+// Castling is a mess due to testing most of the legality here, rather than in makemove
 INLINE void GenCastling(const Position *pos, MoveList *list, const int color, const int type) {
 
     if (type != QUIET) return;
@@ -105,21 +102,21 @@ INLINE void GenCastling(const Position *pos, MoveList *list, const int color, co
         if (!(occupied & kingbits))
             if (   !SqAttacked(from, !color, pos)
                 && !SqAttacked(ksmiddle, !color, pos))
-                AddMove(pos, from, ksto, EMPTY, FLAG_CASTLE, list, QUIET);
+                AddMove(pos, list, from, ksto, EMPTY, FLAG_CASTLE, QUIET);
 
     // Queen side castle
     if (pos->castlePerm & QCA)
         if (!(occupied & queenbits))
             if (   !SqAttacked(from, !color, pos)
                 && !SqAttacked(qsmiddle, !color, pos))
-                AddMove(pos, from, qsto, EMPTY, FLAG_CASTLE, list, QUIET);
+                AddMove(pos, list, from, qsto, EMPTY, FLAG_CASTLE, QUIET);
 }
 
-INLINE int relSqDiff(const int color, const int sq, const int diff) {
+INLINE int relBackward(const int color, const int sq, const int diff) {
     return color == WHITE ? sq - diff : sq + diff;
 }
 
-// Pawn
+// Pawns are a mess
 INLINE void GenPawn(const Position *pos, MoveList *list, const int color, const int type) {
 
     int sq;
@@ -142,12 +139,12 @@ INLINE void GenPawn(const Position *pos, MoveList *list, const int color, const 
         // Normal pawn moves
         while (pawnMoves) {
             sq = PopLsb(&pawnMoves);
-            AddMove(pos, relSqDiff(color, sq, 8), sq, EMPTY, 0, list, QUIET);
+            AddMove(pos, list, relBackward(color, sq, 8), sq, EMPTY, FLAG_NONE, QUIET);
         }
         // Pawn starts
         while (pawnStarts) {
             sq = PopLsb(&pawnStarts);
-            AddMove(pos, relSqDiff(color, sq, 16), sq, EMPTY, FLAG_PAWNSTART, list, QUIET);
+            AddMove(pos, list, relBackward(color, sq, 16), sq, EMPTY, FLAG_PAWNSTART, QUIET);
         }
         return;
     }
@@ -174,25 +171,25 @@ INLINE void GenPawn(const Position *pos, MoveList *list, const int color, const 
     // Promoting captures
     while (lPromoCap) {
         sq = PopLsb(&lPromoCap);
-        AddSpecialPawn(pos, list, relSqDiff(color, sq, 7), sq, color, PROMOCAP);
+        AddSpecialPawn(pos, list, relBackward(color, sq, 7), sq, color, PROMOCAP);
     }
     while (rPromoCap) {
         sq = PopLsb(&rPromoCap);
-        AddSpecialPawn(pos, list, relSqDiff(color, sq, 9), sq, color, PROMOCAP);
+        AddSpecialPawn(pos, list, relBackward(color, sq, 9), sq, color, PROMOCAP);
     }
     // Promotions
     while (promotions) {
         sq = PopLsb(&promotions);
-        AddSpecialPawn(pos, list, relSqDiff(color, sq, 8), sq, color, PROMO);
+        AddSpecialPawn(pos, list, relBackward(color, sq, 8), sq, color, PROMO);
     }
     // Captures
     while (lNormalCap) {
         sq = PopLsb(&lNormalCap);
-        AddMove(pos, relSqDiff(color, sq, 7), sq, EMPTY, 0, list, NOISY);
+        AddMove(pos, list, relBackward(color, sq, 7), sq, EMPTY, FLAG_NONE, NOISY);
     }
     while (rNormalCap) {
         sq = PopLsb(&rNormalCap);
-        AddMove(pos, relSqDiff(color, sq, 9), sq, EMPTY, 0, list, NOISY);
+        AddMove(pos, list, relBackward(color, sq, 9), sq, EMPTY, FLAG_NONE, NOISY);
     }
     // En passant
     if (pos->enPas != NO_SQ) {
@@ -225,7 +222,7 @@ INLINE void GenPieceType(const Position *pos, MoveList *list, const int color, c
         if (pt == KING)   moves = targets & king_attacks[sq];
 
         while (moves)
-            AddMove(pos, sq, PopLsb(&moves), EMPTY, 0, list, type);
+            AddMove(pos, list, sq, PopLsb(&moves), EMPTY, 0, type);
     }
 }
 
