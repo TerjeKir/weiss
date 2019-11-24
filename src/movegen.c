@@ -351,12 +351,12 @@ void GenQuietMoves(const Position *pos, MoveList *list) {
 
     assert(CheckBoard(pos));
 
-    const int side = pos->side;
+    const int color = pos->side;
 
     const bitboard occupied = pos->colorBBs[BOTH];
     const bitboard empty    = ~occupied;
 
-    if (side == WHITE) {
+    if (color == WHITE) {
         GenCastling  (pos, list, occupied, WHITE);
         GenWPawnQuiet(pos, list, empty);
         GenPieceType(pos, list, WHITE, QUIET, KNIGHT);
@@ -382,29 +382,28 @@ void GenNoisyMoves(const Position *pos, MoveList *list) {
 
     assert(CheckBoard(pos));
 
-    const int side = pos->side;
+    const int color = pos->side;
 
     const bitboard occupied = pos->colorBBs[BOTH];
-    const bitboard enemies  = pos->colorBBs[!side];
+    const bitboard enemies  = pos->colorBBs[!color];
     const bitboard empty    = ~occupied;
 
     // Pawns
-    if (side == WHITE) {
-        GenWPawnNoisy  (pos, list, enemies, empty);
+    if (color == WHITE) {
+        GenWPawnNoisy(pos, list, enemies, empty);
         GenPieceType(pos, list, WHITE, NOISY, KNIGHT);
         GenPieceType(pos, list, WHITE, NOISY, ROOK);
         GenPieceType(pos, list, WHITE, NOISY, BISHOP);
         GenPieceType(pos, list, WHITE, NOISY, QUEEN);
         GenKing     (pos, list, enemies, WHITE, NOISY);
     } else {
-        GenBPawnNoisy  (pos, list, enemies, empty);
+        GenBPawnNoisy(pos, list, enemies, empty);
         GenPieceType(pos, list, BLACK, NOISY, KNIGHT);
         GenPieceType(pos, list, BLACK, NOISY, ROOK);
         GenPieceType(pos, list, BLACK, NOISY, BISHOP);
         GenPieceType(pos, list, BLACK, NOISY, QUEEN);
         GenKing     (pos, list, enemies, BLACK, NOISY);
     }
-
 
     assert(MoveListOk(list, pos));
 }
