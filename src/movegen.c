@@ -76,49 +76,27 @@ INLINE void AddEnPas(const int move, MoveList *list) {
     list->moves[list->count].score = 105 + 1000000;
     list->count++;
 }
-static inline void AddWPromo(const Position *pos, const int from, const int to, MoveList *list) {
+INLINE void AddPromo(const Position *pos, MoveList *list, const int from, const int to, const int color) {
 
     assert(ValidSquare(from));
     assert(ValidSquare(to));
     assert(CheckBoard(pos));
 
-    AddQuiet(pos, from, to, wQ, 0, list);
-    AddQuiet(pos, from, to, wN, 0, list);
-    AddQuiet(pos, from, to, wR, 0, list);
-    AddQuiet(pos, from, to, wB, 0, list);
+    AddQuiet(pos, from, to, makePiece(color, QUEEN ), 0, list);
+    AddQuiet(pos, from, to, makePiece(color, KNIGHT), 0, list);
+    AddQuiet(pos, from, to, makePiece(color, ROOK  ), 0, list);
+    AddQuiet(pos, from, to, makePiece(color, BISHOP), 0, list);
 }
-static inline void AddWPromoCapture(const Position *pos, const int from, const int to, MoveList *list) {
+INLINE void AddPromoCapture(const Position *pos, MoveList *list, const int from, const int to, const int color) {
 
     assert(ValidSquare(from));
     assert(ValidSquare(to));
     assert(CheckBoard(pos));
 
-    AddCapture(pos, from, to, wQ, list);
-    AddCapture(pos, from, to, wN, list);
-    AddCapture(pos, from, to, wR, list);
-    AddCapture(pos, from, to, wB, list);
-}
-static inline void AddBPromo(const Position *pos, const int from, const int to, MoveList *list) {
-
-    assert(ValidSquare(from));
-    assert(ValidSquare(to));
-    assert(CheckBoard(pos));
-
-    AddQuiet(pos, from, to, bQ, 0, list);
-    AddQuiet(pos, from, to, bN, 0, list);
-    AddQuiet(pos, from, to, bR, 0, list);
-    AddQuiet(pos, from, to, bB, 0, list);
-}
-static inline void AddBPromoCapture(const Position *pos, const int from, const int to, MoveList *list) {
-
-    assert(ValidSquare(from));
-    assert(ValidSquare(to));
-    assert(CheckBoard(pos));
-
-    AddCapture(pos, from, to, bQ, list);
-    AddCapture(pos, from, to, bN, list);
-    AddCapture(pos, from, to, bR, list);
-    AddCapture(pos, from, to, bB, list);
+    AddCapture(pos, from, to, makePiece(color, QUEEN ), list);
+    AddCapture(pos, from, to, makePiece(color, KNIGHT), list);
+    AddCapture(pos, from, to, makePiece(color, ROOK  ), list);
+    AddCapture(pos, from, to, makePiece(color, BISHOP), list);
 }
 
 /* Generators for specific color/piece combinations - called by generic generators*/
@@ -180,16 +158,16 @@ static inline void GenWPawnNoisy(const Position *pos, MoveList *list, const bitb
     // Promoting captures
     while (lPromoCap) {
         sq = PopLsb(&lPromoCap);
-        AddWPromoCapture(pos, sq - 7, sq, list);
+        AddPromoCapture(pos, list, sq - 7, sq, WHITE);
     }
     while (rPromoCap) {
         sq = PopLsb(&rPromoCap);
-        AddWPromoCapture(pos, sq - 9, sq, list);
+        AddPromoCapture(pos, list, sq - 9, sq, WHITE);
     }
     // Promotions
     while (promotions) {
         sq = PopLsb(&promotions);
-        AddWPromo(pos, (sq - 8), sq, list);
+        AddPromo(pos, list, (sq - 8), sq, WHITE);
     }
     // Captures
     while (lNormalCap) {
@@ -246,16 +224,16 @@ static inline void GenBPawnNoisy(const Position *pos, MoveList *list, const bitb
     // Promoting captures
     while (lPromoCap) {
         sq = PopLsb(&lPromoCap);
-        AddBPromoCapture(pos, sq + 7, sq, list);
+        AddPromoCapture(pos, list, sq + 7, sq, BLACK);
     }
     while (rPromoCap) {
         sq = PopLsb(&rPromoCap);
-        AddBPromoCapture(pos, sq + 9, sq, list);
+        AddPromoCapture(pos, list, sq + 9, sq, BLACK);
     }
     // Promotions
     while (promotions) {
         sq = PopLsb(&promotions);
-        AddBPromo(pos, (sq + 8), sq, list);
+        AddPromo(pos, list, (sq + 8), sq, BLACK);
     }
     // Captures
     while (lNormalCap) {
