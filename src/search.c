@@ -94,8 +94,8 @@ static void PrintThinking(const SearchInfo *info, Position *pos) {
     uint64_t tbhits = info->tbhits;
 
     // Basic info
-    printf("info score %s %d depth %d seldepth %d nodes %" PRId64 " nps %d tbhits %" PRId64 " time %d hashfull %d ",
-            type, score, depth, seldepth, nodes, nps, tbhits, elapsed, hashFull);
+    printf("info depth %d seldepth %d score %s %d time %d nodes %" PRId64 " nps %d tbhits %" PRId64 " hashfull %d ",
+            depth, seldepth, type, score, elapsed, nodes, nps, tbhits, hashFull);
 
     // Principal variation
     printf("pv");
