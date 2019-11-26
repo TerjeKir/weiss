@@ -24,9 +24,9 @@ static const int QueenOpenFile = S(5, 5);
 static const int  RookSemiOpenFile = S(5, 5);
 static const int QueenSemiOpenFile = S(3, 3);
 
-static const int BishopPair = S(30, 30);
+static const int BishopPair = S(50, 50);
 
-static const int KingLineVulnerability = S(-5, 0);
+static const int KingLineVulnerability = S(-8, 0);
 
 // Mobility
 static const int KnightMobility[9] = {
