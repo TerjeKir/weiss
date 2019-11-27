@@ -16,19 +16,19 @@ unsigned int probeWDL(const Position *pos) {
         || (pos->enPas      != NO_SQ)
         || (pos->castlePerm != 0)
         || (pos->fiftyMove  != 0)
-        || ((unsigned)PopCount(pos->pieceBBs[ALL]) > TB_LARGEST))
+        || ((unsigned)PopCount(pos->pieceBB[ALL]) > TB_LARGEST))
         return TB_RESULT_FAILED;
 
     // Call fathom
     return tb_probe_wdl(
-        pos->colorBBs[WHITE],
-        pos->colorBBs[BLACK],
-        pos->pieceBBs[KING],
-        pos->pieceBBs[QUEEN],
-        pos->pieceBBs[ROOK],
-        pos->pieceBBs[BISHOP],
-        pos->pieceBBs[KNIGHT],
-        pos->pieceBBs[PAWN],
+        pos->colorBB[WHITE],
+        pos->colorBB[BLACK],
+        pos->pieceBB[KING],
+        pos->pieceBB[QUEEN],
+        pos->pieceBB[ROOK],
+        pos->pieceBB[BISHOP],
+        pos->pieceBB[KNIGHT],
+        pos->pieceBB[PAWN],
         0,
         pos->side);
 }

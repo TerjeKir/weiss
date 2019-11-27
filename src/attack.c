@@ -225,14 +225,14 @@ bool SqAttacked(const int sq, const int side, const Position *pos) {
     assert(ValidSide(side));
     assert(CheckBoard(pos));
 
-    const Bitboard bishops = pos->colorBBs[side] & (pos->pieceBBs[BISHOP] | pos->pieceBBs[QUEEN]);
-    const Bitboard rooks   = pos->colorBBs[side] & (pos->pieceBBs[  ROOK] | pos->pieceBBs[QUEEN]);
+    const Bitboard bishops = pos->colorBB[side] & (pos->pieceBB[BISHOP] | pos->pieceBB[QUEEN]);
+    const Bitboard rooks   = pos->colorBB[side] & (pos->pieceBB[  ROOK] | pos->pieceBB[QUEEN]);
 
-    if (     pawn_attacks[!side][sq] & pos->pieceBBs[PAWN]   & pos->colorBBs[side]
-        || knight_attacks[sq]        & pos->pieceBBs[KNIGHT] & pos->colorBBs[side]
-        ||   king_attacks[sq]        & pos->pieceBBs[KING]   & pos->colorBBs[side]
-        || bishops & BishopAttacks(sq, pos->pieceBBs[ALL])
-        || rooks   & RookAttacks(sq, pos->pieceBBs[ALL]))
+    if (     pawn_attacks[!side][sq] & pos->pieceBB[PAWN]   & pos->colorBB[side]
+        || knight_attacks[sq]        & pos->pieceBB[KNIGHT] & pos->colorBB[side]
+        ||   king_attacks[sq]        & pos->pieceBB[KING]   & pos->colorBB[side]
+        || bishops & BishopAttacks(sq, pos->pieceBB[ALL])
+        || rooks   & RookAttacks(sq, pos->pieceBB[ALL]))
         return true;
 
     return false;

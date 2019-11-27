@@ -30,7 +30,7 @@ bool MoveIsPseudoLegal(const Position *pos, const int move) {
         || move  == NOMOVE)
         return false;
 
-    const Bitboard occupied = pos->pieceBBs[ALL];
+    const Bitboard occupied = pos->pieceBB[ALL];
     const Bitboard toBB     = 1ULL << to;
 
     // Make sure the piece at 'from' can move to 'to' (ignoring pins/moving into check)

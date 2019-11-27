@@ -95,7 +95,7 @@ INLINE void GenCastling(const Position *pos, MoveList *list, const int color, co
     const int ksmiddle = color == WHITE ? F1 : F8;
     const int qsmiddle = color == WHITE ? D1 : D8;
 
-    const Bitboard occupied = pos->pieceBBs[ALL];
+    const Bitboard occupied = pos->pieceBB[ALL];
 
     // King side castle
     if (pos->castlePerm & KCA)
@@ -126,13 +126,13 @@ INLINE void GenPawn(const Position *pos, MoveList *list, const int color, const 
     int sq;
     Bitboard pawnMoves, pawnStarts, pawnsNot7th, enPassers;
 
-    const Bitboard empty = ~pos->pieceBBs[ALL];
+    const Bitboard empty = ~pos->pieceBB[ALL];
 
     if (type == QUIET) {
 
         Bitboard relRank7BB = color == WHITE ? rank7BB : rank2BB;
 
-        pawnsNot7th = pos->colorBBs[color] & pos->pieceBBs[PAWN] & ~relRank7BB;
+        pawnsNot7th = pos->colorBB[color] & pos->pieceBB[PAWN] & ~relRank7BB;
 
         pawnMoves  = color == WHITE ? empty & pawnsNot7th << 8
                                     : empty & pawnsNot7th >> 8;
@@ -153,11 +153,11 @@ INLINE void GenPawn(const Position *pos, MoveList *list, const int color, const 
         return;
     }
 
-    const Bitboard enemies =  pos->colorBBs[!color];
+    const Bitboard enemies =  pos->colorBB[!color];
 
     Bitboard relativeRank8BB = color == WHITE ? rank8BB : rank1BB;
 
-    Bitboard pawns      = pos->colorBBs[color] & pos->pieceBBs[PAWN];
+    Bitboard pawns      = pos->colorBB[color] & pos->pieceBB[PAWN];
     Bitboard lAttacks   = color == WHITE ? ((pawns & ~fileABB) << 7) & enemies
                                          : ((pawns & ~fileHBB) >> 7) & enemies;
 
@@ -209,11 +209,11 @@ INLINE void GenPieceType(const Position *pos, MoveList *list, const int color, c
     int sq;
     Bitboard moves;
 
-    const Bitboard occupied = pos->pieceBBs[ALL];
-    const Bitboard enemies  = pos->colorBBs[!color];
+    const Bitboard occupied = pos->pieceBB[ALL];
+    const Bitboard enemies  = pos->colorBB[!color];
     const Bitboard targets  = type == NOISY ? enemies : ~occupied;
 
-    Bitboard pieces = pos->colorBBs[color] & pos->pieceBBs[pt];
+    Bitboard pieces = pos->colorBB[color] & pos->pieceBB[pt];
 
     while (pieces) {
 

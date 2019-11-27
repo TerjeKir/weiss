@@ -40,21 +40,21 @@ static bool DrawMaterial(const Position *pos) {
     assert(CheckBoard(pos));
 
     // Pawns can promote to pieces that can mate
-    if (pos->pieceBBs[PAWN])
+    if (pos->pieceBB[PAWN])
         return false;
     // Rooks and queens can mate
-    if (pos->pieceBBs[ROOK] || pos->pieceBBs[QUEEN])
+    if (pos->pieceBB[ROOK] || pos->pieceBB[QUEEN])
         return false;
     // 3 knights can mate
-    if (PopCount(pos->colorBBs[WHITE] & pos->pieceBBs[KNIGHT]) > 2 || PopCount(pos->colorBBs[BLACK] & pos->pieceBBs[KNIGHT]) > 2)
+    if (PopCount(pos->colorBB[WHITE] & pos->pieceBB[KNIGHT]) > 2 || PopCount(pos->colorBB[BLACK] & pos->pieceBB[KNIGHT]) > 2)
         return false;
     // 2 bishops can mate
-    if (PopCount(pos->colorBBs[WHITE] & pos->pieceBBs[BISHOP]) > 1 || PopCount(pos->colorBBs[BLACK] & pos->pieceBBs[BISHOP]) > 1)
+    if (PopCount(pos->colorBB[WHITE] & pos->pieceBB[BISHOP]) > 1 || PopCount(pos->colorBB[BLACK] & pos->pieceBB[BISHOP]) > 1)
         return false;
     // Bishop + Knight can mate
-    if ((pos->colorBBs[WHITE] & pos->pieceBBs[KNIGHT]) && (pos->colorBBs[WHITE] & pos->pieceBBs[BISHOP]))
+    if ((pos->colorBB[WHITE] & pos->pieceBB[KNIGHT]) && (pos->colorBB[WHITE] & pos->pieceBB[BISHOP]))
         return false;
-    if ((pos->colorBBs[BLACK] & pos->pieceBBs[KNIGHT]) && (pos->colorBBs[BLACK] & pos->pieceBBs[BISHOP]))
+    if ((pos->colorBB[BLACK] & pos->pieceBB[KNIGHT]) && (pos->colorBB[BLACK] & pos->pieceBB[BISHOP]))
         return false;
 
     return true;
