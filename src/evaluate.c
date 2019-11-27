@@ -17,12 +17,12 @@ static bitboard IsolatedMask[64];
 
 // Various bonuses and maluses
 static const int PawnPassed[8] = { 0, S(5, 5), S(10, 10), S(20, 20), S(35, 35), S(60, 60), S(100, 100), 0 };
-static const int PawnIsolated = S(-10, -10);
+static const int PawnIsolated = S(-15, -14);
 
-static const int  RookOpenFile = S(10, 10);
-static const int QueenOpenFile = S(5, 5);
-static const int  RookSemiOpenFile = S(5, 5);
-static const int QueenSemiOpenFile = S(3, 3);
+static const int  RookOpenFile = S(20, 10);
+static const int QueenOpenFile = S(10, 15);
+static const int  RookSemiOpenFile = S(10, 15);
+static const int QueenSemiOpenFile = S(8, 5);
 
 static const int BishopPair = S(50, 50);
 
