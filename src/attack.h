@@ -45,11 +45,11 @@ static const uint64_t BishopMagics[64] = {
 };
 #endif
 
-bitboard king_attacks[64];
-bitboard knight_attacks[64];
-bitboard pawn_attacks[2][64];
+Bitboard king_attacks[64];
+Bitboard knight_attacks[64];
+Bitboard pawn_attacks[2][64];
 
 
-bitboard BishopAttacks(const int sq, bitboard occupied);
-bitboard   RookAttacks(const int sq, bitboard occupied);
+Bitboard BishopAttacks(const int sq, Bitboard occupied);
+Bitboard   RookAttacks(const int sq, Bitboard occupied);
 bool SqAttacked(const int sq, const int side, const Position *pos);

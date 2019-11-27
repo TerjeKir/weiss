@@ -62,9 +62,9 @@ static void UpdatePosition(Position *pos) {
             color = colorOf(piece);
 
             // Bitboards
-            SETBIT(pos->colorBBs[BOTH], sq);
-            SETBIT(pos->colorBBs[colorOf(piece)], sq);
-            SETBIT(pos->pieceBBs[pieceTypeOf(piece)], sq);
+            SETBIT(pos->pieceBB[ALL], sq);
+            SETBIT(pos->colorBB[colorOf(piece)], sq);
+            SETBIT(pos->pieceBB[pieceTypeOf(piece)], sq);
 
             // Non pawn piece count
             if (pieceBig[piece])
@@ -77,8 +77,7 @@ static void UpdatePosition(Position *pos) {
             pos->basePhase -= phaseValue[piece];
 
             // Piece list / count
-            pos->pieceList[piece][pos->pieceCounts[piece]] = sq;
-            pos->pieceCounts[piece]++;
+            pos->pieceList[piece][pos->pieceCounts[piece]++] = sq;
 
             // King square
             if (piece == wK) pos->kingSq[WHITE] = sq;
@@ -95,8 +94,8 @@ static void UpdatePosition(Position *pos) {
 static void ClearPosition(Position *pos) {
 
     // Bitboard representations
-    memset(pos->colorBBs, 0ULL, sizeof(pos->colorBBs));
-    memset(pos->pieceBBs, 0ULL, sizeof(pos->pieceBBs));
+    memset(pos->colorBB, 0ULL, sizeof(pos->colorBB));
+    memset(pos->pieceBB, 0ULL, sizeof(pos->pieceBB));
 
     // Array representation
     memset(pos->board, 0ULL, sizeof(pos->board));
@@ -114,7 +113,7 @@ static void ClearPosition(Position *pos) {
     // Misc
     pos->material   = 0;
     pos->basePhase  = 24;
-    pos->side       = BOTH;
+    pos->side       = -1;
     pos->enPas      = NO_SQ;
     pos->fiftyMove  = 0;
     pos->castlePerm = 0;
@@ -276,35 +275,35 @@ bool CheckBoard(const Position *pos) {
     int sq, t_piece, t_pce_num, color;
 
     // Bitboards
-    assert(PopCount(pos->pieceBBs[KING]) == 2);
+    assert(PopCount(pos->pieceBB[KING]) == 2);
 
-    assert(PopCount(pos->pieceBBs[  PAWN] & pos->colorBBs[WHITE]) <= 8);
-    assert(PopCount(pos->pieceBBs[KNIGHT] & pos->colorBBs[WHITE]) <= 10);
-    assert(PopCount(pos->pieceBBs[BISHOP] & pos->colorBBs[WHITE]) <= 10);
-    assert(PopCount(pos->pieceBBs[  ROOK] & pos->colorBBs[WHITE]) <= 10);
-    assert(PopCount(pos->pieceBBs[ QUEEN] & pos->colorBBs[WHITE]) <= 9);
-    assert(PopCount(pos->pieceBBs[  KING] & pos->colorBBs[WHITE]) == 1);
+    assert(PopCount(pos->pieceBB[  PAWN] & pos->colorBB[WHITE]) <= 8);
+    assert(PopCount(pos->pieceBB[KNIGHT] & pos->colorBB[WHITE]) <= 10);
+    assert(PopCount(pos->pieceBB[BISHOP] & pos->colorBB[WHITE]) <= 10);
+    assert(PopCount(pos->pieceBB[  ROOK] & pos->colorBB[WHITE]) <= 10);
+    assert(PopCount(pos->pieceBB[ QUEEN] & pos->colorBB[WHITE]) <= 9);
+    assert(PopCount(pos->pieceBB[  KING] & pos->colorBB[WHITE]) == 1);
 
-    assert(PopCount(pos->pieceBBs[  PAWN] & pos->colorBBs[BLACK]) <= 8);
-    assert(PopCount(pos->pieceBBs[KNIGHT] & pos->colorBBs[BLACK]) <= 10);
-    assert(PopCount(pos->pieceBBs[BISHOP] & pos->colorBBs[BLACK]) <= 10);
-    assert(PopCount(pos->pieceBBs[  ROOK] & pos->colorBBs[BLACK]) <= 10);
-    assert(PopCount(pos->pieceBBs[ QUEEN] & pos->colorBBs[BLACK]) <= 9);
-    assert(PopCount(pos->pieceBBs[  KING] & pos->colorBBs[BLACK]) == 1);
+    assert(PopCount(pos->pieceBB[  PAWN] & pos->colorBB[BLACK]) <= 8);
+    assert(PopCount(pos->pieceBB[KNIGHT] & pos->colorBB[BLACK]) <= 10);
+    assert(PopCount(pos->pieceBB[BISHOP] & pos->colorBB[BLACK]) <= 10);
+    assert(PopCount(pos->pieceBB[  ROOK] & pos->colorBB[BLACK]) <= 10);
+    assert(PopCount(pos->pieceBB[ QUEEN] & pos->colorBB[BLACK]) <= 9);
+    assert(PopCount(pos->pieceBB[  KING] & pos->colorBB[BLACK]) == 1);
 
-    assert(PopCount(pos->pieceBBs[  PAWN] & pos->colorBBs[WHITE]) == pos->pieceCounts[wP]);
-    assert(PopCount(pos->pieceBBs[KNIGHT] & pos->colorBBs[WHITE]) == pos->pieceCounts[wN]);
-    assert(PopCount(pos->pieceBBs[BISHOP] & pos->colorBBs[WHITE]) == pos->pieceCounts[wB]);
-    assert(PopCount(pos->pieceBBs[  ROOK] & pos->colorBBs[WHITE]) == pos->pieceCounts[wR]);
-    assert(PopCount(pos->pieceBBs[ QUEEN] & pos->colorBBs[WHITE]) == pos->pieceCounts[wQ]);
+    assert(PopCount(pos->pieceBB[  PAWN] & pos->colorBB[WHITE]) == pos->pieceCounts[wP]);
+    assert(PopCount(pos->pieceBB[KNIGHT] & pos->colorBB[WHITE]) == pos->pieceCounts[wN]);
+    assert(PopCount(pos->pieceBB[BISHOP] & pos->colorBB[WHITE]) == pos->pieceCounts[wB]);
+    assert(PopCount(pos->pieceBB[  ROOK] & pos->colorBB[WHITE]) == pos->pieceCounts[wR]);
+    assert(PopCount(pos->pieceBB[ QUEEN] & pos->colorBB[WHITE]) == pos->pieceCounts[wQ]);
 
-    assert(PopCount(pos->pieceBBs[  PAWN] & pos->colorBBs[BLACK]) == pos->pieceCounts[bP]);
-    assert(PopCount(pos->pieceBBs[KNIGHT] & pos->colorBBs[BLACK]) == pos->pieceCounts[bN]);
-    assert(PopCount(pos->pieceBBs[BISHOP] & pos->colorBBs[BLACK]) == pos->pieceCounts[bB]);
-    assert(PopCount(pos->pieceBBs[  ROOK] & pos->colorBBs[BLACK]) == pos->pieceCounts[bR]);
-    assert(PopCount(pos->pieceBBs[ QUEEN] & pos->colorBBs[BLACK]) == pos->pieceCounts[bQ]);
+    assert(PopCount(pos->pieceBB[  PAWN] & pos->colorBB[BLACK]) == pos->pieceCounts[bP]);
+    assert(PopCount(pos->pieceBB[KNIGHT] & pos->colorBB[BLACK]) == pos->pieceCounts[bN]);
+    assert(PopCount(pos->pieceBB[BISHOP] & pos->colorBB[BLACK]) == pos->pieceCounts[bB]);
+    assert(PopCount(pos->pieceBB[  ROOK] & pos->colorBB[BLACK]) == pos->pieceCounts[bR]);
+    assert(PopCount(pos->pieceBB[ QUEEN] & pos->colorBB[BLACK]) == pos->pieceCounts[bQ]);
 
-    assert(pos->colorBBs[BOTH] == (pos->colorBBs[WHITE] | pos->colorBBs[BLACK]));
+    assert(pos->pieceBB[ALL] == (pos->colorBB[WHITE] | pos->colorBB[BLACK]));
 
     // check piece lists
     for (t_piece = PIECE_MIN; t_piece < PIECE_NB; ++t_piece)

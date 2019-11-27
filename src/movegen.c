@@ -87,15 +87,15 @@ INLINE void GenCastling(const Position *pos, MoveList *list, const int color, co
 
     const int KCA = color == WHITE ? WKCA : BKCA;
     const int QCA = color == WHITE ? WQCA : BQCA;
-    const bitboard kingbits  = color == WHITE ? bitF1G1 : bitF8G8;
-    const bitboard queenbits = color == WHITE ? bitB1C1D1 : bitB8C8D8;
+    const Bitboard kingbits  = color == WHITE ? bitF1G1 : bitF8G8;
+    const Bitboard queenbits = color == WHITE ? bitB1C1D1 : bitB8C8D8;
     const int from = color == WHITE ? E1 : E8;
     const int ksto = color == WHITE ? G1 : G8;
     const int qsto = color == WHITE ? C1 : C8;
     const int ksmiddle = color == WHITE ? F1 : F8;
     const int qsmiddle = color == WHITE ? D1 : D8;
 
-    const bitboard occupied = pos->colorBBs[BOTH];
+    const Bitboard occupied = pos->pieceBB[ALL];
 
     // King side castle
     if (pos->castlePerm & KCA)
@@ -124,15 +124,15 @@ INLINE int relBackward(const int color, const int sq, const int diff) {
 INLINE void GenPawn(const Position *pos, MoveList *list, const int color, const int type) {
 
     int sq;
-    bitboard pawnMoves, pawnStarts, pawnsNot7th, enPassers;
+    Bitboard pawnMoves, pawnStarts, pawnsNot7th, enPassers;
 
-    const bitboard empty = ~pos->colorBBs[BOTH];
+    const Bitboard empty = ~pos->pieceBB[ALL];
 
     if (type == QUIET) {
 
-        bitboard relRank7BB = color == WHITE ? rank7BB : rank2BB;
+        Bitboard relRank7BB = color == WHITE ? rank7BB : rank2BB;
 
-        pawnsNot7th = pos->colorBBs[color] & pos->pieceBBs[PAWN] & ~relRank7BB;
+        pawnsNot7th = pos->colorBB[color] & pos->pieceBB[PAWN] & ~relRank7BB;
 
         pawnMoves  = color == WHITE ? empty & pawnsNot7th << 8
                                     : empty & pawnsNot7th >> 8;
@@ -153,24 +153,24 @@ INLINE void GenPawn(const Position *pos, MoveList *list, const int color, const 
         return;
     }
 
-    const bitboard enemies =  pos->colorBBs[!color];
+    const Bitboard enemies =  pos->colorBB[!color];
 
-    bitboard relativeRank8BB = color == WHITE ? rank8BB : rank1BB;
+    Bitboard relativeRank8BB = color == WHITE ? rank8BB : rank1BB;
 
-    bitboard pawns      = pos->colorBBs[color] & pos->pieceBBs[PAWN];
-    bitboard lAttacks   = color == WHITE ? ((pawns & ~fileABB) << 7) & enemies
+    Bitboard pawns      = pos->colorBB[color] & pos->pieceBB[PAWN];
+    Bitboard lAttacks   = color == WHITE ? ((pawns & ~fileABB) << 7) & enemies
                                          : ((pawns & ~fileHBB) >> 7) & enemies;
 
-    bitboard rAttacks   = color == WHITE ? ((pawns & ~fileHBB) << 9) & enemies
+    Bitboard rAttacks   = color == WHITE ? ((pawns & ~fileHBB) << 9) & enemies
                                          : ((pawns & ~fileABB) >> 9) & enemies;
 
-    bitboard promotions = color == WHITE ? ((pawns & rank7BB) << 8) & empty
+    Bitboard promotions = color == WHITE ? ((pawns & rank7BB) << 8) & empty
                                          : ((pawns & rank2BB) >> 8) & empty;
 
-    bitboard lNormalCap = lAttacks & ~relativeRank8BB;
-    bitboard lPromoCap  = lAttacks &  relativeRank8BB;
-    bitboard rNormalCap = rAttacks & ~relativeRank8BB;
-    bitboard rPromoCap  = rAttacks &  relativeRank8BB;
+    Bitboard lNormalCap = lAttacks & ~relativeRank8BB;
+    Bitboard lPromoCap  = lAttacks &  relativeRank8BB;
+    Bitboard rNormalCap = rAttacks & ~relativeRank8BB;
+    Bitboard rPromoCap  = rAttacks &  relativeRank8BB;
 
     // Promoting captures
     while (lPromoCap) {
@@ -207,13 +207,13 @@ INLINE void GenPawn(const Position *pos, MoveList *list, const int color, const 
 INLINE void GenPieceType(const Position *pos, MoveList *list, const int color, const int type, const int pt) {
 
     int sq;
-    bitboard moves;
+    Bitboard moves;
 
-    const bitboard occupied = pos->colorBBs[BOTH];
-    const bitboard enemies  = pos->colorBBs[!color];
-    const bitboard targets  = type == NOISY ? enemies : ~occupied;
+    const Bitboard occupied = pos->pieceBB[ALL];
+    const Bitboard enemies  = pos->colorBB[!color];
+    const Bitboard targets  = type == NOISY ? enemies : ~occupied;
 
-    bitboard pieces = pos->colorBBs[color] & pos->pieceBBs[pt];
+    Bitboard pieces = pos->colorBB[color] & pos->pieceBB[pt];
 
     while (pieces) {
 

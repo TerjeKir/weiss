@@ -11,8 +11,8 @@
 
 
 typedef struct {
-    bitboard *attacks;
-    bitboard mask;
+    Bitboard *attacks;
+    Bitboard mask;
 #ifndef USE_PEXT
     uint64_t magic;
     int shift;
@@ -20,15 +20,15 @@ typedef struct {
 } Magic;
 
 
-static bitboard bishop_attacks[0x1480];
-static bitboard rook_attacks[0x19000];
+static Bitboard bishop_attacks[0x1480];
+static Bitboard rook_attacks[0x19000];
 
 static Magic mBishopTable[64];
 static Magic mRookTable[64];
 
-bitboard pawn_attacks[2][64];
-bitboard knight_attacks[64];
-bitboard king_attacks[64];
+Bitboard pawn_attacks[2][64];
+Bitboard knight_attacks[64];
+Bitboard king_attacks[64];
 
 
 // Inits the king attack bitboards
@@ -114,9 +114,9 @@ static void InitPawnAttacks() {
     }
 }
 
-static bitboard MakeSliderAttacks(const int sq, const bitboard occupied, const int directions[]) {
+static Bitboard MakeSliderAttacks(const int sq, const Bitboard occupied, const int directions[]) {
 
-    bitboard result = 0;
+    Bitboard result = 0;
 
     for (int dir = 0; dir < 4; ++dir)
 
@@ -135,12 +135,12 @@ static bitboard MakeSliderAttacks(const int sq, const bitboard occupied, const i
 
 // Inits the magic shit
 #ifdef USE_PEXT
-static void InitSliderAttacks(Magic *table, bitboard *attackTable, const int *dir) {
+static void InitSliderAttacks(Magic *table, Bitboard *attackTable, const int *dir) {
 #else
-static void InitSliderAttacks(Magic *table, bitboard *attackTable, const bitboard *magics, const int *dir) {
+static void InitSliderAttacks(Magic *table, Bitboard *attackTable, const Bitboard *magics, const int *dir) {
 #endif
     int size, index;
-    bitboard edges, occupied;
+    Bitboard edges, occupied;
 
     table[0].attacks = attackTable;
 
@@ -195,7 +195,7 @@ CONSTR InitAttacks() {
 }
 
 // Returns the attack bitboard for a bishop based on what squares are occupied
-bitboard BishopAttacks(const int sq, bitboard occupied) {
+Bitboard BishopAttacks(const int sq, Bitboard occupied) {
 #ifdef USE_PEXT
     return mBishopTable[sq].attacks[_pext_u64(occupied, mBishopTable[sq].mask)];
 #else
@@ -207,7 +207,7 @@ bitboard BishopAttacks(const int sq, bitboard occupied) {
 }
 
 // Returns the attack bitboard for a rook based on what squares are occupied
-bitboard RookAttacks(const int sq, bitboard occupied) {
+Bitboard RookAttacks(const int sq, Bitboard occupied) {
 #ifdef USE_PEXT
     return mRookTable[sq].attacks[_pext_u64(occupied, mRookTable[sq].mask)];
 #else
@@ -225,14 +225,14 @@ bool SqAttacked(const int sq, const int side, const Position *pos) {
     assert(ValidSide(side));
     assert(CheckBoard(pos));
 
-    const bitboard bishops = pos->colorBBs[side] & (pos->pieceBBs[BISHOP] | pos->pieceBBs[QUEEN]);
-    const bitboard rooks   = pos->colorBBs[side] & (pos->pieceBBs[  ROOK] | pos->pieceBBs[QUEEN]);
+    const Bitboard bishops = pos->colorBB[side] & (pos->pieceBB[BISHOP] | pos->pieceBB[QUEEN]);
+    const Bitboard rooks   = pos->colorBB[side] & (pos->pieceBB[  ROOK] | pos->pieceBB[QUEEN]);
 
-    if (     pawn_attacks[!side][sq] & pos->pieceBBs[PAWN]   & pos->colorBBs[side]
-        || knight_attacks[sq]        & pos->pieceBBs[KNIGHT] & pos->colorBBs[side]
-        ||   king_attacks[sq]        & pos->pieceBBs[KING]   & pos->colorBBs[side]
-        || bishops & BishopAttacks(sq, pos->colorBBs[BOTH])
-        || rooks   & RookAttacks(sq, pos->colorBBs[BOTH]))
+    if (     pawn_attacks[!side][sq] & pos->pieceBB[PAWN]   & pos->colorBB[side]
+        || knight_attacks[sq]        & pos->pieceBB[KNIGHT] & pos->colorBB[side]
+        ||   king_attacks[sq]        & pos->pieceBB[KING]   & pos->colorBB[side]
+        || bishops & BishopAttacks(sq, pos->pieceBB[ALL])
+        || rooks   & RookAttacks(sq, pos->pieceBB[ALL]))
         return true;
 
     return false;

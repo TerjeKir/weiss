@@ -17,17 +17,17 @@
 #define CONSTR static __attribute__((constructor)) void
 
 
-typedef uint64_t bitboard;
+typedef uint64_t Bitboard;
 
 enum Limit { MAXGAMEMOVES     = 512,
              MAXPOSITIONMOVES = 256,
              MAXDEPTH         = 128 };
 
-enum Score { INFINITE = 30000,
+enum Score { INFINITE = 32500,
              ISMATE   = INFINITE - MAXDEPTH };
 
 typedef enum Color {
-    BLACK, WHITE, BOTH
+    BLACK, WHITE
 } Color;
 
 typedef enum PieceType {
@@ -35,7 +35,7 @@ typedef enum PieceType {
 } PieceType;
 
 typedef enum Piece {
-    EMPTY, PIECE_MIN,
+    EMPTY = 0, ALL = 0, PIECE_MIN,
     bP = 1, bN, bB, bR, bQ, bK,
     wP = 9, wN, wB, wR, wQ, wK,
     PIECE_NB = 16
@@ -53,7 +53,7 @@ enum File { FILE_A, FILE_B, FILE_C, FILE_D, FILE_E, FILE_F, FILE_G, FILE_H, FILE
 
 enum Rank { RANK_1, RANK_2, RANK_3, RANK_4, RANK_5, RANK_6, RANK_7, RANK_8, RANK_NONE };
 
-enum Square {
+typedef enum Square {
   A1, B1, C1, D1, E1, F1, G1, H1,
   A2, B2, C2, D2, E2, F2, G2, H2,
   A3, B3, C3, D3, E3, F3, G3, H3,
@@ -62,7 +62,7 @@ enum Square {
   A6, B6, C6, D6, E6, F6, G6, H6,
   A7, B7, C7, D7, E7, F7, G7, H7,
   A8, B8, C8, D8, E8, F8, G8, H8, NO_SQ = 99
-};
+} Square;
 
 enum CastlingRights { WKCA = 1, WQCA = 2, BKCA = 4, BQCA = 8 };
 
@@ -114,13 +114,12 @@ typedef struct {
 
 typedef struct {
 
-    bitboard colorBBs[3];
-    bitboard pieceBBs[TYPE_NB];
-
     int board[64];
+    Bitboard pieceBB[TYPE_NB];
+    Bitboard colorBB[2];
 
-    int pieceList[PIECE_NB][10];
     int pieceCounts[PIECE_NB];
+    int pieceList[PIECE_NB][10];
 
     int kingSq[2];
     int bigPieces[2];
