@@ -77,8 +77,7 @@ static void UpdatePosition(Position *pos) {
             pos->basePhase -= phaseValue[piece];
 
             // Piece list / count
-            pos->pieceList[piece][pos->pieceCounts[piece]] = sq;
-            pos->pieceCounts[piece]++;
+            pos->pieceList[piece][pos->pieceCounts[piece]++] = sq;
 
             // King square
             if (piece == wK) pos->kingSq[WHITE] = sq;

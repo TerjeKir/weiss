@@ -66,9 +66,7 @@ static void ClearPiece(const int sq, Position *pos) {
     assert(t_pieceCounts >= 0 && t_pieceCounts < 10);
 
     // Update piece count
-    pos->pieceCounts[piece]--;
-
-    pos->pieceList[piece][t_pieceCounts] = pos->pieceList[piece][pos->pieceCounts[piece]];
+    pos->pieceList[piece][t_pieceCounts] = pos->pieceList[piece][--pos->pieceCounts[piece]];
 
     // Update bitboards
     CLRBIT(pos->colorBBs[BOTH], sq);
