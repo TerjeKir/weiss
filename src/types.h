@@ -114,13 +114,12 @@ typedef struct {
 
 typedef struct {
 
-    Bitboard colorBBs[2];
-    Bitboard pieceBBs[TYPE_NB];
-
     int board[64];
+    Bitboard pieceBBs[TYPE_NB];
+    Bitboard colorBBs[2];
 
-    int pieceList[PIECE_NB][10];
     int pieceCounts[PIECE_NB];
+    int pieceList[PIECE_NB][10];
 
     int kingSq[2];
     int bigPieces[2];
