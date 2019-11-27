@@ -12,8 +12,8 @@
 
 
 // Eval bit masks
-static bitboard PassedMask[2][64];
-static bitboard IsolatedMask[64];
+static Bitboard PassedMask[2][64];
+static Bitboard IsolatedMask[64];
 
 // Various bonuses and maluses
 static const int PawnPassed[8] = { 0, S(5, 5), S(10, 10), S(20, 20), S(35, 35), S(60, 60), S(100, 100), 0 };
@@ -279,7 +279,7 @@ int EvalPosition(const Position *pos) {
 
     EvalInfo ei;
 
-    bitboard blockedPawns[2], unmovedPawns[2], attackedByPawns[2];
+    Bitboard blockedPawns[2], unmovedPawns[2], attackedByPawns[2];
 
     ei.pawnsBB[WHITE] = pos->colorBBs[WHITE] & pos->pieceBBs[PAWN];
     ei.pawnsBB[BLACK] = pos->colorBBs[BLACK] & pos->pieceBBs[PAWN];

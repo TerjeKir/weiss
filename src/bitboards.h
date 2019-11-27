@@ -30,34 +30,34 @@ enum {
 };
 
 // Used for checking legality of castling
-static const bitboard bitB1C1D1 = (1ULL << B1) | (1ULL << C1) | (1ULL << D1);
-static const bitboard bitB8C8D8 = (1ULL << B8) | (1ULL << C8) | (1ULL << D8);
-static const bitboard bitF1G1   = (1ULL << F1) | (1ULL << G1);
-static const bitboard bitF8G8   = (1ULL << F8) | (1ULL << G8);
+static const Bitboard bitB1C1D1 = (1ULL << B1) | (1ULL << C1) | (1ULL << D1);
+static const Bitboard bitB8C8D8 = (1ULL << B8) | (1ULL << C8) | (1ULL << D8);
+static const Bitboard bitF1G1   = (1ULL << F1) | (1ULL << G1);
+static const Bitboard bitF8G8   = (1ULL << F8) | (1ULL << G8);
 
 
-bitboard   SetMask[64];
-bitboard ClearMask[64];
+Bitboard   SetMask[64];
+Bitboard ClearMask[64];
 
-const bitboard fileBBs[8];
-const bitboard rankBBs[8];
+const Bitboard fileBBs[8];
+const Bitboard rankBBs[8];
 
-// void PrintBB(const bitboard bb);
+// void PrintBB(const Bitboard bb);
 
 // Population count/Hamming weight
-INLINE int PopCount(const bitboard bb) {
+INLINE int PopCount(const Bitboard bb) {
 
     return __builtin_popcountll(bb);
 }
 
 // Returns the index of the least significant bit
-INLINE int Lsb(const bitboard bb) {
+INLINE int Lsb(const Bitboard bb) {
 
     return __builtin_ctzll(bb);
 }
 
 // Returns the index of the least significant bit and unsets it
-INLINE int PopLsb(bitboard *bb) {
+INLINE int PopLsb(Bitboard *bb) {
 
     int lsb = Lsb(*bb);
     *bb &= (*bb - 1);

@@ -138,7 +138,7 @@ static int QuiescenceDeltaMargin(const Position *pos) {
     const int DeltaBase = pawnOn7th(pos) ? Q_MG : P_MG;
 
     // Look for possible captures on the board
-    const bitboard enemy = pos->colorBBs[!pos->side];
+    const Bitboard enemy = pos->colorBBs[!pos->side];
 
     // Find the most valuable piece we could take and add to our base
     // TODO: Faster with pos->pieceCounts?
