@@ -231,8 +231,8 @@ bool SqAttacked(const int sq, const int side, const Position *pos) {
     if (     pawn_attacks[!side][sq] & pos->pieceBBs[PAWN]   & pos->colorBBs[side]
         || knight_attacks[sq]        & pos->pieceBBs[KNIGHT] & pos->colorBBs[side]
         ||   king_attacks[sq]        & pos->pieceBBs[KING]   & pos->colorBBs[side]
-        || bishops & BishopAttacks(sq, pos->colorBBs[BOTH])
-        || rooks   & RookAttacks(sq, pos->colorBBs[BOTH]))
+        || bishops & BishopAttacks(sq, pos->pieceBBs[ALL])
+        || rooks   & RookAttacks(sq, pos->pieceBBs[ALL]))
         return true;
 
     return false;

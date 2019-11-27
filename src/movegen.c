@@ -95,7 +95,7 @@ INLINE void GenCastling(const Position *pos, MoveList *list, const int color, co
     const int ksmiddle = color == WHITE ? F1 : F8;
     const int qsmiddle = color == WHITE ? D1 : D8;
 
-    const Bitboard occupied = pos->colorBBs[BOTH];
+    const Bitboard occupied = pos->pieceBBs[ALL];
 
     // King side castle
     if (pos->castlePerm & KCA)
@@ -126,7 +126,7 @@ INLINE void GenPawn(const Position *pos, MoveList *list, const int color, const 
     int sq;
     Bitboard pawnMoves, pawnStarts, pawnsNot7th, enPassers;
 
-    const Bitboard empty = ~pos->colorBBs[BOTH];
+    const Bitboard empty = ~pos->pieceBBs[ALL];
 
     if (type == QUIET) {
 
@@ -209,7 +209,7 @@ INLINE void GenPieceType(const Position *pos, MoveList *list, const int color, c
     int sq;
     Bitboard moves;
 
-    const Bitboard occupied = pos->colorBBs[BOTH];
+    const Bitboard occupied = pos->pieceBBs[ALL];
     const Bitboard enemies  = pos->colorBBs[!color];
     const Bitboard targets  = type == NOISY ? enemies : ~occupied;
 

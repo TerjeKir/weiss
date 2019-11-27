@@ -16,7 +16,7 @@ unsigned int probeWDL(const Position *pos) {
         || (pos->enPas      != NO_SQ)
         || (pos->castlePerm != 0)
         || (pos->fiftyMove  != 0)
-        || ((unsigned)PopCount(pos->colorBBs[BOTH]) > TB_LARGEST))
+        || ((unsigned)PopCount(pos->pieceBBs[ALL]) > TB_LARGEST))
         return TB_RESULT_FAILED;
 
     // Call fathom

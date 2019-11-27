@@ -187,7 +187,7 @@ void Console_Loop(Position *pos, SearchInfo *info) {
         // Engine settings
 
         if (!strcmp(command, "force")) {
-            engineSide = BOTH;
+            engineSide = -1;
             continue;
         }
 
@@ -208,7 +208,7 @@ void Console_Loop(Position *pos, SearchInfo *info) {
         // Set gamestate
 
         if (!strcmp(command, "position")) {
-            engineSide = BOTH;
+            engineSide = -1;
             ParseFen(inBuf + 9, pos);
             continue;
         }
@@ -269,13 +269,13 @@ void Console_Loop(Position *pos, SearchInfo *info) {
         }
 
         if (!strcmp(command, "mirrortest")) {
-            engineSide = BOTH;
+            engineSide = -1;
             MirrorEvalTest(pos);
             continue;
         }
 
         if (!strcmp(command, "matetest")) {
-            engineSide = BOTH;
+            engineSide = -1;
             MateInXTest(pos);
             continue;
         }

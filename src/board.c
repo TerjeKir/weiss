@@ -62,7 +62,7 @@ static void UpdatePosition(Position *pos) {
             color = colorOf(piece);
 
             // Bitboards
-            SETBIT(pos->colorBBs[BOTH], sq);
+            SETBIT(pos->pieceBBs[ALL], sq);
             SETBIT(pos->colorBBs[colorOf(piece)], sq);
             SETBIT(pos->pieceBBs[pieceTypeOf(piece)], sq);
 
@@ -113,7 +113,7 @@ static void ClearPosition(Position *pos) {
     // Misc
     pos->material   = 0;
     pos->basePhase  = 24;
-    pos->side       = BOTH;
+    pos->side       = -1;
     pos->enPas      = NO_SQ;
     pos->fiftyMove  = 0;
     pos->castlePerm = 0;
@@ -303,7 +303,7 @@ bool CheckBoard(const Position *pos) {
     assert(PopCount(pos->pieceBBs[  ROOK] & pos->colorBBs[BLACK]) == pos->pieceCounts[bR]);
     assert(PopCount(pos->pieceBBs[ QUEEN] & pos->colorBBs[BLACK]) == pos->pieceCounts[bQ]);
 
-    assert(pos->colorBBs[BOTH] == (pos->colorBBs[WHITE] | pos->colorBBs[BLACK]));
+    assert(pos->pieceBBs[ALL] == (pos->colorBBs[WHITE] | pos->colorBBs[BLACK]));
 
     // check piece lists
     for (t_piece = PIECE_MIN; t_piece < PIECE_NB; ++t_piece)

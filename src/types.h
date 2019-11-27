@@ -27,7 +27,7 @@ enum Score { INFINITE = 30000,
              ISMATE   = INFINITE - MAXDEPTH };
 
 typedef enum Color {
-    BLACK, WHITE, BOTH
+    BLACK, WHITE
 } Color;
 
 typedef enum PieceType {
@@ -35,7 +35,7 @@ typedef enum PieceType {
 } PieceType;
 
 typedef enum Piece {
-    EMPTY, PIECE_MIN,
+    EMPTY = 0, ALL = 0, PIECE_MIN,
     bP = 1, bN, bB, bR, bQ, bK,
     wP = 9, wN, wB, wR, wQ, wK,
     PIECE_NB = 16
@@ -114,7 +114,7 @@ typedef struct {
 
 typedef struct {
 
-    Bitboard colorBBs[3];
+    Bitboard colorBBs[2];
     Bitboard pieceBBs[TYPE_NB];
 
     int board[64];
