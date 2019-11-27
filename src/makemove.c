@@ -34,7 +34,6 @@ static void ClearPiece(const int sq, Position *pos) {
 
     const int piece = pos->board[sq];
     const int color = colorOf(piece);
-    int t_pieceCounts = -1;
 
     assert(ValidPiece(piece));
     assert(ValidSide(color));
@@ -56,17 +55,11 @@ static void ClearPiece(const int sq, Position *pos) {
     if (pieceBig[piece])
         pos->bigPieces[color]--;
 
-    for (int i = 0; i < pos->pieceCounts[piece]; ++i)
-        if (pos->pieceList[piece][i] == sq) {
-            t_pieceCounts = i;
-            break;
-        }
-
-    assert(t_pieceCounts != -1);
-    assert(t_pieceCounts >= 0 && t_pieceCounts < 10);
-
-    // Update piece count
-    pos->pieceList[piece][t_pieceCounts] = pos->pieceList[piece][--pos->pieceCounts[piece]];
+    // Update piece list
+    int lastSquare = pos->pieceList[piece][--pos->pieceCounts[piece]];
+    pos->index[lastSquare] = pos->index[sq];
+    pos->pieceList[piece][pos->index[lastSquare]] = lastSquare;
+    // pos->pieceList[piece][pos->pieceCounts[piece]] = NO_SQ;
 
     // Update bitboards
     CLRBIT(pos->pieceBB[ALL], sq);
@@ -100,7 +93,8 @@ static void AddPiece(const int sq, Position *pos, const int piece) {
     if (pieceBig[piece])
         pos->bigPieces[color]++;
 
-    pos->pieceList[piece][pos->pieceCounts[piece]++] = sq;
+    pos->index[sq] = pos->pieceCounts[piece]++;
+    pos->pieceList[piece][pos->index[sq]] = sq;
 
     // Update bitboards
     SETBIT(pos->pieceBB[ALL], sq);
@@ -110,9 +104,6 @@ static void AddPiece(const int sq, Position *pos, const int piece) {
 
 // Move a piece from one square to another
 static void MovePiece(const int from, const int to, Position *pos) {
-#ifndef NDEBUG
-    int t_PieceNum = false;
-#endif
 
     assert(ValidSquare(from));
     assert(ValidSquare(to));
@@ -130,15 +121,8 @@ static void MovePiece(const int from, const int to, Position *pos) {
     pos->board[to]   = piece;
 
     // Update square for the piece in pieceList
-    for (int i = 0; i < pos->pieceCounts[piece]; ++i)
-        if (pos->pieceList[piece][i] == from) {
-            pos->pieceList[piece][i] = to;
-#ifndef NDEBUG
-            t_PieceNum = true;
-#endif
-            break;
-        }
-    assert(t_PieceNum);
+    pos->index[to] = pos->index[from];
+    pos->pieceList[piece][pos->index[to]] = to;
 
     // Update material
     pos->material += PSQT[piece][to] - PSQT[piece][from];

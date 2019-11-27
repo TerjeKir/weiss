@@ -76,8 +76,9 @@ static void UpdatePosition(Position *pos) {
             // Phase
             pos->basePhase -= phaseValue[piece];
 
-            // Piece list / count
-            pos->pieceList[piece][pos->pieceCounts[piece]++] = sq;
+            // Piece list
+            pos->index[sq] = pos->pieceCounts[piece]++;
+            pos->pieceList[piece][pos->index[sq]] = sq;
 
             // King square
             if (piece == wK) pos->kingSq[WHITE] = sq;
@@ -93,16 +94,17 @@ static void UpdatePosition(Position *pos) {
 // Clears the board
 static void ClearPosition(Position *pos) {
 
+    // Array representation
+    memset(pos->board, 0ULL, sizeof(pos->board));
+
     // Bitboard representations
     memset(pos->colorBB, 0ULL, sizeof(pos->colorBB));
     memset(pos->pieceBB, 0ULL, sizeof(pos->pieceBB));
 
-    // Array representation
-    memset(pos->board, 0ULL, sizeof(pos->board));
-
-    // Piece lists and counts
+    // Piece list
     memset(pos->pieceCounts, 0, sizeof(pos->pieceCounts));
     memset(pos->pieceList,   0, sizeof(pos->pieceList));
+    memset(pos->index,       0, sizeof(pos->index));
 
     // King squares
     pos->kingSq[BLACK] = pos->kingSq[WHITE] = NO_SQ;
