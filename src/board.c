@@ -79,10 +79,6 @@ static void UpdatePosition(Position *pos) {
             // Piece list
             pos->index[sq] = pos->pieceCounts[piece]++;
             pos->pieceList[piece][pos->index[sq]] = sq;
-
-            // King square
-            if (piece == wK) pos->kingSq[WHITE] = sq;
-            if (piece == bK) pos->kingSq[BLACK] = sq;
         }
     }
 
@@ -105,9 +101,6 @@ static void ClearPosition(Position *pos) {
     memset(pos->pieceCounts, 0, sizeof(pos->pieceCounts));
     memset(pos->pieceList,   0, sizeof(pos->pieceList));
     memset(pos->index,       0, sizeof(pos->index));
-
-    // King squares
-    pos->kingSq[BLACK] = pos->kingSq[WHITE] = NO_SQ;
 
     // Big piece counts
     pos->bigPieces[BLACK] = pos->bigPieces[WHITE] = 0;
@@ -334,9 +327,6 @@ bool CheckBoard(const Position *pos) {
     assert(pos->enPas == NO_SQ
        || (pos->enPas >= 40 && pos->enPas < 48 && pos->side == WHITE)
        || (pos->enPas >= 16 && pos->enPas < 24 && pos->side == BLACK));
-
-    assert(pos->board[pos->kingSq[WHITE]] == wK);
-    assert(pos->board[pos->kingSq[BLACK]] == bK);
 
     assert(pos->castlePerm >= 0 && pos->castlePerm <= 15);
 

@@ -122,7 +122,6 @@ typedef struct {
     int pieceList[PIECE_NB][10];
     int index[64];
 
-    int kingSq[2];
     int bigPieces[2];
 
     int material;

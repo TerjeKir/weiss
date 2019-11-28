@@ -95,7 +95,7 @@ static bool checkresult(Position *pos) {
     if (found != 0)
         return false;
 
-    int InCheck = SqAttacked(pos->kingSq[pos->side], !pos->side, pos);
+    int InCheck = SqAttacked(pos->pieceList[makePiece(pos->side, KING)][1], !pos->side, pos);
 
     if (InCheck) {
         if (pos->side == WHITE) {
