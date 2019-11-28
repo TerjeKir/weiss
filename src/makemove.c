@@ -183,10 +183,6 @@ void TakeMove(Position *pos) {
     // Make reverse move (from <-> to)
     MovePiece(to, from, pos);
 
-    // Update king position if king moved
-    if (pieceKing[pos->board[from]])
-        pos->kingSq[pos->side] = from;
-
     // Add back captured piece if any
     int captured = CAPTURED(move);
     if (captured != EMPTY) {
@@ -298,10 +294,7 @@ bool MakeMove(Position *pos, const int move) {
             ClearPiece(to, pos);
             AddPiece(to, pos, promo);
         }
-
-    // Update king position if king moved
-    } else if (pieceKing[pos->board[to]])
-        pos->kingSq[side] = to;
+    }
 
     // Change turn to play
     pos->side ^= 1;
@@ -310,7 +303,7 @@ bool MakeMove(Position *pos, const int move) {
     assert(CheckBoard(pos));
 
     // If own king is attacked after the move, take it back immediately
-    if (SqAttacked(pos->kingSq[side], pos->side, pos)) {
+    if (SqAttacked(pos->pieceList[makePiece(side, KING)][0], pos->side, pos)) {
         TakeMove(pos);
         return false;
     }
@@ -322,7 +315,6 @@ bool MakeMove(Position *pos, const int move) {
 void MakeNullMove(Position *pos) {
 
     assert(CheckBoard(pos));
-    assert(!SqAttacked(pos->kingSq[pos->side], !pos->side, pos));
 
     // Save misc info for takeback
     // pos->history[pos->hisPly].move    = NOMOVE;

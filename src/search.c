@@ -248,7 +248,7 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
     int R;
 
     // Extend search if in check
-    const bool inCheck = SqAttacked(pos->kingSq[pos->side], !pos->side, pos);
+    const bool inCheck = SqAttacked(pos->pieceList[makePiece(pos->side, KING)][0], !pos->side, pos);
     if (inCheck) depth++;
 
     // Quiescence at the end of search

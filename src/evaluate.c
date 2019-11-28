@@ -246,10 +246,11 @@ INLINE int evalQueens(const EvalInfo *ei, const Position *pos, const int color) 
 INLINE int evalKings(const Position *pos, const int color) {
 
     int eval = 0;
+    int kingSq = pos->pieceList[makePiece(color, KING)][0];
 
     // King safety
-    eval += KingLineVulnerability * PopCount(BishopAttacks(pos->kingSq[color], pos->colorBB[color] | pos->pieceBB[PAWN])
-                                             | RookAttacks(pos->kingSq[color], pos->colorBB[color] | pos->pieceBB[PAWN]));
+    eval += KingLineVulnerability * PopCount(BishopAttacks(kingSq, pos->colorBB[color] | pos->pieceBB[PAWN])
+                                             | RookAttacks(kingSq, pos->colorBB[color] | pos->pieceBB[PAWN]));
 
     return eval;
 }
