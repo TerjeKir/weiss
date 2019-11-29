@@ -359,8 +359,8 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
 
         movesTried++;
 
-        bool moveIsNoisy = move & MOVE_IS_NOISY;
-        bool doLMR = depth > 2 && movesTried > (2 + pvNode) && pos->ply && !moveIsNoisy;
+        bool quiet = !(move & MOVE_IS_NOISY);
+        bool doLMR = depth > 2 && movesTried > (2 + pvNode) && pos->ply && quiet;
 
         // Reduced depth zero-window search (-1 depth)
         if (doLMR) {
@@ -405,7 +405,7 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
                 if (score >= beta) {
 
                     // Update killers if quiet move
-                    if (!(move & MOVE_IS_CAPTURE)) {
+                    if (quiet) {
                         pos->searchKillers[1][pos->ply] = pos->searchKillers[0][pos->ply];
                         pos->searchKillers[0][pos->ply] = move;
                     }
@@ -421,7 +421,7 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
                 }
 
                 // Update searchHistory if quiet move and not beta cutoff
-                if (!(move & MOVE_IS_CAPTURE))
+                if (quiet)
                     pos->searchHistory[pos->board[FROMSQ(bestMove)]][TOSQ(bestMove)] += depth;
             }
         }
