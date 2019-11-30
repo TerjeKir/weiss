@@ -323,7 +323,7 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
         score = EvalPosition(pos);
 
         // Razoring
-        if (depth < 2 && pos->ply && score + 500 < alpha)
+        if (!pvNode && depth < 2 && pos->ply && score + 500 < alpha)
             return Quiescence(alpha, beta, pos, info, pv);
 
         // Null Move Pruning
