@@ -322,6 +322,10 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
         // Do a static evaluation for pruning consideration
         score = EvalPosition(pos);
 
+        // Razoring
+        if (depth < 2 && pos->ply && score + 500 < alpha)
+            return Quiescence(alpha, beta, pos, info, pv);
+
         // Null Move Pruning
         if (doNull && score >= beta && pos->ply && (pos->bigPieces[pos->side] > 0) && depth >= 4) {
 
