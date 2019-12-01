@@ -238,6 +238,7 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
     assert(CheckBoard(pos));
 
     const bool pvNode = alpha != beta - 1;
+    const bool root   = !pos->ply;
 
     PV pv_from_here;
     pv->length = 0;
@@ -317,17 +318,21 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
     }
 
     // Skip pruning while in check
-    if (!inCheck) {
+    if (!inCheck && !root) {
 
         // Do a static evaluation for pruning consideration
         score = EvalPosition(pos);
 
         // Razoring
-        if (!pvNode && depth < 2 && pos->ply && score + 500 < alpha)
+        if (!pvNode && depth < 2 && score + 500 < alpha)
             return Quiescence(alpha, beta, pos, info, pv);
 
+        // Reverse Futility Pruning
+        if (!pvNode && depth < 7 && score - 175 * depth >= beta)
+            return score;
+
         // Null Move Pruning
-        if (doNull && score >= beta && pos->ply && (pos->bigPieces[pos->side] > 0) && depth >= 4) {
+        if (doNull && score >= beta && (pos->bigPieces[pos->side] > 0) && depth >= 4) {
 
             MakeNullMove(pos);
             score = -AlphaBeta(-beta, -beta + 1, depth - 4, pos, info, &pv_from_here, false);
