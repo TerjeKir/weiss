@@ -354,6 +354,7 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
     InitNormalMP(&mp, &list, pos, ttMove);
 
     int movesTried = 0;
+    int quietCount = 0;
     const int oldAlpha = alpha;
     int bestMove = NOMOVE;
     int bestScore = -INFINITE;
@@ -363,12 +364,19 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
     int move;
     while ((move = NextMove(&mp))) {
 
+        bool quiet = !(move & MOVE_IS_NOISY);
+
+        if (quiet)
+            quietCount++;
+
+        if (!pvNode && !inCheck && quiet && depth <= 3 && quietCount > 4 * depth * depth)
+            break;
+
         // Make the next predicted best move, skipping illegal ones
         if (!MakeMove(pos, move)) continue;
 
         movesTried++;
 
-        bool quiet = !(move & MOVE_IS_NOISY);
         bool doLMR = depth > 2 && movesTried > (2 + pvNode) && pos->ply && quiet;
 
         // Reduced depth zero-window search (-1 depth)
