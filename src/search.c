@@ -418,6 +418,10 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
                 pv->line[0] = move;
                 memcpy(pv->line + 1, pv_from_here.line, sizeof(int) * pv_from_here.length);
 
+                // Update searchHistory if quiet move and not beta cutoff
+                if (quiet)
+                    pos->searchHistory[pos->board[FROMSQ(bestMove)]][TOSQ(bestMove)] += depth;
+
                 // If score beats beta we have a cutoff
                 if (score >= beta) {
 
@@ -436,10 +440,6 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
 
                     return score;
                 }
-
-                // Update searchHistory if quiet move and not beta cutoff
-                if (quiet)
-                    pos->searchHistory[pos->board[FROMSQ(bestMove)]][TOSQ(bestMove)] += depth;
             }
         }
     }
