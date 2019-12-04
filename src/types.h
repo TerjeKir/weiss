@@ -143,7 +143,7 @@ typedef struct {
     HashTable hashTable[1];
 
     int searchHistory[PIECE_NB][64];
-    int searchKillers[2][MAXDEPTH];
+    int searchKillers[MAXDEPTH][2];
 
 } Position;
 
