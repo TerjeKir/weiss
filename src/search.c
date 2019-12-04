@@ -422,9 +422,9 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
                 if (score >= beta) {
 
                     // Update killers if quiet move
-                    if (quiet && pos->searchKillers[0][pos->ply] != move) {
-                        pos->searchKillers[1][pos->ply] = pos->searchKillers[0][pos->ply];
-                        pos->searchKillers[0][pos->ply] = move;
+                    if (quiet && pos->searchKillers[pos->ply][0] != move) {
+                        pos->searchKillers[pos->ply][1] = pos->searchKillers[pos->ply][0];
+                        pos->searchKillers[pos->ply][0] = move;
                     }
 
     #ifdef SEARCH_STATS
