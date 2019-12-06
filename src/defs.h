@@ -2,7 +2,7 @@
 
 #pragma once
 
-#define NAME "weiss 0.7-dev"
+#define NAME "weiss 0.7"
 
 #define NDEBUG
 #include <assert.h>
