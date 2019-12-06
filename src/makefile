@@ -7,16 +7,17 @@ OUT	   = ../bin/
 
 # Defines
 DEV    = -DDEV
-PEXT   = -DUSE_PEXT -mbmi2
+POPCNT = -msse3 -mpopcnt
+PEXT   = $(POPCNT) -DUSE_PEXT -mbmi2
 
 # Flags
 STD    = -std=gnu11
 LIBS   = -pthread -lm
 WARN   = -Wall -Wextra -Wshadow
-OPTIM  = -O3 -march=native -flto
 
-CFLAGS = $(STD) $(WARN) $(OPTIM)
-PFLAGS = $(STD) $(WARN) $(LIBS) -O0 -march=native -pg -p
+CFLAGS = $(STD) $(WARN) -O3 -flto -march=native
+RFLAGS = $(STD) $(WARN) -O3 -flto -static
+PFLAGS = $(STD) $(WARN) -O0 -march=native -pg -p
 
 # PGO
 PGODIR = "../pgo"
@@ -54,3 +55,8 @@ pgo:
 
 gprof:
 	gcc $(PFLAGS) $(SRC) $(LIBS) $(PEXT)           -o "$(OUT)$(EXE)-prof"
+
+release:
+	gcc $(RFLAGS) $(SRC) $(LIBS)                   -o "$(OUT)$(EXE)-nopopcnt.exe"
+	gcc $(RFLAGS) $(SRC) $(LIBS) $(POPCNT)         -o "$(OUT)$(EXE)-popcnt.exe"
+	gcc $(RFLAGS) $(SRC) $(LIBS) $(PEXT)           -o "$(OUT)$(EXE)-pext.exe"
