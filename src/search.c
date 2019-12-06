@@ -146,7 +146,7 @@ static int QuiescenceDeltaMargin(const Position *pos) {
          : (enemy & pos->pieceBB[ROOK  ]) ? DeltaBase + R_MG
          : (enemy & pos->pieceBB[BISHOP]) ? DeltaBase + B_MG
          : (enemy & pos->pieceBB[KNIGHT]) ? DeltaBase + N_MG
-                                           : DeltaBase + P_MG;
+                                          : DeltaBase + P_MG;
 }
 
 // Quiescence
@@ -203,6 +203,7 @@ static int Quiescence(int alpha, const int beta, Position *pos, SearchInfo *info
 
         movesTried++;
 
+        // Found a new best move in this position
         if (score > bestScore) {
 
             bestScore = score;
@@ -265,8 +266,8 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
     if (pos->ply > info->seldepth)
         info->seldepth = pos->ply;
 
-    // Early exits (not in root node)
-    if (pos->ply) {
+    // Early exits
+    if (!root) {
 
         // Position is drawn
         if (IsRepetition(pos) || pos->fiftyMove >= 100)
@@ -369,6 +370,7 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
         if (quiet)
             quietCount++;
 
+        // Late move pruning
         if (!pvNode && !inCheck && quiet && depth <= 3 && quietCount > 4 * depth * depth)
             break;
 
@@ -379,7 +381,7 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
 
         bool doLMR = depth > 2 && movesTried > (2 + pvNode) && pos->ply && quiet;
 
-        // Reduced depth zero-window search (-1 depth)
+        // Reduced depth zero-window search
         if (doLMR) {
             // Base reduction
             R  = Reductions[MIN(31, depth)][MIN(31, movesTried)];
@@ -418,7 +420,7 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
                 pv->line[0] = move;
                 memcpy(pv->line + 1, pv_from_here.line, sizeof(int) * pv_from_here.length);
 
-                // Update searchHistory if quiet move and not beta cutoff
+                // Update search history
                 if (quiet)
                     pos->searchHistory[pos->board[FROMSQ(bestMove)]][TOSQ(bestMove)] += depth;
 
