@@ -325,11 +325,11 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
         score = EvalPosition(pos);
 
         // Razoring
-        if (!pvNode && depth < 2 && score + 500 < alpha)
+        if (!pvNode && depth < 2 && score + 640 < alpha)
             return Quiescence(alpha, beta, pos, info, pv);
 
         // Reverse Futility Pruning
-        if (!pvNode && depth < 7 && score - 175 * depth >= beta)
+        if (!pvNode && depth < 7 && score - 225 * depth >= beta)
             return score;
 
         // Null Move Pruning
@@ -467,7 +467,7 @@ static int AspirationWindow(Position *pos, SearchInfo *info) {
 
     const int score = info->score;
     // Dynamic bonus increasing initial window and delta
-    const int bonus = (score * score) / 16;
+    const int bonus = (score * score) / 32;
     // Delta used for initial window and widening
     const int delta = (P_MG / 2) + bonus;
     // Initial window
