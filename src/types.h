@@ -104,12 +104,6 @@ typedef struct {
     HashEntry *TT;
     int numEntries;
     uint64_t MB;
-#ifdef SEARCH_STATS
-    int newWrite;
-    int overWrite;
-    int hit;
-    int cut;
-#endif
 } HashTable;
 
 typedef struct {
@@ -158,12 +152,6 @@ typedef struct {
 
     uint64_t nodes;
     uint64_t tbhits;
-
-#ifdef SEARCH_STATS
-    float fh;
-    float fhf;
-    int nullCut;
-#endif
 
     PV pv;
     int bestMove;

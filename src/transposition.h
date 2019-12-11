@@ -15,10 +15,6 @@ enum { BOUND_NONE, BOUND_UPPER, BOUND_LOWER, BOUND_EXACT };
 
 void ClearHashTable(HashTable *table);
 void  InitHashTable(HashTable *table, uint64_t MB);
-#ifdef SEARCH_STATS
-bool  ProbeHashEntry(Position *pos, int *move, int *score, const int alpha, const int beta, const int depth);
-#else
 bool  ProbeHashEntry(const Position *pos, int *move, int *score, const int alpha, const int beta, const int depth);
-#endif
 void StoreHashEntry(Position *pos, const int move, const int score, const int flag, const int depth);
 int HashFull(const Position *pos);

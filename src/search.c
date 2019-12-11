@@ -63,13 +63,6 @@ static void ClearForSearch(Position *pos, SearchInfo *info) {
     info->nodes    = 0;
     info->tbhits   = 0;
     info->seldepth = 0;
-#ifdef SEARCH_STATS
-    pos->hashTable->hit = 0;
-    pos->hashTable->cut = 0;
-    pos->hashTable->overWrite = 0;
-    info->fh  = 0;
-    info->fhf = 0;
-#endif
 }
 
 // Print thinking
@@ -103,12 +96,6 @@ static void PrintThinking(const SearchInfo *info, Position *pos) {
         printf(" %s", MoveToStr(info->pv.line[i]));
 
     printf("\n");
-
-#ifdef SEARCH_STATS
-    if (info->nodes > (uint64_t)depth)
-        printf("Stats: Hits: %d Overwrite: %d NewWrite: %d Cut: %d\nOrdering %.2f NullCut: %d\n", pos->hashTable->hit,
-            pos->hashTable->overWrite, pos->hashTable->newWrite, pos->hashTable->cut, (info->fhf/info->fh)*100, info->nullCut);
-#endif
     fflush(stdout);
 }
 
@@ -218,14 +205,8 @@ static int Quiescence(int alpha, const int beta, Position *pos, SearchInfo *info
                 memcpy(pv->line + 1, pvFromHere.line, sizeof(int) * pvFromHere.length);
 
                 // If score beats beta we have a cutoff
-                if (score >= beta) {
-
-        #ifdef SEARCH_STATS
-                    if (movesTried == 1) info->fhf++;
-                    info->fh++;
-        #endif
+                if (score >= beta)
                     return score;
-                }
             }
         }
     }
@@ -288,12 +269,8 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
     int ttMove = NOMOVE;
 
     // Probe transposition table
-    if (ProbeHashEntry(pos, &ttMove, &score, alpha, beta, depth) && !pvNode) {
-#ifdef SEARCH_STATS
-        pos->hashTable->cut++;
-#endif
+    if (ProbeHashEntry(pos, &ttMove, &score, alpha, beta, depth) && !pvNode)
         return score;
-    }
 
     // Probe syzygy TBs
     unsigned tbresult;
@@ -341,9 +318,6 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
 
             // Cutoff
             if (score >= beta) {
-#ifdef SEARCH_STATS
-                info->nullCut++;
-#endif
                 // Don't return unproven mate scores
                 if (score >= ISMATE)
                     score = beta;
@@ -432,11 +406,6 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
                         pos->searchKillers[pos->ply][1] = pos->searchKillers[pos->ply][0];
                         pos->searchKillers[pos->ply][0] = move;
                     }
-
-    #ifdef SEARCH_STATS
-                    if (movesTried == 1) info->fhf++;
-                    info->fh++;
-    #endif
 
                     StoreHashEntry(pos, move, score, BOUND_LOWER, depth);
 
