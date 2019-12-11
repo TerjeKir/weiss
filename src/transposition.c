@@ -14,10 +14,6 @@
 void ClearHashTable(HashTable *table) {
 
     memset(table->TT, 0, table->numEntries * sizeof(HashEntry));
-
-#ifdef SEARCH_STATS
-    table->newWrite = 0;
-#endif
 }
 
 // Initializes the hash table
@@ -51,9 +47,6 @@ void InitHashTable(HashTable *table, uint64_t MB) {
 
     // Success
     } else {
-#ifdef SEARCH_STATS
-        table->newWrite = 0;
-#endif
         table->MB = MB;
         printf("HashTable init complete with %d entries, using %" PRIu64 "MB.\n", table->numEntries, MB);
         fflush(stdout);
@@ -75,11 +68,7 @@ INLINE int ScoreFromTT (int score, const int ply) {
 }
 
 // Probe the hash table
-#ifdef SEARCH_STATS
-bool ProbeHashEntry(Position *pos, int *move, int *score, const int alpha, const int beta, const int depth) {
-#else
 bool ProbeHashEntry(const Position *pos, int *move, int *score, const int alpha, const int beta, const int depth) {
-#endif
 
     assert(alpha < beta);
     assert(alpha >= -INFINITE && alpha <= INFINITE);
@@ -105,10 +94,6 @@ bool ProbeHashEntry(const Position *pos, int *move, int *score, const int alpha,
 
             assert(-INFINITE <= *score && *score <= INFINITE);
 
-#ifdef SEARCH_STATS
-            pos->hashTable->hit++;
-#endif
-
             // Return true if the score is usable
             uint8_t flag = pos->hashTable->TT[index].flag;
             if (   (flag == BOUND_UPPER && *score <= alpha)
@@ -129,13 +114,6 @@ void StoreHashEntry(Position *pos, const int move, const int score, const int fl
     assert(pos->ply >= 0 && pos->ply < MAXDEPTH);
 
     const int index = pos->posKey % pos->hashTable->numEntries;
-
-#ifdef SEARCH_STATS
-    if (pos->hashTable->TT[index].posKey == 0)
-        pos->hashTable->newWrite++;
-    else
-        pos->hashTable->overWrite++;
-#endif
 
     pos->hashTable->TT[index].posKey = pos->posKey;
     pos->hashTable->TT[index].move   = move;
