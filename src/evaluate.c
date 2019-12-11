@@ -16,38 +16,38 @@ static Bitboard PassedMask[2][64];
 static Bitboard IsolatedMask[64];
 
 // Various bonuses and maluses
-static const int PawnPassed[8] = { 0, S(5, 5), S(10, 10), S(20, 20), S(35, 35), S(60, 60), S(100, 100), 0 };
-static const int PawnIsolated = S(-15, -14);
+static const int PawnPassed[8] = { 0, S(6, 6), S(13, 13), S(25, 25), S(45, 45), S(75, 75), S(130, 130), 0 };
+static const int PawnIsolated = S(-20, -18);
 
-static const int  RookOpenFile = S(20, 10);
-static const int QueenOpenFile = S(10, 15);
-static const int  RookSemiOpenFile = S(10, 15);
-static const int QueenSemiOpenFile = S(8, 5);
+static const int  RookOpenFile = S(25, 13);
+static const int QueenOpenFile = S(13, 20);
+static const int  RookSemiOpenFile = S(13, 20);
+static const int QueenSemiOpenFile = S(10, 6);
 
-static const int BishopPair = S(50, 50);
+static const int BishopPair = S(65, 65);
 
-static const int KingLineVulnerability = S(-8, 0);
+static const int KingLineVulnerability = S(-10, 0);
 
 // Mobility
 static const int KnightMobility[9] = {
-    S(-50, -50), S(-25, -25), S(-15, -15), S(0, 0), S(15, 15), S(25, 25), S(35, 35), S(40, 40), S(50, 50)
+    S(-65, -65), S(-32, -32), S(-20, -20), S(0, 0), S(20, 20), S(32, 32), S(45, 45), S(50, 50), S(65, 65)
 };
 
 static const int BishopMobility[14] = {
-    S(-50, -50), S(-35, -35), S(-25, -25), S(-10, -10), S( 0,  0), S(10, 10), S(15, 15),
-    S( 20,  20), S( 25,  25), S( 30,  30), S( 35,  35), S(40, 40), S(45, 45), S(50, 50)
+    S(-65, -65), S(-45, -45), S(-32, -32), S(-13, -13), S( 0,  0), S(13, 13), S(20, 20),
+    S( 25,  25), S( 32,  32), S( 38,  38), S( 45,  45), S(50, 50), S(57, 57), S(65, 65)
 };
 
 static const int RookMobility[15] = {
-    S(-50, -50), S(-35, -35), S(-25, -25), S(-10, -10), S( 0,  0), S(10, 10), S(15, 15),
-    S( 20,  20), S( 25,  25), S( 30,  30), S( 35,  35), S(40, 40), S(45, 45), S(50, 50), S(55, 55)
+    S(-65, -65), S(-45, -45), S(-32, -32), S(-13, -13), S( 0,  0), S(13, 13), S(20, 20),
+    S( 25,  25), S( 32,  32), S( 38,  38), S( 45,  45), S(50, 50), S(57, 57), S(65, 65), S(70, 70)
 };
 
 static const int QueenMobility[28] = {
-    S(-50, -50), S(-45, -45), S(-40, -40), S(-35, -35), S(-30, -30), S(-25, -25), S(-20, -20),
-    S(-15, -15), S(-10, -10), S( -5,  -5), S(  0,   0), S(  5,   5), S( 10,  10), S( 15,  15),
-    S( 20,  20), S( 25,  25), S( 30,  30), S( 35,  35), S( 40,  40), S( 45,  45), S( 50,  50),
-    S( 55,  55), S( 60,  60), S( 65,  65), S( 70,  70), S( 75,  75), S( 80,  80), S( 85,  85)
+    S(-65, -65), S(-57, -57), S(-50, -50), S(-45, -45), S(-38, -38), S(-32, -32), S(-25, -25),
+    S(-20, -20), S(-13, -13), S( -6,  -6), S(  0,   0), S(  6,   6), S( 13,  13), S( 20,  20),
+    S( 25,  25), S( 32,  32), S( 38,  38), S( 45,  45), S( 50,  50), S( 57,  57), S( 65,  65),
+    S( 70,  70), S( 75,  75), S( 83,  83), S( 90,  90), S( 95,  95), S( 100,  100), S( 105,  105)
 };
 
 
