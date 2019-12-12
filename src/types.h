@@ -44,7 +44,7 @@ typedef enum Piece {
 enum PieceValue {
     P_MG =  128, P_EG =  140,
     N_MG =  430, N_EG =  450,
-    B_MG =  430, B_EG =  450,
+    B_MG =  450, B_EG =  475,
     R_MG =  700, R_EG =  740,
     Q_MG = 1280, Q_EG = 1400
 };
