@@ -328,7 +328,7 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
         // Internal iterative deepening
         if (depth >= 4 && !ttMove) {
 
-            AlphaBeta(alpha, beta, depth - 4, pos, info, &pv_from_here, true);
+            AlphaBeta(alpha, beta, MIN(6, depth - 4), pos, info, &pv_from_here, true);
 
             ProbeHashEntry(pos, &ttMove, &score, alpha, beta, depth);
         }
