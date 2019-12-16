@@ -324,6 +324,14 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
                 return score;
             }
         }
+
+        // Internal iterative deepening
+        if (depth >= 4 && !ttMove) {
+
+            AlphaBeta(alpha, beta, MAX(1, MIN(depth / 2, depth - 4)), pos, info, &pv_from_here, false);
+
+            ProbeHashEntry(pos, &ttMove, &score, alpha, beta, depth);
+        }
     }
 
     InitNormalMP(&mp, &list, pos, ttMove);
