@@ -305,7 +305,7 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
             || (flag == BOUND_LOWER && val >= beta)
             || (flag == BOUND_UPPER && val <= alpha)) {
 
-            StoreTTEntry(pos, NOMOVE, val, flag, MAXDEPTH-1);
+            StoreTTEntry(tte, posKey, NOMOVE, val, MAXDEPTH-1, flag);
             return val;
         }
     }
@@ -455,7 +455,7 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
                    : alpha != oldAlpha ? BOUND_EXACT
                                        : BOUND_UPPER;
 
-    StoreTTEntry(pos, bestMove, bestScore, flag, depth);
+    StoreTTEntry(tte, posKey, bestMove, ScoreToTT(bestScore, pos->ply), depth, flag);
 
     return bestScore;
 }

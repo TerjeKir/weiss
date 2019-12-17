@@ -10,13 +10,13 @@
 #include "transposition.h"
 
 
-// Clears the hash table
+// Clears the transposition table
 void ClearTT(TT *table) {
 
     memset(table->TT, 0, table->numEntries * sizeof(TTEntry));
 }
 
-// Initializes the hash table
+// Initializes the transposition table
 void InitTT(TT *table, uint64_t MB) {
 
     // Ignore if already initialized with this size
@@ -53,7 +53,7 @@ void InitTT(TT *table, uint64_t MB) {
     }
 }
 
-// Probe the TT
+// Probe the transposition table
 TTEntry* ProbeTT(const Position *pos, const uint64_t posKey, bool *ttHit) {
 
     TTEntry* tte = &pos->hashTable->TT[pos->posKey % pos->hashTable->numEntries];
@@ -63,24 +63,18 @@ TTEntry* ProbeTT(const Position *pos, const uint64_t posKey, bool *ttHit) {
     return tte;
 }
 
-// Store an entry in the hash table
-void StoreTTEntry(Position *pos, const int move, const int score, const int flag, const int depth) {
+// Store an entry in the transposition table
+void StoreTTEntry(TTEntry *tte, const uint64_t posKey, const int move, const int score, const int depth, const int flag) {
 
     assert(-INFINITE <= score && score <= INFINITE);
     assert(flag >= BOUND_UPPER && flag <= BOUND_EXACT);
     assert(depth >= 1 && depth < MAXDEPTH);
-    assert(pos->ply >= 0 && pos->ply < MAXDEPTH);
 
-    const int index = pos->posKey % pos->hashTable->numEntries;
-
-    pos->hashTable->TT[index].posKey = pos->posKey;
-    pos->hashTable->TT[index].move   = move;
-    pos->hashTable->TT[index].score  = ScoreToTT(score, pos->ply);
-    pos->hashTable->TT[index].depth  = depth;
-    pos->hashTable->TT[index].flag   = flag;
-
-    assert(pos->hashTable->TT[index].score >= -INFINITE);
-    assert(pos->hashTable->TT[index].score <=  INFINITE);
+    tte->posKey = posKey;
+    tte->move   = move;
+    tte->score  = score;
+    tte->depth  = depth;
+    tte->flag   = flag;
 }
 
 // Estimates the load factor of the transposition table (1 = 0.1%)
