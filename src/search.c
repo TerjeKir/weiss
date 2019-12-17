@@ -271,7 +271,7 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
 
     bool ttHit = tte.posKey == posKey;
     int ttMove  = ttHit ? tte.move : NOMOVE;
-    int ttScore = ttHit ? ScoreFromTT(tte.score, pos->ply) : 32502;
+    int ttScore = ttHit ? ScoreFromTT(tte.score, pos->ply) : NOSCORE;
 
     // Trust the ttScore in non-pvNodes as long as the entry depth is equal or higher
     if (!pvNode && ttHit && tte.depth >= depth) {
