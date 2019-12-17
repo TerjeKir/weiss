@@ -206,7 +206,7 @@ static int Quiescence(int alpha, const int beta, Position *pos, SearchInfo *info
 
                 // If score beats beta we have a cutoff
                 if (score >= beta)
-                    return score;
+                    break;
             }
         }
     }
@@ -295,7 +295,7 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
         }
     }
 
-    // Skip pruning while in check
+    // Skip pruning while in check and at the root
     if (!inCheck && !root) {
 
         // Do a static evaluation for pruning consideration
@@ -415,9 +415,7 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
                         pos->searchKillers[pos->ply][0] = move;
                     }
 
-                    StoreHashEntry(pos, move, score, BOUND_LOWER, depth);
-
-                    return score;
+                    break;
                 }
             }
         }
@@ -433,7 +431,10 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
     assert(bestScore <=  INFINITE);
     assert(bestScore >= -INFINITE);
 
-    const int flag = alpha != oldAlpha ? BOUND_EXACT : BOUND_UPPER;
+    const int flag = bestScore >= beta ? BOUND_LOWER
+                   : alpha != oldAlpha ? BOUND_EXACT
+                                       : BOUND_UPPER;
+
     StoreHashEntry(pos, bestMove, bestScore, flag, depth);
 
     return bestScore;
