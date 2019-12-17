@@ -281,9 +281,8 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
         assert(-INFINITE <= ttScore && ttScore <= INFINITE);
 
         // Check if ttScore causes a cutoff
-        if (   (tte.flag == BOUND_UPPER && ttScore <= alpha)
-            || (tte.flag == BOUND_LOWER && ttScore >= beta)
-            ||  tte.flag == BOUND_EXACT)
+        if (ttScore >= beta ? tte.flag & BOUND_LOWER
+                            : tte.flag & BOUND_UPPER)
 
             return ttScore;
     }
