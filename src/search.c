@@ -266,23 +266,23 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
     }
 
     // Probe transposition table
+    bool ttHit;
     uint64_t posKey = pos->posKey;
-    TTEntry tte = pos->hashTable->TT[pos->posKey % pos->hashTable->numEntries];
+    TTEntry *tte = ProbeTT(pos, posKey, &ttHit);
 
-    bool ttHit = tte.posKey == posKey;
-    int ttMove  = ttHit ? tte.move : NOMOVE;
-    int ttScore = ttHit ? ScoreFromTT(tte.score, pos->ply) : NOSCORE;
+    int ttMove  = ttHit ? tte->move : NOMOVE;
+    int ttScore = ttHit ? ScoreFromTT(tte->score, pos->ply) : NOSCORE;
 
     // Trust the ttScore in non-pvNodes as long as the entry depth is equal or higher
-    if (!pvNode && ttHit && tte.depth >= depth) {
+    if (!pvNode && ttHit && tte->depth >= depth) {
 
-        assert(tte.depth >= 1 && tte.depth < MAXDEPTH);
-        assert(tte.flag >= BOUND_UPPER && tte.flag <= BOUND_EXACT);
+        assert(tte->depth >= 1 && tte->depth < MAXDEPTH);
+        assert(tte->flag >= BOUND_UPPER && tte->flag <= BOUND_EXACT);
         assert(-INFINITE <= ttScore && ttScore <= INFINITE);
 
         // Check if ttScore causes a cutoff
-        if (ttScore >= beta ? tte.flag & BOUND_LOWER
-                            : tte.flag & BOUND_UPPER)
+        if (ttScore >= beta ? tte->flag & BOUND_LOWER
+                            : tte->flag & BOUND_UPPER)
 
             return ttScore;
     }
@@ -347,11 +347,10 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
 
             AlphaBeta(alpha, beta, MAX(1, MIN(depth / 2, depth - 4)), pos, info, &pv_from_here, false);
 
-            tte = pos->hashTable->TT[pos->posKey % pos->hashTable->numEntries];
+            tte = ProbeTT(pos, posKey, &ttHit);
 
-            ttHit = tte.posKey == posKey;
-            ttMove  = ttHit ? tte.move : NOMOVE;
-            ttScore = ttHit ? ScoreFromTT(tte.score, pos->ply) : 32502;
+            ttMove  = ttHit ? tte->move : NOMOVE;
+            ttScore = ttHit ? ScoreFromTT(tte->score, pos->ply) : 32502;
         }
     }
 

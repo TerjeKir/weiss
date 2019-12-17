@@ -53,6 +53,16 @@ void InitTT(TT *table, uint64_t MB) {
     }
 }
 
+// Probe the TT
+TTEntry* ProbeTT(const Position *pos, const uint64_t posKey, bool *ttHit) {
+
+    TTEntry* tte = &pos->hashTable->TT[pos->posKey % pos->hashTable->numEntries];
+
+    *ttHit = tte->posKey == posKey;
+
+    return tte;
+}
+
 // Store an entry in the hash table
 void StoreTTEntry(Position *pos, const int move, const int score, const int flag, const int depth) {
 
