@@ -13,8 +13,21 @@
 enum { BOUND_NONE, BOUND_UPPER, BOUND_LOWER, BOUND_EXACT };
 
 
-void ClearHashTable(HashTable *table);
-void  InitHashTable(HashTable *table, uint64_t MB);
-bool  ProbeHashEntry(const Position *pos, int *move, int *score, const int alpha, const int beta, const int depth);
-void StoreHashEntry(Position *pos, const int move, const int score, const int flag, const int depth);
+// Mate scores are stored as mate in 0 as they depend on the current ply
+INLINE int ScoreToTT (int score, const int ply) {
+    return score >=  ISMATE ? score + ply
+         : score <= -ISMATE ? score - ply
+                            : score;
+}
+
+// Translates from mate in 0 to the proper mate score at current ply
+INLINE int ScoreFromTT (int score, const int ply) {
+    return score >=  ISMATE ? score - ply
+         : score <= -ISMATE ? score + ply
+                            : score;
+}
+
+void ClearTT(TT *table);
+void  InitTT(TT *table, uint64_t MB);
+void StoreTTEntry(Position *pos, const int move, const int score, const int flag, const int depth);
 int HashFull(const Position *pos);

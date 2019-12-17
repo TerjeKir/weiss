@@ -265,12 +265,28 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
             return alpha;
     }
 
-    int score = -INFINITE;
-    int ttMove = NOMOVE;
-
     // Probe transposition table
-    if (ProbeHashEntry(pos, &ttMove, &score, alpha, beta, depth) && !pvNode)
-        return score;
+    uint64_t posKey = pos->posKey;
+    TTEntry tte = pos->hashTable->TT[pos->posKey % pos->hashTable->numEntries];
+
+    bool ttHit = tte.posKey == posKey;
+    int ttMove  = ttHit ? tte.move : NOMOVE;
+    int ttScore = ttHit ? ScoreFromTT(tte.score, pos->ply) : 32502;
+
+    // Trust the ttScore in non-pvNodes as long as the entry depth is equal or higher
+    if (!pvNode && ttHit && tte.depth >= depth) {
+
+        assert(tte.depth >= 1 && tte.depth < MAXDEPTH);
+        assert(tte.flag >= BOUND_UPPER && tte.flag <= BOUND_EXACT);
+        assert(-INFINITE <= ttScore && ttScore <= INFINITE);
+
+        // Return true if the score is usable
+        if (   (tte.flag == BOUND_UPPER && ttScore <= alpha)
+            || (tte.flag == BOUND_LOWER && ttScore >= beta)
+            ||  tte.flag == BOUND_EXACT)
+
+            return ttScore;
+    }
 
     // Probe syzygy TBs
     unsigned tbresult;
@@ -290,10 +306,12 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
             || (flag == BOUND_LOWER && val >= beta)
             || (flag == BOUND_UPPER && val <= alpha)) {
 
-            StoreHashEntry(pos, NOMOVE, val, flag, MAXDEPTH-1);
+            StoreTTEntry(pos, NOMOVE, val, flag, MAXDEPTH-1);
             return val;
         }
     }
+
+    int score = -INFINITE;
 
     // Skip pruning while in check and at the root
     if (!inCheck && !root) {
@@ -330,7 +348,11 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
 
             AlphaBeta(alpha, beta, MAX(1, MIN(depth / 2, depth - 4)), pos, info, &pv_from_here, false);
 
-            ProbeHashEntry(pos, &ttMove, &score, alpha, beta, depth);
+            tte = pos->hashTable->TT[pos->posKey % pos->hashTable->numEntries];
+
+            ttHit = tte.posKey == posKey;
+            ttMove  = ttHit ? tte.move : NOMOVE;
+            ttScore = ttHit ? ScoreFromTT(tte.score, pos->ply) : 32502;
         }
     }
 
@@ -435,7 +457,7 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
                    : alpha != oldAlpha ? BOUND_EXACT
                                        : BOUND_UPPER;
 
-    StoreHashEntry(pos, bestMove, bestScore, flag, depth);
+    StoreTTEntry(pos, bestMove, bestScore, flag, depth);
 
     return bestScore;
 }

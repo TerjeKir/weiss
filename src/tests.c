@@ -34,7 +34,7 @@ void benchmark(int depth, Position *pos, SearchInfo *info) {
         info->starttime = GetTimeMs();
         SearchPosition(pos, info);
         nodes += info->nodes;
-        ClearHashTable(pos->hashTable);
+        ClearTT(pos->hashTable);
     }
 
     int elapsed = GetTimeMs() - startTime;
@@ -289,7 +289,7 @@ search:
                 // Clear lineIn for reuse
                 memset(&lineIn[0], 0, sizeof(lineIn));
                 // Clear TT
-                ClearHashTable(pos->hashTable);
+                ClearTT(pos->hashTable);
             }
         }
     }

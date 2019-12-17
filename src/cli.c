@@ -127,7 +127,7 @@ void Console_Loop(Position *pos, SearchInfo *info) {
 
     ParseFen(START_FEN, pos);
 
-    InitHashTable(pos->hashTable, 256);
+    InitTT(pos->hashTable, 256);
 
     tb_init("F:\\Syzygy");
 
@@ -214,7 +214,7 @@ void Console_Loop(Position *pos, SearchInfo *info) {
         }
 
         if (!strcmp(command, "new")) {
-            ClearHashTable(pos->hashTable);
+            ClearTT(pos->hashTable);
             engineSide = BLACK;
             ParseFen(START_FEN, pos);
             continue;

@@ -98,13 +98,13 @@ typedef struct {
     int16_t score;
     uint8_t depth;
     uint8_t flag;
-} HashEntry;
+} TTEntry;
 
 typedef struct {
-    HashEntry *TT;
+    TTEntry *TT;
     int numEntries;
     uint64_t MB;
-} HashTable;
+} TT;
 
 typedef struct {
 
@@ -134,7 +134,7 @@ typedef struct {
 
     Undo history[MAXGAMEMOVES];
 
-    HashTable hashTable[1];
+    TT hashTable[1];
 
     int searchHistory[PIECE_NB][64];
     int searchKillers[MAXDEPTH][2];
