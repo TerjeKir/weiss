@@ -147,7 +147,7 @@ static void SetOption(Position *pos, SearchInfo *info, char *line) {
     if (BeginsWith(line, "setoption name Hash value ")) {
         int MB;
         sscanf(line, "%*s %*s %*s %*s %d", &MB);
-        InitHashTable(pos->hashTable, MB);
+        InitTT(pos->hashTable, MB);
 
     } else if (BeginsWith(line, "setoption name SyzygyPath value ")) {
 
@@ -197,7 +197,7 @@ int main(int argc, char **argv) {
     Position pos[1];
     SearchInfo info[1];
     pos->hashTable->TT = NULL;
-    InitHashTable(pos->hashTable, DEFAULTHASH);
+    InitTT(pos->hashTable, DEFAULTHASH);
 
     // Benchmark
     if (argc > 1 && strstr(argv[1], "bench")) {
@@ -230,7 +230,7 @@ int main(int argc, char **argv) {
             ParsePosition(line, pos);
 
         else if (BeginsWith(line, "ucinewgame"))
-            ClearHashTable(pos->hashTable);
+            ClearTT(pos->hashTable);
 
         else if (BeginsWith(line, "stop"))
             ABORT_SIGNAL = true,

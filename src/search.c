@@ -265,12 +265,27 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
             return alpha;
     }
 
-    int score = -INFINITE;
-    int ttMove = NOMOVE;
-
     // Probe transposition table
-    if (ProbeHashEntry(pos, &ttMove, &score, alpha, beta, depth) && !pvNode)
-        return score;
+    bool ttHit;
+    uint64_t posKey = pos->posKey;
+    TTEntry *tte = ProbeTT(pos, posKey, &ttHit);
+
+    int ttMove  = ttHit ? tte->move : NOMOVE;
+    int ttScore = ttHit ? ScoreFromTT(tte->score, pos->ply) : NOSCORE;
+
+    // Trust the ttScore in non-pvNodes as long as the entry depth is equal or higher
+    if (!pvNode && ttHit && tte->depth >= depth) {
+
+        assert(tte->depth >= 1 && tte->depth < MAXDEPTH);
+        assert(tte->flag >= BOUND_UPPER && tte->flag <= BOUND_EXACT);
+        assert(-INFINITE <= ttScore && ttScore <= INFINITE);
+
+        // Check if ttScore causes a cutoff
+        if (ttScore >= beta ? tte->flag & BOUND_LOWER
+                            : tte->flag & BOUND_UPPER)
+
+            return ttScore;
+    }
 
     // Probe syzygy TBs
     unsigned tbresult;
@@ -290,10 +305,12 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
             || (flag == BOUND_LOWER && val >= beta)
             || (flag == BOUND_UPPER && val <= alpha)) {
 
-            StoreHashEntry(pos, NOMOVE, val, flag, MAXDEPTH-1);
+            StoreTTEntry(tte, posKey, NOMOVE, val, MAXDEPTH-1, flag);
             return val;
         }
     }
+
+    int score = -INFINITE;
 
     // Skip pruning while in check and at the root
     if (!inCheck && !root) {
@@ -330,7 +347,10 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
 
             AlphaBeta(alpha, beta, MAX(1, MIN(depth / 2, depth - 4)), pos, info, &pv_from_here, false);
 
-            ProbeHashEntry(pos, &ttMove, &score, alpha, beta, depth);
+            tte = ProbeTT(pos, posKey, &ttHit);
+
+            ttMove  = ttHit ? tte->move : NOMOVE;
+            ttScore = ttHit ? ScoreFromTT(tte->score, pos->ply) : 32502;
         }
     }
 
@@ -435,7 +455,7 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
                    : alpha != oldAlpha ? BOUND_EXACT
                                        : BOUND_UPPER;
 
-    StoreHashEntry(pos, bestMove, bestScore, flag, depth);
+    StoreTTEntry(tte, posKey, bestMove, ScoreToTT(bestScore, pos->ply), depth, flag);
 
     return bestScore;
 }
