@@ -465,7 +465,7 @@ static int AspirationWindow(Position *pos, SearchInfo *info) {
 
     const int score = info->score;
     // Dynamic bonus increasing initial window and delta
-    const int bonus = (score * score) / 64;
+    const int bonus = (score * score) / 256;
     // Delta used for initial window and widening
     const int delta = (P_MG / 2) + bonus;
     // Initial window
