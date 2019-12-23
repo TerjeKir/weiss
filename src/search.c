@@ -76,7 +76,7 @@ static void PrintThinking(const SearchInfo *info, Position *pos) {
     // Convert score to mate score when applicable
     score = score >  ISMATE ?  ((INFINITE - score) / 2) + 1
           : score < -ISMATE ? -((INFINITE + score) / 2)
-          : score;
+          : score * 100 / P_MG;
 
     int depth    = info->IDDepth;
     int seldepth = info->seldepth;
@@ -464,13 +464,13 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
 static int AspirationWindow(Position *pos, SearchInfo *info) {
 
     const int score = info->score;
-    // Dynamic bonus increasing initial window and delta
-    const int bonus = (score * score) / 256;
-    // Delta used for initial window and widening
-    const int delta = (P_MG / 2) + bonus;
+    // Dynamic bonus increasing initial window and relaxation delta
+    const int bonus = score * score;
+    const int initialWindow = 8 + bonus / 2048;
+    const int delta = 64 + bonus / 256;
     // Initial window
-    int alpha = MAX(score - delta / 8, -INFINITE);
-    int beta  = MIN(score + delta / 8,  INFINITE);
+    int alpha = MAX(score - initialWindow, -INFINITE);
+    int beta  = MIN(score + initialWindow,  INFINITE);
     // Counter for failed searches, bounds are relaxed more for each successive fail
     unsigned fails = 0;
 
