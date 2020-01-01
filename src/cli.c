@@ -13,7 +13,6 @@
 #include "makemove.h"
 #include "move.h"
 #include "movegen.h"
-#include "misc.h"
 #include "transposition.h"
 #include "search.h"
 #include "tests.h"
@@ -135,7 +134,7 @@ void Console_Loop(Position *pos, SearchInfo *info) {
 
         // If engine's turn to play, search and play before continuing
         if (pos->side == engineSide && checkresult(pos) == false) {
-            info->starttime = GetTimeMs();
+            info->starttime = now();
             info->depth = depth;
 
             if (movetime != 0) {

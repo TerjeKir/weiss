@@ -10,7 +10,7 @@
 #include "board.h"
 #include "evaluate.h"
 #include "makemove.h"
-#include "misc.h"
+#include "time.h"
 #include "move.h"
 #include "movegen.h"
 #include "movepicker.h"
@@ -36,7 +36,7 @@ static bool OutOfTime(SearchInfo *info) {
 
     if (  (info->nodes & 8192) == 0
         && info->timeset
-        && GetTimeMs() >= info->stoptime)
+        && now() >= info->stoptime)
 
         return true;
 
@@ -80,7 +80,7 @@ static void PrintThinking(const SearchInfo *info, Position *pos) {
 
     int depth    = info->IDDepth;
     int seldepth = info->seldepth;
-    int elapsed  = GetTimeMs() - info->starttime;
+    int elapsed  = now() - info->starttime;
     int hashFull = HashFull(pos);
     int nps      = (int)(1000 * (info->nodes / (elapsed + 1)));
     uint64_t nodes  = info->nodes;

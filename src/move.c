@@ -5,7 +5,6 @@
 #include "attack.h"
 #include "bitboards.h"
 #include "board.h"
-#include "misc.h"
 #include "move.h"
 #include "movegen.h"
 #include "transposition.h"
