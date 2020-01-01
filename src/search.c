@@ -176,7 +176,6 @@ static int Quiescence(int alpha, const int beta, Position *pos, SearchInfo *info
 
     InitNoisyMP(&mp, &list, pos);
 
-    int movesTried = 0;
     int bestScore = score;
 
     // Move loop
@@ -187,8 +186,6 @@ static int Quiescence(int alpha, const int beta, Position *pos, SearchInfo *info
         if (!MakeMove(pos, move)) continue;
         score = -Quiescence(-beta, -alpha, pos, info, &pvFromHere);
         TakeMove(pos);
-
-        movesTried++;
 
         // Found a new best move in this position
         if (score > bestScore) {
@@ -220,7 +217,7 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
     assert(CheckBoard(pos));
 
     const bool pvNode = alpha != beta - 1;
-    const bool root   = !pos->ply;
+    const bool root   = pos->ply == 0;
 
     PV pv_from_here;
     pv->length = 0;
@@ -356,12 +353,11 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
 
     InitNormalMP(&mp, &list, pos, ttMove);
 
-    int movesTried = 0;
-    int quietCount = 0;
     const int oldAlpha = alpha;
-    int bestMove = NOMOVE;
-    int bestScore = -INFINITE;
-    score = -INFINITE;
+    int moveCount  = 0;
+    int quietCount = 0;
+    int bestMove   = NOMOVE;
+    int bestScore  = score = -INFINITE;
 
     // Move loop
     int move;
@@ -376,32 +372,34 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
         if (!pvNode && !inCheck && quiet && depth <= 3 && quietCount > 4 * depth * depth)
             break;
 
-        // Make the next predicted best move, skipping illegal ones
+        // Make the move, skipping to the next if illegal
         if (!MakeMove(pos, move)) continue;
 
-        movesTried++;
+        moveCount++;
 
-        bool doLMR = depth > 2 && movesTried > (2 + pvNode) && pos->ply && quiet;
+        const int newDepth = depth - 1;
+
+        bool doLMR = depth > 2 && moveCount > (2 + pvNode) && quiet;
 
         // Reduced depth zero-window search
         if (doLMR) {
             // Base reduction
-            R  = Reductions[MIN(31, depth)][MIN(31, movesTried)];
+            R  = Reductions[MIN(31, depth)][MIN(31, moveCount)];
             // Reduce more in non-pv nodes
             R += !pvNode;
 
             // Depth after reductions, avoiding going straight to quiescence
-            int RDepth = MAX(1, depth - 1 - MAX(R, 1));
+            int RDepth = MAX(1, newDepth - MAX(R, 1));
 
             score = -AlphaBeta(-alpha - 1, -alpha, RDepth, pos, info, &pv_from_here, true);
         }
         // Full depth zero-window search
-        if ((doLMR && score > alpha) || (!doLMR && (!pvNode || movesTried > 1)))
-            score = -AlphaBeta(-alpha - 1, -alpha, depth - 1, pos, info, &pv_from_here, true);
+        if ((doLMR && score > alpha) || (!doLMR && (!pvNode || moveCount > 1)))
+            score = -AlphaBeta(-alpha - 1, -alpha, newDepth, pos, info, &pv_from_here, true);
 
         // Full depth alpha-beta window search
-        if (pvNode && ((score > alpha && score < beta) || movesTried == 1))
-            score = -AlphaBeta(-beta, -alpha, depth - 1, pos, info, &pv_from_here, true);
+        if (pvNode && ((score > alpha && score < beta) || moveCount == 1))
+            score = -AlphaBeta(-beta, -alpha, newDepth, pos, info, &pv_from_here, true);
 
         // Undo the move
         TakeMove(pos);
@@ -442,7 +440,7 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
     }
 
     // Checkmate or stalemate
-    if (!movesTried)
+    if (!moveCount)
         return inCheck ? -INFINITE + pos->ply : 0;
 
     assert(alpha >= oldAlpha);
