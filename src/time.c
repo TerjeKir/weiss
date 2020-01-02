@@ -11,8 +11,8 @@ int now() {
 #if defined(_WIN32) || defined(_WIN64)
     return GetTickCount();
 #else
-    struct timeval t;
-    clock_gettime(CLOCK_MONOTONIC, t)
-    return t.tv_sec * 1000 + t.tv_usec / 1000;
+    struct timespec t;
+    clock_gettime(CLOCK_MONOTONIC, &t)
+    return t.tv_sec * 1000 + t.tv_nsec / 1000000;
 #endif
 }
