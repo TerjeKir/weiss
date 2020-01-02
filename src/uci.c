@@ -9,7 +9,7 @@
 #include "board.h"
 #include "cli.h"
 #include "makemove.h"
-#include "misc.h"
+#include "time.h"
 #include "move.h"
 #include "tests.h"
 #include "transposition.h"
@@ -37,7 +37,7 @@ static void *ParseGo(void *searchThreadInfo) {
     Position *pos     = sst->pos;
     SearchInfo *info  = sst->info;
 
-    info->starttime = GetTimeMs();
+    info->starttime = now();
     info->timeset = false;
 
     const int moveOverhead = 50;
