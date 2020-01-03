@@ -30,46 +30,20 @@ INLINE bool BeginsWith(const char *string, const char *token) {
 }
 
 // Time management
-INLINE void TimeControl(Position *pos, SearchInfo *info, char *line) {
-
-    const int moveOverhead = 50;
-
-    info->starttime = now();
+INLINE void TimeControl(int side, char *line) {
 
     memset(&limits, 0, sizeof(SearchLimits));
-
-    limits.movestogo = 30; // Default to spending 1/30 of remaining time
 
     // Read in relevant search constraints
     char *ptr = NULL;
     // if ((ptr = strstr(line, "infinite")))
-    if ((ptr = strstr(line, "wtime")) && pos->side == WHITE) limits.time = atoi(ptr + 6);
-    if ((ptr = strstr(line, "btime")) && pos->side == BLACK) limits.time = atoi(ptr + 6);
-    if ((ptr = strstr(line, "winc"))  && pos->side == WHITE) limits.inc  = atoi(ptr + 5);
-    if ((ptr = strstr(line, "binc"))  && pos->side == BLACK) limits.inc  = atoi(ptr + 5);
+    if ((ptr = strstr(line, "wtime")) && side == WHITE) limits.time = atoi(ptr + 6);
+    if ((ptr = strstr(line, "btime")) && side == BLACK) limits.time = atoi(ptr + 6);
+    if ((ptr = strstr(line, "winc"))  && side == WHITE) limits.inc  = atoi(ptr + 5);
+    if ((ptr = strstr(line, "binc"))  && side == BLACK) limits.inc  = atoi(ptr + 5);
     if ((ptr = strstr(line, "movestogo"))) limits.movestogo = atoi(ptr + 10);
     if ((ptr = strstr(line, "movetime")))  limits.movetime  = atoi(ptr +  9);
     if ((ptr = strstr(line, "depth")))     limits.depth     = atoi(ptr +  6);
-
-    // In movetime mode we use all the time given each turn
-    if (limits.movetime) {
-        limits.time = limits.movetime;
-        limits.movestogo = 1;
-    }
-
-    // Update search depth limit if we were given one
-    info->depth = limits.depth == 0 ? MAXDEPTH : limits.depth;
-
-    // Calculate how much time to use if given time constraints
-    if (limits.time) {
-        int timeThisMove = (limits.time / limits.movestogo) + limits.inc;
-        int maxTime = limits.time;
-        info->stoptime = info->starttime
-                       + MIN(maxTime, timeThisMove)
-                       - moveOverhead;
-        info->timeset = true;
-    } else
-        info->timeset = false;
 }
 
 // Parses a 'go' and starts a search
@@ -79,7 +53,7 @@ static void *ParseGo(void *searchThreadInfo) {
     Position *pos     = sst->pos;
     SearchInfo *info  = sst->info;
 
-    TimeControl(pos, info, sst->line);
+    TimeControl(pos->side, sst->line);
 
     SearchPosition(pos, info);
 
