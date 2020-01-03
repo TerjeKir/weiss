@@ -20,6 +20,7 @@
 
 int Reductions[32][32];
 
+SearchLimits limits;
 extern bool ABORT_SIGNAL;
 
 
