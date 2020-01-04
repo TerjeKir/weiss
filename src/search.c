@@ -54,7 +54,7 @@ static void TimeManagement(SearchInfo *info) {
 
     // Calculate how much time to use if given time constraints
     if (limits.time) {
-        int timeThisMove = (limits.time / limits.movestogo) + limits.inc;
+        int timeThisMove = (limits.time / limits.movestogo) + 2 * limits.inc;
         int maxTime = limits.time;
         info->stoptime = info->starttime
                        + MIN(maxTime, timeThisMove)
