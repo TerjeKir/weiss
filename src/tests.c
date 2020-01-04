@@ -23,7 +23,7 @@ void benchmark(int depth, Position *pos, SearchInfo *info) {
 
     uint64_t nodes = 0ULL;
 
-    info->depth = depth;
+    limits.depth = depth;
     info->timeset = false;
 
     int startTime = now();
