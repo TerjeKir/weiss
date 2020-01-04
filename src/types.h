@@ -175,6 +175,12 @@ typedef struct {
 
 } SearchThread;
 
+typedef struct {
+
+    int time, inc, movestogo, movetime, depth;
+
+} SearchLimits;
+
 /* Functions */
 
 INLINE int fileOf(const int square) {

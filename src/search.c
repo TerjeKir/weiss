@@ -20,6 +20,7 @@
 
 int Reductions[32][32];
 
+SearchLimits limits;
 extern bool ABORT_SIGNAL;
 
 
@@ -29,6 +30,38 @@ CONSTR InitReductions() {
     for (int depth = 0; depth < 32; ++depth)
         for (int moves = 0; moves < 32; ++moves)
             Reductions[depth][moves] = 0.75 + log(depth) * log(moves) / 2.25;
+}
+
+// Decides when to stop a search
+static void TimeManagement(SearchInfo *info) {
+
+    info->starttime = now();
+
+    const int moveOverhead = 50;
+
+    // Default to spending 1/30 of remaining time
+    if (limits.movestogo == 0)
+        limits.movestogo = 30;
+
+    // In movetime mode we use all the time given each turn
+    if (limits.movetime) {
+        limits.time = limits.movetime;
+        limits.movestogo = 1;
+    }
+
+    // Update search depth limit if we were given one
+    info->depth = limits.depth == 0 ? MAXDEPTH : limits.depth;
+
+    // Calculate how much time to use if given time constraints
+    if (limits.time) {
+        int timeThisMove = (limits.time / limits.movestogo) + 2 * limits.inc;
+        int maxTime = limits.time;
+        info->stoptime = info->starttime
+                       + MIN(maxTime, timeThisMove)
+                       - moveOverhead;
+        info->timeset = true;
+    } else
+        info->timeset = false;
 }
 
 // Check time situation
@@ -493,6 +526,8 @@ static int AspirationWindow(Position *pos, SearchInfo *info) {
 void SearchPosition(Position *pos, SearchInfo *info) {
 
     ClearForSearch(pos, info);
+
+    TimeManagement(info);
 
     // Iterative deepening
     for (info->IDDepth = 1; info->IDDepth <= info->depth; ++info->IDDepth) {

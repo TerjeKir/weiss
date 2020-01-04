@@ -29,64 +29,31 @@ INLINE bool BeginsWith(const char *string, const char *token) {
     return strstr(string, token) == string;
 }
 
+// Time management
+INLINE void TimeControl(int side, char *line) {
+
+    memset(&limits, 0, sizeof(SearchLimits));
+
+    // Read in relevant search constraints
+    char *ptr = NULL;
+    // if ((ptr = strstr(line, "infinite")))
+    if ((ptr = strstr(line, "wtime")) && side == WHITE) limits.time = atoi(ptr + 6);
+    if ((ptr = strstr(line, "btime")) && side == BLACK) limits.time = atoi(ptr + 6);
+    if ((ptr = strstr(line, "winc"))  && side == WHITE) limits.inc  = atoi(ptr + 5);
+    if ((ptr = strstr(line, "binc"))  && side == BLACK) limits.inc  = atoi(ptr + 5);
+    if ((ptr = strstr(line, "movestogo"))) limits.movestogo = atoi(ptr + 10);
+    if ((ptr = strstr(line, "movetime")))  limits.movetime  = atoi(ptr +  9);
+    if ((ptr = strstr(line, "depth")))     limits.depth     = atoi(ptr +  6);
+}
+
 // Parses a 'go' and starts a search
 static void *ParseGo(void *searchThreadInfo) {
 
     SearchThread *sst = (SearchThread*)searchThreadInfo;
-    char *line        = sst->line;
     Position *pos     = sst->pos;
     SearchInfo *info  = sst->info;
 
-    info->starttime = now();
-    info->timeset = false;
-
-    const int moveOverhead = 50;
-    int depth = -1, movestogo = 30, movetime = -1;
-    int time = -1, inc = 0;
-    char *ptr = NULL;
-
-    // Read in relevant time constraints if any
-    if ((ptr = strstr(line, "infinite"))) {
-        ;
-    }
-    // Increment
-    if ((ptr = strstr(line, "binc")) && pos->side == BLACK)
-        inc = atoi(ptr + 5);
-    if ((ptr = strstr(line, "winc")) && pos->side == WHITE)
-        inc = atoi(ptr + 5);
-    // Total remaining time
-    if ((ptr = strstr(line, "wtime")) && pos->side == WHITE)
-        time = atoi(ptr + 6);
-    if ((ptr = strstr(line, "btime")) && pos->side == BLACK)
-        time = atoi(ptr + 6);
-    // Moves left until next time control
-    if ((ptr = strstr(line, "movestogo")))
-        movestogo = atoi(ptr + 10);
-    // Time per move
-    if ((ptr = strstr(line, "movetime")))
-        movetime = atoi(ptr + 9);
-    // Max depth to search to
-    if ((ptr = strstr(line, "depth")))
-        depth = atoi(ptr + 6);
-
-    // In movetime mode we use all the time given each turn and expect more next move
-    if (movetime != -1) {
-        time = movetime;
-        movestogo = 1;
-    }
-
-    // Update search depth limit if we were given one
-    info->depth = depth == -1 ? MAXDEPTH : depth;
-
-    // Calculate how much time to use if given time constraints
-    if (time != -1) {
-        info->timeset = true;
-        int timeThisMove = (time / movestogo) + inc;    // Try to use 1/30 of remaining time + increment
-        int maxTime = time;                             // Most time we can use
-        info->stoptime  = info->starttime;
-        info->stoptime += timeThisMove > maxTime ? maxTime : timeThisMove;
-        info->stoptime -= moveOverhead;
-    }
+    TimeControl(pos->side, sst->line);
 
     SearchPosition(pos, info);
 
