@@ -26,18 +26,18 @@ void benchmark(int depth, Position *pos, SearchInfo *info) {
     limits.depth = depth;
     info->timeset = false;
 
-    int startTime = now();
+    int startTime = Now();
 
     for (int i = 0; strcmp(BenchmarkFENs[i], ""); ++i) {
         printf("Bench %d: %s\n", i + 1, BenchmarkFENs[i]);
         ParseFen(BenchmarkFENs[i], pos);
-        info->starttime = now();
+        info->starttime = Now();
         SearchPosition(pos, info);
         nodes += info->nodes;
         ClearTT(pos->hashTable);
     }
 
-    int elapsed = now() - startTime;
+    int elapsed = Now() - startTime;
 
     printf("Benchmark complete:\n");
     printf("Time : %dms\n", elapsed);
@@ -82,7 +82,7 @@ void Perft(const int depth, Position *pos) {
     printf("\nStarting Test To Depth:%d\n\n", depth);
     fflush(stdout);
 
-    const int start = now();
+    const int start = Now();
     leafNodes = 0;
 
     MoveList list[1];
@@ -107,7 +107,7 @@ void Perft(const int depth, Position *pos) {
         TakeMove(pos);
     }
 
-    const int timeElapsed = now() - start;
+    const int timeElapsed = Now() - start;
     printf("\nPerft Complete : %" PRId64 " nodes visited in %dms\n", leafNodes, timeElapsed);
     if (timeElapsed > 0)
         printf("               : %" PRId64 " nps\n", ((leafNodes * 1000) / timeElapsed));
@@ -221,7 +221,7 @@ void MateInXTest(Position *pos) {
 
                 // Search setup
                 info->depth = (depth - '0') * 2 - 1;
-                info->starttime = now();
+                info->starttime = Now();
                 extensions = 0;
 search:
                 SearchPosition(pos, info);

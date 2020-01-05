@@ -134,7 +134,7 @@ void Console_Loop(Position *pos, SearchInfo *info) {
 
         // If engine's turn to play, search and play before continuing
         if (pos->side == engineSide && checkresult(pos) == false) {
-            info->starttime = now();
+            info->starttime = Now();
             info->depth = depth;
 
             if (movetime != 0) {
