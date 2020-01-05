@@ -307,21 +307,23 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
     if (!inCheck && !root) {
 
         // Do a static evaluation for pruning consideration
-        score = EvalPosition(pos);
+        int eval = EvalPosition(pos);
 
         // Razoring
-        if (!pvNode && depth < 2 && score + 640 < alpha)
+        if (!pvNode && depth < 2 && eval + 640 < alpha)
             return Quiescence(alpha, beta, pos, info, pv);
 
         // Reverse Futility Pruning
-        if (!pvNode && depth < 7 && score - 225 * depth >= beta)
-            return score;
+        if (!pvNode && depth < 7 && eval - 225 * depth >= beta)
+            return eval;
 
         // Null Move Pruning
-        if (doNull && score >= beta && (pos->bigPieces[pos->side] > 0) && depth >= 4) {
+        if (doNull && eval >= beta && (pos->bigPieces[pos->side] > 0) && depth >= 4) {
+
+            int R = 3 + depth / 4;
 
             MakeNullMove(pos);
-            score = -AlphaBeta(-beta, -beta + 1, depth - 4, pos, info, &pv_from_here, false);
+            score = -AlphaBeta(-beta, -beta + 1, depth - R, pos, info, &pv_from_here, false);
             TakeNullMove(pos);
 
             // Cutoff
