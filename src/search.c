@@ -117,15 +117,14 @@ INLINE bool pawnOn7th(const Position *pos) {
 // Dynamic delta pruning margin
 static int QuiescenceDeltaMargin(const Position *pos) {
 
-    // Optimistic to improve our position by a pawn, or if we have
-    // a pawn on the 7th we can hope to improve by a queen instead
+    // Optimistic we can improve our position by a pawn without capturing anything,
+    // or if we have a pawn on the 7th we can hope to improve by a queen instead
     const int DeltaBase = pawnOn7th(pos) ? Q_MG : P_MG;
 
     // Look for possible captures on the board
     const Bitboard enemy = pos->colorBB[!pos->side];
 
     // Find the most valuable piece we could take and add to our base
-    // TODO: Faster with pos->pieceCounts?
     return (enemy & pos->pieceBB[QUEEN ]) ? DeltaBase + Q_MG
          : (enemy & pos->pieceBB[ROOK  ]) ? DeltaBase + R_MG
          : (enemy & pos->pieceBB[BISHOP]) ? DeltaBase + B_MG
@@ -221,8 +220,6 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
 
     MovePicker mp;
     MoveList list;
-
-    int R;
 
     // Extend search if in check
     const bool inCheck = SqAttacked(pos->pieceList[makePiece(pos->side, KING)][0], !pos->side, pos);
@@ -381,7 +378,7 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
         // Reduced depth zero-window search
         if (doLMR) {
             // Base reduction
-            R  = Reductions[MIN(31, depth)][MIN(31, moveCount)];
+            int R = Reductions[MIN(31, depth)][MIN(31, moveCount)];
             // Reduce more in non-pv nodes
             R += !pvNode;
 
