@@ -7,7 +7,7 @@
 #endif
 
 
-int now() {
+int Now() {
 #if defined(_WIN32) || defined(_WIN64)
     return GetTickCount();
 #else

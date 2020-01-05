@@ -32,44 +32,12 @@ CONSTR InitReductions() {
             Reductions[depth][moves] = 0.75 + log(depth) * log(moves) / 2.25;
 }
 
-// Decides when to stop a search
-static void TimeManagement(SearchInfo *info) {
-
-    info->starttime = now();
-
-    const int moveOverhead = 50;
-
-    // Default to spending 1/30 of remaining time
-    if (limits.movestogo == 0)
-        limits.movestogo = 30;
-
-    // In movetime mode we use all the time given each turn
-    if (limits.movetime) {
-        limits.time = limits.movetime;
-        limits.movestogo = 1;
-    }
-
-    // Update search depth limit if we were given one
-    info->depth = limits.depth == 0 ? MAXDEPTH : limits.depth;
-
-    // Calculate how much time to use if given time constraints
-    if (limits.time) {
-        int timeThisMove = (limits.time / limits.movestogo) + 2 * limits.inc;
-        int maxTime = limits.time;
-        info->stoptime = info->starttime
-                       + MIN(maxTime, timeThisMove)
-                       - moveOverhead;
-        info->timeset = true;
-    } else
-        info->timeset = false;
-}
-
 // Check time situation
 static bool OutOfTime(SearchInfo *info) {
 
     if (  (info->nodes & 8192) == 0
         && info->timeset
-        && now() >= info->stoptime)
+        && Now() >= info->stoptime)
 
         return true;
 
@@ -113,7 +81,7 @@ static void PrintThinking(const SearchInfo *info, Position *pos) {
 
     int depth    = info->IDDepth;
     int seldepth = info->seldepth;
-    int elapsed  = now() - info->starttime;
+    int elapsed  = Now() - info->starttime;
     int hashFull = HashFull(pos);
     int nps      = (int)(1000 * (info->nodes / (elapsed + 1)));
     uint64_t nodes  = info->nodes;
@@ -142,26 +110,21 @@ static void PrintConclusion(const SearchInfo *info) {
     fflush(stdout);
 }
 
-static uint64_t relativeRank7(const int side) {
-    return side ? rank7BB : rank2BB;
-}
-
-static bool pawnOn7th(const Position *pos) {
-    return pos->colorBB[pos->side] & pos->pieceBB[PAWN] & relativeRank7(pos->side);
+INLINE bool pawnOn7th(const Position *pos) {
+    return pos->colorBB[pos->side] & pos->pieceBB[PAWN] & rankBBs[relativeRank(pos->side, RANK_7)];
 }
 
 // Dynamic delta pruning margin
 static int QuiescenceDeltaMargin(const Position *pos) {
 
-    // Optimistic to improve our position by a pawn, or if we have
-    // a pawn on the 7th we can hope to improve by a queen instead
+    // Optimistic we can improve our position by a pawn without capturing anything,
+    // or if we have a pawn on the 7th we can hope to improve by a queen instead
     const int DeltaBase = pawnOn7th(pos) ? Q_MG : P_MG;
 
     // Look for possible captures on the board
     const Bitboard enemy = pos->colorBB[!pos->side];
 
     // Find the most valuable piece we could take and add to our base
-    // TODO: Faster with pos->pieceCounts?
     return (enemy & pos->pieceBB[QUEEN ]) ? DeltaBase + Q_MG
          : (enemy & pos->pieceBB[ROOK  ]) ? DeltaBase + R_MG
          : (enemy & pos->pieceBB[BISHOP]) ? DeltaBase + B_MG
@@ -257,8 +220,6 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
 
     MovePicker mp;
     MoveList list;
-
-    int R;
 
     // Extend search if in check
     const bool inCheck = SqAttacked(pos->pieceList[makePiece(pos->side, KING)][0], !pos->side, pos);
@@ -417,7 +378,7 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
         // Reduced depth zero-window search
         if (doLMR) {
             // Base reduction
-            R  = Reductions[MIN(31, depth)][MIN(31, moveCount)];
+            int R = Reductions[MIN(31, depth)][MIN(31, moveCount)];
             // Reduce more in non-pv nodes
             R += !pvNode;
 
@@ -520,6 +481,38 @@ static int AspirationWindow(Position *pos, SearchInfo *info) {
             beta  = MIN(beta, INFINITE);
         }
     }
+}
+
+// Decides when to stop a search
+static void TimeManagement(SearchInfo *info) {
+
+    info->starttime = Now();
+
+    const int overhead = 50;
+
+    // Default to spending 1/30 of remaining time
+    if (limits.movestogo == 0)
+        limits.movestogo = 30;
+
+    // In movetime mode we use all the time given each turn
+    if (limits.movetime) {
+        limits.time = limits.movetime;
+        limits.movestogo = 1;
+    }
+
+    // Update search depth limit if we were given one
+    info->depth = limits.depth == 0 ? MAXDEPTH : limits.depth;
+
+    // Calculate how much time to use if given time constraints
+    if (limits.time) {
+        int timeThisMove = MIN(limits.time, (limits.time / limits.movestogo) + 2 * limits.inc);
+
+        info->stoptime = info->starttime
+                       + timeThisMove
+                       - overhead;
+        info->timeset = true;
+    } else
+        info->timeset = false;
 }
 
 // Root of search
