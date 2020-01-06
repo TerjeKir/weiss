@@ -320,7 +320,7 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
         // Null Move Pruning
         if (doNull && eval >= beta && (pos->bigPieces[pos->side] > 0) && depth >= 3) {
 
-            int R = 3 + depth / 4 + MIN(3, (eval - beta) / 256);
+            int R = 3 + depth / 3 + MIN(3, (eval - beta) / 256);
 
             MakeNullMove(pos);
             score = -AlphaBeta(-beta, -beta + 1, depth - R, pos, info, &pv_from_here, false);
