@@ -318,7 +318,7 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
             return eval;
 
         // Null Move Pruning
-        if (doNull && eval >= beta && (pos->bigPieces[pos->side] > 0) && depth >= 4) {
+        if (doNull && eval >= beta && (pos->bigPieces[pos->side] > 0) && depth >= 3) {
 
             int R = 3 + depth / 4;
 
