@@ -72,7 +72,7 @@ void StoreTTEntry(TTEntry *tte, const uint64_t posKey, const int move, const int
 
     // Store new data unless it would overwrite data about the same
     // position searched to a higher depth.
-    if (posKey != tte->posKey || depth >= tte->depth)
+    if (posKey != tte->posKey || depth >= tte->depth || flag == BOUND_EXACT)
         tte->posKey = posKey,
         tte->move   = move,
         tte->score  = score,
