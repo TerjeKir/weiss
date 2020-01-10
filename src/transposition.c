@@ -70,11 +70,14 @@ void StoreTTEntry(TTEntry *tte, const uint64_t posKey, const int move, const int
     assert(flag >= BOUND_UPPER && flag <= BOUND_EXACT);
     assert(depth >= 1 && depth < MAXDEPTH);
 
-    tte->posKey = posKey;
-    tte->move   = move;
-    tte->score  = score;
-    tte->depth  = depth;
-    tte->flag   = flag;
+    // Store new data unless it would overwrite data about the same
+    // position searched to a higher depth.
+    if (posKey != tte->posKey || depth >= tte->depth || flag == BOUND_EXACT)
+        tte->posKey = posKey,
+        tte->move   = move,
+        tte->score  = score,
+        tte->depth  = depth,
+        tte->flag   = flag;
 }
 
 // Estimates the load factor of the transposition table (1 = 0.1%)
