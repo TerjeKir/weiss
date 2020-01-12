@@ -36,8 +36,8 @@ CONSTR InitReductions() {
 static bool OutOfTime(SearchInfo *info) {
 
     if (  (info->nodes & 8192) == 0
-        && info->timeset
-        && Now() >= info->stoptime)
+        && limits.timelimit
+        && Now() >= limits.stop)
 
         return true;
 
@@ -81,7 +81,7 @@ static void PrintThinking(const SearchInfo *info, Position *pos) {
 
     int depth    = info->IDDepth;
     int seldepth = info->seldepth;
-    int elapsed  = Now() - info->starttime;
+    int elapsed  = Now() - limits.start;
     int hashFull = HashFull(pos);
     int nps      = (int)(1000 * (info->nodes / (elapsed + 1)));
     uint64_t nodes  = info->nodes;
@@ -486,9 +486,7 @@ static int AspirationWindow(Position *pos, SearchInfo *info) {
 }
 
 // Decides when to stop a search
-static void TimeManagement(SearchInfo *info) {
-
-    info->starttime = Now();
+INLINE void InitTimeManagement() {
 
     const int overhead = 50;
 
@@ -503,29 +501,30 @@ static void TimeManagement(SearchInfo *info) {
     }
 
     // Update search depth limit if we were given one
-    info->depth = limits.depth == 0 ? MAXDEPTH : limits.depth;
+    limits.depth = limits.depth == 0 ? MAXDEPTH : limits.depth;
 
     // Calculate how much time to use if given time constraints
     if (limits.time) {
         int timeThisMove = MIN(limits.time, (limits.time / limits.movestogo) + 2 * limits.inc);
 
-        info->stoptime = info->starttime
-                       + timeThisMove
-                       - overhead;
-        info->timeset = true;
+        limits.stop = limits.start
+                    + timeThisMove
+                    - overhead;
+
+        limits.timelimit = true;
     } else
-        info->timeset = false;
+        limits.timelimit = false;
 }
 
 // Root of search
 void SearchPosition(Position *pos, SearchInfo *info) {
 
+    InitTimeManagement();
+
     ClearForSearch(pos, info);
 
-    TimeManagement(info);
-
     // Iterative deepening
-    for (info->IDDepth = 1; info->IDDepth <= info->depth; ++info->IDDepth) {
+    for (info->IDDepth = 1; info->IDDepth <= limits.depth; ++info->IDDepth) {
 
         if (setjmp(info->jumpBuffer)) break;
 

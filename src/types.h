@@ -144,15 +144,9 @@ typedef struct {
 
 typedef struct {
 
-    int starttime;
-    int stoptime;
-    int depth;
-    int seldepth;
-    int timeset;
-    int movestogo;
-
     uint64_t nodes;
     uint64_t tbhits;
+    int seldepth;
 
     PV pv;
     int bestMove;
@@ -177,7 +171,8 @@ typedef struct {
 
 typedef struct {
 
-    int time, inc, movestogo, movetime, depth;
+    int start, time, inc, movestogo, movetime, depth, stop;
+    bool timelimit;
 
 } SearchLimits;
 

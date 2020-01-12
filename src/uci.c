@@ -32,6 +32,8 @@ INLINE bool BeginsWith(const char *string, const char *token) {
 // Time management
 INLINE void TimeControl(int side, char *line) {
 
+    limits.start = Now();
+
     memset(&limits, 0, sizeof(SearchLimits));
 
     // Read in relevant search constraints
