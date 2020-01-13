@@ -1,9 +1,9 @@
 # weiss makefile
 
 # General
-EXE	   = weiss
+EXE    = weiss
 SRC    = *.c fathom/tbprobe.c
-OUT	   = ../bin/
+OUT    = ../bin/
 COMP   = gcc
 
 # Defines
@@ -37,7 +37,7 @@ endif
 
 # Compilations
 BASE    = $(COMP) $(CFLAGS) $(SRC) $(LIBS)
-RELEASE	= $(COMP) $(RFLAGS) $(SRC) $(LIBS) -o $(OUT)$(EXE)
+RELEASE = $(COMP) $(RFLAGS) $(SRC) $(LIBS) -o $(OUT)$(EXE)
 BENCH   = $(BASE) -o $(EXE)
 BIN     = $(BASE) -o $(OUT)$(EXE)
 
