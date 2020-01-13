@@ -36,8 +36,8 @@ CONSTR InitReductions() {
 static bool OutOfTime(SearchInfo *info) {
 
     if (  (info->nodes & 8192) == 0
-        && info->timeset
-        && Now() >= info->stoptime)
+        && limits.timelimit
+        && Now() >= limits.stop)
 
         return true;
 
@@ -79,9 +79,9 @@ static void PrintThinking(const SearchInfo *info, Position *pos) {
           : score < -ISMATE ? -((INFINITE + score) / 2)
           : score * 100 / P_MG;
 
-    int depth    = info->IDDepth;
+    int depth    = info->depth;
     int seldepth = info->seldepth;
-    int elapsed  = Now() - info->starttime;
+    int elapsed  = Now() - limits.start;
     int hashFull = HashFull(pos);
     int nps      = (int)(1000 * (info->nodes / (elapsed + 1)));
     uint64_t nodes  = info->nodes;
@@ -469,7 +469,7 @@ static int AspirationWindow(Position *pos, SearchInfo *info) {
     unsigned fails = 0;
 
     while (true) {
-        int result = AlphaBeta(alpha, beta, info->IDDepth, pos, info, &info->pv, true);
+        int result = AlphaBeta(alpha, beta, info->depth, pos, info, &info->pv, true);
         // Result within the bounds is accepted as correct
         if (result >= alpha && result <= beta)
             return result;
@@ -486,9 +486,7 @@ static int AspirationWindow(Position *pos, SearchInfo *info) {
 }
 
 // Decides when to stop a search
-static void TimeManagement(SearchInfo *info) {
-
-    info->starttime = Now();
+static void InitTimeManagement() {
 
     const int overhead = 50;
 
@@ -503,37 +501,38 @@ static void TimeManagement(SearchInfo *info) {
     }
 
     // Update search depth limit if we were given one
-    info->depth = limits.depth == 0 ? MAXDEPTH : limits.depth;
+    limits.depth = limits.depth == 0 ? MAXDEPTH : limits.depth;
 
     // Calculate how much time to use if given time constraints
     if (limits.time) {
         int timeThisMove = MIN(limits.time, (limits.time / limits.movestogo) + 2 * limits.inc);
 
-        info->stoptime = info->starttime
-                       + timeThisMove
-                       - overhead;
-        info->timeset = true;
+        limits.stop = limits.start
+                    + timeThisMove
+                    - overhead;
+
+        limits.timelimit = true;
     } else
-        info->timeset = false;
+        limits.timelimit = false;
 }
 
 // Root of search
 void SearchPosition(Position *pos, SearchInfo *info) {
 
+    InitTimeManagement();
+
     ClearForSearch(pos, info);
 
-    TimeManagement(info);
-
     // Iterative deepening
-    for (info->IDDepth = 1; info->IDDepth <= info->depth; ++info->IDDepth) {
+    for (info->depth = 1; info->depth <= limits.depth; ++info->depth) {
 
         if (setjmp(info->jumpBuffer)) break;
 
         // Search position, using aspiration windows for higher depths
-        if (info->IDDepth > 6)
+        if (info->depth > 6)
             info->score = AspirationWindow(pos, info);
         else
-            info->score = AlphaBeta(-INFINITE, INFINITE, info->IDDepth, pos, info, &info->pv, true);
+            info->score = AlphaBeta(-INFINITE, INFINITE, info->depth, pos, info, &info->pv, true);
 
         // Print thinking
         PrintThinking(info, pos);

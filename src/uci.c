@@ -29,10 +29,12 @@ INLINE bool BeginsWith(const char *string, const char *token) {
     return strstr(string, token) == string;
 }
 
-// Time management
+// Parses the time controls
 INLINE void TimeControl(int side, char *line) {
 
     memset(&limits, 0, sizeof(SearchLimits));
+
+    limits.start = Now();
 
     // Read in relevant search constraints
     char *ptr = NULL;
@@ -109,7 +111,7 @@ static void ParsePosition(const char *line, Position *pos) {
 }
 
 // Parses a 'setoption' and updates settings
-static void SetOption(Position *pos, SearchInfo *info, char *line) {
+static void SetOption(Position *pos, char *line) {
 
     if (BeginsWith(line, "setoption name Hash value ")) {
         int MB;
@@ -120,11 +122,7 @@ static void SetOption(Position *pos, SearchInfo *info, char *line) {
 
         char *path = line + strlen("setoption name SyzygyPath value ");
 
-        // Strip newline
-        line[strcspn(line, "\r\n")] = '\0';
-
-        strcpy(info->syzygyPath, path);
-        tb_init(info->syzygyPath);
+        tb_init(path);
 
         if (TB_LARGEST > 0)
             printf("TableBase init complete - largest found: %d.\n", TB_LARGEST);
@@ -210,12 +208,12 @@ int main(int argc, char **argv) {
             PrintUCI();
 
         else if (BeginsWith(line, "setoption"))
-            SetOption(pos, info, line);
+            SetOption(pos, line);
 
         // Non UCI commands
 #ifdef DEV
         else if (!strncmp(line, "weiss", 5)) {
-            Console_Loop(pos, info);
+            Console_Loop(pos);
             break;
         }
 #endif

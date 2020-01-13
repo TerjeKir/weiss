@@ -144,26 +144,18 @@ typedef struct {
 
 typedef struct {
 
-    int starttime;
-    int stoptime;
-    int depth;
-    int seldepth;
-    int timeset;
-    int movestogo;
-
     uint64_t nodes;
     uint64_t tbhits;
 
-    PV pv;
+    int score;
+    int depth;
     int bestMove;
     int ponderMove;
+    int seldepth;
+
+    PV pv;
 
     jmp_buf jumpBuffer;
-
-    int score;
-    int IDDepth;
-
-    char syzygyPath[256];
 
 } SearchInfo;
 
@@ -177,7 +169,8 @@ typedef struct {
 
 typedef struct {
 
-    int time, inc, movestogo, movetime, depth;
+    int start, time, inc, movestogo, movetime, depth, stop;
+    bool timelimit;
 
 } SearchLimits;
 
