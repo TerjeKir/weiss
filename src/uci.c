@@ -32,9 +32,9 @@ INLINE bool BeginsWith(const char *string, const char *token) {
 // Parses the time controls
 INLINE void TimeControl(int side, char *line) {
 
-    limits.start = Now();
-
     memset(&limits, 0, sizeof(SearchLimits));
+
+    limits.start = Now();
 
     // Read in relevant search constraints
     char *ptr = NULL;
