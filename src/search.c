@@ -79,7 +79,7 @@ static void PrintThinking(const SearchInfo *info, Position *pos) {
           : score < -ISMATE ? -((INFINITE + score) / 2)
           : score * 100 / P_MG;
 
-    int depth    = info->IDDepth;
+    int depth    = info->depth;
     int seldepth = info->seldepth;
     int elapsed  = Now() - limits.start;
     int hashFull = HashFull(pos);
@@ -469,7 +469,7 @@ static int AspirationWindow(Position *pos, SearchInfo *info) {
     unsigned fails = 0;
 
     while (true) {
-        int result = AlphaBeta(alpha, beta, info->IDDepth, pos, info, &info->pv, true);
+        int result = AlphaBeta(alpha, beta, info->depth, pos, info, &info->pv, true);
         // Result within the bounds is accepted as correct
         if (result >= alpha && result <= beta)
             return result;
@@ -524,15 +524,15 @@ void SearchPosition(Position *pos, SearchInfo *info) {
     ClearForSearch(pos, info);
 
     // Iterative deepening
-    for (info->IDDepth = 1; info->IDDepth <= limits.depth; ++info->IDDepth) {
+    for (info->depth = 1; info->depth <= limits.depth; ++info->depth) {
 
         if (setjmp(info->jumpBuffer)) break;
 
         // Search position, using aspiration windows for higher depths
-        if (info->IDDepth > 6)
+        if (info->depth > 6)
             info->score = AspirationWindow(pos, info);
         else
-            info->score = AlphaBeta(-INFINITE, INFINITE, info->IDDepth, pos, info, &info->pv, true);
+            info->score = AlphaBeta(-INFINITE, INFINITE, info->depth, pos, info, &info->pv, true);
 
         // Print thinking
         PrintThinking(info, pos);

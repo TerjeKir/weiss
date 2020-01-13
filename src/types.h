@@ -146,18 +146,16 @@ typedef struct {
 
     uint64_t nodes;
     uint64_t tbhits;
+
+    int score;
+    int depth;
+    int bestMove;
+    int ponderMove;
     int seldepth;
 
     PV pv;
-    int bestMove;
-    int ponderMove;
 
     jmp_buf jumpBuffer;
-
-    int score;
-    int IDDepth;
-
-    char syzygyPath[256];
 
 } SearchInfo;
 
