@@ -217,7 +217,7 @@ int main(int argc, char **argv) {
         // Non UCI commands
 #ifdef DEV
         else if (!strncmp(line, "weiss", 5)) {
-            Console_Loop(pos, info);
+            Console_Loop(pos);
             break;
         }
 #endif
