@@ -486,7 +486,7 @@ static int AspirationWindow(Position *pos, SearchInfo *info) {
 }
 
 // Decides when to stop a search
-INLINE void InitTimeManagement() {
+static void InitTimeManagement() {
 
     const int overhead = 50;
 
