@@ -29,7 +29,7 @@ INLINE bool BeginsWith(const char *string, const char *token) {
     return strstr(string, token) == string;
 }
 
-// Time management
+// Parses the time controls
 INLINE void TimeControl(int side, char *line) {
 
     limits.start = Now();
