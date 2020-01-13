@@ -1,9 +1,10 @@
 # weiss makefile
 
 # General
-EXE	   = weiss
+EXE    = weiss
 SRC    = *.c fathom/tbprobe.c
-OUT	   = ../bin/
+OUT    = ../bin/
+COMP   = gcc
 
 # Defines
 DEV    = -DDEV
@@ -24,39 +25,52 @@ PGODIR = "../pgo"
 PGOGEN = -fprofile-generate=$(PGODIR)
 PGOUSE = -fprofile-use=$(PGODIR)
 
+# Try to detect windows environment by seeing
+# whether the shell filters out the "s or not.
+ifeq ($(shell echo "check_quotes"),"check_quotes")
+	RUNBENCH = $(EXE) bench 12
+	CLEAN    = rmdir /s /q $(PGODIR)
+else
+	RUNBENCH = ./$(EXE) bench 12
+	CLEAN    = $(RM) -rf $(PGODIR)
+endif
+
+# Compilations
+BASE    = $(COMP) $(CFLAGS) $(SRC) $(LIBS)
+RELEASE = $(COMP) $(RFLAGS) $(SRC) $(LIBS) -o $(OUT)$(EXE)
+BENCH   = $(BASE) -o $(EXE)
+BIN     = $(BASE) -o $(OUT)$(EXE)
 
 # For OpenBench
 bench-basic:
-	gcc $(CFLAGS) $(SRC) $(LIBS)         -o $(EXE)
+	$(BENCH)
 
 bench-pext:
-	gcc $(CFLAGS) $(SRC) $(LIBS) $(PEXT) -o $(EXE)
+	$(BENCH) $(PEXT)
 
 bench-pgo:
-	gcc $(CFLAGS) $(SRC) $(LIBS) $(PEXT) $(PGOGEN) -o "$(EXE)-temp.exe"
-	$(EXE)-temp.exe bench 12
-	gcc $(CFLAGS) $(SRC) $(LIBS) $(PEXT) $(PGOUSE) -o $(EXE)
-	rmdir /s /q "../pgo"
-	del /f "$(EXE)-temp.exe"
+	$(BENCH) $(PEXT) $(PGOGEN)
+	$(RUNBENCH)
+	$(BENCH) $(PEXT) $(PGOUSE)
+	$(CLEAN)
 
 # For normal use
-dev:
-	gcc $(CFLAGS) $(SRC) $(LIBS) $(PEXT) $(DEV)    -o "$(EXE)-dev"
-
 pext:
-	gcc $(CFLAGS) $(SRC) $(LIBS) $(PEXT)           -o "$(OUT)$(EXE)-pext"
+	$(BIN)-pext $(PEXT)
 
 pgo:
-	gcc $(CFLAGS) $(SRC) $(LIBS) $(PEXT) $(PGOGEN) -o "$(EXE)-temp.exe"
-	$(EXE)-temp.exe bench 12
-	gcc $(CFLAGS) $(SRC) $(LIBS) $(PEXT) $(PGOUSE) -o "$(OUT)$(EXE)-pext-pgo.exe"
-	rmdir /s /q "../pgo"
-	del /f "$(EXE)-temp.exe"
-
-gprof:
-	gcc $(PFLAGS) $(SRC) $(LIBS) $(PEXT)           -o "$(OUT)$(EXE)-prof"
+	$(BENCH) $(PEXT) $(PGOGEN)
+	$(RUNBENCH)
+	$(BIN)-pext-pgo.exe $(PEXT) $(PGOUSE)
+	$(CLEAN)
 
 release:
-	gcc $(RFLAGS) $(SRC) $(LIBS)                   -o "$(OUT)$(EXE)-nopopcnt.exe"
-	gcc $(RFLAGS) $(SRC) $(LIBS) $(POPCNT)         -o "$(OUT)$(EXE)-popcnt.exe"
-	gcc $(RFLAGS) $(SRC) $(LIBS) $(PEXT)           -o "$(OUT)$(EXE)-pext.exe"
+	$(RELEASE)-nopopcnt.exe
+	$(RELEASE)-popcnt.exe   $(POPCNT)
+	$(RELEASE)-pext.exe     $(PEXT)
+
+dev:
+	$(BIN)-dev $(PEXT) $(DEV)
+
+gprof:
+	$(COMP) $(PFLAGS) $(SRC) $(LIBS) $(PEXT) -o $(OUT)$(EXE)-prof
