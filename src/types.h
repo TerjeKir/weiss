@@ -92,7 +92,7 @@ typedef struct {
     int castlePerm;
     uint64_t posKey;
     int eval;
-} Undo;
+} History;
 
 typedef struct {
     uint64_t posKey;
@@ -134,7 +134,7 @@ typedef struct {
 
     uint64_t posKey;
 
-    Undo history[MAXGAMEMOVES];
+    History history[MAXGAMEMOVES];
 
     TT hashTable[1];
 
