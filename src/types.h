@@ -17,6 +17,8 @@
 #define CONSTR static __attribute__((constructor)) void
 
 #define history(offset) pos->history[pos->hisPly + offset]
+#define killer1 pos->searchKillers[pos->ply][0]
+#define killer2 pos->searchKillers[pos->ply][1]
 
 
 typedef uint64_t Bitboard;

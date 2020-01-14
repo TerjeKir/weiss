@@ -42,9 +42,9 @@ INLINE void AddMove(const Position *pos, MoveList *list, const int from, const i
         *moveScore = MvvLvaScores[captured][pos->board[from]];
 
     if (type == QUIET) {
-        if (pos->searchKillers[pos->ply][0] == move)
+        if (killer1 == move)
             *moveScore = 900000;
-        else if (pos->searchKillers[pos->ply][1] == move)
+        else if (killer2 == move)
             *moveScore = 800000;
         else
             *moveScore = pos->searchHistory[pos->board[from]][to];
