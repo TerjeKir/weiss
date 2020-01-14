@@ -302,12 +302,16 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
     }
 
     int score = -INFINITE;
+    int eval = NOSCORE;
 
     // Skip pruning while in check and at the root
     if (!inCheck && !root) {
 
         // Do a static evaluation for pruning consideration
-        int eval = EvalPosition(pos);
+        if (pos->history[pos->hisPly - 1].move == NOMOVE)
+            pos->history[pos->ply].eval = eval = -pos->history[pos->ply - 1].eval;
+        else
+            pos->history[pos->ply].eval = eval = EvalPosition(pos);
 
         // Razoring
         if (!pvNode && depth < 2 && eval + 640 < alpha)

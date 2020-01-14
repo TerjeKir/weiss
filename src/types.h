@@ -91,6 +91,7 @@ typedef struct {
     int fiftyMove;
     int castlePerm;
     uint64_t posKey;
+    int eval;
 } Undo;
 
 typedef struct {
