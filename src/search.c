@@ -309,9 +309,9 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
 
         // Do a static evaluation for pruning consideration
         if (pos->history[pos->hisPly - 1].move == NOMOVE)
-            pos->history[pos->ply].eval = eval = -pos->history[pos->ply - 1].eval;
+            pos->history[pos->hisPly].eval = eval = -pos->history[pos->hisPly - 1].eval;
         else
-            pos->history[pos->ply].eval = eval = EvalPosition(pos);
+            pos->history[pos->hisPly].eval = eval = EvalPosition(pos);
 
         // Razoring
         if (!pvNode && depth < 2 && eval + 640 < alpha)
