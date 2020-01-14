@@ -16,6 +16,8 @@
 #define INLINE static inline __attribute__((always_inline))
 #define CONSTR static __attribute__((constructor)) void
 
+#define history(offset) pos->history[pos->hisPly + offset]
+
 
 typedef uint64_t Bitboard;
 

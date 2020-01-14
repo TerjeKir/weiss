@@ -151,15 +151,15 @@ void TakeMove(Position *pos) {
     pos->side ^= 1;
 
     // Update castling rights, 50mr, en passant
-    pos->enPas      = pos->history[pos->hisPly].enPas;
-    pos->fiftyMove  = pos->history[pos->hisPly].fiftyMove;
-    pos->castlePerm = pos->history[pos->hisPly].castlePerm;
+    pos->enPas      = history(0).enPas;
+    pos->fiftyMove  = history(0).fiftyMove;
+    pos->castlePerm = history(0).castlePerm;
 
     assert(pos->hisPly >= 0 && pos->hisPly < MAXGAMEMOVES);
     assert(pos->ply >= 0 && pos->ply < MAXDEPTH);
 
     // Get the move from history
-    const int move = pos->history[pos->hisPly].move;
+    const int move = history(0).move;
     const int from = FROMSQ(move);
     const int   to =   TOSQ(move);
 
@@ -198,7 +198,7 @@ void TakeMove(Position *pos) {
     }
 
     // Get old poskey from history
-    pos->posKey = pos->history[pos->hisPly].posKey;
+    pos->posKey = history(0).posKey;
 
     assert(CheckBoard(pos));
 }
@@ -222,11 +222,11 @@ bool MakeMove(Position *pos, const int move) {
     assert(pos->ply >= 0 && pos->ply < MAXDEPTH);
 
     // Save position
-    pos->history[pos->hisPly].move       = move;
-    pos->history[pos->hisPly].enPas      = pos->enPas;
-    pos->history[pos->hisPly].fiftyMove  = pos->fiftyMove;
-    pos->history[pos->hisPly].castlePerm = pos->castlePerm;
-    pos->history[pos->hisPly].posKey     = pos->posKey;
+    history(0).move       = move;
+    history(0).enPas      = pos->enPas;
+    history(0).fiftyMove  = pos->fiftyMove;
+    history(0).castlePerm = pos->castlePerm;
+    history(0).posKey     = pos->posKey;
 
     // Increment hisPly, ply and 50mr
     pos->hisPly++;
@@ -317,11 +317,11 @@ void MakeNullMove(Position *pos) {
     assert(CheckBoard(pos));
 
     // Save misc info for takeback
-    pos->history[pos->hisPly].move       = NOMOVE;
-    pos->history[pos->hisPly].enPas      = pos->enPas;
-    pos->history[pos->hisPly].fiftyMove  = pos->fiftyMove;
-    pos->history[pos->hisPly].castlePerm = pos->castlePerm;
-    pos->history[pos->hisPly].posKey     = pos->posKey;
+    history(0).move       = NOMOVE;
+    history(0).enPas      = pos->enPas;
+    history(0).fiftyMove  = pos->fiftyMove;
+    history(0).castlePerm = pos->castlePerm;
+    history(0).posKey     = pos->posKey;
 
     // Increase ply
     pos->ply++;
@@ -357,10 +357,10 @@ void TakeNullMove(Position *pos) {
     pos->side ^= 1;
 
     // Get info from history
-    pos->enPas      = pos->history[pos->hisPly].enPas;
-    pos->fiftyMove  = pos->history[pos->hisPly].fiftyMove;
-    pos->castlePerm = pos->history[pos->hisPly].castlePerm;
-    pos->posKey     = pos->history[pos->hisPly].posKey;
+    pos->enPas      = history(0).enPas;
+    pos->fiftyMove  = history(0).fiftyMove;
+    pos->castlePerm = history(0).castlePerm;
+    pos->posKey     = history(0).posKey;
 
     assert(CheckBoard(pos));
     assert(pos->hisPly >= 0 && pos->hisPly < MAXGAMEMOVES);
