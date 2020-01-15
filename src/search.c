@@ -47,8 +47,10 @@ static bool OutOfTime(SearchInfo *info) {
 // Check if current position is a repetition
 static bool IsRepetition(const Position *pos) {
 
-    for (int i = pos->hisPly - 2; i >= pos->hisPly - pos->fiftyMove; i -= 2)
-        if (pos->posKey == pos->history[i].posKey)
+    // Compare current posKey to posKeys in history, skipping
+    // opponents turns as that wouldn't be a repetition
+    for (int i = 2; i <= pos->fiftyMove; i += 2)
+        if (pos->posKey == history(-i).posKey)
             return true;
 
     return false;
@@ -308,10 +310,10 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
     if (!inCheck && !root) {
 
         // Do a static evaluation for pruning consideration
-        if (pos->history[pos->hisPly - 1].move == NOMOVE)
-            pos->history[pos->hisPly].eval = eval = -pos->history[pos->hisPly - 1].eval;
+        if (history(-1).move == NOMOVE)
+            history(0).eval = eval = -history(-1).eval;
         else
-            pos->history[pos->hisPly].eval = eval = EvalPosition(pos);
+            history(0).eval = eval = EvalPosition(pos);
 
         // Razoring
         if (!pvNode && depth < 2 && eval + 640 < alpha)
@@ -322,7 +324,10 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
             return eval;
 
         // Null Move Pruning
-        if (pos->history[pos->hisPly - 1].move != NOMOVE && eval >= beta && pos->bigPieces[pos->side] > 0 && depth >= 3) {
+        if (   history(-1).move != NOMOVE
+            && eval >= beta
+            && pos->bigPieces[pos->side] > 0
+            && depth >= 3) {
 
             int R = 3 + depth / 5 + MIN(3, (eval - beta) / 256);
 
@@ -428,9 +433,9 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
                 if (score >= beta) {
 
                     // Update killers if quiet move
-                    if (quiet && pos->searchKillers[pos->ply][0] != move) {
-                        pos->searchKillers[pos->ply][1] = pos->searchKillers[pos->ply][0];
-                        pos->searchKillers[pos->ply][0] = move;
+                    if (quiet && killer1 != move) {
+                        killer2 = killer1;
+                        killer1 = move;
                     }
 
                     break;
