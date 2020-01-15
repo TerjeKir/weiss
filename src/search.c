@@ -113,7 +113,7 @@ static void PrintConclusion(const SearchInfo *info) {
 }
 
 INLINE bool pawnOn7th(const Position *pos) {
-    return colorBB(pos->side) & pieceBB(PAWN) & rankBBs[relativeRank(pos->side, RANK_7)];
+    return colorBB(sideToMove()) & pieceBB(PAWN) & rankBBs[relativeRank(sideToMove(), RANK_7)];
 }
 
 // Dynamic delta pruning margin
@@ -124,7 +124,7 @@ static int QuiescenceDeltaMargin(const Position *pos) {
     const int DeltaBase = pawnOn7th(pos) ? Q_MG : P_MG;
 
     // Look for possible captures on the board
-    const Bitboard enemy = colorBB(!pos->side);
+    const Bitboard enemy = colorBB(!sideToMove());
 
     // Find the most valuable piece we could take and add to our base
     return (enemy & pieceBB(QUEEN )) ? DeltaBase + Q_MG
@@ -224,7 +224,7 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
     MoveList list;
 
     // Extend search if in check
-    const bool inCheck = SqAttacked(pos->pieceList[makePiece(pos->side, KING)][0], !pos->side, pos);
+    const bool inCheck = SqAttacked(pos->pieceList[makePiece(sideToMove(), KING)][0], !sideToMove(), pos);
     if (inCheck) depth++;
 
     // Quiescence at the end of search
@@ -326,7 +326,7 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
         // Null Move Pruning
         if (   history(-1).move != NOMOVE
             && eval >= beta
-            && pos->bigPieces[pos->side] > 0
+            && pos->bigPieces[sideToMove()] > 0
             && depth >= 3) {
 
             int R = 3 + depth / 5 + MIN(3, (eval - beta) / 256);

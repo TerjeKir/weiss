@@ -248,13 +248,13 @@ static void GenMoves(const Position *pos, MoveList *list, const int color, const
 // Generate all quiet moves
 void GenQuietMoves(const Position *pos, MoveList *list) {
 
-    GenMoves(pos, list, pos->side, QUIET);
+    GenMoves(pos, list, sideToMove(), QUIET);
 }
 
 // Generate all noisy moves
 void GenNoisyMoves(const Position *pos, MoveList *list) {
 
-    GenMoves(pos, list, pos->side, NOISY);
+    GenMoves(pos, list, sideToMove(), NOISY);
 }
 
 // Generate all pseudo legal moves

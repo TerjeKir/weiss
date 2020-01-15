@@ -148,7 +148,7 @@ void TakeMove(Position *pos) {
     pos->ply--;
 
     // Change side to play
-    pos->side ^= 1;
+    sideToMove() ^= 1;
 
     // Update castling rights, 50mr, en passant
     pos->enPas      = history(0).enPas;
@@ -168,7 +168,7 @@ void TakeMove(Position *pos) {
 
     // Add in pawn captured by en passant
     if (FLAG_ENPAS & move)
-        AddPiece(to + 8 - 16 * pos->side, pos, makePiece(!pos->side, PAWN));
+        AddPiece(to + 8 - 16 * sideToMove(), pos, makePiece(!sideToMove(), PAWN));
 
     // Move rook back if castling
     else if (move & FLAG_CASTLE)
@@ -212,7 +212,7 @@ bool MakeMove(Position *pos, const int move) {
     const int to       = TOSQ(move);
     const int captured = CAPTURED(move);
 
-    const int side = pos->side;
+    const int side = sideToMove();
 
     assert(ValidSquare(from));
     assert(ValidSquare(to));
@@ -297,13 +297,13 @@ bool MakeMove(Position *pos, const int move) {
     }
 
     // Change turn to play
-    pos->side ^= 1;
+    sideToMove() ^= 1;
     HASH_SIDE;
 
     assert(CheckBoard(pos));
 
     // If own king is attacked after the move, take it back immediately
-    if (SqAttacked(pos->pieceList[makePiece(side, KING)][0], pos->side, pos)) {
+    if (SqAttacked(pos->pieceList[makePiece(side, KING)][0], sideToMove(), pos)) {
         TakeMove(pos);
         return false;
     }
@@ -328,7 +328,7 @@ void MakeNullMove(Position *pos) {
     pos->hisPly++;
 
     // Change side to play
-    pos->side ^= 1;
+    sideToMove() ^= 1;
     HASH_SIDE;
 
     // Hash out en passant if there was one, and unset it
@@ -354,7 +354,7 @@ void TakeNullMove(Position *pos) {
     pos->ply--;
 
     // Change side to play
-    pos->side ^= 1;
+    sideToMove() ^= 1;
 
     // Get info from history
     pos->enPas      = history(0).enPas;

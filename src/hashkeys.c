@@ -59,7 +59,7 @@ uint64_t GeneratePosKey(const Position *pos) {
     }
 
     // Side to play
-    if (pos->side == WHITE)
+    if (sideToMove() == WHITE)
         posKey ^= SideKey;
 
     // En passant

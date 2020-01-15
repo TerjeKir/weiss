@@ -22,6 +22,7 @@
 
 #define pieceBB(type) (pos->pieceBB[(type)])
 #define colorBB(color) (pos->colorBB[(color)])
+#define sideToMove() (pos->side)
 
 
 typedef uint64_t Bitboard;

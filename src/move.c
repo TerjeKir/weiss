@@ -24,7 +24,7 @@ bool MoveIsPseudoLegal(const Position *pos, const int move) {
 
     // Easy sanity tests
     if (   piece == EMPTY
-        || color != pos->side
+        || color != sideToMove()
         || capt1 != capt2
         || move  == NOMOVE)
         return false;

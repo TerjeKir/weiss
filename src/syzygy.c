@@ -30,5 +30,5 @@ unsigned int probeWDL(const Position *pos) {
         pieceBB(KNIGHT),
         pieceBB(PAWN),
         0,
-        pos->side);
+        sideToMove());
 }

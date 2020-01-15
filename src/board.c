@@ -186,7 +186,7 @@ void ParseFen(const char *fen, Position *pos) {
 
     // Side to move
     assert(*fen == 'w' || *fen == 'b');
-    pos->side = (*fen == 'w') ? WHITE : BLACK;
+    sideToMove() = (*fen == 'w') ? WHITE : BLACK;
     fen += 2;
 
     // Castling rights
@@ -249,7 +249,7 @@ void PrintBoard(const Position *pos) {
         printf("%3c", 'a' + file);
 
     printf("\n");
-    printf("side: %c\n", SideChar[pos->side]);
+    printf("side: %c\n", SideChar[sideToMove()]);
     printf("enPas: %d\n", pos->enPas);
     printf("castle: %c%c%c%c\n",
            pos->castlePerm & WKCA ? 'K' : '-',
@@ -322,11 +322,11 @@ bool CheckBoard(const Position *pos) {
 
     assert(t_bigPieces[WHITE] == pos->bigPieces[WHITE] && t_bigPieces[BLACK] == pos->bigPieces[BLACK]);
 
-    assert(pos->side == WHITE || pos->side == BLACK);
+    assert(sideToMove() == WHITE || sideToMove() == BLACK);
 
     assert(pos->enPas == NO_SQ
-       || (pos->enPas >= 40 && pos->enPas < 48 && pos->side == WHITE)
-       || (pos->enPas >= 16 && pos->enPas < 24 && pos->side == BLACK));
+       || (pos->enPas >= 40 && pos->enPas < 48 && sideToMove() == WHITE)
+       || (pos->enPas >= 16 && pos->enPas < 24 && sideToMove() == BLACK));
 
     assert(pos->castlePerm >= 0 && pos->castlePerm <= 15);
 
@@ -350,7 +350,7 @@ void MirrorBoard(Position *pos) {
     for (sq = A1; sq <= H8; ++sq)
         tempPiecesArray[sq] = SwapPiece[pos->board[mirror_square[sq]]];
 
-    tempSide  = !pos->side;
+    tempSide  = !sideToMove();
     tempEnPas = pos->enPas == NO_SQ ? NO_SQ : mirror_square[pos->enPas];
     tempCastlePerm = 0;
     if (pos->castlePerm & WKCA) tempCastlePerm |= BKCA;
@@ -365,8 +365,8 @@ void MirrorBoard(Position *pos) {
     for (sq = A1; sq <= H8; ++sq)
         pos->board[sq] = tempPiecesArray[sq];
 
-    pos->side  = tempSide;
-    pos->enPas = tempEnPas;
+    sideToMove() = tempSide;
+    pos->enPas   = tempEnPas;
     pos->castlePerm = tempCastlePerm;
 
     // Update the rest of the position to match pos->board
