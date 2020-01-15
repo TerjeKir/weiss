@@ -187,7 +187,7 @@ INLINE int evalBishops(const EvalInfo *ei, const Position *pos, const int color)
         int sq = pos->pieceList[bishops][i];
 
         // Mobility
-        eval += BishopMobility[PopCount(BishopAttacks(sq, pos->pieceBB[ALL]) & ei->mobilityArea[color])];
+        eval += BishopMobility[PopCount(BishopAttacks(sq, pieceBB(ALL)) & ei->mobilityArea[color])];
     }
 
     // Bishop pair
@@ -207,13 +207,13 @@ INLINE int evalRooks(const EvalInfo *ei, const Position *pos, const int color) {
         int sq = pos->pieceList[rooks][i];
 
         // Open/Semi-open file bonus
-        if (!(pos->pieceBB[PAWN] & fileBBs[fileOf(sq)]))
+        if (!(pieceBB(PAWN) & fileBBs[fileOf(sq)]))
             eval += RookOpenFile;
         else if (!(ei->pawnsBB[color] & fileBBs[fileOf(sq)]))
             eval += RookSemiOpenFile;
 
         // Mobility
-        eval += RookMobility[PopCount(RookAttacks(sq, pos->pieceBB[ALL]) & ei->mobilityArea[color])];
+        eval += RookMobility[PopCount(RookAttacks(sq, pieceBB(ALL)) & ei->mobilityArea[color])];
     }
 
     return eval;
@@ -229,14 +229,14 @@ INLINE int evalQueens(const EvalInfo *ei, const Position *pos, const int color) 
         int sq = pos->pieceList[queens][i];
 
         // Open/Semi-open file bonus
-        if (!(pos->pieceBB[PAWN] & fileBBs[fileOf(sq)]))
+        if (!(pieceBB(PAWN) & fileBBs[fileOf(sq)]))
             eval += QueenOpenFile;
         else if (!(ei->pawnsBB[color] & fileBBs[fileOf(sq)]))
             eval += QueenSemiOpenFile;
 
         // Mobility
-        eval += QueenMobility[PopCount((BishopAttacks(sq, pos->pieceBB[ALL])
-                                        | RookAttacks(sq, pos->pieceBB[ALL])) & ei->mobilityArea[color])];
+        eval += QueenMobility[PopCount((BishopAttacks(sq, pieceBB(ALL))
+                                        | RookAttacks(sq, pieceBB(ALL))) & ei->mobilityArea[color])];
     }
 
     return eval;
@@ -249,8 +249,8 @@ INLINE int evalKings(const Position *pos, const int color) {
     int kingSq = pos->pieceList[makePiece(color, KING)][0];
 
     // King safety
-    eval += KingLineVulnerability * PopCount(BishopAttacks(kingSq, pos->colorBB[color] | pos->pieceBB[PAWN])
-                                             | RookAttacks(kingSq, pos->colorBB[color] | pos->pieceBB[PAWN]));
+    eval += KingLineVulnerability * PopCount(BishopAttacks(kingSq, colorBB(color) | pieceBB(PAWN))
+                                             | RookAttacks(kingSq, colorBB(color) | pieceBB(PAWN)));
 
     return eval;
 }
@@ -282,12 +282,12 @@ int EvalPosition(const Position *pos) {
 
     Bitboard blockedPawns[2], unmovedPawns[2], attackedByPawns[2];
 
-    ei.pawnsBB[WHITE] = pos->colorBB[WHITE] & pos->pieceBB[PAWN];
-    ei.pawnsBB[BLACK] = pos->colorBB[BLACK] & pos->pieceBB[PAWN];
+    ei.pawnsBB[WHITE] = colorBB(WHITE) & pieceBB(PAWN);
+    ei.pawnsBB[BLACK] = colorBB(BLACK) & pieceBB(PAWN);
 
     // Mobility area
-    blockedPawns[BLACK] = ei.pawnsBB[BLACK] & pos->pieceBB[ALL] << 8;
-    blockedPawns[WHITE] = ei.pawnsBB[WHITE] & pos->pieceBB[ALL] >> 8;
+    blockedPawns[BLACK] = ei.pawnsBB[BLACK] & pieceBB(ALL) << 8;
+    blockedPawns[WHITE] = ei.pawnsBB[WHITE] & pieceBB(ALL) >> 8;
 
     unmovedPawns[BLACK] = ei.pawnsBB[BLACK] & rank7BB;
     unmovedPawns[WHITE] = ei.pawnsBB[WHITE] & rank2BB;

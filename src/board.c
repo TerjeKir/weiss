@@ -62,9 +62,9 @@ static void UpdatePosition(Position *pos) {
             color = colorOf(piece);
 
             // Bitboards
-            SETBIT(pos->pieceBB[ALL], sq);
-            SETBIT(pos->colorBB[colorOf(piece)], sq);
-            SETBIT(pos->pieceBB[pieceTypeOf(piece)], sq);
+            SETBIT(pieceBB(ALL), sq);
+            SETBIT(colorBB(colorOf(piece)), sq);
+            SETBIT(pieceBB(pieceTypeOf(piece)), sq);
 
             // Non pawn piece count
             if (pieceBig[piece])
@@ -270,35 +270,35 @@ bool CheckBoard(const Position *pos) {
     int sq, t_piece, t_pce_num, color;
 
     // Bitboards
-    assert(PopCount(pos->pieceBB[KING]) == 2);
+    assert(PopCount(pieceBB(KING)) == 2);
 
-    assert(PopCount(pos->pieceBB[  PAWN] & pos->colorBB[WHITE]) <= 8);
-    assert(PopCount(pos->pieceBB[KNIGHT] & pos->colorBB[WHITE]) <= 10);
-    assert(PopCount(pos->pieceBB[BISHOP] & pos->colorBB[WHITE]) <= 10);
-    assert(PopCount(pos->pieceBB[  ROOK] & pos->colorBB[WHITE]) <= 10);
-    assert(PopCount(pos->pieceBB[ QUEEN] & pos->colorBB[WHITE]) <= 9);
-    assert(PopCount(pos->pieceBB[  KING] & pos->colorBB[WHITE]) == 1);
+    assert(PopCount(pieceBB(PAWN)   & colorBB(WHITE)) <= 8);
+    assert(PopCount(pieceBB(KNIGHT) & colorBB(WHITE)) <= 10);
+    assert(PopCount(pieceBB(BISHOP) & colorBB(WHITE)) <= 10);
+    assert(PopCount(pieceBB(ROOK)   & colorBB(WHITE)) <= 10);
+    assert(PopCount(pieceBB(QUEEN)  & colorBB(WHITE)) <= 9);
+    assert(PopCount(pieceBB(KING)   & colorBB(WHITE)) == 1);
 
-    assert(PopCount(pos->pieceBB[  PAWN] & pos->colorBB[BLACK]) <= 8);
-    assert(PopCount(pos->pieceBB[KNIGHT] & pos->colorBB[BLACK]) <= 10);
-    assert(PopCount(pos->pieceBB[BISHOP] & pos->colorBB[BLACK]) <= 10);
-    assert(PopCount(pos->pieceBB[  ROOK] & pos->colorBB[BLACK]) <= 10);
-    assert(PopCount(pos->pieceBB[ QUEEN] & pos->colorBB[BLACK]) <= 9);
-    assert(PopCount(pos->pieceBB[  KING] & pos->colorBB[BLACK]) == 1);
+    assert(PopCount(pieceBB(PAWN)   & colorBB(BLACK)) <= 8);
+    assert(PopCount(pieceBB(KNIGHT) & colorBB(BLACK)) <= 10);
+    assert(PopCount(pieceBB(BISHOP) & colorBB(BLACK)) <= 10);
+    assert(PopCount(pieceBB(ROOK)   & colorBB(BLACK)) <= 10);
+    assert(PopCount(pieceBB(QUEEN)  & colorBB(BLACK)) <= 9);
+    assert(PopCount(pieceBB(KING)   & colorBB(BLACK)) == 1);
 
-    assert(PopCount(pos->pieceBB[  PAWN] & pos->colorBB[WHITE]) == pos->pieceCounts[wP]);
-    assert(PopCount(pos->pieceBB[KNIGHT] & pos->colorBB[WHITE]) == pos->pieceCounts[wN]);
-    assert(PopCount(pos->pieceBB[BISHOP] & pos->colorBB[WHITE]) == pos->pieceCounts[wB]);
-    assert(PopCount(pos->pieceBB[  ROOK] & pos->colorBB[WHITE]) == pos->pieceCounts[wR]);
-    assert(PopCount(pos->pieceBB[ QUEEN] & pos->colorBB[WHITE]) == pos->pieceCounts[wQ]);
+    assert(PopCount(pieceBB(PAWN)   & colorBB(WHITE)) == pos->pieceCounts[wP]);
+    assert(PopCount(pieceBB(KNIGHT) & colorBB(WHITE)) == pos->pieceCounts[wN]);
+    assert(PopCount(pieceBB(BISHOP) & colorBB(WHITE)) == pos->pieceCounts[wB]);
+    assert(PopCount(pieceBB(ROOK)   & colorBB(WHITE)) == pos->pieceCounts[wR]);
+    assert(PopCount(pieceBB(QUEEN)  & colorBB(WHITE)) == pos->pieceCounts[wQ]);
 
-    assert(PopCount(pos->pieceBB[  PAWN] & pos->colorBB[BLACK]) == pos->pieceCounts[bP]);
-    assert(PopCount(pos->pieceBB[KNIGHT] & pos->colorBB[BLACK]) == pos->pieceCounts[bN]);
-    assert(PopCount(pos->pieceBB[BISHOP] & pos->colorBB[BLACK]) == pos->pieceCounts[bB]);
-    assert(PopCount(pos->pieceBB[  ROOK] & pos->colorBB[BLACK]) == pos->pieceCounts[bR]);
-    assert(PopCount(pos->pieceBB[ QUEEN] & pos->colorBB[BLACK]) == pos->pieceCounts[bQ]);
+    assert(PopCount(pieceBB(PAWN)   & colorBB(BLACK)) == pos->pieceCounts[bP]);
+    assert(PopCount(pieceBB(KNIGHT) & colorBB(BLACK)) == pos->pieceCounts[bN]);
+    assert(PopCount(pieceBB(BISHOP) & colorBB(BLACK)) == pos->pieceCounts[bB]);
+    assert(PopCount(pieceBB(ROOK)   & colorBB(BLACK)) == pos->pieceCounts[bR]);
+    assert(PopCount(pieceBB(QUEEN)  & colorBB(BLACK)) == pos->pieceCounts[bQ]);
 
-    assert(pos->pieceBB[ALL] == (pos->colorBB[WHITE] | pos->colorBB[BLACK]));
+    assert(pieceBB(ALL) == (colorBB(WHITE) | colorBB(BLACK)));
 
     // check piece lists
     for (t_piece = PIECE_MIN; t_piece < PIECE_NB; ++t_piece)

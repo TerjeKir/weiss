@@ -62,9 +62,9 @@ static void ClearPiece(const int sq, Position *pos) {
     // pos->pieceList[piece][pos->pieceCounts[piece]] = NO_SQ;
 
     // Update bitboards
-    CLRBIT(pos->pieceBB[ALL], sq);
-    CLRBIT(pos->colorBB[color], sq);
-    CLRBIT(pos->pieceBB[pieceTypeOf(piece)], sq);
+    CLRBIT(pieceBB(ALL), sq);
+    CLRBIT(colorBB(color), sq);
+    CLRBIT(pieceBB(pieceTypeOf(piece)), sq);
 }
 
 // Add a piece piece to a square
@@ -97,9 +97,9 @@ static void AddPiece(const int sq, Position *pos, const int piece) {
     pos->pieceList[piece][pos->index[sq]] = sq;
 
     // Update bitboards
-    SETBIT(pos->pieceBB[ALL], sq);
-    SETBIT(pos->colorBB[color], sq);
-    SETBIT(pos->pieceBB[pieceTypeOf(piece)], sq);
+    SETBIT(pieceBB(ALL), sq);
+    SETBIT(colorBB(color), sq);
+    SETBIT(pieceBB(pieceTypeOf(piece)), sq);
 }
 
 // Move a piece from one square to another
@@ -128,14 +128,14 @@ static void MovePiece(const int from, const int to, Position *pos) {
     pos->material += PSQT[piece][to] - PSQT[piece][from];
 
     // Update bitboards
-    CLRBIT(pos->pieceBB[ALL], from);
-    SETBIT(pos->pieceBB[ALL], to);
+    CLRBIT(pieceBB(ALL), from);
+    SETBIT(pieceBB(ALL), to);
 
-    CLRBIT(pos->colorBB[colorOf(piece)], from);
-    SETBIT(pos->colorBB[colorOf(piece)], to);
+    CLRBIT(colorBB(colorOf(piece)), from);
+    SETBIT(colorBB(colorOf(piece)), to);
 
-    CLRBIT(pos->pieceBB[pieceTypeOf(piece)], from);
-    SETBIT(pos->pieceBB[pieceTypeOf(piece)], to);
+    CLRBIT(pieceBB(pieceTypeOf(piece)), from);
+    SETBIT(pieceBB(pieceTypeOf(piece)), to);
 }
 
 // Take back the previous move

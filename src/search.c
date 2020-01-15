@@ -113,7 +113,7 @@ static void PrintConclusion(const SearchInfo *info) {
 }
 
 INLINE bool pawnOn7th(const Position *pos) {
-    return pos->colorBB[pos->side] & pos->pieceBB[PAWN] & rankBBs[relativeRank(pos->side, RANK_7)];
+    return colorBB(pos->side) & pieceBB(PAWN) & rankBBs[relativeRank(pos->side, RANK_7)];
 }
 
 // Dynamic delta pruning margin
@@ -124,14 +124,14 @@ static int QuiescenceDeltaMargin(const Position *pos) {
     const int DeltaBase = pawnOn7th(pos) ? Q_MG : P_MG;
 
     // Look for possible captures on the board
-    const Bitboard enemy = pos->colorBB[!pos->side];
+    const Bitboard enemy = colorBB(!pos->side);
 
     // Find the most valuable piece we could take and add to our base
-    return (enemy & pos->pieceBB[QUEEN ]) ? DeltaBase + Q_MG
-         : (enemy & pos->pieceBB[ROOK  ]) ? DeltaBase + R_MG
-         : (enemy & pos->pieceBB[BISHOP]) ? DeltaBase + B_MG
-         : (enemy & pos->pieceBB[KNIGHT]) ? DeltaBase + N_MG
-                                          : DeltaBase + P_MG;
+    return (enemy & pieceBB(QUEEN )) ? DeltaBase + Q_MG
+         : (enemy & pieceBB(ROOK  )) ? DeltaBase + R_MG
+         : (enemy & pieceBB(BISHOP)) ? DeltaBase + B_MG
+         : (enemy & pieceBB(KNIGHT)) ? DeltaBase + N_MG
+                                     : DeltaBase + P_MG;
 }
 
 // Quiescence

@@ -20,6 +20,9 @@
 #define killer1 pos->searchKillers[pos->ply][0]
 #define killer2 pos->searchKillers[pos->ply][1]
 
+#define pieceBB(type) pos->pieceBB[(type)]
+#define colorBB(color) pos->colorBB[(color)]
+
 
 typedef uint64_t Bitboard;
 

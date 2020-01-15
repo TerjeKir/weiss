@@ -167,21 +167,21 @@ Bitboard RookAttacks(const int sq, Bitboard occupied) {
 #endif
 }
 
-// Returns true if sq is attacked by side
-bool SqAttacked(const int sq, const int side, const Position *pos) {
+// Returns true if sq is attacked by color
+bool SqAttacked(const int sq, const int color, const Position *pos) {
 
     assert(ValidSquare(sq));
-    assert(ValidSide(side));
+    assert(ValidSide(color));
     assert(CheckBoard(pos));
 
-    const Bitboard bishops = pos->colorBB[side] & (pos->pieceBB[BISHOP] | pos->pieceBB[QUEEN]);
-    const Bitboard rooks   = pos->colorBB[side] & (pos->pieceBB[  ROOK] | pos->pieceBB[QUEEN]);
+    const Bitboard bishops = colorBB(color) & (pieceBB(BISHOP) | pieceBB(QUEEN));
+    const Bitboard rooks   = colorBB(color) & (pieceBB(ROOK)   | pieceBB(QUEEN));
 
-    if (     pawn_attacks[!side][sq] & pos->pieceBB[PAWN]   & pos->colorBB[side]
-        || knight_attacks[sq]        & pos->pieceBB[KNIGHT] & pos->colorBB[side]
-        ||   king_attacks[sq]        & pos->pieceBB[KING]   & pos->colorBB[side]
-        || bishops & BishopAttacks(sq, pos->pieceBB[ALL])
-        || rooks   &   RookAttacks(sq, pos->pieceBB[ALL]))
+    if (     pawn_attacks[!color][sq] & pieceBB(PAWN)   & colorBB(color)
+        || knight_attacks[sq]         & pieceBB(KNIGHT) & colorBB(color)
+        ||   king_attacks[sq]         & pieceBB(KING)   & colorBB(color)
+        || bishops & BishopAttacks(sq, pieceBB(ALL))
+        || rooks   &   RookAttacks(sq, pieceBB(ALL)))
         return true;
 
     return false;
