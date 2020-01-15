@@ -31,89 +31,38 @@ Bitboard knight_attacks[64];
 Bitboard king_attacks[64];
 
 
-// Inits the king attack bitboards
-static void InitKingAttacks() {
+// Helper function that returns a bitboard with the landing square of
+// the step, or an empty bitboard of the step would go outside the board
+INLINE Bitboard LandingSquare(int sq, int step) {
+
+    const int to = sq + step;
+    return (Bitboard)((unsigned)to <= H8 && Distance(sq, to) <= 2) << to;
+}
+
+// Inits the non-slider attack bitboards
+static void InitNonSliderAttacks() {
+
+    int KSteps[8] = {  -9,  -8,  -7, -1, 1,  7,  8,  9 };
+    int NSteps[8] = { -17, -15, -10, -6, 6, 10, 15, 17 };
+    int PSteps[2][2] = { { -7, -9 }, { 7, 9 } };
 
     for (int sq = A1; sq <= H8; ++sq) {
 
-        if (rankOf(sq) < RANK_8) {
-            if (fileOf(sq) < FILE_H)
-                SETBIT(king_attacks[sq], sq + 9);
-            SETBIT(king_attacks[sq], sq + 8);
-            if (fileOf(sq) > FILE_A)
-                SETBIT(king_attacks[sq], sq + 7);
+        // Kings and knights
+        for (int i = 0; i < 8; ++i) {
+            king_attacks[sq]   |= LandingSquare(sq, KSteps[i]);
+            knight_attacks[sq] |= LandingSquare(sq, NSteps[i]);
         }
 
-        if (fileOf(sq) < FILE_H)
-            SETBIT(king_attacks[sq], sq + 1);
-        if (fileOf(sq) > FILE_A)
-            SETBIT(king_attacks[sq], sq - 1);
-
-        if (rankOf(sq) > RANK_1) {
-            if (fileOf(sq) < FILE_H)
-                SETBIT(king_attacks[sq], sq - 7);
-            SETBIT(king_attacks[sq], sq - 8);
-            if (fileOf(sq) > FILE_A)
-                SETBIT(king_attacks[sq], sq - 9);
+        // Pawns
+        for (int i = 0; i < 2; ++i) {
+            pawn_attacks[WHITE][sq] |= LandingSquare(sq, PSteps[WHITE][i]);
+            pawn_attacks[BLACK][sq] |= LandingSquare(sq, PSteps[BLACK][i]);
         }
     }
 }
 
-// Inits the knight attack bitboards
-static void InitKnightAttacks() {
-
-    for (int sq = A1; sq <= H8; ++sq) {
-
-        if (rankOf(sq) < RANK_7) {
-            if (fileOf(sq) < FILE_H)
-                SETBIT(knight_attacks[sq], sq + 17);
-            if (fileOf(sq) > FILE_A)
-                SETBIT(knight_attacks[sq], sq + 15);
-        }
-        if (rankOf(sq) < RANK_8) {
-            if (fileOf(sq) < FILE_G)
-                SETBIT(knight_attacks[sq], sq + 10);
-            if (fileOf(sq) > FILE_B)
-                SETBIT(knight_attacks[sq], sq + 6);
-        }
-        if (rankOf(sq) > RANK_1) {
-            if (fileOf(sq) < FILE_G)
-                SETBIT(knight_attacks[sq], sq - 6);
-            if (fileOf(sq) > FILE_B)
-                SETBIT(knight_attacks[sq], sq - 10);
-        }
-        if (rankOf(sq) > RANK_2) {
-            if (fileOf(sq) < FILE_H)
-                SETBIT(knight_attacks[sq], sq - 15);
-            if (fileOf(sq) > FILE_A)
-                SETBIT(knight_attacks[sq], sq - 17);
-        }
-    }
-}
-
-// Inits the pawn attack bitboards
-static void InitPawnAttacks() {
-
-    // All squares needed despite pawns never being on 1. or 8. rank
-    for (int sq = A1; sq <= H8; ++sq) {
-
-        // White
-        if (rankOf(sq) < RANK_8) {
-            if (fileOf(sq) < FILE_H)
-                SETBIT(pawn_attacks[WHITE][sq], sq + 9);
-            if (fileOf(sq) > FILE_A)
-                SETBIT(pawn_attacks[WHITE][sq], sq + 7);
-        }
-        // Black
-        if (rankOf(sq) > RANK_1) {
-            if (fileOf(sq) < FILE_H)
-                SETBIT(pawn_attacks[BLACK][sq], sq - 7);
-            if (fileOf(sq) > FILE_A)
-                SETBIT(pawn_attacks[BLACK][sq], sq - 9);
-        }
-    }
-}
-
+// Makes slider attack bitboards
 static Bitboard MakeSliderAttacks(const int sq, const Bitboard occupied, const int directions[]) {
 
     Bitboard result = 0;
@@ -178,15 +127,13 @@ static void InitSliderAttacks(Magic *m, Bitboard *table, const uint64_t *magics,
 // Initializes all attack bitboards
 CONSTR InitAttacks() {
 
+    // Non-sliders
+    InitNonSliderAttacks();
+
+    // Sliders
     const int bishopDirections[4] = {7, 9, -7, -9};
     const int   rookDirections[4] = {8, 1, -8, -1};
 
-    // Simple
-    InitKingAttacks();
-    InitKnightAttacks();
-    InitPawnAttacks();
-
-    // Magic
 #ifdef USE_PEXT
     InitSliderAttacks(BishopTable, bishop_attacks, bishopDirections);
     InitSliderAttacks(  RookTable,   rook_attacks,   rookDirections);
@@ -234,7 +181,7 @@ bool SqAttacked(const int sq, const int side, const Position *pos) {
         || knight_attacks[sq]        & pos->pieceBB[KNIGHT] & pos->colorBB[side]
         ||   king_attacks[sq]        & pos->pieceBB[KING]   & pos->colorBB[side]
         || bishops & BishopAttacks(sq, pos->pieceBB[ALL])
-        || rooks   & RookAttacks(sq, pos->pieceBB[ALL]))
+        || rooks   &   RookAttacks(sq, pos->pieceBB[ALL]))
         return true;
 
     return false;
