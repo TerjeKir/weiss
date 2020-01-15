@@ -427,7 +427,7 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
 
                 // Update search history
                 if (quiet)
-                    pos->searchHistory[pos->board[FROMSQ(bestMove)]][TOSQ(bestMove)] += depth * depth;
+                    pos->searchHistory[pieceOn(FROMSQ(bestMove))][TOSQ(bestMove)] += depth * depth;
 
                 // If score beats beta we have a cutoff
                 if (score >= beta) {

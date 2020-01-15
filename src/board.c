@@ -54,7 +54,7 @@ static void UpdatePosition(Position *pos) {
     // Loop through each square on the board
     for (sq = A1; sq <= H8; ++sq) {
 
-        piece = pos->board[sq];
+        piece = pieceOn(sq);
 
         // If it isn't empty we update the relevant lists
         if (piece != EMPTY) {
@@ -177,7 +177,7 @@ void ParseFen(const char *fen, Position *pos) {
         for (i = 0; i < count; ++i) {
             sq = rank * 8 + file;
             if (piece != EMPTY)
-                pos->board[sq] = piece;
+                pieceOn(sq) = piece;
 
             file++;
         }
@@ -238,7 +238,7 @@ void PrintBoard(const Position *pos) {
         printf("%d  ", rank + 1);
         for (file = FILE_A; file <= FILE_H; ++file) {
             sq = (rank * 8) + file;
-            piece = pos->board[sq];
+            piece = pieceOn(sq);
             printf("%3c", PceChar[piece]);
         }
         printf("\n");
@@ -304,13 +304,13 @@ bool CheckBoard(const Position *pos) {
     for (t_piece = PIECE_MIN; t_piece < PIECE_NB; ++t_piece)
         for (t_pce_num = 0; t_pce_num < pos->pieceCounts[t_piece]; ++t_pce_num) {
             sq = pos->pieceList[t_piece][t_pce_num];
-            assert(pos->board[sq] == t_piece);
+            assert(pieceOn(sq) == t_piece);
         }
 
     // check piece count and other counters
     for (sq = A1; sq <= H8; ++sq) {
 
-        t_piece = pos->board[sq];
+        t_piece = pieceOn(sq);
         t_pieceCounts[t_piece]++;
         color = colorOf(t_piece);
 
@@ -348,7 +348,7 @@ void MirrorBoard(Position *pos) {
 
     // Save the necessary position info mirrored
     for (sq = A1; sq <= H8; ++sq)
-        tempPiecesArray[sq] = SwapPiece[pos->board[mirror_square[sq]]];
+        tempPiecesArray[sq] = SwapPiece[pieceOn(mirror_square[sq])];
 
     tempSide  = !sideToMove();
     tempEnPas = pos->enPas == NO_SQ ? NO_SQ : mirror_square[pos->enPas];
@@ -363,7 +363,7 @@ void MirrorBoard(Position *pos) {
 
     // Fill in the mirrored position info
     for (sq = A1; sq <= H8; ++sq)
-        pos->board[sq] = tempPiecesArray[sq];
+        pieceOn(sq) = tempPiecesArray[sq];
 
     sideToMove() = tempSide;
     pos->enPas   = tempEnPas;

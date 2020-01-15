@@ -34,12 +34,11 @@ INLINE void AddMove(const Position *pos, MoveList *list, const int from, const i
 
     int *moveScore = &list->moves[list->count].score;
 
-    const int captured = pos->board[to];
-    const int move = MOVE(from, to, captured, promo, flag);
+    const int move = MOVE(from, to, pieceOn(to), promo, flag);
 
     // Add scores to help move ordering based on search history heuristics / mvvlva
     if (type == NOISY)
-        *moveScore = MvvLvaScores[captured][pos->board[from]];
+        *moveScore = MvvLvaScores[pieceOn(to)][pieceOn(from)];
 
     if (type == QUIET) {
         if (killer1 == move)
@@ -47,7 +46,7 @@ INLINE void AddMove(const Position *pos, MoveList *list, const int from, const i
         else if (killer2 == move)
             *moveScore = 800000;
         else
-            *moveScore = pos->searchHistory[pos->board[from]][to];
+            *moveScore = pos->searchHistory[pieceOn(from)][to];
     }
 
     list->moves[list->count++].move = move;

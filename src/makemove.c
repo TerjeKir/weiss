@@ -32,7 +32,7 @@ static void ClearPiece(const int sq, Position *pos) {
 
     assert(ValidSquare(sq));
 
-    const int piece = pos->board[sq];
+    const int piece = pieceOn(sq);
     const int color = colorOf(piece);
 
     assert(ValidPiece(piece));
@@ -42,7 +42,7 @@ static void ClearPiece(const int sq, Position *pos) {
     HASH_PCE(piece, sq);
 
     // Set square to empty
-    pos->board[sq] = EMPTY;
+    pieceOn(sq) = EMPTY;
 
     // Update material
     pos->material -= PSQT[piece][sq];
@@ -80,7 +80,7 @@ static void AddPiece(const int sq, Position *pos, const int piece) {
     HASH_PCE(piece, sq);
 
     // Update square
-    pos->board[sq] = piece;
+    pieceOn(sq) = piece;
 
     // Update material
     pos->material += PSQT[piece][sq];
@@ -108,7 +108,7 @@ static void MovePiece(const int from, const int to, Position *pos) {
     assert(ValidSquare(from));
     assert(ValidSquare(to));
 
-    const int piece = pos->board[from];
+    const int piece = pieceOn(from);
 
     assert(ValidPiece(piece));
 
@@ -117,8 +117,8 @@ static void MovePiece(const int from, const int to, Position *pos) {
     HASH_PCE(piece, to);
 
     // Set old square to empty, new to piece
-    pos->board[from] = EMPTY;
-    pos->board[to]   = piece;
+    pieceOn(from) = EMPTY;
+    pieceOn(to)   = piece;
 
     // Update square for the piece in pieceList
     pos->index[to] = pos->index[from];
@@ -217,7 +217,7 @@ bool MakeMove(Position *pos, const int move) {
     assert(ValidSquare(from));
     assert(ValidSquare(to));
     assert(ValidSide(side));
-    assert(ValidPiece(pos->board[from]));
+    assert(ValidPiece(pieceOn(from)));
     assert(pos->hisPly >= 0 && pos->hisPly < MAXGAMEMOVES);
     assert(pos->ply >= 0 && pos->ply < MAXDEPTH);
 
@@ -271,7 +271,7 @@ bool MakeMove(Position *pos, const int move) {
     MovePiece(from, to, pos);
 
     // Pawn move specifics
-    if (piecePawn[pos->board[to]]) {
+    if (piecePawn[pieceOn(to)]) {
 
         // Reset 50mr after a pawn move
         pos->fiftyMove = 0;
