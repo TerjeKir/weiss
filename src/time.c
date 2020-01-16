@@ -16,3 +16,7 @@ int Now() {
     return t.tv_sec * 1000 + t.tv_nsec / 1000000;
 #endif
 }
+
+int TimeSince(const int time) {
+    return Now() - time;
+}

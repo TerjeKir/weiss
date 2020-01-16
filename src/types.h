@@ -179,7 +179,7 @@ typedef struct {
 
 typedef struct {
 
-    int start, time, inc, movestogo, movetime, depth, stop;
+    int start, time, inc, movestogo, movetime, depth, maxUsage;
     bool timelimit;
 
 } SearchLimits;

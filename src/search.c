@@ -37,7 +37,7 @@ static bool OutOfTime(SearchInfo *info) {
 
     if (  (info->nodes & 8192) == 0
         && limits.timelimit
-        && Now() >= limits.stop)
+        && TimeSince(limits.start) >= limits.maxUsage - 10)
 
         return true;
 
@@ -497,7 +497,7 @@ static int AspirationWindow(Position *pos, SearchInfo *info) {
 // Decides when to stop a search
 static void InitTimeManagement() {
 
-    const int overhead = 50;
+    const int overhead = 30;
     const int minTime = 20;
 
     // Default to spending 1/30 of remaining time
@@ -517,7 +517,7 @@ static void InitTimeManagement() {
     if (limits.time) {
         int timeThisMove = MIN(limits.time, (limits.time / limits.movestogo) + 2 * limits.inc) - overhead;
 
-        limits.stop = limits.start + MAX(minTime, timeThisMove);
+        limits.maxUsage = MAX(minTime, timeThisMove);
 
         limits.timelimit = true;
     } else
