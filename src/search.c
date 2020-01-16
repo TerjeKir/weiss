@@ -113,7 +113,7 @@ static void PrintConclusion(const SearchInfo *info) {
 }
 
 INLINE bool pawnOn7th(const Position *pos) {
-    return pos->colorBB[pos->side] & pos->pieceBB[PAWN] & rankBBs[relativeRank(pos->side, RANK_7)];
+    return colorBB(sideToMove()) & pieceBB(PAWN) & rankBBs[relativeRank(sideToMove(), RANK_7)];
 }
 
 // Dynamic delta pruning margin
@@ -124,14 +124,14 @@ static int QuiescenceDeltaMargin(const Position *pos) {
     const int DeltaBase = pawnOn7th(pos) ? Q_MG : P_MG;
 
     // Look for possible captures on the board
-    const Bitboard enemy = pos->colorBB[!pos->side];
+    const Bitboard enemy = colorBB(!sideToMove());
 
     // Find the most valuable piece we could take and add to our base
-    return (enemy & pos->pieceBB[QUEEN ]) ? DeltaBase + Q_MG
-         : (enemy & pos->pieceBB[ROOK  ]) ? DeltaBase + R_MG
-         : (enemy & pos->pieceBB[BISHOP]) ? DeltaBase + B_MG
-         : (enemy & pos->pieceBB[KNIGHT]) ? DeltaBase + N_MG
-                                          : DeltaBase + P_MG;
+    return (enemy & pieceBB(QUEEN )) ? DeltaBase + Q_MG
+         : (enemy & pieceBB(ROOK  )) ? DeltaBase + R_MG
+         : (enemy & pieceBB(BISHOP)) ? DeltaBase + B_MG
+         : (enemy & pieceBB(KNIGHT)) ? DeltaBase + N_MG
+                                     : DeltaBase + P_MG;
 }
 
 // Quiescence
@@ -224,7 +224,7 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
     MoveList list;
 
     // Extend search if in check
-    const bool inCheck = SqAttacked(pos->pieceList[makePiece(pos->side, KING)][0], !pos->side, pos);
+    const bool inCheck = SqAttacked(pos->pieceList[makePiece(sideToMove(), KING)][0], !sideToMove(), pos);
     if (inCheck) depth++;
 
     // Quiescence at the end of search
@@ -326,7 +326,7 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
         // Null Move Pruning
         if (   history(-1).move != NOMOVE
             && eval >= beta
-            && pos->bigPieces[pos->side] > 0
+            && pos->bigPieces[sideToMove()] > 0
             && depth >= 3) {
 
             int R = 3 + depth / 5 + MIN(3, (eval - beta) / 256);
@@ -427,7 +427,7 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
 
                 // Update search history
                 if (quiet)
-                    pos->searchHistory[pos->board[FROMSQ(bestMove)]][TOSQ(bestMove)] += depth * depth;
+                    pos->searchHistory[pieceOn(FROMSQ(bestMove))][TOSQ(bestMove)] += depth * depth;
 
                 // If score beats beta we have a cutoff
                 if (score >= beta) {

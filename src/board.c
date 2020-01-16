@@ -54,7 +54,7 @@ static void UpdatePosition(Position *pos) {
     // Loop through each square on the board
     for (sq = A1; sq <= H8; ++sq) {
 
-        piece = pos->board[sq];
+        piece = pieceOn(sq);
 
         // If it isn't empty we update the relevant lists
         if (piece != EMPTY) {
@@ -62,9 +62,9 @@ static void UpdatePosition(Position *pos) {
             color = colorOf(piece);
 
             // Bitboards
-            SETBIT(pos->pieceBB[ALL], sq);
-            SETBIT(pos->colorBB[colorOf(piece)], sq);
-            SETBIT(pos->pieceBB[pieceTypeOf(piece)], sq);
+            SETBIT(pieceBB(ALL), sq);
+            SETBIT(colorBB(colorOf(piece)), sq);
+            SETBIT(pieceBB(pieceTypeOf(piece)), sq);
 
             // Non pawn piece count
             if (pieceBig[piece])
@@ -177,7 +177,7 @@ void ParseFen(const char *fen, Position *pos) {
         for (i = 0; i < count; ++i) {
             sq = rank * 8 + file;
             if (piece != EMPTY)
-                pos->board[sq] = piece;
+                pieceOn(sq) = piece;
 
             file++;
         }
@@ -186,7 +186,7 @@ void ParseFen(const char *fen, Position *pos) {
 
     // Side to move
     assert(*fen == 'w' || *fen == 'b');
-    pos->side = (*fen == 'w') ? WHITE : BLACK;
+    sideToMove() = (*fen == 'w') ? WHITE : BLACK;
     fen += 2;
 
     // Castling rights
@@ -238,7 +238,7 @@ void PrintBoard(const Position *pos) {
         printf("%d  ", rank + 1);
         for (file = FILE_A; file <= FILE_H; ++file) {
             sq = (rank * 8) + file;
-            piece = pos->board[sq];
+            piece = pieceOn(sq);
             printf("%3c", PceChar[piece]);
         }
         printf("\n");
@@ -249,7 +249,7 @@ void PrintBoard(const Position *pos) {
         printf("%3c", 'a' + file);
 
     printf("\n");
-    printf("side: %c\n", SideChar[pos->side]);
+    printf("side: %c\n", SideChar[sideToMove()]);
     printf("enPas: %d\n", pos->enPas);
     printf("castle: %c%c%c%c\n",
            pos->castlePerm & WKCA ? 'K' : '-',
@@ -270,47 +270,47 @@ bool CheckBoard(const Position *pos) {
     int sq, t_piece, t_pce_num, color;
 
     // Bitboards
-    assert(PopCount(pos->pieceBB[KING]) == 2);
+    assert(PopCount(pieceBB(KING)) == 2);
 
-    assert(PopCount(pos->pieceBB[  PAWN] & pos->colorBB[WHITE]) <= 8);
-    assert(PopCount(pos->pieceBB[KNIGHT] & pos->colorBB[WHITE]) <= 10);
-    assert(PopCount(pos->pieceBB[BISHOP] & pos->colorBB[WHITE]) <= 10);
-    assert(PopCount(pos->pieceBB[  ROOK] & pos->colorBB[WHITE]) <= 10);
-    assert(PopCount(pos->pieceBB[ QUEEN] & pos->colorBB[WHITE]) <= 9);
-    assert(PopCount(pos->pieceBB[  KING] & pos->colorBB[WHITE]) == 1);
+    assert(PopCount(pieceBB(PAWN)   & colorBB(WHITE)) <= 8);
+    assert(PopCount(pieceBB(KNIGHT) & colorBB(WHITE)) <= 10);
+    assert(PopCount(pieceBB(BISHOP) & colorBB(WHITE)) <= 10);
+    assert(PopCount(pieceBB(ROOK)   & colorBB(WHITE)) <= 10);
+    assert(PopCount(pieceBB(QUEEN)  & colorBB(WHITE)) <= 9);
+    assert(PopCount(pieceBB(KING)   & colorBB(WHITE)) == 1);
 
-    assert(PopCount(pos->pieceBB[  PAWN] & pos->colorBB[BLACK]) <= 8);
-    assert(PopCount(pos->pieceBB[KNIGHT] & pos->colorBB[BLACK]) <= 10);
-    assert(PopCount(pos->pieceBB[BISHOP] & pos->colorBB[BLACK]) <= 10);
-    assert(PopCount(pos->pieceBB[  ROOK] & pos->colorBB[BLACK]) <= 10);
-    assert(PopCount(pos->pieceBB[ QUEEN] & pos->colorBB[BLACK]) <= 9);
-    assert(PopCount(pos->pieceBB[  KING] & pos->colorBB[BLACK]) == 1);
+    assert(PopCount(pieceBB(PAWN)   & colorBB(BLACK)) <= 8);
+    assert(PopCount(pieceBB(KNIGHT) & colorBB(BLACK)) <= 10);
+    assert(PopCount(pieceBB(BISHOP) & colorBB(BLACK)) <= 10);
+    assert(PopCount(pieceBB(ROOK)   & colorBB(BLACK)) <= 10);
+    assert(PopCount(pieceBB(QUEEN)  & colorBB(BLACK)) <= 9);
+    assert(PopCount(pieceBB(KING)   & colorBB(BLACK)) == 1);
 
-    assert(PopCount(pos->pieceBB[  PAWN] & pos->colorBB[WHITE]) == pos->pieceCounts[wP]);
-    assert(PopCount(pos->pieceBB[KNIGHT] & pos->colorBB[WHITE]) == pos->pieceCounts[wN]);
-    assert(PopCount(pos->pieceBB[BISHOP] & pos->colorBB[WHITE]) == pos->pieceCounts[wB]);
-    assert(PopCount(pos->pieceBB[  ROOK] & pos->colorBB[WHITE]) == pos->pieceCounts[wR]);
-    assert(PopCount(pos->pieceBB[ QUEEN] & pos->colorBB[WHITE]) == pos->pieceCounts[wQ]);
+    assert(PopCount(pieceBB(PAWN)   & colorBB(WHITE)) == pos->pieceCounts[wP]);
+    assert(PopCount(pieceBB(KNIGHT) & colorBB(WHITE)) == pos->pieceCounts[wN]);
+    assert(PopCount(pieceBB(BISHOP) & colorBB(WHITE)) == pos->pieceCounts[wB]);
+    assert(PopCount(pieceBB(ROOK)   & colorBB(WHITE)) == pos->pieceCounts[wR]);
+    assert(PopCount(pieceBB(QUEEN)  & colorBB(WHITE)) == pos->pieceCounts[wQ]);
 
-    assert(PopCount(pos->pieceBB[  PAWN] & pos->colorBB[BLACK]) == pos->pieceCounts[bP]);
-    assert(PopCount(pos->pieceBB[KNIGHT] & pos->colorBB[BLACK]) == pos->pieceCounts[bN]);
-    assert(PopCount(pos->pieceBB[BISHOP] & pos->colorBB[BLACK]) == pos->pieceCounts[bB]);
-    assert(PopCount(pos->pieceBB[  ROOK] & pos->colorBB[BLACK]) == pos->pieceCounts[bR]);
-    assert(PopCount(pos->pieceBB[ QUEEN] & pos->colorBB[BLACK]) == pos->pieceCounts[bQ]);
+    assert(PopCount(pieceBB(PAWN)   & colorBB(BLACK)) == pos->pieceCounts[bP]);
+    assert(PopCount(pieceBB(KNIGHT) & colorBB(BLACK)) == pos->pieceCounts[bN]);
+    assert(PopCount(pieceBB(BISHOP) & colorBB(BLACK)) == pos->pieceCounts[bB]);
+    assert(PopCount(pieceBB(ROOK)   & colorBB(BLACK)) == pos->pieceCounts[bR]);
+    assert(PopCount(pieceBB(QUEEN)  & colorBB(BLACK)) == pos->pieceCounts[bQ]);
 
-    assert(pos->pieceBB[ALL] == (pos->colorBB[WHITE] | pos->colorBB[BLACK]));
+    assert(pieceBB(ALL) == (colorBB(WHITE) | colorBB(BLACK)));
 
     // check piece lists
     for (t_piece = PIECE_MIN; t_piece < PIECE_NB; ++t_piece)
         for (t_pce_num = 0; t_pce_num < pos->pieceCounts[t_piece]; ++t_pce_num) {
             sq = pos->pieceList[t_piece][t_pce_num];
-            assert(pos->board[sq] == t_piece);
+            assert(pieceOn(sq) == t_piece);
         }
 
     // check piece count and other counters
     for (sq = A1; sq <= H8; ++sq) {
 
-        t_piece = pos->board[sq];
+        t_piece = pieceOn(sq);
         t_pieceCounts[t_piece]++;
         color = colorOf(t_piece);
 
@@ -322,11 +322,11 @@ bool CheckBoard(const Position *pos) {
 
     assert(t_bigPieces[WHITE] == pos->bigPieces[WHITE] && t_bigPieces[BLACK] == pos->bigPieces[BLACK]);
 
-    assert(pos->side == WHITE || pos->side == BLACK);
+    assert(sideToMove() == WHITE || sideToMove() == BLACK);
 
     assert(pos->enPas == NO_SQ
-       || (pos->enPas >= 40 && pos->enPas < 48 && pos->side == WHITE)
-       || (pos->enPas >= 16 && pos->enPas < 24 && pos->side == BLACK));
+       || (pos->enPas >= 40 && pos->enPas < 48 && sideToMove() == WHITE)
+       || (pos->enPas >= 16 && pos->enPas < 24 && sideToMove() == BLACK));
 
     assert(pos->castlePerm >= 0 && pos->castlePerm <= 15);
 
@@ -348,9 +348,9 @@ void MirrorBoard(Position *pos) {
 
     // Save the necessary position info mirrored
     for (sq = A1; sq <= H8; ++sq)
-        tempPiecesArray[sq] = SwapPiece[pos->board[mirror_square[sq]]];
+        tempPiecesArray[sq] = SwapPiece[pieceOn(mirror_square[sq])];
 
-    tempSide  = !pos->side;
+    tempSide  = !sideToMove();
     tempEnPas = pos->enPas == NO_SQ ? NO_SQ : mirror_square[pos->enPas];
     tempCastlePerm = 0;
     if (pos->castlePerm & WKCA) tempCastlePerm |= BKCA;
@@ -363,10 +363,10 @@ void MirrorBoard(Position *pos) {
 
     // Fill in the mirrored position info
     for (sq = A1; sq <= H8; ++sq)
-        pos->board[sq] = tempPiecesArray[sq];
+        pieceOn(sq) = tempPiecesArray[sq];
 
-    pos->side  = tempSide;
-    pos->enPas = tempEnPas;
+    sideToMove() = tempSide;
+    pos->enPas   = tempEnPas;
     pos->castlePerm = tempCastlePerm;
 
     // Update the rest of the position to match pos->board

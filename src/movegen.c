@@ -34,12 +34,11 @@ INLINE void AddMove(const Position *pos, MoveList *list, const int from, const i
 
     int *moveScore = &list->moves[list->count].score;
 
-    const int captured = pos->board[to];
-    const int move = MOVE(from, to, captured, promo, flag);
+    const int move = MOVE(from, to, pieceOn(to), promo, flag);
 
     // Add scores to help move ordering based on search history heuristics / mvvlva
     if (type == NOISY)
-        *moveScore = MvvLvaScores[captured][pos->board[from]];
+        *moveScore = MvvLvaScores[pieceOn(to)][pieceOn(from)];
 
     if (type == QUIET) {
         if (killer1 == move)
@@ -47,7 +46,7 @@ INLINE void AddMove(const Position *pos, MoveList *list, const int from, const i
         else if (killer2 == move)
             *moveScore = 800000;
         else
-            *moveScore = pos->searchHistory[pos->board[from]][to];
+            *moveScore = pos->searchHistory[pieceOn(from)][to];
     }
 
     list->moves[list->count++].move = move;
@@ -89,7 +88,7 @@ INLINE void GenCastling(const Position *pos, MoveList *list, const int color, co
     const int ksmiddle = color == WHITE ? F1 : F8;
     const int qsmiddle = color == WHITE ? D1 : D8;
 
-    const Bitboard occupied = pos->pieceBB[ALL];
+    const Bitboard occupied = pieceBB(ALL);
 
     // King side castle
     if (pos->castlePerm & KCA)
@@ -119,9 +118,9 @@ INLINE void GenPawn(const Position *pos, MoveList *list, const int color, const 
 
     int sq;
 
-    const Bitboard empty   = ~pos->pieceBB[ALL];
-    const Bitboard enemies =  pos->colorBB[!color];
-    const Bitboard pawns   =  pos->colorBB[ color] & pos->pieceBB[PAWN];
+    const Bitboard empty   = ~pieceBB(ALL);
+    const Bitboard enemies =  colorBB(!color);
+    const Bitboard pawns   =  colorBB( color) & pieceBB(PAWN);
 
     Bitboard relRank7BB = color == WHITE ? rank7BB : rank2BB;
 
@@ -208,11 +207,11 @@ INLINE void GenPieceType(const Position *pos, MoveList *list, const int color, c
     int sq;
     Bitboard moves;
 
-    const Bitboard occupied = pos->pieceBB[ALL];
-    const Bitboard enemies  = pos->colorBB[!color];
+    const Bitboard occupied = pieceBB(ALL);
+    const Bitboard enemies  = colorBB(!color);
     const Bitboard targets  = type == NOISY ? enemies : ~occupied;
 
-    Bitboard pieces = pos->colorBB[color] & pos->pieceBB[pt];
+    Bitboard pieces = colorBB(color) & pieceBB(pt);
 
     while (pieces) {
 
@@ -248,13 +247,13 @@ static void GenMoves(const Position *pos, MoveList *list, const int color, const
 // Generate all quiet moves
 void GenQuietMoves(const Position *pos, MoveList *list) {
 
-    GenMoves(pos, list, pos->side, QUIET);
+    GenMoves(pos, list, sideToMove(), QUIET);
 }
 
 // Generate all noisy moves
 void GenNoisyMoves(const Position *pos, MoveList *list) {
 
-    GenMoves(pos, list, pos->side, NOISY);
+    GenMoves(pos, list, sideToMove(), NOISY);
 }
 
 // Generate all pseudo legal moves

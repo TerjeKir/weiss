@@ -53,13 +53,13 @@ uint64_t GeneratePosKey(const Position *pos) {
 
     // Pieces
     for (int sq = A1; sq <= H8; ++sq) {
-        int piece = pos->board[sq];
+        int piece = pieceOn(sq);
         if (piece != EMPTY)
             posKey ^= PieceKeys[piece][sq];
     }
 
     // Side to play
-    if (pos->side == WHITE)
+    if (sideToMove() == WHITE)
         posKey ^= SideKey;
 
     // En passant

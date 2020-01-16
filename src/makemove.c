@@ -32,7 +32,7 @@ static void ClearPiece(const int sq, Position *pos) {
 
     assert(ValidSquare(sq));
 
-    const int piece = pos->board[sq];
+    const int piece = pieceOn(sq);
     const int color = colorOf(piece);
 
     assert(ValidPiece(piece));
@@ -42,7 +42,7 @@ static void ClearPiece(const int sq, Position *pos) {
     HASH_PCE(piece, sq);
 
     // Set square to empty
-    pos->board[sq] = EMPTY;
+    pieceOn(sq) = EMPTY;
 
     // Update material
     pos->material -= PSQT[piece][sq];
@@ -62,9 +62,9 @@ static void ClearPiece(const int sq, Position *pos) {
     // pos->pieceList[piece][pos->pieceCounts[piece]] = NO_SQ;
 
     // Update bitboards
-    CLRBIT(pos->pieceBB[ALL], sq);
-    CLRBIT(pos->colorBB[color], sq);
-    CLRBIT(pos->pieceBB[pieceTypeOf(piece)], sq);
+    CLRBIT(pieceBB(ALL), sq);
+    CLRBIT(colorBB(color), sq);
+    CLRBIT(pieceBB(pieceTypeOf(piece)), sq);
 }
 
 // Add a piece piece to a square
@@ -80,7 +80,7 @@ static void AddPiece(const int sq, Position *pos, const int piece) {
     HASH_PCE(piece, sq);
 
     // Update square
-    pos->board[sq] = piece;
+    pieceOn(sq) = piece;
 
     // Update material
     pos->material += PSQT[piece][sq];
@@ -97,9 +97,9 @@ static void AddPiece(const int sq, Position *pos, const int piece) {
     pos->pieceList[piece][pos->index[sq]] = sq;
 
     // Update bitboards
-    SETBIT(pos->pieceBB[ALL], sq);
-    SETBIT(pos->colorBB[color], sq);
-    SETBIT(pos->pieceBB[pieceTypeOf(piece)], sq);
+    SETBIT(pieceBB(ALL), sq);
+    SETBIT(colorBB(color), sq);
+    SETBIT(pieceBB(pieceTypeOf(piece)), sq);
 }
 
 // Move a piece from one square to another
@@ -108,7 +108,7 @@ static void MovePiece(const int from, const int to, Position *pos) {
     assert(ValidSquare(from));
     assert(ValidSquare(to));
 
-    const int piece = pos->board[from];
+    const int piece = pieceOn(from);
 
     assert(ValidPiece(piece));
 
@@ -117,8 +117,8 @@ static void MovePiece(const int from, const int to, Position *pos) {
     HASH_PCE(piece, to);
 
     // Set old square to empty, new to piece
-    pos->board[from] = EMPTY;
-    pos->board[to]   = piece;
+    pieceOn(from) = EMPTY;
+    pieceOn(to)   = piece;
 
     // Update square for the piece in pieceList
     pos->index[to] = pos->index[from];
@@ -128,14 +128,14 @@ static void MovePiece(const int from, const int to, Position *pos) {
     pos->material += PSQT[piece][to] - PSQT[piece][from];
 
     // Update bitboards
-    CLRBIT(pos->pieceBB[ALL], from);
-    SETBIT(pos->pieceBB[ALL], to);
+    CLRBIT(pieceBB(ALL), from);
+    SETBIT(pieceBB(ALL), to);
 
-    CLRBIT(pos->colorBB[colorOf(piece)], from);
-    SETBIT(pos->colorBB[colorOf(piece)], to);
+    CLRBIT(colorBB(colorOf(piece)), from);
+    SETBIT(colorBB(colorOf(piece)), to);
 
-    CLRBIT(pos->pieceBB[pieceTypeOf(piece)], from);
-    SETBIT(pos->pieceBB[pieceTypeOf(piece)], to);
+    CLRBIT(pieceBB(pieceTypeOf(piece)), from);
+    SETBIT(pieceBB(pieceTypeOf(piece)), to);
 }
 
 // Take back the previous move
@@ -148,7 +148,7 @@ void TakeMove(Position *pos) {
     pos->ply--;
 
     // Change side to play
-    pos->side ^= 1;
+    sideToMove() ^= 1;
 
     // Update castling rights, 50mr, en passant
     pos->enPas      = history(0).enPas;
@@ -168,7 +168,7 @@ void TakeMove(Position *pos) {
 
     // Add in pawn captured by en passant
     if (FLAG_ENPAS & move)
-        AddPiece(to + 8 - 16 * pos->side, pos, makePiece(!pos->side, PAWN));
+        AddPiece(to + 8 - 16 * sideToMove(), pos, makePiece(!sideToMove(), PAWN));
 
     // Move rook back if castling
     else if (move & FLAG_CASTLE)
@@ -212,12 +212,12 @@ bool MakeMove(Position *pos, const int move) {
     const int to       = TOSQ(move);
     const int captured = CAPTURED(move);
 
-    const int side = pos->side;
+    const int side = sideToMove();
 
     assert(ValidSquare(from));
     assert(ValidSquare(to));
     assert(ValidSide(side));
-    assert(ValidPiece(pos->board[from]));
+    assert(ValidPiece(pieceOn(from)));
     assert(pos->hisPly >= 0 && pos->hisPly < MAXGAMEMOVES);
     assert(pos->ply >= 0 && pos->ply < MAXDEPTH);
 
@@ -271,7 +271,7 @@ bool MakeMove(Position *pos, const int move) {
     MovePiece(from, to, pos);
 
     // Pawn move specifics
-    if (piecePawn[pos->board[to]]) {
+    if (piecePawn[pieceOn(to)]) {
 
         // Reset 50mr after a pawn move
         pos->fiftyMove = 0;
@@ -297,13 +297,13 @@ bool MakeMove(Position *pos, const int move) {
     }
 
     // Change turn to play
-    pos->side ^= 1;
+    sideToMove() ^= 1;
     HASH_SIDE;
 
     assert(CheckBoard(pos));
 
     // If own king is attacked after the move, take it back immediately
-    if (SqAttacked(pos->pieceList[makePiece(side, KING)][0], pos->side, pos)) {
+    if (SqAttacked(pos->pieceList[makePiece(side, KING)][0], sideToMove(), pos)) {
         TakeMove(pos);
         return false;
     }
@@ -328,7 +328,7 @@ void MakeNullMove(Position *pos) {
     pos->hisPly++;
 
     // Change side to play
-    pos->side ^= 1;
+    sideToMove() ^= 1;
     HASH_SIDE;
 
     // Hash out en passant if there was one, and unset it
@@ -354,7 +354,7 @@ void TakeNullMove(Position *pos) {
     pos->ply--;
 
     // Change side to play
-    pos->side ^= 1;
+    sideToMove() ^= 1;
 
     // Get info from history
     pos->enPas      = history(0).enPas;

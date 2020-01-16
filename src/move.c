@@ -16,20 +16,20 @@ bool MoveIsPseudoLegal(const Position *pos, const int move) {
 
     const int from  = FROMSQ(move);
     const int to    = TOSQ(move);
-    const int piece = pos->board[from];
+    const int piece = pieceOn(from);
     const int color = colorOf(piece);
 
     const int capt1 = CAPTURED(move);
-    const int capt2 = pos->board[to];
+    const int capt2 = pieceOn(to);
 
     // Easy sanity tests
     if (   piece == EMPTY
-        || color != pos->side
+        || color != sideToMove()
         || capt1 != capt2
         || move  == NOMOVE)
         return false;
 
-    const Bitboard occupied = pos->pieceBB[ALL];
+    const Bitboard occupied = pieceBB(ALL);
     const Bitboard toBB     = 1ULL << to;
 
     // Make sure the piece at 'from' can move to 'to' (ignoring pins/moving into check)
@@ -42,7 +42,7 @@ bool MoveIsPseudoLegal(const Position *pos, const int move) {
             if (move & FLAG_ENPAS)
                 return to == pos->enPas;
             if (move & FLAG_PAWNSTART)
-                return pos->board[to + 8 - 16 * color] == EMPTY;
+                return pieceOn(to + 8 - 16 * color) == EMPTY;
             if (capt1)
                 return toBB & pawn_attacks[color][from];
             return (to + 8 - 16 * color) == from;

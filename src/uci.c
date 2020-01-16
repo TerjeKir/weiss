@@ -55,7 +55,7 @@ static void *ParseGo(void *searchThreadInfo) {
     Position *pos     = sst->pos;
     SearchInfo *info  = sst->info;
 
-    TimeControl(pos->side, sst->line);
+    TimeControl(sideToMove(), sst->line);
 
     SearchPosition(pos, info);
 
@@ -98,9 +98,6 @@ static void ParsePosition(const char *line, Position *pos) {
             fflush(stdout);
             exit(EXIT_SUCCESS);
         }
-
-        // Ply represents how deep in a search we are, it should be 0 before searching starts
-        pos->ply = 0;
 
         // Skip to the next move if any
         line = strstr(line, " ");
