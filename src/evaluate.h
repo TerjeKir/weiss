@@ -13,7 +13,6 @@
 
 typedef struct EvalInfo {
 
-    Bitboard pawnsBB[2];
     Bitboard mobilityArea[2];
 
 } EvalInfo;
