@@ -498,7 +498,7 @@ static int AspirationWindow(Position *pos, SearchInfo *info) {
 static void InitTimeManagement() {
 
     const int overhead = 30;
-    const int minTime = 20;
+    const int minTime = 10;
 
     // Default to spending 1/30 of remaining time
     if (limits.movestogo == 0)
@@ -515,7 +515,7 @@ static void InitTimeManagement() {
 
     // Calculate how much time to use if given time constraints
     if (limits.time) {
-        int timeThisMove = MIN(limits.time, (limits.time / limits.movestogo) + 2 * limits.inc) - overhead;
+        int timeThisMove = MIN(limits.time, (limits.time / limits.movestogo) + 1.5 * limits.inc) - overhead;
 
         limits.maxUsage = MAX(minTime, timeThisMove);
 
