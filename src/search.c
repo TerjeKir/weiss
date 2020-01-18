@@ -35,7 +35,7 @@ CONSTR InitReductions() {
 // Check time situation
 static bool OutOfTime(SearchInfo *info) {
 
-    if (  (info->nodes & 8192) == 0
+    if (  (info->nodes & 8191) == 8191
         && limits.timelimit
         && TimeSince(limits.start) >= limits.maxUsage)
 
