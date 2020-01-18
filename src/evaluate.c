@@ -276,15 +276,17 @@ INLINE void InitEvalInfo(const Position *pos, EvalInfo *ei, const int color) {
 
     Bitboard enemyPawnAttacks, b;
 
-    // Mobility area
     enemyPawnAttacks = color == WHITE ? ((colorBB(BLACK) & pieceBB(PAWN) & ~fileABB) >> 9)
                                       | ((colorBB(BLACK) & pieceBB(PAWN) & ~fileHBB) >> 7)
                                       : ((colorBB(WHITE) & pieceBB(PAWN) & ~fileABB) << 7)
                                       | ((colorBB(WHITE) & pieceBB(PAWN) & ~fileHBB) << 9);
 
-    b  = color == WHITE ? rank2BB | (pieceBB(ALL) >> 8) : rank7BB | (pieceBB(ALL) << 8);
+    b  = color == WHITE ? rank2BB | (pieceBB(ALL) >> 8)
+                        : rank7BB | (pieceBB(ALL) << 8);
     b &= colorBB(color) & pieceBB(PAWN);
 
+    // Mobility area is defined as any square not attacked by an enemy pawn,
+    // nor occupied by our own pawn on its starting square or blocked from advancing.
     ei->mobilityArea[color] = ~(b | enemyPawnAttacks);
 }
 
