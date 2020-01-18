@@ -243,10 +243,12 @@ bool MakeMove(Position *pos, const int move) {
     }
 
     // Hash out the old castling rights, update and hash back in
-    HASH_CA;
-    pos->castlePerm &= CastlePerm[from];
-    pos->castlePerm &= CastlePerm[to];
-    HASH_CA;
+    if (pos->castlePerm && CastlePerm[from] ^ CastlePerm[to]) {
+        HASH_CA;
+        pos->castlePerm &= CastlePerm[from];
+        pos->castlePerm &= CastlePerm[to];
+        HASH_CA;
+    }
 
     // Move the rook during castling
     if (move & FLAG_CASTLE)
