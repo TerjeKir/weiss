@@ -142,7 +142,7 @@ static bool MaterialDraw(const Position *pos) {
 #endif
 
 // Evaluates pawns
-INLINE int evalPawns(const EvalInfo *ei, const Position *pos, const int color) {
+INLINE int evalPawns(const Position *pos, const int color) {
 
     int eval = 0;
     int pawns = makePiece(color, PAWN);
@@ -151,10 +151,10 @@ INLINE int evalPawns(const EvalInfo *ei, const Position *pos, const int color) {
         int sq = pos->pieceList[pawns][i];
 
         // Isolation penalty
-        if (!(IsolatedMask[sq] & ei->pawnsBB[color]))
+        if (!(IsolatedMask[sq] & colorBB(color) & pieceBB(PAWN)))
             eval += PawnIsolated;
         // Passed bonus
-        if (!((PassedMask[color][sq]) & ei->pawnsBB[!color]))
+        if (!((PassedMask[color][sq]) & colorBB(!color) & pieceBB(PAWN)))
             eval += PawnPassed[color ? rankOf(sq) : 7 - rankOf(sq)];
     }
 
@@ -209,7 +209,7 @@ INLINE int evalRooks(const EvalInfo *ei, const Position *pos, const int color) {
         // Open/Semi-open file bonus
         if (!(pieceBB(PAWN) & fileBBs[fileOf(sq)]))
             eval += RookOpenFile;
-        else if (!(ei->pawnsBB[color] & fileBBs[fileOf(sq)]))
+        else if (!(colorBB(color) & pieceBB(PAWN) & fileBBs[fileOf(sq)]))
             eval += RookSemiOpenFile;
 
         // Mobility
@@ -231,7 +231,7 @@ INLINE int evalQueens(const EvalInfo *ei, const Position *pos, const int color) 
         // Open/Semi-open file bonus
         if (!(pieceBB(PAWN) & fileBBs[fileOf(sq)]))
             eval += QueenOpenFile;
-        else if (!(ei->pawnsBB[color] & fileBBs[fileOf(sq)]))
+        else if (!(colorBB(color) & pieceBB(PAWN) & fileBBs[fileOf(sq)]))
             eval += QueenSemiOpenFile;
 
         // Mobility
@@ -257,8 +257,8 @@ INLINE int evalKings(const Position *pos, const int color) {
 
 INLINE int evalPieces(const EvalInfo ei, const Position *pos) {
 
-    return  evalPawns  (&ei, pos, WHITE)
-          - evalPawns  (&ei, pos, BLACK)
+    return  evalPawns  (pos, WHITE)
+          - evalPawns  (pos, BLACK)
           + evalKnights(&ei, pos, WHITE)
           - evalKnights(&ei, pos, BLACK)
           + evalBishops(&ei, pos, WHITE)
@@ -271,6 +271,25 @@ INLINE int evalPieces(const EvalInfo ei, const Position *pos) {
           - evalKings  (pos, BLACK);
 }
 
+// Initializes the eval info struct
+INLINE void InitEvalInfo(const Position *pos, EvalInfo *ei, const int color) {
+
+    Bitboard enemyPawnAttacks, b;
+
+    enemyPawnAttacks = color == WHITE ? ((colorBB(BLACK) & pieceBB(PAWN) & ~fileABB) >> 9)
+                                      | ((colorBB(BLACK) & pieceBB(PAWN) & ~fileHBB) >> 7)
+                                      : ((colorBB(WHITE) & pieceBB(PAWN) & ~fileABB) << 7)
+                                      | ((colorBB(WHITE) & pieceBB(PAWN) & ~fileHBB) << 9);
+
+    b  = color == WHITE ? rank2BB | (pieceBB(ALL) >> 8)
+                        : rank7BB | (pieceBB(ALL) << 8);
+    b &= colorBB(color) & pieceBB(PAWN);
+
+    // Mobility area is defined as any square not attacked by an enemy pawn,
+    // nor occupied by our own pawn on its starting square or blocked from advancing.
+    ei->mobilityArea[color] = ~(b | enemyPawnAttacks);
+}
+
 // Calculate a static evaluation of a position
 int EvalPosition(const Position *pos) {
 
@@ -280,25 +299,8 @@ int EvalPosition(const Position *pos) {
 
     EvalInfo ei;
 
-    Bitboard blockedPawns[2], unmovedPawns[2], attackedByPawns[2];
-
-    ei.pawnsBB[WHITE] = colorBB(WHITE) & pieceBB(PAWN);
-    ei.pawnsBB[BLACK] = colorBB(BLACK) & pieceBB(PAWN);
-
-    // Mobility area
-    blockedPawns[BLACK] = ei.pawnsBB[BLACK] & pieceBB(ALL) << 8;
-    blockedPawns[WHITE] = ei.pawnsBB[WHITE] & pieceBB(ALL) >> 8;
-
-    unmovedPawns[BLACK] = ei.pawnsBB[BLACK] & rank7BB;
-    unmovedPawns[WHITE] = ei.pawnsBB[WHITE] & rank2BB;
-
-    attackedByPawns[BLACK] = ((ei.pawnsBB[BLACK] & ~fileABB) >> 9)
-                           | ((ei.pawnsBB[BLACK] & ~fileHBB) >> 7);
-    attackedByPawns[WHITE] = ((ei.pawnsBB[WHITE] & ~fileABB) << 7)
-                           | ((ei.pawnsBB[WHITE] & ~fileHBB) << 9);
-
-    ei.mobilityArea[BLACK] = ~(blockedPawns[BLACK] | unmovedPawns[BLACK] | attackedByPawns[WHITE]);
-    ei.mobilityArea[WHITE] = ~(blockedPawns[WHITE] | unmovedPawns[WHITE] | attackedByPawns[BLACK]);
+    InitEvalInfo(pos, &ei, WHITE);
+    InitEvalInfo(pos, &ei, BLACK);
 
     // Material
     int eval = pos->material;
