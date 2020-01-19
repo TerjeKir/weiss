@@ -35,9 +35,9 @@ CONSTR InitReductions() {
 // Check time situation
 static bool OutOfTime(SearchInfo *info) {
 
-    if (  (info->nodes & 8192) == 0
+    if (  (info->nodes & 8191) == 8191
         && limits.timelimit
-        && Now() >= limits.stop)
+        && TimeSince(limits.start) >= limits.maxUsage)
 
         return true;
 
@@ -497,7 +497,8 @@ static int AspirationWindow(Position *pos, SearchInfo *info) {
 // Decides when to stop a search
 static void InitTimeManagement() {
 
-    const int overhead = 50;
+    const int overhead = 30;
+    const int minTime = 10;
 
     // Default to spending 1/30 of remaining time
     if (limits.movestogo == 0)
@@ -514,11 +515,9 @@ static void InitTimeManagement() {
 
     // Calculate how much time to use if given time constraints
     if (limits.time) {
-        int timeThisMove = MIN(limits.time, (limits.time / limits.movestogo) + 2 * limits.inc);
+        int timeThisMove = MIN(limits.time, (limits.time / limits.movestogo) + 1.5 * limits.inc) - overhead;
 
-        limits.stop = limits.start
-                    + timeThisMove
-                    - overhead;
+        limits.maxUsage = MAX(minTime, timeThisMove);
 
         limits.timelimit = true;
     } else
