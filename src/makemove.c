@@ -242,7 +242,9 @@ bool MakeMove(Position *pos, const int move) {
         pos->enPas = NO_SQ;
     }
 
-    // Hash out the old castling rights, update and hash back in
+    // Rehash the castling rights if at least one side can castle,
+    // and either the to or from square is the original square of
+    // a king or rook.
     if (pos->castlePerm && CastlePerm[from] ^ CastlePerm[to]) {
         HASH_CA;
         pos->castlePerm &= CastlePerm[from];
