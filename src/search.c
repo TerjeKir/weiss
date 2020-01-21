@@ -513,13 +513,13 @@ static void InitTimeManagement() {
         return;
     }
 
-    int ratio = limits.movestogo ? MAX(1, limits.movestogo * 0.75)
-                                 : 30;
+    double ratio = limits.movestogo ? MAX(1.0, limits.movestogo * 0.75)
+                                    : 30;
 
     int timeThisMove = limits.time / ratio + 1.5 * limits.inc;
 
     // Use at most time - overhead, and at least minTime
-    limits.maxUsage  = MAX(minTime, MIN(limits.time - overhead, timeThisMove));
+    limits.maxUsage  = MAX(minTime, MIN(limits.time - overhead - limits.movestogo * minTime, timeThisMove));
     limits.timelimit = true;
 }
 
