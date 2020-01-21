@@ -46,6 +46,9 @@ INLINE void TimeControl(int side, char *line) {
     if ((ptr = strstr(line, "movestogo"))) limits.movestogo = atoi(ptr + 10);
     if ((ptr = strstr(line, "movetime")))  limits.movetime  = atoi(ptr +  9);
     if ((ptr = strstr(line, "depth")))     limits.depth     = atoi(ptr +  6);
+
+    // If no depth limit is given, use MAXDEPTH
+    limits.depth = limits.depth == 0 ? MAXDEPTH : limits.depth;
 }
 
 // Parses a 'go' and starts a search
