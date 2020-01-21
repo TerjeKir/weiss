@@ -519,7 +519,7 @@ static void InitTimeManagement() {
     int timeThisMove = limits.time / ratio + 1.5 * limits.inc;
 
     // Use at most time - overhead, and at least minTime
-    limits.maxUsage  = MAX(minTime, MIN(limits.time - overhead - limits.movestogo * minTime, timeThisMove));
+    limits.maxUsage  = MAX(minTime, MIN(limits.time - MAX(overhead, limits.movestogo * minTime), timeThisMove));
     limits.timelimit = true;
 }
 
