@@ -28,6 +28,8 @@
 
 typedef uint64_t Bitboard;
 
+typedef int64_t TimePoint;
+
 enum Limit { MAXGAMEMOVES     = 512,
              MAXPOSITIONMOVES = 256,
              MAXDEPTH         = 128 };
@@ -179,7 +181,8 @@ typedef struct {
 
 typedef struct {
 
-    int start, time, inc, movestogo, movetime, depth, maxUsage;
+    TimePoint start;
+    int time, inc, movestogo, movetime, depth, maxUsage;
     bool timelimit;
 
 } SearchLimits;

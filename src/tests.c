@@ -26,7 +26,7 @@ void benchmark(int depth, Position *pos, SearchInfo *info) {
     limits.depth = depth;
     limits.timelimit = false;
 
-    int startTime = Now();
+    TimePoint startTime = Now();
 
     for (int i = 0; strcmp(BenchmarkFENs[i], ""); ++i) {
         printf("Bench %d: %s\n", i + 1, BenchmarkFENs[i]);
@@ -37,12 +37,13 @@ void benchmark(int depth, Position *pos, SearchInfo *info) {
         ClearTT(pos->hashTable);
     }
 
-    int elapsed = Now() - startTime;
+    TimePoint elapsed = Now() - startTime + 1;
 
-    printf("Benchmark complete:\n");
-    printf("Time : %dms\n", elapsed);
-    printf("Nodes: %" PRId64 "\n", nodes);
-    printf("NPS  : %" PRId64 "\n", 1000 * nodes / (1 + elapsed));
+    printf("Benchmark complete:"
+           "\nTime : %" PRId64 "ms"
+           "\nNodes: %" PRIu64
+           "\nNPS  : %" PRId64 "\n",
+           elapsed, nodes, 1000 * nodes / elapsed);
 }
 
 #ifdef DEV

@@ -80,16 +80,16 @@ static void PrintThinking(const SearchInfo *info, Position *pos) {
           : score < -ISMATE ? -((INFINITE + score) / 2)
           : score * 100 / P_MG;
 
+    TimePoint elapsed = Now() - limits.start;
     int depth    = info->depth;
     int seldepth = info->seldepth;
-    int elapsed  = Now() - limits.start;
     int hashFull = HashFull(pos);
     int nps      = (int)(1000 * (info->nodes / (elapsed + 1)));
     uint64_t nodes  = info->nodes;
     uint64_t tbhits = info->tbhits;
 
     // Basic info
-    printf("info depth %d seldepth %d score %s %d time %d nodes %" PRId64 " nps %d tbhits %" PRId64 " hashfull %d ",
+    printf("info depth %d seldepth %d score %s %d time %" PRId64 " nodes %" PRIu64 " nps %d tbhits %" PRIu64 " hashfull %d ",
             depth, seldepth, type, score, elapsed, nodes, nps, tbhits, hashFull);
 
     // Principal variation
