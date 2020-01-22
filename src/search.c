@@ -216,7 +216,7 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
     const bool pvNode = alpha != beta - 1;
     const bool root   = pos->ply == 0;
 
-    PV pv_from_here;
+    PV pvFromHere;
     pv->length = 0;
 
     MovePicker mp;
@@ -228,7 +228,7 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
 
     // Quiescence at the end of search
     if (depth <= 0)
-        return Quiescence(alpha, beta, pos, info, &pv_from_here);
+        return Quiescence(alpha, beta, pos, info, pv);
 
     // Check time situation
     if (OutOfTime(info) || ABORT_SIGNAL)
@@ -331,7 +331,7 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
             int R = 3 + depth / 5 + MIN(3, (eval - beta) / 256);
 
             MakeNullMove(pos);
-            score = -AlphaBeta(-beta, -beta + 1, depth - R, pos, info, &pv_from_here);
+            score = -AlphaBeta(-beta, -beta + 1, depth - R, pos, info, &pvFromHere);
             TakeNullMove(pos);
 
             // Cutoff
@@ -346,7 +346,7 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
         // Internal iterative deepening
         if (depth >= 4 && !ttMove) {
 
-            AlphaBeta(alpha, beta, MAX(1, MIN(depth / 2, depth - 4)), pos, info, &pv_from_here);
+            AlphaBeta(alpha, beta, MAX(1, MIN(depth / 2, depth - 4)), pos, info, pv);
 
             tte = ProbeTT(pos, posKey, &ttHit);
 
@@ -395,15 +395,15 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
             // Depth after reductions, avoiding going straight to quiescence
             int RDepth = MAX(1, newDepth - MAX(R, 1));
 
-            score = -AlphaBeta(-alpha - 1, -alpha, RDepth, pos, info, &pv_from_here);
+            score = -AlphaBeta(-alpha - 1, -alpha, RDepth, pos, info, &pvFromHere);
         }
         // Full depth zero-window search
         if ((doLMR && score > alpha) || (!doLMR && (!pvNode || moveCount > 1)))
-            score = -AlphaBeta(-alpha - 1, -alpha, newDepth, pos, info, &pv_from_here);
+            score = -AlphaBeta(-alpha - 1, -alpha, newDepth, pos, info, &pvFromHere);
 
         // Full depth alpha-beta window search
         if (pvNode && ((score > alpha && score < beta) || moveCount == 1))
-            score = -AlphaBeta(-beta, -alpha, newDepth, pos, info, &pv_from_here);
+            score = -AlphaBeta(-beta, -alpha, newDepth, pos, info, &pvFromHere);
 
         // Undo the move
         TakeMove(pos);
@@ -420,9 +420,9 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
                 alpha = score;
 
                 // Update the Principle Variation
-                pv->length = 1 + pv_from_here.length;
+                pv->length = 1 + pvFromHere.length;
                 pv->line[0] = move;
-                memcpy(pv->line + 1, pv_from_here.line, sizeof(int) * pv_from_here.length);
+                memcpy(pv->line + 1, pvFromHere.line, sizeof(int) * pvFromHere.length);
 
                 // Update search history
                 if (quiet)
