@@ -59,13 +59,12 @@ static bool IsRepetition(const Position *pos) {
 // Get ready to start a search
 static void ClearForSearch(Position *pos, SearchInfo *info) {
 
+    memset(info, 0, sizeof(SearchInfo));
+
     memset(pos->searchHistory, 0, sizeof(pos->searchHistory));
     memset(pos->searchKillers, 0, sizeof(pos->searchKillers));
 
-    pos->ply       = 0;
-    info->nodes    = 0;
-    info->tbhits   = 0;
-    info->seldepth = 0;
+    pos->ply = 0;
 }
 
 // Print thinking
