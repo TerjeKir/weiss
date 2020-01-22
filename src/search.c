@@ -514,12 +514,13 @@ static void InitTimeManagement() {
     }
 
     double ratio = limits.movestogo ? MAX(1.0, limits.movestogo * 0.75)
-                                    : 30;
+                                    : 30.0;
 
     int timeThisMove = limits.time / ratio + 1.5 * limits.inc;
 
-    // Use at most time - overhead, and at least minTime
-    limits.maxUsage  = MAX(minTime, MIN(limits.time - MAX(overhead, limits.movestogo * minTime), timeThisMove));
+    // Try to save at least 10ms for each move left to go
+    // as well as a buffer of 30ms, while using at least 10ms
+    limits.maxUsage  = MAX(minTime, MIN(limits.time - overhead - limits.movestogo * minTime, timeThisMove));
     limits.timelimit = true;
 }
 
