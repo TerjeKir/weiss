@@ -500,28 +500,28 @@ static void InitTimeManagement() {
     const int overhead = 30;
     const int minTime = 10;
 
-    // Default to spending 1/30 of remaining time
-    if (limits.movestogo == 0)
-        limits.movestogo = 30;
-
     // In movetime mode we use all the time given each turn
     if (limits.movetime) {
-        limits.time = limits.movetime;
-        limits.movestogo = 1;
+        limits.maxUsage = MAX(minTime, limits.movetime - overhead);
+        limits.timelimit = true;
+        return;
     }
 
-    // Update search depth limit if we were given one
-    limits.depth = limits.depth == 0 ? MAXDEPTH : limits.depth;
-
-    // Calculate how much time to use if given time constraints
-    if (limits.time) {
-        int timeThisMove = MIN(limits.time, (limits.time / limits.movestogo) + 1.5 * limits.inc) - overhead;
-
-        limits.maxUsage = MAX(minTime, timeThisMove);
-
-        limits.timelimit = true;
-    } else
+    // No time and no movetime means there is no timelimit
+    if (!limits.time) {
         limits.timelimit = false;
+        return;
+    }
+
+    double ratio = limits.movestogo ? MAX(1.0, limits.movestogo * 0.75)
+                                    : 30.0;
+
+    int timeThisMove = limits.time / ratio + 1.5 * limits.inc;
+
+    // Try to save at least 10ms for each move left to go
+    // as well as a buffer of 30ms, while using at least 10ms
+    limits.maxUsage  = MAX(minTime, MIN(limits.time - overhead - limits.movestogo * minTime, timeThisMove));
+    limits.timelimit = true;
 }
 
 // Root of search
