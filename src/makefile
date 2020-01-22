@@ -28,10 +28,10 @@ PGOUSE = -fprofile-use=$(PGODIR)
 # Try to detect windows environment by seeing
 # whether the shell filters out the "s or not.
 ifeq ($(shell echo "check_quotes"),"check_quotes")
-	RUNBENCH = $(EXE) bench 12
+	RUNBENCH = $(EXE) bench 12 > nul 2>&1
 	CLEAN    = rmdir /s /q $(PGODIR)
 else
-	RUNBENCH = ./$(EXE) bench 12
+	RUNBENCH = ./$(EXE) bench 12 > /dev/null 2>&1
 	CLEAN    = $(RM) -rf $(PGODIR)
 endif
 
