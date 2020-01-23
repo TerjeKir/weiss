@@ -26,8 +26,8 @@ bool MoveListOk(const MoveList *list, const Position *pos) {
 
     for (unsigned int MoveNum = 0; MoveNum < list->count; ++MoveNum) {
 
-        to   =   TOSQ(list->moves[MoveNum].move);
-        from = FROMSQ(list->moves[MoveNum].move);
+        to   =   toSq(list->moves[MoveNum].move);
+        from = fromSq(list->moves[MoveNum].move);
 
         if (!ValidSquare(to) || !ValidSquare(from))
             return false;

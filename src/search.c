@@ -367,7 +367,7 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
     int move;
     while ((move = NextMove(&mp))) {
 
-        bool quiet = !(move & MOVE_IS_NOISY);
+        bool quiet = !moveIsNoisy(move);
 
         if (quiet)
             quietCount++;
@@ -426,7 +426,7 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
 
                 // Update search history
                 if (quiet)
-                    pos->searchHistory[pieceOn(FROMSQ(bestMove))][TOSQ(bestMove)] += depth * depth;
+                    pos->searchHistory[pieceOn(fromSq(bestMove))][toSq(bestMove)] += depth * depth;
 
                 // If score beats beta we have a cutoff
                 if (score >= beta) {
