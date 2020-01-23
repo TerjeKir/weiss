@@ -96,8 +96,8 @@ static void InitSliderAttacks(Magic *m, Bitboard *table, const uint64_t *magics,
     for (int sq = A1; sq <= H8; ++sq) {
 
         // Construct the mask
-        edges = ((rank1BB | rank8BB) & ~rankBBs[rankOf(sq)])
-              | ((fileABB | fileHBB) & ~fileBBs[fileOf(sq)]);
+        edges = ((rank1BB | rank8BB) & ~rankBB[rankOf(sq)])
+              | ((fileABB | fileHBB) & ~fileBB[fileOf(sq)]);
 
         m[sq].mask  = MakeSliderAttacks(sq, 0, dir) & ~edges;
 

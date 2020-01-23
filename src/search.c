@@ -112,7 +112,7 @@ static void PrintConclusion(const SearchInfo *info) {
 }
 
 INLINE bool pawnOn7th(const Position *pos) {
-    return colorBB(sideToMove()) & pieceBB(PAWN) & rankBBs[relativeRank(sideToMove(), RANK_7)];
+    return colorBB(sideToMove()) & pieceBB(PAWN) & rankBB[relativeRank(sideToMove(), RANK_7)];
 }
 
 // Dynamic delta pruning margin

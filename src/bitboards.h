@@ -5,19 +5,19 @@
 #include "types.h"
 
 
-#define SETBIT(bb, sq) ((bb) |= SetMask[(sq)])
-#define CLRBIT(bb, sq) ((bb) &= ClearMask[(sq)])
+#define SETBIT(bb, sq) ((bb) |= SquareBB[(sq)])
+#define CLRBIT(bb, sq) ((bb) ^= SquareBB[(sq)])
 
 
 enum {
-    fileABB = 0x0101010101010101ULL,
-    fileBBB = 0x0202020202020202ULL,
-    fileCBB = 0x0404040404040404ULL,
-    fileDBB = 0x0808080808080808ULL,
-    fileEBB = 0x1010101010101010ULL,
-    fileFBB = 0x2020202020202020ULL,
-    fileGBB = 0x4040404040404040ULL,
-    fileHBB = 0x8080808080808080ULL,
+    fileABB = 0x0101010101010101,
+    fileBBB = 0x0202020202020202,
+    fileCBB = 0x0404040404040404,
+    fileDBB = 0x0808080808080808,
+    fileEBB = 0x1010101010101010,
+    fileFBB = 0x2020202020202020,
+    fileGBB = 0x4040404040404040,
+    fileHBB = 0x8080808080808080,
 
     rank1BB = 0xFF,
     rank2BB = 0xFF00,
@@ -36,11 +36,10 @@ static const Bitboard bitF1G1   = (1ULL << F1) | (1ULL << G1);
 static const Bitboard bitF8G8   = (1ULL << F8) | (1ULL << G8);
 
 
-Bitboard   SetMask[64];
-Bitboard ClearMask[64];
+extern Bitboard SquareBB[64];
 
-const Bitboard fileBBs[8];
-const Bitboard rankBBs[8];
+extern const Bitboard fileBB[8];
+extern const Bitboard rankBB[8];
 
 // void PrintBB(const Bitboard bb);
 
