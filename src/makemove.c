@@ -160,8 +160,8 @@ void TakeMove(Position *pos) {
 
     // Get the move from history
     const int move = history(0).move;
-    const int from = FROMSQ(move);
-    const int   to =   TOSQ(move);
+    const int from = fromSq(move);
+    const int   to =   toSq(move);
 
     assert(ValidSquare(from));
     assert(ValidSquare(to));
@@ -184,17 +184,17 @@ void TakeMove(Position *pos) {
     MovePiece(to, from, pos);
 
     // Add back captured piece if any
-    int captured = CAPTURED(move);
+    int captured = capturing(move);
     if (captured != EMPTY) {
         assert(ValidPiece(captured));
         AddPiece(to, pos, captured);
     }
 
     // Remove promoted piece and put back the pawn
-    if (PROMOTION(move) != EMPTY) {
-        assert(ValidPiece(PROMOTION(move)) && !piecePawn[PROMOTION(move)]);
+    if (promotion(move) != EMPTY) {
+        assert(ValidPiece(promotion(move)) && !piecePawn[promotion(move)]);
         ClearPiece(from, pos);
-        AddPiece(from, pos, makePiece(colorOf(PROMOTION(move)), PAWN));
+        AddPiece(from, pos, makePiece(colorOf(promotion(move)), PAWN));
     }
 
     // Get old poskey from history
@@ -208,9 +208,9 @@ bool MakeMove(Position *pos, const int move) {
 
     assert(CheckBoard(pos));
 
-    const int from     = FROMSQ(move);
-    const int to       = TOSQ(move);
-    const int captured = CAPTURED(move);
+    const int from     = fromSq(move);
+    const int to       = toSq(move);
+    const int captured = capturing(move);
 
     const int side = sideToMove();
 
@@ -280,7 +280,7 @@ bool MakeMove(Position *pos, const int move) {
         // Reset 50mr after a pawn move
         pos->fiftyMove = 0;
 
-        int promo = PROMOTION(move);
+        int promo = promotion(move);
 
         // If the move is a pawnstart we set the en passant square and hash it in
         if (move & FLAG_PAWNSTART) {

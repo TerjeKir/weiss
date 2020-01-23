@@ -6,19 +6,19 @@
 #include "bitboards.h"
 
 
-const Bitboard fileBBs[] = { 0x0101010101010101ULL, 0x0202020202020202ULL, 0x0404040404040404ULL, 0x0808080808080808ULL,
-                             0x1010101010101010ULL, 0x2020202020202020ULL, 0x4040404040404040ULL, 0x8080808080808080ULL };
+const Bitboard fileBB[] = { fileABB, fileBBB, fileCBB, fileDBB,
+                            fileEBB, fileFBB, fileGBB, fileHBB };
 
-const Bitboard rankBBs[] = {         0xFF,         0xFF00,         0xFF0000,         0xFF000000,
-                             0xFF00000000, 0xFF0000000000, 0xFF000000000000, 0xFF00000000000000 };
+const Bitboard rankBB[] = { rank1BB, rank2BB, rank3BB, rank4BB,
+                            rank5BB, rank6BB, rank7BB, rank8BB };
+
+Bitboard SquareBB[64];
 
 
 CONSTR InitBitMasks() {
 
-    for (int i = A1; i <= H8; ++i) {
-        SetMask[i]  |= (1ULL << i);
-        ClearMask[i] = ~SetMask[i];
-    }
+    for (int sq = A1; sq <= H8; ++sq)
+        SquareBB[sq] = (1ULL << sq);
 }
 
 // Unused, here for occasional print debugging

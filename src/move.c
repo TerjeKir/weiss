@@ -14,12 +14,12 @@
 // Checks whether a move is pseudo-legal (assuming it is pseudo-legal in some position)
 bool MoveIsPseudoLegal(const Position *pos, const int move) {
 
-    const int from  = FROMSQ(move);
-    const int to    = TOSQ(move);
+    const int from  = fromSq(move);
+    const int to    = toSq(move);
     const int piece = pieceOn(from);
     const int color = colorOf(piece);
 
-    const int capt1 = CAPTURED(move);
+    const int capt1 = capturing(move);
     const int capt2 = pieceOn(to);
 
     // Easy sanity tests
@@ -77,12 +77,12 @@ char *MoveToStr(const int move) {
     static char moveStr[6];
     char pchar;
 
-    int ff = fileOf(FROMSQ(move));
-    int rf = rankOf(FROMSQ(move));
-    int ft = fileOf(TOSQ(move));
-    int rt = rankOf(TOSQ(move));
+    int ff = fileOf(fromSq(move));
+    int rf = rankOf(fromSq(move));
+    int ft = fileOf(toSq(move));
+    int rt = rankOf(toSq(move));
 
-    int promo = pieceTypeOf(PROMOTION(move));
+    int promo = pieceTypeOf(promotion(move));
 
     if (promo) {
 
@@ -127,9 +127,9 @@ int ParseMove(const char *ptrChar, Position *pos) {
 
         int move = list->moves[moveNum].move;
 
-        if (FROMSQ(move) == from && TOSQ(move) == to) {
+        if (fromSq(move) == from && toSq(move) == to) {
 
-            int promo = pieceTypeOf(PROMOTION(move));
+            int promo = pieceTypeOf(promotion(move));
 
             if (promo) {
 
@@ -180,9 +180,9 @@ int ParseEPDMove(const char *ptrChar, Position *pos) {
 
         int move = list->moves[moveNum].move;
 
-        if (FROMSQ(move) == from && TOSQ(move) == to) {
+        if (fromSq(move) == from && toSq(move) == to) {
 
-            int promo = pieceTypeOf(PROMOTION(move));
+            int promo = pieceTypeOf(promotion(move));
 
             if (promo) {
 

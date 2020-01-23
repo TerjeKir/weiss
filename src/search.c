@@ -112,7 +112,7 @@ static void PrintConclusion(const SearchInfo *info) {
 }
 
 INLINE bool pawnOn7th(const Position *pos) {
-    return colorBB(sideToMove()) & pieceBB(PAWN) & rankBBs[relativeRank(sideToMove(), RANK_7)];
+    return colorBB(sideToMove()) & pieceBB(PAWN) & rankBB[relativeRank(sideToMove(), RANK_7)];
 }
 
 // Dynamic delta pruning margin
@@ -367,7 +367,7 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
     int move;
     while ((move = NextMove(&mp))) {
 
-        bool quiet = !(move & MOVE_IS_NOISY);
+        bool quiet = !moveIsNoisy(move);
 
         if (quiet)
             quietCount++;
@@ -426,7 +426,7 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
 
                 // Update search history
                 if (quiet)
-                    pos->searchHistory[pieceOn(FROMSQ(bestMove))][TOSQ(bestMove)] += depth * depth;
+                    pos->searchHistory[pieceOn(fromSq(bestMove))][toSq(bestMove)] += depth * depth;
 
                 // If score beats beta we have a cutoff
                 if (score >= beta) {

@@ -69,7 +69,7 @@ CONSTR InitEvalMasks() {
         // Left side
         if (fileOf(sq) > FILE_A) {
 
-            IsolatedMask[sq] |= fileBBs[fileOf(sq) - 1];
+            IsolatedMask[sq] |= fileBB[fileOf(sq) - 1];
 
             for (tsq = sq + 7; tsq <= H8; tsq += 8)
                 PassedMask[WHITE][sq] |= (1ULL << tsq);
@@ -81,7 +81,7 @@ CONSTR InitEvalMasks() {
         // Right side
         if (fileOf(sq) < FILE_H) {
 
-            IsolatedMask[sq] |= fileBBs[fileOf(sq) + 1];
+            IsolatedMask[sq] |= fileBB[fileOf(sq) + 1];
 
             for (tsq = sq + 9; tsq <= H8; tsq += 8)
                 PassedMask[WHITE][sq] |= (1ULL << tsq);
@@ -207,9 +207,9 @@ INLINE int evalRooks(const EvalInfo *ei, const Position *pos, const int color) {
         int sq = pos->pieceList[rooks][i];
 
         // Open/Semi-open file bonus
-        if (!(pieceBB(PAWN) & fileBBs[fileOf(sq)]))
+        if (!(pieceBB(PAWN) & fileBB[fileOf(sq)]))
             eval += RookOpenFile;
-        else if (!(colorBB(color) & pieceBB(PAWN) & fileBBs[fileOf(sq)]))
+        else if (!(colorBB(color) & pieceBB(PAWN) & fileBB[fileOf(sq)]))
             eval += RookSemiOpenFile;
 
         // Mobility
@@ -229,9 +229,9 @@ INLINE int evalQueens(const EvalInfo *ei, const Position *pos, const int color) 
         int sq = pos->pieceList[queens][i];
 
         // Open/Semi-open file bonus
-        if (!(pieceBB(PAWN) & fileBBs[fileOf(sq)]))
+        if (!(pieceBB(PAWN) & fileBB[fileOf(sq)]))
             eval += QueenOpenFile;
-        else if (!(colorBB(color) & pieceBB(PAWN) & fileBBs[fileOf(sq)]))
+        else if (!(colorBB(color) & pieceBB(PAWN) & fileBB[fileOf(sq)]))
             eval += QueenSemiOpenFile;
 
         // Mobility
