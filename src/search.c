@@ -59,13 +59,12 @@ static bool IsRepetition(const Position *pos) {
 // Get ready to start a search
 static void ClearForSearch(Position *pos, SearchInfo *info) {
 
+    memset(info, 0, sizeof(SearchInfo));
+
     memset(pos->searchHistory, 0, sizeof(pos->searchHistory));
     memset(pos->searchKillers, 0, sizeof(pos->searchKillers));
 
-    pos->ply       = 0;
-    info->nodes    = 0;
-    info->tbhits   = 0;
-    info->seldepth = 0;
+    pos->ply = 0;
 }
 
 // Print thinking
@@ -81,16 +80,16 @@ static void PrintThinking(const SearchInfo *info, Position *pos) {
           : score < -ISMATE ? -((INFINITE + score) / 2)
           : score * 100 / P_MG;
 
+    TimePoint elapsed = Now() - limits.start;
     int depth    = info->depth;
     int seldepth = info->seldepth;
-    int elapsed  = Now() - limits.start;
     int hashFull = HashFull(pos);
     int nps      = (int)(1000 * (info->nodes / (elapsed + 1)));
     uint64_t nodes  = info->nodes;
     uint64_t tbhits = info->tbhits;
 
     // Basic info
-    printf("info depth %d seldepth %d score %s %d time %d nodes %" PRId64 " nps %d tbhits %" PRId64 " hashfull %d ",
+    printf("info depth %d seldepth %d score %s %d time %" PRId64 " nodes %" PRIu64 " nps %d tbhits %" PRIu64 " hashfull %d ",
             depth, seldepth, type, score, elapsed, nodes, nps, tbhits, hashFull);
 
     // Principal variation
@@ -217,7 +216,7 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
     const bool pvNode = alpha != beta - 1;
     const bool root   = pos->ply == 0;
 
-    PV pv_from_here;
+    PV pvFromHere;
     pv->length = 0;
 
     MovePicker mp;
@@ -229,7 +228,7 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
 
     // Quiescence at the end of search
     if (depth <= 0)
-        return Quiescence(alpha, beta, pos, info, &pv_from_here);
+        return Quiescence(alpha, beta, pos, info, pv);
 
     // Check time situation
     if (OutOfTime(info) || ABORT_SIGNAL)
@@ -332,7 +331,7 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
             int R = 3 + depth / 5 + MIN(3, (eval - beta) / 256);
 
             MakeNullMove(pos);
-            score = -AlphaBeta(-beta, -beta + 1, depth - R, pos, info, &pv_from_here);
+            score = -AlphaBeta(-beta, -beta + 1, depth - R, pos, info, &pvFromHere);
             TakeNullMove(pos);
 
             // Cutoff
@@ -347,7 +346,7 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
         // Internal iterative deepening
         if (depth >= 4 && !ttMove) {
 
-            AlphaBeta(alpha, beta, MAX(1, MIN(depth / 2, depth - 4)), pos, info, &pv_from_here);
+            AlphaBeta(alpha, beta, MAX(1, MIN(depth / 2, depth - 4)), pos, info, pv);
 
             tte = ProbeTT(pos, posKey, &ttHit);
 
@@ -396,15 +395,15 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
             // Depth after reductions, avoiding going straight to quiescence
             int RDepth = MAX(1, newDepth - MAX(R, 1));
 
-            score = -AlphaBeta(-alpha - 1, -alpha, RDepth, pos, info, &pv_from_here);
+            score = -AlphaBeta(-alpha - 1, -alpha, RDepth, pos, info, &pvFromHere);
         }
         // Full depth zero-window search
         if ((doLMR && score > alpha) || (!doLMR && (!pvNode || moveCount > 1)))
-            score = -AlphaBeta(-alpha - 1, -alpha, newDepth, pos, info, &pv_from_here);
+            score = -AlphaBeta(-alpha - 1, -alpha, newDepth, pos, info, &pvFromHere);
 
         // Full depth alpha-beta window search
         if (pvNode && ((score > alpha && score < beta) || moveCount == 1))
-            score = -AlphaBeta(-beta, -alpha, newDepth, pos, info, &pv_from_here);
+            score = -AlphaBeta(-beta, -alpha, newDepth, pos, info, &pvFromHere);
 
         // Undo the move
         TakeMove(pos);
@@ -421,9 +420,9 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
                 alpha = score;
 
                 // Update the Principle Variation
-                pv->length = 1 + pv_from_here.length;
+                pv->length = 1 + pvFromHere.length;
                 pv->line[0] = move;
-                memcpy(pv->line + 1, pv_from_here.line, sizeof(int) * pv_from_here.length);
+                memcpy(pv->line + 1, pvFromHere.line, sizeof(int) * pvFromHere.length);
 
                 // Update search history
                 if (quiet)
