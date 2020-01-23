@@ -53,6 +53,7 @@ INLINE int PopCount(const Bitboard bb) {
 // Returns the index of the least significant bit
 INLINE int Lsb(const Bitboard bb) {
 
+    assert(bb);
     return __builtin_ctzll(bb);
 }
 
