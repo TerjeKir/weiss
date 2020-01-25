@@ -14,59 +14,53 @@
 // Checks whether a move is pseudo-legal (assuming it is pseudo-legal in some position)
 bool MoveIsPseudoLegal(const Position *pos, const int move) {
 
+    if (!move) return false;
+
+    const int color = sideToMove();
     const int from  = fromSq(move);
     const int to    = toSq(move);
-    const int piece = pieceOn(from);
-    const int color = colorOf(piece);
 
-    const int capt1 = capturing(move);
-    const int capt2 = pieceOn(to);
-
-    // Easy sanity tests
-    if (   piece == EMPTY
-        || color != sideToMove()
-        || capt1 != capt2
-        || move  == NOMOVE)
+    // Must move our own piece to a square not occupied by our own pieces
+    if (  !(colorBB(color) & SquareBB[from])
+        || (colorBB(color) & SquareBB[to])
+        || capturing(move) != pieceOn(to))
         return false;
 
-    const Bitboard occupied = pieceBB(ALL);
-    const Bitboard toBB     = 1ULL << to;
-
     // Make sure the piece at 'from' can move to 'to' (ignoring pins/moving into check)
-    switch (pieceTypeOf(piece)) {
-        case KNIGHT: return toBB & knight_attacks[from];
-        case BISHOP: return toBB & BishopAttacks(from, occupied);
-        case ROOK  : return toBB &   RookAttacks(from, occupied);
-        case QUEEN : return toBB & (BishopAttacks(from, occupied) | RookAttacks(from, occupied));
+    switch (pieceTypeOf(pieceOn(from))) {
+        case KNIGHT: return SquareBB[to] & knight_attacks[from];
+        case BISHOP: return SquareBB[to] & BishopAttacks(from, pieceBB(ALL));
+        case ROOK  : return SquareBB[to] &   RookAttacks(from, pieceBB(ALL));
+        case QUEEN : return SquareBB[to] & (BishopAttacks(from, pieceBB(ALL)) | RookAttacks(from, pieceBB(ALL)));
         case PAWN  :
             if (move & FLAG_ENPAS)
                 return to == pos->enPas;
             if (move & FLAG_PAWNSTART)
                 return pieceOn(to + 8 - 16 * color) == EMPTY;
-            if (capt1)
-                return toBB & pawn_attacks[color][from];
+            if (move & MOVE_CAPT)
+                return SquareBB[to] & pawn_attacks[color][from];
             return (to + 8 - 16 * color) == from;
         case KING  :
             if (move & FLAG_CASTLE)
                 switch (to) {
                     case C1: return    (pos->castlePerm & WQCA)
-                                    && !(occupied & bitB1C1D1)
+                                    && !(pieceBB(ALL) & bitB1C1D1)
                                     && !SqAttacked(E1, BLACK, pos)
                                     && !SqAttacked(D1, BLACK, pos);
                     case G1: return    (pos->castlePerm & WKCA)
-                                    && !(occupied & bitF1G1)
+                                    && !(pieceBB(ALL) & bitF1G1)
                                     && !SqAttacked(E1, BLACK, pos)
                                     && !SqAttacked(F1, BLACK, pos);
                     case C8: return    (pos->castlePerm & BQCA)
-                                    && !(occupied & bitB8C8D8)
+                                    && !(pieceBB(ALL) & bitB8C8D8)
                                     && !SqAttacked(E8, WHITE, pos)
                                     && !SqAttacked(D8, WHITE, pos);
                     case G8: return    (pos->castlePerm & BKCA)
-                                    && !(occupied & bitF8G8)
+                                    && !(pieceBB(ALL) & bitF8G8)
                                     && !SqAttacked(E8, WHITE, pos)
                                     && !SqAttacked(F8, WHITE, pos);
                 }
-            return toBB & king_attacks[from];
+            return SquareBB[to] & king_attacks[from];
     }
     return false;
 }
