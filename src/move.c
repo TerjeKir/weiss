@@ -32,14 +32,10 @@ bool MoveIsPseudoLegal(const Position *pos, const int move) {
         case BISHOP: return SquareBB[to] & BishopAttacks(from, pieceBB(ALL));
         case ROOK  : return SquareBB[to] &   RookAttacks(from, pieceBB(ALL));
         case QUEEN : return SquareBB[to] & (BishopAttacks(from, pieceBB(ALL)) | RookAttacks(from, pieceBB(ALL)));
-        case PAWN  :
-            if (move & FLAG_ENPAS)
-                return to == pos->enPas;
-            if (move & FLAG_PAWNSTART)
-                return pieceOn(to + 8 - 16 * color) == EMPTY;
-            if (move & MOVE_CAPT)
-                return SquareBB[to] & pawn_attacks[color][from];
-            return (to + 8 - 16 * color) == from;
+        case PAWN  : return (move & FLAG_ENPAS)     ? to == pos->enPas
+                          : (move & FLAG_PAWNSTART) ? pieceOn(to + 8 - 16 * color) == EMPTY
+                          : (move & MOVE_CAPT)      ? SquareBB[to] & pawn_attacks[color][from]
+                                                    : (to + 8 - 16 * color) == from;
         case KING  :
             if (move & FLAG_CASTLE)
                 switch (to) {
