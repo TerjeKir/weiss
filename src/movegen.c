@@ -73,36 +73,24 @@ INLINE void AddSpecialPawn(const Position *pos, MoveList *list, const int from, 
     }
 }
 
-// Castling is a mess due to testing most of the legality here, rather than in makemove
+// Castling is now a bit less of a mess
 INLINE void GenCastling(const Position *pos, MoveList *list, const int color, const int type) {
 
     if (type != QUIET) return;
 
-    const int KCA = color == WHITE ? WKCA : BKCA;
-    const int QCA = color == WHITE ? WQCA : BQCA;
-    const Bitboard kingbits  = color == WHITE ? bitF1G1 : bitF8G8;
-    const Bitboard queenbits = color == WHITE ? bitB1C1D1 : bitB8C8D8;
-    const int from = color == WHITE ? E1 : E8;
-    const int ksto = color == WHITE ? G1 : G8;
-    const int qsto = color == WHITE ? C1 : C8;
-    const int ksmiddle = color == WHITE ? F1 : F8;
-    const int qsmiddle = color == WHITE ? D1 : D8;
-
-    const Bitboard occupied = pieceBB(ALL);
+    const int from = color == WHITE ? E1   : E8;
+    const int KCA  = color == WHITE ? WKCA : BKCA;
+    const int QCA  = color == WHITE ? WQCA : BQCA;
+    const Bitboard betweenKS = color == WHITE ? bitF1G1   : bitF8G8;
+    const Bitboard betweenQS = color == WHITE ? bitB1C1D1 : bitB8C8D8;
 
     // King side castle
-    if (pos->castlePerm & KCA)
-        if (!(occupied & kingbits))
-            if (   !SqAttacked(from, !color, pos)
-                && !SqAttacked(ksmiddle, !color, pos))
-                AddMove(pos, list, from, ksto, EMPTY, FLAG_CASTLE, QUIET);
+    if (CastlePseudoLegal(pos, betweenKS, KCA, from, from+1, color))
+        AddMove(pos, list, from, from+2, EMPTY, FLAG_CASTLE, QUIET);
 
     // Queen side castle
-    if (pos->castlePerm & QCA)
-        if (!(occupied & queenbits))
-            if (   !SqAttacked(from, !color, pos)
-                && !SqAttacked(qsmiddle, !color, pos))
-                AddMove(pos, list, from, qsto, EMPTY, FLAG_CASTLE, QUIET);
+    if (CastlePseudoLegal(pos, betweenQS, QCA, from, from-1, color))
+        AddMove(pos, list, from, from-2, EMPTY, FLAG_CASTLE, QUIET);
 }
 
 // Returns a square behind (relative to color)

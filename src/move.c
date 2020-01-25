@@ -32,29 +32,17 @@ bool MoveIsPseudoLegal(const Position *pos, const int move) {
         case BISHOP: return SquareBB[to] & BishopAttacks(from, pieceBB(ALL));
         case ROOK  : return SquareBB[to] &   RookAttacks(from, pieceBB(ALL));
         case QUEEN : return SquareBB[to] & (BishopAttacks(from, pieceBB(ALL)) | RookAttacks(from, pieceBB(ALL)));
-        case PAWN  : return (move & FLAG_ENPAS)     ? to == pos->enPas
-                          : (move & FLAG_PAWNSTART) ? pieceOn(to + 8 - 16 * color) == EMPTY
-                          : (move & MOVE_CAPT)      ? SquareBB[to] & pawn_attacks[color][from]
-                                                    : (to + 8 - 16 * color) == from;
+        case PAWN  : return (moveIsEnPas(move))   ? to == pos->enPas
+                          : (moveIsPStart(move))  ? pieceOn(to + 8 - 16 * color) == EMPTY
+                          : (moveIsCapture(move)) ? SquareBB[to] & pawn_attacks[color][from]
+                                                  : (to + 8 - 16 * color) == from;
         case KING  :
-            if (move & FLAG_CASTLE)
+            if (moveIsCastle(move))
                 switch (to) {
-                    case C1: return    (pos->castlePerm & WQCA)
-                                    && !(pieceBB(ALL) & bitB1C1D1)
-                                    && !SqAttacked(E1, BLACK, pos)
-                                    && !SqAttacked(D1, BLACK, pos);
-                    case G1: return    (pos->castlePerm & WKCA)
-                                    && !(pieceBB(ALL) & bitF1G1)
-                                    && !SqAttacked(E1, BLACK, pos)
-                                    && !SqAttacked(F1, BLACK, pos);
-                    case C8: return    (pos->castlePerm & BQCA)
-                                    && !(pieceBB(ALL) & bitB8C8D8)
-                                    && !SqAttacked(E8, WHITE, pos)
-                                    && !SqAttacked(D8, WHITE, pos);
-                    case G8: return    (pos->castlePerm & BKCA)
-                                    && !(pieceBB(ALL) & bitF8G8)
-                                    && !SqAttacked(E8, WHITE, pos)
-                                    && !SqAttacked(F8, WHITE, pos);
+                    case C1: return CastlePseudoLegal(pos, bitB1C1D1, WQCA, E1, D1, WHITE);
+                    case G1: return CastlePseudoLegal(pos, bitF1G1,   WKCA, E1, F1, WHITE);
+                    case C8: return CastlePseudoLegal(pos, bitB8C8D8, BQCA, E8, D8, BLACK);
+                    case G8: return CastlePseudoLegal(pos, bitF8G8,   BKCA, E8, F8, BLACK);
                 }
             return SquareBB[to] & king_attacks[from];
     }

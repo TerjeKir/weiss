@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "attack.h"
 #include "types.h"
 
 /* Move contents - total 23bits used
@@ -39,10 +40,21 @@
 #define promotion(move) (((move) & MOVE_PROMO) >> 16)
 
 // Move types
-#define moveIsCapture(move) (move & (MOVE_CAPT | FLAG_ENPAS))
+#define moveIsEnPas(move)   (move & FLAG_ENPAS)
+#define moveIsPStart(move)  (move & FLAG_PAWNSTART)
+#define moveIsCastle(move)  (move & FLAG_CASTLE)
+#define moveIsCapture(move) (move & MOVE_CAPT)
 #define moveIsNoisy(move)   (move & (MOVE_CAPT | MOVE_PROMO | FLAG_ENPAS))
-#define moveIsSpecial(move) (move & MOVE_FLAGS)
 
+
+// Checks legality of a specific castle move given the current position
+INLINE bool CastlePseudoLegal(const Position *pos, Bitboard between, int type, int sq1, int sq2, int color) {
+
+    return (pos->castlePerm & type)
+        && !(pieceBB(ALL) & between)
+        && !SqAttacked(sq1, !color, pos)
+        && !SqAttacked(sq2, !color, pos);
+}
 
 bool MoveIsPseudoLegal(const Position *pos, const int move);
 char *MoveToStr(const int move);
