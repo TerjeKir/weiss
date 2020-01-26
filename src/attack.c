@@ -5,33 +5,19 @@
 #include "board.h"
 #include "validate.h"
 
-#ifdef USE_PEXT
-#include "x86intrin.h"
-#endif
-
-
-typedef struct {
-    Bitboard *attacks;
-    Bitboard mask;
-#ifndef USE_PEXT
-    uint64_t magic;
-    int shift;
-#endif
-} Magic;
-
 
 static Bitboard bishop_attacks[0x1480];
 static Bitboard rook_attacks[0x19000];
 
-static Magic BishopTable[64];
-static Magic RookTable[64];
+Magic BishopTable[64];
+Magic RookTable[64];
 
 Bitboard PseudoAttacks[TYPE_NB][64];
 Bitboard PawnAttacks[2][64];
 
 
 // Helper function that returns a bitboard with the landing square of
-// the step, or an empty bitboard of the step would go outside the board
+// the step, or an empty bitboard if the step would go outside the board
 INLINE Bitboard LandingSquare(int sq, int step) {
 
     const int to = sq + step;
@@ -139,30 +125,6 @@ CONSTR InitAttacks() {
 #else
     InitSliderAttacks(BishopTable, bishop_attacks, BishopMagics, bishopDirections);
     InitSliderAttacks(  RookTable,   rook_attacks,   RookMagics,   rookDirections);
-#endif
-}
-
-// Returns the attack bitboard for a bishop based on what squares are occupied
-Bitboard BishopAttacks(const int sq, Bitboard occupied) {
-#ifdef USE_PEXT
-    return BishopTable[sq].attacks[_pext_u64(occupied, BishopTable[sq].mask)];
-#else
-    occupied  &= BishopTable[sq].mask;
-    occupied  *= BishopTable[sq].magic;
-    occupied >>= BishopTable[sq].shift;
-    return BishopTable[sq].attacks[occupied];
-#endif
-}
-
-// Returns the attack bitboard for a rook based on what squares are occupied
-Bitboard RookAttacks(const int sq, Bitboard occupied) {
-#ifdef USE_PEXT
-    return RookTable[sq].attacks[_pext_u64(occupied, RookTable[sq].mask)];
-#else
-    occupied  &= RookTable[sq].mask;
-    occupied  *= RookTable[sq].magic;
-    occupied >>= RookTable[sq].shift;
-    return RookTable[sq].attacks[occupied];
 #endif
 }
 

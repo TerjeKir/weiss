@@ -4,6 +4,20 @@
 
 #include "types.h"
 
+#ifdef USE_PEXT
+#include "x86intrin.h"
+#endif
+
+
+typedef struct {
+    Bitboard *attacks;
+    Bitboard mask;
+#ifndef USE_PEXT
+    uint64_t magic;
+    int shift;
+#endif
+} Magic;
+
 
 #ifndef USE_PEXT
 static const uint64_t RookMagics[64] = {
@@ -45,13 +59,35 @@ static const uint64_t BishopMagics[64] = {
 };
 #endif
 
+extern Magic BishopTable[64];
+extern Magic RookTable[64];
+
 extern Bitboard PseudoAttacks[8][64];
 extern Bitboard PawnAttacks[2][64];
 
+// Returns the attack bitboard for a bishop based on what squares are occupied
+INLINE Bitboard BishopAttacks(const int sq, Bitboard occupied) {
+#ifdef USE_PEXT
+    return BishopTable[sq].attacks[_pext_u64(occupied, BishopTable[sq].mask)];
+#else
+    occupied  &= BishopTable[sq].mask;
+    occupied  *= BishopTable[sq].magic;
+    occupied >>= BishopTable[sq].shift;
+    return BishopTable[sq].attacks[occupied];
+#endif
+}
 
-Bitboard BishopAttacks(const int sq, Bitboard occupied);
-Bitboard   RookAttacks(const int sq, Bitboard occupied);
-bool SqAttacked(const int sq, const int side, const Position *pos);
+// Returns the attack bitboard for a rook based on what squares are occupied
+INLINE Bitboard RookAttacks(const int sq, Bitboard occupied) {
+#ifdef USE_PEXT
+    return RookTable[sq].attacks[_pext_u64(occupied, RookTable[sq].mask)];
+#else
+    occupied  &= RookTable[sq].mask;
+    occupied  *= RookTable[sq].magic;
+    occupied >>= RookTable[sq].shift;
+    return RookTable[sq].attacks[occupied];
+#endif
+}
 
 INLINE Bitboard AttackBB(int piecetype, int sq, Bitboard occupied) {
 
@@ -64,3 +100,5 @@ INLINE Bitboard AttackBB(int piecetype, int sq, Bitboard occupied) {
         default    : return PseudoAttacks[piecetype][sq];
     }
 }
+
+bool SqAttacked(const int sq, const int side, const Position *pos);
