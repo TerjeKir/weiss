@@ -53,3 +53,17 @@ Bitboard pawn_attacks[2][64];
 Bitboard BishopAttacks(const int sq, Bitboard occupied);
 Bitboard   RookAttacks(const int sq, Bitboard occupied);
 bool SqAttacked(const int sq, const int side, const Position *pos);
+
+INLINE Bitboard AttackBB(int piecetype, int sq, Bitboard occupied) {
+
+    assert(piecetype != PAWN);
+
+    switch(piecetype) {
+        case KNIGHT: return knight_attacks[sq];
+        case KING  : return king_attacks[sq];
+        case BISHOP: return BishopAttacks(sq, occupied);
+        case ROOK  : return RookAttacks(sq, occupied);
+        case QUEEN : return RookAttacks(sq, occupied) | BishopAttacks(sq, occupied);
+        default    : return 0ull;
+    }
+}

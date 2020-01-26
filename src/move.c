@@ -28,10 +28,10 @@ bool MoveIsPseudoLegal(const Position *pos, const int move) {
 
     // Make sure the piece at 'from' can move to 'to' (ignoring pins/moving into check)
     switch (pieceTypeOf(pieceOn(from))) {
-        case KNIGHT: return SquareBB[to] & knight_attacks[from];
-        case BISHOP: return SquareBB[to] & BishopAttacks(from, pieceBB(ALL));
-        case ROOK  : return SquareBB[to] &   RookAttacks(from, pieceBB(ALL));
-        case QUEEN : return SquareBB[to] & (BishopAttacks(from, pieceBB(ALL)) | RookAttacks(from, pieceBB(ALL)));
+        case KNIGHT: return SquareBB[to] & AttackBB(KNIGHT, from, pieceBB(ALL));
+        case BISHOP: return SquareBB[to] & AttackBB(BISHOP, from, pieceBB(ALL));
+        case ROOK  : return SquareBB[to] & AttackBB(ROOK,   from, pieceBB(ALL));
+        case QUEEN : return SquareBB[to] & AttackBB(QUEEN,  from, pieceBB(ALL));
         case PAWN  : return (moveIsEnPas(move))   ? to == pos->enPas
                           : (moveIsPStart(move))  ? pieceOn(to + 8 - 16 * color) == EMPTY
                           : (moveIsCapture(move)) ? SquareBB[to] & pawn_attacks[color][from]
@@ -44,7 +44,7 @@ bool MoveIsPseudoLegal(const Position *pos, const int move) {
                     case C8: return CastlePseudoLegal(pos, bitB8C8D8, BQCA, E8, D8, BLACK);
                     case G8: return CastlePseudoLegal(pos, bitF8G8,   BKCA, E8, F8, BLACK);
                 }
-            return SquareBB[to] & king_attacks[from];
+            return SquareBB[to] & AttackBB(KING, from, pieceBB(ALL));
     }
     return false;
 }

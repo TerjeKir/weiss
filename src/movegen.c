@@ -205,11 +205,7 @@ INLINE void GenPieceType(const Position *pos, MoveList *list, const int color, c
 
         sq = PopLsb(&pieces);
 
-        if (pt == KNIGHT) moves = targets & knight_attacks[sq];
-        if (pt == BISHOP) moves = targets & BishopAttacks(sq, occupied);
-        if (pt == ROOK)   moves = targets & RookAttacks(sq, occupied);
-        if (pt == QUEEN)  moves = targets & (BishopAttacks(sq, occupied) | RookAttacks(sq, occupied));
-        if (pt == KING)   moves = targets & king_attacks[sq];
+        moves = targets & AttackBB(pt, sq, occupied);
 
         while (moves)
             AddMove(pos, list, sq, PopLsb(&moves), EMPTY, 0, type);
