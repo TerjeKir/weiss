@@ -45,9 +45,8 @@ static const uint64_t BishopMagics[64] = {
 };
 #endif
 
-Bitboard king_attacks[64];
-Bitboard knight_attacks[64];
-Bitboard pawn_attacks[2][64];
+extern Bitboard PseudoAttacks[8][64];
+extern Bitboard PawnAttacks[2][64];
 
 
 Bitboard BishopAttacks(const int sq, Bitboard occupied);
@@ -59,11 +58,9 @@ INLINE Bitboard AttackBB(int piecetype, int sq, Bitboard occupied) {
     assert(piecetype != PAWN);
 
     switch(piecetype) {
-        case KNIGHT: return knight_attacks[sq];
-        case KING  : return king_attacks[sq];
         case BISHOP: return BishopAttacks(sq, occupied);
         case ROOK  : return RookAttacks(sq, occupied);
         case QUEEN : return RookAttacks(sq, occupied) | BishopAttacks(sq, occupied);
-        default    : return 0ull;
+        default    : return PseudoAttacks[piecetype][sq];
     }
 }

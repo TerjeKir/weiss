@@ -26,9 +26,8 @@ static Bitboard rook_attacks[0x19000];
 static Magic BishopTable[64];
 static Magic RookTable[64];
 
-Bitboard pawn_attacks[2][64];
-Bitboard knight_attacks[64];
-Bitboard king_attacks[64];
+Bitboard PseudoAttacks[TYPE_NB][64];
+Bitboard PawnAttacks[2][64];
 
 
 // Helper function that returns a bitboard with the landing square of
@@ -50,14 +49,14 @@ static void InitNonSliderAttacks() {
 
         // Kings and knights
         for (int i = 0; i < 8; ++i) {
-            king_attacks[sq]   |= LandingSquare(sq, KSteps[i]);
-            knight_attacks[sq] |= LandingSquare(sq, NSteps[i]);
+            PseudoAttacks[KING][sq]   |= LandingSquare(sq, KSteps[i]);
+            PseudoAttacks[KNIGHT][sq] |= LandingSquare(sq, NSteps[i]);
         }
 
         // Pawns
         for (int i = 0; i < 2; ++i) {
-            pawn_attacks[WHITE][sq] |= LandingSquare(sq, PSteps[WHITE][i]);
-            pawn_attacks[BLACK][sq] |= LandingSquare(sq, PSteps[BLACK][i]);
+            PawnAttacks[WHITE][sq] |= LandingSquare(sq, PSteps[WHITE][i]);
+            PawnAttacks[BLACK][sq] |= LandingSquare(sq, PSteps[BLACK][i]);
         }
     }
 }
@@ -177,11 +176,11 @@ bool SqAttacked(const int sq, const int color, const Position *pos) {
     const Bitboard bishops = colorBB(color) & (pieceBB(BISHOP) | pieceBB(QUEEN));
     const Bitboard rooks   = colorBB(color) & (pieceBB(ROOK)   | pieceBB(QUEEN));
 
-    if (     pawn_attacks[!color][sq] & pieceBB(PAWN)   & colorBB(color)
-        || knight_attacks[sq]         & pieceBB(KNIGHT) & colorBB(color)
-        ||   king_attacks[sq]         & pieceBB(KING)   & colorBB(color)
-        || bishops & BishopAttacks(sq, pieceBB(ALL))
-        || rooks   &   RookAttacks(sq, pieceBB(ALL)))
+    if (   PawnAttacks[!color][sq]            & pieceBB(PAWN)   & colorBB(color)
+        || AttackBB(KNIGHT, sq, pieceBB(ALL)) & pieceBB(KNIGHT) & colorBB(color)
+        || AttackBB(KING,   sq, pieceBB(ALL)) & pieceBB(KING)   & colorBB(color)
+        || AttackBB(BISHOP, sq, pieceBB(ALL)) & bishops
+        || AttackBB(ROOK,   sq, pieceBB(ALL)) & rooks)
         return true;
 
     return false;

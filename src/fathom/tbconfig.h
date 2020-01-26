@@ -94,7 +94,7 @@
  * Define TB_KING_ATTACKS(square) to return the king attacks bitboard for a
  * king at `square'.
  */
-#define TB_KING_ATTACKS(square) king_attacks[square]
+#define TB_KING_ATTACKS(square) AttackBB(KING, square, 0ull)
 
 /*
  * Define TB_PAWN_ATTACKS(square, color) to return the pawn attacks bitboard
@@ -104,22 +104,22 @@
  *       nothing.  Etc.
  * NOTE: This definition must not include en passant captures.
  */
-#define TB_PAWN_ATTACKS(square, color) pawn_attacks[color][square]
+#define TB_PAWN_ATTACKS(square, color) PawnAttacks[color][square]
 
 /*
  * Define TB_KNIGHT_ATTACKS(square) to return the knight attacks bitboard for
  * a knight at `square'.
  */
-#define TB_KNIGHT_ATTACKS(square) knight_attacks[square]
+#define TB_KNIGHT_ATTACKS(square) AttackBB(KNIGHT, square, 0ull)
 
 /*
  * Define TB_BISHOP_ATTACKS(square, occ) to return the bishop attacks bitboard
  * for a bishop at `square' assuming the given `occ' occupancy bitboard.
  */
-#define TB_BISHOP_ATTACKS(square, occ) BishopAttacks(square, occ)
+#define TB_BISHOP_ATTACKS(square, occ) AttackBB(BISHOP, square, occ)
 
 /*
  * Define TB_ROOK_ATTACKS(square, occ) to return the rook attacks bitboard
  * for a rook at `square' assuming the given `occ' occupancy bitboard.
  */
-#define TB_ROOK_ATTACKS(square, occ) RookAttacks(square, occ)
+#define TB_ROOK_ATTACKS(square, occ) AttackBB(ROOK, square, occ)
