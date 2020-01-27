@@ -155,7 +155,7 @@ INLINE int evalPawns(const Position *pos, const int color) {
             eval += PawnIsolated;
         // Passed bonus
         if (!((PassedMask[color][sq]) & colorBB(!color) & pieceBB(PAWN)))
-            eval += PawnPassed[color ? rankOf(sq) : 7 - rankOf(sq)];
+            eval += PawnPassed[relativeRank(color, rankOf(sq))];
     }
 
     return eval;

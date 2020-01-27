@@ -314,8 +314,7 @@ bool CheckBoard(const Position *pos) {
     assert(sideToMove() == WHITE || sideToMove() == BLACK);
 
     assert(pos->enPas == NO_SQ
-       || (pos->enPas >= 40 && pos->enPas < 48 && sideToMove() == WHITE)
-       || (pos->enPas >= 16 && pos->enPas < 24 && sideToMove() == BLACK));
+       || (relativeRank(sideToMove(), rankOf(pos->enPas)) == RANK_6));
 
     assert(pos->castlePerm >= 0 && pos->castlePerm <= 15);
 

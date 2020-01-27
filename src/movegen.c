@@ -110,19 +110,17 @@ INLINE void GenPawn(const Position *pos, MoveList *list, const int color, const 
     const Bitboard enemies =  colorBB(!color);
     const Bitboard pawns   =  colorBB( color) & pieceBB(PAWN);
 
-    Bitboard relRank7BB = color == WHITE ? rank7BB : rank2BB;
-
-    Bitboard on7th  = pawns & relRank7BB;
+    Bitboard on7th  = pawns & rankBB[relativeRank(color, RANK_7)];
     Bitboard not7th = pawns ^ on7th;
 
     // Normal moves forward
     if (type == QUIET) {
 
         Bitboard pawnMoves  = color == WHITE ? empty & not7th << 8
-                                    : empty & not7th >> 8;
+                                             : empty & not7th >> 8;
 
         Bitboard pawnStarts = color == WHITE ? empty & (pawnMoves & rank3BB) << 8
-                                    : empty & (pawnMoves & rank6BB) >> 8;
+                                             : empty & (pawnMoves & rank6BB) >> 8;
 
         // Normal pawn moves
         while (pawnMoves) {
