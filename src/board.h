@@ -9,7 +9,7 @@ uint8_t SqDistance[64][64];
 
 
 const int NonPawn[PIECE_NB];
-const int piecePawn[PIECE_NB];
+const int PiecePawn[PIECE_NB];
 
 const int PhaseValue[PIECE_NB];
 

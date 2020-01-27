@@ -192,7 +192,7 @@ void TakeMove(Position *pos) {
 
     // Remove promoted piece and put back the pawn
     if (promotion(move) != EMPTY) {
-        assert(ValidPiece(promotion(move)) && !piecePawn[promotion(move)]);
+        assert(ValidPiece(promotion(move)) && !PiecePawn[promotion(move)]);
         ClearPiece(from, pos);
         AddPiece(from, pos, MakePiece(ColorOf(promotion(move)), PAWN));
     }
@@ -275,7 +275,7 @@ bool MakeMove(Position *pos, const int move) {
     MovePiece(from, to, pos);
 
     // Pawn move specifics
-    if (piecePawn[pieceOn(to)]) {
+    if (PiecePawn[pieceOn(to)]) {
 
         // Reset 50mr after a pawn move
         pos->fiftyMove = 0;
@@ -294,7 +294,7 @@ bool MakeMove(Position *pos, const int move) {
 
         // Replace promoting pawn with new piece
         else if (promo != EMPTY) {
-            assert(ValidPiece(promo) && !piecePawn[promo]);
+            assert(ValidPiece(promo) && !PiecePawn[promo]);
             ClearPiece(to, pos);
             AddPiece(to, pos, promo);
         }

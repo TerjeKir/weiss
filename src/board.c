@@ -13,7 +13,7 @@
 
 //                                EMPTY,    bP,    bN,    bB,    bR,    bQ,    bK, EMPTY, EMPTY,    wP,    wN,    wB,    wR,    wQ,    wK, EMPTY
 const int NonPawn[PIECE_NB]   = { false, false,  true,  true,  true,  true, false, false, false, false,  true,  true,  true,  true, false, false };
-const int piecePawn[PIECE_NB] = { false,  true, false, false, false, false, false, false, false,  true, false, false, false, false, false, false };
+const int PiecePawn[PIECE_NB] = { false,  true, false, false, false, false, false, false, false,  true, false, false, false, false, false, false };
 
 const int PhaseValue[PIECE_NB] = {    0,     0,     1,     1,     2,     4,     0,     0,     0,     0,     1,     1,     2,     4,     0,     0 };
 
