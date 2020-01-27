@@ -129,7 +129,7 @@ typedef struct {
     int pieceList[PIECE_NB][10];
     int index[64];
 
-    int bigPieces[2];
+    int nonPawns[2];
 
     int material;
     int basePhase;

@@ -12,7 +12,7 @@
 
 
 //                                EMPTY,    bP,    bN,    bB,    bR,    bQ,    bK, EMPTY, EMPTY,    wP,    wN,    wB,    wR,    wQ,    wK, EMPTY
-const int pieceBig [PIECE_NB] = { false, false,  true,  true,  true,  true, false, false, false, false,  true,  true,  true,  true, false, false };
+const int NonPawn[PIECE_NB]   = { false, false,  true,  true,  true,  true, false, false, false, false,  true,  true,  true,  true, false, false };
 const int piecePawn[PIECE_NB] = { false,  true, false, false, false, false, false, false, false,  true, false, false, false, false, false, false };
 
 const int phaseValue[PIECE_NB] = {    0,     0,     1,     1,     2,     4,     0,     0,     0,     0,     1,     1,     2,     4,     0,     0 };
@@ -55,8 +55,8 @@ static void UpdatePosition(Position *pos) {
             SETBIT(pieceBB(pieceTypeOf(piece)), sq);
 
             // Non pawn piece count
-            if (pieceBig[piece])
-                pos->bigPieces[color]++;
+            if (NonPawn[piece])
+                pos->nonPawns[color]++;
 
             // Material score
             pos->material += PSQT[piece][sq];
@@ -91,7 +91,7 @@ static void ClearPosition(Position *pos) {
     memset(pos->index,       0, sizeof(pos->index));
 
     // Big piece counts
-    pos->bigPieces[BLACK] = pos->bigPieces[WHITE] = 0;
+    pos->nonPawns[BLACK] = pos->nonPawns[WHITE] = 0;
 
     // Misc
     pos->material   = 0;
@@ -302,13 +302,13 @@ bool CheckBoard(const Position *pos) {
         t_pieceCounts[t_piece]++;
         color = colorOf(t_piece);
 
-        if (pieceBig[t_piece]) t_bigPieces[color]++;
+        if (NonPawn[t_piece]) t_bigPieces[color]++;
     }
 
     for (t_piece = PIECE_MIN; t_piece < PIECE_NB; ++t_piece)
         assert(t_pieceCounts[t_piece] == pos->pieceCounts[t_piece]);
 
-    assert(t_bigPieces[WHITE] == pos->bigPieces[WHITE] && t_bigPieces[BLACK] == pos->bigPieces[BLACK]);
+    assert(t_bigPieces[WHITE] == pos->nonPawns[WHITE] && t_bigPieces[BLACK] == pos->nonPawns[BLACK]);
 
     assert(sideToMove() == WHITE || sideToMove() == BLACK);
 

@@ -325,7 +325,7 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
         // Null Move Pruning
         if (   history(-1).move != NOMOVE
             && eval >= beta
-            && pos->bigPieces[sideToMove()] > 0
+            && pos->nonPawns[sideToMove()] > 0
             && depth >= 3) {
 
             int R = 3 + depth / 5 + MIN(3, (eval - beta) / 256);

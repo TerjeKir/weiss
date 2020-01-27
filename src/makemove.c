@@ -52,8 +52,8 @@ static void ClearPiece(const int sq, Position *pos) {
     pos->phase = (pos->basePhase * 256 + 12) / 24;
 
     // Update various piece lists
-    if (pieceBig[piece])
-        pos->bigPieces[color]--;
+    if (NonPawn[piece])
+        pos->nonPawns[color]--;
 
     // Update piece list
     int lastSquare = pos->pieceList[piece][--pos->pieceCounts[piece]];
@@ -90,8 +90,8 @@ static void AddPiece(const int sq, Position *pos, const int piece) {
     pos->phase = (pos->basePhase * 256 + 12) / 24;
 
     // Update various piece lists
-    if (pieceBig[piece])
-        pos->bigPieces[color]++;
+    if (NonPawn[piece])
+        pos->nonPawns[color]++;
 
     pos->index[sq] = pos->pieceCounts[piece]++;
     pos->pieceList[piece][pos->index[sq]] = sq;
