@@ -19,7 +19,7 @@ static const char *BenchmarkFENs[] = {
     ""
 };
 
-void benchmark(int depth, Position *pos, SearchInfo *info) {
+void Benchmark(int depth, Position *pos, SearchInfo *info) {
 
     uint64_t nodes = 0ULL;
 

@@ -27,7 +27,7 @@ bool MoveIsPseudoLegal(const Position *pos, const int move) {
         return false;
 
     // Make sure the piece at 'from' can move to 'to' (ignoring pins/moving into check)
-    switch (pieceTypeOf(pieceOn(from))) {
+    switch (PieceTypeOf(pieceOn(from))) {
         case KNIGHT: return SquareBB[to] & AttackBB(KNIGHT, from, pieceBB(ALL));
         case BISHOP: return SquareBB[to] & AttackBB(BISHOP, from, pieceBB(ALL));
         case ROOK  : return SquareBB[to] & AttackBB(ROOK,   from, pieceBB(ALL));
@@ -55,12 +55,12 @@ char *MoveToStr(const int move) {
     static char moveStr[6];
     char pchar;
 
-    int ff = fileOf(fromSq(move));
-    int rf = rankOf(fromSq(move));
-    int ft = fileOf(toSq(move));
-    int rt = rankOf(toSq(move));
+    int ff = FileOf(fromSq(move));
+    int rf = RankOf(fromSq(move));
+    int ft = FileOf(toSq(move));
+    int rt = RankOf(toSq(move));
 
-    int promo = pieceTypeOf(promotion(move));
+    int promo = PieceTypeOf(promotion(move));
 
     if (promo) {
 
@@ -107,7 +107,7 @@ int ParseMove(const char *ptrChar, Position *pos) {
 
         if (fromSq(move) == from && toSq(move) == to) {
 
-            int promo = pieceTypeOf(promotion(move));
+            int promo = PieceTypeOf(promotion(move));
 
             if (promo) {
 
@@ -160,7 +160,7 @@ int ParseEPDMove(const char *ptrChar, Position *pos) {
 
         if (fromSq(move) == from && toSq(move) == to) {
 
-            int promo = pieceTypeOf(promotion(move));
+            int promo = PieceTypeOf(promotion(move));
 
             if (promo) {
 

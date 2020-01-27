@@ -167,9 +167,9 @@ int main(int argc, char **argv) {
     // Benchmark
     if (argc > 1 && strstr(argv[1], "bench")) {
         if (argc > 2)
-            benchmark(atoi(argv[2]), pos, info);
+            Benchmark(atoi(argv[2]), pos, info);
         else
-            benchmark(13, pos, info);
+            Benchmark(13, pos, info);
         return 0;
     }
 

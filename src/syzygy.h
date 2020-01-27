@@ -8,7 +8,7 @@
 
 
 // Calls fathom to probe syzygy tablebases - heavily inspired by ethereal
-unsigned int probeWDL(const Position *pos) {
+unsigned int ProbeWDL(const Position *pos) {
 
     // Don't probe at root, when en passant is possible, when castling is
     // possible, or when 50 move rule was not reset by the last move.

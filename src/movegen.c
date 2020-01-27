@@ -64,11 +64,11 @@ INLINE void AddSpecialPawn(const Position *pos, MoveList *list, const int from, 
     }
     if (movetype == PROMO) {
         if (type == NOISY)
-            AddMove(pos, list, from, to, makePiece(color, QUEEN ), FLAG_NONE, NOISY);
+            AddMove(pos, list, from, to, MakePiece(color, QUEEN ), FLAG_NONE, NOISY);
         if (type == QUIET) {
-            AddMove(pos, list, from, to, makePiece(color, KNIGHT), FLAG_NONE, NOISY);
-            AddMove(pos, list, from, to, makePiece(color, ROOK  ), FLAG_NONE, NOISY);
-            AddMove(pos, list, from, to, makePiece(color, BISHOP), FLAG_NONE, NOISY);
+            AddMove(pos, list, from, to, MakePiece(color, KNIGHT), FLAG_NONE, NOISY);
+            AddMove(pos, list, from, to, MakePiece(color, ROOK  ), FLAG_NONE, NOISY);
+            AddMove(pos, list, from, to, MakePiece(color, BISHOP), FLAG_NONE, NOISY);
         }
     }
 }
@@ -97,7 +97,7 @@ INLINE void GenCastling(const Position *pos, MoveList *list, const int color, co
 // 7 : diagonally to the left
 // 8 : directly behind
 // 9 : diagonally to the right
-INLINE int relBackward(const int color, const int sq, const int diff) {
+INLINE int RelativeBack(const int color, const int sq, const int diff) {
     return color == WHITE ? sq - diff : sq + diff;
 }
 
@@ -110,7 +110,7 @@ INLINE void GenPawn(const Position *pos, MoveList *list, const int color, const 
     const Bitboard enemies =  colorBB(!color);
     const Bitboard pawns   =  colorBB( color) & pieceBB(PAWN);
 
-    Bitboard on7th  = pawns & RankBB[relativeRank(color, RANK_7)];
+    Bitboard on7th  = pawns & RankBB[RelativeRank(color, RANK_7)];
     Bitboard not7th = pawns ^ on7th;
 
     // Normal moves forward
@@ -125,12 +125,12 @@ INLINE void GenPawn(const Position *pos, MoveList *list, const int color, const 
         // Normal pawn moves
         while (pawnMoves) {
             sq = PopLsb(&pawnMoves);
-            AddMove(pos, list, relBackward(color, sq, 8), sq, EMPTY, FLAG_NONE, QUIET);
+            AddMove(pos, list, RelativeBack(color, sq, 8), sq, EMPTY, FLAG_NONE, QUIET);
         }
         // Pawn starts
         while (pawnStarts) {
             sq = PopLsb(&pawnStarts);
-            AddMove(pos, list, relBackward(color, sq, 16), sq, EMPTY, FLAG_PAWNSTART, QUIET);
+            AddMove(pos, list, RelativeBack(color, sq, 16), sq, EMPTY, FLAG_PAWNSTART, QUIET);
         }
     }
 
@@ -149,16 +149,16 @@ INLINE void GenPawn(const Position *pos, MoveList *list, const int color, const 
         // Promoting captures
         while (lPromoCap) {
             sq = PopLsb(&lPromoCap);
-            AddSpecialPawn(pos, list, relBackward(color, sq, 7), sq, color, PROMO, type);
+            AddSpecialPawn(pos, list, RelativeBack(color, sq, 7), sq, color, PROMO, type);
         }
         while (rPromoCap) {
             sq = PopLsb(&rPromoCap);
-            AddSpecialPawn(pos, list, relBackward(color, sq, 9), sq, color, PROMO, type);
+            AddSpecialPawn(pos, list, RelativeBack(color, sq, 9), sq, color, PROMO, type);
         }
         // Promotions
         while (promotions) {
             sq = PopLsb(&promotions);
-            AddSpecialPawn(pos, list, relBackward(color, sq, 8), sq, color, PROMO, type);
+            AddSpecialPawn(pos, list, RelativeBack(color, sq, 8), sq, color, PROMO, type);
         }
     }
     // Captures
@@ -172,11 +172,11 @@ INLINE void GenPawn(const Position *pos, MoveList *list, const int color, const 
 
         while (lAttacks) {
             sq = PopLsb(&lAttacks);
-            AddMove(pos, list, relBackward(color, sq, 7), sq, EMPTY, FLAG_NONE, NOISY);
+            AddMove(pos, list, RelativeBack(color, sq, 7), sq, EMPTY, FLAG_NONE, NOISY);
         }
         while (rAttacks) {
             sq = PopLsb(&rAttacks);
-            AddMove(pos, list, relBackward(color, sq, 9), sq, EMPTY, FLAG_NONE, NOISY);
+            AddMove(pos, list, RelativeBack(color, sq, 9), sq, EMPTY, FLAG_NONE, NOISY);
         }
         // En passant
         if (pos->enPas != NO_SQ) {

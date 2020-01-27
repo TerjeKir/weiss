@@ -28,6 +28,6 @@ INLINE int Distance(const int sq1, const int sq2) {
     return SqDistance[sq1][sq2];
 }
 
-INLINE int relativeRank(const int side, const int rank) {
+INLINE int RelativeRank(const int side, const int rank) {
     return side == WHITE ? rank : RANK_8 - rank;
 }

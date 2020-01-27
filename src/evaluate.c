@@ -67,9 +67,9 @@ CONSTR InitEvalMasks() {
             PassedMask[BLACK][sq] |= (1ULL << tsq);
 
         // Left side
-        if (fileOf(sq) > FILE_A) {
+        if (FileOf(sq) > FILE_A) {
 
-            IsolatedMask[sq] |= FileBB[fileOf(sq) - 1];
+            IsolatedMask[sq] |= FileBB[FileOf(sq) - 1];
 
             for (tsq = sq + 7; tsq <= H8; tsq += 8)
                 PassedMask[WHITE][sq] |= (1ULL << tsq);
@@ -79,9 +79,9 @@ CONSTR InitEvalMasks() {
         }
 
         // Right side
-        if (fileOf(sq) < FILE_H) {
+        if (FileOf(sq) < FILE_H) {
 
-            IsolatedMask[sq] |= FileBB[fileOf(sq) + 1];
+            IsolatedMask[sq] |= FileBB[FileOf(sq) + 1];
 
             for (tsq = sq + 9; tsq <= H8; tsq += 8)
                 PassedMask[WHITE][sq] |= (1ULL << tsq);
@@ -142,10 +142,10 @@ static bool MaterialDraw(const Position *pos) {
 #endif
 
 // Evaluates pawns
-INLINE int evalPawns(const Position *pos, const int color) {
+INLINE int EvalPawns(const Position *pos, const int color) {
 
     int eval = 0;
-    int pawns = makePiece(color, PAWN);
+    int pawns = MakePiece(color, PAWN);
 
     for (int i = 0; i < pos->pieceCounts[pawns]; ++i) {
         int sq = pos->pieceList[pawns][i];
@@ -155,17 +155,17 @@ INLINE int evalPawns(const Position *pos, const int color) {
             eval += PawnIsolated;
         // Passed bonus
         if (!((PassedMask[color][sq]) & colorBB(!color) & pieceBB(PAWN)))
-            eval += PawnPassed[relativeRank(color, rankOf(sq))];
+            eval += PawnPassed[RelativeRank(color, RankOf(sq))];
     }
 
     return eval;
 }
 
 // Evaluates knights
-INLINE int evalKnights(const EvalInfo *ei, const Position *pos, const int color) {
+INLINE int EvalKnights(const EvalInfo *ei, const Position *pos, const int color) {
 
     int eval = 0;
-    int knights = makePiece(color, KNIGHT);
+    int knights = MakePiece(color, KNIGHT);
 
     for (int i = 0; i < pos->pieceCounts[knights]; ++i) {
         int sq = pos->pieceList[knights][i];
@@ -178,10 +178,10 @@ INLINE int evalKnights(const EvalInfo *ei, const Position *pos, const int color)
 }
 
 // Evaluates bishops
-INLINE int evalBishops(const EvalInfo *ei, const Position *pos, const int color) {
+INLINE int EvalBishops(const EvalInfo *ei, const Position *pos, const int color) {
 
     int eval = 0;
-    int bishops = makePiece(color, BISHOP);
+    int bishops = MakePiece(color, BISHOP);
 
     for (int i = 0; i < pos->pieceCounts[bishops]; ++i) {
         int sq = pos->pieceList[bishops][i];
@@ -198,18 +198,18 @@ INLINE int evalBishops(const EvalInfo *ei, const Position *pos, const int color)
 }
 
 // Evaluates rooks
-INLINE int evalRooks(const EvalInfo *ei, const Position *pos, const int color) {
+INLINE int EvalRooks(const EvalInfo *ei, const Position *pos, const int color) {
 
     int eval = 0;
-    int rooks = makePiece(color, ROOK);
+    int rooks = MakePiece(color, ROOK);
 
     for (int i = 0; i < pos->pieceCounts[rooks]; ++i) {
         int sq = pos->pieceList[rooks][i];
 
         // Open/Semi-open file bonus
-        if (!(pieceBB(PAWN) & FileBB[fileOf(sq)]))
+        if (!(pieceBB(PAWN) & FileBB[FileOf(sq)]))
             eval += RookOpenFile;
-        else if (!(colorBB(color) & pieceBB(PAWN) & FileBB[fileOf(sq)]))
+        else if (!(colorBB(color) & pieceBB(PAWN) & FileBB[FileOf(sq)]))
             eval += RookSemiOpenFile;
 
         // Mobility
@@ -220,18 +220,18 @@ INLINE int evalRooks(const EvalInfo *ei, const Position *pos, const int color) {
 }
 
 // Evaluates queens
-INLINE int evalQueens(const EvalInfo *ei, const Position *pos, const int color) {
+INLINE int EvalQueens(const EvalInfo *ei, const Position *pos, const int color) {
 
     int eval = 0;
-    int queens = makePiece(color, QUEEN);
+    int queens = MakePiece(color, QUEEN);
 
     for (int i = 0; i < pos->pieceCounts[queens]; ++i) {
         int sq = pos->pieceList[queens][i];
 
         // Open/Semi-open file bonus
-        if (!(pieceBB(PAWN) & FileBB[fileOf(sq)]))
+        if (!(pieceBB(PAWN) & FileBB[FileOf(sq)]))
             eval += QueenOpenFile;
-        else if (!(colorBB(color) & pieceBB(PAWN) & FileBB[fileOf(sq)]))
+        else if (!(colorBB(color) & pieceBB(PAWN) & FileBB[FileOf(sq)]))
             eval += QueenSemiOpenFile;
 
         // Mobility
@@ -242,10 +242,10 @@ INLINE int evalQueens(const EvalInfo *ei, const Position *pos, const int color) 
 }
 
 // Evaluates kings
-INLINE int evalKings(const Position *pos, const int color) {
+INLINE int EvalKings(const Position *pos, const int color) {
 
     int eval = 0;
-    int kingSq = pos->pieceList[makePiece(color, KING)][0];
+    int kingSq = pos->pieceList[MakePiece(color, KING)][0];
 
     // King safety
     eval += KingLineVulnerability * PopCount(AttackBB(QUEEN, kingSq, colorBB(color) | pieceBB(PAWN)));
@@ -253,20 +253,20 @@ INLINE int evalKings(const Position *pos, const int color) {
     return eval;
 }
 
-INLINE int evalPieces(const EvalInfo ei, const Position *pos) {
+INLINE int EvalPieces(const EvalInfo ei, const Position *pos) {
 
-    return  evalPawns  (pos, WHITE)
-          - evalPawns  (pos, BLACK)
-          + evalKnights(&ei, pos, WHITE)
-          - evalKnights(&ei, pos, BLACK)
-          + evalBishops(&ei, pos, WHITE)
-          - evalBishops(&ei, pos, BLACK)
-          + evalRooks  (&ei, pos, WHITE)
-          - evalRooks  (&ei, pos, BLACK)
-          + evalQueens (&ei, pos, WHITE)
-          - evalQueens (&ei, pos, BLACK)
-          + evalKings  (pos, WHITE)
-          - evalKings  (pos, BLACK);
+    return  EvalPawns  (pos, WHITE)
+          - EvalPawns  (pos, BLACK)
+          + EvalKnights(&ei, pos, WHITE)
+          - EvalKnights(&ei, pos, BLACK)
+          + EvalBishops(&ei, pos, WHITE)
+          - EvalBishops(&ei, pos, BLACK)
+          + EvalRooks  (&ei, pos, WHITE)
+          - EvalRooks  (&ei, pos, BLACK)
+          + EvalQueens (&ei, pos, WHITE)
+          - EvalQueens (&ei, pos, BLACK)
+          + EvalKings  (pos, WHITE)
+          - EvalKings  (pos, BLACK);
 }
 
 // Initializes the eval info struct
@@ -304,7 +304,7 @@ int EvalPosition(const Position *pos) {
     int eval = pos->material;
 
     // Evaluate pieces
-    eval += evalPieces(ei, pos);
+    eval += EvalPieces(ei, pos);
 
     // Adjust score by phase
     const int phase = pos->phase;

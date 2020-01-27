@@ -111,8 +111,8 @@ static void PrintConclusion(const SearchInfo *info) {
     fflush(stdout);
 }
 
-INLINE bool pawnOn7th(const Position *pos) {
-    return colorBB(sideToMove()) & pieceBB(PAWN) & RankBB[relativeRank(sideToMove(), RANK_7)];
+INLINE bool PawnOn7th(const Position *pos) {
+    return colorBB(sideToMove()) & pieceBB(PAWN) & RankBB[RelativeRank(sideToMove(), RANK_7)];
 }
 
 // Dynamic delta pruning margin
@@ -120,7 +120,7 @@ static int QuiescenceDeltaMargin(const Position *pos) {
 
     // Optimistic we can improve our position by a pawn without capturing anything,
     // or if we have a pawn on the 7th we can hope to improve by a queen instead
-    const int DeltaBase = pawnOn7th(pos) ? Q_MG : P_MG;
+    const int DeltaBase = PawnOn7th(pos) ? Q_MG : P_MG;
 
     // Look for possible captures on the board
     const Bitboard enemy = colorBB(!sideToMove());
@@ -223,7 +223,7 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
     MoveList list;
 
     // Extend search if in check
-    const bool inCheck = SqAttacked(pos->pieceList[makePiece(sideToMove(), KING)][0], !sideToMove(), pos);
+    const bool inCheck = SqAttacked(pos->pieceList[MakePiece(sideToMove(), KING)][0], !sideToMove(), pos);
     if (inCheck) depth++;
 
     // Quiescence at the end of search
@@ -281,7 +281,7 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
 
     // Probe syzygy TBs
     unsigned tbresult;
-    if ((tbresult = probeWDL(pos)) != TB_RESULT_FAILED) {
+    if ((tbresult = ProbeWDL(pos)) != TB_RESULT_FAILED) {
 
         info->tbhits++;
 

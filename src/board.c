@@ -25,8 +25,8 @@ CONSTR InitDistance() {
 
     for (sq1 = A1; sq1 <= H8; ++sq1)
         for (sq2 = A1; sq2 <= H8; ++sq2) {
-            vertical   = abs(rankOf(sq1) - rankOf(sq2));
-            horizontal = abs(fileOf(sq1) - fileOf(sq2));
+            vertical   = abs(RankOf(sq1) - RankOf(sq2));
+            horizontal = abs(FileOf(sq1) - FileOf(sq2));
             SqDistance[sq1][sq2] = MAX(vertical, horizontal);
         }
 }
@@ -47,12 +47,12 @@ static void UpdatePosition(Position *pos) {
         // If it isn't empty we update the relevant lists
         if (piece != EMPTY) {
 
-            color = colorOf(piece);
+            color = ColorOf(piece);
 
             // Bitboards
             SETBIT(pieceBB(ALL), sq);
-            SETBIT(colorBB(colorOf(piece)), sq);
-            SETBIT(pieceBB(pieceTypeOf(piece)), sq);
+            SETBIT(colorBB(ColorOf(piece)), sq);
+            SETBIT(pieceBB(PieceTypeOf(piece)), sq);
 
             // Non pawn piece count
             if (NonPawn[piece])
@@ -300,7 +300,7 @@ bool CheckBoard(const Position *pos) {
 
         t_piece = pieceOn(sq);
         t_pieceCounts[t_piece]++;
-        color = colorOf(t_piece);
+        color = ColorOf(t_piece);
 
         if (NonPawn[t_piece]) t_bigPieces[color]++;
     }
@@ -313,7 +313,7 @@ bool CheckBoard(const Position *pos) {
     assert(sideToMove() == WHITE || sideToMove() == BLACK);
 
     assert(pos->enPas == NO_SQ
-       || (relativeRank(sideToMove(), rankOf(pos->enPas)) == RANK_6));
+       || (RelativeRank(sideToMove(), RankOf(pos->enPas)) == RANK_6));
 
     assert(pos->castlePerm >= 0 && pos->castlePerm <= 15);
 
