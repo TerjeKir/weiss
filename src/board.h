@@ -5,13 +5,13 @@
 #include "types.h"
 
 
-uint8_t distance[64][64];
+uint8_t SqDistance[64][64];
 
 
 const int NonPawn[PIECE_NB];
 const int piecePawn[PIECE_NB];
 
-const int phaseValue[PIECE_NB];
+const int PhaseValue[PIECE_NB];
 
 bool CheckBoard(const Position *pos);
 void ParseFen(const char *fen, Position *pos);
@@ -25,7 +25,7 @@ INLINE int MirrorSquare(const int sq) {
 
 // Returns distance between sq1 and sq2
 INLINE int Distance(const int sq1, const int sq2) {
-    return distance[sq1][sq2];
+    return SqDistance[sq1][sq2];
 }
 
 INLINE int relativeRank(const int side, const int rank) {

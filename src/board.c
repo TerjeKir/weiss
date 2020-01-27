@@ -15,7 +15,7 @@
 const int NonPawn[PIECE_NB]   = { false, false,  true,  true,  true,  true, false, false, false, false,  true,  true,  true,  true, false, false };
 const int piecePawn[PIECE_NB] = { false,  true, false, false, false, false, false, false, false,  true, false, false, false, false, false, false };
 
-const int phaseValue[PIECE_NB] = {    0,     0,     1,     1,     2,     4,     0,     0,     0,     0,     1,     1,     2,     4,     0,     0 };
+const int PhaseValue[PIECE_NB] = {    0,     0,     1,     1,     2,     4,     0,     0,     0,     0,     1,     1,     2,     4,     0,     0 };
 
 
 // Initialize distance lookup table
@@ -27,7 +27,7 @@ CONSTR InitDistance() {
         for (sq2 = A1; sq2 <= H8; ++sq2) {
             vertical   = abs(rankOf(sq1) - rankOf(sq2));
             horizontal = abs(fileOf(sq1) - fileOf(sq2));
-            distance[sq1][sq2] = MAX(vertical, horizontal);
+            SqDistance[sq1][sq2] = MAX(vertical, horizontal);
         }
 }
 
@@ -62,7 +62,7 @@ static void UpdatePosition(Position *pos) {
             pos->material += PSQT[piece][sq];
 
             // Phase
-            pos->basePhase -= phaseValue[piece];
+            pos->basePhase -= PhaseValue[piece];
 
             // Piece list
             pos->index[sq] = pos->pieceCounts[piece]++;

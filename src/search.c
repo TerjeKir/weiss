@@ -20,7 +20,7 @@
 
 int Reductions[32][32];
 
-SearchLimits limits;
+SearchLimits Limits;
 extern bool ABORT_SIGNAL;
 
 
@@ -36,8 +36,8 @@ CONSTR InitReductions() {
 static bool OutOfTime(SearchInfo *info) {
 
     if (  (info->nodes & 8191) == 8191
-        && limits.timelimit
-        && TimeSince(limits.start) >= limits.maxUsage)
+        && Limits.timelimit
+        && TimeSince(Limits.start) >= Limits.maxUsage)
 
         return true;
 
@@ -80,7 +80,7 @@ static void PrintThinking(const SearchInfo *info, Position *pos) {
           : score < -ISMATE ? -((INFINITE + score) / 2)
           : score * 100 / P_MG;
 
-    TimePoint elapsed = Now() - limits.start;
+    TimePoint elapsed = Now() - Limits.start;
     int depth    = info->depth;
     int seldepth = info->seldepth;
     int hashFull = HashFull(pos);
@@ -112,7 +112,7 @@ static void PrintConclusion(const SearchInfo *info) {
 }
 
 INLINE bool pawnOn7th(const Position *pos) {
-    return colorBB(sideToMove()) & pieceBB(PAWN) & rankBB[relativeRank(sideToMove(), RANK_7)];
+    return colorBB(sideToMove()) & pieceBB(PAWN) & RankBB[relativeRank(sideToMove(), RANK_7)];
 }
 
 // Dynamic delta pruning margin
@@ -500,27 +500,27 @@ static void InitTimeManagement() {
     const int minTime = 10;
 
     // In movetime mode we use all the time given each turn
-    if (limits.movetime) {
-        limits.maxUsage = MAX(minTime, limits.movetime - overhead);
-        limits.timelimit = true;
+    if (Limits.movetime) {
+        Limits.maxUsage = MAX(minTime, Limits.movetime - overhead);
+        Limits.timelimit = true;
         return;
     }
 
     // No time and no movetime means there is no timelimit
-    if (!limits.time) {
-        limits.timelimit = false;
+    if (!Limits.time) {
+        Limits.timelimit = false;
         return;
     }
 
-    double ratio = limits.movestogo ? MAX(1.0, limits.movestogo * 0.75)
+    double ratio = Limits.movestogo ? MAX(1.0, Limits.movestogo * 0.75)
                                     : 30.0;
 
-    int timeThisMove = limits.time / ratio + 1.5 * limits.inc;
+    int timeThisMove = Limits.time / ratio + 1.5 * Limits.inc;
 
     // Try to save at least 10ms for each move left to go
     // as well as a buffer of 30ms, while using at least 10ms
-    limits.maxUsage  = MAX(minTime, MIN(limits.time - overhead - limits.movestogo * minTime, timeThisMove));
-    limits.timelimit = true;
+    Limits.maxUsage  = MAX(minTime, MIN(Limits.time - overhead - Limits.movestogo * minTime, timeThisMove));
+    Limits.timelimit = true;
 }
 
 // Root of search
@@ -531,7 +531,7 @@ void SearchPosition(Position *pos, SearchInfo *info) {
     ClearForSearch(pos, info);
 
     // Iterative deepening
-    for (info->depth = 1; info->depth <= limits.depth; ++info->depth) {
+    for (info->depth = 1; info->depth <= Limits.depth; ++info->depth) {
 
         if (setjmp(info->jumpBuffer)) break;
 

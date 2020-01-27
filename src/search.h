@@ -5,6 +5,6 @@
 #include "types.h"
 
 
-extern SearchLimits limits;
+extern SearchLimits Limits;
 
 void SearchPosition(Position *pos, SearchInfo *info);

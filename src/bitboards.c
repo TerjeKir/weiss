@@ -6,11 +6,11 @@
 #include "bitboards.h"
 
 
-const Bitboard fileBB[] = { fileABB, fileBBB, fileCBB, fileDBB,
-                            fileEBB, fileFBB, fileGBB, fileHBB };
+const Bitboard FileBB[8] = { fileABB, fileBBB, fileCBB, fileDBB,
+                             fileEBB, fileFBB, fileGBB, fileHBB };
 
-const Bitboard rankBB[] = { rank1BB, rank2BB, rank3BB, rank4BB,
-                            rank5BB, rank6BB, rank7BB, rank8BB };
+const Bitboard RankBB[8] = { rank1BB, rank2BB, rank3BB, rank4BB,
+                             rank5BB, rank6BB, rank7BB, rank8BB };
 
 Bitboard SquareBB[64];
 
