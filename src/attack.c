@@ -5,34 +5,19 @@
 #include "board.h"
 #include "validate.h"
 
-#ifdef USE_PEXT
-#include "x86intrin.h"
-#endif
 
+static Bitboard BishopAttacks[0x1480];
+static Bitboard RookAttacks[0x19000];
 
-typedef struct {
-    Bitboard *attacks;
-    Bitboard mask;
-#ifndef USE_PEXT
-    uint64_t magic;
-    int shift;
-#endif
-} Magic;
+Magic BishopTable[64];
+Magic RookTable[64];
 
-
-static Bitboard bishop_attacks[0x1480];
-static Bitboard rook_attacks[0x19000];
-
-static Magic BishopTable[64];
-static Magic RookTable[64];
-
-Bitboard pawn_attacks[2][64];
-Bitboard knight_attacks[64];
-Bitboard king_attacks[64];
+Bitboard PseudoAttacks[TYPE_NB][64];
+Bitboard PawnAttacks[2][64];
 
 
 // Helper function that returns a bitboard with the landing square of
-// the step, or an empty bitboard of the step would go outside the board
+// the step, or an empty bitboard if the step would go outside the board
 INLINE Bitboard LandingSquare(int sq, int step) {
 
     const int to = sq + step;
@@ -50,14 +35,14 @@ static void InitNonSliderAttacks() {
 
         // Kings and knights
         for (int i = 0; i < 8; ++i) {
-            king_attacks[sq]   |= LandingSquare(sq, KSteps[i]);
-            knight_attacks[sq] |= LandingSquare(sq, NSteps[i]);
+            PseudoAttacks[KING][sq]   |= LandingSquare(sq, KSteps[i]);
+            PseudoAttacks[KNIGHT][sq] |= LandingSquare(sq, NSteps[i]);
         }
 
         // Pawns
         for (int i = 0; i < 2; ++i) {
-            pawn_attacks[WHITE][sq] |= LandingSquare(sq, PSteps[WHITE][i]);
-            pawn_attacks[BLACK][sq] |= LandingSquare(sq, PSteps[BLACK][i]);
+            PawnAttacks[WHITE][sq] |= LandingSquare(sq, PSteps[WHITE][i]);
+            PawnAttacks[BLACK][sq] |= LandingSquare(sq, PSteps[BLACK][i]);
         }
     }
 }
@@ -135,35 +120,11 @@ CONSTR InitAttacks() {
     const int   rookDirections[4] = {8, 1, -8, -1};
 
 #ifdef USE_PEXT
-    InitSliderAttacks(BishopTable, bishop_attacks, bishopDirections);
-    InitSliderAttacks(  RookTable,   rook_attacks,   rookDirections);
+    InitSliderAttacks(BishopTable, BishopAttacks, bishopDirections);
+    InitSliderAttacks(  RookTable,   RookAttacks,   rookDirections);
 #else
-    InitSliderAttacks(BishopTable, bishop_attacks, BishopMagics, bishopDirections);
-    InitSliderAttacks(  RookTable,   rook_attacks,   RookMagics,   rookDirections);
-#endif
-}
-
-// Returns the attack bitboard for a bishop based on what squares are occupied
-Bitboard BishopAttacks(const int sq, Bitboard occupied) {
-#ifdef USE_PEXT
-    return BishopTable[sq].attacks[_pext_u64(occupied, BishopTable[sq].mask)];
-#else
-    occupied  &= BishopTable[sq].mask;
-    occupied  *= BishopTable[sq].magic;
-    occupied >>= BishopTable[sq].shift;
-    return BishopTable[sq].attacks[occupied];
-#endif
-}
-
-// Returns the attack bitboard for a rook based on what squares are occupied
-Bitboard RookAttacks(const int sq, Bitboard occupied) {
-#ifdef USE_PEXT
-    return RookTable[sq].attacks[_pext_u64(occupied, RookTable[sq].mask)];
-#else
-    occupied  &= RookTable[sq].mask;
-    occupied  *= RookTable[sq].magic;
-    occupied >>= RookTable[sq].shift;
-    return RookTable[sq].attacks[occupied];
+    InitSliderAttacks(BishopTable, BishopAttacks, BishopMagics, bishopDirections);
+    InitSliderAttacks(  RookTable,   RookAttacks,   RookMagics,   rookDirections);
 #endif
 }
 
@@ -177,11 +138,11 @@ bool SqAttacked(const int sq, const int color, const Position *pos) {
     const Bitboard bishops = colorBB(color) & (pieceBB(BISHOP) | pieceBB(QUEEN));
     const Bitboard rooks   = colorBB(color) & (pieceBB(ROOK)   | pieceBB(QUEEN));
 
-    if (     pawn_attacks[!color][sq] & pieceBB(PAWN)   & colorBB(color)
-        || knight_attacks[sq]         & pieceBB(KNIGHT) & colorBB(color)
-        ||   king_attacks[sq]         & pieceBB(KING)   & colorBB(color)
-        || bishops & BishopAttacks(sq, pieceBB(ALL))
-        || rooks   &   RookAttacks(sq, pieceBB(ALL)))
+    if (   PawnAttacks[!color][sq]            & pieceBB(PAWN)   & colorBB(color)
+        || AttackBB(KNIGHT, sq, pieceBB(ALL)) & pieceBB(KNIGHT) & colorBB(color)
+        || AttackBB(KING,   sq, pieceBB(ALL)) & pieceBB(KING)   & colorBB(color)
+        || AttackBB(BISHOP, sq, pieceBB(ALL)) & bishops
+        || AttackBB(ROOK,   sq, pieceBB(ALL)) & rooks)
         return true;
 
     return false;

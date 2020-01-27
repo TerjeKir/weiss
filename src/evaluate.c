@@ -171,7 +171,7 @@ INLINE int evalKnights(const EvalInfo *ei, const Position *pos, const int color)
         int sq = pos->pieceList[knights][i];
 
         // Mobility
-        eval += KnightMobility[PopCount(knight_attacks[sq] & ei->mobilityArea[color])];
+        eval += KnightMobility[PopCount(AttackBB(KNIGHT, sq, pieceBB(ALL)) & ei->mobilityArea[color])];
     }
 
     return eval;
@@ -187,7 +187,7 @@ INLINE int evalBishops(const EvalInfo *ei, const Position *pos, const int color)
         int sq = pos->pieceList[bishops][i];
 
         // Mobility
-        eval += BishopMobility[PopCount(BishopAttacks(sq, pieceBB(ALL)) & ei->mobilityArea[color])];
+        eval += BishopMobility[PopCount(AttackBB(BISHOP, sq, pieceBB(ALL)) & ei->mobilityArea[color])];
     }
 
     // Bishop pair
@@ -213,7 +213,7 @@ INLINE int evalRooks(const EvalInfo *ei, const Position *pos, const int color) {
             eval += RookSemiOpenFile;
 
         // Mobility
-        eval += RookMobility[PopCount(RookAttacks(sq, pieceBB(ALL)) & ei->mobilityArea[color])];
+        eval += RookMobility[PopCount(AttackBB(ROOK, sq, pieceBB(ALL)) & ei->mobilityArea[color])];
     }
 
     return eval;
@@ -235,8 +235,7 @@ INLINE int evalQueens(const EvalInfo *ei, const Position *pos, const int color) 
             eval += QueenSemiOpenFile;
 
         // Mobility
-        eval += QueenMobility[PopCount((BishopAttacks(sq, pieceBB(ALL))
-                                        | RookAttacks(sq, pieceBB(ALL))) & ei->mobilityArea[color])];
+        eval += QueenMobility[PopCount(AttackBB(QUEEN, sq, pieceBB(ALL)) & ei->mobilityArea[color])];
     }
 
     return eval;
@@ -249,8 +248,7 @@ INLINE int evalKings(const Position *pos, const int color) {
     int kingSq = pos->pieceList[makePiece(color, KING)][0];
 
     // King safety
-    eval += KingLineVulnerability * PopCount(BishopAttacks(kingSq, colorBB(color) | pieceBB(PAWN))
-                                             | RookAttacks(kingSq, colorBB(color) | pieceBB(PAWN)));
+    eval += KingLineVulnerability * PopCount(AttackBB(QUEEN, kingSq, colorBB(color) | pieceBB(PAWN)));
 
     return eval;
 }

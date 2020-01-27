@@ -136,10 +136,10 @@ static PieceType char_to_piece_type(char c) {
 #define pawn_attacks(s, c)      TB_PAWN_ATTACKS(s, c)
 #define king_attacks(s)         TB_KING_ATTACKS(s)
 #define knight_attacks(s)       TB_KNIGHT_ATTACKS(s)
-#define bishop_attacks(s, occ)  TB_BISHOP_ATTACKS(s, occ)
-#define rook_attacks(s, occ)    TB_ROOK_ATTACKS(s, occ)
+#define BishopAttacks(s, occ)  TB_BISHOP_ATTACKS(s, occ)
+#define RookAttacks(s, occ)    TB_ROOK_ATTACKS(s, occ)
 #define queen_attacks(s, occ)   \
-    (rook_attacks((s), (occ)) | bishop_attacks((s), (occ)))
+    (RookAttacks((s), (occ)) | BishopAttacks((s), (occ)))
 
 
 /*
@@ -271,7 +271,7 @@ static TbMove *gen_captures(const Pos *pos, TbMove *moves)
     for (b = us & pos->rooks; b; b = poplsb(b))
     {
         unsigned from = lsb(b);
-        for (att = rook_attacks(from, occ) & them; att; att = poplsb(att))
+        for (att = RookAttacks(from, occ) & them; att; att = poplsb(att))
         {
             unsigned to = lsb(att);
             moves = add_move(moves, false, from, to);
@@ -280,7 +280,7 @@ static TbMove *gen_captures(const Pos *pos, TbMove *moves)
     for (b = us & pos->bishops; b; b = poplsb(b))
     {
         unsigned from = lsb(b);
-        for (att = bishop_attacks(from, occ) & them; att; att = poplsb(att))
+        for (att = BishopAttacks(from, occ) & them; att; att = poplsb(att))
         {
             unsigned to = lsb(att);
             moves = add_move(moves, false, from, to);
@@ -344,7 +344,7 @@ static TbMove *gen_moves(const Pos *pos, TbMove *moves)
     for (b = us & pos->rooks; b; b = poplsb(b))
     {
         unsigned from = lsb(b);
-        for (att = rook_attacks(from, occ) & ~us; att; att = poplsb(att))
+        for (att = RookAttacks(from, occ) & ~us; att; att = poplsb(att))
         {
             unsigned to = lsb(att);
             moves = add_move(moves, false, from, to);
@@ -353,7 +353,7 @@ static TbMove *gen_moves(const Pos *pos, TbMove *moves)
     for (b = us & pos->bishops; b; b = poplsb(b))
     {
         unsigned from = lsb(b);
-        for (att = bishop_attacks(from, occ) & ~us; att; att = poplsb(att))
+        for (att = BishopAttacks(from, occ) & ~us; att; att = poplsb(att))
         {
             unsigned to = lsb(att);
             moves = add_move(moves, false, from, to);
@@ -441,8 +441,8 @@ static bool is_legal(const Pos *pos)
     unsigned sq = lsb(king);
     if (king_attacks(sq) & (pos->kings & them))
         return false;
-    uint64_t ratt = rook_attacks(sq, occ);
-    uint64_t batt = bishop_attacks(sq, occ);
+    uint64_t ratt = RookAttacks(sq, occ);
+    uint64_t batt = BishopAttacks(sq, occ);
     if (ratt & (pos->rooks & them))
         return false;
     if (batt & (pos->bishops & them))
@@ -467,8 +467,8 @@ static bool is_check(const Pos *pos)
     uint64_t king = pos->kings & us;
     assert(king != 0);
     unsigned sq = lsb(king);
-    uint64_t ratt = rook_attacks(sq, occ);
-    uint64_t batt = bishop_attacks(sq, occ);
+    uint64_t ratt = RookAttacks(sq, occ);
+    uint64_t batt = BishopAttacks(sq, occ);
     if (ratt & (pos->rooks & them))
         return true;
     if (batt & (pos->bishops & them))
