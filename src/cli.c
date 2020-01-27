@@ -103,7 +103,7 @@ void ConsoleLoop(Position *pos) {
             Position perftBoard[1];
             int perftDepth = 5;
             sscanf(inBuf, "perft %d", &perftDepth);
-            perftDepth = perftDepth > 6 ? 6 : perftDepth;
+            perftDepth = MIN(6, perftDepth);
             char *perftFen = inBuf + 8;
 
             if (!*perftFen)

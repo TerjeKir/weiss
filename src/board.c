@@ -28,7 +28,7 @@ CONSTR InitDistance() {
         for (sq2 = A1; sq2 <= H8; ++sq2) {
             vertical   = abs(rankOf(sq1) - rankOf(sq2));
             horizontal = abs(fileOf(sq1) - fileOf(sq2));
-            distance[sq1][sq2] = ((vertical > horizontal) ? vertical : horizontal);
+            distance[sq1][sq2] = MAX(vertical, horizontal);
         }
 }
 
