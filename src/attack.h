@@ -6,20 +6,7 @@
 
 #ifdef USE_PEXT
 #include "x86intrin.h"
-#endif
-
-
-typedef struct {
-    Bitboard *attacks;
-    Bitboard mask;
-#ifndef USE_PEXT
-    uint64_t magic;
-    int shift;
-#endif
-} Magic;
-
-
-#ifndef USE_PEXT
+#else
 static const uint64_t RookMagics[64] = {
     0xA180022080400230ull, 0x0040100040022000ull, 0x0080088020001002ull, 0x0080080280841000ull,
     0x4200042010460008ull, 0x04800A0003040080ull, 0x0400110082041008ull, 0x008000A041000880ull,
@@ -59,6 +46,15 @@ static const uint64_t BishopMagics[64] = {
 };
 #endif
 
+typedef struct {
+    Bitboard *attacks;
+    Bitboard mask;
+#ifndef USE_PEXT
+    uint64_t magic;
+    int shift;
+#endif
+} Magic;
+
 extern Magic BishopTable[64];
 extern Magic RookTable[64];
 
@@ -89,6 +85,7 @@ INLINE Bitboard RookAttackBB(const int sq, Bitboard occupied) {
 #endif
 }
 
+// Returns the attack bitboard for a piece of piecetype on square sq
 INLINE Bitboard AttackBB(int piecetype, int sq, Bitboard occupied) {
 
     assert(piecetype != PAWN);
