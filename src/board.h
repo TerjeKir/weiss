@@ -14,7 +14,7 @@ const int pieceKing[PIECE_NB];
 
 const int phaseValue[PIECE_NB];
 
-const int mirror_square[64];
+const int MirrorSquare[64];
 
 bool CheckBoard(const Position *pos);
 void ParseFen(const char *fen, Position *pos);

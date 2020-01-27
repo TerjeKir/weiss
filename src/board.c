@@ -18,7 +18,7 @@ const int pieceKing[PIECE_NB] = { false, false, false, false, false, false,  tru
 
 const int phaseValue[PIECE_NB] = {    0,     0,     1,     1,     2,     4,     0,     0,     0,     0,     1,     1,     2,     4,     0,     0 };
 
-const int mirror_square[64] = {
+const int MirrorSquare[64] = {
     56, 57, 58, 59, 60, 61, 62, 63,
     48, 49, 50, 51, 52, 53, 54, 55,
     40, 41, 42, 43, 44, 45, 46, 47,
@@ -348,10 +348,10 @@ void MirrorBoard(Position *pos) {
 
     // Save the necessary position info mirrored
     for (sq = A1; sq <= H8; ++sq)
-        tempPiecesArray[sq] = SwapPiece[pieceOn(mirror_square[sq])];
+        tempPiecesArray[sq] = SwapPiece[pieceOn(MirrorSquare[sq])];
 
     tempSide  = !sideToMove();
-    tempEnPas = pos->enPas == NO_SQ ? NO_SQ : mirror_square[pos->enPas];
+    tempEnPas = pos->enPas == NO_SQ ? NO_SQ : MirrorSquare[pos->enPas];
     tempCastlePerm = 0;
     if (pos->castlePerm & WKCA) tempCastlePerm |= BKCA;
     if (pos->castlePerm & WQCA) tempCastlePerm |= BQCA;

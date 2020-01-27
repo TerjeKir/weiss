@@ -7,5 +7,5 @@
 #include "types.h"
 
 
-void Console_Loop(Position *pos);
+void ConsoleLoop(Position *pos);
 #endif

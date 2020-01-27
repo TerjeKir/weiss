@@ -66,7 +66,7 @@ extern Bitboard PseudoAttacks[8][64];
 extern Bitboard PawnAttacks[2][64];
 
 // Returns the attack bitboard for a bishop based on what squares are occupied
-INLINE Bitboard BishopAttacks(const int sq, Bitboard occupied) {
+INLINE Bitboard BishopAttackBB(const int sq, Bitboard occupied) {
 #ifdef USE_PEXT
     return BishopTable[sq].attacks[_pext_u64(occupied, BishopTable[sq].mask)];
 #else
@@ -78,7 +78,7 @@ INLINE Bitboard BishopAttacks(const int sq, Bitboard occupied) {
 }
 
 // Returns the attack bitboard for a rook based on what squares are occupied
-INLINE Bitboard RookAttacks(const int sq, Bitboard occupied) {
+INLINE Bitboard RookAttackBB(const int sq, Bitboard occupied) {
 #ifdef USE_PEXT
     return RookTable[sq].attacks[_pext_u64(occupied, RookTable[sq].mask)];
 #else
@@ -94,9 +94,9 @@ INLINE Bitboard AttackBB(int piecetype, int sq, Bitboard occupied) {
     assert(piecetype != PAWN);
 
     switch(piecetype) {
-        case BISHOP: return BishopAttacks(sq, occupied);
-        case ROOK  : return RookAttacks(sq, occupied);
-        case QUEEN : return RookAttacks(sq, occupied) | BishopAttacks(sq, occupied);
+        case BISHOP: return BishopAttackBB(sq, occupied);
+        case ROOK  : return RookAttackBB(sq, occupied);
+        case QUEEN : return RookAttackBB(sq, occupied) | BishopAttackBB(sq, occupied);
         default    : return PseudoAttacks[piecetype][sq];
     }
 }

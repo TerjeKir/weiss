@@ -6,8 +6,8 @@
 #include "validate.h"
 
 
-static Bitboard bishop_attacks[0x1480];
-static Bitboard rook_attacks[0x19000];
+static Bitboard BishopAttacks[0x1480];
+static Bitboard RookAttacks[0x19000];
 
 Magic BishopTable[64];
 Magic RookTable[64];
@@ -120,11 +120,11 @@ CONSTR InitAttacks() {
     const int   rookDirections[4] = {8, 1, -8, -1};
 
 #ifdef USE_PEXT
-    InitSliderAttacks(BishopTable, bishop_attacks, bishopDirections);
-    InitSliderAttacks(  RookTable,   rook_attacks,   rookDirections);
+    InitSliderAttacks(BishopTable, BishopAttacks, bishopDirections);
+    InitSliderAttacks(  RookTable,   RookAttacks,   rookDirections);
 #else
-    InitSliderAttacks(BishopTable, bishop_attacks, BishopMagics, bishopDirections);
-    InitSliderAttacks(  RookTable,   rook_attacks,   RookMagics,   rookDirections);
+    InitSliderAttacks(BishopTable, BishopAttacks, BishopMagics, bishopDirections);
+    InitSliderAttacks(  RookTable,   RookAttacks,   RookMagics,   rookDirections);
 #endif
 }
 
