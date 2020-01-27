@@ -10,7 +10,6 @@ uint8_t distance[64][64];
 
 const int pieceBig [PIECE_NB];
 const int piecePawn[PIECE_NB];
-const int pieceKing[PIECE_NB];
 
 const int phaseValue[PIECE_NB];
 
