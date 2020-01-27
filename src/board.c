@@ -12,11 +12,10 @@
 
 
 //                                EMPTY,    bP,    bN,    bB,    bR,    bQ,    bK, EMPTY, EMPTY,    wP,    wN,    wB,    wR,    wQ,    wK, EMPTY
-const int pieceBig [PIECE_NB] = { false, false,  true,  true,  true,  true, false, false, false, false,  true,  true,  true,  true, false, false };
-const int piecePawn[PIECE_NB] = { false,  true, false, false, false, false, false, false, false,  true, false, false, false, false, false, false };
-const int pieceKing[PIECE_NB] = { false, false, false, false, false, false,  true, false, false, false, false, false, false, false,  true, false };
+const int NonPawn[PIECE_NB]   = { false, false,  true,  true,  true,  true, false, false, false, false,  true,  true,  true,  true, false, false };
+const int PiecePawn[PIECE_NB] = { false,  true, false, false, false, false, false, false, false,  true, false, false, false, false, false, false };
 
-const int phaseValue[PIECE_NB] = {    0,     0,     1,     1,     2,     4,     0,     0,     0,     0,     1,     1,     2,     4,     0,     0 };
+const int PhaseValue[PIECE_NB] = {    0,     0,     1,     1,     2,     4,     0,     0,     0,     0,     1,     1,     2,     4,     0,     0 };
 
 
 // Initialize distance lookup table
@@ -26,9 +25,9 @@ CONSTR InitDistance() {
 
     for (sq1 = A1; sq1 <= H8; ++sq1)
         for (sq2 = A1; sq2 <= H8; ++sq2) {
-            vertical   = abs(rankOf(sq1) - rankOf(sq2));
-            horizontal = abs(fileOf(sq1) - fileOf(sq2));
-            distance[sq1][sq2] = ((vertical > horizontal) ? vertical : horizontal);
+            vertical   = abs(RankOf(sq1) - RankOf(sq2));
+            horizontal = abs(FileOf(sq1) - FileOf(sq2));
+            SqDistance[sq1][sq2] = MAX(vertical, horizontal);
         }
 }
 
@@ -48,22 +47,22 @@ static void UpdatePosition(Position *pos) {
         // If it isn't empty we update the relevant lists
         if (piece != EMPTY) {
 
-            color = colorOf(piece);
+            color = ColorOf(piece);
 
             // Bitboards
             SETBIT(pieceBB(ALL), sq);
-            SETBIT(colorBB(colorOf(piece)), sq);
-            SETBIT(pieceBB(pieceTypeOf(piece)), sq);
+            SETBIT(colorBB(ColorOf(piece)), sq);
+            SETBIT(pieceBB(PieceTypeOf(piece)), sq);
 
             // Non pawn piece count
-            if (pieceBig[piece])
-                pos->bigPieces[color]++;
+            if (NonPawn[piece])
+                pos->nonPawns[color]++;
 
             // Material score
             pos->material += PSQT[piece][sq];
 
             // Phase
-            pos->basePhase -= phaseValue[piece];
+            pos->basePhase -= PhaseValue[piece];
 
             // Piece list
             pos->index[sq] = pos->pieceCounts[piece]++;
@@ -92,7 +91,7 @@ static void ClearPosition(Position *pos) {
     memset(pos->index,       0, sizeof(pos->index));
 
     // Big piece counts
-    pos->bigPieces[BLACK] = pos->bigPieces[WHITE] = 0;
+    pos->nonPawns[BLACK] = pos->nonPawns[WHITE] = 0;
 
     // Misc
     pos->material   = 0;
@@ -301,21 +300,20 @@ bool CheckBoard(const Position *pos) {
 
         t_piece = pieceOn(sq);
         t_pieceCounts[t_piece]++;
-        color = colorOf(t_piece);
+        color = ColorOf(t_piece);
 
-        if (pieceBig[t_piece]) t_bigPieces[color]++;
+        if (NonPawn[t_piece]) t_bigPieces[color]++;
     }
 
     for (t_piece = PIECE_MIN; t_piece < PIECE_NB; ++t_piece)
         assert(t_pieceCounts[t_piece] == pos->pieceCounts[t_piece]);
 
-    assert(t_bigPieces[WHITE] == pos->bigPieces[WHITE] && t_bigPieces[BLACK] == pos->bigPieces[BLACK]);
+    assert(t_bigPieces[WHITE] == pos->nonPawns[WHITE] && t_bigPieces[BLACK] == pos->nonPawns[BLACK]);
 
     assert(sideToMove() == WHITE || sideToMove() == BLACK);
 
     assert(pos->enPas == NO_SQ
-       || (pos->enPas >= 40 && pos->enPas < 48 && sideToMove() == WHITE)
-       || (pos->enPas >= 16 && pos->enPas < 24 && sideToMove() == BLACK));
+       || (RelativeRank(sideToMove(), RankOf(pos->enPas)) == RANK_6));
 
     assert(pos->castlePerm >= 0 && pos->castlePerm <= 15);
 

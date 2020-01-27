@@ -32,23 +32,23 @@ INLINE bool BeginsWith(const char *string, const char *token) {
 // Parses the time controls
 INLINE void TimeControl(int side, char *line) {
 
-    memset(&limits, 0, sizeof(SearchLimits));
+    memset(&Limits, 0, sizeof(SearchLimits));
 
-    limits.start = Now();
+    Limits.start = Now();
 
     // Read in relevant search constraints
     char *ptr = NULL;
     // if ((ptr = strstr(line, "infinite")))
-    if ((ptr = strstr(line, "wtime")) && side == WHITE) limits.time = atoi(ptr + 6);
-    if ((ptr = strstr(line, "btime")) && side == BLACK) limits.time = atoi(ptr + 6);
-    if ((ptr = strstr(line, "winc"))  && side == WHITE) limits.inc  = atoi(ptr + 5);
-    if ((ptr = strstr(line, "binc"))  && side == BLACK) limits.inc  = atoi(ptr + 5);
-    if ((ptr = strstr(line, "movestogo"))) limits.movestogo = atoi(ptr + 10);
-    if ((ptr = strstr(line, "movetime")))  limits.movetime  = atoi(ptr +  9);
-    if ((ptr = strstr(line, "depth")))     limits.depth     = atoi(ptr +  6);
+    if ((ptr = strstr(line, "wtime")) && side == WHITE) Limits.time = atoi(ptr + 6);
+    if ((ptr = strstr(line, "btime")) && side == BLACK) Limits.time = atoi(ptr + 6);
+    if ((ptr = strstr(line, "winc"))  && side == WHITE) Limits.inc  = atoi(ptr + 5);
+    if ((ptr = strstr(line, "binc"))  && side == BLACK) Limits.inc  = atoi(ptr + 5);
+    if ((ptr = strstr(line, "movestogo"))) Limits.movestogo = atoi(ptr + 10);
+    if ((ptr = strstr(line, "movetime")))  Limits.movetime  = atoi(ptr +  9);
+    if ((ptr = strstr(line, "depth")))     Limits.depth     = atoi(ptr +  6);
 
     // If no depth limit is given, use MAXDEPTH
-    limits.depth = limits.depth == 0 ? MAXDEPTH : limits.depth;
+    Limits.depth = Limits.depth == 0 ? MAXDEPTH : Limits.depth;
 }
 
 // Parses a 'go' and starts a search
@@ -167,9 +167,9 @@ int main(int argc, char **argv) {
     // Benchmark
     if (argc > 1 && strstr(argv[1], "bench")) {
         if (argc > 2)
-            benchmark(atoi(argv[2]), pos, info);
+            Benchmark(atoi(argv[2]), pos, info);
         else
-            benchmark(13, pos, info);
+            Benchmark(13, pos, info);
         return 0;
     }
 

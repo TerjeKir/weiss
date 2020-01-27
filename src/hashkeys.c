@@ -3,7 +3,7 @@
 #include "types.h"
 
 
-uint64_t rand64() {
+uint64_t Rand64() {
 
     // http://vigna.di.unimi.it/ftp/papers/xorshift.pdf
 
@@ -26,25 +26,25 @@ uint64_t SideKey;
 CONSTR InitHashKeys() {
 
     // Side to play
-    SideKey = rand64();
+    SideKey = Rand64();
 
     // En passant
     for (int sq = A1; sq <= H8; ++sq)
-        PieceKeys[0][sq] = rand64();
+        PieceKeys[0][sq] = Rand64();
 
     // White pieces
     for (int piece = wP; piece <= wK; ++piece)
         for (int sq = A1; sq <= H8; ++sq)
-            PieceKeys[piece][sq] = rand64();
+            PieceKeys[piece][sq] = Rand64();
 
     // Black pieces
     for (int piece = bP; piece <= bK; ++piece)
         for (int sq = A1; sq <= H8; ++sq)
-            PieceKeys[piece][sq] = rand64();
+            PieceKeys[piece][sq] = Rand64();
 
     // Castling rights
     for (int i = 0; i < 16; ++i)
-        CastleKeys[i] = rand64();
+        CastleKeys[i] = Rand64();
 }
 
 uint64_t GeneratePosKey(const Position *pos) {

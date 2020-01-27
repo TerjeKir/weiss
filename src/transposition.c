@@ -29,8 +29,8 @@ void InitTT(TT *table, uint64_t MB) {
     uint64_t HashSize = 0x100000LL * MB;
     table->numEntries = HashSize / sizeof(TTEntry);
 
-    MB = MB < MINHASH ? MINHASH : MB; // Don't go under minhash
-    MB = MB > MAXHASH ? MAXHASH : MB; // Don't go over maxhash
+    MB = MAX(MINHASH, MB); // Don't go under minhash
+    MB = MIN(MAXHASH, MB); // Don't go over maxhash
 
     // Free memory if we have already allocated
     if (table->TT != NULL)

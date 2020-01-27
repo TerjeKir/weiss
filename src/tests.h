@@ -5,7 +5,7 @@
 #include "types.h"
 
 
-void benchmark(int depth, Position *pos, SearchInfo *info);
+void Benchmark(int depth, Position *pos, SearchInfo *info);
 
 #ifdef DEV
 void Perft(const int depth, Position *pos);

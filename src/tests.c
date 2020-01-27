@@ -19,19 +19,19 @@ static const char *BenchmarkFENs[] = {
     ""
 };
 
-void benchmark(int depth, Position *pos, SearchInfo *info) {
+void Benchmark(int depth, Position *pos, SearchInfo *info) {
 
     uint64_t nodes = 0ULL;
 
-    limits.depth = depth;
-    limits.timelimit = false;
+    Limits.depth = depth;
+    Limits.timelimit = false;
 
     TimePoint startTime = Now();
 
     for (int i = 0; strcmp(BenchmarkFENs[i], ""); ++i) {
         printf("Bench %d: %s\n", i + 1, BenchmarkFENs[i]);
         ParseFen(BenchmarkFENs[i], pos);
-        limits.start = Now();
+        Limits.start = Now();
         SearchPosition(pos, info);
         nodes += info->nodes;
         ClearTT(pos->hashTable);
@@ -221,8 +221,8 @@ void MateInXTest(Position *pos) {
                 }
 
                 // Search setup
-                limits.depth = (depth - '0') * 2 - 1;
-                limits.start = Now();
+                Limits.depth = (depth - '0') * 2 - 1;
+                Limits.start = Now();
                 extensions = 0;
 search:
                 SearchPosition(pos, info);
@@ -240,7 +240,7 @@ search:
 
                 // Extend search if not found
                 if (!correct && extensions < 8) {
-                    limits.depth += 1;
+                    Limits.depth += 1;
                     extensions += 1;
                     goto search;
                 }
@@ -271,7 +271,7 @@ search:
 
                 // Extend search if shortest mate not found
                 if (foundDepth != mateDepth && extensions < 8) {
-                    limits.depth += 1;
+                    Limits.depth += 1;
                     extensions += 1;
                     goto search;
                 }

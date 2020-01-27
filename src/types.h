@@ -129,7 +129,7 @@ typedef struct {
     int pieceList[PIECE_NB][10];
     int index[64];
 
-    int bigPieces[2];
+    int nonPawns[2];
 
     int material;
     int basePhase;
@@ -189,22 +189,22 @@ typedef struct {
 
 /* Functions */
 
-INLINE int fileOf(const int square) {
+INLINE int FileOf(const int square) {
     return square & 7;
 }
 
-INLINE int rankOf(const int square) {
+INLINE int RankOf(const int square) {
     return square >> 3;
 }
 
-INLINE int colorOf(const int piece) {
+INLINE int ColorOf(const int piece) {
     return piece >> 3;
 }
 
-INLINE int pieceTypeOf(const int piece) {
+INLINE int PieceTypeOf(const int piece) {
     return (piece & 7);
 }
 
-INLINE int makePiece(const int color, const int type) {
+INLINE int MakePiece(const int color, const int type) {
     return (color << 3) + type;
 }

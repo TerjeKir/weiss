@@ -38,8 +38,8 @@ static const Bitboard bitF8G8   = (1ULL << F8) | (1ULL << G8);
 
 extern Bitboard SquareBB[64];
 
-extern const Bitboard fileBB[8];
-extern const Bitboard rankBB[8];
+extern const Bitboard FileBB[8];
+extern const Bitboard RankBB[8];
 
 // void PrintBB(const Bitboard bb);
 
