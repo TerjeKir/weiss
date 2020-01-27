@@ -14,12 +14,15 @@ const int pieceKing[PIECE_NB];
 
 const int phaseValue[PIECE_NB];
 
-const int MirrorSquare[64];
-
 bool CheckBoard(const Position *pos);
 void ParseFen(const char *fen, Position *pos);
 void PrintBoard(const Position *pos);
 void MirrorBoard(Position *pos);
+
+// Mirrors a square horizontally
+INLINE int MirrorSquare(const int sq) {
+    return sq ^ 56;
+}
 
 // Returns distance between sq1 and sq2
 INLINE int Distance(const int sq1, const int sq2) {

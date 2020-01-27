@@ -72,6 +72,6 @@ CONSTR InitPSQT() {
     for (int piece = bP; piece <= bK; ++piece)
         for (int sq = A1; sq <= H8; ++sq) {
             PSQT[piece][sq] = -(tempPSQT[piece][sq] + pieceValue[piece]);
-            PSQT[piece+8][MirrorSquare[sq]] = -PSQT[piece][sq];
+            PSQT[piece+8][MirrorSquare(sq)] = -PSQT[piece][sq];
         }
 }
