@@ -114,12 +114,6 @@ typedef struct {
 } TTEntry;
 
 typedef struct {
-    TTEntry *TT;
-    int numEntries;
-    uint64_t MB;
-} TT;
-
-typedef struct {
 
     int board[64];
     Bitboard pieceBB[TYPE_NB];
@@ -146,8 +140,6 @@ typedef struct {
     uint64_t posKey;
 
     History history[MAXGAMEMOVES];
-
-    TT hashTable[1];
 
     int searchHistory[PIECE_NB][64];
     int searchKillers[MAXDEPTH][2];

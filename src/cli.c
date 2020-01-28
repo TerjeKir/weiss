@@ -34,7 +34,7 @@ void ConsoleLoop(Position *pos) {
 
     ParseFen(START_FEN, pos);
 
-    InitTT(pos->hashTable, 256);
+    InitTT(256);
 
     tb_init("F:\\Syzygy");
 
@@ -76,7 +76,7 @@ void ConsoleLoop(Position *pos) {
         }
 
         if (!strcmp(command, "new")) {
-            ClearTT(pos->hashTable);
+            ClearTT();
             ParseFen(START_FEN, pos);
             continue;
         }

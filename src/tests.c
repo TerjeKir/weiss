@@ -34,7 +34,7 @@ void Benchmark(int depth, Position *pos, SearchInfo *info) {
         Limits.start = Now();
         SearchPosition(pos, info);
         nodes += info->nodes;
-        ClearTT(pos->hashTable);
+        ClearTT();
     }
 
     TimePoint elapsed = Now() - startTime + 1;
@@ -257,9 +257,9 @@ search:
                 }
 
                 // Get pv score
-                int index = pos->posKey % pos->hashTable->numEntries;
-                if (pos->hashTable->TT[index].posKey == pos->posKey)
-                    foundScore = pos->hashTable->TT[index].score;
+                int index = pos->posKey % TT.count;
+                if (TT.table[index].posKey == pos->posKey)
+                    foundScore = TT.table[index].score;
 
                 // Translate score to mate depth
                 if (foundScore > ISMATE)
@@ -290,7 +290,7 @@ search:
                 // Clear lineIn for reuse
                 memset(&lineIn[0], 0, sizeof(lineIn));
                 // Clear TT
-                ClearTT(pos->hashTable);
+                ClearTT();
             }
         }
     }
