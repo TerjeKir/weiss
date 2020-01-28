@@ -68,7 +68,7 @@ static void ClearForSearch(Position *pos, SearchInfo *info) {
 }
 
 // Print thinking
-static void PrintThinking(const SearchInfo *info, Position *pos) {
+static void PrintThinking(const SearchInfo *info) {
 
     int score = info->score;
 
@@ -83,7 +83,7 @@ static void PrintThinking(const SearchInfo *info, Position *pos) {
     TimePoint elapsed = Now() - Limits.start;
     int depth    = info->depth;
     int seldepth = info->seldepth;
-    int hashFull = HashFull(pos);
+    int hashFull = HashFull();
     int nps      = (int)(1000 * (info->nodes / (elapsed + 1)));
     uint64_t nodes  = info->nodes;
     uint64_t tbhits = info->tbhits;
@@ -542,7 +542,7 @@ void SearchPosition(Position *pos, SearchInfo *info) {
             info->score = AlphaBeta(-INFINITE, INFINITE, info->depth, pos, info, &info->pv);
 
         // Print thinking
-        PrintThinking(info, pos);
+        PrintThinking(info);
 
         // Save bestMove and ponderMove before overwriting the pv next iteration
         info->bestMove   = info->pv.line[0];

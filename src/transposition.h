@@ -12,6 +12,15 @@
 
 enum { BOUND_NONE, BOUND_UPPER, BOUND_LOWER, BOUND_EXACT };
 
+typedef struct {
+    TTEntry *table;
+    int count;
+    uint64_t MB;
+} TranspositionTable;
+
+
+extern TranspositionTable TT;
+
 
 // Mate scores are stored as mate in 0 as they depend on the current ply
 INLINE int ScoreToTT (int score, const int ply) {
@@ -27,8 +36,8 @@ INLINE int ScoreFromTT (int score, const int ply) {
                             : score;
 }
 
-void ClearTT(TT *table);
-void  InitTT(TT *table, uint64_t MB);
+void ClearTT();
+void InitTT(uint64_t MB);
 TTEntry* ProbeTT(const Position *pos, const uint64_t key, bool *ttHit);
 void StoreTTEntry(TTEntry *tte, const uint64_t posKey, const int move, const int score, const int depth, const int flag);
-int HashFull(const Position *pos);
+int HashFull();

@@ -111,12 +111,12 @@ static void ParsePosition(const char *line, Position *pos) {
 }
 
 // Parses a 'setoption' and updates settings
-static void SetOption(Position *pos, char *line) {
+static void SetOption(char *line) {
 
     if (BeginsWith(line, "setoption name Hash value ")) {
         int MB;
         sscanf(line, "%*s %*s %*s %*s %d", &MB);
-        InitTT(pos->hashTable, MB);
+        InitTT(MB);
 
     } else if (BeginsWith(line, "setoption name SyzygyPath value ")) {
 
@@ -161,8 +161,8 @@ int main(int argc, char **argv) {
     // Init engine
     Position pos[1];
     SearchInfo info[1];
-    pos->hashTable->TT = NULL;
-    InitTT(pos->hashTable, DEFAULTHASH);
+    TT.MB = 0;
+    InitTT(DEFAULTHASH);
 
     // Benchmark
     if (argc > 1 && strstr(argv[1], "bench")) {
@@ -195,7 +195,7 @@ int main(int argc, char **argv) {
             ParsePosition(line, pos);
 
         else if (BeginsWith(line, "ucinewgame"))
-            ClearTT(pos->hashTable);
+            ClearTT();
 
         else if (BeginsWith(line, "stop"))
             ABORT_SIGNAL = true,
@@ -208,7 +208,7 @@ int main(int argc, char **argv) {
             PrintUCI();
 
         else if (BeginsWith(line, "setoption"))
-            SetOption(pos, line);
+            SetOption(line);
 
         // Non UCI commands
 #ifdef DEV
@@ -218,6 +218,6 @@ int main(int argc, char **argv) {
         }
 #endif
     }
-    free(pos->hashTable->TT);
+    free(TT.table);
     return 0;
 }
