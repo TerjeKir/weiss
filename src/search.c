@@ -65,6 +65,9 @@ static void ClearForSearch(Position *pos, SearchInfo *info) {
     memset(pos->searchKillers, 0, sizeof(pos->searchKillers));
 
     pos->ply = 0;
+
+    // Mark TT as used
+    TT.dirty = true;
 }
 
 // Print thinking

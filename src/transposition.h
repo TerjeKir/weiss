@@ -13,9 +13,12 @@
 enum { BOUND_NONE, BOUND_UPPER, BOUND_LOWER, BOUND_EXACT };
 
 typedef struct {
+
     TTEntry *table;
     int count;
     uint64_t MB;
+    bool dirty;
+
 } TranspositionTable;
 
 

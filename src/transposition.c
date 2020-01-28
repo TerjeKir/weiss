@@ -16,7 +16,11 @@ TranspositionTable TT;
 // Clears the transposition table
 void ClearTT() {
 
+    if (!TT.dirty) return;
+
     memset(TT.table, 0, TT.count * sizeof(TTEntry));
+
+    TT.dirty = false;
 }
 
 // Initializes the transposition table
@@ -51,6 +55,7 @@ void InitTT(uint64_t MB) {
     // Success
     } else {
         TT.MB = MB;
+        TT.dirty = false;
         printf("HashTable init complete with %d entries, using %" PRIu64 "MB.\n", TT.count, MB);
         fflush(stdout);
     }
