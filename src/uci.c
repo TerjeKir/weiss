@@ -114,9 +114,7 @@ static void ParsePosition(const char *line, Position *pos) {
 static void SetOption(char *line) {
 
     if (BeginsWith(line, "setoption name Hash value ")) {
-        int MB;
-        sscanf(line, "%*s %*s %*s %*s %d", &MB);
-        InitTT(MB);
+        sscanf(line, "%*s %*s %*s %*s %" PRIu64 "", &TT.requestedMB);
 
     } else if (BeginsWith(line, "setoption name SyzygyPath value ")) {
 
@@ -135,7 +133,7 @@ static void SetOption(char *line) {
 static void PrintUCI() {
     printf("id name %s\n", NAME);
     printf("id author Terje Kirstihagen\n");
-    printf("option name Hash type spin default %d min 4 max %d\n", DEFAULTHASH, MAXHASH);
+    printf("option name Hash type spin default %d min %d max %d\n", DEFAULTHASH, MINHASH, MAXHASH);
     printf("option name SyzygyPath type string default <empty>\n");
     printf("option name Ponder type check default false\n"); // Turn on ponder stats in cutechess gui
     printf("uciok\n"); fflush(stdout);
@@ -161,11 +159,12 @@ int main(int argc, char **argv) {
     // Init engine
     Position pos[1];
     SearchInfo info[1];
-    TT.MB = 0;
-    InitTT(DEFAULTHASH);
+    TT.currentMB = 0;
+    TT.requestedMB = DEFAULTHASH;
 
     // Benchmark
     if (argc > 1 && strstr(argv[1], "bench")) {
+        InitTT();
         if (argc > 2)
             Benchmark(atoi(argv[2]), pos, info);
         else
@@ -189,6 +188,7 @@ int main(int argc, char **argv) {
             pthread_create(&searchThread, NULL, &ParseGo, &searchThreadInfo);
 
         else if (BeginsWith(line, "isready"))
+            InitTT(),
             printf("readyok\n"), fflush(stdout);
 
         else if (BeginsWith(line, "position"))

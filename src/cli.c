@@ -34,7 +34,8 @@ void ConsoleLoop(Position *pos) {
 
     ParseFen(START_FEN, pos);
 
-    InitTT(256);
+    TT.requestedMB = 256;
+    InitTT();
 
     tb_init("F:\\Syzygy");
 
