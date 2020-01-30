@@ -36,20 +36,21 @@ void InitTT() {
     TT.count = HashSize / sizeof(TTEntry);
 
     // Free memory if already allocated
-    if (TT.table != NULL)
-        free(TT.table);
+    if (TT.currentMB > 0)
+        free(TT.mem);
 
     // Allocate memory
-    TT.table = (TTEntry *)calloc(TT.count, sizeof(TTEntry));
+    TT.mem = malloc(TT.count * sizeof(TTEntry) + 64 - 1);
 
     // Allocation failed
-    if (!TT.table) {
+    if (!TT.mem) {
         printf("Allocating %" PRIu64 "MB for the transposition table failed.\n", MB);
         fflush(stdout);
         exit(EXIT_FAILURE);
     }
 
     // Success
+    TT.table = (TTEntry *)(((uintptr_t)TT.mem + 64 - 1) & ~(64 - 1));
     TT.currentMB = MB;
     TT.dirty = false;
     printf("HashTable init complete with %" PRIu64 " entries, using %" PRIu64 "MB.\n", TT.count, MB);
