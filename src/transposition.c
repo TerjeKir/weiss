@@ -49,10 +49,13 @@ void InitTT() {
         exit(EXIT_FAILURE);
     }
 
-    // Success
     TT.table = (TTEntry *)(((uintptr_t)TT.mem + 64 - 1) & ~(64 - 1));
     TT.currentMB = MB;
-    TT.dirty = false;
+
+    // Ensure the memory is 0'ed out
+    TT.dirty = true;
+    ClearTT();
+
     printf("HashTable init complete with %" PRIu64 " entries, using %" PRIu64 "MB.\n", TT.count, MB);
     fflush(stdout);
 }
