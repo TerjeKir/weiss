@@ -183,13 +183,13 @@ int main(int argc, char **argv) {
     while (GetInput(line)) {
 
         if (BeginsWith(line, "go"))
-            InitTT(),
             ABORT_SIGNAL = false,
             strncpy(searchThreadInfo.line, line, INPUT_SIZE),
             pthread_create(&searchThread, NULL, &ParseGo, &searchThreadInfo);
 
         else if (BeginsWith(line, "isready"))
-            InitTT(), printf("readyok\n"), fflush(stdout);
+            InitTT(),
+            printf("readyok\n"), fflush(stdout);
 
         else if (BeginsWith(line, "position"))
             ParsePosition(line, pos);
