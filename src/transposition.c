@@ -23,42 +23,37 @@ void ClearTT() {
     TT.dirty = false;
 }
 
-// Initializes the transposition table
-void InitTT(uint64_t MB) {
+// Allocates memory for the transposition table
+void InitTT() {
 
-    // Ignore if already initialized with this size
-    if (TT.MB && TT.MB == MB) {
-        printf("HashTable already initialized to %" PRIu64 ".\n", MB);
-        fflush(stdout);
+    // Ignore if already correct size
+    if (TT.currentMB == TT.requestedMB)
         return;
-    }
 
-    uint64_t HashSize = MB * 1024 * 1024;
+    size_t MB = TT.requestedMB;
+
+    size_t HashSize = MB * 1024 * 1024;
     TT.count = HashSize / sizeof(TTEntry);
 
-    MB = MAX(MINHASH, MB); // Don't go under minhash
-    MB = MIN(MAXHASH, MB); // Don't go over maxhash
-
-    // Free memory if we have already allocated
+    // Free memory if already allocated
     if (TT.table != NULL)
         free(TT.table);
 
     // Allocate memory
     TT.table = (TTEntry *)calloc(TT.count, sizeof(TTEntry));
 
-    // If allocation fails, try half the size
+    // Allocation failed
     if (!TT.table) {
-        printf("Hash Allocation Failed, trying %" PRIu64 "MB...\n", MB / 2);
+        printf("Allocating %" PRIu64 "MB for the transposition table failed.\n", MB);
         fflush(stdout);
-        InitTT(MB / 2);
+        exit(EXIT_FAILURE);
+    }
 
     // Success
-    } else {
-        TT.MB = MB;
-        TT.dirty = false;
-        printf("HashTable init complete with %d entries, using %" PRIu64 "MB.\n", TT.count, MB);
-        fflush(stdout);
-    }
+    TT.currentMB = MB;
+    TT.dirty = false;
+    printf("HashTable init complete with %d entries, using %" PRIu64 "MB.\n", TT.count, MB);
+    fflush(stdout);
 }
 
 // Probe the transposition table

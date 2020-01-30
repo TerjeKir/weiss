@@ -16,7 +16,8 @@ typedef struct {
 
     TTEntry *table;
     int count;
-    uint64_t MB;
+    size_t currentMB;
+    size_t requestedMB;
     bool dirty;
 
 } TranspositionTable;
@@ -40,7 +41,7 @@ INLINE int ScoreFromTT (int score, const int ply) {
 }
 
 void ClearTT();
-void InitTT(uint64_t MB);
+void InitTT();
 TTEntry* ProbeTT(const Position *pos, const uint64_t key, bool *ttHit);
 void StoreTTEntry(TTEntry *tte, const uint64_t posKey, const int move, const int score, const int depth, const int flag);
 int HashFull();
