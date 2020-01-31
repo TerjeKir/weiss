@@ -169,12 +169,9 @@ int main(int argc, char **argv) {
     // Benchmark
     if (argc > 1 && strstr(argv[1], "bench")) {
         InitTT();
-        if (argc > 2)
-            Benchmark(atoi(argv[2]), pos, info);
-        else
-            Benchmark(13, pos, info);
+        Benchmark(argc > 2 ? atoi(argv[2]) : 13, pos, info);
         free(TT.mem);
-        return 0;
+        return EXIT_SUCCESS;
     }
 
     // Search thread setup
@@ -224,5 +221,5 @@ int main(int argc, char **argv) {
 #endif
     }
     free(TT.mem);
-    return 0;
+    return EXIT_SUCCESS;
 }
