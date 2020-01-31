@@ -218,6 +218,6 @@ int main(int argc, char **argv) {
         }
 #endif
     }
-    free(TT.table);
+    free(TT.mem);
     return 0;
 }

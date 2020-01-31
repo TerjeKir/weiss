@@ -14,8 +14,9 @@ enum { BOUND_NONE, BOUND_UPPER, BOUND_LOWER, BOUND_EXACT };
 
 typedef struct {
 
+    void *mem;
     TTEntry *table;
-    int count;
+    size_t count;
     size_t currentMB;
     size_t requestedMB;
     bool dirty;

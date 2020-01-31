@@ -70,7 +70,7 @@ release:
 	$(RELEASE)-pext.exe     $(PEXT)
 
 dev:
-	$(BIN)-dev $(PEXT) $(DEV)
+	$(BENCH)-dev $(PEXT) $(DEV)
 
 gprof:
 	$(COMP) $(PFLAGS) $(SRC) $(LIBS) $(PEXT) -o $(OUT)$(EXE)-prof
