@@ -103,12 +103,12 @@ static void ParsePosition(const char *line, Position *pos) {
 }
 
 // Returns the name of a setoption string
-INLINE char *SetOptionName(const char *line) {
-    return strstr(line, "name") + 5;
+INLINE bool OptionName(const char *name, const char *line) {
+    return BeginsWith(strstr(line, "name") + 5, name);
 }
 
 // Returns the value of a setoption string
-INLINE char *SetOptionValue(const char *line) {
+INLINE char *OptionValue(const char *line) {
     return strstr(line, "value") + 6;
 }
 
@@ -116,16 +116,16 @@ INLINE char *SetOptionValue(const char *line) {
 static void SetOption(char *line) {
 
     // Sets the size of the transposition table
-    if (BeginsWith(SetOptionName(line), "Hash")) {
+    if (OptionName("Hash", line)) {
 
-        TT.requestedMB = atoi(SetOptionValue(line));
+        TT.requestedMB = atoi(OptionValue(line));
 
         printf("Hash will use %" PRIu64 "MB after next 'isready'.\n", TT.requestedMB);
 
     // Sets the syzygy tablebase path
-    } else if (BeginsWith(SetOptionName(line), "SyzygyPath")) {
+    } else if (OptionName("SyzygyPath", line)) {
 
-        tb_init(SetOptionValue(line));
+        tb_init(OptionValue(line));
 
         TB_LARGEST > 0 ? printf("TableBase init success - largest found: %d.\n", TB_LARGEST)
                        : printf("TableBase init failure - not found.\n");
