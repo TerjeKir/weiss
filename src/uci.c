@@ -102,6 +102,11 @@ static void ParsePosition(const char *line, Position *pos) {
     }
 }
 
+// Returns the name of a setoption string
+INLINE char *SetOptionName(const char *line) {
+    return strstr(line, "name") + 5;
+}
+
 // Returns the value of a setoption string
 INLINE char *SetOptionValue(const char *line) {
     return strstr(line, "value") + 6;
@@ -111,14 +116,14 @@ INLINE char *SetOptionValue(const char *line) {
 static void SetOption(char *line) {
 
     // Sets the size of the transposition table
-    if (BeginsWith(line, "setoption name Hash value ")) {
+    if (BeginsWith(SetOptionName(line), "Hash")) {
 
         TT.requestedMB = atoi(SetOptionValue(line));
 
         printf("Hash will use %" PRIu64 "MB after next 'isready'.\n", TT.requestedMB);
 
     // Sets the syzygy tablebase path
-    } else if (BeginsWith(line, "setoption name SyzygyPath value ")) {
+    } else if (BeginsWith(SetOptionName(line), "SyzygyPath")) {
 
         tb_init(SetOptionValue(line));
 
