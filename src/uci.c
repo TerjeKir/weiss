@@ -54,9 +54,9 @@ INLINE void TimeControl(int side, char *line) {
 // Parses a 'go' and starts a search
 static void *ParseGo(void *searchThreadInfo) {
 
-    SearchThread *sst = (SearchThread*)searchThreadInfo;
-    Position *pos     = sst->pos;
-    SearchInfo *info  = sst->info;
+    ThreadInfo *sst  = (ThreadInfo*)searchThreadInfo;
+    Position *pos    = sst->pos;
+    SearchInfo *info = sst->info;
 
     TimeControl(sideToMove(), sst->line);
 
@@ -143,11 +143,11 @@ static void UCIInfo() {
     printf("uciok\n"); fflush(stdout);
 }
 
-INLINE void UCIGo(pthread_t *st, SearchThread *sti, char *line) {
+INLINE void UCIGo(pthread_t *st, ThreadInfo *ti, char *line) {
 
     ABORT_SIGNAL = false,
-    strncpy(sti->line, line, INPUT_SIZE),
-    pthread_create(st, NULL, &ParseGo, sti);
+    strncpy(ti->line, line, INPUT_SIZE),
+    pthread_create(st, NULL, &ParseGo, ti);
 }
 
 // Reads a line from stdin
@@ -183,15 +183,13 @@ int main(int argc, char **argv) {
 
     // Search thread setup
     pthread_t searchThread;
-    SearchThread searchThreadInfo;
-    searchThreadInfo.info = info;
-    searchThreadInfo.pos  = pos;
+    ThreadInfo threadInfo = { .pos = pos, .info = info };
 
     // UCI loop
     char line[INPUT_SIZE];
     while (GetInput(line)) {
 
-        if      (BeginsWith(line, "go"))         UCIGo(&searchThread, &searchThreadInfo, line);
+        if      (BeginsWith(line, "go"))         UCIGo(&searchThread, &threadInfo, line);
         else if (BeginsWith(line, "isready"))    InitTT(), printf("readyok\n"), fflush(stdout);
         else if (BeginsWith(line, "position"))   UCIPosition(line, pos);
         else if (BeginsWith(line, "ucinewgame")) ClearTT();

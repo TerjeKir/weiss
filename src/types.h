@@ -169,7 +169,7 @@ typedef struct {
     SearchInfo *info;
     char line[4096];
 
-} SearchThread;
+} ThreadInfo;
 
 typedef struct {
 
