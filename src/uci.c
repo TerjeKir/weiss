@@ -169,6 +169,7 @@ int main(int argc, char **argv) {
             Benchmark(atoi(argv[2]), pos, info);
         else
             Benchmark(13, pos, info);
+        free(TT.mem);
         return 0;
     }
 
