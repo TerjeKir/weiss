@@ -10,13 +10,18 @@ uint8_t SqDistance[64][64];
 
 const int NonPawn[PIECE_NB];
 const int PiecePawn[PIECE_NB];
-
 const int PhaseValue[PIECE_NB];
 
-bool CheckBoard(const Position *pos);
+
 void ParseFen(const char *fen, Position *pos);
+#ifndef NDEBUG
+void PrintBoard(const Position *pos);
+bool CheckBoard(const Position *pos);
+#endif
+#ifdef DEV
 void PrintBoard(const Position *pos);
 void MirrorBoard(Position *pos);
+#endif
 
 // Mirrors a square horizontally
 INLINE int MirrorSquare(const int sq) {
