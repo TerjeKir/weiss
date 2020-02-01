@@ -13,6 +13,9 @@
 #include "transposition.h"
 
 
+#define PERFT_FEN "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1"
+
+
 /* Benchmark heavily inspired by Ethereal*/
 static const char *BenchmarkFENs[] = {
     #include "bench.csv"
@@ -76,7 +79,16 @@ static void RecursivePerft(const int depth, Position *pos) {
 }
 
 // Counts number of moves that can be made in a position to some depth
-void Perft(const int depth, Position *pos) {
+void Perft(char *line) {
+
+    Position pos[1];
+    int depth = 5;
+    sscanf(line, "perft %d", &depth);
+    depth = MIN(6, depth);
+    char *perftFen = line + 8;
+
+    !*perftFen ? ParseFen(PERFT_FEN, pos)
+               : ParseFen(perftFen,  pos);
 
     assert(CheckBoard(pos));
 
@@ -115,6 +127,12 @@ void Perft(const int depth, Position *pos) {
     fflush(stdout);
 
     return;
+}
+
+void PrintEval(Position *pos) {
+
+    printf("Eval     : %d\n", EvalPosition(pos)); MirrorBoard(pos);
+    printf("Mirrored : %d\n", EvalPosition(pos)); MirrorBoard(pos);
 }
 
 // Checks evaluation is symmetric
