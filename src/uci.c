@@ -54,9 +54,9 @@ INLINE void TimeControl(int side, char *line) {
 // Parses a 'go' and starts a search
 static void *ParseGo(void *searchThreadInfo) {
 
-    SearchThread *sst = (SearchThread*)searchThreadInfo;
-    Position *pos     = sst->pos;
-    SearchInfo *info  = sst->info;
+    ThreadInfo *sst  = (ThreadInfo*)searchThreadInfo;
+    Position *pos    = sst->pos;
+    SearchInfo *info = sst->info;
 
     TimeControl(sideToMove(), sst->line);
 
@@ -66,31 +66,24 @@ static void *ParseGo(void *searchThreadInfo) {
 }
 
 // Parses a 'position' and sets up the board
-static void ParsePosition(const char *line, Position *pos) {
+static void UCIPosition(const char *line, Position *pos) {
 
-    // Skip past "position "
-    line += 9;
+    // Set up original position. This will either be a
+    // position given as FEN, or the normal start position
+    BeginsWith(line, "position fen") ? ParseFen(line + 13, pos)
+                                     : ParseFen(START_FEN, pos);
 
-    // Set up original position, either normal start position,
-    if (BeginsWith(line, "startpos"))
-        ParseFen(START_FEN, pos);
-    // Or position given as FEN
-    else if (BeginsWith(line, "fen"))
-        ParseFen(line + 4, pos);
-
-    // Skip to "moves" and make them to get to current position
-    line = strstr(line, "moves");
-    if (line == NULL)
+    // Skip to "moves" and make them to get to correct position
+    if ((line = strstr(line, "moves")) == NULL)
         return;
 
-    // Skip to the first move and loop until all moves are parsed
     line += 6;
     while (*line) {
 
         // Parse a move
         int move = ParseMove(line, pos);
         if (move == NOMOVE) {
-            printf("Weiss failed to parse a move: %s\n", line);
+            printf("Weiss failed to parse this move: %s\n", line);
             fflush(stdout);
             exit(EXIT_SUCCESS);
         }
@@ -103,40 +96,58 @@ static void ParsePosition(const char *line, Position *pos) {
         }
 
         // Skip to the next move if any
-        line = strstr(line, " ");
-        if (line == NULL)
+        if ((line = strstr(line, " ")) == NULL)
             return;
         line += 1;
     }
 }
 
+// Returns the name of a setoption string
+INLINE bool OptionName(const char *name, const char *line) {
+    return BeginsWith(strstr(line, "name") + 5, name);
+}
+
+// Returns the value of a setoption string
+INLINE char *OptionValue(const char *line) {
+    return strstr(line, "value") + 6;
+}
+
 // Parses a 'setoption' and updates settings
-static void SetOption(char *line) {
+static void UCISetoption(char *line) {
 
-    if (BeginsWith(line, "setoption name Hash value ")) {
-        sscanf(line, "%*s %*s %*s %*s %" PRIu64 "", &TT.requestedMB);
+    // Sets the size of the transposition table
+    if (OptionName("Hash", line)) {
 
-    } else if (BeginsWith(line, "setoption name SyzygyPath value ")) {
+        TT.requestedMB = atoi(OptionValue(line));
 
-        char *path = line + strlen("setoption name SyzygyPath value ");
+        printf("Hash will use %" PRIu64 "MB after next 'isready'.\n", TT.requestedMB);
 
-        tb_init(path);
+    // Sets the syzygy tablebase path
+    } else if (OptionName("SyzygyPath", line)) {
 
-        if (TB_LARGEST > 0)
-            printf("TableBase init complete - largest found: %d.\n", TB_LARGEST);
-        else
-            printf("TableBase init failed - not found.\n");
+        tb_init(OptionValue(line));
+
+        TB_LARGEST > 0 ? printf("TableBase init success - largest found: %d.\n", TB_LARGEST)
+                       : printf("TableBase init failure - not found.\n");
     }
+    fflush(stdout);
 }
 
 // Prints UCI info
-static void PrintUCI() {
+static void UCIInfo() {
     printf("id name %s\n", NAME);
     printf("id author Terje Kirstihagen\n");
     printf("option name Hash type spin default %d min %d max %d\n", DEFAULTHASH, MINHASH, MAXHASH);
     printf("option name SyzygyPath type string default <empty>\n");
     printf("option name Ponder type check default false\n"); // Turn on ponder stats in cutechess gui
     printf("uciok\n"); fflush(stdout);
+}
+
+INLINE void UCIGo(pthread_t *st, ThreadInfo *ti, char *line) {
+
+    ABORT_SIGNAL = false,
+    strncpy(ti->line, line, INPUT_SIZE),
+    pthread_create(st, NULL, &ParseGo, ti);
 }
 
 // Reads a line from stdin
@@ -165,60 +176,33 @@ int main(int argc, char **argv) {
     // Benchmark
     if (argc > 1 && strstr(argv[1], "bench")) {
         InitTT();
-        if (argc > 2)
-            Benchmark(atoi(argv[2]), pos, info);
-        else
-            Benchmark(13, pos, info);
+        Benchmark(argc > 2 ? atoi(argv[2]) : 13, pos, info);
         free(TT.mem);
-        return 0;
+        return EXIT_SUCCESS;
     }
 
     // Search thread setup
     pthread_t searchThread;
-    SearchThread searchThreadInfo;
-    searchThreadInfo.info = info;
-    searchThreadInfo.pos  = pos;
+    ThreadInfo threadInfo = { .pos = pos, .info = info };
 
     // UCI loop
     char line[INPUT_SIZE];
     while (GetInput(line)) {
 
-        if (BeginsWith(line, "go"))
-            ABORT_SIGNAL = false,
-            strncpy(searchThreadInfo.line, line, INPUT_SIZE),
-            pthread_create(&searchThread, NULL, &ParseGo, &searchThreadInfo);
-
-        else if (BeginsWith(line, "isready"))
-            InitTT(),
-            printf("readyok\n"), fflush(stdout);
-
-        else if (BeginsWith(line, "position"))
-            ParsePosition(line, pos);
-
-        else if (BeginsWith(line, "ucinewgame"))
-            ClearTT();
-
-        else if (BeginsWith(line, "stop"))
-            ABORT_SIGNAL = true,
-            pthread_join(searchThread, NULL);
-
-        else if (BeginsWith(line, "quit"))
-            break;
-
-        else if (BeginsWith(line, "uci"))
-            PrintUCI();
-
-        else if (BeginsWith(line, "setoption"))
-            SetOption(line);
+        if      (BeginsWith(line, "go"))         UCIGo(&searchThread, &threadInfo, line);
+        else if (BeginsWith(line, "isready"))    InitTT(), printf("readyok\n"), fflush(stdout);
+        else if (BeginsWith(line, "position"))   UCIPosition(line, pos);
+        else if (BeginsWith(line, "ucinewgame")) ClearTT();
+        else if (BeginsWith(line, "stop"))       ABORT_SIGNAL = true, pthread_join(searchThread, NULL);
+        else if (BeginsWith(line, "quit"))       break;
+        else if (BeginsWith(line, "uci"))        UCIInfo();
+        else if (BeginsWith(line, "setoption"))  UCISetoption(line);
 
         // Non UCI commands
 #ifdef DEV
-        else if (!strncmp(line, "weiss", 5)) {
-            ConsoleLoop(pos);
-            break;
-        }
+        else if (BeginsWith(line, "weiss"))    { ConsoleLoop(pos); break; }
 #endif
     }
     free(TT.mem);
-    return 0;
+    return EXIT_SUCCESS;
 }
