@@ -7,17 +7,15 @@
 
 #include "fathom/tbprobe.h"
 #include "board.h"
-#include "cli.h"
 #include "makemove.h"
-#include "time.h"
 #include "move.h"
-#include "tests.h"
-#include "transposition.h"
 #include "search.h"
-#include "validate.h"
+#include "tests.h"
+#include "time.h"
+#include "transposition.h"
 
 
-#define START_FEN  "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+#define START_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 #define INPUT_SIZE 4096
 
 
@@ -181,6 +179,9 @@ int main(int argc, char **argv) {
         return EXIT_SUCCESS;
     }
 
+    // Setup the default position
+    ParseFen(START_FEN, pos);
+
     // Search thread setup
     pthread_t searchThread;
     ThreadInfo threadInfo = { .pos = pos, .info = info };
@@ -198,9 +199,13 @@ int main(int argc, char **argv) {
         else if (BeginsWith(line, "uci"))        UCIInfo();
         else if (BeginsWith(line, "setoption"))  UCISetoption(line);
 
-        // Non UCI commands
 #ifdef DEV
-        else if (BeginsWith(line, "weiss"))    { ConsoleLoop(pos); break; }
+        // Non UCI commands
+        else if (BeginsWith(line, "printboard")) PrintBoard(pos);
+        else if (BeginsWith(line, "perft"))      Perft(line);
+        else if (BeginsWith(line, "eval"))       PrintEval(pos);
+        else if (BeginsWith(line, "mirrortest")) MirrorEvalTest(pos);
+        else if (BeginsWith(line, "matetest"))   MateInXTest(pos);
 #endif
     }
     free(TT.mem);
