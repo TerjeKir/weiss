@@ -6,15 +6,18 @@
 #ifndef NDEBUG
 
 bool ValidSquare(const int sq) {
-    return A1 <= sq && sq <= H8;
+    return A1 <= sq
+        && sq <= H8;
 }
 
 bool ValidSide(const int side) {
-    return side == WHITE || side == BLACK;
+    return side == WHITE
+        || side == BLACK;
 }
 
 bool ValidPiece(const int piece) {
-    return (wP <= piece && piece <= wK) || (bP <= piece && piece <= bK);
+    return (wP <= piece && piece <= wK)
+        || (bP <= piece && piece <= bK);
 }
 
 bool MoveListOk(const MoveList *list, const Position *pos) {
@@ -22,17 +25,9 @@ bool MoveListOk(const MoveList *list, const Position *pos) {
     if (list->count >= MAXPOSITIONMOVES)
         return false;
 
-    int from, to;
-
     for (unsigned int MoveNum = 0; MoveNum < list->count; ++MoveNum) {
 
-        to   =   toSq(list->moves[MoveNum].move);
-        from = fromSq(list->moves[MoveNum].move);
-
-        if (!ValidSquare(to) || !ValidSquare(from))
-            return false;
-
-        if (!ValidPiece(pieceOn(from))) {
+        if (!MoveIsPseudoLegal(pos, list->moves[MoveNum].move)) {
             PrintBoard(pos);
             return false;
         }
