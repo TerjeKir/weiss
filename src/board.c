@@ -200,9 +200,6 @@ void ParseFen(const char *fen, Position *pos) {
         file = fen[0] - 'a';
         rank = fen[1] - '1';
 
-        assert(file >= FILE_A && file <= FILE_H);
-        assert(rank == RANK_3 || rank == RANK_6);
-
         pos->enPas = (8 * rank) + file;
     }
 
@@ -252,6 +249,9 @@ void PrintBoard(const Position *pos) {
 #ifndef NDEBUG
 // Check board state makes sense
 bool CheckBoard(const Position *pos) {
+
+    assert(0 <= pos->hisPly && pos->hisPly < MAXGAMEMOVES);
+    assert(   0 <= pos->ply && pos->ply < MAXDEPTH);
 
     int t_pieceCounts[PIECE_NB] = { 0 };
     int t_bigPieces[2] = { 0, 0 };

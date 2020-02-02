@@ -271,9 +271,9 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
     // Trust the ttScore in non-pvNodes as long as the entry depth is equal or higher
     if (!pvNode && ttHit && tte->depth >= depth) {
 
-        assert(tte->depth >= 1 && tte->depth < MAXDEPTH);
-        assert(tte->flag >= BOUND_UPPER && tte->flag <= BOUND_EXACT);
-        assert(-INFINITE <= ttScore && ttScore <= INFINITE);
+        assert(BOUND_UPPER <= tte->flag && tte->flag <= BOUND_EXACT);
+        assert(         1 <= tte->depth && tte->depth < MAXDEPTH);
+        assert(    -INFINITE <= ttScore && ttScore <= INFINITE);
 
         // Check if ttScore causes a cutoff
         if (ttScore >= beta ? tte->flag & BOUND_LOWER

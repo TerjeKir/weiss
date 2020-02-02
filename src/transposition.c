@@ -73,9 +73,9 @@ TTEntry* ProbeTT(const Position *pos, const uint64_t posKey, bool *ttHit) {
 // Store an entry in the transposition table
 void StoreTTEntry(TTEntry *tte, const uint64_t posKey, const int move, const int score, const int depth, const int flag) {
 
-    assert(-INFINITE <= score && score <= INFINITE);
-    assert(flag >= BOUND_UPPER && flag <= BOUND_EXACT);
-    assert(depth >= 1 && depth < MAXDEPTH);
+    assert(BOUND_UPPER <= flag && flag <= BOUND_EXACT);
+    assert( -INFINITE <= score && score <= INFINITE);
+    assert(         1 <= depth && depth < MAXDEPTH);
 
     // Store new data unless it would overwrite data about the same
     // position searched to a higher depth.
