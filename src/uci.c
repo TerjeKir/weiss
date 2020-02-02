@@ -80,11 +80,6 @@ static void UCIPosition(const char *line, Position *pos) {
 
         // Parse a move
         int move = ParseMove(line, pos);
-        if (move == NOMOVE) {
-            printf("Weiss failed to parse this move: %s\n", line);
-            fflush(stdout);
-            exit(EXIT_SUCCESS);
-        }
 
         // Make the move
         if (!MakeMove(pos, move)) {
