@@ -58,7 +58,7 @@ INLINE bool CastlePseudoLegal(const Position *pos, Bitboard between, int type, i
 
 bool MoveIsPseudoLegal(const Position *pos, const int move);
 char *MoveToStr(const int move);
-int ParseMove(const char *ptrChar, Position *pos);
+int ParseMove(const char *ptrChar, const Position *pos);
 #ifdef DEV
 int ParseEPDMove(const char *ptrChar, Position *pos);
 #endif
