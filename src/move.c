@@ -117,7 +117,7 @@ int ParseEPDMove(const char *ptrChar, Position *pos) {
         || (ptrChar[3] > 'h' || ptrChar[3] < 'a')) {
 
         PrintBoard(pos);
-        printf("\n\nBad move: %s\n\n", MoveToStr(ptrChar));
+        printf("\n\nBad move: %s\n\n", ptrChar);
         free(TT.mem);
         exit(EXIT_FAILURE);
     }
