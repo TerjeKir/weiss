@@ -20,12 +20,10 @@ const int PhaseValue[PIECE_NB] = {     0,     0,     1,     1,     2,     4,    
 // Initialize distance lookup table
 CONSTR InitDistance() {
 
-    int sq1, sq2, vertical, horizontal;
-
-    for (sq1 = A1; sq1 <= H8; ++sq1)
-        for (sq2 = A1; sq2 <= H8; ++sq2) {
-            vertical   = abs(RankOf(sq1) - RankOf(sq2));
-            horizontal = abs(FileOf(sq1) - FileOf(sq2));
+    for (int sq1 = A1; sq1 <= H8; ++sq1)
+        for (int sq2 = A1; sq2 <= H8; ++sq2) {
+            int vertical   = abs(RankOf(sq1) - RankOf(sq2));
+            int horizontal = abs(FileOf(sq1) - FileOf(sq2));
             SqDistance[sq1][sq2] = MAX(vertical, horizontal);
         }
 }
@@ -78,7 +76,7 @@ static void UpdatePosition(Position *pos) {
 static void ClearPosition(Position *pos) {
 
     // Array representation
-    memset(pos->board, 0ULL, sizeof(pos->board));
+    memset(pos->board, EMPTY, sizeof(pos->board));
 
     // Bitboard representations
     memset(pos->colorBB, 0ULL, sizeof(pos->colorBB));
@@ -113,63 +111,50 @@ void ParseFen(const char *fen, Position *pos) {
 
     assert(fen != NULL);
 
-    int rank = RANK_8;
-    int file = FILE_A;
-    int piece, count, i, sq;
-
     ClearPosition(pos);
 
+    int piece;
+    int count = 0;
+    int sq = A8;
+
     // Piece locations
-    while ((rank >= RANK_1) && *fen) {
-        count = 1;
+    while (*fen != ' ') {
         switch (*fen) {
+            // Pieces
             case 'p': piece = bP; break;
-            case 'r': piece = bR; break;
             case 'n': piece = bN; break;
             case 'b': piece = bB; break;
-            case 'k': piece = bK; break;
+            case 'r': piece = bR; break;
             case 'q': piece = bQ; break;
+            case 'k': piece = bK; break;
             case 'P': piece = wP; break;
-            case 'R': piece = wR; break;
             case 'N': piece = wN; break;
             case 'B': piece = wB; break;
-            case 'K': piece = wK; break;
+            case 'R': piece = wR; break;
             case 'Q': piece = wQ; break;
-
-            case '1':
-            case '2':
-            case '3':
-            case '4':
-            case '5':
-            case '6':
-            case '7':
-            case '8':
+            case 'K': piece = wK; break;
+            // New rank
+            case '/':
+                sq -= 16;
+                fen++;
+                continue;
+            // Numbers of empty squares
+            default:
                 piece = EMPTY;
                 count = *fen - '0';
                 break;
-
-            case '/':
-            case ' ':
-                rank--;
-                file = FILE_A;
-                fen++;
-                continue;
-
-            default:
-                printf("FEN error!\n");
-                fflush(stdout);
-                return;
         }
 
-        for (i = 0; i < count; ++i) {
-            sq = rank * 8 + file;
-            if (piece != EMPTY)
-                pieceOn(sq) = piece;
+        pieceOn(sq) = piece;
+        sq++;
 
-            file++;
-        }
+        // Skip count-1 extra squares
+        for (; count > 1; count--)
+            sq++;
+
         fen++;
     }
+    fen++;
 
     // Side to move
     assert(*fen == 'w' || *fen == 'b');
@@ -177,10 +162,7 @@ void ParseFen(const char *fen, Position *pos) {
     fen += 2;
 
     // Castling rights
-    for (i = 0; i < 4; ++i) {
-
-        if (*fen == ' ')
-            break;
+    while (*fen != ' ') {
 
         switch (*fen) {
             case 'K': pos->castlePerm |= WKCA; break;
@@ -193,15 +175,17 @@ void ParseFen(const char *fen, Position *pos) {
     }
     fen++;
 
-    assert(pos->castlePerm >= 0 && pos->castlePerm <= 15);
-
     // En passant square
     if (*fen != '-') {
-        file = fen[0] - 'a';
-        rank = fen[1] - '1';
+        int file = fen[0] - 'a';
+        int rank = fen[1] - '1';
 
         pos->enPas = (8 * rank) + file;
     }
+    fen += 2;
+
+    // 50 move rule
+    pos->fiftyMove = atoi(fen);
 
     // Update the rest of position to match pos->board
     UpdatePosition(pos);
