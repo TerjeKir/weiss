@@ -155,8 +155,8 @@ void TakeMove(Position *pos) {
     pos->fiftyMove  = history(0).fiftyMove;
     pos->castlePerm = history(0).castlePerm;
 
-    assert(pos->hisPly >= 0 && pos->hisPly < MAXGAMEMOVES);
-    assert(pos->ply >= 0 && pos->ply < MAXDEPTH);
+    assert(0 <= pos->hisPly && pos->hisPly < MAXGAMEMOVES);
+    assert(   0 <= pos->ply && pos->ply < MAXDEPTH);
 
     // Get the move from history
     const int move = history(0).move;
@@ -218,8 +218,8 @@ bool MakeMove(Position *pos, const int move) {
     assert(ValidSquare(to));
     assert(ValidSide(side));
     assert(ValidPiece(pieceOn(from)));
-    assert(pos->hisPly >= 0 && pos->hisPly < MAXGAMEMOVES);
-    assert(pos->ply >= 0 && pos->ply < MAXDEPTH);
+    assert(0 <= pos->hisPly && pos->hisPly < MAXGAMEMOVES);
+    assert(   0 <= pos->ply && pos->ply < MAXDEPTH);
 
     // Save position
     history(0).move       = move;
@@ -233,8 +233,8 @@ bool MakeMove(Position *pos, const int move) {
     pos->ply++;
     pos->fiftyMove++;
 
-    assert(pos->hisPly >= 0 && pos->hisPly < MAXGAMEMOVES);
-    assert(pos->ply >= 0 && pos->ply < MAXDEPTH);
+    assert(0 <= pos->hisPly && pos->hisPly < MAXGAMEMOVES);
+    assert(   0 <= pos->ply && pos->ply < MAXDEPTH);
 
     // Hash out the old en passant if exist and unset it
     if (pos->enPas != NO_SQ) {
@@ -285,7 +285,6 @@ bool MakeMove(Position *pos, const int move) {
         // If the move is a pawnstart we set the en passant square and hash it in
         if (move & FLAG_PAWNSTART) {
             pos->enPas = to + 8 - 16 * side;
-            assert((RankOf(pos->enPas) == RANK_3 && side) || RankOf(pos->enPas) == RANK_6);
             HASH_EP;
 
         // Remove pawn captured by en passant
@@ -342,10 +341,6 @@ void MakeNullMove(Position *pos) {
     }
 
     assert(CheckBoard(pos));
-    assert(pos->hisPly >= 0 && pos->hisPly < MAXGAMEMOVES);
-    assert(pos->ply >= 0 && pos->ply < MAXDEPTH);
-
-    return;
 }
 
 // Take back a null move
@@ -367,6 +362,4 @@ void TakeNullMove(Position *pos) {
     pos->posKey     = history(0).posKey;
 
     assert(CheckBoard(pos));
-    assert(pos->hisPly >= 0 && pos->hisPly < MAXGAMEMOVES);
-    assert(pos->ply >= 0 && pos->ply < MAXDEPTH);
 }

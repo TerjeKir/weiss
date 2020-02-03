@@ -310,7 +310,7 @@ int EvalPosition(const Position *pos) {
     const int phase = pos->phase;
     eval = ((MgScore(eval) * (256 - phase)) + (EgScore(eval) * phase)) / 256;
 
-    assert(eval > -INFINITE && eval < INFINITE);
+    assert(-INFINITE < eval && eval < INFINITE);
 
     // Return the evaluation, negated if we are black
     return sideToMove() == WHITE ? eval : -eval;
