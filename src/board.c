@@ -133,7 +133,7 @@ void ParseFen(const char *fen, Position *pos) {
             case 'R': piece = wR; break;
             case 'Q': piece = wQ; break;
             case 'K': piece = wK; break;
-            // New rank
+            // Next rank
             case '/':
                 sq -= 16;
                 fen++;
