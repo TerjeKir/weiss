@@ -56,7 +56,7 @@ void InitTT() {
     TT.dirty = true;
     ClearTT();
 
-    printf("HashTable init complete with %" PRIu64 " entries, using %" PRIu64 "MB.\n", TT.count, MB);
+    printf("HashTable init complete with %" PRI_SIZET " entries, using %" PRI_SIZET "MB.\n", TT.count, MB);
     fflush(stdout);
 }
 
