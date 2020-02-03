@@ -72,7 +72,7 @@ CONSTR InitPSQT() {
     };
 
     // Black scores are negative (white double negated -> positive)
-    for (int pt = bP; pt <= bK; ++pt)
+    for (int pt = PAWN; pt <= KING; ++pt)
         for (int sq = A1; sq <= H8; ++sq) {
             // Base piece value + the piece square value
             PSQT[MakePiece(BLACK, pt)][sq] = -(pieceValue[pt] + pieceSqValue[pt][sq]);
