@@ -359,17 +359,17 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
 
         bool quiet = !moveIsNoisy(move);
 
-        if (quiet)
-            quietCount++;
-
         // Late move pruning
-        if (!pvNode && !inCheck && quiet && depth <= 3 && quietCount > 4 * depth * depth)
+        if (!pvNode && !inCheck && quiet && depth <= 3 && quietCount > 3 * depth * depth)
             break;
 
         // Make the move, skipping to the next if illegal
         if (!MakeMove(pos, move)) continue;
 
+        // Increment counts
         moveCount++;
+        if (quiet)
+            quietCount++;
 
         const int newDepth = depth - 1;
 
