@@ -85,7 +85,7 @@ static void PrintThinking(const SearchInfo *info) {
 
     TimePoint elapsed = Now() - Limits.start;
     int depth    = info->depth;
-    int seldepth = info->seldepth;
+    int seldepth = info->seldepth > info->depth ? info->seldepth : info->depth;
     int hashFull = HashFull();
     int nps      = (int)(1000 * (info->nodes / (elapsed + 1)));
     uint64_t nodes  = info->nodes;
