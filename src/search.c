@@ -360,7 +360,7 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
         bool quiet = !moveIsNoisy(move);
 
         // Late move pruning
-        if (!pvNode && !inCheck && quiet && depth <= 3 && quietCount > 3 * depth * depth)
+        if (!pvNode && !inCheck && quiet && depth <= 3 && quietCount > 2.5 * depth * depth)
             break;
 
         // Make the move, skipping to the next if illegal
