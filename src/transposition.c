@@ -44,7 +44,7 @@ void InitTT() {
 
     // Allocation failed
     if (!TT.mem) {
-        printf("Allocating %" PRIu64 "MB for the transposition table failed.\n", MB);
+        printf("Allocating %" PRI_SIZET "MB for the transposition table failed.\n", MB);
         fflush(stdout);
         exit(EXIT_FAILURE);
     }
@@ -56,7 +56,7 @@ void InitTT() {
     TT.dirty = true;
     ClearTT();
 
-    printf("HashTable init complete with %" PRIu64 " entries, using %" PRIu64 "MB.\n", TT.count, MB);
+    printf("HashTable init complete with %" PRI_SIZET " entries, using %" PRI_SIZET "MB.\n", TT.count, MB);
     fflush(stdout);
 }
 

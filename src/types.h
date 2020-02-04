@@ -200,3 +200,14 @@ INLINE int PieceTypeOf(const int piece) {
 INLINE int MakePiece(const int color, const int type) {
     return (color << 3) + type;
 }
+
+// Macro for printing size_t
+#ifdef _WIN32
+#  ifdef _WIN64
+#    define PRI_SIZET PRIu64
+#  else
+#    define PRI_SIZET PRIu32
+#  endif
+#else
+#  define PRI_SIZET "zu"
+#endif
