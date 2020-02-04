@@ -44,7 +44,7 @@ void InitTT() {
 
     // Allocation failed
     if (!TT.mem) {
-        printf("Allocating %" PRIu64 "MB for the transposition table failed.\n", MB);
+        printf("Allocating %" PRI_SIZET "MB for the transposition table failed.\n", MB);
         fflush(stdout);
         exit(EXIT_FAILURE);
     }

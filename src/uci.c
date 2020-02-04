@@ -113,7 +113,7 @@ static void UCISetoption(char *line) {
 
         TT.requestedMB = atoi(OptionValue(line));
 
-        printf("Hash will use %" PRIu64 "MB after next 'isready'.\n", TT.requestedMB);
+        printf("Hash will use %" PRI_SIZET "MB after next 'isready'.\n", TT.requestedMB);
 
     // Sets the syzygy tablebase path
     } else if (OptionName("SyzygyPath", line)) {
