@@ -61,9 +61,9 @@ void InitTT() {
 }
 
 // Probe the transposition table
-TTEntry* ProbeTT(const Position *pos, const uint64_t posKey, bool *ttHit) {
+TTEntry* ProbeTT(const uint64_t posKey, bool *ttHit) {
 
-    TTEntry* tte = &TT.table[pos->posKey % TT.count];
+    TTEntry* tte = &TT.table[posKey % TT.count];
 
     *ttHit = tte->posKey == posKey;
 

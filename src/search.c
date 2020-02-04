@@ -85,7 +85,7 @@ static void PrintThinking(const SearchInfo *info) {
 
     TimePoint elapsed = Now() - Limits.start;
     int depth    = info->depth;
-    int seldepth = info->seldepth;
+    int seldepth = info->seldepth > info->depth ? info->seldepth : info->depth;
     int hashFull = HashFull();
     int nps      = (int)(1000 * (info->nodes / (elapsed + 1)));
     uint64_t nodes  = info->nodes;
@@ -137,12 +137,9 @@ static int QuiescenceDeltaMargin(const Position *pos) {
 }
 
 // Quiescence
-static int Quiescence(int alpha, const int beta, Position *pos, SearchInfo *info, PV *pv) {
+static int Quiescence(int alpha, const int beta, Position *pos, SearchInfo *info) {
 
     assert(CheckBoard(pos));
-
-    PV pvFromHere;
-    pv->length = 0;
 
     MovePicker mp;
     MoveList list;
@@ -184,7 +181,7 @@ static int Quiescence(int alpha, const int beta, Position *pos, SearchInfo *info
 
         // Recursively search the positions after making the moves, skipping illegal ones
         if (!MakeMove(pos, move)) continue;
-        score = -Quiescence(-beta, -alpha, pos, info, &pvFromHere);
+        score = -Quiescence(-beta, -alpha, pos, info);
         TakeMove(pos);
 
         // Found a new best move in this position
@@ -195,11 +192,6 @@ static int Quiescence(int alpha, const int beta, Position *pos, SearchInfo *info
             // If score beats alpha we update alpha
             if (score > alpha) {
                 alpha = score;
-
-                // Update the Principle Variation
-                pv->length = 1 + pvFromHere.length;
-                pv->line[0] = move;
-                memcpy(pv->line + 1, pvFromHere.line, sizeof(int) * pvFromHere.length);
 
                 // If score beats beta we have a cutoff
                 if (score >= beta)
@@ -231,16 +223,14 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
 
     // Quiescence at the end of search
     if (depth <= 0)
-        return Quiescence(alpha, beta, pos, info, pv);
+        return Quiescence(alpha, beta, pos, info);
 
     // Check time situation
     if (OutOfTime(info) || ABORT_SIGNAL)
         longjmp(info->jumpBuffer, true);
 
-    // Update node count and selective depth
+    // Update node count
     info->nodes++;
-    if (pos->ply > info->seldepth)
-        info->seldepth = pos->ply;
 
     // Early exits
     if (!root) {
@@ -263,7 +253,7 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
     // Probe transposition table
     bool ttHit;
     uint64_t posKey = pos->posKey;
-    TTEntry *tte = ProbeTT(pos, posKey, &ttHit);
+    TTEntry *tte = ProbeTT(posKey, &ttHit);
 
     int ttMove  = ttHit ? tte->move : NOMOVE;
     int ttScore = ttHit ? ScoreFromTT(tte->score, pos->ply) : NOSCORE;
@@ -296,9 +286,8 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
                  : tbresult == TB_WIN  ? BOUND_LOWER
                                        : BOUND_EXACT;
 
-        if (    flag == BOUND_EXACT
-            || (flag == BOUND_LOWER && val >= beta)
-            || (flag == BOUND_UPPER && val <= alpha)) {
+        if (val >= beta ? flag & BOUND_LOWER
+                        : flag & BOUND_UPPER) {
 
             StoreTTEntry(tte, posKey, NOMOVE, val, MAXDEPTH-1, flag);
             return val;
@@ -319,7 +308,7 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
 
         // Razoring
         if (!pvNode && depth < 2 && eval + 640 < alpha)
-            return Quiescence(alpha, beta, pos, info, pv);
+            return Quiescence(alpha, beta, pos, info);
 
         // Reverse Futility Pruning
         if (!pvNode && depth < 7 && eval - 225 * depth >= beta)
@@ -351,20 +340,18 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
 
             AlphaBeta(alpha, beta, MAX(1, MIN(depth / 2, depth - 4)), pos, info, pv);
 
-            tte = ProbeTT(pos, posKey, &ttHit);
+            tte = ProbeTT(posKey, &ttHit);
 
-            ttMove  = ttHit ? tte->move : NOMOVE;
-            // ttScore = ttHit ? ScoreFromTT(tte->score, pos->ply) : NOSCORE;
+            ttMove = ttHit ? tte->move : NOMOVE;
         }
     }
 
     InitNormalMP(&mp, &list, pos, ttMove);
 
     const int oldAlpha = alpha;
-    int moveCount  = 0;
-    int quietCount = 0;
-    int bestMove   = NOMOVE;
-    int bestScore  = score = -INFINITE;
+    int moveCount = 0, quietCount = 0;
+    int bestMove = NOMOVE;
+    int bestScore = score = -INFINITE;
 
     // Move loop
     int move;
@@ -450,17 +437,18 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
     if (!moveCount)
         return inCheck ? -INFINITE + pos->ply : 0;
 
-    assert(alpha >= oldAlpha);
-    assert(alpha <=  INFINITE);
-    assert(alpha >= -INFINITE);
-    assert(bestScore <=  INFINITE);
-    assert(bestScore >= -INFINITE);
-
+    // Store in TT
     const int flag = bestScore >= beta ? BOUND_LOWER
                    : alpha != oldAlpha ? BOUND_EXACT
                                        : BOUND_UPPER;
 
     StoreTTEntry(tte, posKey, bestMove, ScoreToTT(bestScore, pos->ply), depth, flag);
+
+    assert(alpha >= oldAlpha);
+    assert(alpha <=  INFINITE);
+    assert(alpha >= -INFINITE);
+    assert(bestScore <=  INFINITE);
+    assert(bestScore >= -INFINITE);
 
     return bestScore;
 }
