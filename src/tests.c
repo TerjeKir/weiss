@@ -188,11 +188,8 @@ void MateInXTest(Position *pos) {
     char filename[] = "../EPDs/mate_-_.epd";                 // '_'s are placeholders
     FILE *file;
 
-    int failures = 0;
-
     SearchInfo info[1];
     char lineIn[1024];
-    char *bm, *ce;
 
     int bestMoves[20];
     int foundScore;
@@ -224,8 +221,8 @@ void MateInXTest(Position *pos) {
                 printf("Line %d in file: %s\n", lineCnt, filename);
                 fflush(stdout);
 
-                bm = strstr(lineIn, "bm") + 3;
-                ce = strstr(lineIn, "ce");
+                char *bm = strstr(lineIn, "bm") + 3;
+                char *ce = strstr(lineIn, "ce");
 
                 // Read in the mate depth
                 mateDepth = depth - '0';
@@ -257,8 +254,8 @@ search:
                     }
 
                 // Extend search if not found
-                if (!correct && extensions < 8) {
-                    Limits.depth += 1;
+                if (!correct && extensions < 5) {
+                    Limits.depth += 2;
                     extensions += 1;
                     goto search;
                 }
@@ -280,16 +277,13 @@ search:
                     foundScore = tte->score;
 
                 // Translate score to mate depth
-                if (foundScore > ISMATE)
-                    foundDepth = ((INFINITE - foundScore) / 2) + 1;
-                else if (foundScore < -ISMATE)
-                    foundDepth = (INFINITE + foundScore) / 2;
-                else
-                    foundDepth = 0;
+                foundDepth = (foundScore >  ISMATE) ? (INFINITE - foundScore) / 2 + 1
+                           : (foundScore < -ISMATE) ? (INFINITE + foundScore) / 2
+                                                    : 0;
 
                 // Extend search if shortest mate not found
-                if (foundDepth != mateDepth && extensions < 8) {
-                    Limits.depth += 1;
+                if (foundDepth != mateDepth && extensions < 5) {
+                    Limits.depth += 2;
                     extensions += 1;
                     goto search;
                 }
@@ -300,7 +294,6 @@ search:
                     printf("Line %d in file: %s\n", lineCnt, filename);
                     printf("Mate depth should be %d, was %d.\n", mateDepth, foundDepth);
                     fflush(stdout);
-                    failures += 1;
                     getchar();
                     continue;
                 }
@@ -312,8 +305,6 @@ search:
             }
         }
     }
-    printf("MateInXTest Complete!\n Failures: %d\n\n", failures);
-    fflush(stdout);
     fclose(file);
 }
 #endif
