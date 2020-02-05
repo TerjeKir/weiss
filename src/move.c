@@ -102,7 +102,7 @@ int ParseMove(const char *str, const Position *pos) {
 #ifdef DEV
 // Translates a string from an .epd file to a move
 // Nf3-g1+, f3-g1+, Nf3-g1, f3-g1N+
-int ParseEPDMove(const char *ptrChar, Position *pos) {
+int ParseEPDMove(const char *ptrChar, const Position *pos) {
 
     assert(CheckBoard(pos));
 

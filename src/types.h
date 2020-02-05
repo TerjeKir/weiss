@@ -7,7 +7,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "defs.h"
+#define NDEBUG
+#include <assert.h>
 
 
 #define MIN(A, B) ((A) < (B) ? (A) : (B))
@@ -27,6 +28,7 @@
 
 
 typedef uint64_t Bitboard;
+typedef uint64_t Key;
 
 typedef int64_t TimePoint;
 
@@ -101,12 +103,12 @@ typedef struct {
     int enPas;
     int fiftyMove;
     int castlePerm;
-    uint64_t posKey;
+    Key posKey;
     int eval;
 } History;
 
 typedef struct {
-    uint64_t posKey;
+    Key posKey;
     int move;
     int16_t score;
     uint8_t depth;
@@ -137,7 +139,7 @@ typedef struct {
     int ply;
     int hisPly;
 
-    uint64_t posKey;
+    Key key;
 
     History history[MAXGAMEMOVES];
 

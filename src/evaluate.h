@@ -5,6 +5,10 @@
 #include "types.h"
 
 
+// Check for (likely) material draw
+#define CHECK_MAT_DRAW
+
+
 #define MakeScore(mg, eg) ((int)((unsigned int)(eg) << 16) + (mg))
 #define S(mg, eg) MakeScore((mg), (eg))
 #define MgScore(s) ((int16_t)((uint16_t)((unsigned)((s)))))

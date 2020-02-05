@@ -4,15 +4,14 @@
 #include "bitboards.h"
 #include "board.h"
 #include "psqt.h"
-#include "hashkeys.h"
 #include "move.h"
 #include "validate.h"
 
 
-#define HASH_PCE(piece, sq) (pos->posKey ^= (PieceKeys[(piece)][(sq)]))
-#define HASH_CA             (pos->posKey ^= (CastleKeys[(pos->castlePerm)]))
-#define HASH_SIDE           (pos->posKey ^= (SideKey))
-#define HASH_EP             (pos->posKey ^= (PieceKeys[EMPTY][(pos->enPas)]))
+#define HASH_PCE(piece, sq) (pos->key ^= (PieceKeys[(piece)][(sq)]))
+#define HASH_CA             (pos->key ^= (CastleKeys[(pos->castlePerm)]))
+#define HASH_SIDE           (pos->key ^= (SideKey))
+#define HASH_EP             (pos->key ^= (PieceKeys[EMPTY][(pos->enPas)]))
 
 
 static const int CastlePerm[64] = {
@@ -198,7 +197,7 @@ void TakeMove(Position *pos) {
     }
 
     // Get old poskey from history
-    pos->posKey = history(0).posKey;
+    pos->key = history(0).posKey;
 
     assert(CheckBoard(pos));
 }
@@ -226,7 +225,7 @@ bool MakeMove(Position *pos, const int move) {
     history(0).enPas      = pos->enPas;
     history(0).fiftyMove  = pos->fiftyMove;
     history(0).castlePerm = pos->castlePerm;
-    history(0).posKey     = pos->posKey;
+    history(0).posKey     = pos->key;
 
     // Increment hisPly, ply and 50mr
     pos->hisPly++;
@@ -324,7 +323,7 @@ void MakeNullMove(Position *pos) {
     history(0).enPas      = pos->enPas;
     history(0).fiftyMove  = pos->fiftyMove;
     history(0).castlePerm = pos->castlePerm;
-    history(0).posKey     = pos->posKey;
+    history(0).posKey     = pos->key;
 
     // Increase ply
     pos->ply++;
@@ -359,7 +358,7 @@ void TakeNullMove(Position *pos) {
     pos->enPas      = history(0).enPas;
     pos->fiftyMove  = history(0).fiftyMove;
     pos->castlePerm = history(0).castlePerm;
-    pos->posKey     = history(0).posKey;
+    pos->key        = history(0).posKey;
 
     assert(CheckBoard(pos));
 }

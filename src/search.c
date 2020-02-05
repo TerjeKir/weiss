@@ -50,7 +50,7 @@ static bool IsRepetition(const Position *pos) {
     // Compare current posKey to posKeys in history, skipping
     // opponents turns as that wouldn't be a repetition
     for (int i = 2; i <= pos->fiftyMove; i += 2)
-        if (pos->posKey == history(-i).posKey)
+        if (pos->key == history(-i).posKey)
             return true;
 
     return false;
@@ -129,11 +129,11 @@ static int QuiescenceDeltaMargin(const Position *pos) {
     const Bitboard enemy = colorBB(!sideToMove());
 
     // Find the most valuable piece we could take and add to our base
-    return (enemy & pieceBB(QUEEN )) ? DeltaBase + Q_MG
-         : (enemy & pieceBB(ROOK  )) ? DeltaBase + R_MG
-         : (enemy & pieceBB(BISHOP)) ? DeltaBase + B_MG
-         : (enemy & pieceBB(KNIGHT)) ? DeltaBase + N_MG
-                                     : DeltaBase + P_MG;
+    return DeltaBase + ((enemy & pieceBB(QUEEN )) ? Q_MG
+                      : (enemy & pieceBB(ROOK  )) ? R_MG
+                      : (enemy & pieceBB(BISHOP)) ? B_MG
+                      : (enemy & pieceBB(KNIGHT)) ? N_MG
+                                                  : P_MG);
 }
 
 // Quiescence
@@ -252,7 +252,7 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
 
     // Probe transposition table
     bool ttHit;
-    uint64_t posKey = pos->posKey;
+    Key posKey = pos->key;
     TTEntry *tte = ProbeTT(posKey, &ttHit);
 
     int ttMove  = ttHit ? tte->move : NOMOVE;

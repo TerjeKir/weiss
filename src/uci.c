@@ -15,6 +15,8 @@
 #include "transposition.h"
 
 
+#define NAME "weiss 0.8-dev"
+
 #define START_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 #define INPUT_SIZE 4096
 
@@ -181,26 +183,26 @@ int main(int argc, char **argv) {
     pthread_t searchThread;
     ThreadInfo threadInfo = { .pos = pos, .info = info };
 
-    // UCI loop
+    // Input loop
     char line[INPUT_SIZE];
     while (GetInput(line)) {
-
-        if      (BeginsWith(line, "go"))         UCIGo(&searchThread, &threadInfo, line);
-        else if (BeginsWith(line, "isready"))    InitTT(), printf("readyok\n"), fflush(stdout);
-        else if (BeginsWith(line, "position"))   UCIPosition(line, pos);
+        // UCI commands
+        if      (BeginsWith(line, "go"        )) UCIGo(&searchThread, &threadInfo, line);
+        else if (BeginsWith(line, "isready"   )) InitTT(), printf("readyok\n"), fflush(stdout);
+        else if (BeginsWith(line, "position"  )) UCIPosition(line, pos);
         else if (BeginsWith(line, "ucinewgame")) ClearTT();
-        else if (BeginsWith(line, "stop"))       ABORT_SIGNAL = true, pthread_join(searchThread, NULL);
-        else if (BeginsWith(line, "quit"))       break;
-        else if (BeginsWith(line, "uci"))        UCIInfo();
-        else if (BeginsWith(line, "setoption"))  UCISetoption(line);
+        else if (BeginsWith(line, "stop"      )) ABORT_SIGNAL = true, pthread_join(searchThread, NULL);
+        else if (BeginsWith(line, "quit"      )) break;
+        else if (BeginsWith(line, "uci"       )) UCIInfo();
+        else if (BeginsWith(line, "setoption" )) UCISetoption(line);
 
 #ifdef DEV
         // Non UCI commands
         else if (BeginsWith(line, "printboard")) PrintBoard(pos);
-        else if (BeginsWith(line, "perft"))      Perft(line);
-        else if (BeginsWith(line, "eval"))       PrintEval(pos);
+        else if (BeginsWith(line, "perft"     )) Perft(line);
+        else if (BeginsWith(line, "eval"      )) PrintEval(pos);
         else if (BeginsWith(line, "mirrortest")) MirrorEvalTest(pos);
-        else if (BeginsWith(line, "matetest"))   MateInXTest(pos);
+        else if (BeginsWith(line, "matetest"  )) MateInXTest(pos);
 #endif
     }
     free(TT.mem);
