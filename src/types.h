@@ -7,7 +7,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "defs.h"
+#define NDEBUG
+#include <assert.h>
 
 
 #define MIN(A, B) ((A) < (B) ? (A) : (B))

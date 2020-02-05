@@ -15,6 +15,8 @@
 #include "transposition.h"
 
 
+#define NAME "weiss 0.8-dev"
+
 #define START_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 #define INPUT_SIZE 4096
 
