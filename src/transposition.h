@@ -47,6 +47,6 @@ INLINE int ScoreFromTT (const int score, const int ply) {
 
 void ClearTT();
 void InitTT();
-TTEntry* ProbeTT(uint64_t key, bool *ttHit);
-void StoreTTEntry(TTEntry *tte, uint64_t posKey, int move, int score, int depth, int flag);
+TTEntry* ProbeTT(Key posKey, bool *ttHit);
+void StoreTTEntry(TTEntry *tte, Key posKey, int move, int score, int depth, int flag);
 int HashFull();

@@ -252,7 +252,7 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
 
     // Probe transposition table
     bool ttHit;
-    uint64_t posKey = pos->key;
+    Key posKey = pos->key;
     TTEntry *tte = ProbeTT(posKey, &ttHit);
 
     int ttMove  = ttHit ? tte->move : NOMOVE;

@@ -71,9 +71,9 @@ CONSTR InitHashKeys() {
         CastleKeys[i] = Rand64();
 }
 
-static uint64_t GeneratePosKey(const Position *pos) {
+static Key GeneratePosKey(const Position *pos) {
 
-    uint64_t posKey = 0;
+    Key posKey = 0;
 
     // Pieces
     for (int sq = A1; sq <= H8; ++sq) {

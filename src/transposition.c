@@ -60,7 +60,7 @@ void InitTT() {
 }
 
 // Probe the transposition table
-TTEntry* ProbeTT(const uint64_t posKey, bool *ttHit) {
+TTEntry* ProbeTT(const Key posKey, bool *ttHit) {
 
     // https://lemire.me/blog/2016/06/27/a-fast-alternative-to-the-modulo-reduction/
     TTEntry* tte = &TT.table[((uint32_t)posKey * (uint64_t)TT.count) >> 32];
@@ -71,7 +71,7 @@ TTEntry* ProbeTT(const uint64_t posKey, bool *ttHit) {
 }
 
 // Store an entry in the transposition table
-void StoreTTEntry(TTEntry *tte, const uint64_t posKey, const int move, const int score, const int depth, const int flag) {
+void StoreTTEntry(TTEntry *tte, const Key posKey, const int move, const int score, const int depth, const int flag) {
 
     assert(BOUND_UPPER <= flag && flag <= BOUND_EXACT);
     assert( -INFINITE <= score && score <= INFINITE);
