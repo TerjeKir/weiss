@@ -167,7 +167,7 @@ void TakeMove(Position *pos) {
 
     // Add in pawn captured by en passant
     if (FLAG_ENPAS & move)
-        AddPiece(to + 8 - 16 * sideToMove(), pos, MakePiece(!sideToMove(), PAWN));
+        AddPiece(to ^ 8, pos, MakePiece(!sideToMove(), PAWN));
 
     // Move rook back if castling
     else if (move & FLAG_CASTLE)
@@ -283,12 +283,12 @@ bool MakeMove(Position *pos, const int move) {
 
         // If the move is a pawnstart we set the en passant square and hash it in
         if (move & FLAG_PAWNSTART) {
-            pos->enPas = to + 8 - 16 * side;
+            pos->enPas = to ^ 8;
             HASH_EP;
 
         // Remove pawn captured by en passant
         } else if (move & FLAG_ENPAS)
-            ClearPiece(to + 8 - 16 * side, pos);
+            ClearPiece(to ^ 8, pos);
 
         // Replace promoting pawn with new piece
         else if (promo != EMPTY) {
