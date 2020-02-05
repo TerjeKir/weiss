@@ -129,11 +129,11 @@ static int QuiescenceDeltaMargin(const Position *pos) {
     const Bitboard enemy = colorBB(!sideToMove());
 
     // Find the most valuable piece we could take and add to our base
-    return DeltaBase + (enemy & pieceBB(QUEEN )) ? Q_MG
-                     : (enemy & pieceBB(ROOK  )) ? R_MG
-                     : (enemy & pieceBB(BISHOP)) ? B_MG
-                     : (enemy & pieceBB(KNIGHT)) ? N_MG
-                                                 : P_MG;
+    return DeltaBase + ((enemy & pieceBB(QUEEN )) ? Q_MG
+                      : (enemy & pieceBB(ROOK  )) ? R_MG
+                      : (enemy & pieceBB(BISHOP)) ? B_MG
+                      : (enemy & pieceBB(KNIGHT)) ? N_MG
+                                                  : P_MG);
 }
 
 // Quiescence
