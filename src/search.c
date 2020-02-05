@@ -295,7 +295,7 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
     }
 
     int score = -INFINITE;
-    int eval = NOSCORE;
+    int eval = history(0).eval = NOSCORE;
     bool improving = false;
 
     // Skip pruning while in check and at the root
