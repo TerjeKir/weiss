@@ -295,7 +295,8 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
     }
 
     int score = -INFINITE;
-    int eval = NOSCORE;
+    int eval = history(0).eval = NOSCORE;
+    bool improving = false;
 
     // Skip pruning while in check and at the root
     if (!inCheck && !root) {
@@ -305,6 +306,9 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
             history(0).eval = eval = -history(-1).eval;
         else
             history(0).eval = eval = EvalPosition(pos);
+
+        if (pos->ply >= 2 && eval > history(-2).eval)
+            improving = true;
 
         // Razoring
         if (!pvNode && depth < 2 && eval + 640 < alpha)
@@ -359,17 +363,17 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
 
         bool quiet = !moveIsNoisy(move);
 
-        if (quiet)
-            quietCount++;
-
         // Late move pruning
-        if (!pvNode && !inCheck && quiet && depth <= 3 && quietCount > 4 * depth * depth)
+        if (!pvNode && !inCheck && quiet && depth <= 3 && quietCount > 4 * depth * depth / (1 + !improving))
             break;
 
         // Make the move, skipping to the next if illegal
         if (!MakeMove(pos, move)) continue;
 
+        // Increment counts
         moveCount++;
+        if (quiet)
+            quietCount++;
 
         const int newDepth = depth - 1;
 
