@@ -6,7 +6,3 @@
 
 #define NDEBUG
 #include <assert.h>
-
-
-/* Check for (likely) material draw in eval */
-#define CHECK_MAT_DRAW
