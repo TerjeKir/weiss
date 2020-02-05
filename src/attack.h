@@ -98,4 +98,4 @@ INLINE Bitboard AttackBB(int piecetype, int sq, Bitboard occupied) {
     }
 }
 
-bool SqAttacked(const int sq, const int side, const Position *pos);
+bool SqAttacked(int sq, int side, const Position *pos);

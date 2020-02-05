@@ -32,14 +32,14 @@ extern TranspositionTable TT;
 
 
 // Mate scores are stored as mate in 0 as they depend on the current ply
-INLINE int ScoreToTT (int score, const int ply) {
+INLINE int ScoreToTT (const int score, const int ply) {
     return score >=  ISMATE ? score + ply
          : score <= -ISMATE ? score - ply
                             : score;
 }
 
 // Translates from mate in 0 to the proper mate score at current ply
-INLINE int ScoreFromTT (int score, const int ply) {
+INLINE int ScoreFromTT (const int score, const int ply) {
     return score >=  ISMATE ? score - ply
          : score <= -ISMATE ? score + ply
                             : score;
@@ -47,6 +47,6 @@ INLINE int ScoreFromTT (int score, const int ply) {
 
 void ClearTT();
 void InitTT();
-TTEntry* ProbeTT(const uint64_t key, bool *ttHit);
-void StoreTTEntry(TTEntry *tte, const uint64_t posKey, const int move, const int score, const int depth, const int flag);
+TTEntry* ProbeTT(uint64_t key, bool *ttHit);
+void StoreTTEntry(TTEntry *tte, uint64_t posKey, int move, int score, int depth, int flag);
 int HashFull();
