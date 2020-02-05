@@ -5,12 +5,16 @@
 #include "types.h"
 
 
-uint8_t SqDistance[64][64];
+extern uint8_t SqDistance[64][64];
 
+extern const int NonPawn[PIECE_NB];
+extern const int PiecePawn[PIECE_NB];
+extern const int PhaseValue[PIECE_NB];
 
-const int NonPawn[PIECE_NB];
-const int PiecePawn[PIECE_NB];
-const int PhaseValue[PIECE_NB];
+// Zobrist keys
+extern uint64_t PieceKeys[PIECE_NB][64];
+extern uint64_t CastleKeys[16];
+extern uint64_t SideKey;
 
 
 void ParseFen(const char *fen, Position *pos);

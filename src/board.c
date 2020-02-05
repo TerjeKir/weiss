@@ -7,14 +7,19 @@
 #include "bitboards.h"
 #include "board.h"
 #include "psqt.h"
-#include "hashkeys.h"
 #include "validate.h"
 
+uint8_t SqDistance[64][64];
 
 //                                EMPTY,    bP,    bN,    bB,    bR,    bQ,    bK, EMPTY, EMPTY,    wP,    wN,    wB,    wR,    wQ,    wK, EMPTY
 const int NonPawn[PIECE_NB]    = { false, false,  true,  true,  true,  true, false, false, false, false,  true,  true,  true,  true, false, false };
 const int PiecePawn[PIECE_NB]  = { false,  true, false, false, false, false, false, false, false,  true, false, false, false, false, false, false };
 const int PhaseValue[PIECE_NB] = {     0,     0,     1,     1,     2,     4,     0,     0,     0,     0,     1,     1,     2,     4,     0,     0 };
+
+// Zobrist key tables
+uint64_t PieceKeys[PIECE_NB][64];
+uint64_t CastleKeys[16];
+uint64_t SideKey;
 
 
 // Initialize distance lookup table
@@ -26,6 +31,69 @@ CONSTR InitDistance() {
             int horizontal = abs(FileOf(sq1) - FileOf(sq2));
             SqDistance[sq1][sq2] = MAX(vertical, horizontal);
         }
+}
+
+static uint64_t Rand64() {
+
+    // http://vigna.di.unimi.it/ftp/papers/xorshift.pdf
+
+    static uint64_t seed = 1070372ull;
+
+    seed ^= seed >> 12;
+    seed ^= seed << 25;
+    seed ^= seed >> 27;
+
+    return seed * 2685821657736338717ull;
+}
+
+// Inits zobrist key tables
+CONSTR InitHashKeys() {
+
+    // Side to play
+    SideKey = Rand64();
+
+    // En passant
+    for (int sq = A1; sq <= H8; ++sq)
+        PieceKeys[0][sq] = Rand64();
+
+    // White pieces
+    for (int piece = wP; piece <= wK; ++piece)
+        for (int sq = A1; sq <= H8; ++sq)
+            PieceKeys[piece][sq] = Rand64();
+
+    // Black pieces
+    for (int piece = bP; piece <= bK; ++piece)
+        for (int sq = A1; sq <= H8; ++sq)
+            PieceKeys[piece][sq] = Rand64();
+
+    // Castling rights
+    for (int i = 0; i < 16; ++i)
+        CastleKeys[i] = Rand64();
+}
+
+static uint64_t GeneratePosKey(const Position *pos) {
+
+    uint64_t posKey = 0;
+
+    // Pieces
+    for (int sq = A1; sq <= H8; ++sq) {
+        int piece = pieceOn(sq);
+        if (piece != EMPTY)
+            posKey ^= PieceKeys[piece][sq];
+    }
+
+    // Side to play
+    if (sideToMove() == WHITE)
+        posKey ^= SideKey;
+
+    // En passant
+    if (pos->enPas != NO_SQ)
+        posKey ^= PieceKeys[EMPTY][pos->enPas];
+
+    // Castling rights
+    posKey ^= CastleKeys[pos->castlePerm];
+
+    return posKey;
 }
 
 // Update the rest of a position to match pos->board
