@@ -5,8 +5,12 @@
 #include "types.h"
 
 
-#define MINHASH 4
-#define MAXHASH 16384
+// 1MB hash is a reasonable expectation.
+#define MINHASH 1
+// 65536MB = 2^32 * 16B / (1024 * 1024)
+// is the limit current indexing is able
+// to use given the 16B size of entries
+#define MAXHASH 65536
 #define DEFAULTHASH 32
 
 

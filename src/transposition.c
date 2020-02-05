@@ -32,8 +32,7 @@ void InitTT() {
 
     size_t MB = TT.requestedMB;
 
-    size_t HashSize = MB * 1024 * 1024;
-    TT.count = HashSize / sizeof(TTEntry);
+    TT.count = MB * 1024 * 1024 / sizeof(TTEntry);
 
     // Free memory if already allocated
     if (TT.currentMB > 0)
@@ -63,7 +62,8 @@ void InitTT() {
 // Probe the transposition table
 TTEntry* ProbeTT(const uint64_t posKey, bool *ttHit) {
 
-    TTEntry* tte = &TT.table[posKey % TT.count];
+    // https://lemire.me/blog/2016/06/27/a-fast-alternative-to-the-modulo-reduction/
+    TTEntry* tte = &TT.table[((uint32_t)posKey * (uint64_t)TT.count) >> 32];
 
     *ttHit = tte->posKey == posKey;
 
