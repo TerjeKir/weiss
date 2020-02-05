@@ -50,7 +50,7 @@ static bool IsRepetition(const Position *pos) {
     // Compare current posKey to posKeys in history, skipping
     // opponents turns as that wouldn't be a repetition
     for (int i = 2; i <= pos->fiftyMove; i += 2)
-        if (pos->posKey == history(-i).posKey)
+        if (pos->key == history(-i).posKey)
             return true;
 
     return false;
@@ -252,7 +252,7 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
 
     // Probe transposition table
     bool ttHit;
-    uint64_t posKey = pos->posKey;
+    uint64_t posKey = pos->key;
     TTEntry *tte = ProbeTT(posKey, &ttHit);
 
     int ttMove  = ttHit ? tte->move : NOMOVE;

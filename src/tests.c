@@ -275,8 +275,8 @@ search:
                 }
 
                 // Get pv score
-                int index = pos->posKey % TT.count;
-                if (TT.table[index].posKey == pos->posKey)
+                int index = pos->key % TT.count;
+                if (TT.table[index].posKey == pos->key)
                     foundScore = TT.table[index].score;
 
                 // Translate score to mate depth

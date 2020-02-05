@@ -102,7 +102,7 @@ static void UpdatePosition(Position *pos) {
     int sq, piece, color;
 
     // Generate the position key
-    pos->posKey = GeneratePosKey(pos);
+    pos->key = GeneratePosKey(pos);
 
     // Loop through each square on the board
     for (sq = A1; sq <= H8; ++sq) {
@@ -171,7 +171,7 @@ static void ClearPosition(Position *pos) {
     pos->hisPly = 0;
 
     // Position key
-    pos->posKey = 0ULL;
+    pos->key = 0ULL;
 }
 
 // Parse FEN and set up the position as described
@@ -293,7 +293,7 @@ void PrintBoard(const Position *pos) {
            pos->castlePerm & WQCA ? 'Q' : '-',
            pos->castlePerm & BKCA ? 'k' : '-',
            pos->castlePerm & BQCA ? 'q' : '-');
-    printf("PosKey: %" PRIu64 "\n", pos->posKey);
+    printf("PosKey: %" PRIu64 "\n", pos->key);
     fflush(stdout);
 }
 #endif

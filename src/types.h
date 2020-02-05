@@ -138,7 +138,7 @@ typedef struct {
     int ply;
     int hisPly;
 
-    uint64_t posKey;
+    uint64_t key;
 
     History history[MAXGAMEMOVES];
 
