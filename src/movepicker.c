@@ -83,7 +83,7 @@ int NextMove(MovePicker *mp) {
 }
 
 // Init normal movepicker
-void InitNormalMP(MovePicker *mp, MoveList *list, const Position *pos, int ttMove) {
+void InitNormalMP(MovePicker *mp, MoveList *list, Position *pos, int ttMove) {
     list->count   = list->next = 0;
     mp->list      = list;
     mp->onlyNoisy = false;
@@ -93,7 +93,7 @@ void InitNormalMP(MovePicker *mp, MoveList *list, const Position *pos, int ttMov
 }
 
 // Init noisy movepicker
-void InitNoisyMP(MovePicker *mp, MoveList *list, const Position *pos) {
+void InitNoisyMP(MovePicker *mp, MoveList *list, Position *pos) {
     list->count   = list->next = 0;
     mp->list      = list;
     mp->onlyNoisy = true;
