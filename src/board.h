@@ -18,6 +18,7 @@ extern uint64_t SideKey;
 
 
 void ParseFen(const char *fen, Position *pos);
+Key KeyAfter(const Position *pos, int move);
 #ifndef NDEBUG
 void PrintBoard(const Position *pos);
 bool CheckBoard(const Position *pos);

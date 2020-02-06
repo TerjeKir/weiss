@@ -45,6 +45,12 @@ INLINE int ScoreFromTT (const int score, const int ply) {
                             : score;
 }
 
+INLINE TTEntry *GetEntry(Key posKey) {
+
+    // https://lemire.me/blog/2016/06/27/a-fast-alternative-to-the-modulo-reduction/
+    return &TT.table[((uint32_t)posKey * (uint64_t)TT.count) >> 32];
+}
+
 void ClearTT();
 void InitTT();
 TTEntry* ProbeTT(Key posKey, bool *ttHit);
