@@ -6,6 +6,7 @@
 
 #include "bitboards.h"
 #include "board.h"
+#include "move.h"
 #include "psqt.h"
 #include "validate.h"
 
@@ -259,6 +260,22 @@ void ParseFen(const char *fen, Position *pos) {
     UpdatePosition(pos);
 
     assert(CheckBoard(pos));
+}
+
+// Calculates the position key after a move. Fails
+// for special moves.
+Key KeyAfter(const Position *pos, const int move) {
+
+    int from = fromSq(move);
+    int to = toSq(move);
+    int pce = pieceOn(from);
+    int capt = capturing(move);
+    Key key = pos->key ^ SideKey;
+
+    if (capt)
+        key ^= PieceKeys[capt][to];
+
+    return key ^ PieceKeys[pce][from] ^ PieceKeys[pce][to];
 }
 
 #if defined DEV || !defined NDEBUG

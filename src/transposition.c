@@ -62,8 +62,7 @@ void InitTT() {
 // Probe the transposition table
 TTEntry* ProbeTT(const Key posKey, bool *ttHit) {
 
-    // https://lemire.me/blog/2016/06/27/a-fast-alternative-to-the-modulo-reduction/
-    TTEntry* tte = &TT.table[((uint32_t)posKey * (uint64_t)TT.count) >> 32];
+    TTEntry* tte = GetEntry(posKey);
 
     *ttHit = tte->posKey == posKey;
 

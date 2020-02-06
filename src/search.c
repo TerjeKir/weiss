@@ -367,6 +367,8 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
         if (!pvNode && !inCheck && quiet && depth <= 3 && quietCount > 4 * depth * depth / (1 + !improving))
             break;
 
+        __builtin_prefetch(GetEntry(KeyAfter(pos, move)));
+
         // Make the move, skipping to the next if illegal
         if (!MakeMove(pos, move)) continue;
 
