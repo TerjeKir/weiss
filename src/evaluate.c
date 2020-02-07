@@ -273,14 +273,8 @@ INLINE int EvalPieces(const EvalInfo ei, const Position *pos) {
 INLINE void InitEvalInfo(const Position *pos, EvalInfo *ei, const int color) {
 
     const int down  = (color == WHITE ? SOUTH : NORTH);
-    const int left  = (color == WHITE ? WEST  : EAST);
-    const int right = (color == WHITE ? EAST  : WEST);
 
-    Bitboard enemyPawnAttacks, b;
-
-    b = colorBB(!color) & pieceBB(PAWN);
-
-    enemyPawnAttacks = ShiftBB(down+left, b) | ShiftBB(down+right, b);
+    Bitboard b;
 
     b = RankBB[RelativeRank(color, RANK_2)] | ShiftBB(down, pieceBB(ALL));
 
@@ -288,7 +282,7 @@ INLINE void InitEvalInfo(const Position *pos, EvalInfo *ei, const int color) {
 
     // Mobility area is defined as any square not attacked by an enemy pawn,
     // nor occupied by our own pawn on its starting square or blocked from advancing.
-    ei->mobilityArea[color] = ~(b | enemyPawnAttacks);
+    ei->mobilityArea[color] = ~(b | PawnBBAttackBB(colorBB(!color) & pieceBB(PAWN), !color));
 }
 
 // Calculate a static evaluation of a position
