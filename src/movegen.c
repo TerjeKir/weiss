@@ -93,16 +93,12 @@ INLINE void GenCastling(const Position *pos, MoveList *list, const int color, co
         AddMove(pos, list, from, from-2, EMPTY, FLAG_CASTLE, QUIET);
 }
 
-// Returns a square behind (relative to color)
-// 7 : diagonally to the left
-// 8 : directly behind
-// 9 : diagonally to the right
-INLINE int RelativeBack(const int color, const int sq, const int diff) {
-    return color == WHITE ? sq - diff : sq + diff;
-}
-
 // Pawns are a mess
 INLINE void GenPawn(const Position *pos, MoveList *list, const int color, const int type) {
+
+    const int up    = (color == WHITE ? NORTH : SOUTH);
+    const int left  = (color == WHITE ? WEST  : EAST);
+    const int right = (color == WHITE ? EAST  : WEST);
 
     int sq;
 
@@ -116,67 +112,57 @@ INLINE void GenPawn(const Position *pos, MoveList *list, const int color, const 
     // Normal moves forward
     if (type == QUIET) {
 
-        Bitboard pawnMoves  = color == WHITE ? empty & not7th << 8
-                                             : empty & not7th >> 8;
-
-        Bitboard pawnStarts = color == WHITE ? empty & (pawnMoves & rank3BB) << 8
-                                             : empty & (pawnMoves & rank6BB) >> 8;
+        Bitboard pawnMoves  = empty & ShiftBB(up, not7th);
+        Bitboard pawnStarts = empty & ShiftBB(up, pawnMoves)
+                                    & RankBB[RelativeRank(color, RANK_4)];
 
         // Normal pawn moves
         while (pawnMoves) {
             sq = PopLsb(&pawnMoves);
-            AddMove(pos, list, RelativeBack(color, sq, 8), sq, EMPTY, FLAG_NONE, QUIET);
+            AddMove(pos, list, sq - up, sq, EMPTY, FLAG_NONE, QUIET);
         }
         // Pawn starts
         while (pawnStarts) {
             sq = PopLsb(&pawnStarts);
-            AddMove(pos, list, RelativeBack(color, sq, 16), sq, EMPTY, FLAG_PAWNSTART, QUIET);
+            AddMove(pos, list, sq - up * 2, sq, EMPTY, FLAG_PAWNSTART, QUIET);
         }
     }
 
     // Promotions
     if (on7th) {
 
-        Bitboard lPromoCap = color == WHITE ? ((on7th & ~fileABB) << 7) & enemies
-                                            : ((on7th & ~fileHBB) >> 7) & enemies;
-
-        Bitboard rPromoCap = color == WHITE ? ((on7th & ~fileHBB) << 9) & enemies
-                                            : ((on7th & ~fileABB) >> 9) & enemies;
-
-        Bitboard promotions = color == WHITE ? (on7th << 8) & empty
-                                             : (on7th >> 8) & empty;
+        Bitboard promotions = empty & ShiftBB(up, on7th);
+        Bitboard lPromoCap = enemies & ShiftBB(up+left, on7th);
+        Bitboard rPromoCap = enemies & ShiftBB(up+right, on7th);
 
         // Promoting captures
         while (lPromoCap) {
             sq = PopLsb(&lPromoCap);
-            AddSpecialPawn(pos, list, RelativeBack(color, sq, 7), sq, color, PROMO, type);
+            AddSpecialPawn(pos, list, sq - (up+left), sq, color, PROMO, type);
         }
         while (rPromoCap) {
             sq = PopLsb(&rPromoCap);
-            AddSpecialPawn(pos, list, RelativeBack(color, sq, 9), sq, color, PROMO, type);
+            AddSpecialPawn(pos, list, sq - (up+right), sq, color, PROMO, type);
         }
         // Promotions
         while (promotions) {
             sq = PopLsb(&promotions);
-            AddSpecialPawn(pos, list, RelativeBack(color, sq, 8), sq, color, PROMO, type);
+            AddSpecialPawn(pos, list, sq - up, sq, color, PROMO, type);
         }
     }
     // Captures
     if (type == NOISY) {
 
-        Bitboard lAttacks = color == WHITE ? ((not7th & ~fileABB) << 7) & enemies
-                                           : ((not7th & ~fileHBB) >> 7) & enemies;
-
-        Bitboard rAttacks = color == WHITE ? ((not7th & ~fileHBB) << 9) & enemies
-                                           : ((not7th & ~fileABB) >> 9) & enemies;
+        Bitboard lAttacks = enemies & ShiftBB(up+left, not7th);
+        Bitboard rAttacks = enemies & ShiftBB(up+right, not7th);
 
         while (lAttacks) {
             sq = PopLsb(&lAttacks);
-            AddMove(pos, list, RelativeBack(color, sq, 7), sq, EMPTY, FLAG_NONE, NOISY);
+            AddMove(pos, list, sq - (up+left), sq, EMPTY, FLAG_NONE, NOISY);
         }
         while (rAttacks) {
             sq = PopLsb(&rAttacks);
-            AddMove(pos, list, RelativeBack(color, sq, 9), sq, EMPTY, FLAG_NONE, NOISY);
+            AddMove(pos, list, sq - (up+right), sq, EMPTY, FLAG_NONE, NOISY);
         }
         // En passant
         if (pos->enPas != NO_SQ) {

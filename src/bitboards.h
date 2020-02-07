@@ -43,6 +43,21 @@ extern const Bitboard RankBB[8];
 
 // void PrintBB(const Bitboard bb);
 
+// Shifts a bitboard (protonspring version)
+// Doesn't work for shifting more than one step horizontally
+INLINE Bitboard ShiftBB(Direction dir, Bitboard bb) {
+
+    // Horizontal shifts should not wrap around
+    const int h = dir & 7;
+    bb = (h == 1) ? bb & ~fileHBB
+       : (h == 7) ? bb & ~fileABB
+                  : bb;
+
+    // Can only shift by positive numbers
+    return dir > 0 ? bb <<  dir
+                   : bb >> -dir;
+}
+
 // Population count/Hamming weight
 INLINE int PopCount(const Bitboard bb) {
 

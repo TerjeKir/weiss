@@ -272,15 +272,18 @@ INLINE int EvalPieces(const EvalInfo ei, const Position *pos) {
 // Initializes the eval info struct
 INLINE void InitEvalInfo(const Position *pos, EvalInfo *ei, const int color) {
 
+    const int down  = (color == WHITE ? SOUTH : NORTH);
+    const int left  = (color == WHITE ? WEST  : EAST);
+    const int right = (color == WHITE ? EAST  : WEST);
+
     Bitboard enemyPawnAttacks, b;
 
-    enemyPawnAttacks = color == WHITE ? ((colorBB(BLACK) & pieceBB(PAWN) & ~fileABB) >> 9)
-                                      | ((colorBB(BLACK) & pieceBB(PAWN) & ~fileHBB) >> 7)
-                                      : ((colorBB(WHITE) & pieceBB(PAWN) & ~fileABB) << 7)
-                                      | ((colorBB(WHITE) & pieceBB(PAWN) & ~fileHBB) << 9);
+    b = colorBB(!color) & pieceBB(PAWN);
 
-    b  = color == WHITE ? rank2BB | (pieceBB(ALL) >> 8)
-                        : rank7BB | (pieceBB(ALL) << 8);
+    enemyPawnAttacks = ShiftBB(down+left, b) | ShiftBB(down+right, b);
+
+    b = RankBB[RelativeRank(color, RANK_2)] | ShiftBB(down, pieceBB(ALL));
+
     b &= colorBB(color) & pieceBB(PAWN);
 
     // Mobility area is defined as any square not attacked by an enemy pawn,
