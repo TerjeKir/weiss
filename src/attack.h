@@ -106,12 +106,9 @@ INLINE Bitboard PawnAttackBB(int color, int sq) {
 
 INLINE Bitboard PawnBBAttackBB(Bitboard pawns, int color) {
 
-    const int up    = (color == WHITE ? NORTH : SOUTH);
-    const int left  = (color == WHITE ? WEST  : EAST);
-    const int right = (color == WHITE ? EAST  : WEST);
+    const int up = (color == WHITE ? NORTH : SOUTH);
 
-    return ShiftBB(up+left, pawns) | ShiftBB(up+right, pawns);
-
+    return ShiftBB(up+WEST, pawns) | ShiftBB(up+EAST, pawns);
 }
 
 bool SqAttacked(int sq, int side, const Position *pos);
