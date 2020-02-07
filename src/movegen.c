@@ -180,7 +180,7 @@ INLINE void GenPawn(const Position *pos, MoveList *list, const int color, const 
         }
         // En passant
         if (pos->enPas != NO_SQ) {
-            Bitboard enPassers = not7th & PawnAttacks[!color][pos->enPas];
+            Bitboard enPassers = not7th & PawnAttackBB(!color, pos->enPas);
             while (enPassers)
                 AddSpecialPawn(pos, list, PopLsb(&enPassers), pos->enPas, color, ENPAS, NOISY);
         }

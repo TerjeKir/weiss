@@ -98,4 +98,9 @@ INLINE Bitboard AttackBB(int piecetype, int sq, Bitboard occupied) {
     }
 }
 
+INLINE Bitboard PawnAttackBB(int color, int sq) {
+
+    return PawnAttacks[color][sq];
+}
+
 bool SqAttacked(int sq, int side, const Position *pos);
