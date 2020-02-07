@@ -104,7 +104,7 @@
  *       nothing.  Etc.
  * NOTE: This definition must not include en passant captures.
  */
-#define TB_PAWN_ATTACKS(square, color) PawnAttacks[color][square]
+#define TB_PAWN_ATTACKS(square, color) PawnAttackBB(color, square)
 
 /*
  * Define TB_KNIGHT_ATTACKS(square) to return the knight attacks bitboard for

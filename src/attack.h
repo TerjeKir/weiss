@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "bitboards.h"
 #include "types.h"
 
 #ifdef USE_PEXT
@@ -96,6 +97,18 @@ INLINE Bitboard AttackBB(int piecetype, int sq, Bitboard occupied) {
         case QUEEN : return RookAttackBB(sq, occupied) | BishopAttackBB(sq, occupied);
         default    : return PseudoAttacks[piecetype][sq];
     }
+}
+
+INLINE Bitboard PawnAttackBB(int color, int sq) {
+
+    return PawnAttacks[color][sq];
+}
+
+INLINE Bitboard PawnBBAttackBB(Bitboard pawns, int color) {
+
+    const int up = (color == WHITE ? NORTH : SOUTH);
+
+    return ShiftBB(up+WEST, pawns) | ShiftBB(up+EAST, pawns);
 }
 
 bool SqAttacked(int sq, int side, const Position *pos);

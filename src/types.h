@@ -78,6 +78,13 @@ typedef enum Square {
   A8, B8, C8, D8, E8, F8, G8, H8, NO_SQ = 99
 } Square;
 
+typedef enum Direction {
+    NORTH = 8,
+    EAST  = 1,
+    SOUTH = -NORTH,
+    WEST  = -EAST
+} Direction;
+
 enum CastlingRights { WKCA = 1, WQCA = 2, BKCA = 4, BQCA = 8 };
 
 /* Structs */

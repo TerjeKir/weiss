@@ -35,7 +35,7 @@ bool MoveIsPseudoLegal(const Position *pos, const int move) {
         case QUEEN : return SquareBB[to] & AttackBB(QUEEN,  from, pieceBB(ALL));
         case PAWN  : return (moveIsEnPas(move))   ? to == pos->enPas
                           : (moveIsPStart(move))  ? pieceOn(to ^ 8) == EMPTY
-                          : (moveIsCapture(move)) ? SquareBB[to] & PawnAttacks[color][from]
+                          : (moveIsCapture(move)) ? SquareBB[to] & PawnAttackBB(color, from)
                                                   : (to + 8 - 16 * color) == from;
         case KING  :
             if (moveIsCastle(move))
