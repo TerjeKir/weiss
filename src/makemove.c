@@ -166,11 +166,11 @@ void TakeMove(Position *pos) {
     assert(ValidSquare(to));
 
     // Add in pawn captured by en passant
-    if (FLAG_ENPAS & move)
+    if (moveIsEnPas(move))
         AddPiece(to ^ 8, pos, MakePiece(!sideToMove(), PAWN));
 
     // Move rook back if castling
-    else if (move & FLAG_CASTLE)
+    else if (moveIsCastle(move))
         switch (to) {
             case C1: MovePiece(D1, A1, pos); break;
             case C8: MovePiece(D8, A8, pos); break;
@@ -211,11 +211,11 @@ bool MakeMove(Position *pos, const int move) {
     const int to       = toSq(move);
     const int captured = capturing(move);
 
-    const int side = sideToMove();
+    const int color = sideToMove();
 
     assert(ValidSquare(from));
     assert(ValidSquare(to));
-    assert(ValidSide(side));
+    assert(ValidSide(color));
     assert(ValidPiece(pieceOn(from)));
     assert(0 <= pos->hisPly && pos->hisPly < MAXGAMEMOVES);
     assert(   0 <= pos->ply && pos->ply < MAXDEPTH);
@@ -252,7 +252,7 @@ bool MakeMove(Position *pos, const int move) {
     }
 
     // Move the rook during castling
-    if (move & FLAG_CASTLE)
+    if (moveIsCastle(move))
         switch (to) {
             case C1: MovePiece(A1, D1, pos); break;
             case C8: MovePiece(A8, D8, pos); break;
@@ -282,12 +282,12 @@ bool MakeMove(Position *pos, const int move) {
         int promo = promotion(move);
 
         // If the move is a pawnstart we set the en passant square and hash it in
-        if (move & FLAG_PAWNSTART) {
+        if (moveIsPStart(move)) {
             pos->enPas = to ^ 8;
             HASH_EP;
 
         // Remove pawn captured by en passant
-        } else if (move & FLAG_ENPAS)
+        } else if (moveIsEnPas(move))
             ClearPiece(to ^ 8, pos);
 
         // Replace promoting pawn with new piece
@@ -305,7 +305,7 @@ bool MakeMove(Position *pos, const int move) {
     assert(CheckBoard(pos));
 
     // If own king is attacked after the move, take it back immediately
-    if (SqAttacked(pos->pieceList[MakePiece(side, KING)][0], sideToMove(), pos)) {
+    if (SqAttacked(pos->pieceList[MakePiece(color, KING)][0], sideToMove(), pos)) {
         TakeMove(pos);
         return false;
     }
@@ -328,6 +328,8 @@ void MakeNullMove(Position *pos) {
     // Increase ply
     pos->ply++;
     pos->hisPly++;
+
+    pos->fiftyMove = 0;
 
     // Change side to play
     sideToMove() ^= 1;

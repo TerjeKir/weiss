@@ -387,7 +387,7 @@ bool CheckBoard(const Position *pos) {
 
     assert(pos->castlePerm >= 0 && pos->castlePerm <= 15);
 
-    assert(GeneratePosKey(pos) == pos->posKey);
+    assert(GeneratePosKey(pos) == pos->key);
 
     return true;
 }
