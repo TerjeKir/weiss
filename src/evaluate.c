@@ -272,11 +272,9 @@ INLINE int EvalPieces(const EvalInfo ei, const Position *pos) {
 // Initializes the eval info struct
 INLINE void InitEvalInfo(const Position *pos, EvalInfo *ei, const int color) {
 
-    const int down  = (color == WHITE ? SOUTH : NORTH);
+    const int down = (color == WHITE ? SOUTH : NORTH);
 
-    Bitboard b;
-
-    b = RankBB[RelativeRank(color, RANK_2)] | ShiftBB(down, pieceBB(ALL));
+    Bitboard b = RankBB[RelativeRank(color, RANK_2)] | ShiftBB(down, pieceBB(ALL));
 
     b &= colorBB(color) & pieceBB(PAWN);
 
