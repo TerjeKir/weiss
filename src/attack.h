@@ -22,8 +22,12 @@
 #include "types.h"
 
 #ifdef USE_PEXT
+// Uses the bmi2 pext instruction in place of magic bitboards
 #include "x86intrin.h"
+#define AttackIndex(sq, occ, table) (_pext_u64(occ, table[sq].mask))
 #else
+// Uses magic bitboards as explained on https://www.chessprogramming.org/Magic_Bitboards
+#define AttackIndex(sq, occ, table) (((occ & table[sq].mask) * table[sq].magic) >> table[sq].shift)
 static const uint64_t RookMagics[64] = {
     0xA180022080400230ull, 0x0040100040022000ull, 0x0080088020001002ull, 0x0080080280841000ull,
     0x4200042010460008ull, 0x04800A0003040080ull, 0x0400110082041008ull, 0x008000A041000880ull,
@@ -78,28 +82,17 @@ extern Magic RookTable[64];
 extern Bitboard PseudoAttacks[8][64];
 extern Bitboard PawnAttacks[2][64];
 
+
 // Returns the attack bitboard for a bishop based on what squares are occupied
 INLINE Bitboard BishopAttackBB(const int sq, Bitboard occupied) {
-#ifdef USE_PEXT
-    return BishopTable[sq].attacks[_pext_u64(occupied, BishopTable[sq].mask)];
-#else
-    occupied  &= BishopTable[sq].mask;
-    occupied  *= BishopTable[sq].magic;
-    occupied >>= BishopTable[sq].shift;
-    return BishopTable[sq].attacks[occupied];
-#endif
+
+    return BishopTable[sq].attacks[AttackIndex(sq, occupied, BishopTable)];
 }
 
 // Returns the attack bitboard for a rook based on what squares are occupied
 INLINE Bitboard RookAttackBB(const int sq, Bitboard occupied) {
-#ifdef USE_PEXT
-    return RookTable[sq].attacks[_pext_u64(occupied, RookTable[sq].mask)];
-#else
-    occupied  &= RookTable[sq].mask;
-    occupied  *= RookTable[sq].magic;
-    occupied >>= RookTable[sq].shift;
-    return RookTable[sq].attacks[occupied];
-#endif
+
+    return RookTable[sq].attacks[AttackIndex(sq, occupied, RookTable)];
 }
 
 // Returns the attack bitboard for a piece of piecetype on square sq
