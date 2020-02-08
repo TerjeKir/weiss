@@ -22,9 +22,11 @@
 #include "types.h"
 
 #ifdef USE_PEXT
+// Uses the bmi2 pext instruction in place of magic bitboards
 #include "x86intrin.h"
 #define AttackIndex(sq, occ, table) (_pext_u64(occ, table[sq].mask))
 #else
+// Uses magic bitboards as explained on https://www.chessprogramming.org/Magic_Bitboards
 #define AttackIndex(sq, occ, table) (((occ & table[sq].mask) * table[sq].magic) >> table[sq].shift)
 static const uint64_t RookMagics[64] = {
     0xA180022080400230ull, 0x0040100040022000ull, 0x0080088020001002ull, 0x0080080280841000ull,
