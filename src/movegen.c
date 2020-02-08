@@ -27,9 +27,9 @@
 
 
 enum { QUIET, NOISY };
-enum { ENPAS, PROMO };
 
 static int MvvLvaScores[PIECE_NB][PIECE_NB];
+
 
 // Initializes the MostValuableVictim-LeastValuableAttacker scores used for ordering captures
 CONSTR InitMvvLva() {
@@ -67,20 +67,20 @@ INLINE void AddMove(const Position *pos, MoveList *list, const int from, const i
 
     list->moves[list->count++].move = move;
 }
-INLINE void AddSpecialPawn(const Position *pos, MoveList *list, const int from, const int to, const int color, const int movetype, const int type) {
+
+// Adds promotions and en passant pawn moves
+INLINE void AddSpecialPawn(const Position *pos, MoveList *list, const int from, const int to, const int color, const int flag, const int type) {
 
     assert(ValidSquare(from));
     assert(ValidSquare(to));
 
-    if (movetype == ENPAS) {
-        int move = MOVE(from, to, EMPTY, EMPTY, FLAG_ENPAS);
-        list->moves[list->count].move = move;
-        list->moves[list->count].score = 105;
-        list->count++;
+    if (flag == FLAG_ENPAS) {
+        list->moves[list->count].move = MOVE(from, to, EMPTY, EMPTY, FLAG_ENPAS);
+        list->moves[list->count++].score = 105;
     }
-    if (movetype == PROMO) {
+    if (!flag) {
         if (type == NOISY)
-            AddMove(pos, list, from, to, MakePiece(color, QUEEN ), FLAG_NONE, NOISY);
+            AddMove(pos, list, from, to, MakePiece(color, QUEEN), FLAG_NONE, NOISY);
         if (type == QUIET) {
             AddMove(pos, list, from, to, MakePiece(color, KNIGHT), FLAG_NONE, NOISY);
             AddMove(pos, list, from, to, MakePiece(color, ROOK  ), FLAG_NONE, NOISY);
@@ -116,8 +116,6 @@ INLINE void GenPawn(const Position *pos, MoveList *list, const int color, const 
     const int left  = (color == WHITE ? WEST  : EAST);
     const int right = (color == WHITE ? EAST  : WEST);
 
-    int sq;
-
     const Bitboard empty   = ~pieceBB(ALL);
     const Bitboard enemies =  colorBB(!color);
     const Bitboard pawns   =  colorBB( color) & pieceBB(PAWN);
@@ -134,13 +132,13 @@ INLINE void GenPawn(const Position *pos, MoveList *list, const int color, const 
 
         // Normal pawn moves
         while (pawnMoves) {
-            sq = PopLsb(&pawnMoves);
-            AddMove(pos, list, sq - up, sq, EMPTY, FLAG_NONE, QUIET);
+            int to = PopLsb(&pawnMoves);
+            AddMove(pos, list, to - up, to, EMPTY, FLAG_NONE, QUIET);
         }
         // Pawn starts
         while (pawnStarts) {
-            sq = PopLsb(&pawnStarts);
-            AddMove(pos, list, sq - up * 2, sq, EMPTY, FLAG_PAWNSTART, QUIET);
+            int to = PopLsb(&pawnStarts);
+            AddMove(pos, list, to - up * 2, to, EMPTY, FLAG_PAWNSTART, QUIET);
         }
     }
 
@@ -153,17 +151,17 @@ INLINE void GenPawn(const Position *pos, MoveList *list, const int color, const 
 
         // Promoting captures
         while (lPromoCap) {
-            sq = PopLsb(&lPromoCap);
-            AddSpecialPawn(pos, list, sq - (up+left), sq, color, PROMO, type);
+            int to = PopLsb(&lPromoCap);
+            AddSpecialPawn(pos, list, to - (up+left), to, color, FLAG_NONE, type);
         }
         while (rPromoCap) {
-            sq = PopLsb(&rPromoCap);
-            AddSpecialPawn(pos, list, sq - (up+right), sq, color, PROMO, type);
+            int to = PopLsb(&rPromoCap);
+            AddSpecialPawn(pos, list, to - (up+right), to, color, FLAG_NONE, type);
         }
         // Promotions
         while (promotions) {
-            sq = PopLsb(&promotions);
-            AddSpecialPawn(pos, list, sq - up, sq, color, PROMO, type);
+            int to = PopLsb(&promotions);
+            AddSpecialPawn(pos, list, to - up, to, color, FLAG_NONE, type);
         }
     }
     // Captures
@@ -173,27 +171,24 @@ INLINE void GenPawn(const Position *pos, MoveList *list, const int color, const 
         Bitboard rAttacks = enemies & ShiftBB(up+right, not7th);
 
         while (lAttacks) {
-            sq = PopLsb(&lAttacks);
-            AddMove(pos, list, sq - (up+left), sq, EMPTY, FLAG_NONE, NOISY);
+            int to = PopLsb(&lAttacks);
+            AddMove(pos, list, to - (up+left), to, EMPTY, FLAG_NONE, NOISY);
         }
         while (rAttacks) {
-            sq = PopLsb(&rAttacks);
-            AddMove(pos, list, sq - (up+right), sq, EMPTY, FLAG_NONE, NOISY);
+            int to = PopLsb(&rAttacks);
+            AddMove(pos, list, to - (up+right), to, EMPTY, FLAG_NONE, NOISY);
         }
         // En passant
         if (pos->enPas != NO_SQ) {
             Bitboard enPassers = not7th & PawnAttackBB(!color, pos->enPas);
             while (enPassers)
-                AddSpecialPawn(pos, list, PopLsb(&enPassers), pos->enPas, color, ENPAS, NOISY);
+                AddSpecialPawn(pos, list, PopLsb(&enPassers), pos->enPas, color, FLAG_ENPAS, NOISY);
         }
     }
 }
 
-// Knight, bishop, rook and queen
+// Knight, bishop, rook, queen and king except castling
 INLINE void GenPieceType(const Position *pos, MoveList *list, const int color, const int type, const int pt) {
-
-    int sq;
-    Bitboard moves;
 
     const Bitboard occupied = pieceBB(ALL);
     const Bitboard enemies  = colorBB(!color);
@@ -203,12 +198,12 @@ INLINE void GenPieceType(const Position *pos, MoveList *list, const int color, c
 
     while (pieces) {
 
-        sq = PopLsb(&pieces);
+        int from = PopLsb(&pieces);
 
-        moves = targets & AttackBB(pt, sq, occupied);
+        Bitboard moves = targets & AttackBB(pt, from, occupied);
 
         while (moves)
-            AddMove(pos, list, sq, PopLsb(&moves), EMPTY, 0, type);
+            AddMove(pos, list, from, PopLsb(&moves), EMPTY, 0, type);
     }
 }
 
