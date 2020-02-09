@@ -16,8 +16,6 @@
   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include <stdio.h>
-#include <string.h>
 
 #include "bitboards.h"
 
@@ -39,6 +37,7 @@ CONSTR InitBitMasks() {
 
 // Unused, here for occasional print debugging
 // Prints a bitboard
+// #include <stdio.h>
 // void PrintBB(const Bitboard bb) {
 
 //     Bitboard bitmask = 1;
