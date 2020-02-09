@@ -17,7 +17,6 @@
 */
 
 #include <stdlib.h>
-#include <string.h>
 
 #include "attack.h"
 #include "bitboards.h"
