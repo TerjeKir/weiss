@@ -26,6 +26,7 @@
 #include "psqt.h"
 #include "validate.h"
 
+
 uint8_t SqDistance[64][64];
 
 //                                EMPTY,    bP,    bN,    bB,    bR,    bQ,    bK, EMPTY, EMPTY,    wP,    wN,    wB,    wR,    wQ,    wK, EMPTY
@@ -50,6 +51,7 @@ CONSTR InitDistance() {
         }
 }
 
+// Pseudo-random number generator
 static uint64_t Rand64() {
 
     // http://vigna.di.unimi.it/ftp/papers/xorshift.pdf
@@ -115,6 +117,28 @@ static Key GeneratePosKey(const Position *pos) {
     return posKey;
 }
 
+// Calculates the position key after a move. Fails
+// for special moves.
+Key KeyAfter(const Position *pos, const int move) {
+
+    int from = fromSq(move);
+    int to = toSq(move);
+    int pce = pieceOn(from);
+    int capt = capturing(move);
+    Key key = pos->key ^ SideKey;
+
+    if (capt)
+        key ^= PieceKeys[capt][to];
+
+    return key ^ PieceKeys[pce][from] ^ PieceKeys[pce][to];
+}
+
+// Clears the board
+static void ClearPosition(Position *pos) {
+
+    memset(pos, EMPTY, sizeof(Position));
+}
+
 // Update the rest of a position to match pos->board
 static void UpdatePosition(Position *pos) {
 
@@ -157,12 +181,6 @@ static void UpdatePosition(Position *pos) {
     pos->phase = (pos->basePhase * 256 + 12) / 24;
 
     assert(CheckBoard(pos));
-}
-
-// Clears the board
-static void ClearPosition(Position *pos) {
-
-    memset(pos, EMPTY, sizeof(Position));
 }
 
 // Parse FEN and set up the position as described
@@ -251,22 +269,6 @@ void ParseFen(const char *fen, Position *pos) {
     UpdatePosition(pos);
 
     assert(CheckBoard(pos));
-}
-
-// Calculates the position key after a move. Fails
-// for special moves.
-Key KeyAfter(const Position *pos, const int move) {
-
-    int from = fromSq(move);
-    int to = toSq(move);
-    int pce = pieceOn(from);
-    int capt = capturing(move);
-    Key key = pos->key ^ SideKey;
-
-    if (capt)
-        key ^= PieceKeys[capt][to];
-
-    return key ^ PieceKeys[pce][from] ^ PieceKeys[pce][to];
 }
 
 #if defined DEV || !defined NDEBUG
