@@ -161,8 +161,6 @@ static void UpdatePosition(Position *pos) {
 static void ClearPosition(Position *pos) {
 
     memset(pos, EMPTY, sizeof(Position));
-
-    pos->enPas = NO_SQ;
 }
 
 // Parse FEN and set up the position as described
@@ -216,7 +214,6 @@ void ParseFen(const char *fen, Position *pos) {
     fen++;
 
     // Side to move
-    assert(*fen == 'w' || *fen == 'b');
     sideToMove() = (*fen == 'w') ? WHITE : BLACK;
     fen += 2;
 
@@ -235,7 +232,9 @@ void ParseFen(const char *fen, Position *pos) {
     fen++;
 
     // En passant square
-    if (*fen != '-') {
+    if (*fen == '-')
+        pos->enPas = NO_SQ;
+    else {
         int file = fen[0] - 'a';
         int rank = fen[1] - '1';
 
