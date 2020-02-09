@@ -88,6 +88,8 @@ CONSTR InitHashKeys() {
         CastleKeys[i] = Rand64();
 }
 
+// Generates a hash key for the position. During
+// a search this is incrementally updated instead.
 static Key GeneratePosKey(const Position *pos) {
 
     Key posKey = 0;
