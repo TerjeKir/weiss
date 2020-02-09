@@ -160,35 +160,10 @@ static void UpdatePosition(Position *pos) {
 // Clears the board
 static void ClearPosition(Position *pos) {
 
-    // Array representation
-    memset(pos->board, EMPTY, sizeof(pos->board));
+    memset(pos, EMPTY, sizeof(Position));
 
-    // Bitboard representations
-    memset(pos->colorBB, 0ULL, sizeof(pos->colorBB));
-    memset(pos->pieceBB, 0ULL, sizeof(pos->pieceBB));
-
-    // Piece list
-    memset(pos->pieceCounts, 0, sizeof(pos->pieceCounts));
-    memset(pos->pieceList,   0, sizeof(pos->pieceList));
-    memset(pos->index,       0, sizeof(pos->index));
-
-    // Big piece counts
-    pos->nonPawns[BLACK] = pos->nonPawns[WHITE] = 0;
-
-    // Misc
-    pos->material   = 0;
     pos->basePhase  = 24;
-    pos->side       = -1;
     pos->enPas      = NO_SQ;
-    pos->fiftyMove  = 0;
-    pos->castlePerm = 0;
-
-    // Ply
-    pos->ply = 0;
-    pos->hisPly = 0;
-
-    // Position key
-    pos->key = 0ULL;
 }
 
 // Parse FEN and set up the position as described
