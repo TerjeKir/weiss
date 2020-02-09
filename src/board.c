@@ -144,7 +144,7 @@ static void UpdatePosition(Position *pos) {
             pos->material += PSQT[piece][sq];
 
             // Phase
-            pos->basePhase -= PhaseValue[piece];
+            pos->basePhase += PhaseValue[piece];
 
             // Piece list
             pos->index[sq] = pos->pieceCounts[piece]++;
@@ -162,8 +162,7 @@ static void ClearPosition(Position *pos) {
 
     memset(pos, EMPTY, sizeof(Position));
 
-    pos->basePhase  = 24;
-    pos->enPas      = NO_SQ;
+    pos->enPas = NO_SQ;
 }
 
 // Parse FEN and set up the position as described
