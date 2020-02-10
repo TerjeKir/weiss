@@ -64,7 +64,7 @@
 
 
 // Checks legality of a specific castle move given the current position
-INLINE bool CastlePseudoLegal(const Position *pos, Bitboard between, int type, int sq1, int sq2, int color) {
+INLINE bool CastlePseudoLegal(const Position *pos, Bitboard between, int type, Square sq1, Square sq2, int color) {
 
     return (pos->castlePerm & type)
         && !(pieceBB(ALL) & between)

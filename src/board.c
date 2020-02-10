@@ -43,8 +43,8 @@ uint64_t SideKey;
 // Initialize distance lookup table
 CONSTR InitDistance() {
 
-    for (int sq1 = A1; sq1 <= H8; ++sq1)
-        for (int sq2 = A1; sq2 <= H8; ++sq2) {
+    for (Square sq1 = A1; sq1 <= H8; ++sq1)
+        for (Square sq2 = A1; sq2 <= H8; ++sq2) {
             int vertical   = abs(RankOf(sq1) - RankOf(sq2));
             int horizontal = abs(FileOf(sq1) - FileOf(sq2));
             SqDistance[sq1][sq2] = MAX(vertical, horizontal);
@@ -72,17 +72,17 @@ CONSTR InitHashKeys() {
     SideKey = Rand64();
 
     // En passant
-    for (int sq = A1; sq <= H8; ++sq)
+    for (Square sq = A1; sq <= H8; ++sq)
         PieceKeys[0][sq] = Rand64();
 
     // White pieces
     for (int piece = wP; piece <= wK; ++piece)
-        for (int sq = A1; sq <= H8; ++sq)
+        for (Square sq = A1; sq <= H8; ++sq)
             PieceKeys[piece][sq] = Rand64();
 
     // Black pieces
     for (int piece = bP; piece <= bK; ++piece)
-        for (int sq = A1; sq <= H8; ++sq)
+        for (Square sq = A1; sq <= H8; ++sq)
             PieceKeys[piece][sq] = Rand64();
 
     // Castling rights
@@ -97,7 +97,7 @@ static Key GeneratePosKey(const Position *pos) {
     Key posKey = 0;
 
     // Pieces
-    for (int sq = A1; sq <= H8; ++sq) {
+    for (Square sq = A1; sq <= H8; ++sq) {
         int piece = pieceOn(sq);
         if (piece != EMPTY)
             posKey ^= PieceKeys[piece][sq];
@@ -121,8 +121,8 @@ static Key GeneratePosKey(const Position *pos) {
 // for special moves.
 Key KeyAfter(const Position *pos, const int move) {
 
-    int from = fromSq(move);
-    int to = toSq(move);
+    Square from = fromSq(move);
+    Square to = toSq(move);
     int pce = pieceOn(from);
     int capt = capturing(move);
     Key key = pos->key ^ SideKey;
@@ -142,20 +142,18 @@ static void ClearPosition(Position *pos) {
 // Update the rest of a position to match pos->board
 static void UpdatePosition(Position *pos) {
 
-    int sq, piece, color;
-
     // Generate the position key
     pos->key = GeneratePosKey(pos);
 
     // Loop through each square on the board
-    for (sq = A1; sq <= H8; ++sq) {
+    for (Square sq = A1; sq <= H8; ++sq) {
 
-        piece = pieceOn(sq);
+        int piece = pieceOn(sq);
 
         // If it isn't empty we update the relevant lists
         if (piece != EMPTY) {
 
-            color = ColorOf(piece);
+            int color = ColorOf(piece);
 
             // Bitboards
             SETBIT(pieceBB(ALL), sq);
@@ -192,7 +190,7 @@ void ParseFen(const char *fen, Position *pos) {
 
     int piece;
     int count = 0;
-    int sq = A8;
+    Square sq = A8;
 
     // Piece locations
     while (*fen != ' ') {
@@ -277,14 +275,14 @@ void PrintBoard(const Position *pos) {
 
     const char PceChar[]  = ".pnbrqk..PNBRQK";
     const char SideChar[] = "bw-";
-    int sq, file, rank, piece;
+    int file, rank, piece;
 
     printf("\nGame Board:\n\n");
 
     for (rank = RANK_8; rank >= RANK_1; --rank) {
         printf("%d  ", rank + 1);
         for (file = FILE_A; file <= FILE_H; ++file) {
-            sq = (rank * 8) + file;
+            Square sq = (rank * 8) + file;
             piece = pieceOn(sq);
             printf("%3c", PceChar[piece]);
         }
@@ -318,7 +316,7 @@ bool CheckBoard(const Position *pos) {
     int t_pieceCounts[PIECE_NB] = { 0 };
     int t_bigPieces[2] = { 0, 0 };
 
-    int sq, t_piece, t_pce_num, color;
+    int t_piece, t_pce_num, color;
 
     // Bitboards
     assert(PopCount(pieceBB(KING)) == 2);
@@ -354,12 +352,12 @@ bool CheckBoard(const Position *pos) {
     // check piece lists
     for (t_piece = PIECE_MIN; t_piece < PIECE_NB; ++t_piece)
         for (t_pce_num = 0; t_pce_num < pos->pieceCounts[t_piece]; ++t_pce_num) {
-            sq = pos->pieceList[t_piece][t_pce_num];
+            Square sq = pos->pieceList[t_piece][t_pce_num];
             assert(pieceOn(sq) == t_piece);
         }
 
     // check piece count and other counters
-    for (sq = A1; sq <= H8; ++sq) {
+    for (Square sq = A1; sq <= H8; ++sq) {
 
         t_piece = pieceOn(sq);
         t_pieceCounts[t_piece]++;

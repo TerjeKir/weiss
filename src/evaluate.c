@@ -69,16 +69,14 @@ static const int QueenMobility[28] = {
 // Initialize evaluation bit masks
 CONSTR InitEvalMasks() {
 
-    int sq, tsq;
-
     // For each square a pawn can be on
-    for (sq = A2; sq <= H7; ++sq) {
+    for (Square sq = A2; sq <= H7; ++sq) {
 
         // In front
-        for (tsq = sq + 8; tsq <= H8; tsq += 8)
+        for (Square tsq = sq + 8; tsq <= H8; tsq += 8)
             PassedMask[WHITE][sq] |= (1ULL << tsq);
 
-        for (tsq = sq - 8; tsq >= A1; tsq -= 8)
+        for (Square tsq = sq - 8; tsq <= H8; tsq -= 8)
             PassedMask[BLACK][sq] |= (1ULL << tsq);
 
         // Left side
@@ -86,10 +84,10 @@ CONSTR InitEvalMasks() {
 
             IsolatedMask[sq] |= FileBB[FileOf(sq) - 1];
 
-            for (tsq = sq + 7; tsq <= H8; tsq += 8)
+            for (Square tsq = sq + 7; tsq <= H8; tsq += 8)
                 PassedMask[WHITE][sq] |= (1ULL << tsq);
 
-            for (tsq = sq - 9; tsq >= A1; tsq -= 8)
+            for (Square tsq = sq - 9; tsq <= H8; tsq -= 8)
                 PassedMask[BLACK][sq] |= (1ULL << tsq);
         }
 
@@ -98,10 +96,10 @@ CONSTR InitEvalMasks() {
 
             IsolatedMask[sq] |= FileBB[FileOf(sq) + 1];
 
-            for (tsq = sq + 9; tsq <= H8; tsq += 8)
+            for (Square tsq = sq + 9; tsq <= H8; tsq += 8)
                 PassedMask[WHITE][sq] |= (1ULL << tsq);
 
-            for (tsq = sq - 7; tsq >= A1; tsq -= 8)
+            for (Square tsq = sq - 7; tsq <= H8; tsq -= 8)
                 PassedMask[BLACK][sq] |= (1ULL << tsq);
         }
     }
@@ -163,7 +161,7 @@ INLINE int EvalPawns(const Position *pos, const int color) {
     int pawns = MakePiece(color, PAWN);
 
     for (int i = 0; i < pos->pieceCounts[pawns]; ++i) {
-        int sq = pos->pieceList[pawns][i];
+        Square sq = pos->pieceList[pawns][i];
 
         // Isolation penalty
         if (!(IsolatedMask[sq] & colorBB(color) & pieceBB(PAWN)))
@@ -183,7 +181,7 @@ INLINE int EvalKnights(const EvalInfo *ei, const Position *pos, const int color)
     int knights = MakePiece(color, KNIGHT);
 
     for (int i = 0; i < pos->pieceCounts[knights]; ++i) {
-        int sq = pos->pieceList[knights][i];
+        Square sq = pos->pieceList[knights][i];
 
         // Mobility
         eval += KnightMobility[PopCount(AttackBB(KNIGHT, sq, pieceBB(ALL)) & ei->mobilityArea[color])];
@@ -199,7 +197,7 @@ INLINE int EvalBishops(const EvalInfo *ei, const Position *pos, const int color)
     int bishops = MakePiece(color, BISHOP);
 
     for (int i = 0; i < pos->pieceCounts[bishops]; ++i) {
-        int sq = pos->pieceList[bishops][i];
+        Square sq = pos->pieceList[bishops][i];
 
         // Mobility
         eval += BishopMobility[PopCount(AttackBB(BISHOP, sq, pieceBB(ALL)) & ei->mobilityArea[color])];
@@ -219,7 +217,7 @@ INLINE int EvalRooks(const EvalInfo *ei, const Position *pos, const int color) {
     int rooks = MakePiece(color, ROOK);
 
     for (int i = 0; i < pos->pieceCounts[rooks]; ++i) {
-        int sq = pos->pieceList[rooks][i];
+        Square sq = pos->pieceList[rooks][i];
 
         // Open/Semi-open file bonus
         if (!(pieceBB(PAWN) & FileBB[FileOf(sq)]))
@@ -241,7 +239,7 @@ INLINE int EvalQueens(const EvalInfo *ei, const Position *pos, const int color) 
     int queens = MakePiece(color, QUEEN);
 
     for (int i = 0; i < pos->pieceCounts[queens]; ++i) {
-        int sq = pos->pieceList[queens][i];
+        Square sq = pos->pieceList[queens][i];
 
         // Open/Semi-open file bonus
         if (!(pieceBB(PAWN) & FileBB[FileOf(sq)]))

@@ -84,19 +84,19 @@ extern Bitboard PawnAttacks[2][64];
 
 
 // Returns the attack bitboard for a bishop based on what squares are occupied
-INLINE Bitboard BishopAttackBB(const int sq, Bitboard occupied) {
+INLINE Bitboard BishopAttackBB(const Square sq, Bitboard occupied) {
 
     return BishopTable[sq].attacks[AttackIndex(sq, occupied, BishopTable)];
 }
 
 // Returns the attack bitboard for a rook based on what squares are occupied
-INLINE Bitboard RookAttackBB(const int sq, Bitboard occupied) {
+INLINE Bitboard RookAttackBB(const Square sq, Bitboard occupied) {
 
     return RookTable[sq].attacks[AttackIndex(sq, occupied, RookTable)];
 }
 
 // Returns the attack bitboard for a piece of piecetype on square sq
-INLINE Bitboard AttackBB(int piecetype, int sq, Bitboard occupied) {
+INLINE Bitboard AttackBB(int piecetype, Square sq, Bitboard occupied) {
 
     assert(piecetype != PAWN);
 
@@ -108,7 +108,7 @@ INLINE Bitboard AttackBB(int piecetype, int sq, Bitboard occupied) {
     }
 }
 
-INLINE Bitboard PawnAttackBB(int color, int sq) {
+INLINE Bitboard PawnAttackBB(int color, Square sq) {
 
     return PawnAttacks[color][sq];
 }
@@ -120,4 +120,4 @@ INLINE Bitboard PawnBBAttackBB(Bitboard pawns, int color) {
     return ShiftBB(up+WEST, pawns) | ShiftBB(up+EAST, pawns);
 }
 
-bool SqAttacked(int sq, int side, const Position *pos);
+bool SqAttacked(Square sq, int side, const Position *pos);

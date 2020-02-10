@@ -30,7 +30,7 @@ Bitboard SquareBB[64];
 
 CONSTR InitBitMasks() {
 
-    for (int sq = A1; sq <= H8; ++sq)
+    for (Square sq = A1; sq <= H8; ++sq)
         SquareBB[sq] = (1ULL << sq);
 }
 

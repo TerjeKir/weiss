@@ -30,7 +30,7 @@
 #define HASH_EP             (pos->key ^= (PieceKeys[EMPTY][(pos->enPas)]))
 
 
-static const int CastlePerm[64] = {
+static const uint8_t CastlePerm[64] = {
     13, 15, 15, 15, 12, 15, 15, 14,
     15, 15, 15, 15, 15, 15, 15, 15,
     15, 15, 15, 15, 15, 15, 15, 15,
@@ -43,7 +43,7 @@ static const int CastlePerm[64] = {
 
 
 // Remove a piece from a square sq
-static void ClearPiece(Position *pos, const int sq) {
+static void ClearPiece(Position *pos, const Square sq) {
 
     assert(ValidSquare(sq));
 
@@ -83,7 +83,7 @@ static void ClearPiece(Position *pos, const int sq) {
 }
 
 // Add a piece piece to a square
-static void AddPiece(Position *pos, const int sq, const int piece) {
+static void AddPiece(Position *pos, const Square sq, const int piece) {
 
     assert(ValidPiece(piece));
     assert(ValidSquare(sq));
@@ -118,7 +118,7 @@ static void AddPiece(Position *pos, const int sq, const int piece) {
 }
 
 // Move a piece from one square to another
-static void MovePiece(Position *pos, const int from, const int to) {
+static void MovePiece(Position *pos, const Square from, const Square to) {
 
     assert(ValidSquare(from));
     assert(ValidSquare(to));
@@ -175,8 +175,8 @@ void TakeMove(Position *pos) {
 
     // Get the move from history
     const int move = history(0).move;
-    const int from = fromSq(move);
-    const int   to =   toSq(move);
+    const Square from = fromSq(move);
+    const Square to = toSq(move);
 
     assert(ValidSquare(from));
     assert(ValidSquare(to));
@@ -223,8 +223,8 @@ bool MakeMove(Position *pos, const int move) {
 
     assert(CheckBoard(pos));
 
-    const int from     = fromSq(move);
-    const int to       = toSq(move);
+    const Square from  = fromSq(move);
+    const Square to    = toSq(move);
     const int captured = capturing(move);
 
     const int color = sideToMove();
@@ -308,7 +308,7 @@ bool MakeMove(Position *pos, const int move) {
 
         // Replace promoting pawn with new piece
         else if (promo != EMPTY) {
-            assert(ValidPiece(promo) && !PiecePawn[promo]);
+            assert(ValidPiece(promo) && NonPawn[promo]);
             ClearPiece(pos, to);
             AddPiece(pos, to, promo);
         }
