@@ -48,14 +48,14 @@ extern TranspositionTable TT;
 
 
 // Mate scores are stored as mate in 0 as they depend on the current ply
-INLINE int ScoreToTT (const int score, const int ply) {
+INLINE int ScoreToTT (const int score, const uint8_t ply) {
     return score >=  ISMATE ? score + ply
          : score <= -ISMATE ? score - ply
                             : score;
 }
 
 // Translates from mate in 0 to the proper mate score at current ply
-INLINE int ScoreFromTT (const int score, const int ply) {
+INLINE int ScoreFromTT (const int score, const uint8_t ply) {
     return score >=  ISMATE ? score - ply
          : score <= -ISMATE ? score + ply
                             : score;

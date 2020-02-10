@@ -394,7 +394,8 @@ void MirrorBoard(Position *pos) {
 
     int SwapPiece[PIECE_NB] = {EMPTY, wP, wN, wB, wR, wQ, wK, EMPTY, EMPTY, bP, bN, bB, bR, bQ, bK, EMPTY};
     int tempPiecesArray[64];
-    int tempEnPas, tempCastlePerm, tempSide, sq;
+    int tempSide, sq;
+    uint8_t tempEnPas, tempCastlePerm;
 
     // Save the necessary position info mirrored
     for (sq = A1; sq <= H8; ++sq)

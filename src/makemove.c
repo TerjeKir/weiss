@@ -71,7 +71,7 @@ static void ClearPiece(const int sq, Position *pos) {
         pos->nonPawns[color]--;
 
     // Update piece list
-    int lastSquare = pos->pieceList[piece][--pos->pieceCounts[piece]];
+    uint8_t lastSquare = pos->pieceList[piece][--pos->pieceCounts[piece]];
     pos->index[lastSquare] = pos->index[sq];
     pos->pieceList[piece][pos->index[lastSquare]] = lastSquare;
     // pos->pieceList[piece][pos->pieceCounts[piece]] = NO_SQ;
@@ -109,7 +109,7 @@ static void AddPiece(const int sq, Position *pos, const int piece) {
         pos->nonPawns[color]++;
 
     pos->index[sq] = pos->pieceCounts[piece]++;
-    pos->pieceList[piece][pos->index[sq]] = sq;
+    pos->pieceList[piece][pos->index[sq]] = (uint8_t)sq;
 
     // Update bitboards
     SETBIT(pieceBB(ALL), sq);
@@ -237,11 +237,11 @@ bool MakeMove(Position *pos, const int move) {
     assert(   0 <= pos->ply && pos->ply < MAXDEPTH);
 
     // Save position
+    history(0).posKey     = pos->key;
     history(0).move       = move;
     history(0).enPas      = pos->enPas;
     history(0).fiftyMove  = pos->fiftyMove;
     history(0).castlePerm = pos->castlePerm;
-    history(0).posKey     = pos->key;
 
     // Increment hisPly, ply and 50mr
     pos->hisPly++;
@@ -335,11 +335,11 @@ void MakeNullMove(Position *pos) {
     assert(CheckBoard(pos));
 
     // Save misc info for takeback
+    history(0).posKey     = pos->key;
     history(0).move       = NOMOVE;
     history(0).enPas      = pos->enPas;
     history(0).fiftyMove  = pos->fiftyMove;
     history(0).castlePerm = pos->castlePerm;
-    history(0).posKey     = pos->key;
 
     // Increase ply
     pos->ply++;
