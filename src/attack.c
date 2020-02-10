@@ -85,7 +85,7 @@ static void InitNonSliderAttacks() {
 
 // Initializes rook or bishop attack lookups
 #ifdef USE_PEXT
-static void InitSliderAttacks(Magic *m, Bitboard *table, const int *dir) {
+static void InitSliderAttacks(Magic *m, Bitboard *table, const int *steps) {
 #else
 static void InitSliderAttacks(Magic *m, Bitboard *table, const uint64_t *magics, const int *steps) {
 #endif
