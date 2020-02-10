@@ -29,7 +29,7 @@
 
 
 // Checks whether a move is pseudo-legal (assuming it is pseudo-legal in some position)
-bool MoveIsPseudoLegal(const Position *pos, const int move) {
+bool MoveIsPseudoLegal(const Position *pos, const Move move) {
 
     if (!move) return false;
 
@@ -67,7 +67,7 @@ bool MoveIsPseudoLegal(const Position *pos, const int move) {
 }
 
 // Translates a move to a string
-char *MoveToStr(const int move) {
+char *MoveToStr(const Move move) {
 
     static char moveStr[6];
 
@@ -156,7 +156,7 @@ int ParseEPDMove(const char *ptrChar, const Position *pos) {
 
     for (unsigned int moveNum = 0; moveNum < list->count; ++moveNum) {
 
-        int move = list->moves[moveNum].move;
+        Move move = list->moves[moveNum].move;
 
         if ( fromSq(move) == from
             && toSq(move) == to

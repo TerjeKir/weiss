@@ -50,7 +50,7 @@ INLINE void AddMove(const Position *pos, MoveList *list, const Square from, cons
 
     int *moveScore = &list->moves[list->count].score;
 
-    const int move = MOVE(from, to, pieceOn(to), promo, flag);
+    const Move move = MOVE(from, to, pieceOn(to), promo, flag);
 
     // Add scores to help move ordering based on search history heuristics / mvvlva
     if (type == NOISY)

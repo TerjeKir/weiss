@@ -119,7 +119,7 @@ void Perft(char *line) {
 
     for (unsigned int MoveNum = 0; MoveNum < list->count; ++MoveNum) {
 
-        int move = list->moves[MoveNum].move;
+        Move move = list->moves[MoveNum].move;
 
         if (!MakeMove(pos, move)){
             printf("move %d : %s : Illegal\n", MoveNum + 1, MoveToStr(move));

@@ -97,7 +97,7 @@ static void UCIPosition(const char *line, Position *pos) {
     while (*line) {
 
         // Parse a move
-        int move = ParseMove(line, pos);
+        Move move = ParseMove(line, pos);
 
         // Make the move
         if (!MakeMove(pos, move)) {

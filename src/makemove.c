@@ -174,7 +174,7 @@ void TakeMove(Position *pos) {
     assert(   0 <= pos->ply && pos->ply < MAXDEPTH);
 
     // Get the move from history
-    const int move = history(0).move;
+    const Move move = history(0).move;
     const Square from = fromSq(move);
     const Square to = toSq(move);
 
@@ -219,7 +219,7 @@ void TakeMove(Position *pos) {
 }
 
 // Make a move - take it back and return false if move was illegal
-bool MakeMove(Position *pos, const int move) {
+bool MakeMove(Position *pos, const Move move) {
 
     assert(CheckBoard(pos));
 

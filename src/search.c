@@ -192,7 +192,7 @@ static int Quiescence(int alpha, const int beta, Position *pos, SearchInfo *info
     int bestScore = score;
 
     // Move loop
-    int move;
+    Move move;
     while ((move = NextMove(&mp))) {
 
         // Recursively search the positions after making the moves, skipping illegal ones
@@ -271,7 +271,7 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
     Key posKey = pos->key;
     TTEntry *tte = ProbeTT(posKey, &ttHit);
 
-    int ttMove  = ttHit ? tte->move : NOMOVE;
+    Move ttMove = ttHit ? tte->move : NOMOVE;
     int ttScore = ttHit ? ScoreFromTT(tte->score, pos->ply) : NOSCORE;
 
     // Trust the ttScore in non-pvNodes as long as the entry depth is equal or higher
@@ -374,7 +374,7 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
     int bestScore = score = -INFINITE;
 
     // Move loop
-    int move;
+    Move move;
     while ((move = NextMove(&mp))) {
 
         bool quiet = !moveIsNoisy(move);

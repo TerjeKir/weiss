@@ -46,6 +46,7 @@
 typedef uint64_t Bitboard;
 typedef uint64_t Key;
 
+typedef uint32_t Move;
 typedef uint32_t Square;
 
 typedef int64_t TimePoint;
@@ -109,11 +110,11 @@ enum CastlingRights { WKCA = 1, WQCA = 2, BKCA = 4, BQCA = 8 };
 
 typedef struct PV {
     int length;
-    int line[MAXDEPTH];
+    Move line[MAXDEPTH];
 } PV;
 
 typedef struct {
-    int move;
+    Move move;
     int score;
 } MoveListEntry;
 
@@ -125,7 +126,7 @@ typedef struct {
 
 typedef struct {
     Key posKey;
-    int move;
+    Move move;
     uint8_t enPas;
     uint8_t fiftyMove;
     uint8_t castlePerm;
@@ -135,7 +136,7 @@ typedef struct {
 
 typedef struct {
     Key posKey;
-    int move;
+    Move move;
     int16_t score;
     uint8_t depth;
     uint8_t flag;
@@ -170,7 +171,7 @@ typedef struct {
     History history[MAXGAMEMOVES];
 
     int searchHistory[PIECE_NB][64];
-    int searchKillers[MAXDEPTH][2];
+    Move searchKillers[MAXDEPTH][2];
 
 } Position;
 
@@ -181,8 +182,8 @@ typedef struct {
 
     int score;
     int depth;
-    int bestMove;
-    int ponderMove;
+    Move bestMove;
+    Move ponderMove;
     int seldepth;
 
     PV pv;

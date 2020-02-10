@@ -119,7 +119,7 @@ static Key GeneratePosKey(const Position *pos) {
 
 // Calculates the position key after a move. Fails
 // for special moves.
-Key KeyAfter(const Position *pos, const int move) {
+Key KeyAfter(const Position *pos, const Move move) {
 
     Square from = fromSq(move);
     Square to = toSq(move);
