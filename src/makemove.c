@@ -43,7 +43,7 @@ static const int CastlePerm[64] = {
 
 
 // Remove a piece from a square sq
-static void ClearPiece(const int sq, Position *pos) {
+static void ClearPiece(Position *pos, const int sq) {
 
     assert(ValidSquare(sq));
 
@@ -83,7 +83,7 @@ static void ClearPiece(const int sq, Position *pos) {
 }
 
 // Add a piece piece to a square
-static void AddPiece(const int sq, Position *pos, const int piece) {
+static void AddPiece(Position *pos, const int sq, const int piece) {
 
     assert(ValidPiece(piece));
     assert(ValidSquare(sq));
@@ -118,7 +118,7 @@ static void AddPiece(const int sq, Position *pos, const int piece) {
 }
 
 // Move a piece from one square to another
-static void MovePiece(const int from, const int to, Position *pos) {
+static void MovePiece(Position *pos, const int from, const int to) {
 
     assert(ValidSquare(from));
     assert(ValidSquare(to));
@@ -183,33 +183,33 @@ void TakeMove(Position *pos) {
 
     // Add in pawn captured by en passant
     if (moveIsEnPas(move))
-        AddPiece(to ^ 8, pos, MakePiece(!sideToMove(), PAWN));
+        AddPiece(pos, to ^ 8, MakePiece(!sideToMove(), PAWN));
 
     // Move rook back if castling
     else if (moveIsCastle(move))
         switch (to) {
-            case C1: MovePiece(D1, A1, pos); break;
-            case C8: MovePiece(D8, A8, pos); break;
-            case G1: MovePiece(F1, H1, pos); break;
-            case G8: MovePiece(F8, H8, pos); break;
+            case C1: MovePiece(pos, D1, A1); break;
+            case C8: MovePiece(pos, D8, A8); break;
+            case G1: MovePiece(pos, F1, H1); break;
+            case G8: MovePiece(pos, F8, H8); break;
             default: assert(false); break;
         }
 
     // Make reverse move (from <-> to)
-    MovePiece(to, from, pos);
+    MovePiece(pos, to, from);
 
     // Add back captured piece if any
     int captured = capturing(move);
     if (captured != EMPTY) {
         assert(ValidPiece(captured));
-        AddPiece(to, pos, captured);
+        AddPiece(pos, to, captured);
     }
 
     // Remove promoted piece and put back the pawn
     if (promotion(move) != EMPTY) {
         assert(ValidPiece(promotion(move)) && !PiecePawn[promotion(move)]);
-        ClearPiece(from, pos);
-        AddPiece(from, pos, MakePiece(ColorOf(promotion(move)), PAWN));
+        ClearPiece(pos, from);
+        AddPiece(pos, from, MakePiece(ColorOf(promotion(move)), PAWN));
     }
 
     // Get old poskey from history
@@ -270,24 +270,24 @@ bool MakeMove(Position *pos, const int move) {
     // Move the rook during castling
     if (moveIsCastle(move))
         switch (to) {
-            case C1: MovePiece(A1, D1, pos); break;
-            case C8: MovePiece(A8, D8, pos); break;
-            case G1: MovePiece(H1, F1, pos); break;
-            case G8: MovePiece(H8, F8, pos); break;
+            case C1: MovePiece(pos, A1, D1); break;
+            case C8: MovePiece(pos, A8, D8); break;
+            case G1: MovePiece(pos, H1, F1); break;
+            case G8: MovePiece(pos, H8, F8); break;
             default: assert(false); break;
         }
 
     // Remove captured piece if any
     else if (captured != EMPTY) {
         assert(ValidPiece(captured));
-        ClearPiece(to, pos);
+        ClearPiece(pos, to);
 
         // Reset 50mr after a capture
         pos->fiftyMove = 0;
     }
 
     // Move the piece
-    MovePiece(from, to, pos);
+    MovePiece(pos, from, to);
 
     // Pawn move specifics
     if (PiecePawn[pieceOn(to)]) {
@@ -304,13 +304,13 @@ bool MakeMove(Position *pos, const int move) {
 
         // Remove pawn captured by en passant
         } else if (moveIsEnPas(move))
-            ClearPiece(to ^ 8, pos);
+            ClearPiece(pos, to ^ 8);
 
         // Replace promoting pawn with new piece
         else if (promo != EMPTY) {
             assert(ValidPiece(promo) && !PiecePawn[promo]);
-            ClearPiece(to, pos);
-            AddPiece(to, pos, promo);
+            ClearPiece(pos, to);
+            AddPiece(pos, to, promo);
         }
     }
 
