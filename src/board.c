@@ -26,6 +26,7 @@
 #include "psqt.h"
 #include "validate.h"
 
+
 uint8_t SqDistance[64][64];
 
 //                                EMPTY,    bP,    bN,    bB,    bR,    bQ,    bK, EMPTY, EMPTY,    wP,    wN,    wB,    wR,    wQ,    wK, EMPTY
@@ -50,6 +51,7 @@ CONSTR InitDistance() {
         }
 }
 
+// Pseudo-random number generator
 static uint64_t Rand64() {
 
     // http://vigna.di.unimi.it/ftp/papers/xorshift.pdf
@@ -88,6 +90,8 @@ CONSTR InitHashKeys() {
         CastleKeys[i] = Rand64();
 }
 
+// Generates a hash key for the position. During
+// a search this is incrementally updated instead.
 static Key GeneratePosKey(const Position *pos) {
 
     Key posKey = 0;
@@ -111,6 +115,28 @@ static Key GeneratePosKey(const Position *pos) {
     posKey ^= CastleKeys[pos->castlePerm];
 
     return posKey;
+}
+
+// Calculates the position key after a move. Fails
+// for special moves.
+Key KeyAfter(const Position *pos, const int move) {
+
+    int from = fromSq(move);
+    int to = toSq(move);
+    int pce = pieceOn(from);
+    int capt = capturing(move);
+    Key key = pos->key ^ SideKey;
+
+    if (capt)
+        key ^= PieceKeys[capt][to];
+
+    return key ^ PieceKeys[pce][from] ^ PieceKeys[pce][to];
+}
+
+// Clears the board
+static void ClearPosition(Position *pos) {
+
+    memset(pos, EMPTY, sizeof(Position));
 }
 
 // Update the rest of a position to match pos->board
@@ -144,7 +170,7 @@ static void UpdatePosition(Position *pos) {
             pos->material += PSQT[piece][sq];
 
             // Phase
-            pos->basePhase -= PhaseValue[piece];
+            pos->basePhase += PhaseValue[piece];
 
             // Piece list
             pos->index[sq] = pos->pieceCounts[piece]++;
@@ -155,40 +181,6 @@ static void UpdatePosition(Position *pos) {
     pos->phase = (pos->basePhase * 256 + 12) / 24;
 
     assert(CheckBoard(pos));
-}
-
-// Clears the board
-static void ClearPosition(Position *pos) {
-
-    // Array representation
-    memset(pos->board, EMPTY, sizeof(pos->board));
-
-    // Bitboard representations
-    memset(pos->colorBB, 0ULL, sizeof(pos->colorBB));
-    memset(pos->pieceBB, 0ULL, sizeof(pos->pieceBB));
-
-    // Piece list
-    memset(pos->pieceCounts, 0, sizeof(pos->pieceCounts));
-    memset(pos->pieceList,   0, sizeof(pos->pieceList));
-    memset(pos->index,       0, sizeof(pos->index));
-
-    // Big piece counts
-    pos->nonPawns[BLACK] = pos->nonPawns[WHITE] = 0;
-
-    // Misc
-    pos->material   = 0;
-    pos->basePhase  = 24;
-    pos->side       = -1;
-    pos->enPas      = NO_SQ;
-    pos->fiftyMove  = 0;
-    pos->castlePerm = 0;
-
-    // Ply
-    pos->ply = 0;
-    pos->hisPly = 0;
-
-    // Position key
-    pos->key = 0ULL;
 }
 
 // Parse FEN and set up the position as described
@@ -242,7 +234,6 @@ void ParseFen(const char *fen, Position *pos) {
     fen++;
 
     // Side to move
-    assert(*fen == 'w' || *fen == 'b');
     sideToMove() = (*fen == 'w') ? WHITE : BLACK;
     fen += 2;
 
@@ -261,7 +252,9 @@ void ParseFen(const char *fen, Position *pos) {
     fen++;
 
     // En passant square
-    if (*fen != '-') {
+    if (*fen == '-')
+        pos->enPas = NO_SQ;
+    else {
         int file = fen[0] - 'a';
         int rank = fen[1] - '1';
 
@@ -276,22 +269,6 @@ void ParseFen(const char *fen, Position *pos) {
     UpdatePosition(pos);
 
     assert(CheckBoard(pos));
-}
-
-// Calculates the position key after a move. Fails
-// for special moves.
-Key KeyAfter(const Position *pos, const int move) {
-
-    int from = fromSq(move);
-    int to = toSq(move);
-    int pce = pieceOn(from);
-    int capt = capturing(move);
-    Key key = pos->key ^ SideKey;
-
-    if (capt)
-        key ^= PieceKeys[capt][to];
-
-    return key ^ PieceKeys[pce][from] ^ PieceKeys[pce][to];
 }
 
 #if defined DEV || !defined NDEBUG

@@ -17,7 +17,6 @@
 */
 
 #include <stdlib.h>
-#include <string.h>
 
 #include "attack.h"
 #include "bitboards.h"
@@ -319,7 +318,9 @@ int EvalPosition(const Position *pos) {
 
     // Adjust score by phase
     const int phase = pos->phase;
-    eval = ((MgScore(eval) * (256 - phase)) + (EgScore(eval) * phase)) / 256;
+    eval = ((MgScore(eval) * phase)
+         +  (EgScore(eval) * (256 - phase)))
+         / 256;
 
     assert(-INFINITE < eval && eval < INFINITE);
 
