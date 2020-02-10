@@ -116,17 +116,18 @@ typedef struct {
 } MoveListEntry;
 
 typedef struct {
-    MoveListEntry moves[MAXPOSITIONMOVES];
     unsigned int count;
     unsigned int next;
+    MoveListEntry moves[MAXPOSITIONMOVES];
 } MoveList;
 
 typedef struct {
-    int move;
-    int enPas;
-    int fiftyMove;
-    int castlePerm;
     Key posKey;
+    int move;
+    uint8_t enPas;
+    uint8_t fiftyMove;
+    uint8_t castlePerm;
+    uint8_t padding; // not used
     int eval;
 } History;
 
@@ -140,13 +141,13 @@ typedef struct {
 
 typedef struct {
 
-    int board[64];
+    uint8_t board[64];
     Bitboard pieceBB[TYPE_NB];
     Bitboard colorBB[2];
 
-    int pieceCounts[PIECE_NB];
-    int pieceList[PIECE_NB][10];
-    int index[64];
+    uint8_t pieceCounts[PIECE_NB];
+    uint8_t pieceList[PIECE_NB][10];
+    uint8_t index[64];
 
     int nonPawns[2];
 
@@ -155,12 +156,12 @@ typedef struct {
     int phase;
 
     int side;
-    int enPas;
-    int fiftyMove;
-    int castlePerm;
+    uint8_t enPas;
+    uint8_t fiftyMove;
+    uint8_t castlePerm;
 
-    int ply;
-    int hisPly;
+    uint8_t ply;
+    uint16_t hisPly;
 
     Key key;
 

@@ -40,7 +40,27 @@ INLINE Bitboard LandingSquare(int sq, int step) {
     return (Bitboard)((unsigned)to <= H8 && Distance(sq, to) <= 2) << to;
 }
 
-// Inits the non-slider attack bitboards
+// Helper function that makes slider attack bitboards
+static Bitboard MakeSliderAttacks(const int sq, const Bitboard occupied, const int steps[]) {
+
+    Bitboard result = 0;
+
+    for (int dir = 0; dir < 4; ++dir)
+
+        for (int to = sq + steps[dir];
+             (A1 <= to) && (to <= H8) && (Distance(to, to - steps[dir]) == 1);
+             to += steps[dir]) {
+
+            result |= (1ULL << to);
+
+            if (occupied & (1ULL << to))
+                break;
+        }
+
+    return result;
+}
+
+// Initializes non-slider attack bitboard lookups
 static void InitNonSliderAttacks() {
 
     int KSteps[8] = {  -9, -8, -7, -1,  1,  7,  8,  9 };
@@ -63,31 +83,11 @@ static void InitNonSliderAttacks() {
     }
 }
 
-// Makes slider attack bitboards
-static Bitboard MakeSliderAttacks(const int sq, const Bitboard occupied, const int steps[]) {
-
-    Bitboard result = 0;
-
-    for (int dir = 0; dir < 4; ++dir)
-
-        for (int to = sq + steps[dir];
-             (A1 <= to) && (to <= H8) && (Distance(to, to - steps[dir]) == 1);
-             to += steps[dir]) {
-
-            result |= (1ULL << to);
-
-            if (occupied & (1ULL << to))
-                break;
-        }
-
-    return result;
-}
-
-// Inits the magic shit
+// Initializes rook or bishop attack lookups
 #ifdef USE_PEXT
 static void InitSliderAttacks(Magic *m, Bitboard *table, const int *dir) {
 #else
-static void InitSliderAttacks(Magic *m, Bitboard *table, const uint64_t *magics, const int *dir) {
+static void InitSliderAttacks(Magic *m, Bitboard *table, const uint64_t *magics, const int *steps) {
 #endif
 
     for (int sq = A1; sq <= H8; ++sq) {
@@ -98,30 +98,27 @@ static void InitSliderAttacks(Magic *m, Bitboard *table, const uint64_t *magics,
         Bitboard edges = ((rank1BB | rank8BB) & ~RankBB[RankOf(sq)])
                        | ((fileABB | fileHBB) & ~FileBB[FileOf(sq)]);
 
-        m[sq].mask  = MakeSliderAttacks(sq, 0, dir) & ~edges;
+        m[sq].mask  = MakeSliderAttacks(sq, 0, steps) & ~edges;
 
 #ifndef USE_PEXT
         m[sq].magic = magics[sq];
         m[sq].shift = 64 - PopCount(m[sq].mask);
 #endif
 
-
         Bitboard occupied = 0;
         do {
-            m[sq].attacks[AttackIndex(sq, occupied, m)] = MakeSliderAttacks(sq, occupied, dir);
+            m[sq].attacks[AttackIndex(sq, occupied, m)] = MakeSliderAttacks(sq, occupied, steps);
             occupied = (occupied - m[sq].mask) & m[sq].mask; // Carry rippler
             table++;
         } while (occupied);
     }
 }
 
-// Initializes all attack bitboards
+// Initializes all attack lookups
 CONSTR InitAttacks() {
 
-    // Non-sliders
     InitNonSliderAttacks();
 
-    // Sliders
     const int BSteps[4] = { 7, 9, -7, -9 };
     const int RSteps[4] = { 8, 1, -8, -1 };
 
