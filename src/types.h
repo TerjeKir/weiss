@@ -46,6 +46,9 @@
 typedef uint64_t Bitboard;
 typedef uint64_t Key;
 
+typedef uint32_t Move;
+typedef uint32_t Square;
+
 typedef int64_t TimePoint;
 
 enum Limit { MAXGAMEMOVES     = 512,
@@ -83,7 +86,7 @@ enum File { FILE_A, FILE_B, FILE_C, FILE_D, FILE_E, FILE_F, FILE_G, FILE_H, FILE
 
 enum Rank { RANK_1, RANK_2, RANK_3, RANK_4, RANK_5, RANK_6, RANK_7, RANK_8, RANK_NONE };
 
-typedef enum Square {
+enum Square {
   A1, B1, C1, D1, E1, F1, G1, H1,
   A2, B2, C2, D2, E2, F2, G2, H2,
   A3, B3, C3, D3, E3, F3, G3, H3,
@@ -92,7 +95,7 @@ typedef enum Square {
   A6, B6, C6, D6, E6, F6, G6, H6,
   A7, B7, C7, D7, E7, F7, G7, H7,
   A8, B8, C8, D8, E8, F8, G8, H8, NO_SQ = 99
-} Square;
+};
 
 typedef enum Direction {
     NORTH = 8,
@@ -107,11 +110,11 @@ enum CastlingRights { WKCA = 1, WQCA = 2, BKCA = 4, BQCA = 8 };
 
 typedef struct PV {
     int length;
-    int line[MAXDEPTH];
+    Move line[MAXDEPTH];
 } PV;
 
 typedef struct {
-    int move;
+    Move move;
     int score;
 } MoveListEntry;
 
@@ -123,7 +126,7 @@ typedef struct {
 
 typedef struct {
     Key posKey;
-    int move;
+    Move move;
     uint8_t enPas;
     uint8_t fiftyMove;
     uint8_t castlePerm;
@@ -133,7 +136,7 @@ typedef struct {
 
 typedef struct {
     Key posKey;
-    int move;
+    Move move;
     int16_t score;
     uint8_t depth;
     uint8_t flag;
@@ -168,7 +171,7 @@ typedef struct {
     History history[MAXGAMEMOVES];
 
     int searchHistory[PIECE_NB][64];
-    int searchKillers[MAXDEPTH][2];
+    Move searchKillers[MAXDEPTH][2];
 
 } Position;
 
@@ -179,8 +182,8 @@ typedef struct {
 
     int score;
     int depth;
-    int bestMove;
-    int ponderMove;
+    Move bestMove;
+    Move ponderMove;
     int seldepth;
 
     PV pv;
@@ -207,11 +210,11 @@ typedef struct {
 
 /* Functions */
 
-INLINE int FileOf(const int square) {
+INLINE int FileOf(const Square square) {
     return square & 7;
 }
 
-INLINE int RankOf(const int square) {
+INLINE int RankOf(const Square square) {
     return square >> 3;
 }
 

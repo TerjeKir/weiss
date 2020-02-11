@@ -43,14 +43,14 @@ CONSTR InitMvvLva() {
 }
 
 // Constructs and adds a move to the move list
-INLINE void AddMove(const Position *pos, MoveList *list, const int from, const int to, const int promo, const int flag, const int type) {
+INLINE void AddMove(const Position *pos, MoveList *list, const Square from, const Square to, const int promo, const int flag, const int type) {
 
     assert(ValidSquare(from));
     assert(ValidSquare(to));
 
     int *moveScore = &list->moves[list->count].score;
 
-    const int move = MOVE(from, to, pieceOn(to), promo, flag);
+    const Move move = MOVE(from, to, pieceOn(to), promo, flag);
 
     // Add scores to help move ordering based on search history heuristics / mvvlva
     if (type == NOISY)
@@ -69,7 +69,7 @@ INLINE void AddMove(const Position *pos, MoveList *list, const int from, const i
 }
 
 // Adds promotions and en passant pawn moves
-INLINE void AddSpecialPawn(const Position *pos, MoveList *list, const int from, const int to, const int color, const int flag, const int type) {
+INLINE void AddSpecialPawn(const Position *pos, MoveList *list, const Square from, const Square to, const int color, const int flag, const int type) {
 
     assert(ValidSquare(from));
     assert(ValidSquare(to));
@@ -94,9 +94,9 @@ INLINE void GenCastling(const Position *pos, MoveList *list, const int color, co
 
     if (type != QUIET) return;
 
-    const int from = color == WHITE ? E1   : E8;
-    const int KCA  = color == WHITE ? WKCA : BKCA;
-    const int QCA  = color == WHITE ? WQCA : BQCA;
+    const int KCA = color            == WHITE ? WKCA      : BKCA;
+    const int QCA = color            == WHITE ? WQCA      : BQCA;
+    const Square from = color        == WHITE ? E1        : E8;
     const Bitboard betweenKS = color == WHITE ? bitF1G1   : bitF8G8;
     const Bitboard betweenQS = color == WHITE ? bitB1C1D1 : bitB8C8D8;
 
@@ -132,12 +132,12 @@ INLINE void GenPawn(const Position *pos, MoveList *list, const int color, const 
 
         // Normal pawn moves
         while (pawnMoves) {
-            int to = PopLsb(&pawnMoves);
+            Square to = PopLsb(&pawnMoves);
             AddMove(pos, list, to - up, to, EMPTY, FLAG_NONE, QUIET);
         }
         // Pawn starts
         while (pawnStarts) {
-            int to = PopLsb(&pawnStarts);
+            Square to = PopLsb(&pawnStarts);
             AddMove(pos, list, to - up * 2, to, EMPTY, FLAG_PAWNSTART, QUIET);
         }
     }
@@ -151,16 +151,16 @@ INLINE void GenPawn(const Position *pos, MoveList *list, const int color, const 
 
         // Promoting captures
         while (lPromoCap) {
-            int to = PopLsb(&lPromoCap);
+            Square to = PopLsb(&lPromoCap);
             AddSpecialPawn(pos, list, to - (up+left), to, color, FLAG_NONE, type);
         }
         while (rPromoCap) {
-            int to = PopLsb(&rPromoCap);
+            Square to = PopLsb(&rPromoCap);
             AddSpecialPawn(pos, list, to - (up+right), to, color, FLAG_NONE, type);
         }
         // Promotions
         while (promotions) {
-            int to = PopLsb(&promotions);
+            Square to = PopLsb(&promotions);
             AddSpecialPawn(pos, list, to - up, to, color, FLAG_NONE, type);
         }
     }
@@ -171,11 +171,11 @@ INLINE void GenPawn(const Position *pos, MoveList *list, const int color, const 
         Bitboard rAttacks = enemies & ShiftBB(up+right, not7th);
 
         while (lAttacks) {
-            int to = PopLsb(&lAttacks);
+            Square to = PopLsb(&lAttacks);
             AddMove(pos, list, to - (up+left), to, EMPTY, FLAG_NONE, NOISY);
         }
         while (rAttacks) {
-            int to = PopLsb(&rAttacks);
+            Square to = PopLsb(&rAttacks);
             AddMove(pos, list, to - (up+right), to, EMPTY, FLAG_NONE, NOISY);
         }
         // En passant
@@ -198,7 +198,7 @@ INLINE void GenPieceType(const Position *pos, MoveList *list, const int color, c
 
     while (pieces) {
 
-        int from = PopLsb(&pieces);
+        Square from = PopLsb(&pieces);
 
         Bitboard moves = targets & AttackBB(pt, from, occupied);
 

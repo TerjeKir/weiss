@@ -21,7 +21,7 @@
 #include "types.h"
 
 
-bool MakeMove(Position *pos, int move);
+bool MakeMove(Position *pos, Move move);
 void TakeMove(Position *pos);
 void MakeNullMove(Position *pos);
 void TakeNullMove(Position *pos);

@@ -89,7 +89,7 @@ CONSTR InitPSQT() {
 
     // Black scores are negative (white double negated -> positive)
     for (int pt = PAWN; pt <= KING; ++pt)
-        for (int sq = A1; sq <= H8; ++sq) {
+        for (Square sq = A1; sq <= H8; ++sq) {
             // Base piece value + the piece square value
             PSQT[MakePiece(BLACK, pt)][sq] = -(pieceValue[pt] + pieceSqValue[pt][sq]);
             // Same score inverted used for white on the square mirrored horizontally

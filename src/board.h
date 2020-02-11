@@ -34,7 +34,7 @@ extern uint64_t SideKey;
 
 
 void ParseFen(const char *fen, Position *pos);
-Key KeyAfter(const Position *pos, int move);
+Key KeyAfter(const Position *pos, Move move);
 #ifndef NDEBUG
 void PrintBoard(const Position *pos);
 bool CheckBoard(const Position *pos);
@@ -45,12 +45,12 @@ void MirrorBoard(Position *pos);
 #endif
 
 // Mirrors a square horizontally
-INLINE int MirrorSquare(const int sq) {
+INLINE int MirrorSquare(const Square sq) {
     return sq ^ 56;
 }
 
 // Returns distance between sq1 and sq2
-INLINE int Distance(const int sq1, const int sq2) {
+INLINE int Distance(const Square sq1, const Square sq2) {
     return SqDistance[sq1][sq2];
 }
 

@@ -29,13 +29,13 @@
 
 
 // Checks whether a move is pseudo-legal (assuming it is pseudo-legal in some position)
-bool MoveIsPseudoLegal(const Position *pos, const int move) {
+bool MoveIsPseudoLegal(const Position *pos, const Move move) {
 
     if (!move) return false;
 
     const int color = sideToMove();
-    const int from  = fromSq(move);
-    const int to    = toSq(move);
+    const Square from = fromSq(move);
+    const Square to = toSq(move);
 
     // Must move our own piece to a square not occupied by our own pieces
     if (  !(colorBB(color) & SquareBB[from])
@@ -67,7 +67,7 @@ bool MoveIsPseudoLegal(const Position *pos, const int move) {
 }
 
 // Translates a move to a string
-char *MoveToStr(const int move) {
+char *MoveToStr(const Move move) {
 
     static char moveStr[6];
 
@@ -96,8 +96,8 @@ int ParseMove(const char *str, const Position *pos) {
     assert(CheckBoard(pos));
 
     // Translate coordinates into square numbers
-    int from = (str[0] - 'a') + (8 * (str[1] - '1'));
-    int to   = (str[2] - 'a') + (8 * (str[3] - '1'));
+    Square from = (str[0] - 'a') + (8 * (str[1] - '1'));
+    Square to   = (str[2] - 'a') + (8 * (str[3] - '1'));
 
     int promo = str[4] == 'q' ? MakePiece(sideToMove(), QUEEN)
               : str[4] == 'n' ? MakePiece(sideToMove(), KNIGHT)
@@ -139,8 +139,8 @@ int ParseEPDMove(const char *ptrChar, const Position *pos) {
     }
 
     // Translate coordinates into square numbers
-    int from = (ptrChar[0] - 'a') + (8 * (ptrChar[1] - '1'));
-    int to   = (ptrChar[3] - 'a') + (8 * (ptrChar[4] - '1'));
+    Square from = (ptrChar[0] - 'a') + (8 * (ptrChar[1] - '1'));
+    Square to   = (ptrChar[3] - 'a') + (8 * (ptrChar[4] - '1'));
 
     // Type of promotion if any
     int promoType = ptrChar[5] == 'Q' ? QUEEN
@@ -156,7 +156,7 @@ int ParseEPDMove(const char *ptrChar, const Position *pos) {
 
     for (unsigned int moveNum = 0; moveNum < list->count; ++moveNum) {
 
-        int move = list->moves[moveNum].move;
+        Move move = list->moves[moveNum].move;
 
         if ( fromSq(move) == from
             && toSq(move) == to

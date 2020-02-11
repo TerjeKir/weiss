@@ -34,21 +34,21 @@ Bitboard PawnAttacks[2][64];
 
 // Helper function that returns a bitboard with the landing square of
 // the step, or an empty bitboard if the step would go outside the board
-INLINE Bitboard LandingSquare(int sq, int step) {
+INLINE Bitboard LandingSquare(Square sq, int step) {
 
-    const int to = sq + step;
+    const Square to = sq + step;
     return (Bitboard)((unsigned)to <= H8 && Distance(sq, to) <= 2) << to;
 }
 
 // Helper function that makes slider attack bitboards
-static Bitboard MakeSliderAttacks(const int sq, const Bitboard occupied, const int steps[]) {
+static Bitboard MakeSliderAttacks(const Square sq, const Bitboard occupied, const int steps[]) {
 
     Bitboard result = 0;
 
     for (int dir = 0; dir < 4; ++dir)
 
-        for (int to = sq + steps[dir];
-             (A1 <= to) && (to <= H8) && (Distance(to, to - steps[dir]) == 1);
+        for (Square to = sq + steps[dir];
+             to <= H8 && (Distance(to, to - steps[dir]) == 1);
              to += steps[dir]) {
 
             result |= (1ULL << to);
@@ -67,7 +67,7 @@ static void InitNonSliderAttacks() {
     int NSteps[8] = { -17,-15,-10, -6,  6, 10, 15, 17 };
     int PSteps[2][2] = { { -9, -7 }, { 7, 9 } };
 
-    for (int sq = A1; sq <= H8; ++sq) {
+    for (Square sq = A1; sq <= H8; ++sq) {
 
         // Kings and knights
         for (int i = 0; i < 8; ++i) {
@@ -85,12 +85,12 @@ static void InitNonSliderAttacks() {
 
 // Initializes rook or bishop attack lookups
 #ifdef USE_PEXT
-static void InitSliderAttacks(Magic *m, Bitboard *table, const int *dir) {
+static void InitSliderAttacks(Magic *m, Bitboard *table, const int *steps) {
 #else
 static void InitSliderAttacks(Magic *m, Bitboard *table, const uint64_t *magics, const int *steps) {
 #endif
 
-    for (int sq = A1; sq <= H8; ++sq) {
+    for (Square sq = A1; sq <= H8; ++sq) {
 
         m[sq].attacks = table;
 
@@ -132,7 +132,7 @@ CONSTR InitAttacks() {
 }
 
 // Returns true if sq is attacked by color
-bool SqAttacked(const int sq, const int color, const Position *pos) {
+bool SqAttacked(const Square sq, const int color, const Position *pos) {
 
     assert(ValidSquare(sq));
     assert(ValidSide(color));

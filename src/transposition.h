@@ -70,5 +70,5 @@ INLINE TTEntry *GetEntry(Key posKey) {
 void ClearTT();
 void InitTT();
 TTEntry* ProbeTT(Key posKey, bool *ttHit);
-void StoreTTEntry(TTEntry *tte, Key posKey, int move, int score, int depth, int flag);
+void StoreTTEntry(TTEntry *tte, Key posKey, Move move, int score, int depth, int flag);
 int HashFull();

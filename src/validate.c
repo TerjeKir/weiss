@@ -21,9 +21,8 @@
 
 #ifndef NDEBUG
 
-bool ValidSquare(const int sq) {
-    return A1 <= sq
-        && sq <= H8;
+bool ValidSquare(const Square sq) {
+    return sq <= H8;
 }
 
 bool ValidSide(const int side) {

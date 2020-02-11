@@ -22,7 +22,7 @@
 
 
 #ifndef NDEBUG
-bool ValidSquare(int sq);
+bool ValidSquare(Square sq);
 bool ValidSide(int side);
 bool ValidPiece(int piece);
 bool MoveListOk(const MoveList *list, const Position *pos);

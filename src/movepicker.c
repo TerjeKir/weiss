@@ -52,7 +52,7 @@ static int PickNextMove(MoveList *list, int ttMove) {
 // Returns the next move to try in a position
 int NextMove(MovePicker *mp) {
 
-    int move;
+    Move move;
 
     // Switch on stage, falls through to the next stage
     // if a move isn't returned in the current stage.
