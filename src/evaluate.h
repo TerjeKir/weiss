@@ -22,7 +22,7 @@
 
 
 // Check for (likely) material draw
-#define CHECK_MAT_DRAW
+// #define CHECK_MAT_DRAW
 
 
 #define MakeScore(mg, eg) ((int)((unsigned int)(eg) << 16) + (mg))

@@ -158,10 +158,10 @@ static bool MaterialDraw(const Position *pos) {
 INLINE int EvalPawns(const Position *pos, const int color) {
 
     int eval = 0;
-    int pawns = MakePiece(color, PAWN);
 
-    for (int i = 0; i < pos->pieceCounts[pawns]; ++i) {
-        Square sq = pos->pieceList[pawns][i];
+    Bitboard pieces = colorBB(color) & pieceBB(PAWN);
+    while (pieces) {
+        Square sq = PopLsb(&pieces);
 
         // Isolation penalty
         if (!(IsolatedMask[sq] & colorBB(color) & pieceBB(PAWN)))
@@ -178,10 +178,10 @@ INLINE int EvalPawns(const Position *pos, const int color) {
 INLINE int EvalKnights(const EvalInfo *ei, const Position *pos, const int color) {
 
     int eval = 0;
-    int knights = MakePiece(color, KNIGHT);
 
-    for (int i = 0; i < pos->pieceCounts[knights]; ++i) {
-        Square sq = pos->pieceList[knights][i];
+    Bitboard pieces = colorBB(color) & pieceBB(KNIGHT);
+    while (pieces) {
+        Square sq = PopLsb(&pieces);
 
         // Mobility
         eval += KnightMobility[PopCount(AttackBB(KNIGHT, sq, pieceBB(ALL)) & ei->mobilityArea[color])];
@@ -194,18 +194,21 @@ INLINE int EvalKnights(const EvalInfo *ei, const Position *pos, const int color)
 INLINE int EvalBishops(const EvalInfo *ei, const Position *pos, const int color) {
 
     int eval = 0;
-    int bishops = MakePiece(color, BISHOP);
 
-    for (int i = 0; i < pos->pieceCounts[bishops]; ++i) {
-        Square sq = pos->pieceList[bishops][i];
+    Bitboard pieces = colorBB(color) & pieceBB(BISHOP);
+
+    // Bishop pair
+    if (PopCount(pieces) >= 2)
+        eval += BishopPair;
+
+    while (pieces) {
+        Square sq = PopLsb(&pieces);
 
         // Mobility
         eval += BishopMobility[PopCount(AttackBB(BISHOP, sq, pieceBB(ALL)) & ei->mobilityArea[color])];
     }
 
-    // Bishop pair
-    if (pos->pieceCounts[bishops] >= 2)
-        eval += BishopPair;
+
 
     return eval;
 }
@@ -214,10 +217,10 @@ INLINE int EvalBishops(const EvalInfo *ei, const Position *pos, const int color)
 INLINE int EvalRooks(const EvalInfo *ei, const Position *pos, const int color) {
 
     int eval = 0;
-    int rooks = MakePiece(color, ROOK);
 
-    for (int i = 0; i < pos->pieceCounts[rooks]; ++i) {
-        Square sq = pos->pieceList[rooks][i];
+    Bitboard pieces = colorBB(color) & pieceBB(ROOK);
+    while (pieces) {
+        Square sq = PopLsb(&pieces);
 
         // Open/Semi-open file bonus
         if (!(pieceBB(PAWN) & FileBB[FileOf(sq)]))
@@ -236,10 +239,10 @@ INLINE int EvalRooks(const EvalInfo *ei, const Position *pos, const int color) {
 INLINE int EvalQueens(const EvalInfo *ei, const Position *pos, const int color) {
 
     int eval = 0;
-    int queens = MakePiece(color, QUEEN);
 
-    for (int i = 0; i < pos->pieceCounts[queens]; ++i) {
-        Square sq = pos->pieceList[queens][i];
+    Bitboard pieces = colorBB(color) & pieceBB(QUEEN);
+    while (pieces) {
+        Square sq = PopLsb(&pieces);
 
         // Open/Semi-open file bonus
         if (!(pieceBB(PAWN) & FileBB[FileOf(sq)]))
@@ -258,7 +261,8 @@ INLINE int EvalQueens(const EvalInfo *ei, const Position *pos, const int color) 
 INLINE int EvalKings(const Position *pos, const int color) {
 
     int eval = 0;
-    int kingSq = pos->pieceList[MakePiece(color, KING)][0];
+
+    Square kingSq = Lsb(colorBB(color) & pieceBB(KING));
 
     // King safety
     eval += KingLineVulnerability * PopCount(AttackBB(QUEEN, kingSq, colorBB(color) | pieceBB(PAWN)));

@@ -70,12 +70,6 @@ static void ClearPiece(Position *pos, const Square sq) {
     if (NonPawn[piece])
         pos->nonPawns[color]--;
 
-    // Update piece list
-    uint8_t lastSquare = pos->pieceList[piece][--pos->pieceCounts[piece]];
-    pos->index[lastSquare] = pos->index[sq];
-    pos->pieceList[piece][pos->index[lastSquare]] = lastSquare;
-    // pos->pieceList[piece][pos->pieceCounts[piece]] = NO_SQ;
-
     // Update bitboards
     CLRBIT(pieceBB(ALL), sq);
     CLRBIT(colorBB(color), sq);
@@ -108,9 +102,6 @@ static void AddPiece(Position *pos, const Square sq, const int piece) {
     if (NonPawn[piece])
         pos->nonPawns[color]++;
 
-    pos->index[sq] = pos->pieceCounts[piece]++;
-    pos->pieceList[piece][pos->index[sq]] = (uint8_t)sq;
-
     // Update bitboards
     SETBIT(pieceBB(ALL), sq);
     SETBIT(colorBB(color), sq);
@@ -134,10 +125,6 @@ static void MovePiece(Position *pos, const Square from, const Square to) {
     // Set old square to empty, new to piece
     pieceOn(from) = EMPTY;
     pieceOn(to)   = piece;
-
-    // Update square for the piece in pieceList
-    pos->index[to] = pos->index[from];
-    pos->pieceList[piece][pos->index[to]] = to;
 
     // Update material
     pos->material += PSQT[piece][to] - PSQT[piece][from];
@@ -321,7 +308,7 @@ bool MakeMove(Position *pos, const Move move) {
     assert(CheckBoard(pos));
 
     // If own king is attacked after the move, take it back immediately
-    if (SqAttacked(pos->pieceList[MakePiece(color, KING)][0], sideToMove(), pos)) {
+    if (SqAttacked(Lsb(colorBB(color) & pieceBB(KING)), sideToMove(), pos)) {
         TakeMove(pos);
         return false;
     }
