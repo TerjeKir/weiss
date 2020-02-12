@@ -120,7 +120,7 @@ static bool MaterialDraw(const Position *pos) {
 
         // No bishops
         if (!pieceBB(BISHOP)) {
-            // Draw with 0-2 knights each (both 0 => KvK) (all nonpawns are knights)
+            // Draw with 0-2 knights each (both 0 => KvK) (all nonpawns if any are knights)
             return pos->nonPawns[WHITE] <= 2 && pos->nonPawns[BLACK] <= 2;
 
         // No knights
@@ -133,11 +133,11 @@ static bool MaterialDraw(const Position *pos) {
             int bishopOwner = pieceBB(BISHOP) & colorBB(WHITE) ? WHITE : BLACK;
             return pos->nonPawns[bishopOwner] == 1 && pos->nonPawns[!bishopOwner] <= 2;
         }
-    // Draw with 1 rook each + up to 1 N or B each
+    // Draw with 1 rook + up to 1 minor each
     } else if (Single(pieceBB(ROOK) & colorBB(WHITE)) && Single(pieceBB(ROOK) & colorBB(BLACK))) {
         return pos->nonPawns[WHITE] <= 2 && pos->nonPawns[BLACK] <= 2;
 
-    // Draw with 1 rook vs 1-2 N/B
+    // Draw with 1 rook vs 1-2 minors
     } else if (Single(pieceBB(ROOK))) {
         int rookOwner = pieceBB(ROOK) & colorBB(WHITE) ? WHITE : BLACK;
         return pos->nonPawns[rookOwner] == 1 && pos->nonPawns[!rookOwner] >= 1 && pos->nonPawns[!rookOwner] <= 2;
