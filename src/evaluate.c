@@ -201,8 +201,6 @@ INLINE int EvalBishops(const EvalInfo *ei, const Position *pos, const int color)
         eval += BishopMobility[PopCount(AttackBB(BISHOP, sq, pieceBB(ALL)) & ei->mobilityArea[color])];
     }
 
-
-
     return eval;
 }
 
