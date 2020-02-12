@@ -169,10 +169,6 @@ static void UpdatePosition(Position *pos) {
 
             // Phase
             pos->basePhase += PhaseValue[piece];
-
-            // Piece list
-            pos->index[sq] = pos->pieceCounts[piece]++;
-            pos->pieceList[piece][pos->index[sq]] = sq;
         }
     }
 

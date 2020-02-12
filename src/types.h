@@ -148,10 +148,6 @@ typedef struct {
     Bitboard pieceBB[TYPE_NB];
     Bitboard colorBB[2];
 
-    uint8_t pieceCounts[PIECE_NB];
-    uint8_t pieceList[PIECE_NB][10];
-    uint8_t index[64];
-
     int nonPawns[2];
 
     int material;
