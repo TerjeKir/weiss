@@ -111,44 +111,37 @@ static bool MaterialDraw(const Position *pos) {
 
     assert(CheckBoard(pos));
 
-    // No draw with queens or pawns
-    if (pos->pieceCounts[wQ] || pos->pieceCounts[bQ] || pos->pieceCounts[wP] || pos->pieceCounts[bP])
+    // No draw with pawns or queens
+    if (pieceBB(PAWN) || pieceBB(QUEEN))
         return false;
 
     // No rooks
-    if (!pos->pieceCounts[wR] && !pos->pieceCounts[bR]) {
+    if (!pieceBB(ROOK)) {
 
         // No bishops
-        if (!pos->pieceCounts[bB] && !pos->pieceCounts[wB]) {
-            // Draw with 1-2 knights (or 0 => KvK)
-            if (pos->pieceCounts[wN] < 3 && pos->pieceCounts[bN] < 3)
-                return true;
+        if (!pieceBB(BISHOP)) {
+            // Draw with 0-2 knights each (both 0 => KvK) (all nonpawns are knights)
+            return pos->nonPawns[WHITE] <= 2 && pos->nonPawns[BLACK] <= 2;
 
         // No knights
-        } else if (!pos->pieceCounts[wN] && !pos->pieceCounts[bN]) {
-            // Draw unless one side has 2 extra bishops
-            if (abs(pos->pieceCounts[wB] - pos->pieceCounts[bB]) < 2)
-                return true;
+        } else if (!pieceBB(KNIGHT)) {
+            // Draw unless one side has 2 extra bishops (all nonpawns are bishops)
+            return abs(pos->nonPawns[WHITE] - pos->nonPawns[BLACK]) < 2;
 
-        // Draw with 1-2 knights vs 1 bishop
-        } else if ((pos->pieceCounts[wN] < 3 && !pos->pieceCounts[wB]) || (pos->pieceCounts[wB] == 1 && !pos->pieceCounts[wN]))
-            if ((pos->pieceCounts[bN] < 3 && !pos->pieceCounts[bB]) || (pos->pieceCounts[bB] == 1 && !pos->pieceCounts[bN]))
-                return true;
-
+        // Draw with 1-2 knights vs 1 bishop (there is at least 1 bishop, and at last 1 knight)
+        } else if (Single(pieceBB(BISHOP))) {
+            int bishopOwner = pieceBB(BISHOP) & colorBB(WHITE) ? WHITE : BLACK;
+            return pos->nonPawns[bishopOwner] == 1 && pos->nonPawns[!bishopOwner] <= 2;
+        }
     // Draw with 1 rook each + up to 1 N or B each
-    } else if (pos->pieceCounts[wR] == 1 && pos->pieceCounts[bR] == 1) {
-        if ((pos->pieceCounts[wN] + pos->pieceCounts[wB]) < 2 && (pos->pieceCounts[bN] + pos->pieceCounts[bB]) < 2)
-            return true;
+    } else if (Single(pieceBB(ROOK) & colorBB(WHITE)) && Single(pieceBB(ROOK) & colorBB(BLACK))) {
+        return pos->nonPawns[WHITE] <= 2 && pos->nonPawns[BLACK] <= 2;
 
-    // Draw with white having 1 rook vs 1-2 N/B
-    } else if (pos->pieceCounts[wR] == 1 && !pos->pieceCounts[bR]) {
-        if ((pos->pieceCounts[wN] + pos->pieceCounts[wB] == 0) && (((pos->pieceCounts[bN] + pos->pieceCounts[bB]) == 1) || ((pos->pieceCounts[bN] + pos->pieceCounts[bB]) == 2)))
-            return true;
-
-    // Draw with black having 1 rook vs 1-2 N/B
-    } else if (pos->pieceCounts[bR] == 1 && !pos->pieceCounts[wR])
-        if ((pos->pieceCounts[bN] + pos->pieceCounts[bB] == 0) && (((pos->pieceCounts[wN] + pos->pieceCounts[wB]) == 1) || ((pos->pieceCounts[wN] + pos->pieceCounts[wB]) == 2)))
-            return true;
+    // Draw with 1 rook vs 1-2 N/B
+    } else if (Single(pieceBB(ROOK))) {
+        int rookOwner = pieceBB(ROOK) & colorBB(WHITE) ? WHITE : BLACK;
+        return pos->nonPawns[rookOwner] == 1 && pos->nonPawns[!rookOwner] >= 1 && pos->nonPawns[!rookOwner] <= 2;
+    }
 
     return false;
 }

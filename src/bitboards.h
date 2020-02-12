@@ -95,3 +95,9 @@ INLINE int PopLsb(Bitboard *bb) {
 
     return lsb;
 }
+
+// Checks whether or not a bitboard has a single set bit
+INLINE bool Single(Bitboard bb) {
+
+    return bb && !(bb & (bb - 1));
+}
