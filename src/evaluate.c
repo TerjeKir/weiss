@@ -130,16 +130,16 @@ static bool MaterialDraw(const Position *pos) {
 
         // Draw with 1-2 knights vs 1 bishop (there is at least 1 bishop, and at last 1 knight)
         } else if (Single(pieceBB(BISHOP))) {
-            int bishopOwner = pieceBB(BISHOP) & colorBB(WHITE) ? WHITE : BLACK;
+            int bishopOwner = colorPieceBB(WHITE, BISHOP) ? WHITE : BLACK;
             return pos->nonPawns[bishopOwner] == 1 && pos->nonPawns[!bishopOwner] <= 2;
         }
     // Draw with 1 rook + up to 1 minor each
-    } else if (Single(pieceBB(ROOK) & colorBB(WHITE)) && Single(pieceBB(ROOK) & colorBB(BLACK))) {
+    } else if (Single(colorPieceBB(WHITE, ROOK)) && Single(colorPieceBB(BLACK, ROOK))) {
         return pos->nonPawns[WHITE] <= 2 && pos->nonPawns[BLACK] <= 2;
 
     // Draw with 1 rook vs 1-2 minors
     } else if (Single(pieceBB(ROOK))) {
-        int rookOwner = pieceBB(ROOK) & colorBB(WHITE) ? WHITE : BLACK;
+        int rookOwner = colorPieceBB(WHITE, ROOK) ? WHITE : BLACK;
         return pos->nonPawns[rookOwner] == 1 && pos->nonPawns[!rookOwner] >= 1 && pos->nonPawns[!rookOwner] <= 2;
     }
 
@@ -152,15 +152,15 @@ INLINE int EvalPawns(const Position *pos, const int color) {
 
     int eval = 0;
 
-    Bitboard pieces = colorBB(color) & pieceBB(PAWN);
+    Bitboard pieces = colorPieceBB(color, PAWN);
     while (pieces) {
         Square sq = PopLsb(&pieces);
 
         // Isolation penalty
-        if (!(IsolatedMask[sq] & colorBB(color) & pieceBB(PAWN)))
+        if (!(IsolatedMask[sq] & colorPieceBB(color, PAWN)))
             eval += PawnIsolated;
         // Passed bonus
-        if (!((PassedMask[color][sq]) & colorBB(!color) & pieceBB(PAWN)))
+        if (!((PassedMask[color][sq]) & colorPieceBB(!color, PAWN)))
             eval += PawnPassed[RelativeRank(color, RankOf(sq))];
     }
 
@@ -172,7 +172,7 @@ INLINE int EvalKnights(const EvalInfo *ei, const Position *pos, const int color)
 
     int eval = 0;
 
-    Bitboard pieces = colorBB(color) & pieceBB(KNIGHT);
+    Bitboard pieces = colorPieceBB(color, KNIGHT);
     while (pieces) {
         Square sq = PopLsb(&pieces);
 
@@ -188,7 +188,7 @@ INLINE int EvalBishops(const EvalInfo *ei, const Position *pos, const int color)
 
     int eval = 0;
 
-    Bitboard pieces = colorBB(color) & pieceBB(BISHOP);
+    Bitboard pieces = colorPieceBB(color, BISHOP);
 
     // Bishop pair
     if (PopCount(pieces) >= 2)
@@ -209,14 +209,14 @@ INLINE int EvalRooks(const EvalInfo *ei, const Position *pos, const int color) {
 
     int eval = 0;
 
-    Bitboard pieces = colorBB(color) & pieceBB(ROOK);
+    Bitboard pieces = colorPieceBB(color, ROOK);
     while (pieces) {
         Square sq = PopLsb(&pieces);
 
         // Open/Semi-open file bonus
         if (!(pieceBB(PAWN) & FileBB[FileOf(sq)]))
             eval += RookOpenFile;
-        else if (!(colorBB(color) & pieceBB(PAWN) & FileBB[FileOf(sq)]))
+        else if (!(colorPieceBB(color, PAWN) & FileBB[FileOf(sq)]))
             eval += RookSemiOpenFile;
 
         // Mobility
@@ -231,14 +231,14 @@ INLINE int EvalQueens(const EvalInfo *ei, const Position *pos, const int color) 
 
     int eval = 0;
 
-    Bitboard pieces = colorBB(color) & pieceBB(QUEEN);
+    Bitboard pieces = colorPieceBB(color, QUEEN);
     while (pieces) {
         Square sq = PopLsb(&pieces);
 
         // Open/Semi-open file bonus
         if (!(pieceBB(PAWN) & FileBB[FileOf(sq)]))
             eval += QueenOpenFile;
-        else if (!(colorBB(color) & pieceBB(PAWN) & FileBB[FileOf(sq)]))
+        else if (!(colorPieceBB(color, PAWN) & FileBB[FileOf(sq)]))
             eval += QueenSemiOpenFile;
 
         // Mobility
@@ -253,7 +253,7 @@ INLINE int EvalKings(const Position *pos, const int color) {
 
     int eval = 0;
 
-    Square kingSq = Lsb(colorBB(color) & pieceBB(KING));
+    Square kingSq = Lsb(colorPieceBB(color, KING));
 
     // King safety
     eval += KingLineVulnerability * PopCount(AttackBB(QUEEN, kingSq, colorBB(color) | pieceBB(PAWN)));
@@ -284,11 +284,11 @@ INLINE void InitEvalInfo(const Position *pos, EvalInfo *ei, const int color) {
 
     Bitboard b = RankBB[RelativeRank(color, RANK_2)] | ShiftBB(down, pieceBB(ALL));
 
-    b &= colorBB(color) & pieceBB(PAWN);
+    b &= colorPieceBB(color, PAWN);
 
     // Mobility area is defined as any square not attacked by an enemy pawn,
     // nor occupied by our own pawn on its starting square or blocked from advancing.
-    ei->mobilityArea[color] = ~(b | PawnBBAttackBB(colorBB(!color) & pieceBB(PAWN), !color));
+    ei->mobilityArea[color] = ~(b | PawnBBAttackBB(colorPieceBB(!color, PAWN), !color));
 }
 
 // Calculate a static evaluation of a position

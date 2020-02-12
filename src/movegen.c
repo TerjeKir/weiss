@@ -118,7 +118,7 @@ INLINE void GenPawn(const Position *pos, MoveList *list, const int color, const 
 
     const Bitboard empty   = ~pieceBB(ALL);
     const Bitboard enemies =  colorBB(!color);
-    const Bitboard pawns   =  colorBB( color) & pieceBB(PAWN);
+    const Bitboard pawns   =  colorPieceBB(color, PAWN);
 
     Bitboard on7th  = pawns & RankBB[RelativeRank(color, RANK_7)];
     Bitboard not7th = pawns ^ on7th;
@@ -194,7 +194,7 @@ INLINE void GenPieceType(const Position *pos, MoveList *list, const int color, c
     const Bitboard enemies  = colorBB(!color);
     const Bitboard targets  = type == NOISY ? enemies : ~occupied;
 
-    Bitboard pieces = colorBB(color) & pieceBB(pt);
+    Bitboard pieces = colorPieceBB(color, pt);
 
     while (pieces) {
 
