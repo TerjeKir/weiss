@@ -39,6 +39,7 @@
 
 #define pieceBB(type) (pos->pieceBB[(type)])
 #define colorBB(color) (pos->colorBB[(color)])
+#define colorPieceBB(color, type) (colorBB(color) & pieceBB(type))
 #define sideToMove() (pos->side)
 #define pieceOn(sq) (pos->board[sq])
 

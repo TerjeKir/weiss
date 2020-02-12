@@ -131,7 +131,7 @@ static void PrintConclusion(const SearchInfo *info) {
 }
 
 INLINE bool PawnOn7th(const Position *pos) {
-    return colorBB(sideToMove()) & pieceBB(PAWN) & RankBB[RelativeRank(sideToMove(), RANK_7)];
+    return colorPieceBB(sideToMove(), PAWN) & RankBB[RelativeRank(sideToMove(), RANK_7)];
 }
 
 // Dynamic delta pruning margin
@@ -234,7 +234,7 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
     MoveList list;
 
     // Extend search if in check
-    const bool inCheck = SqAttacked(Lsb(colorBB(sideToMove()) & pieceBB(KING)), !sideToMove(), pos);
+    const bool inCheck = SqAttacked(Lsb(colorPieceBB(sideToMove(), KING)), !sideToMove(), pos);
     if (inCheck) depth++;
 
     // Quiescence at the end of search

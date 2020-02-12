@@ -141,9 +141,9 @@ bool SqAttacked(const Square sq, const int color, const Position *pos) {
     const Bitboard bishops = colorBB(color) & (pieceBB(BISHOP) | pieceBB(QUEEN));
     const Bitboard rooks   = colorBB(color) & (pieceBB(ROOK)   | pieceBB(QUEEN));
 
-    if (   PawnAttackBB(!color, sq)          & pieceBB(PAWN)   & colorBB(color)
-        || AttackBB(KNIGHT, sq, pieceBB(ALL)) & pieceBB(KNIGHT) & colorBB(color)
-        || AttackBB(KING,   sq, pieceBB(ALL)) & pieceBB(KING)   & colorBB(color)
+    if (   PawnAttackBB(!color, sq)           & colorPieceBB(color, PAWN)
+        || AttackBB(KNIGHT, sq, pieceBB(ALL)) & colorPieceBB(color, KNIGHT)
+        || AttackBB(KING,   sq, pieceBB(ALL)) & colorPieceBB(color, KING)
         || AttackBB(BISHOP, sq, pieceBB(ALL)) & bishops
         || AttackBB(ROOK,   sq, pieceBB(ALL)) & rooks)
         return true;
