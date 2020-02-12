@@ -43,27 +43,28 @@ bool MoveIsPseudoLegal(const Position *pos, const Move move) {
         || capturing(move) != pieceOn(to))
         return false;
 
+    assert(ValidPiece(pieceOn(from)));
+
     // Make sure the piece at 'from' can move to 'to' (ignoring pins/moving into check)
     switch (PieceTypeOf(pieceOn(from))) {
-        case KNIGHT: return SquareBB[to] & AttackBB(KNIGHT, from, pieceBB(ALL));
-        case BISHOP: return SquareBB[to] & AttackBB(BISHOP, from, pieceBB(ALL));
-        case ROOK  : return SquareBB[to] & AttackBB(ROOK,   from, pieceBB(ALL));
-        case QUEEN : return SquareBB[to] & AttackBB(QUEEN,  from, pieceBB(ALL));
-        case PAWN  : return (moveIsEnPas(move))   ? to == pos->enPas
-                          : (moveIsPStart(move))  ? pieceOn(to ^ 8) == EMPTY
-                          : (moveIsCapture(move)) ? SquareBB[to] & PawnAttackBB(color, from)
-                                                  : (to + 8 - 16 * color) == from;
-        case KING  :
+        case PAWN:
+            return (moveIsEnPas(move))   ? to == pos->enPas
+                 : (moveIsPStart(move))  ? pieceOn(to ^ 8) == EMPTY
+                 : (moveIsCapture(move)) ? SquareBB[to] & PawnAttackBB(color, from)
+                                         : (to + 8 - 16 * color) == from;
+        case KING:
             if (moveIsCastle(move))
                 switch (to) {
                     case C1: return CastlePseudoLegal(pos, bitB1C1D1, WQCA, E1, D1, WHITE);
                     case G1: return CastlePseudoLegal(pos, bitF1G1,   WKCA, E1, F1, WHITE);
                     case C8: return CastlePseudoLegal(pos, bitB8C8D8, BQCA, E8, D8, BLACK);
                     case G8: return CastlePseudoLegal(pos, bitF8G8,   BKCA, E8, F8, BLACK);
+                    default: assert(0); return false;
                 }
-            return SquareBB[to] & AttackBB(KING, from, pieceBB(ALL));
+            // fall through
+        default:
+            return SquareBB[to] & AttackBB(PieceTypeOf(pieceOn(from)), from, pieceBB(ALL));
     }
-    return false;
 }
 
 // Translates a move to a string
