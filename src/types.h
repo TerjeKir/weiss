@@ -23,7 +23,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-// #define NDEBUG
+#define NDEBUG
 #include <assert.h>
 
 
