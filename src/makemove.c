@@ -47,8 +47,8 @@ static void ClearPiece(Position *pos, const Square sq) {
 
     assert(ValidSquare(sq));
 
-    const int piece = pieceOn(sq);
-    const int color = ColorOf(piece);
+    const Piece piece = pieceOn(sq);
+    const Color color = ColorOf(piece);
 
     assert(ValidPiece(piece));
     assert(ValidSide(color));
@@ -77,12 +77,12 @@ static void ClearPiece(Position *pos, const Square sq) {
 }
 
 // Add a piece piece to a square
-static void AddPiece(Position *pos, const Square sq, const int piece) {
+static void AddPiece(Position *pos, const Square sq, const Piece piece) {
 
     assert(ValidPiece(piece));
     assert(ValidSquare(sq));
 
-    const int color = ColorOf(piece);
+    const Color color = ColorOf(piece);
     assert(ValidSide(color));
 
     // Hash in piece at square
@@ -114,7 +114,7 @@ static void MovePiece(Position *pos, const Square from, const Square to) {
     assert(ValidSquare(from));
     assert(ValidSquare(to));
 
-    const int piece = pieceOn(from);
+    const Piece piece = pieceOn(from);
 
     assert(ValidPiece(piece));
 
@@ -153,12 +153,12 @@ void TakeMove(Position *pos) {
     sideToMove() ^= 1;
 
     // Update castling rights, 50mr, en passant
-    pos->epSquare      = history(0).epSquare;
-    pos->rule50  = history(0).rule50;
+    pos->epSquare       = history(0).epSquare;
+    pos->rule50         = history(0).rule50;
     pos->castlingRights = history(0).castlingRights;
 
     assert(0 <= pos->gamePly && pos->gamePly < MAXGAMEMOVES);
-    assert(   0 <= pos->ply && pos->ply < MAXDEPTH);
+    assert(    0 <= pos->ply && pos->ply < MAXDEPTH);
 
     // Get the move from history
     const Move move = history(0).move;
@@ -186,7 +186,7 @@ void TakeMove(Position *pos) {
     MovePiece(pos, to, from);
 
     // Add back captured piece if any
-    int captured = capturing(move);
+    Piece captured = capturing(move);
     if (captured != EMPTY) {
         assert(ValidPiece(captured));
         AddPiece(pos, to, captured);
@@ -210,11 +210,10 @@ bool MakeMove(Position *pos, const Move move) {
 
     assert(CheckBoard(pos));
 
-    const Square from  = fromSq(move);
-    const Square to    = toSq(move);
-    const int captured = capturing(move);
-
-    const int color = sideToMove();
+    const Square from = fromSq(move);
+    const Square to   = toSq(move);
+    const Piece capt  = capturing(move);
+    const Color color = sideToMove();
 
     assert(ValidSquare(from));
     assert(ValidSquare(to));
@@ -224,10 +223,10 @@ bool MakeMove(Position *pos, const Move move) {
     assert(   0 <= pos->ply && pos->ply < MAXDEPTH);
 
     // Save position
-    history(0).posKey     = pos->key;
-    history(0).move       = move;
-    history(0).epSquare      = pos->epSquare;
-    history(0).rule50  = pos->rule50;
+    history(0).posKey         = pos->key;
+    history(0).move           = move;
+    history(0).epSquare       = pos->epSquare;
+    history(0).rule50         = pos->rule50;
     history(0).castlingRights = pos->castlingRights;
 
     // Increment gamePly, ply and 50mr
@@ -265,8 +264,8 @@ bool MakeMove(Position *pos, const Move move) {
         }
 
     // Remove captured piece if any
-    else if (captured != EMPTY) {
-        assert(ValidPiece(captured));
+    else if (capt != EMPTY) {
+        assert(ValidPiece(capt));
         ClearPiece(pos, to);
 
         // Reset 50mr after a capture
@@ -282,7 +281,7 @@ bool MakeMove(Position *pos, const Move move) {
         // Reset 50mr after a pawn move
         pos->rule50 = 0;
 
-        int promo = promotion(move);
+        Piece promo = promotion(move);
 
         // If the move is a pawnstart we set the en passant square and hash it in
         if (moveIsPStart(move)) {
@@ -322,10 +321,10 @@ void MakeNullMove(Position *pos) {
     assert(CheckBoard(pos));
 
     // Save misc info for takeback
-    history(0).posKey     = pos->key;
-    history(0).move       = NOMOVE;
-    history(0).epSquare      = pos->epSquare;
-    history(0).rule50  = pos->rule50;
+    history(0).posKey         = pos->key;
+    history(0).move           = NOMOVE;
+    history(0).epSquare       = pos->epSquare;
+    history(0).rule50         = pos->rule50;
     history(0).castlingRights = pos->castlingRights;
 
     // Increase ply
@@ -360,10 +359,10 @@ void TakeNullMove(Position *pos) {
     sideToMove() ^= 1;
 
     // Get info from history
-    pos->epSquare      = history(0).epSquare;
-    pos->rule50  = history(0).rule50;
+    pos->key            = history(0).posKey;
+    pos->epSquare       = history(0).epSquare;
+    pos->rule50         = history(0).rule50;
     pos->castlingRights = history(0).castlingRights;
-    pos->key        = history(0).posKey;
 
     assert(CheckBoard(pos));
 }

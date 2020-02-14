@@ -38,7 +38,7 @@ static const char *BenchmarkFENs[] = {
     ""
 };
 
-void Benchmark(int depth, Position *pos, SearchInfo *info) {
+void Benchmark(Depth depth, Position *pos, SearchInfo *info) {
 
     uint64_t nodes = 0ULL;
 
@@ -70,7 +70,7 @@ void Benchmark(int depth, Position *pos, SearchInfo *info) {
 /* Perft */
 static uint64_t leafNodes;
 
-static void RecursivePerft(const int depth, Position *pos) {
+static void RecursivePerft(const Depth depth, Position *pos) {
 
     assert(CheckBoard(pos));
 
@@ -82,7 +82,7 @@ static void RecursivePerft(const int depth, Position *pos) {
     MoveList list[1];
     GenAllMoves(pos, list);
 
-    for (unsigned int MoveNum = 0; MoveNum < list->count; ++MoveNum) {
+    for (unsigned MoveNum = 0; MoveNum < list->count; ++MoveNum) {
 
         if (!MakeMove(pos, list->moves[MoveNum].move))
             continue;
@@ -98,7 +98,7 @@ static void RecursivePerft(const int depth, Position *pos) {
 void Perft(char *line) {
 
     Position pos[1];
-    int depth = 5;
+    Depth depth = 5;
     sscanf(line, "perft %d", &depth);
     depth = MIN(6, depth);
     char *perftFen = line + 8;
@@ -111,13 +111,13 @@ void Perft(char *line) {
     printf("\nStarting Test To Depth:%d\n\n", depth);
     fflush(stdout);
 
-    const int start = Now();
+    const TimePoint start = Now();
     leafNodes = 0;
 
     MoveList list[1];
     GenAllMoves(pos, list);
 
-    for (unsigned int MoveNum = 0; MoveNum < list->count; ++MoveNum) {
+    for (unsigned MoveNum = 0; MoveNum < list->count; ++MoveNum) {
 
         Move move = list->moves[MoveNum].move;
 

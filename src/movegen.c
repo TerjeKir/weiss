@@ -37,13 +37,13 @@ CONSTR InitMvvLva() {
     const int VictimScore[PIECE_NB]   = {0, 106, 206, 306, 406, 506, 606, 0, 0, 106, 206, 306, 406, 506, 606, 0};
     const int AttackerScore[PIECE_NB] = {0,   1,   2,   3,   4,   5,   6, 0, 0,   1,   2,   3,   4,   5,   6, 0};
 
-    for (int Attacker = PIECE_MIN; Attacker < PIECE_NB; ++Attacker)
-        for (int Victim = PIECE_MIN; Victim < PIECE_NB; ++Victim)
+    for (Piece Attacker = PIECE_MIN; Attacker < PIECE_NB; ++Attacker)
+        for (Piece Victim = PIECE_MIN; Victim < PIECE_NB; ++Victim)
             MvvLvaScores[Victim][Attacker] = VictimScore[Victim] - AttackerScore[Attacker];
 }
 
 // Constructs and adds a move to the move list
-INLINE void AddMove(const Position *pos, MoveList *list, const Square from, const Square to, const int promo, const int flag, const int type) {
+INLINE void AddMove(const Position *pos, MoveList *list, const Square from, const Square to, const Piece promo, const int flag, const int type) {
 
     assert(ValidSquare(from));
     assert(ValidSquare(to));
@@ -69,7 +69,7 @@ INLINE void AddMove(const Position *pos, MoveList *list, const Square from, cons
 }
 
 // Adds promotions and en passant pawn moves
-INLINE void AddSpecialPawn(const Position *pos, MoveList *list, const Square from, const Square to, const int color, const int flag, const int type) {
+INLINE void AddSpecialPawn(const Position *pos, MoveList *list, const Square from, const Square to, const Color color, const int flag, const int type) {
 
     assert(ValidSquare(from));
     assert(ValidSquare(to));
@@ -90,38 +90,38 @@ INLINE void AddSpecialPawn(const Position *pos, MoveList *list, const Square fro
 }
 
 // Castling is now a bit less of a mess
-INLINE void GenCastling(const Position *pos, MoveList *list, const int color, const int type) {
+INLINE void GenCastling(const Position *pos, MoveList *list, const Color color, const int type) {
 
     if (type != QUIET) return;
 
-    const int KCA = color            == WHITE ? WHITE_OO      : BLACK_OO;
-    const int QCA = color            == WHITE ? WHITE_OOO      : BLACK_OOO;
-    const Square from = color        == WHITE ? E1        : E8;
+    const int OO             = color == WHITE ? WHITE_OO  : BLACK_OO;
+    const int OOO            = color == WHITE ? WHITE_OOO : BLACK_OOO;
+    const Square from        = color == WHITE ? E1        : E8;
     const Bitboard betweenKS = color == WHITE ? bitF1G1   : bitF8G8;
     const Bitboard betweenQS = color == WHITE ? bitB1C1D1 : bitB8C8D8;
 
     // King side castle
-    if (CastlePseudoLegal(pos, betweenKS, KCA, from, from+1, color))
+    if (CastlePseudoLegal(pos, betweenKS, OO, from, from+1, color))
         AddMove(pos, list, from, from+2, EMPTY, FLAG_CASTLE, QUIET);
 
     // Queen side castle
-    if (CastlePseudoLegal(pos, betweenQS, QCA, from, from-1, color))
+    if (CastlePseudoLegal(pos, betweenQS, OOO, from, from-1, color))
         AddMove(pos, list, from, from-2, EMPTY, FLAG_CASTLE, QUIET);
 }
 
 // Pawns are a mess
-INLINE void GenPawn(const Position *pos, MoveList *list, const int color, const int type) {
+INLINE void GenPawn(const Position *pos, MoveList *list, const Color color, const int type) {
 
-    const int up    = (color == WHITE ? NORTH : SOUTH);
-    const int left  = (color == WHITE ? WEST  : EAST);
-    const int right = (color == WHITE ? EAST  : WEST);
+    const Direction up    = color == WHITE ? NORTH : SOUTH;
+    const Direction left  = color == WHITE ? WEST  : EAST;
+    const Direction right = color == WHITE ? EAST  : WEST;
 
     const Bitboard empty   = ~pieceBB(ALL);
     const Bitboard enemies =  colorBB(!color);
     const Bitboard pawns   =  colorPieceBB(color, PAWN);
 
-    Bitboard on7th  = pawns & RankBB[RelativeRank(color, RANK_7)];
-    Bitboard not7th = pawns ^ on7th;
+    const Bitboard on7th  = pawns & RankBB[RelativeRank(color, RANK_7)];
+    const Bitboard not7th = pawns ^ on7th;
 
     // Normal moves forward
     if (type == QUIET) {
@@ -188,7 +188,7 @@ INLINE void GenPawn(const Position *pos, MoveList *list, const int color, const 
 }
 
 // Knight, bishop, rook, queen and king except castling
-INLINE void GenPieceType(const Position *pos, MoveList *list, const int color, const int type, const int pt) {
+INLINE void GenPieceType(const Position *pos, MoveList *list, const Color color, const int type, const PieceType pt) {
 
     const Bitboard occupied = pieceBB(ALL);
     const Bitboard enemies  = colorBB(!color);
@@ -208,7 +208,7 @@ INLINE void GenPieceType(const Position *pos, MoveList *list, const int color, c
 }
 
 // Generate moves
-static void GenMoves(const Position *pos, MoveList *list, const int color, const int type) {
+static void GenMoves(const Position *pos, MoveList *list, const Color color, const int type) {
 
     assert(CheckBoard(pos));
 

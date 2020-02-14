@@ -23,17 +23,17 @@
 
 
 // Return the next best move
-static int PickNextMove(MoveList *list, int ttMove) {
+static Move PickNextMove(MoveList *list, Move ttMove) {
 
     if (list->next == list->count)
         return NOMOVE;
 
-    int bestMove;
+    Move bestMove;
     int bestScore = 0;
-    unsigned int moveNum = list->next++;
-    unsigned int bestNum = moveNum;
+    unsigned moveNum = list->next++;
+    unsigned bestNum = moveNum;
 
-    for (unsigned int i = moveNum; i < list->count; ++i)
+    for (unsigned i = moveNum; i < list->count; ++i)
         if (list->moves[i].score > bestScore) {
             bestScore = list->moves[i].score;
             bestNum   = i;
@@ -50,7 +50,7 @@ static int PickNextMove(MoveList *list, int ttMove) {
 }
 
 // Returns the next move to try in a position
-int NextMove(MovePicker *mp) {
+Move NextMove(MovePicker *mp) {
 
     Move move;
 
@@ -99,7 +99,7 @@ int NextMove(MovePicker *mp) {
 }
 
 // Init normal movepicker
-void InitNormalMP(MovePicker *mp, MoveList *list, Position *pos, int ttMove) {
+void InitNormalMP(MovePicker *mp, MoveList *list, Position *pos, Move ttMove) {
     list->count   = list->next = 0;
     mp->list      = list;
     mp->onlyNoisy = false;

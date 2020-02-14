@@ -132,7 +132,7 @@ CONSTR InitAttacks() {
 }
 
 // Returns true if sq is attacked by color
-bool SqAttacked(const Square sq, const int color, const Position *pos) {
+bool SqAttacked(const Square sq, const Color color, const Position *pos) {
 
     assert(ValidSquare(sq));
     assert(ValidSide(color));

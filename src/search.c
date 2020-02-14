@@ -100,12 +100,12 @@ static void PrintThinking(const SearchInfo *info) {
           : score * 100 / P_MG;
 
     TimePoint elapsed = Now() - Limits.start;
-    int depth    = info->depth;
-    int seldepth = info->seldepth > info->depth ? info->seldepth : info->depth;
-    int hashFull = HashFull();
-    int nps      = (int)(1000 * (info->nodes / (elapsed + 1)));
-    uint64_t nodes  = info->nodes;
-    uint64_t tbhits = info->tbhits;
+    Depth depth       = info->depth;
+    Depth seldepth    = info->seldepth > info->depth ? info->seldepth : info->depth;
+    int hashFull      = HashFull();
+    int nps           = (int)(1000 * (info->nodes / (elapsed + 1)));
+    uint64_t nodes    = info->nodes;
+    uint64_t tbhits   = info->tbhits;
 
     // Basic info
     printf("info depth %d seldepth %d score %s %d time %" PRId64 " nodes %" PRIu64 " nps %d tbhits %" PRIu64 " hashfull %d ",
@@ -220,7 +220,7 @@ static int Quiescence(int alpha, const int beta, Position *pos, SearchInfo *info
 }
 
 // Alpha Beta
-static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *info, PV *pv) {
+static int AlphaBeta(int alpha, int beta, Depth depth, Position *pos, SearchInfo *info, PV *pv) {
 
     assert(CheckBoard(pos));
 
@@ -370,7 +370,7 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
 
     const int oldAlpha = alpha;
     int moveCount = 0, quietCount = 0;
-    int bestMove = NOMOVE;
+    Move bestMove = NOMOVE;
     int bestScore = score = -INFINITE;
 
     // Move loop
@@ -393,7 +393,7 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
         if (quiet)
             quietCount++;
 
-        const int newDepth = depth - 1;
+        const Depth newDepth = depth - 1;
 
         bool doLMR = depth > 2 && moveCount > (2 + pvNode) && quiet;
 
@@ -405,7 +405,7 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
             R += !pvNode;
 
             // Depth after reductions, avoiding going straight to quiescence
-            int RDepth = MAX(1, newDepth - MAX(R, 1));
+            Depth RDepth = MAX(1, newDepth - MAX(R, 1));
 
             score = -AlphaBeta(-alpha - 1, -alpha, RDepth, pos, info, &pvFromHere);
         }

@@ -76,12 +76,12 @@ CONSTR InitHashKeys() {
         PieceKeys[0][sq] = Rand64();
 
     // White pieces
-    for (int piece = wP; piece <= wK; ++piece)
+    for (Piece piece = wP; piece <= wK; ++piece)
         for (Square sq = A1; sq <= H8; ++sq)
             PieceKeys[piece][sq] = Rand64();
 
     // Black pieces
-    for (int piece = bP; piece <= bK; ++piece)
+    for (Piece piece = bP; piece <= bK; ++piece)
         for (Square sq = A1; sq <= H8; ++sq)
             PieceKeys[piece][sq] = Rand64();
 
@@ -98,7 +98,7 @@ static Key GeneratePosKey(const Position *pos) {
 
     // Pieces
     for (Square sq = A1; sq <= H8; ++sq) {
-        int piece = pieceOn(sq);
+        Piece piece = pieceOn(sq);
         if (piece != EMPTY)
             posKey ^= PieceKeys[piece][sq];
     }
@@ -122,15 +122,15 @@ static Key GeneratePosKey(const Position *pos) {
 Key KeyAfter(const Position *pos, const Move move) {
 
     Square from = fromSq(move);
-    Square to = toSq(move);
-    int pce = pieceOn(from);
-    int capt = capturing(move);
-    Key key = pos->key ^ SideKey;
+    Square to   = toSq(move);
+    Piece piece = pieceOn(from);
+    Piece capt  = capturing(move);
+    Key key     = pos->key ^ SideKey;
 
     if (capt)
         key ^= PieceKeys[capt][to];
 
-    return key ^ PieceKeys[pce][from] ^ PieceKeys[pce][to];
+    return key ^ PieceKeys[piece][from] ^ PieceKeys[piece][to];
 }
 
 // Clears the board
@@ -148,12 +148,12 @@ static void UpdatePosition(Position *pos) {
     // Loop through each square on the board
     for (Square sq = A1; sq <= H8; ++sq) {
 
-        int piece = pieceOn(sq);
+        Piece piece = pieceOn(sq);
 
         // If it isn't empty we update the relevant lists
         if (piece != EMPTY) {
 
-            int color = ColorOf(piece);
+            Color color = ColorOf(piece);
 
             // Bitboards
             SETBIT(pieceBB(ALL), sq);
@@ -184,7 +184,7 @@ void ParseFen(const char *fen, Position *pos) {
 
     ClearPosition(pos);
 
-    int piece;
+    Piece piece;
     int count = 0;
     Square sq = A8;
 
@@ -271,7 +271,7 @@ void PrintBoard(const Position *pos) {
 
     const char PceChar[]  = ".pnbrqk..PNBRQK";
     const char SideChar[] = "bw-";
-    int file, rank, piece;
+    int file, rank;
 
     printf("\nGame Board:\n\n");
 
@@ -279,7 +279,7 @@ void PrintBoard(const Position *pos) {
         printf("%d  ", rank + 1);
         for (file = FILE_A; file <= FILE_H; ++file) {
             Square sq = (rank * 8) + file;
-            piece = pieceOn(sq);
+            Piece piece = pieceOn(sq);
             printf("%3c", PceChar[piece]);
         }
         printf("\n");
@@ -362,18 +362,16 @@ void MirrorBoard(Position *pos) {
 
     assert(CheckBoard(pos));
 
-    int SwapPiece[PIECE_NB] = {EMPTY, wP, wN, wB, wR, wQ, wK, EMPTY, EMPTY, bP, bN, bB, bR, bQ, bK, EMPTY};
-    int tempPiecesArray[64];
-    int tempSide, sq;
-    uint8_t tempEnPas, tempCastlingRights = 0;
+    Piece SwapPiece[PIECE_NB] = {EMPTY, wP, wN, wB, wR, wQ, wK, EMPTY, EMPTY, bP, bN, bB, bR, bQ, bK, EMPTY};
 
     // Save the necessary position info mirrored
-    for (sq = A1; sq <= H8; ++sq)
+    uint8_t tempPiecesArray[64];
+    for (Square sq = A1; sq <= H8; ++sq)
         tempPiecesArray[sq] = SwapPiece[pieceOn(MirrorSquare(sq))];
 
-    tempSide  = !sideToMove();
-    tempEnPas = pos->epSquare == NO_SQ ? NO_SQ : MirrorSquare(pos->epSquare);
-
+    Color tempSide = !sideToMove();
+    Square tempEnPas = pos->epSquare == NO_SQ ? NO_SQ : MirrorSquare(pos->epSquare);
+    uint8_t tempCastlingRights = 0;
     if (pos->castlingRights & WHITE_OO) tempCastlingRights |= BLACK_OO;
     if (pos->castlingRights & WHITE_OOO) tempCastlingRights |= BLACK_OOO;
     if (pos->castlingRights & BLACK_OO) tempCastlingRights |= WHITE_OO;
@@ -383,11 +381,11 @@ void MirrorBoard(Position *pos) {
     ClearPosition(pos);
 
     // Fill in the mirrored position info
-    for (sq = A1; sq <= H8; ++sq)
+    for (Square sq = A1; sq <= H8; ++sq)
         pieceOn(sq) = tempPiecesArray[sq];
 
     sideToMove() = tempSide;
-    pos->epSquare   = tempEnPas;
+    pos->epSquare = tempEnPas;
     pos->castlingRights = tempCastlingRights;
 
     // Update the rest of the position to match pos->board

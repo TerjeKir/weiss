@@ -52,6 +52,11 @@ typedef uint32_t Square;
 
 typedef int64_t TimePoint;
 
+typedef int32_t Depth;
+typedef int32_t Color;
+typedef int32_t Piece;
+typedef int32_t PieceType;
+
 enum Limit {
     MAXGAMEMOVES     = 512,
     MAXPOSITIONMOVES = 256,
@@ -64,20 +69,20 @@ enum Score {
     NOSCORE  = INFINITE + 1
 };
 
-typedef enum Color {
+enum Color {
     BLACK, WHITE
-} Color;
+};
 
-typedef enum PieceType {
+enum PieceType {
     NO_TYPE, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING, TYPE_NB = 8
-} PieceType;
+};
 
-typedef enum Piece {
+enum Piece {
     EMPTY = 0, ALL = 0, PIECE_MIN,
     bP = 1, bN, bB, bR, bQ, bK,
     wP = 9, wN, wB, wR, wQ, wK,
     PIECE_NB = 16
-} Piece;
+};
 
 enum PieceValue {
     P_MG =  128, P_EG =  140,
@@ -128,8 +133,8 @@ typedef struct {
 } MoveListEntry;
 
 typedef struct {
-    unsigned int count;
-    unsigned int next;
+    unsigned count;
+    unsigned next;
     MoveListEntry moves[MAXPOSITIONMOVES];
 } MoveList;
 
@@ -163,7 +168,7 @@ typedef struct {
     int basePhase;
     int phase;
 
-    int sideToMove;
+    Color sideToMove;
     uint8_t epSquare;
     uint8_t rule50;
     uint8_t castlingRights;
@@ -186,10 +191,10 @@ typedef struct {
     uint64_t tbhits;
 
     int score;
-    int depth;
+    Depth depth;
     Move bestMove;
     Move ponderMove;
-    int seldepth;
+    Depth seldepth;
 
     PV pv;
 
@@ -223,16 +228,16 @@ INLINE int RankOf(const Square square) {
     return square >> 3;
 }
 
-INLINE int ColorOf(const int piece) {
+INLINE Color ColorOf(const Piece piece) {
     return piece >> 3;
 }
 
-INLINE int PieceTypeOf(const int piece) {
+INLINE PieceType PieceTypeOf(const Piece piece) {
     return (piece & 7);
 }
 
-INLINE int MakePiece(const int color, const int type) {
-    return (color << 3) + type;
+INLINE Piece MakePiece(const Color color, const PieceType pt) {
+    return (color << 3) + pt;
 }
 
 // Macro for printing size_t
