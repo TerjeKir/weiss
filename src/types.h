@@ -118,7 +118,9 @@ typedef enum Direction {
     WEST  = -EAST
 } Direction;
 
-enum CastlingRights { WHITE_OO = 1, WHITE_OOO = 2, BLACK_OO = 4, BLACK_OOO = 8 };
+enum CastlingRights {
+    WHITE_OO = 1, WHITE_OOO = 2, BLACK_OO = 4, BLACK_OOO = 8
+};
 
 /* Structs */
 
