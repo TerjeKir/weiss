@@ -220,7 +220,7 @@ bool MakeMove(Position *pos, const Move move) {
     assert(ValidSide(color));
     assert(ValidPiece(pieceOn(from)));
     assert(0 <= pos->gamePly && pos->gamePly < MAXGAMEMOVES);
-    assert(   0 <= pos->ply && pos->ply < MAXDEPTH);
+    assert(    0 <= pos->ply && pos->ply < MAXDEPTH);
 
     // Save position
     history(0).posKey         = pos->key;
@@ -235,7 +235,7 @@ bool MakeMove(Position *pos, const Move move) {
     pos->rule50++;
 
     assert(0 <= pos->gamePly && pos->gamePly < MAXGAMEMOVES);
-    assert(   0 <= pos->ply && pos->ply < MAXDEPTH);
+    assert(    0 <= pos->ply && pos->ply < MAXDEPTH);
 
     // Hash out the old en passant if exist and unset it
     if (pos->epSquare != NO_SQ) {

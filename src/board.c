@@ -235,9 +235,9 @@ void ParseFen(const char *fen, Position *pos) {
     while (*fen != ' ') {
 
         switch (*fen) {
-            case 'K': pos->castlingRights |= WHITE_OO; break;
+            case 'K': pos->castlingRights |= WHITE_OO;  break;
             case 'Q': pos->castlingRights |= WHITE_OOO; break;
-            case 'k': pos->castlingRights |= BLACK_OO; break;
+            case 'k': pos->castlingRights |= BLACK_OO;  break;
             case 'q': pos->castlingRights |= BLACK_OOO; break;
             default: break;
         }
@@ -293,9 +293,9 @@ void PrintBoard(const Position *pos) {
     printf("side: %c\n", SideChar[sideToMove()]);
     printf("epSquare: %d\n", pos->epSquare);
     printf("castle: %c%c%c%c\n",
-           pos->castlingRights & WHITE_OO ? 'K' : '-',
+           pos->castlingRights & WHITE_OO  ? 'K' : '-',
            pos->castlingRights & WHITE_OOO ? 'Q' : '-',
-           pos->castlingRights & BLACK_OO ? 'k' : '-',
+           pos->castlingRights & BLACK_OO  ? 'k' : '-',
            pos->castlingRights & BLACK_OOO ? 'q' : '-');
     printf("PosKey: %" PRIu64 "\n", pos->key);
     fflush(stdout);
@@ -307,7 +307,7 @@ void PrintBoard(const Position *pos) {
 bool CheckBoard(const Position *pos) {
 
     assert(0 <= pos->gamePly && pos->gamePly < MAXGAMEMOVES);
-    assert(   0 <= pos->ply && pos->ply < MAXDEPTH);
+    assert(    0 <= pos->ply && pos->ply < MAXDEPTH);
 
     int t_pieceCounts[PIECE_NB] = { 0 };
     int t_bigPieces[2] = { 0, 0 };
@@ -372,9 +372,9 @@ void MirrorBoard(Position *pos) {
     Color tempSide = !sideToMove();
     Square tempEnPas = pos->epSquare == NO_SQ ? NO_SQ : MirrorSquare(pos->epSquare);
     uint8_t tempCastlingRights = 0;
-    if (pos->castlingRights & WHITE_OO) tempCastlingRights |= BLACK_OO;
+    if (pos->castlingRights & WHITE_OO)  tempCastlingRights |= BLACK_OO;
     if (pos->castlingRights & WHITE_OOO) tempCastlingRights |= BLACK_OOO;
-    if (pos->castlingRights & BLACK_OO) tempCastlingRights |= WHITE_OO;
+    if (pos->castlingRights & BLACK_OO)  tempCastlingRights |= WHITE_OO;
     if (pos->castlingRights & BLACK_OOO) tempCastlingRights |= WHITE_OOO;
 
     // Clear the position
