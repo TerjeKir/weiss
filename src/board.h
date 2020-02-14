@@ -45,7 +45,7 @@ void MirrorBoard(Position *pos);
 #endif
 
 // Mirrors a square horizontally
-INLINE int MirrorSquare(const Square sq) {
+INLINE Square MirrorSquare(const Square sq) {
     return sq ^ 56;
 }
 
@@ -54,6 +54,6 @@ INLINE int Distance(const Square sq1, const Square sq2) {
     return SqDistance[sq1][sq2];
 }
 
-INLINE int RelativeRank(const int side, const int rank) {
-    return side == WHITE ? rank : RANK_8 - rank;
+INLINE int RelativeRank(const Color color, const int rank) {
+    return color == WHITE ? rank : RANK_8 - rank;
 }

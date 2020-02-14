@@ -21,7 +21,7 @@
 #include "types.h"
 
 
-void Benchmark(int depth, Position *pos, SearchInfo *info);
+void Benchmark(Depth depth, Position *pos, SearchInfo *info);
 
 #ifdef DEV
 void Perft(char *line);

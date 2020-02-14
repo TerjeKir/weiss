@@ -46,7 +46,7 @@ INLINE bool BeginsWith(const char *string, const char *token) {
 }
 
 // Parses the time controls
-INLINE void TimeControl(int side, char *line) {
+INLINE void TimeControl(Color color, char *line) {
 
     memset(&Limits, 0, sizeof(SearchLimits));
 
@@ -55,10 +55,10 @@ INLINE void TimeControl(int side, char *line) {
     // Read in relevant search constraints
     char *ptr = NULL;
     // if ((ptr = strstr(line, "infinite")))
-    if ((ptr = strstr(line, "wtime")) && side == WHITE) Limits.time = atoi(ptr + 6);
-    if ((ptr = strstr(line, "btime")) && side == BLACK) Limits.time = atoi(ptr + 6);
-    if ((ptr = strstr(line, "winc"))  && side == WHITE) Limits.inc  = atoi(ptr + 5);
-    if ((ptr = strstr(line, "binc"))  && side == BLACK) Limits.inc  = atoi(ptr + 5);
+    if ((ptr = strstr(line, "wtime")) && color == WHITE) Limits.time = atoi(ptr + 6);
+    if ((ptr = strstr(line, "btime")) && color == BLACK) Limits.time = atoi(ptr + 6);
+    if ((ptr = strstr(line, "winc"))  && color == WHITE) Limits.inc  = atoi(ptr + 5);
+    if ((ptr = strstr(line, "binc"))  && color == BLACK) Limits.inc  = atoi(ptr + 5);
     if ((ptr = strstr(line, "movestogo"))) Limits.movestogo = atoi(ptr + 10);
     if ((ptr = strstr(line, "movetime")))  Limits.movetime  = atoi(ptr +  9);
     if ((ptr = strstr(line, "depth")))     Limits.depth     = atoi(ptr +  6);

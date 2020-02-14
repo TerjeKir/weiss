@@ -27,11 +27,11 @@ typedef struct MovePicker {
     Position *pos;
     MoveList *list;
     MPStage stage;
-    int ttMove;
+    Move ttMove;
     bool onlyNoisy;
 } MovePicker;
 
 
-int NextMove(MovePicker *mp);
-void InitNormalMP(MovePicker *mp, MoveList *list, Position *pos, int ttMove);
+Move NextMove(MovePicker *mp);
+void InitNormalMP(MovePicker *mp, MoveList *list, Position *pos, Move ttMove);
 void InitNoisyMP(MovePicker *mp, MoveList *list, Position *pos);

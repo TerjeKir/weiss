@@ -24,16 +24,16 @@
 
 
 // Calls fathom to probe syzygy tablebases - heavily inspired by ethereal
-unsigned int ProbeWDL(const Position *pos) {
+unsigned ProbeWDL(const Position *pos) {
 
     // Don't probe at root, when en passant is possible, when castling is
     // possible, or when 50 move rule was not reset by the last move.
     // Finally, there is obviously no point if there are more pieces than
     // we have TBs for.
-    if (   (pos->ply        == 0)
-        || (pos->enPas      != NO_SQ)
-        || (pos->castlePerm != 0)
-        || (pos->fiftyMove  != 0)
+    if (   (pos->ply            == 0)
+        || (pos->epSquare       != NO_SQ)
+        || (pos->castlingRights != 0)
+        || (pos->rule50         != 0)
         || ((unsigned)PopCount(pieceBB(ALL)) > TB_LARGEST))
         return TB_RESULT_FAILED;
 

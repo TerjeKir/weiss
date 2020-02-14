@@ -23,7 +23,7 @@
 
 #ifndef NDEBUG
 bool ValidSquare(Square sq);
-bool ValidSide(int side);
-bool ValidPiece(int piece);
+bool ValidSide(Color side);
+bool ValidPiece(Piece piece);
 bool MoveListOk(const MoveList *list, const Position *pos);
 #endif

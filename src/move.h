@@ -64,9 +64,9 @@
 
 
 // Checks legality of a specific castle move given the current position
-INLINE bool CastlePseudoLegal(const Position *pos, Bitboard between, int type, Square sq1, Square sq2, int color) {
+INLINE bool CastlePseudoLegal(const Position *pos, Bitboard between, int type, Square sq1, Square sq2, Color color) {
 
-    return (pos->castlePerm & type)
+    return (pos->castlingRights & type)
         && !(pieceBB(ALL) & between)
         && !SqAttacked(sq1, !color, pos)
         && !SqAttacked(sq2, !color, pos);
@@ -74,7 +74,7 @@ INLINE bool CastlePseudoLegal(const Position *pos, Bitboard between, int type, S
 
 bool MoveIsPseudoLegal(const Position *pos, Move move);
 char *MoveToStr(Move move);
-int ParseMove(const char *ptrChar, const Position *pos);
+Move ParseMove(const char *ptrChar, const Position *pos);
 #ifdef DEV
-int ParseEPDMove(const char *ptrChar, const Position *pos);
+Move ParseEPDMove(const char *ptrChar, const Position *pos);
 #endif

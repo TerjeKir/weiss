@@ -96,7 +96,7 @@ INLINE Bitboard RookAttackBB(const Square sq, Bitboard occupied) {
 }
 
 // Returns the attack bitboard for a piece of piecetype on square sq
-INLINE Bitboard AttackBB(int piecetype, Square sq, Bitboard occupied) {
+INLINE Bitboard AttackBB(PieceType piecetype, Square sq, Bitboard occupied) {
 
     assert(piecetype != PAWN);
 
@@ -108,16 +108,16 @@ INLINE Bitboard AttackBB(int piecetype, Square sq, Bitboard occupied) {
     }
 }
 
-INLINE Bitboard PawnAttackBB(int color, Square sq) {
+INLINE Bitboard PawnAttackBB(Color color, Square sq) {
 
     return PawnAttacks[color][sq];
 }
 
-INLINE Bitboard PawnBBAttackBB(Bitboard pawns, int color) {
+INLINE Bitboard PawnBBAttackBB(Bitboard pawns, Color color) {
 
-    const int up = (color == WHITE ? NORTH : SOUTH);
+    const Direction up = (color == WHITE ? NORTH : SOUTH);
 
     return ShiftBB(up+WEST, pawns) | ShiftBB(up+EAST, pawns);
 }
 
-bool SqAttacked(Square sq, int side, const Position *pos);
+bool SqAttacked(Square sq, Color color, const Position *pos);

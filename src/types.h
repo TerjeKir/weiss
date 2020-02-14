@@ -33,14 +33,14 @@
 #define INLINE static inline __attribute__((always_inline))
 #define CONSTR static __attribute__((constructor)) void
 
-#define history(offset) (pos->history[pos->hisPly + offset])
+#define history(offset) (pos->history[pos->gamePly + offset])
 #define killer1 (pos->searchKillers[pos->ply][0])
 #define killer2 (pos->searchKillers[pos->ply][1])
 
 #define pieceBB(type) (pos->pieceBB[(type)])
 #define colorBB(color) (pos->colorBB[(color)])
 #define colorPieceBB(color, type) (colorBB(color) & pieceBB(type))
-#define sideToMove() (pos->side)
+#define sideToMove() (pos->sideToMove)
 #define pieceOn(sq) (pos->board[sq])
 
 
@@ -52,28 +52,37 @@ typedef uint32_t Square;
 
 typedef int64_t TimePoint;
 
-enum Limit { MAXGAMEMOVES     = 512,
-             MAXPOSITIONMOVES = 256,
-             MAXDEPTH         = 128 };
+typedef int32_t Depth;
+typedef int32_t Color;
+typedef int32_t Piece;
+typedef int32_t PieceType;
 
-enum Score { INFINITE = 32500,
-             ISMATE   = INFINITE - MAXDEPTH,
-             NOSCORE  = INFINITE + 1 };
+enum Limit {
+    MAXGAMEMOVES     = 512,
+    MAXPOSITIONMOVES = 256,
+    MAXDEPTH         = 128
+};
 
-typedef enum Color {
+enum Score {
+    INFINITE = 32500,
+    ISMATE   = INFINITE - MAXDEPTH,
+    NOSCORE  = INFINITE + 1
+};
+
+enum Color {
     BLACK, WHITE
-} Color;
+};
 
-typedef enum PieceType {
+enum PieceType {
     NO_TYPE, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING, TYPE_NB = 8
-} PieceType;
+};
 
-typedef enum Piece {
+enum Piece {
     EMPTY = 0, ALL = 0, PIECE_MIN,
     bP = 1, bN, bB, bR, bQ, bK,
     wP = 9, wN, wB, wR, wQ, wK,
     PIECE_NB = 16
-} Piece;
+};
 
 enum PieceValue {
     P_MG =  128, P_EG =  140,
@@ -83,9 +92,13 @@ enum PieceValue {
     Q_MG = 1280, Q_EG = 1400
 };
 
-enum File { FILE_A, FILE_B, FILE_C, FILE_D, FILE_E, FILE_F, FILE_G, FILE_H, FILE_NONE };
+enum File {
+    FILE_A, FILE_B, FILE_C, FILE_D, FILE_E, FILE_F, FILE_G, FILE_H, FILE_NONE
+};
 
-enum Rank { RANK_1, RANK_2, RANK_3, RANK_4, RANK_5, RANK_6, RANK_7, RANK_8, RANK_NONE };
+enum Rank {
+    RANK_1, RANK_2, RANK_3, RANK_4, RANK_5, RANK_6, RANK_7, RANK_8, RANK_NONE
+};
 
 enum Square {
   A1, B1, C1, D1, E1, F1, G1, H1,
@@ -105,7 +118,9 @@ typedef enum Direction {
     WEST  = -EAST
 } Direction;
 
-enum CastlingRights { WKCA = 1, WQCA = 2, BKCA = 4, BQCA = 8 };
+enum CastlingRights {
+    WHITE_OO = 1, WHITE_OOO = 2, BLACK_OO = 4, BLACK_OOO = 8
+};
 
 /* Structs */
 
@@ -120,17 +135,17 @@ typedef struct {
 } MoveListEntry;
 
 typedef struct {
-    unsigned int count;
-    unsigned int next;
+    unsigned count;
+    unsigned next;
     MoveListEntry moves[MAXPOSITIONMOVES];
 } MoveList;
 
 typedef struct {
     Key posKey;
     Move move;
-    uint8_t enPas;
-    uint8_t fiftyMove;
-    uint8_t castlePerm;
+    uint8_t epSquare;
+    uint8_t rule50;
+    uint8_t castlingRights;
     uint8_t padding; // not used
     int eval;
 } History;
@@ -149,19 +164,19 @@ typedef struct {
     Bitboard pieceBB[TYPE_NB];
     Bitboard colorBB[2];
 
-    int nonPawns[2];
+    int nonPawnCount[2];
 
     int material;
     int basePhase;
     int phase;
 
-    int side;
-    uint8_t enPas;
-    uint8_t fiftyMove;
-    uint8_t castlePerm;
+    Color sideToMove;
+    uint8_t epSquare;
+    uint8_t rule50;
+    uint8_t castlingRights;
 
     uint8_t ply;
-    uint16_t hisPly;
+    uint16_t gamePly;
 
     Key key;
 
@@ -178,10 +193,10 @@ typedef struct {
     uint64_t tbhits;
 
     int score;
-    int depth;
+    Depth depth;
     Move bestMove;
     Move ponderMove;
-    int seldepth;
+    Depth seldepth;
 
     PV pv;
 
@@ -215,16 +230,16 @@ INLINE int RankOf(const Square square) {
     return square >> 3;
 }
 
-INLINE int ColorOf(const int piece) {
+INLINE Color ColorOf(const Piece piece) {
     return piece >> 3;
 }
 
-INLINE int PieceTypeOf(const int piece) {
+INLINE PieceType PieceTypeOf(const Piece piece) {
     return (piece & 7);
 }
 
-INLINE int MakePiece(const int color, const int type) {
-    return (color << 3) + type;
+INLINE Piece MakePiece(const Color color, const PieceType pt) {
+    return (color << 3) + pt;
 }
 
 // Macro for printing size_t

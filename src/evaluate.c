@@ -121,26 +121,26 @@ static bool MaterialDraw(const Position *pos) {
         // No bishops
         if (!pieceBB(BISHOP)) {
             // Draw with 0-2 knights each (both 0 => KvK) (all nonpawns if any are knights)
-            return pos->nonPawns[WHITE] <= 2 && pos->nonPawns[BLACK] <= 2;
+            return pos->nonPawnCount[WHITE] <= 2 && pos->nonPawnCount[BLACK] <= 2;
 
         // No knights
         } else if (!pieceBB(KNIGHT)) {
             // Draw unless one side has 2 extra bishops (all nonpawns are bishops)
-            return abs(pos->nonPawns[WHITE] - pos->nonPawns[BLACK]) < 2;
+            return abs(pos->nonPawnCount[WHITE] - pos->nonPawnCount[BLACK]) < 2;
 
         // Draw with 1-2 knights vs 1 bishop (there is at least 1 bishop, and at last 1 knight)
         } else if (Single(pieceBB(BISHOP))) {
-            int bishopOwner = colorPieceBB(WHITE, BISHOP) ? WHITE : BLACK;
-            return pos->nonPawns[bishopOwner] == 1 && pos->nonPawns[!bishopOwner] <= 2;
+            Color bishopOwner = colorPieceBB(WHITE, BISHOP) ? WHITE : BLACK;
+            return pos->nonPawnCount[bishopOwner] == 1 && pos->nonPawnCount[!bishopOwner] <= 2;
         }
     // Draw with 1 rook + up to 1 minor each
     } else if (Single(colorPieceBB(WHITE, ROOK)) && Single(colorPieceBB(BLACK, ROOK))) {
-        return pos->nonPawns[WHITE] <= 2 && pos->nonPawns[BLACK] <= 2;
+        return pos->nonPawnCount[WHITE] <= 2 && pos->nonPawnCount[BLACK] <= 2;
 
     // Draw with 1 rook vs 1-2 minors
     } else if (Single(pieceBB(ROOK))) {
-        int rookOwner = colorPieceBB(WHITE, ROOK) ? WHITE : BLACK;
-        return pos->nonPawns[rookOwner] == 1 && pos->nonPawns[!rookOwner] >= 1 && pos->nonPawns[!rookOwner] <= 2;
+        Color rookOwner = colorPieceBB(WHITE, ROOK) ? WHITE : BLACK;
+        return pos->nonPawnCount[rookOwner] == 1 && pos->nonPawnCount[!rookOwner] >= 1 && pos->nonPawnCount[!rookOwner] <= 2;
     }
 
     return false;
@@ -148,7 +148,7 @@ static bool MaterialDraw(const Position *pos) {
 #endif
 
 // Evaluates pawns
-INLINE int EvalPawns(const Position *pos, const int color) {
+INLINE int EvalPawns(const Position *pos, const Color color) {
 
     int eval = 0;
 
@@ -168,7 +168,7 @@ INLINE int EvalPawns(const Position *pos, const int color) {
 }
 
 // Evaluates knights
-INLINE int EvalKnights(const EvalInfo *ei, const Position *pos, const int color) {
+INLINE int EvalKnights(const EvalInfo *ei, const Position *pos, const Color color) {
 
     int eval = 0;
 
@@ -184,7 +184,7 @@ INLINE int EvalKnights(const EvalInfo *ei, const Position *pos, const int color)
 }
 
 // Evaluates bishops
-INLINE int EvalBishops(const EvalInfo *ei, const Position *pos, const int color) {
+INLINE int EvalBishops(const EvalInfo *ei, const Position *pos, const Color color) {
 
     int eval = 0;
 
@@ -205,7 +205,7 @@ INLINE int EvalBishops(const EvalInfo *ei, const Position *pos, const int color)
 }
 
 // Evaluates rooks
-INLINE int EvalRooks(const EvalInfo *ei, const Position *pos, const int color) {
+INLINE int EvalRooks(const EvalInfo *ei, const Position *pos, const Color color) {
 
     int eval = 0;
 
@@ -227,7 +227,7 @@ INLINE int EvalRooks(const EvalInfo *ei, const Position *pos, const int color) {
 }
 
 // Evaluates queens
-INLINE int EvalQueens(const EvalInfo *ei, const Position *pos, const int color) {
+INLINE int EvalQueens(const EvalInfo *ei, const Position *pos, const Color color) {
 
     int eval = 0;
 
@@ -249,7 +249,7 @@ INLINE int EvalQueens(const EvalInfo *ei, const Position *pos, const int color) 
 }
 
 // Evaluates kings
-INLINE int EvalKings(const Position *pos, const int color) {
+INLINE int EvalKings(const Position *pos, const Color color) {
 
     int eval = 0;
 
@@ -278,9 +278,9 @@ INLINE int EvalPieces(const EvalInfo ei, const Position *pos) {
 }
 
 // Initializes the eval info struct
-INLINE void InitEvalInfo(const Position *pos, EvalInfo *ei, const int color) {
+INLINE void InitEvalInfo(const Position *pos, EvalInfo *ei, const Color color) {
 
-    const int down = (color == WHITE ? SOUTH : NORTH);
+    const Direction down = (color == WHITE ? SOUTH : NORTH);
 
     Bitboard b = RankBB[RelativeRank(color, RANK_2)] | ShiftBB(down, pieceBB(ALL));
 
@@ -310,9 +310,8 @@ int EvalPosition(const Position *pos) {
     eval += EvalPieces(ei, pos);
 
     // Adjust score by phase
-    const int phase = pos->phase;
-    eval = ((MgScore(eval) * phase)
-         +  (EgScore(eval) * (256 - phase)))
+    eval = ((MgScore(eval) * pos->phase)
+         +  (EgScore(eval) * (256 - pos->phase)))
          / 256;
 
     assert(-INFINITE < eval && eval < INFINITE);
