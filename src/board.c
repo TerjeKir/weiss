@@ -108,11 +108,11 @@ static Key GeneratePosKey(const Position *pos) {
         posKey ^= SideKey;
 
     // En passant
-    if (pos->enPas != NO_SQ)
-        posKey ^= PieceKeys[EMPTY][pos->enPas];
+    if (pos->epSquare != NO_SQ)
+        posKey ^= PieceKeys[EMPTY][pos->epSquare];
 
     // Castling rights
-    posKey ^= CastleKeys[pos->castlePerm];
+    posKey ^= CastleKeys[pos->castlingRights];
 
     return posKey;
 }
@@ -162,7 +162,7 @@ static void UpdatePosition(Position *pos) {
 
             // Non pawn piece count
             if (NonPawn[piece])
-                pos->nonPawns[color]++;
+                pos->nonPawnCount[color]++;
 
             // Material score
             pos->material += PSQT[piece][sq];
@@ -235,10 +235,10 @@ void ParseFen(const char *fen, Position *pos) {
     while (*fen != ' ') {
 
         switch (*fen) {
-            case 'K': pos->castlePerm |= WKCA; break;
-            case 'Q': pos->castlePerm |= WQCA; break;
-            case 'k': pos->castlePerm |= BKCA; break;
-            case 'q': pos->castlePerm |= BQCA; break;
+            case 'K': pos->castlingRights |= WHITE_OO; break;
+            case 'Q': pos->castlingRights |= WHITE_OOO; break;
+            case 'k': pos->castlingRights |= BLACK_OO; break;
+            case 'q': pos->castlingRights |= BLACK_OOO; break;
             default: break;
         }
         fen++;
@@ -247,17 +247,17 @@ void ParseFen(const char *fen, Position *pos) {
 
     // En passant square
     if (*fen == '-')
-        pos->enPas = NO_SQ;
+        pos->epSquare = NO_SQ;
     else {
         int file = fen[0] - 'a';
         int rank = fen[1] - '1';
 
-        pos->enPas = (8 * rank) + file;
+        pos->epSquare = (8 * rank) + file;
     }
     fen += 2;
 
     // 50 move rule
-    pos->fiftyMove = atoi(fen);
+    pos->rule50 = atoi(fen);
 
     // Update the rest of position to match pos->board
     UpdatePosition(pos);
@@ -291,12 +291,12 @@ void PrintBoard(const Position *pos) {
 
     printf("\n");
     printf("side: %c\n", SideChar[sideToMove()]);
-    printf("enPas: %d\n", pos->enPas);
+    printf("epSquare: %d\n", pos->epSquare);
     printf("castle: %c%c%c%c\n",
-           pos->castlePerm & WKCA ? 'K' : '-',
-           pos->castlePerm & WQCA ? 'Q' : '-',
-           pos->castlePerm & BKCA ? 'k' : '-',
-           pos->castlePerm & BQCA ? 'q' : '-');
+           pos->castlingRights & WHITE_OO ? 'K' : '-',
+           pos->castlingRights & WHITE_OOO ? 'Q' : '-',
+           pos->castlingRights & BLACK_OO ? 'k' : '-',
+           pos->castlingRights & BLACK_OOO ? 'q' : '-');
     printf("PosKey: %" PRIu64 "\n", pos->key);
     fflush(stdout);
 }
@@ -306,17 +306,15 @@ void PrintBoard(const Position *pos) {
 // Check board state makes sense
 bool CheckBoard(const Position *pos) {
 
-    assert(0 <= pos->hisPly && pos->hisPly < MAXGAMEMOVES);
+    assert(0 <= pos->gamePly && pos->gamePly < MAXGAMEMOVES);
     assert(   0 <= pos->ply && pos->ply < MAXDEPTH);
 
     int t_pieceCounts[PIECE_NB] = { 0 };
     int t_bigPieces[2] = { 0, 0 };
 
-    int t_piece, t_pce_num, color;
+    int t_piece, color;
 
     // Bitboards
-    assert(PopCount(pieceBB(KING)) == 2);
-
     assert(PopCount(pieceBB(PAWN)   & colorBB(WHITE)) <= 8);
     assert(PopCount(pieceBB(KNIGHT) & colorBB(WHITE)) <= 10);
     assert(PopCount(pieceBB(BISHOP) & colorBB(WHITE)) <= 10);
@@ -331,26 +329,7 @@ bool CheckBoard(const Position *pos) {
     assert(PopCount(pieceBB(QUEEN)  & colorBB(BLACK)) <= 9);
     assert(PopCount(pieceBB(KING)   & colorBB(BLACK)) == 1);
 
-    assert(PopCount(pieceBB(PAWN)   & colorBB(WHITE)) == pos->pieceCounts[wP]);
-    assert(PopCount(pieceBB(KNIGHT) & colorBB(WHITE)) == pos->pieceCounts[wN]);
-    assert(PopCount(pieceBB(BISHOP) & colorBB(WHITE)) == pos->pieceCounts[wB]);
-    assert(PopCount(pieceBB(ROOK)   & colorBB(WHITE)) == pos->pieceCounts[wR]);
-    assert(PopCount(pieceBB(QUEEN)  & colorBB(WHITE)) == pos->pieceCounts[wQ]);
-
-    assert(PopCount(pieceBB(PAWN)   & colorBB(BLACK)) == pos->pieceCounts[bP]);
-    assert(PopCount(pieceBB(KNIGHT) & colorBB(BLACK)) == pos->pieceCounts[bN]);
-    assert(PopCount(pieceBB(BISHOP) & colorBB(BLACK)) == pos->pieceCounts[bB]);
-    assert(PopCount(pieceBB(ROOK)   & colorBB(BLACK)) == pos->pieceCounts[bR]);
-    assert(PopCount(pieceBB(QUEEN)  & colorBB(BLACK)) == pos->pieceCounts[bQ]);
-
     assert(pieceBB(ALL) == (colorBB(WHITE) | colorBB(BLACK)));
-
-    // check piece lists
-    for (t_piece = PIECE_MIN; t_piece < PIECE_NB; ++t_piece)
-        for (t_pce_num = 0; t_pce_num < pos->pieceCounts[t_piece]; ++t_pce_num) {
-            Square sq = pos->pieceList[t_piece][t_pce_num];
-            assert(pieceOn(sq) == t_piece);
-        }
 
     // check piece count and other counters
     for (Square sq = A1; sq <= H8; ++sq) {
@@ -362,17 +341,14 @@ bool CheckBoard(const Position *pos) {
         if (NonPawn[t_piece]) t_bigPieces[color]++;
     }
 
-    for (t_piece = PIECE_MIN; t_piece < PIECE_NB; ++t_piece)
-        assert(t_pieceCounts[t_piece] == pos->pieceCounts[t_piece]);
-
-    assert(t_bigPieces[WHITE] == pos->nonPawns[WHITE] && t_bigPieces[BLACK] == pos->nonPawns[BLACK]);
+    assert(t_bigPieces[WHITE] == pos->nonPawnCount[WHITE] && t_bigPieces[BLACK] == pos->nonPawnCount[BLACK]);
 
     assert(sideToMove() == WHITE || sideToMove() == BLACK);
 
-    assert(pos->enPas == NO_SQ
-       || (RelativeRank(sideToMove(), RankOf(pos->enPas)) == RANK_6));
+    assert(pos->epSquare == NO_SQ
+       || (RelativeRank(sideToMove(), RankOf(pos->epSquare)) == RANK_6));
 
-    assert(pos->castlePerm >= 0 && pos->castlePerm <= 15);
+    assert(pos->castlingRights >= 0 && pos->castlingRights <= 15);
 
     assert(GeneratePosKey(pos) == pos->key);
 
@@ -389,19 +365,19 @@ void MirrorBoard(Position *pos) {
     int SwapPiece[PIECE_NB] = {EMPTY, wP, wN, wB, wR, wQ, wK, EMPTY, EMPTY, bP, bN, bB, bR, bQ, bK, EMPTY};
     int tempPiecesArray[64];
     int tempSide, sq;
-    uint8_t tempEnPas, tempCastlePerm;
+    uint8_t tempEnPas, tempCastlingRights = 0;
 
     // Save the necessary position info mirrored
     for (sq = A1; sq <= H8; ++sq)
         tempPiecesArray[sq] = SwapPiece[pieceOn(MirrorSquare(sq))];
 
     tempSide  = !sideToMove();
-    tempEnPas = pos->enPas == NO_SQ ? NO_SQ : MirrorSquare(pos->enPas);
-    tempCastlePerm = 0;
-    if (pos->castlePerm & WKCA) tempCastlePerm |= BKCA;
-    if (pos->castlePerm & WQCA) tempCastlePerm |= BQCA;
-    if (pos->castlePerm & BKCA) tempCastlePerm |= WKCA;
-    if (pos->castlePerm & BQCA) tempCastlePerm |= WQCA;
+    tempEnPas = pos->epSquare == NO_SQ ? NO_SQ : MirrorSquare(pos->epSquare);
+
+    if (pos->castlingRights & WHITE_OO) tempCastlingRights |= BLACK_OO;
+    if (pos->castlingRights & WHITE_OOO) tempCastlingRights |= BLACK_OOO;
+    if (pos->castlingRights & BLACK_OO) tempCastlingRights |= WHITE_OO;
+    if (pos->castlingRights & BLACK_OOO) tempCastlingRights |= WHITE_OOO;
 
     // Clear the position
     ClearPosition(pos);
@@ -411,8 +387,8 @@ void MirrorBoard(Position *pos) {
         pieceOn(sq) = tempPiecesArray[sq];
 
     sideToMove() = tempSide;
-    pos->enPas   = tempEnPas;
-    pos->castlePerm = tempCastlePerm;
+    pos->epSquare   = tempEnPas;
+    pos->castlingRights = tempCastlingRights;
 
     // Update the rest of the position to match pos->board
     UpdatePosition(pos);

@@ -65,7 +65,7 @@ static bool IsRepetition(const Position *pos) {
 
     // Compare current posKey to posKeys in history, skipping
     // opponents turns as that wouldn't be a repetition
-    for (int i = 2; i <= pos->fiftyMove; i += 2)
+    for (int i = 2; i <= pos->rule50; i += 2)
         if (pos->key == history(-i).posKey)
             return true;
 
@@ -170,7 +170,7 @@ static int Quiescence(int alpha, const int beta, Position *pos, SearchInfo *info
         info->seldepth = pos->ply;
 
     // Check for draw
-    if (IsRepetition(pos) || pos->fiftyMove >= 100)
+    if (IsRepetition(pos) || pos->rule50 >= 100)
         return 0;
 
     // If we are at max depth, return static eval
@@ -252,7 +252,7 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
     if (!root) {
 
         // Position is drawn
-        if (IsRepetition(pos) || pos->fiftyMove >= 100)
+        if (IsRepetition(pos) || pos->rule50 >= 100)
             return 0;
 
         // Max depth reached
@@ -337,7 +337,7 @@ static int AlphaBeta(int alpha, int beta, int depth, Position *pos, SearchInfo *
         // Null Move Pruning
         if (   history(-1).move != NOMOVE
             && eval >= beta
-            && pos->nonPawns[sideToMove()] > 0
+            && pos->nonPawnCount[sideToMove()] > 0
             && depth >= 3) {
 
             int R = 3 + depth / 5 + MIN(3, (eval - beta) / 256);

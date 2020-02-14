@@ -31,9 +31,9 @@ unsigned int ProbeWDL(const Position *pos) {
     // Finally, there is obviously no point if there are more pieces than
     // we have TBs for.
     if (   (pos->ply        == 0)
-        || (pos->enPas      != NO_SQ)
-        || (pos->castlePerm != 0)
-        || (pos->fiftyMove  != 0)
+        || (pos->epSquare      != NO_SQ)
+        || (pos->castlingRights != 0)
+        || (pos->rule50  != 0)
         || ((unsigned)PopCount(pieceBB(ALL)) > TB_LARGEST))
         return TB_RESULT_FAILED;
 

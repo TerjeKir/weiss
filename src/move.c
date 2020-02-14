@@ -48,17 +48,17 @@ bool MoveIsPseudoLegal(const Position *pos, const Move move) {
     // Make sure the piece at 'from' can move to 'to' (ignoring pins/moving into check)
     switch (PieceTypeOf(pieceOn(from))) {
         case PAWN:
-            return (moveIsEnPas(move))   ? to == pos->enPas
+            return (moveIsEnPas(move))   ? to == pos->epSquare
                  : (moveIsPStart(move))  ? pieceOn(to ^ 8) == EMPTY
                  : (moveIsCapture(move)) ? SquareBB[to] & PawnAttackBB(color, from)
                                          : (to + 8 - 16 * color) == from;
         case KING:
             if (moveIsCastle(move))
                 switch (to) {
-                    case C1: return CastlePseudoLegal(pos, bitB1C1D1, WQCA, E1, D1, WHITE);
-                    case G1: return CastlePseudoLegal(pos, bitF1G1,   WKCA, E1, F1, WHITE);
-                    case C8: return CastlePseudoLegal(pos, bitB8C8D8, BQCA, E8, D8, BLACK);
-                    case G8: return CastlePseudoLegal(pos, bitF8G8,   BKCA, E8, F8, BLACK);
+                    case C1: return CastlePseudoLegal(pos, bitB1C1D1, WHITE_OOO, E1, D1, WHITE);
+                    case G1: return CastlePseudoLegal(pos, bitF1G1,   WHITE_OO, E1, F1, WHITE);
+                    case C8: return CastlePseudoLegal(pos, bitB8C8D8, BLACK_OOO, E8, D8, BLACK);
+                    case G8: return CastlePseudoLegal(pos, bitF8G8,   BLACK_OO, E8, F8, BLACK);
                     default: assert(0); return false;
                 }
             // fall through

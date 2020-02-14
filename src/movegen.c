@@ -94,8 +94,8 @@ INLINE void GenCastling(const Position *pos, MoveList *list, const int color, co
 
     if (type != QUIET) return;
 
-    const int KCA = color            == WHITE ? WKCA      : BKCA;
-    const int QCA = color            == WHITE ? WQCA      : BQCA;
+    const int KCA = color            == WHITE ? WHITE_OO      : BLACK_OO;
+    const int QCA = color            == WHITE ? WHITE_OOO      : BLACK_OOO;
     const Square from = color        == WHITE ? E1        : E8;
     const Bitboard betweenKS = color == WHITE ? bitF1G1   : bitF8G8;
     const Bitboard betweenQS = color == WHITE ? bitB1C1D1 : bitB8C8D8;
@@ -179,10 +179,10 @@ INLINE void GenPawn(const Position *pos, MoveList *list, const int color, const 
             AddMove(pos, list, to - (up+right), to, EMPTY, FLAG_NONE, NOISY);
         }
         // En passant
-        if (pos->enPas != NO_SQ) {
-            Bitboard enPassers = not7th & PawnAttackBB(!color, pos->enPas);
+        if (pos->epSquare != NO_SQ) {
+            Bitboard enPassers = not7th & PawnAttackBB(!color, pos->epSquare);
             while (enPassers)
-                AddSpecialPawn(pos, list, PopLsb(&enPassers), pos->enPas, color, FLAG_ENPAS, NOISY);
+                AddSpecialPawn(pos, list, PopLsb(&enPassers), pos->epSquare, color, FLAG_ENPAS, NOISY);
         }
     }
 }
