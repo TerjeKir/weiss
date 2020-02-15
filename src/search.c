@@ -410,7 +410,7 @@ static int AlphaBeta(int alpha, int beta, Depth depth, Position *pos, SearchInfo
             score = -AlphaBeta(-alpha - 1, -alpha, RDepth, pos, info, &pvFromHere);
         }
         // Full depth zero-window search
-        if ((doLMR && score > alpha) || (!doLMR && (!pvNode || moveCount > 1)))
+        if (doLMR ? score > alpha : !pvNode || moveCount > 1)
             score = -AlphaBeta(-alpha - 1, -alpha, newDepth, pos, info, &pvFromHere);
 
         // Full depth alpha-beta window search
