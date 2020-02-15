@@ -330,7 +330,7 @@ static int AlphaBeta(int alpha, int beta, Depth depth, Position *pos, SearchInfo
             return Quiescence(alpha, beta, pos, info);
 
         // Reverse Futility Pruning
-        if (!pvNode && depth < 7 && eval - 225 * depth >= beta)
+        if (!pvNode && depth < 7 && eval - 230 * (depth - improving) >= beta)
             return eval;
 
         // Null Move Pruning
