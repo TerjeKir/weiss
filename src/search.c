@@ -431,9 +431,11 @@ static int AlphaBeta(int alpha, int beta, Depth depth, Position *pos, SearchInfo
                 alpha = score;
 
                 // Update the Principle Variation
-                pv->length = 1 + pvFromHere.length;
-                pv->line[0] = move;
-                memcpy(pv->line + 1, pvFromHere.line, sizeof(int) * pvFromHere.length);
+                if (pvNode) {
+                    pv->length = 1 + pvFromHere.length;
+                    pv->line[0] = move;
+                    memcpy(pv->line + 1, pvFromHere.line, sizeof(int) * pvFromHere.length);
+                }
 
                 // Update search history
                 if (quiet)
