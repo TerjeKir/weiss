@@ -310,7 +310,6 @@ static int AlphaBeta(int alpha, int beta, Depth depth, Position *pos, SearchInfo
         }
     }
 
-    int score = -INFINITE;
     int eval = history(0).eval = NOSCORE;
     bool improving = false;
 
@@ -343,7 +342,7 @@ static int AlphaBeta(int alpha, int beta, Depth depth, Position *pos, SearchInfo
             int R = 3 + depth / 5 + MIN(3, (eval - beta) / 256);
 
             MakeNullMove(pos);
-            score = -AlphaBeta(-beta, -beta + 1, depth - R, pos, info, &pvFromHere);
+            int score = -AlphaBeta(-beta, -beta + 1, depth - R, pos, info, &pvFromHere);
             TakeNullMove(pos);
 
             // Cutoff
@@ -371,7 +370,7 @@ static int AlphaBeta(int alpha, int beta, Depth depth, Position *pos, SearchInfo
     const int oldAlpha = alpha;
     int moveCount = 0, quietCount = 0;
     Move bestMove = NOMOVE;
-    int bestScore = score = -INFINITE;
+    int bestScore = -INFINITE, score = -INFINITE;
 
     // Move loop
     Move move;
