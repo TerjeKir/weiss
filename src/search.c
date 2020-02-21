@@ -493,14 +493,14 @@ static int AspirationWindow(Position *pos, SearchInfo *info) {
     while (true) {
         int result = AlphaBeta(alpha, beta, info->depth, pos, info, &info->pv);
         // Result within the bounds is accepted as correct
-        if (result >= alpha && result <= beta)
+        if (result > alpha && result < beta)
             return result;
         // Failed low, relax lower bound and search again
-        else if (result < alpha) {
+        else if (result <= alpha) {
             alpha -= delta << fails++;
             alpha  = MAX(alpha, -INFINITE);
         // Failed high, relax upper bound and search again
-        } else if (result > beta) {
+        } else if (result >= beta) {
             beta += delta << fails++;
             beta  = MIN(beta, INFINITE);
         }
