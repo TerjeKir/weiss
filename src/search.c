@@ -479,31 +479,40 @@ static int AlphaBeta(int alpha, int beta, Depth depth, Position *pos, SearchInfo
 // Aspiration window
 static int AspirationWindow(Position *pos, SearchInfo *info) {
 
-    const int score = info->score;
-    // Dynamic bonus increasing initial window and relaxation delta
+    int score = info->score;
+    int depth = info->depth;
+
+    // Dynamic bonus increasing initial window and relaxation
+    // delta based on the previous iteration's score
     const int bonus = score * score;
     const int initialWindow = 12 + bonus / 2048;
-    const int delta = 64 + bonus / 256;
+    int delta = 64 + bonus / 256;
+
     // Initial window
     int alpha = MAX(score - initialWindow, -INFINITE);
     int beta  = MIN(score + initialWindow,  INFINITE);
-    // Counter for failed searches, bounds are relaxed more for each successive fail
-    unsigned fails = 0;
 
+    // Search with aspiration window until the result is inside the window
     while (true) {
-        int result = AlphaBeta(alpha, beta, info->depth, pos, info, &info->pv);
-        // Result within the bounds is accepted as correct
-        if (result > alpha && result < beta)
-            return result;
+
+        score = AlphaBeta(alpha, beta, depth, pos, info, &info->pv);
+
         // Failed low, relax lower bound and search again
-        else if (result <= alpha) {
-            alpha -= delta << fails++;
-            alpha  = MAX(alpha, -INFINITE);
+        if (score <= alpha) {
+            alpha = MAX(alpha - delta, -INFINITE);
+            beta  = (alpha + beta) / 2;
+            depth = info->depth;
+
         // Failed high, relax upper bound and search again
-        } else if (result >= beta) {
-            beta += delta << fails++;
-            beta  = MIN(beta, INFINITE);
-        }
+        } else if (score >= beta) {
+            beta = MIN(beta + delta, INFINITE);
+            depth -= 1;
+
+        // Score within the bounds is accepted as correct
+        } else
+            return score;
+
+        delta += delta * 2 / 3;
     }
 }
 
