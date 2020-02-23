@@ -402,7 +402,7 @@ static int AlphaBeta(int alpha, int beta, Depth depth, Position *pos, SearchInfo
             int R = Reductions[MIN(31, depth)][MIN(31, moveCount)];
             // Reduce more in non-pv nodes
             R -= pvNode;
-
+            R -= improving;
             R += quiet;
 
             // Depth after reductions, avoiding going straight to quiescence
