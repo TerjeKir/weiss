@@ -394,14 +394,16 @@ static int AlphaBeta(int alpha, int beta, Depth depth, Position *pos, SearchInfo
 
         const Depth newDepth = depth - 1;
 
-        bool doLMR = depth > 2 && moveCount > (2 + pvNode) && quiet;
+        bool doLMR = depth > 2 && moveCount > (2 + pvNode);
 
         // Reduced depth zero-window search
         if (doLMR) {
             // Base reduction
             int R = Reductions[MIN(31, depth)][MIN(31, moveCount)];
             // Reduce more in non-pv nodes
-            R += !pvNode;
+            R -= pvNode;
+
+            R += quiet;
 
             // Depth after reductions, avoiding going straight to quiescence
             Depth RDepth = MAX(1, newDepth - MAX(R, 1));
