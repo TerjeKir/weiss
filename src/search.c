@@ -400,9 +400,11 @@ static int AlphaBeta(int alpha, int beta, Depth depth, Position *pos, SearchInfo
         if (doLMR) {
             // Base reduction
             int R = Reductions[MIN(31, depth)][MIN(31, moveCount)];
-            // Reduce more in non-pv nodes
+            // Reduce less in pv nodes
             R -= pvNode;
+            // Reduce less when improving
             R -= improving;
+            // Reduce more for quiets
             R += quiet;
 
             // Depth after reductions, avoiding going straight to quiescence
