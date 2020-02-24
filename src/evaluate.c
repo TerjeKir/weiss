@@ -167,82 +167,53 @@ INLINE int EvalPawns(const Position *pos, const Color color) {
     return eval;
 }
 
-// Evaluates knights
-INLINE int EvalKnights(const EvalInfo *ei, const Position *pos, const Color color) {
+// Evaluates knights, bishops, rooks, or queens
+INLINE int EvalPiece(const Position *pos, const EvalInfo *ei, const Color color, const PieceType pt) {
 
     int eval = 0;
 
-    Bitboard pieces = colorPieceBB(color, KNIGHT);
-    while (pieces) {
-        Square sq = PopLsb(&pieces);
-
-        // Mobility
-        eval += KnightMobility[PopCount(AttackBB(KNIGHT, sq, pieceBB(ALL)) & ei->mobilityArea[color])];
-    }
-
-    return eval;
-}
-
-// Evaluates bishops
-INLINE int EvalBishops(const EvalInfo *ei, const Position *pos, const Color color) {
-
-    int eval = 0;
-
-    Bitboard pieces = colorPieceBB(color, BISHOP);
+    Bitboard pieces = colorPieceBB(color, pt);
 
     // Bishop pair
-    if (PopCount(pieces) >= 2)
+    if (pt == BISHOP && PopCount(pieces) >= 2)
         eval += BishopPair;
 
     while (pieces) {
         Square sq = PopLsb(&pieces);
 
-        // Mobility
-        eval += BishopMobility[PopCount(AttackBB(BISHOP, sq, pieceBB(ALL)) & ei->mobilityArea[color])];
-    }
+        if (pt == KNIGHT)
 
-    return eval;
-}
+            // Mobility
+            eval += KnightMobility[PopCount(AttackBB(KNIGHT, sq, pieceBB(ALL)) & ei->mobilityArea[color])];
 
-// Evaluates rooks
-INLINE int EvalRooks(const EvalInfo *ei, const Position *pos, const Color color) {
+        if (pt == BISHOP)
 
-    int eval = 0;
+            // Mobility
+            eval += BishopMobility[PopCount(AttackBB(BISHOP, sq, pieceBB(ALL)) & ei->mobilityArea[color])];
 
-    Bitboard pieces = colorPieceBB(color, ROOK);
-    while (pieces) {
-        Square sq = PopLsb(&pieces);
+        if (pt == ROOK) {
 
-        // Open/Semi-open file bonus
-        if (!(pieceBB(PAWN) & FileBB[FileOf(sq)]))
-            eval += RookOpenFile;
-        else if (!(colorPieceBB(color, PAWN) & FileBB[FileOf(sq)]))
-            eval += RookSemiOpenFile;
+            // Open/Semi-open file bonus
+            if (!(pieceBB(PAWN) & FileBB[FileOf(sq)]))
+                eval += RookOpenFile;
+            else if (!(colorPieceBB(color, PAWN) & FileBB[FileOf(sq)]))
+                eval += RookSemiOpenFile;
 
-        // Mobility
-        eval += RookMobility[PopCount(AttackBB(ROOK, sq, pieceBB(ALL)) & ei->mobilityArea[color])];
-    }
+            // Mobility
+            eval += RookMobility[PopCount(AttackBB(ROOK, sq, pieceBB(ALL)) & ei->mobilityArea[color])];
+        }
 
-    return eval;
-}
+        if (pt == QUEEN) {
 
-// Evaluates queens
-INLINE int EvalQueens(const EvalInfo *ei, const Position *pos, const Color color) {
+            // Open/Semi-open file bonus
+            if (!(pieceBB(PAWN) & FileBB[FileOf(sq)]))
+                eval += QueenOpenFile;
+            else if (!(colorPieceBB(color, PAWN) & FileBB[FileOf(sq)]))
+                eval += QueenSemiOpenFile;
 
-    int eval = 0;
-
-    Bitboard pieces = colorPieceBB(color, QUEEN);
-    while (pieces) {
-        Square sq = PopLsb(&pieces);
-
-        // Open/Semi-open file bonus
-        if (!(pieceBB(PAWN) & FileBB[FileOf(sq)]))
-            eval += QueenOpenFile;
-        else if (!(colorPieceBB(color, PAWN) & FileBB[FileOf(sq)]))
-            eval += QueenSemiOpenFile;
-
-        // Mobility
-        eval += QueenMobility[PopCount(AttackBB(QUEEN, sq, pieceBB(ALL)) & ei->mobilityArea[color])];
+            // Mobility
+            eval += QueenMobility[PopCount(AttackBB(QUEEN, sq, pieceBB(ALL)) & ei->mobilityArea[color])];
+        }
     }
 
     return eval;
@@ -261,20 +232,20 @@ INLINE int EvalKings(const Position *pos, const Color color) {
     return eval;
 }
 
-INLINE int EvalPieces(const EvalInfo ei, const Position *pos) {
+INLINE int EvalPieces(const Position *pos, const EvalInfo *ei) {
 
-    return  EvalPawns  (pos, WHITE)
-          - EvalPawns  (pos, BLACK)
-          + EvalKnights(&ei, pos, WHITE)
-          - EvalKnights(&ei, pos, BLACK)
-          + EvalBishops(&ei, pos, WHITE)
-          - EvalBishops(&ei, pos, BLACK)
-          + EvalRooks  (&ei, pos, WHITE)
-          - EvalRooks  (&ei, pos, BLACK)
-          + EvalQueens (&ei, pos, WHITE)
-          - EvalQueens (&ei, pos, BLACK)
-          + EvalKings  (pos, WHITE)
-          - EvalKings  (pos, BLACK);
+    return  EvalPawns(pos, WHITE)
+          - EvalPawns(pos, BLACK)
+          + EvalPiece(pos, ei, WHITE, KNIGHT)
+          - EvalPiece(pos, ei, BLACK, KNIGHT)
+          + EvalPiece(pos, ei, WHITE, BISHOP)
+          - EvalPiece(pos, ei, BLACK, BISHOP)
+          + EvalPiece(pos, ei, WHITE, ROOK)
+          - EvalPiece(pos, ei, BLACK, ROOK)
+          + EvalPiece(pos, ei, WHITE, QUEEN)
+          - EvalPiece(pos, ei, BLACK, QUEEN)
+          + EvalKings(pos, WHITE)
+          - EvalKings(pos, BLACK);
 }
 
 // Initializes the eval info struct
@@ -307,7 +278,7 @@ int EvalPosition(const Position *pos) {
     int eval = pos->material;
 
     // Evaluate pieces
-    eval += EvalPieces(ei, pos);
+    eval += EvalPieces(pos, &ei);
 
     // Adjust score by phase
     eval = ((MgScore(eval) * pos->phase)
