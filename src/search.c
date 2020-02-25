@@ -135,22 +135,22 @@ INLINE bool PawnOn7th(const Position *pos) {
 }
 
 // Dynamic delta pruning margin
-static int QuiescenceDeltaMargin(const Position *pos) {
+// static int QuiescenceDeltaMargin(const Position *pos) {
 
-    // Optimistic we can improve our position by a pawn without capturing anything,
-    // or if we have a pawn on the 7th we can hope to improve by a queen instead
-    const int DeltaBase = PawnOn7th(pos) ? Q_MG : P_MG;
+//     // Optimistic we can improve our position by a pawn without capturing anything,
+//     // or if we have a pawn on the 7th we can hope to improve by a queen instead
+//     const int DeltaBase = PawnOn7th(pos) ? Q_MG : P_MG;
 
-    // Look for possible captures on the board
-    const Bitboard enemy = colorBB(!sideToMove());
+//     // Look for possible captures on the board
+//     const Bitboard enemy = colorBB(!sideToMove());
 
-    // Find the most valuable piece we could take and add to our base
-    return DeltaBase + ((enemy & pieceBB(QUEEN )) ? Q_MG
-                      : (enemy & pieceBB(ROOK  )) ? R_MG
-                      : (enemy & pieceBB(BISHOP)) ? B_MG
-                      : (enemy & pieceBB(KNIGHT)) ? N_MG
-                                                  : P_MG);
-}
+//     // Find the most valuable piece we could take and add to our base
+//     return DeltaBase + ((enemy & pieceBB(QUEEN )) ? Q_MG
+//                       : (enemy & pieceBB(ROOK  )) ? R_MG
+//                       : (enemy & pieceBB(BISHOP)) ? B_MG
+//                       : (enemy & pieceBB(KNIGHT)) ? N_MG
+//                                                   : P_MG);
+// }
 
 // Quiescence
 static int Quiescence(int alpha, const int beta, Position *pos, SearchInfo *info) {
@@ -182,10 +182,12 @@ static int Quiescence(int alpha, const int beta, Position *pos, SearchInfo *info
     int score = EvalPosition(pos);
     if (score >= beta)
         return score;
-    if (score + QuiescenceDeltaMargin(pos) < alpha)
-        return alpha;
     if (score > alpha)
         alpha = score;
+
+    int futility = score + P_EG;
+
+    const bool inCheck = SqAttacked(Lsb(colorPieceBB(sideToMove(), KING)), !sideToMove(), pos);
 
     InitNoisyMP(&mp, &list, pos);
 
@@ -194,6 +196,9 @@ static int Quiescence(int alpha, const int beta, Position *pos, SearchInfo *info
     // Move loop
     Move move;
     while ((move = NextMove(&mp))) {
+
+        if (!inCheck && futility + PieceValue[EG][pieceOn(toSq(move))] <= alpha)
+            continue;
 
         // Recursively search the positions after making the moves, skipping illegal ones
         if (!MakeMove(pos, move)) continue;

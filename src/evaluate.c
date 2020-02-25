@@ -30,6 +30,13 @@
 static Bitboard PassedMask[2][64];
 static Bitboard IsolatedMask[64];
 
+const int PieceValue[2][PIECE_NB] = {
+    { 0, P_MG, N_MG, B_MG, R_MG, Q_MG, 0, 0,
+      0, P_MG, N_MG, B_MG, R_MG, Q_MG, 0, 0 },
+    { 0, P_EG, N_EG, B_EG, R_EG, Q_EG, 0, 0,
+      0, P_EG, N_EG, B_EG, R_EG, Q_EG, 0, 0 }
+};
+
 // Various bonuses and maluses
 static const int PawnIsolated          = S(-20,-18);
 static const int BishopPair            = S( 65, 65);

@@ -31,6 +31,9 @@
 #define EgScore(s) ((int16_t)((uint16_t)((unsigned)((s) + 0x8000) >> 16)))
 
 
+extern const int PieceValue[2][PIECE_NB];
+
+
 typedef struct EvalInfo {
 
     Bitboard mobilityArea[2];

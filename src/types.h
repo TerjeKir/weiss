@@ -84,6 +84,10 @@ enum Piece {
     PIECE_NB = 16
 };
 
+enum Phase {
+    MG, EG
+};
+
 enum PieceValue {
     P_MG =  128, P_EG =  140,
     N_MG =  430, N_EG =  450,
