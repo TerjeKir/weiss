@@ -31,38 +31,32 @@ static Bitboard PassedMask[2][64];
 static Bitboard IsolatedMask[64];
 
 // Various bonuses and maluses
+static const int PawnIsolated          = S(-20,-18);
+static const int BishopPair            = S( 65, 65);
+static const int KingLineVulnerability = S(-10,  0);
+
+// Passed pawn [rank]
 static const int PawnPassed[8] = { 0, S(6, 6), S(13, 13), S(25, 25), S(45, 45), S(75, 75), S(130, 130), 0 };
-static const int PawnIsolated = S(-20, -18);
 
-static const int  RookOpenFile = S(25, 13);
-static const int QueenOpenFile = S(13, 20);
-static const int  RookSemiOpenFile = S(13, 20);
-static const int QueenSemiOpenFile = S(10, 6);
+// (Semi) open file for rook and queen [pt-4]
+static const int OpenFile[2] =     { S(25, 13), S(13, 20) };
+static const int SemiOpenFile[2] = { S(13, 20), S(10,  6) };
 
-static const int BishopPair = S(65, 65);
-
-static const int KingLineVulnerability = S(-10, 0);
-
-// Mobility
-static const int KnightMobility[9] = {
-    S(-65, -65), S(-32, -32), S(-20, -20), S(0, 0), S(20, 20), S(32, 32), S(45, 45), S(50, 50), S(65, 65)
-};
-
-static const int BishopMobility[14] = {
-    S(-65, -65), S(-45, -45), S(-32, -32), S(-13, -13), S( 0,  0), S(13, 13), S(20, 20),
-    S( 25,  25), S( 32,  32), S( 38,  38), S( 45,  45), S(50, 50), S(57, 57), S(65, 65)
-};
-
-static const int RookMobility[15] = {
-    S(-65, -65), S(-45, -45), S(-32, -32), S(-13, -13), S( 0,  0), S(13, 13), S(20, 20),
-    S( 25,  25), S( 32,  32), S( 38,  38), S( 45,  45), S(50, 50), S(57, 57), S(65, 65), S(70, 70)
-};
-
-static const int QueenMobility[28] = {
-    S(-65, -65), S(-57, -57), S(-50, -50), S(-45, -45), S(-38, -38), S(-32, -32), S(-25, -25),
-    S(-20, -20), S(-13, -13), S( -6,  -6), S(  0,   0), S(  6,   6), S( 13,  13), S( 20,  20),
-    S( 25,  25), S( 32,  32), S( 38,  38), S( 45,  45), S( 50,  50), S( 57,  57), S( 65,  65),
-    S( 70,  70), S( 75,  75), S( 83,  83), S( 90,  90), S( 95,  95), S( 100,  100), S( 105,  105)
+// Mobility [pt-2][mobility]
+static const int Mobility[5][15] = {
+    // Knight (0-8)
+    { S(-65,-65), S(-32,-32), S(-20,-20), S(  0,  0), S( 20, 20), S( 32, 32), S( 45, 45), S( 50, 50), S( 65, 65) },
+    // Bishop (0-13)
+    { S(-65,-65), S(-45,-45), S(-32,-32), S(-13,-13), S(  0,  0), S( 13, 13), S( 20, 20),
+      S( 25, 25), S( 32, 32), S( 38, 38), S( 45, 45), S( 50, 50), S( 57, 57), S( 65, 65) },
+    // Rook (0-14)
+    { S(-65,-65), S(-45,-45), S(-32,-32), S(-13,-13), S(  0,  0), S( 13, 13), S( 20, 20),
+      S( 25, 25), S( 32, 32), S( 38, 38), S( 45, 45), S( 50, 50), S( 57, 57), S( 65, 65), S( 70, 70) },
+    // Queen (0-27) (accessed from [QUEEN-2], and overflows into [QUEEN-1])
+    { S(-65,-65), S(-57,-57), S(-50,-50), S(-45,-45), S(-38,-38), S(-32,-32), S(-25,-25),
+      S(-20,-20), S(-13,-13), S( -6, -6), S(  0,  0), S(  6,  6), S( 13, 13), S( 20, 20), S( 25, 25) },
+    { S( 32, 32), S( 38, 38), S( 45, 45), S( 50, 50), S( 57, 57), S( 65, 65), S( 70, 70),
+      S( 75, 75), S( 83, 83), S( 90, 90), S( 95, 95), S(100,100), S(105,105) }
 };
 
 
@@ -181,38 +175,21 @@ INLINE int EvalPiece(const Position *pos, const EvalInfo *ei, const Color color,
     while (pieces) {
         Square sq = PopLsb(&pieces);
 
-        if (pt == KNIGHT)
+        // Mobility
+        eval += Mobility[pt-2][PopCount(AttackBB(pt, sq, pieceBB(ALL)) & ei->mobilityArea[color])];
 
-            // Mobility
-            eval += KnightMobility[PopCount(AttackBB(KNIGHT, sq, pieceBB(ALL)) & ei->mobilityArea[color])];
+        // if (pt == KNIGHT) {}
+        // if (pt == BISHOP) {}
+        // if (pt == ROOK) {}
+        // if (pt == QUEEN) {}
 
-        if (pt == BISHOP)
-
-            // Mobility
-            eval += BishopMobility[PopCount(AttackBB(BISHOP, sq, pieceBB(ALL)) & ei->mobilityArea[color])];
-
-        if (pt == ROOK) {
+        if (pt == ROOK || pt == QUEEN) {
 
             // Open/Semi-open file bonus
             if (!(pieceBB(PAWN) & FileBB[FileOf(sq)]))
-                eval += RookOpenFile;
+                eval += OpenFile[pt-4];
             else if (!(colorPieceBB(color, PAWN) & FileBB[FileOf(sq)]))
-                eval += RookSemiOpenFile;
-
-            // Mobility
-            eval += RookMobility[PopCount(AttackBB(ROOK, sq, pieceBB(ALL)) & ei->mobilityArea[color])];
-        }
-
-        if (pt == QUEEN) {
-
-            // Open/Semi-open file bonus
-            if (!(pieceBB(PAWN) & FileBB[FileOf(sq)]))
-                eval += QueenOpenFile;
-            else if (!(colorPieceBB(color, PAWN) & FileBB[FileOf(sq)]))
-                eval += QueenSemiOpenFile;
-
-            // Mobility
-            eval += QueenMobility[PopCount(AttackBB(QUEEN, sq, pieceBB(ALL)) & ei->mobilityArea[color])];
+                eval += SemiOpenFile[pt-4];
         }
     }
 
