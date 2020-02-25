@@ -31,17 +31,16 @@ static Bitboard PassedMask[2][64];
 static Bitboard IsolatedMask[64];
 
 // Various bonuses and maluses
+static const int PawnIsolated          = S(-20,-18);
+static const int BishopPair            = S( 65, 65);
+static const int KingLineVulnerability = S(-10,  0);
+
+// Passed pawn [rank]
 static const int PawnPassed[8] = { 0, S(6, 6), S(13, 13), S(25, 25), S(45, 45), S(75, 75), S(130, 130), 0 };
-static const int PawnIsolated = S(-20, -18);
 
-static const int  RookOpenFile = S(25, 13);
-static const int QueenOpenFile = S(13, 20);
-static const int  RookSemiOpenFile = S(13, 20);
-static const int QueenSemiOpenFile = S(10, 6);
-
-static const int BishopPair = S(65, 65);
-
-static const int KingLineVulnerability = S(-10, 0);
+// (Semi) open file for rook and queen [pt-4]
+static const int OpenFile[2] =     { S(25, 13), S(13, 20) };
+static const int SemiOpenFile[2] = { S(13, 20), S(10,  6) };
 
 // Mobility [pt-2][mobility]
 static const int Mobility[5][15] = {
@@ -180,25 +179,17 @@ INLINE int EvalPiece(const Position *pos, const EvalInfo *ei, const Color color,
         eval += Mobility[pt-2][PopCount(AttackBB(pt, sq, pieceBB(ALL)) & ei->mobilityArea[color])];
 
         // if (pt == KNIGHT) {}
-
         // if (pt == BISHOP) {}
+        // if (pt == ROOK) {}
+        // if (pt == QUEEN) {}
 
-        if (pt == ROOK) {
-
-            // Open/Semi-open file bonus
-            if (!(pieceBB(PAWN) & FileBB[FileOf(sq)]))
-                eval += RookOpenFile;
-            else if (!(colorPieceBB(color, PAWN) & FileBB[FileOf(sq)]))
-                eval += RookSemiOpenFile;
-        }
-
-        if (pt == QUEEN) {
+        if (pt == ROOK || pt == QUEEN) {
 
             // Open/Semi-open file bonus
             if (!(pieceBB(PAWN) & FileBB[FileOf(sq)]))
-                eval += QueenOpenFile;
+                eval += OpenFile[pt-4];
             else if (!(colorPieceBB(color, PAWN) & FileBB[FileOf(sq)]))
-                eval += QueenSemiOpenFile;
+                eval += SemiOpenFile[pt-4];
         }
     }
 
