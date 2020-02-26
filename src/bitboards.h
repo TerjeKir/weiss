@@ -96,8 +96,14 @@ INLINE int PopLsb(Bitboard *bb) {
     return lsb;
 }
 
+// Checks whether or not a bitboard has multiple set bits
+INLINE bool Multiple(Bitboard bb) {
+
+    return bb & (bb - 1);
+}
+
 // Checks whether or not a bitboard has a single set bit
 INLINE bool Single(Bitboard bb) {
 
-    return bb && !(bb & (bb - 1));
+    return bb && !Multiple(bb);
 }
