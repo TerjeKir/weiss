@@ -185,7 +185,7 @@ void ParseFen(const char *fen, Position *pos) {
     ClearPosition(pos);
 
     Piece piece;
-    int count = 0;
+    int count = 1;
     Square sq = A8;
 
     // Piece locations
@@ -217,11 +217,8 @@ void ParseFen(const char *fen, Position *pos) {
         }
 
         pieceOn(sq) = piece;
-        sq++;
-
-        // Skip count-1 extra squares
-        for (; count > 1; count--)
-            sq++;
+        sq += count;
+        count = 1;
 
         fen++;
     }
