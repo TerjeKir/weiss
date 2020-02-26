@@ -199,7 +199,10 @@ static int Quiescence(int alpha, const int beta, Position *pos, SearchInfo *info
     Move move;
     while ((move = NextMove(&mp))) {
 
-        if (!inCheck && futility + PieceValue[EG][pieceOn(toSq(move))] <= alpha)
+        if (   !inCheck
+            && futility + PieceValue[EG][pieceOn(toSq(move))] <= alpha
+            && !(  PieceTypeOf(pieceOn(fromSq(move))) == PAWN
+                && RelativeRank(sideToMove(), RankOf(toSq(move))) > 5))
             continue;
 
         // Recursively search the positions after making the moves, skipping illegal ones
