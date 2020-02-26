@@ -68,24 +68,23 @@ INLINE void AddMove(const Position *pos, MoveList *list, const Square from, cons
     list->moves[list->count++].move = move;
 }
 
-// Adds promotions and en passant pawn moves
-INLINE void AddSpecialPawn(const Position *pos, MoveList *list, const Square from, const Square to, const Color color, const int flag, const int type) {
+// Adds en passants
+INLINE void AddEnPas(const Position *pos, MoveList *list, const Square from, const Square to) {
 
-    assert(ValidSquare(from));
-    assert(ValidSquare(to));
+    list->moves[list->count].move = MOVE(from, to, EMPTY, EMPTY, FLAG_ENPAS);
+    list->moves[list->count++].score = 105;
+}
 
-    if (flag == FLAG_ENPAS) {
-        list->moves[list->count].move = MOVE(from, to, EMPTY, EMPTY, FLAG_ENPAS);
-        list->moves[list->count++].score = 105;
-    }
-    if (!flag) {
-        if (type == NOISY)
-            AddMove(pos, list, from, to, MakePiece(color, QUEEN), FLAG_NONE, NOISY);
-        if (type == QUIET) {
-            AddMove(pos, list, from, to, MakePiece(color, KNIGHT), FLAG_NONE, NOISY);
-            AddMove(pos, list, from, to, MakePiece(color, ROOK  ), FLAG_NONE, NOISY);
-            AddMove(pos, list, from, to, MakePiece(color, BISHOP), FLAG_NONE, NOISY);
-        }
+// Adds promotions
+INLINE void AddPromotions(const Position *pos, MoveList *list, const Square from, const Square to, const Color color, const int type) {
+
+    if (type == NOISY)
+        AddMove(pos, list, from, to, MakePiece(color, QUEEN), FLAG_NONE, NOISY);
+
+    if (type == QUIET) {
+        AddMove(pos, list, from, to, MakePiece(color, KNIGHT), FLAG_NONE, NOISY);
+        AddMove(pos, list, from, to, MakePiece(color, ROOK  ), FLAG_NONE, NOISY);
+        AddMove(pos, list, from, to, MakePiece(color, BISHOP), FLAG_NONE, NOISY);
     }
 }
 
@@ -152,16 +151,16 @@ INLINE void GenPawn(const Position *pos, MoveList *list, const Color color, cons
         // Promoting captures
         while (lPromoCap) {
             Square to = PopLsb(&lPromoCap);
-            AddSpecialPawn(pos, list, to - (up+left), to, color, FLAG_NONE, type);
+            AddPromotions(pos, list, to - (up+left), to, color, type);
         }
         while (rPromoCap) {
             Square to = PopLsb(&rPromoCap);
-            AddSpecialPawn(pos, list, to - (up+right), to, color, FLAG_NONE, type);
+            AddPromotions(pos, list, to - (up+right), to, color, type);
         }
         // Promotions
         while (promotions) {
             Square to = PopLsb(&promotions);
-            AddSpecialPawn(pos, list, to - up, to, color, FLAG_NONE, type);
+            AddPromotions(pos, list, to - up, to, color, type);
         }
     }
     // Captures
@@ -182,7 +181,7 @@ INLINE void GenPawn(const Position *pos, MoveList *list, const Color color, cons
         if (pos->epSquare != NO_SQ) {
             Bitboard enPassers = not7th & PawnAttackBB(!color, pos->epSquare);
             while (enPassers)
-                AddSpecialPawn(pos, list, PopLsb(&enPassers), pos->epSquare, color, FLAG_ENPAS, NOISY);
+                AddEnPas(pos, list, PopLsb(&enPassers), pos->epSquare);
         }
     }
 }
@@ -223,13 +222,13 @@ static void GenMoves(const Position *pos, MoveList *list, const Color color, con
     assert(MoveListOk(list, pos));
 }
 
-// Generate all quiet moves
+// Generate quiet moves
 void GenQuietMoves(const Position *pos, MoveList *list) {
 
     GenMoves(pos, list, sideToMove(), QUIET);
 }
 
-// Generate all noisy moves
+// Generate noisy moves
 void GenNoisyMoves(const Position *pos, MoveList *list) {
 
     GenMoves(pos, list, sideToMove(), NOISY);
