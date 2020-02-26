@@ -187,6 +187,10 @@ static int Quiescence(int alpha, const int beta, Position *pos, SearchInfo *info
     if (score > alpha)
         alpha = score;
 
+    int futility = score + P_EG;
+
+    const bool inCheck = SqAttacked(Lsb(colorPieceBB(sideToMove(), KING)), !sideToMove(), pos);
+
     InitNoisyMP(&mp, &list, pos);
 
     int bestScore = score;
@@ -194,6 +198,9 @@ static int Quiescence(int alpha, const int beta, Position *pos, SearchInfo *info
     // Move loop
     Move move;
     while ((move = NextMove(&mp))) {
+
+        if (!inCheck && futility + PieceValue[EG][pieceOn(toSq(move))] <= alpha)
+            continue;
 
         // Recursively search the positions after making the moves, skipping illegal ones
         if (!MakeMove(pos, move)) continue;
