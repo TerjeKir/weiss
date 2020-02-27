@@ -57,9 +57,9 @@ INLINE void AddMove(const Position *pos, MoveList *list, const Square from, cons
         *moveScore = MvvLvaScores[pieceOn(to)][pieceOn(from)];
 
     if (type == QUIET) {
-        if (killer1 == move)
+        if (move == killer1)
             *moveScore = 900000;
-        else if (killer2 == move)
+        else if (move == killer2)
             *moveScore = 800000;
         else
             *moveScore = pos->searchHistory[pieceOn(from)][to];
