@@ -21,8 +21,8 @@
 #include "types.h"
 
 
-// 1MB hash is a reasonable expectation.
-#define MINHASH 1
+// 2MB hash is a reasonable expectation.
+#define MINHASH 2
 // 65536MB = 2^32 * 16B / (1024 * 1024)
 // is the limit current indexing is able
 // to use given the 16B size of entries

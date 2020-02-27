@@ -20,6 +20,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#if defined(__linux__)
+    #include <sys/mman.h>
+#endif
+
 #include "makemove.h"
 #include "move.h"
 #include "movegen.h"
@@ -48,14 +52,23 @@ void InitTT() {
 
     size_t MB = TT.requestedMB;
 
-    TT.count = MB * 1024 * 1024 / sizeof(TTEntry);
+    size_t size = MB * 1024 * 1024;
+    TT.count = size / sizeof(TTEntry);
 
     // Free memory if already allocated
-    if (TT.currentMB > 0)
+    if (TT.currentMB != 0)
         free(TT.mem);
 
-    // Allocate memory
-    TT.mem = malloc(TT.count * sizeof(TTEntry) + 64 - 1);
+#if defined(__linux__)
+    // Align on 2MB boundaries and request Huge Pages
+    TT.mem = aligned_alloc(2 * 1024 * 1024, size);
+    TT.table = TT.mem;
+    madvise(TT.table, size, MADV_HUGEPAGE);
+#else
+    // Align on cache line
+    TT.mem = malloc(size + 64 - 1);
+    TT.table = (TTEntry *)(((uintptr_t)TT.mem + 64 - 1) & ~(64 - 1));
+#endif
 
     // Allocation failed
     if (!TT.mem) {
@@ -64,7 +77,6 @@ void InitTT() {
         exit(EXIT_FAILURE);
     }
 
-    TT.table = (TTEntry *)(((uintptr_t)TT.mem + 64 - 1) & ~(64 - 1));
     TT.currentMB = MB;
 
     // Ensure the memory is 0'ed out
