@@ -69,7 +69,7 @@ INLINE void AddMove(const Position *pos, MoveList *list, const Square from, cons
 }
 
 // Adds en passants
-INLINE void AddEnPas(const Position *pos, MoveList *list, const Square from, const Square to) {
+INLINE void AddEnPas(MoveList *list, const Square from, const Square to) {
 
     list->moves[list->count].move = MOVE(from, to, EMPTY, EMPTY, FLAG_ENPAS);
     list->moves[list->count++].score = 105;
@@ -181,7 +181,7 @@ INLINE void GenPawn(const Position *pos, MoveList *list, const Color color, cons
         if (pos->epSquare != NO_SQ) {
             Bitboard enPassers = not7th & PawnAttackBB(!color, pos->epSquare);
             while (enPassers)
-                AddEnPas(pos, list, PopLsb(&enPassers), pos->epSquare);
+                AddEnPas(list, PopLsb(&enPassers), pos->epSquare);
         }
     }
 }
