@@ -176,7 +176,7 @@ INLINE int EvalPiece(const Position *pos, const EvalInfo *ei, const Color color,
     Bitboard pieces = colorPieceBB(color, pt);
 
     // Bishop pair
-    if (pt == BISHOP && PopCount(pieces) >= 2)
+    if (pt == BISHOP && Multiple(pieces))
         eval += BishopPair;
 
     while (pieces) {
