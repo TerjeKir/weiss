@@ -56,7 +56,7 @@ void InitTT() {
     TT.count = size / sizeof(TTEntry);
 
     // Free memory if already allocated
-    if (TT.currentMB != 0)
+    if (TT.mem)
         free(TT.mem);
 
 #if defined(__linux__)
