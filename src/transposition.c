@@ -62,7 +62,7 @@ void InitTT() {
 #if defined(__linux__)
     // Align on 2MB boundaries and request Huge Pages
     TT.mem = aligned_alloc(2 * 1024 * 1024, size);
-    TT.table = TT.mem;
+    TT.table = (TTEntry *)TT.mem;
     madvise(TT.table, size, MADV_HUGEPAGE);
 #else
     // Align on cache line
