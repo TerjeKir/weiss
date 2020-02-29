@@ -73,7 +73,7 @@ static bool IsRepetition(const Position *pos) {
 }
 
 // Get ready to start a search
-static void ClearForSearch(Position *pos, SearchInfo *info) {
+static void PrepareSearch(Position *pos, SearchInfo *info) {
 
     memset(info, 0, sizeof(SearchInfo));
 
@@ -565,7 +565,7 @@ void SearchPosition(Position *pos, SearchInfo *info) {
 
     InitTimeManagement();
 
-    ClearForSearch(pos, info);
+    PrepareSearch(pos, info);
 
     // Iterative deepening
     for (info->depth = 1; info->depth <= Limits.depth; ++info->depth) {
