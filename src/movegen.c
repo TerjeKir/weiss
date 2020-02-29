@@ -18,7 +18,7 @@
 
 #include <stdio.h>
 
-#include "bitboards.h"
+#include "bitboard.h"
 #include "board.h"
 #include "makemove.h"
 #include "move.h"

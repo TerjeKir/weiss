@@ -22,7 +22,7 @@
 #include <string.h>
 
 #include "fathom/tbprobe.h"
-#include "bitboards.h"
+#include "bitboard.h"
 #include "board.h"
 #include "evaluate.h"
 #include "makemove.h"

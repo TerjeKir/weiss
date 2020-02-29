@@ -19,7 +19,7 @@
 #pragma once
 
 #include "fathom/tbprobe.h"
-#include "bitboards.h"
+#include "bitboard.h"
 #include "types.h"
 
 

@@ -24,7 +24,7 @@
 
 #pragma once
 
-#include "../bitboards.h"
+#include "../bitboard.h"
 
 /****************************************************************************/
 /* BUILD CONFIG:                                                            */

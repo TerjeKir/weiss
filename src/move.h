@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "bitboards.h"
+#include "bitboard.h"
 #include "types.h"
 
 /* Move contents - total 23bits used
