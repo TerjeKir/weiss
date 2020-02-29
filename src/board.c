@@ -20,7 +20,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "bitboards.h"
+#include "bitboard.h"
 #include "board.h"
 #include "move.h"
 #include "psqt.h"

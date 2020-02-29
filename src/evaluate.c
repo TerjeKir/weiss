@@ -18,8 +18,7 @@
 
 #include <stdlib.h>
 
-#include "attack.h"
-#include "bitboards.h"
+#include "bitboard.h"
 #include "board.h"
 #include "evaluate.h"
 #include "psqt.h"

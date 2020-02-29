@@ -16,11 +16,10 @@
   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "attack.h"
-#include "bitboards.h"
+#include "bitboard.h"
 #include "board.h"
-#include "psqt.h"
 #include "move.h"
+#include "psqt.h"
 #include "validate.h"
 
 

@@ -20,8 +20,8 @@
 
 #include <inttypes.h>
 #include <setjmp.h>
-#include <stdint.h>
 #include <stdbool.h>
+#include <stdint.h>
 
 #define NDEBUG
 #include <assert.h>
@@ -153,14 +153,6 @@ typedef struct {
     uint8_t padding; // not used
     int eval;
 } History;
-
-typedef struct {
-    Key posKey;
-    Move move;
-    int16_t score;
-    uint8_t depth;
-    uint8_t flag;
-} TTEntry;
 
 typedef struct {
 

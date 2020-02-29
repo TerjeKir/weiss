@@ -34,6 +34,16 @@ enum { BOUND_NONE, BOUND_UPPER, BOUND_LOWER, BOUND_EXACT };
 
 typedef struct {
 
+    Key posKey;
+    Move move;
+    int16_t score;
+    uint8_t depth;
+    uint8_t flag;
+
+} TTEntry;
+
+typedef struct {
+
     void *mem;
     TTEntry *table;
     size_t count;
@@ -49,6 +59,7 @@ extern TranspositionTable TT;
 
 // Mate scores are stored as mate in 0 as they depend on the current ply
 INLINE int ScoreToTT (const int score, const uint8_t ply) {
+
     return score >=  ISMATE ? score + ply
          : score <= -ISMATE ? score - ply
                             : score;
@@ -56,6 +67,7 @@ INLINE int ScoreToTT (const int score, const uint8_t ply) {
 
 // Translates from mate in 0 to the proper mate score at current ply
 INLINE int ScoreFromTT (const int score, const uint8_t ply) {
+
     return score >=  ISMATE ? score - ply
          : score <= -ISMATE ? score + ply
                             : score;

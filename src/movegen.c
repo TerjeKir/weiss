@@ -18,9 +18,8 @@
 
 #include <stdio.h>
 
-#include "attack.h"
+#include "bitboard.h"
 #include "board.h"
-#include "bitboards.h"
 #include "makemove.h"
 #include "move.h"
 #include "validate.h"

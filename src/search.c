@@ -22,14 +22,14 @@
 #include <string.h>
 
 #include "fathom/tbprobe.h"
-#include "attack.h"
+#include "bitboard.h"
 #include "board.h"
 #include "evaluate.h"
 #include "makemove.h"
-#include "time.h"
 #include "move.h"
 #include "movegen.h"
 #include "movepicker.h"
+#include "time.h"
 #include "transposition.h"
 #include "syzygy.h"
 
@@ -65,7 +65,7 @@ static bool IsRepetition(const Position *pos) {
 
     // Compare current posKey to posKeys in history, skipping
     // opponents turns as that wouldn't be a repetition
-    for (int i = 2; i <= pos->rule50; i += 2)
+    for (int i = 4; i <= pos->rule50; i += 2)
         if (pos->key == history(-i).posKey)
             return true;
 
@@ -73,7 +73,7 @@ static bool IsRepetition(const Position *pos) {
 }
 
 // Get ready to start a search
-static void ClearForSearch(Position *pos, SearchInfo *info) {
+static void PrepareSearch(Position *pos, SearchInfo *info) {
 
     memset(info, 0, sizeof(SearchInfo));
 
@@ -565,7 +565,7 @@ void SearchPosition(Position *pos, SearchInfo *info) {
 
     InitTimeManagement();
 
-    ClearForSearch(pos, info);
+    PrepareSearch(pos, info);
 
     // Iterative deepening
     for (info->depth = 1; info->depth <= Limits.depth; ++info->depth) {

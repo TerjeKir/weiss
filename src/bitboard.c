@@ -16,11 +16,20 @@
   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "attack.h"
-#include "bitboards.h"
+#include "bitboard.h"
 #include "board.h"
 #include "validate.h"
 
+
+const Bitboard FileBB[8] = {
+    fileABB, fileBBB, fileCBB, fileDBB, fileEBB, fileFBB, fileGBB, fileHBB
+};
+
+const Bitboard RankBB[8] = {
+    rank1BB, rank2BB, rank3BB, rank4BB, rank5BB, rank6BB, rank7BB, rank8BB
+};
+
+Bitboard SquareBB[64];
 
 static Bitboard BishopAttacks[0x1480];
 static Bitboard RookAttacks[0x19000];
@@ -115,7 +124,10 @@ static void InitSliderAttacks(Magic *m, Bitboard *table, const uint64_t *magics,
 }
 
 // Initializes all attack lookups
-CONSTR InitAttacks() {
+CONSTR InitBitMasks() {
+
+    for (Square sq = A1; sq <= H8; ++sq)
+        SquareBB[sq] = (1ULL << sq);
 
     InitNonSliderAttacks();
 
