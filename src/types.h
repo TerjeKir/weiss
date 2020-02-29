@@ -155,14 +155,6 @@ typedef struct {
 } History;
 
 typedef struct {
-    Key posKey;
-    Move move;
-    int16_t score;
-    uint8_t depth;
-    uint8_t flag;
-} TTEntry;
-
-typedef struct {
 
     uint8_t board[64];
     Bitboard pieceBB[TYPE_NB];
