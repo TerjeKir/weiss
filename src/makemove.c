@@ -18,8 +18,8 @@
 
 #include "bitboard.h"
 #include "board.h"
-#include "psqt.h"
 #include "move.h"
+#include "psqt.h"
 #include "validate.h"
 
 

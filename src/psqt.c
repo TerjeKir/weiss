@@ -18,7 +18,7 @@
 
 #include "board.h"
 #include "evaluate.h"
-#include "types.h"
+#include "psqt.h"
 
 
 int PSQT[PIECE_NB][64];

@@ -19,7 +19,6 @@
 #include "move.h"
 #include "movegen.h"
 #include "movepicker.h"
-#include "types.h"
 
 
 // Return the next best move

@@ -22,10 +22,10 @@
 #include "board.h"
 #include "evaluate.h"
 #include "makemove.h"
-#include "time.h"
 #include "move.h"
 #include "movegen.h"
 #include "search.h"
+#include "time.h"
 #include "transposition.h"
 
 

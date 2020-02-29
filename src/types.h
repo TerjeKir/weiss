@@ -20,8 +20,8 @@
 
 #include <inttypes.h>
 #include <setjmp.h>
-#include <stdint.h>
 #include <stdbool.h>
+#include <stdint.h>
 
 #define NDEBUG
 #include <assert.h>
