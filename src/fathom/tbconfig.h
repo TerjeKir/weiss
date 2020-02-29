@@ -25,7 +25,6 @@
 #pragma once
 
 #include "../bitboards.h"
-#include "../attack.h"
 
 /****************************************************************************/
 /* BUILD CONFIG:                                                            */

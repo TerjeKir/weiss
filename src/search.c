@@ -22,14 +22,14 @@
 #include <string.h>
 
 #include "fathom/tbprobe.h"
-#include "attack.h"
+#include "bitboards.h"
 #include "board.h"
 #include "evaluate.h"
 #include "makemove.h"
-#include "time.h"
 #include "move.h"
 #include "movegen.h"
 #include "movepicker.h"
+#include "time.h"
 #include "transposition.h"
 #include "syzygy.h"
 
