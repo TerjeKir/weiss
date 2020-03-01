@@ -320,24 +320,15 @@ static int AlphaBeta(int alpha, int beta, Depth depth, Position *pos, SearchInfo
         }
     }
 
-    int eval;
-    bool improving;
+    int eval = history(0).eval = inCheck          ? NOSCORE
+                               : lastMoveNullMove ? -history(-1).eval
+                                                  : EvalPosition(pos);
+
+    bool improving = !inCheck && pos->ply >= 2 && eval > history(-2).eval;
 
     // Skip pruning while in check and at the root
-    if (inCheck) {
-
-        history(0).eval = eval = NOSCORE;
-        improving = false;
+    if (inCheck || root)
         goto move_loop;
-    }
-
-    // Do a static evaluation for pruning consideration
-    if (!root && history(-1).move == NOMOVE)
-        history(0).eval = eval = -history(-1).eval;
-    else
-        history(0).eval = eval = EvalPosition(pos);
-
-    improving = pos->ply >= 2 && eval > history(-2).eval;
 
     // Razoring
     if (!pvNode && depth < 2 && eval + 640 < alpha)
@@ -348,8 +339,7 @@ static int AlphaBeta(int alpha, int beta, Depth depth, Position *pos, SearchInfo
         return eval;
 
     // Null Move Pruning
-    if (   !root
-        && history(-1).move != NOMOVE
+    if (   history(-1).move != NOMOVE
         && eval >= beta
         && pos->nonPawnCount[sideToMove()] > 0
         && depth >= 3) {
@@ -370,7 +360,7 @@ static int AlphaBeta(int alpha, int beta, Depth depth, Position *pos, SearchInfo
     }
 
     // Internal iterative deepening
-    if (!root && depth >= 4 && !ttMove) {
+    if (depth >= 4 && !ttMove) {
 
         AlphaBeta(alpha, beta, MAX(1, MIN(depth / 2, depth - 4)), pos, info, pv);
 
