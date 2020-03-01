@@ -320,60 +320,66 @@ static int AlphaBeta(int alpha, int beta, Depth depth, Position *pos, SearchInfo
         }
     }
 
-    int eval = history(0).eval = NOSCORE;
-    bool improving = false;
+    int eval;
+    bool improving;
 
     // Skip pruning while in check and at the root
-    if (!inCheck && !root) {
+    if (inCheck) {
 
-        // Do a static evaluation for pruning consideration
-        if (history(-1).move == NOMOVE)
-            history(0).eval = eval = -history(-1).eval;
-        else
-            history(0).eval = eval = EvalPosition(pos);
+        history(0).eval = eval = NOSCORE;
+        improving = false;
+        goto move_loop;
+    }
 
-        if (pos->ply >= 2 && eval > history(-2).eval)
-            improving = true;
+    // Do a static evaluation for pruning consideration
+    if (!root && history(-1).move == NOMOVE)
+        history(0).eval = eval = -history(-1).eval;
+    else
+        history(0).eval = eval = EvalPosition(pos);
 
-        // Razoring
-        if (!pvNode && depth < 2 && eval + 640 < alpha)
-            return Quiescence(alpha, beta, pos, info);
+    improving = pos->ply >= 2 && eval > history(-2).eval;
 
-        // Reverse Futility Pruning
-        if (!pvNode && depth < 7 && eval - 225 * depth + 100 * improving >= beta)
-            return eval;
+    // Razoring
+    if (!pvNode && depth < 2 && eval + 640 < alpha)
+        return Quiescence(alpha, beta, pos, info);
 
-        // Null Move Pruning
-        if (   history(-1).move != NOMOVE
-            && eval >= beta
-            && pos->nonPawnCount[sideToMove()] > 0
-            && depth >= 3) {
+    // Reverse Futility Pruning
+    if (!pvNode && depth < 7 && eval - 225 * depth + 100 * improving >= beta)
+        return eval;
 
-            int R = 3 + depth / 5 + MIN(3, (eval - beta) / 256);
+    // Null Move Pruning
+    if (   !root
+        && history(-1).move != NOMOVE
+        && eval >= beta
+        && pos->nonPawnCount[sideToMove()] > 0
+        && depth >= 3) {
 
-            MakeNullMove(pos);
-            int score = -AlphaBeta(-beta, -beta + 1, depth - R, pos, info, &pvFromHere);
-            TakeNullMove(pos);
+        int R = 3 + depth / 5 + MIN(3, (eval - beta) / 256);
 
-            // Cutoff
-            if (score >= beta) {
-                // Don't return unproven mate scores
-                if (score >= ISMATE)
-                    score = beta;
-                return score;
-            }
-        }
+        MakeNullMove(pos);
+        int score = -AlphaBeta(-beta, -beta + 1, depth - R, pos, info, &pvFromHere);
+        TakeNullMove(pos);
 
-        // Internal iterative deepening
-        if (depth >= 4 && !ttMove) {
-
-            AlphaBeta(alpha, beta, MAX(1, MIN(depth / 2, depth - 4)), pos, info, pv);
-
-            tte = ProbeTT(posKey, &ttHit);
-
-            ttMove = ttHit ? tte->move : NOMOVE;
+        // Cutoff
+        if (score >= beta) {
+            // Don't return unproven mate scores
+            if (score >= ISMATE)
+                score = beta;
+            return score;
         }
     }
+
+    // Internal iterative deepening
+    if (!root && depth >= 4 && !ttMove) {
+
+        AlphaBeta(alpha, beta, MAX(1, MIN(depth / 2, depth - 4)), pos, info, pv);
+
+        tte = ProbeTT(posKey, &ttHit);
+
+        ttMove = ttHit ? tte->move : NOMOVE;
+    }
+
+move_loop:
 
     InitNormalMP(&mp, &list, pos, ttMove);
 
