@@ -40,6 +40,7 @@ CONSTR InitMvvLva() {
             MvvLvaScores[Victim][Attacker] = VictimScore[Victim] - AttackerScore[Attacker];
 }
 
+#ifdef DEV
 bool MoveListOk(const MoveList *list, const Position *pos) {
 
     if (list->count >= MAXPOSITIONMOVES)
@@ -55,6 +56,7 @@ bool MoveListOk(const MoveList *list, const Position *pos) {
 
     return true;
 }
+#endif
 
 // Constructs and adds a move to the move list
 INLINE void AddMove(const Position *pos, MoveList *list, const Square from, const Square to, const Piece promo, const int flag, const int type) {
