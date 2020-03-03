@@ -24,7 +24,6 @@
 #include "board.h"
 #include "move.h"
 #include "psqt.h"
-#include "validate.h"
 
 
 uint8_t SqDistance[64][64];

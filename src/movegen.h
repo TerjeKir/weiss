@@ -21,6 +21,7 @@
 #include "types.h"
 
 
+bool MoveListOk(const MoveList *list, const Position *pos);
 void GenAllMoves(const Position *pos, MoveList *list);
 void GenNoisyMoves(const Position *pos, MoveList *list);
 void GenQuietMoves(const Position *pos, MoveList *list);

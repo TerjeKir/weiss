@@ -20,7 +20,6 @@
 #include "board.h"
 #include "move.h"
 #include "psqt.h"
-#include "validate.h"
 
 
 #define HASH_PCE(piece, sq) (pos->key ^= (PieceKeys[(piece)][(sq)]))

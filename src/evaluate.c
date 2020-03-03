@@ -22,7 +22,6 @@
 #include "board.h"
 #include "evaluate.h"
 #include "psqt.h"
-#include "validate.h"
 
 
 // Eval bit masks

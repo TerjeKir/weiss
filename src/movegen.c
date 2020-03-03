@@ -22,7 +22,6 @@
 #include "board.h"
 #include "makemove.h"
 #include "move.h"
-#include "validate.h"
 
 
 enum { QUIET, NOISY };
@@ -39,6 +38,22 @@ CONSTR InitMvvLva() {
     for (Piece Attacker = PIECE_MIN; Attacker < PIECE_NB; ++Attacker)
         for (Piece Victim = PIECE_MIN; Victim < PIECE_NB; ++Victim)
             MvvLvaScores[Victim][Attacker] = VictimScore[Victim] - AttackerScore[Attacker];
+}
+
+bool MoveListOk(const MoveList *list, const Position *pos) {
+
+    if (list->count >= MAXPOSITIONMOVES)
+        return false;
+
+    for (unsigned MoveNum = 0; MoveNum < list->count; ++MoveNum) {
+
+        if (!MoveIsPseudoLegal(pos, list->moves[MoveNum].move)) {
+            PrintBoard(pos);
+            return false;
+        }
+    }
+
+    return true;
 }
 
 // Constructs and adds a move to the move list
