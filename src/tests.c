@@ -40,12 +40,12 @@ static const char *BenchmarkFENs[] = {
 
 void Benchmark(Depth depth, Position *pos, SearchInfo *info) {
 
-    uint64_t nodes = 0ULL;
+    uint64_t nodes = 0;
 
     Limits.depth = depth;
     Limits.timelimit = false;
 
-    TimePoint startTime = Now();
+    TimePoint start = Now();
 
     for (int i = 0; strcmp(BenchmarkFENs[i], ""); ++i) {
         printf("Bench %d: %s\n", i + 1, BenchmarkFENs[i]);
@@ -56,7 +56,7 @@ void Benchmark(Depth depth, Position *pos, SearchInfo *info) {
         ClearTT();
     }
 
-    TimePoint elapsed = Now() - startTime + 1;
+    TimePoint elapsed = TimeSince(start) + 1;
 
     printf("Benchmark complete:"
            "\nTime : %" PRId64 "ms"
@@ -82,9 +82,9 @@ static void RecursivePerft(const Depth depth, Position *pos) {
     MoveList list[1];
     GenAllMoves(pos, list);
 
-    for (unsigned MoveNum = 0; MoveNum < list->count; ++MoveNum) {
+    for (unsigned i = 0; i < list->count; ++i) {
 
-        if (!MakeMove(pos, list->moves[MoveNum].move))
+        if (!MakeMove(pos, list->moves[i].move))
             continue;
 
         RecursivePerft(depth - 1, pos);
@@ -101,14 +101,14 @@ void Perft(char *line) {
     Depth depth = 5;
     sscanf(line, "perft %d", &depth);
     depth = MIN(6, depth);
-    char *perftFen = line + 8;
 
+    char *perftFen = line + 8;
     !*perftFen ? ParseFen(PERFT_FEN, pos)
                : ParseFen(perftFen,  pos);
 
     assert(CheckBoard(pos));
 
-    printf("\nStarting Test To Depth:%d\n\n", depth);
+    printf("\nStarting perft to depth %d\n\n", depth);
     fflush(stdout);
 
     const TimePoint start = Now();
@@ -117,29 +117,32 @@ void Perft(char *line) {
     MoveList list[1];
     GenAllMoves(pos, list);
 
-    for (unsigned MoveNum = 0; MoveNum < list->count; ++MoveNum) {
+    for (unsigned i = 0; i < list->count; ++i) {
 
-        Move move = list->moves[MoveNum].move;
+        Move move = list->moves[i].move;
 
         if (!MakeMove(pos, move)){
-            printf("move %d : %s : Illegal\n", MoveNum + 1, MoveToStr(move));
+            printf("move %d : %s : Illegal\n", i + 1, MoveToStr(move));
             fflush(stdout);
             continue;
         }
 
         uint64_t oldCount = leafNodes;
         RecursivePerft(depth - 1, pos);
-        uint64_t newNodes = leafNodes - oldCount;
-        printf("move %d : %s : %" PRId64 "\n", MoveNum + 1, MoveToStr(move), newNodes);
+        uint64_t newCount = leafNodes - oldCount;
+        printf("move %d : %s : %" PRId64 "\n", i + 1, MoveToStr(move), newCount);
         fflush(stdout);
 
         TakeMove(pos);
     }
 
-    const int timeElapsed = Now() - start;
-    printf("\nPerft Complete : %" PRId64 " nodes visited in %dms\n", leafNodes, timeElapsed);
-    if (timeElapsed > 0)
-        printf("               : %" PRId64 " nps\n", ((leafNodes * 1000) / timeElapsed));
+    const TimePoint elapsed = TimeSince(start) + 1;
+
+    printf("\nPerft complete:"
+           "\nTime : %" PRId64 "ms"
+           "\nNodes: %" PRIu64
+           "\nNPS  : %" PRId64 "\n",
+           elapsed, leafNodes, leafNodes * 1000 / elapsed);
     fflush(stdout);
 
     return;
@@ -195,132 +198,6 @@ void MirrorEvalTest(Position *pos) {
     }
     printf("\n\nMirrorEvalTest Successful\n\n");
     fflush(stdout);
-    fclose(file);
-}
-
-// Checks engine can find mates
-void MateInXTest(Position *pos) {
-
-    char filename[] = "../EPDs/mate_-_.epd";                 // '_'s are placeholders
-    FILE *file;
-
-    SearchInfo info[1];
-    char lineIn[1024];
-
-    int bestMoves[20];
-    int foundScore;
-    int correct, bmCnt, bestFound, extensions, mateDepth, foundDepth;
-
-    for (char depth = '1'; depth < '9'; ++depth) {
-        filename[12] = depth;
-        for (char side = 'b'; side >= 'b'; side += 21) { // Alternates 'b' <-> 'w', overflowing goes below 'b'
-            filename[14] = side;
-
-            if ((file = fopen(filename, "r")) == NULL) {
-                printf("MateInXTest: %s not found.\n", filename);
-                fflush(stdout);
-                return;
-            }
-
-            int lineCnt = 0;
-
-            while (fgets(lineIn, 1024, file) != NULL) {
-
-                // Reset
-                memset(bestMoves, 0, sizeof(bestMoves));
-                foundScore = 0;
-                bestFound = 0;
-
-                // Read next line
-                ParseFen(lineIn, pos);
-                lineCnt++;
-                printf("Line %d in file: %s\n", lineCnt, filename);
-                fflush(stdout);
-
-                char *bm = strstr(lineIn, "bm") + 3;
-                char *ce = strstr(lineIn, "ce");
-
-                // Read in the mate depth
-                mateDepth = depth - '0';
-
-                // Read in the best move(s)
-                bmCnt = 0;
-                while (bm < ce) {
-                    bestMoves[bmCnt] = ParseEPDMove(bm, pos);
-                    bm = strstr(bm, " ") + 1;
-                    bmCnt++;
-                }
-
-                // Search setup
-                Limits.depth = (depth - '0') * 2 - 1;
-                Limits.start = Now();
-                extensions = 0;
-search:
-                SearchPosition(pos, info);
-
-                bestFound = info->pv.line[0];
-
-                // Check if correct move is found
-                correct = 0;
-                for (int i = 0; i <= bmCnt; ++i)
-                    if (bestFound == bestMoves[i]){
-                        printf("\nBest Found: %s\n\n", MoveToStr(bestFound));
-                        fflush(stdout);
-                        correct = 1;
-                    }
-
-                // Extend search if not found
-                if (!correct && extensions < 5) {
-                    Limits.depth += 2;
-                    extensions += 1;
-                    goto search;
-                }
-
-                // Correct move not found
-                if (!correct) {
-                    printf("\n\nMateInXTest Fail: Not found.\n%s", lineIn);
-                    printf("Line %d in file: %s\n", lineCnt, filename);
-                    for (int i = 0; i < bmCnt; ++i)
-                        printf("Accepted answer: %s\n", MoveToStr(bestMoves[i]));
-                    fflush(stdout);
-                    getchar();
-                    continue;
-                }
-
-                // Get pv score
-                TTEntry *tte = &TT.table[((uint32_t)pos->key * (uint64_t)TT.count) >> 32];
-                if (tte->posKey == pos->key)
-                    foundScore = tte->score;
-
-                // Translate score to mate depth
-                foundDepth = (foundScore >  ISMATE) ? (INFINITE - foundScore) / 2 + 1
-                           : (foundScore < -ISMATE) ? (INFINITE + foundScore) / 2
-                                                    : 0;
-
-                // Extend search if shortest mate not found
-                if (foundDepth != mateDepth && extensions < 5) {
-                    Limits.depth += 2;
-                    extensions += 1;
-                    goto search;
-                }
-
-                // Failed to find correct move and/or correct depth
-                if (foundDepth != mateDepth) {
-                    printf("\n\nMateInXTest Fail: Wrong depth.\n%s", lineIn);
-                    printf("Line %d in file: %s\n", lineCnt, filename);
-                    printf("Mate depth should be %d, was %d.\n", mateDepth, foundDepth);
-                    fflush(stdout);
-                    getchar();
-                    continue;
-                }
-
-                // Clear lineIn for reuse
-                memset(&lineIn[0], 0, sizeof(lineIn));
-                // Clear TT
-                ClearTT();
-            }
-        }
-    }
     fclose(file);
 }
 #endif

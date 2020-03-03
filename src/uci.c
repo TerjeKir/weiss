@@ -74,7 +74,7 @@ static void *ParseGo(void *searchThreadInfo) {
     Position *pos    = sst->pos;
     SearchInfo *info = sst->info;
 
-    TimeControl(sideToMove(), sst->line);
+    TimeControl(sideToMove, sst->line);
 
     SearchPosition(pos, info);
 
@@ -218,7 +218,6 @@ int main(int argc, char **argv) {
         else if (BeginsWith(line, "perft"     )) Perft(line);
         else if (BeginsWith(line, "eval"      )) PrintEval(pos);
         else if (BeginsWith(line, "mirrortest")) MirrorEvalTest(pos);
-        else if (BeginsWith(line, "matetest"  )) MateInXTest(pos);
 #endif
     }
     free(TT.mem);

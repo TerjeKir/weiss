@@ -41,7 +41,7 @@
 #define pieceBB(type) (pos->pieceBB[(type)])
 #define colorBB(color) (pos->colorBB[(color)])
 #define colorPieceBB(color, type) (colorBB(color) & pieceBB(type))
-#define sideToMove() (pos->sideToMove)
+#define sideToMove (pos->stm)
 #define pieceOn(sq) (pos->board[sq])
 
 
@@ -167,7 +167,7 @@ typedef struct {
     int basePhase;
     int phase;
 
-    Color sideToMove;
+    Color stm;
     uint8_t epSquare;
     uint8_t rule50;
     uint8_t castlingRights;

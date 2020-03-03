@@ -270,5 +270,5 @@ int EvalPosition(const Position *pos) {
     assert(-INFINITE < eval && eval < INFINITE);
 
     // Return the evaluation, negated if we are black
-    return sideToMove() == WHITE ? eval : -eval;
+    return sideToMove == WHITE ? eval : -eval;
 }

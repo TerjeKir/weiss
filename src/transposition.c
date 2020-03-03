@@ -98,20 +98,20 @@ TTEntry* ProbeTT(const Key posKey, bool *ttHit) {
 }
 
 // Store an entry in the transposition table
-void StoreTTEntry(TTEntry *tte, const Key posKey, const Move move, const int score, const Depth depth, const int flag) {
+void StoreTTEntry(TTEntry *tte, const Key posKey, const Move move, const int score, const Depth depth, const int bound) {
 
-    assert(BOUND_UPPER <= flag && flag <= BOUND_EXACT);
-    assert( -INFINITE <= score && score <= INFINITE);
-    assert(         1 <= depth && depth < MAXDEPTH);
+    assert(BOUND_UPPER <= bound && bound <= BOUND_EXACT);
+    assert(  -INFINITE <= score && score <= INFINITE);
+    assert(          1 <= depth && depth <  MAXDEPTH);
 
     // Store new data unless it would overwrite data about the same
     // position searched to a higher depth.
-    if (posKey != tte->posKey || depth >= tte->depth || flag == BOUND_EXACT)
+    if (posKey != tte->posKey || depth >= tte->depth || bound == BOUND_EXACT)
         tte->posKey = posKey,
         tte->move   = move,
         tte->score  = score,
         tte->depth  = depth,
-        tte->flag   = flag;
+        tte->bound  = bound;
 }
 
 // Estimates the load factor of the transposition table (1 = 0.1%)

@@ -131,7 +131,7 @@ static void PrintConclusion(const SearchInfo *info) {
 }
 
 INLINE bool PawnOn7th(const Position *pos) {
-    return colorPieceBB(sideToMove(), PAWN) & RankBB[RelativeRank(sideToMove(), RANK_7)];
+    return colorPieceBB(sideToMove, PAWN) & RankBB[RelativeRank(sideToMove, RANK_7)];
 }
 
 // Dynamic delta pruning margin
@@ -142,7 +142,7 @@ static int QuiescenceDeltaMargin(const Position *pos) {
     const int DeltaBase = PawnOn7th(pos) ? Q_MG : P_MG;
 
     // Look for possible captures on the board
-    const Bitboard enemy = colorBB(!sideToMove());
+    const Bitboard enemy = colorBB(!sideToMove);
 
     // Find the most valuable piece we could take and add to our base
     return DeltaBase + ((enemy & pieceBB(QUEEN )) ? Q_MG
@@ -189,7 +189,7 @@ static int Quiescence(int alpha, const int beta, Position *pos, SearchInfo *info
 
     int futility = score + P_EG;
 
-    const bool inCheck = SqAttacked(Lsb(colorPieceBB(sideToMove(), KING)), !sideToMove(), pos);
+    const bool inCheck = SqAttacked(Lsb(colorPieceBB(sideToMove, KING)), !sideToMove, pos);
 
     InitNoisyMP(&mp, &list, pos);
 
@@ -202,7 +202,7 @@ static int Quiescence(int alpha, const int beta, Position *pos, SearchInfo *info
         if (   !inCheck
             && futility + PieceValue[EG][pieceOn(toSq(move))] <= alpha
             && !(  PieceTypeOf(pieceOn(fromSq(move))) == PAWN
-                && RelativeRank(sideToMove(), RankOf(toSq(move))) > 5))
+                && RelativeRank(sideToMove, RankOf(toSq(move))) > 5))
             continue;
 
         // Recursively search the positions after making the moves, skipping illegal ones
@@ -244,7 +244,7 @@ static int AlphaBeta(int alpha, int beta, Depth depth, Position *pos, SearchInfo
     MoveList list;
 
     // Extend search if in check
-    const bool inCheck = SqAttacked(Lsb(colorPieceBB(sideToMove(), KING)), !sideToMove(), pos);
+    const bool inCheck = SqAttacked(Lsb(colorPieceBB(sideToMove, KING)), !sideToMove, pos);
     if (inCheck) depth++;
 
     // Quiescence at the end of search
@@ -287,43 +287,37 @@ static int AlphaBeta(int alpha, int beta, Depth depth, Position *pos, SearchInfo
     // Trust the ttScore in non-pvNodes as long as the entry depth is equal or higher
     if (!pvNode && ttHit && tte->depth >= depth) {
 
-        assert(BOUND_UPPER <= tte->flag && tte->flag <= BOUND_EXACT);
-        assert(         1 <= tte->depth && tte->depth < MAXDEPTH);
-        assert(    -INFINITE <= ttScore && ttScore <= INFINITE);
+        assert(BOUND_UPPER <= tte->bound && tte->bound <= BOUND_EXACT);
+        assert(          1 <= tte->depth && tte->depth < MAXDEPTH);
+        assert(     -INFINITE <= ttScore && ttScore <= INFINITE);
 
         // Check if ttScore causes a cutoff
-        if (ttScore >= beta ? tte->flag & BOUND_LOWER
-                            : tte->flag & BOUND_UPPER)
+        if (ttScore >= beta ? tte->bound & BOUND_LOWER
+                            : tte->bound & BOUND_UPPER)
 
             return ttScore;
     }
 
     // Probe syzygy TBs
-    unsigned tbresult;
-    if ((tbresult = ProbeWDL(pos)) != TB_RESULT_FAILED) {
+    int score, bound;
+    if (ProbeWDL(pos, &score, &bound)) {
 
         info->tbhits++;
 
-        int val = tbresult == TB_LOSS ? -INFINITE + MAXDEPTH + pos->ply + 1
-                : tbresult == TB_WIN  ?  INFINITE - MAXDEPTH - pos->ply - 1
-                                      :  0;
+        if (score >= beta ? bound & BOUND_LOWER
+                          : bound & BOUND_UPPER) {
 
-        int flag = tbresult == TB_LOSS ? BOUND_UPPER
-                 : tbresult == TB_WIN  ? BOUND_LOWER
-                                       : BOUND_EXACT;
-
-        if (val >= beta ? flag & BOUND_LOWER
-                        : flag & BOUND_UPPER) {
-
-            StoreTTEntry(tte, posKey, NOMOVE, val, MAXDEPTH-1, flag);
-            return val;
+            StoreTTEntry(tte, posKey, NOMOVE, score, MAXDEPTH-1, bound);
+            return score;
         }
     }
 
+    // Do a static evaluation for pruning considerations
     int eval = history(0).eval = inCheck          ? NOSCORE
                                : lastMoveNullMove ? -history(-1).eval
                                                   : EvalPosition(pos);
 
+    // Improving if not in check, and current eval is higher than 2 plies ago
     bool improving = !inCheck && pos->ply >= 2 && eval > history(-2).eval;
 
     // Skip pruning while in check and at the root
@@ -341,13 +335,13 @@ static int AlphaBeta(int alpha, int beta, Depth depth, Position *pos, SearchInfo
     // Null Move Pruning
     if (   history(-1).move != NOMOVE
         && eval >= beta
-        && pos->nonPawnCount[sideToMove()] > 0
+        && pos->nonPawnCount[sideToMove] > 0
         && depth >= 3) {
 
         int R = 3 + depth / 5 + MIN(3, (eval - beta) / 256);
 
         MakeNullMove(pos);
-        int score = -AlphaBeta(-beta, -beta + 1, depth - R, pos, info, &pvFromHere);
+        score = -AlphaBeta(-beta, -beta + 1, depth - R, pos, info, &pvFromHere);
         TakeNullMove(pos);
 
         // Cutoff
@@ -376,7 +370,7 @@ move_loop:
     const int oldAlpha = alpha;
     int moveCount = 0, quietCount = 0;
     Move bestMove = NOMOVE;
-    int bestScore = -INFINITE, score = -INFINITE;
+    int bestScore = score = -INFINITE;
 
     // Move loop
     Move move;

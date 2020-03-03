@@ -40,6 +40,7 @@ CONSTR InitMvvLva() {
             MvvLvaScores[Victim][Attacker] = VictimScore[Victim] - AttackerScore[Attacker];
 }
 
+#ifdef DEV
 bool MoveListOk(const MoveList *list, const Position *pos) {
 
     if (list->count >= MAXPOSITIONMOVES)
@@ -55,6 +56,7 @@ bool MoveListOk(const MoveList *list, const Position *pos) {
 
     return true;
 }
+#endif
 
 // Constructs and adds a move to the move list
 INLINE void AddMove(const Position *pos, MoveList *list, const Square from, const Square to, const Piece promo, const int flag, const int type) {
@@ -239,13 +241,13 @@ static void GenMoves(const Position *pos, MoveList *list, const Color color, con
 // Generate quiet moves
 void GenQuietMoves(const Position *pos, MoveList *list) {
 
-    GenMoves(pos, list, sideToMove(), QUIET);
+    GenMoves(pos, list, sideToMove, QUIET);
 }
 
 // Generate noisy moves
 void GenNoisyMoves(const Position *pos, MoveList *list) {
 
-    GenMoves(pos, list, sideToMove(), NOISY);
+    GenMoves(pos, list, sideToMove, NOISY);
 }
 
 // Generate all pseudo legal moves

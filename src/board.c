@@ -103,7 +103,7 @@ static Key GeneratePosKey(const Position *pos) {
     }
 
     // Side to play
-    if (sideToMove() == WHITE)
+    if (sideToMove == WHITE)
         posKey ^= SideKey;
 
     // En passant
@@ -224,7 +224,7 @@ void ParseFen(const char *fen, Position *pos) {
     fen++;
 
     // Side to move
-    sideToMove() = (*fen == 'w') ? WHITE : BLACK;
+    sideToMove = (*fen == 'w') ? WHITE : BLACK;
     fen += 2;
 
     // Castling rights
@@ -286,7 +286,7 @@ void PrintBoard(const Position *pos) {
         printf("%3c", 'a' + file);
 
     printf("\n");
-    printf("side: %c\n", SideChar[sideToMove()]);
+    printf("side: %c\n", SideChar[sideToMove]);
     printf("epSquare: %d\n", pos->epSquare);
     printf("castle: %c%c%c%c\n",
            pos->castlingRights & WHITE_OO  ? 'K' : '-',
@@ -339,10 +339,10 @@ bool CheckBoard(const Position *pos) {
 
     assert(t_bigPieces[WHITE] == pos->nonPawnCount[WHITE] && t_bigPieces[BLACK] == pos->nonPawnCount[BLACK]);
 
-    assert(sideToMove() == WHITE || sideToMove() == BLACK);
+    assert(sideToMove == WHITE || sideToMove == BLACK);
 
     assert(pos->epSquare == NO_SQ
-       || (RelativeRank(sideToMove(), RankOf(pos->epSquare)) == RANK_6));
+       || (RelativeRank(sideToMove, RankOf(pos->epSquare)) == RANK_6));
 
     assert(pos->castlingRights >= 0 && pos->castlingRights <= 15);
 
@@ -365,7 +365,7 @@ void MirrorBoard(Position *pos) {
     for (Square sq = A1; sq <= H8; ++sq)
         tempPiecesArray[sq] = SwapPiece[pieceOn(MirrorSquare(sq))];
 
-    Color tempSide = !sideToMove();
+    Color tempSide = !sideToMove;
     Square tempEnPas = pos->epSquare == NO_SQ ? NO_SQ : MirrorSquare(pos->epSquare);
     uint8_t tempCastlingRights = 0;
     if (pos->castlingRights & WHITE_OO)  tempCastlingRights |= BLACK_OO;
@@ -380,7 +380,7 @@ void MirrorBoard(Position *pos) {
     for (Square sq = A1; sq <= H8; ++sq)
         pieceOn(sq) = tempPiecesArray[sq];
 
-    sideToMove() = tempSide;
+    sideToMove = tempSide;
     pos->epSquare = tempEnPas;
     pos->castlingRights = tempCastlingRights;
 
