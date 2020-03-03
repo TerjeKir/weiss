@@ -24,7 +24,7 @@
 
 
 // Calls fathom to probe syzygy tablebases - heavily inspired by ethereal
-unsigned ProbeWDL(const Position *pos) {
+bool ProbeWDL(const Position *pos, int *score, int *bound) {
 
     // Don't probe at root, when en passant is possible, when castling is
     // possible, or when 50 move rule was not reset by the last move.
@@ -35,18 +35,30 @@ unsigned ProbeWDL(const Position *pos) {
         || (pos->castlingRights != 0)
         || (pos->rule50         != 0)
         || ((unsigned)PopCount(pieceBB(ALL)) > TB_LARGEST))
-        return TB_RESULT_FAILED;
+        return false;
 
     // Call fathom
-    return tb_probe_wdl(
-        colorBB(WHITE),
-        colorBB(BLACK),
-        pieceBB(KING),
-        pieceBB(QUEEN),
-        pieceBB(ROOK),
-        pieceBB(BISHOP),
-        pieceBB(KNIGHT),
-        pieceBB(PAWN),
-        0,
-        sideToMove());
+    unsigned tbresult = tb_probe_wdl(colorBB(WHITE),
+                                     colorBB(BLACK),
+                                     pieceBB(KING),
+                                     pieceBB(QUEEN),
+                                     pieceBB(ROOK),
+                                     pieceBB(BISHOP),
+                                     pieceBB(KNIGHT),
+                                     pieceBB(PAWN),
+                                     0,
+                                     sideToMove());
+
+    if (tbresult == TB_RESULT_FAILED)
+        return false;
+
+    *score = tbresult == TB_LOSS ? -INFINITE + MAXDEPTH + pos->ply + 1
+           : tbresult == TB_WIN  ?  INFINITE - MAXDEPTH - pos->ply - 1
+                                 :  0;
+
+    *bound = tbresult == TB_LOSS ? BOUND_UPPER
+           : tbresult == TB_WIN  ? BOUND_LOWER
+                                 : BOUND_EXACT;
+
+    return true;
 }

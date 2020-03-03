@@ -299,18 +299,10 @@ static int AlphaBeta(int alpha, int beta, Depth depth, Position *pos, SearchInfo
     }
 
     // Probe syzygy TBs
-    unsigned tbresult;
-    if ((tbresult = ProbeWDL(pos)) != TB_RESULT_FAILED) {
+    int score, bound;
+    if (ProbeWDL(pos, &score, &bound)) {
 
         info->tbhits++;
-
-        int score = tbresult == TB_LOSS ? -INFINITE + MAXDEPTH + pos->ply + 1
-                  : tbresult == TB_WIN  ?  INFINITE - MAXDEPTH - pos->ply - 1
-                                        :  0;
-
-        int bound = tbresult == TB_LOSS ? BOUND_UPPER
-                  : tbresult == TB_WIN  ? BOUND_LOWER
-                                        : BOUND_EXACT;
 
         if (score >= beta ? bound & BOUND_LOWER
                           : bound & BOUND_UPPER) {
@@ -349,7 +341,7 @@ static int AlphaBeta(int alpha, int beta, Depth depth, Position *pos, SearchInfo
         int R = 3 + depth / 5 + MIN(3, (eval - beta) / 256);
 
         MakeNullMove(pos);
-        int score = -AlphaBeta(-beta, -beta + 1, depth - R, pos, info, &pvFromHere);
+        score = -AlphaBeta(-beta, -beta + 1, depth - R, pos, info, &pvFromHere);
         TakeNullMove(pos);
 
         // Cutoff
@@ -378,7 +370,7 @@ move_loop:
     const int oldAlpha = alpha;
     int moveCount = 0, quietCount = 0;
     Move bestMove = NOMOVE;
-    int bestScore = -INFINITE, score = -INFINITE;
+    int bestScore = score = -INFINITE;
 
     // Move loop
     Move move;
