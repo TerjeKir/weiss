@@ -40,12 +40,12 @@ static const char *BenchmarkFENs[] = {
 
 void Benchmark(Depth depth, Position *pos, SearchInfo *info) {
 
-    uint64_t nodes = 0ULL;
+    uint64_t nodes = 0;
 
     Limits.depth = depth;
     Limits.timelimit = false;
 
-    TimePoint startTime = Now();
+    TimePoint start = Now();
 
     for (int i = 0; strcmp(BenchmarkFENs[i], ""); ++i) {
         printf("Bench %d: %s\n", i + 1, BenchmarkFENs[i]);
@@ -56,7 +56,7 @@ void Benchmark(Depth depth, Position *pos, SearchInfo *info) {
         ClearTT();
     }
 
-    TimePoint elapsed = Now() - startTime + 1;
+    TimePoint elapsed = TimeSince(start) + 1;
 
     printf("Benchmark complete:"
            "\nTime : %" PRId64 "ms"
@@ -82,9 +82,9 @@ static void RecursivePerft(const Depth depth, Position *pos) {
     MoveList list[1];
     GenAllMoves(pos, list);
 
-    for (unsigned MoveNum = 0; MoveNum < list->count; ++MoveNum) {
+    for (unsigned i = 0; i < list->count; ++i) {
 
-        if (!MakeMove(pos, list->moves[MoveNum].move))
+        if (!MakeMove(pos, list->moves[i].move))
             continue;
 
         RecursivePerft(depth - 1, pos);
@@ -101,14 +101,14 @@ void Perft(char *line) {
     Depth depth = 5;
     sscanf(line, "perft %d", &depth);
     depth = MIN(6, depth);
-    char *perftFen = line + 8;
 
+    char *perftFen = line + 8;
     !*perftFen ? ParseFen(PERFT_FEN, pos)
                : ParseFen(perftFen,  pos);
 
     assert(CheckBoard(pos));
 
-    printf("\nStarting Test To Depth:%d\n\n", depth);
+    printf("\nStarting perft to depth %d\n\n", depth);
     fflush(stdout);
 
     const TimePoint start = Now();
@@ -117,29 +117,32 @@ void Perft(char *line) {
     MoveList list[1];
     GenAllMoves(pos, list);
 
-    for (unsigned MoveNum = 0; MoveNum < list->count; ++MoveNum) {
+    for (unsigned i = 0; i < list->count; ++i) {
 
-        Move move = list->moves[MoveNum].move;
+        Move move = list->moves[i].move;
 
         if (!MakeMove(pos, move)){
-            printf("move %d : %s : Illegal\n", MoveNum + 1, MoveToStr(move));
+            printf("move %d : %s : Illegal\n", i + 1, MoveToStr(move));
             fflush(stdout);
             continue;
         }
 
         uint64_t oldCount = leafNodes;
         RecursivePerft(depth - 1, pos);
-        uint64_t newNodes = leafNodes - oldCount;
-        printf("move %d : %s : %" PRId64 "\n", MoveNum + 1, MoveToStr(move), newNodes);
+        uint64_t newCount = leafNodes - oldCount;
+        printf("move %d : %s : %" PRId64 "\n", i + 1, MoveToStr(move), newCount);
         fflush(stdout);
 
         TakeMove(pos);
     }
 
-    const int timeElapsed = Now() - start;
-    printf("\nPerft Complete : %" PRId64 " nodes visited in %dms\n", leafNodes, timeElapsed);
-    if (timeElapsed > 0)
-        printf("               : %" PRId64 " nps\n", ((leafNodes * 1000) / timeElapsed));
+    const TimePoint elapsed = TimeSince(start) + 1;
+
+    printf("\nPerft complete:"
+           "\nTime : %" PRId64 "ms"
+           "\nNodes: %" PRIu64
+           "\nNPS  : %" PRId64 "\n",
+           elapsed, leafNodes, leafNodes * 1000 / elapsed);
     fflush(stdout);
 
     return;
