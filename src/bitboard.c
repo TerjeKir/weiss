@@ -18,7 +18,6 @@
 
 #include "bitboard.h"
 #include "board.h"
-#include "validate.h"
 
 
 const Bitboard FileBB[8] = {

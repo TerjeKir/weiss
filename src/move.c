@@ -24,7 +24,6 @@
 #include "move.h"
 #include "movegen.h"
 #include "transposition.h"
-#include "validate.h"
 
 
 // Checks whether a move is pseudo-legal (assuming it is pseudo-legal in some position)
