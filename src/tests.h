@@ -27,5 +27,4 @@ void Benchmark(Depth depth, Position *pos, SearchInfo *info);
 void Perft(char *line);
 void PrintEval(Position *pos);
 void MirrorEvalTest(Position *pos);
-void MateInXTest(Position *pos);
 #endif
