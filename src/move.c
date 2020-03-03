@@ -31,7 +31,7 @@ bool MoveIsPseudoLegal(const Position *pos, const Move move) {
 
     if (!move) return false;
 
-    const Color color = sideToMove();
+    const Color color = sideToMove;
     const Square from = fromSq(move);
     const Square to = toSq(move);
 
@@ -98,10 +98,10 @@ Move ParseMove(const char *str, const Position *pos) {
     Square from = (str[0] - 'a') + (8 * (str[1] - '1'));
     Square to   = (str[2] - 'a') + (8 * (str[3] - '1'));
 
-    Piece promo = str[4] == 'q' ? MakePiece(sideToMove(), QUEEN)
-                : str[4] == 'n' ? MakePiece(sideToMove(), KNIGHT)
-                : str[4] == 'r' ? MakePiece(sideToMove(), ROOK)
-                : str[4] == 'b' ? MakePiece(sideToMove(), BISHOP)
+    Piece promo = str[4] == 'q' ? MakePiece(sideToMove, QUEEN)
+                : str[4] == 'n' ? MakePiece(sideToMove, KNIGHT)
+                : str[4] == 'r' ? MakePiece(sideToMove, ROOK)
+                : str[4] == 'b' ? MakePiece(sideToMove, BISHOP)
                                 : 0;
 
     PieceType pt = PieceTypeOf(pieceOn(from));

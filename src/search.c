@@ -131,7 +131,7 @@ static void PrintConclusion(const SearchInfo *info) {
 }
 
 INLINE bool PawnOn7th(const Position *pos) {
-    return colorPieceBB(sideToMove(), PAWN) & RankBB[RelativeRank(sideToMove(), RANK_7)];
+    return colorPieceBB(sideToMove, PAWN) & RankBB[RelativeRank(sideToMove, RANK_7)];
 }
 
 // Dynamic delta pruning margin
@@ -142,7 +142,7 @@ static int QuiescenceDeltaMargin(const Position *pos) {
     const int DeltaBase = PawnOn7th(pos) ? Q_MG : P_MG;
 
     // Look for possible captures on the board
-    const Bitboard enemy = colorBB(!sideToMove());
+    const Bitboard enemy = colorBB(!sideToMove);
 
     // Find the most valuable piece we could take and add to our base
     return DeltaBase + ((enemy & pieceBB(QUEEN )) ? Q_MG
@@ -189,7 +189,7 @@ static int Quiescence(int alpha, const int beta, Position *pos, SearchInfo *info
 
     int futility = score + P_EG;
 
-    const bool inCheck = SqAttacked(Lsb(colorPieceBB(sideToMove(), KING)), !sideToMove(), pos);
+    const bool inCheck = SqAttacked(Lsb(colorPieceBB(sideToMove, KING)), !sideToMove, pos);
 
     InitNoisyMP(&mp, &list, pos);
 
@@ -202,7 +202,7 @@ static int Quiescence(int alpha, const int beta, Position *pos, SearchInfo *info
         if (   !inCheck
             && futility + PieceValue[EG][pieceOn(toSq(move))] <= alpha
             && !(  PieceTypeOf(pieceOn(fromSq(move))) == PAWN
-                && RelativeRank(sideToMove(), RankOf(toSq(move))) > 5))
+                && RelativeRank(sideToMove, RankOf(toSq(move))) > 5))
             continue;
 
         // Recursively search the positions after making the moves, skipping illegal ones
@@ -244,7 +244,7 @@ static int AlphaBeta(int alpha, int beta, Depth depth, Position *pos, SearchInfo
     MoveList list;
 
     // Extend search if in check
-    const bool inCheck = SqAttacked(Lsb(colorPieceBB(sideToMove(), KING)), !sideToMove(), pos);
+    const bool inCheck = SqAttacked(Lsb(colorPieceBB(sideToMove, KING)), !sideToMove, pos);
     if (inCheck) depth++;
 
     // Quiescence at the end of search
@@ -335,7 +335,7 @@ static int AlphaBeta(int alpha, int beta, Depth depth, Position *pos, SearchInfo
     // Null Move Pruning
     if (   history(-1).move != NOMOVE
         && eval >= beta
-        && pos->nonPawnCount[sideToMove()] > 0
+        && pos->nonPawnCount[sideToMove] > 0
         && depth >= 3) {
 
         int R = 3 + depth / 5 + MIN(3, (eval - beta) / 256);

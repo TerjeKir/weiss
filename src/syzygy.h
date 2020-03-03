@@ -47,7 +47,7 @@ bool ProbeWDL(const Position *pos, int *score, int *bound) {
                                      pieceBB(KNIGHT),
                                      pieceBB(PAWN),
                                      0,
-                                     sideToMove());
+                                     sideToMove);
 
     if (tbresult == TB_RESULT_FAILED)
         return false;

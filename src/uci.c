@@ -74,7 +74,7 @@ static void *ParseGo(void *searchThreadInfo) {
     Position *pos    = sst->pos;
     SearchInfo *info = sst->info;
 
-    TimeControl(sideToMove(), sst->line);
+    TimeControl(sideToMove, sst->line);
 
     SearchPosition(pos, info);
 
