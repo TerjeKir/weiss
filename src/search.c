@@ -287,13 +287,13 @@ static int AlphaBeta(int alpha, int beta, Depth depth, Position *pos, SearchInfo
     // Trust the ttScore in non-pvNodes as long as the entry depth is equal or higher
     if (!pvNode && ttHit && tte->depth >= depth) {
 
-        assert(BOUND_UPPER <= tte->flag && tte->flag <= BOUND_EXACT);
-        assert(         1 <= tte->depth && tte->depth < MAXDEPTH);
-        assert(    -INFINITE <= ttScore && ttScore <= INFINITE);
+        assert(BOUND_UPPER <= tte->bound && tte->bound <= BOUND_EXACT);
+        assert(          1 <= tte->depth && tte->depth < MAXDEPTH);
+        assert(     -INFINITE <= ttScore && ttScore <= INFINITE);
 
         // Check if ttScore causes a cutoff
-        if (ttScore >= beta ? tte->flag & BOUND_LOWER
-                            : tte->flag & BOUND_UPPER)
+        if (ttScore >= beta ? tte->bound & BOUND_LOWER
+                            : tte->bound & BOUND_UPPER)
 
             return ttScore;
     }
@@ -304,19 +304,19 @@ static int AlphaBeta(int alpha, int beta, Depth depth, Position *pos, SearchInfo
 
         info->tbhits++;
 
-        int val = tbresult == TB_LOSS ? -INFINITE + MAXDEPTH + pos->ply + 1
-                : tbresult == TB_WIN  ?  INFINITE - MAXDEPTH - pos->ply - 1
-                                      :  0;
+        int score = tbresult == TB_LOSS ? -INFINITE + MAXDEPTH + pos->ply + 1
+                  : tbresult == TB_WIN  ?  INFINITE - MAXDEPTH - pos->ply - 1
+                                        :  0;
 
-        int flag = tbresult == TB_LOSS ? BOUND_UPPER
-                 : tbresult == TB_WIN  ? BOUND_LOWER
-                                       : BOUND_EXACT;
+        int bound = tbresult == TB_LOSS ? BOUND_UPPER
+                  : tbresult == TB_WIN  ? BOUND_LOWER
+                                        : BOUND_EXACT;
 
-        if (val >= beta ? flag & BOUND_LOWER
-                        : flag & BOUND_UPPER) {
+        if (score >= beta ? bound & BOUND_LOWER
+                          : bound & BOUND_UPPER) {
 
-            StoreTTEntry(tte, posKey, NOMOVE, val, MAXDEPTH-1, flag);
-            return val;
+            StoreTTEntry(tte, posKey, NOMOVE, score, MAXDEPTH-1, bound);
+            return score;
         }
     }
 
