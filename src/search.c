@@ -320,10 +320,12 @@ static int AlphaBeta(int alpha, int beta, Depth depth, Position *pos, SearchInfo
         }
     }
 
+    // Do a static evaluation for pruning considerations
     int eval = history(0).eval = inCheck          ? NOSCORE
                                : lastMoveNullMove ? -history(-1).eval
                                                   : EvalPosition(pos);
 
+    // Improving if not in check, and current eval is higher than 2 plies ago
     bool improving = !inCheck && pos->ply >= 2 && eval > history(-2).eval;
 
     // Skip pruning while in check and at the root
