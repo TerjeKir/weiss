@@ -90,11 +90,11 @@ static void PrintThinking(const SearchInfo *info) {
     int score = info->score;
 
     // Determine whether we have a centipawn or mate score
-    char *type = abs(score) > ISMATE ? "mate" : "cp";
+    char *type = abs(score) > SLOWEST_MATE ? "mate" : "cp";
 
     // Convert score to mate score when applicable
-    score = score >  ISMATE ?  ((INFINITE - score) / 2) + 1
-          : score < -ISMATE ? -((INFINITE + score) / 2)
+    score = score >  SLOWEST_MATE ?  ((MATE - score) / 2) + 1
+          : score < -SLOWEST_MATE ? -((MATE + score) / 2)
           : score * 100 / P_MG;
 
     TimePoint elapsed = TimeSince(Limits.start);
@@ -266,8 +266,8 @@ static int AlphaBeta(Position *pos, SearchInfo *info, int alpha, int beta, Depth
             return EvalPosition(pos);
 
         // Mate distance pruning
-        alpha = MAX(alpha, -INFINITE + pos->ply);
-        beta  = MIN(beta,   INFINITE - pos->ply - 1);
+        alpha = MAX(alpha, -MATE + pos->ply);
+        beta  = MIN(beta,   MATE - pos->ply - 1);
         if (alpha >= beta)
             return alpha;
     }
@@ -342,8 +342,8 @@ static int AlphaBeta(Position *pos, SearchInfo *info, int alpha, int beta, Depth
 
         // Cutoff
         if (score >= beta) {
-            // Don't return unproven mate scores
-            return score >= ISMATE ? beta : score;
+            // Don't return unproven terminal win scores
+            return score >= SLOWEST_TB_WIN ? beta : score;
         }
     }
 
@@ -456,7 +456,7 @@ move_loop:
 
     // Checkmate or stalemate
     if (!moveCount)
-        return inCheck ? -INFINITE + pos->ply : 0;
+        return inCheck ? -MATE + pos->ply : 0;
 
     // Store in TT
     const int flag = bestScore >= beta ? BOUND_LOWER

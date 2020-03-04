@@ -66,9 +66,13 @@ enum Limit {
 };
 
 enum Score {
-    INFINITE = 32500,
-    ISMATE   = INFINITE - MAXDEPTH,
-    NOSCORE  = INFINITE + 1
+    MATE     = 32500,
+    INFINITE = 32501,
+    NOSCORE  = 32502,
+
+    SLOWEST_MATE   = INFINITE - MAXDEPTH,
+    FASTEST_TB_WIN = SLOWEST_MATE - 1,
+    SLOWEST_TB_WIN = INFINITE - MAXDEPTH * 2
 };
 
 enum Color {
