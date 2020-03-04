@@ -126,3 +126,10 @@ int HashFull() {
 
     return used / (samples / 1000);
 }
+
+// Free allocated memory (if any) before exiting
+DESTR FreeTT() {
+
+    if (TT.mem)
+        free(TT.mem);
+}

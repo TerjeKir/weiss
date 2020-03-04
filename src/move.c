@@ -133,7 +133,6 @@ Move ParseEPDMove(const char *ptrChar, const Position *pos) {
 
         PrintBoard(pos);
         printf("\n\nBad move: %s\n\n", ptrChar);
-        free(TT.mem);
         exit(EXIT_FAILURE);
     }
 
