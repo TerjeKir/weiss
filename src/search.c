@@ -80,8 +80,6 @@ static void PrepareSearch(Position *pos, SearchInfo *info) {
     memset(pos->searchHistory, 0, sizeof(pos->searchHistory));
     memset(pos->searchKillers, 0, sizeof(pos->searchKillers));
 
-    pos->ply = 0;
-
     // Mark TT as used
     TT.dirty = true;
 }
@@ -243,7 +241,7 @@ static int AlphaBeta(Position *pos, SearchInfo *info, int alpha, int beta, Depth
 
     // Extend search if in check
     const bool inCheck = SqAttacked(pos, Lsb(colorPieceBB(sideToMove, KING)), !sideToMove);
-    if (inCheck) depth++;
+    if (inCheck && depth + 1 < MAXDEPTH) depth++;
 
     // Quiescence at the end of search
     if (depth <= 0)

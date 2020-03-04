@@ -63,8 +63,8 @@ INLINE void TimeControl(Color color, char *line) {
     if ((ptr = strstr(line, "movetime")))  Limits.movetime  = atoi(ptr +  9);
     if ((ptr = strstr(line, "depth")))     Limits.depth     = atoi(ptr +  6);
 
-    // If no depth limit is given, use MAXDEPTH
-    Limits.depth = Limits.depth == 0 ? MAXDEPTH : Limits.depth;
+    // If no depth limit is given, use MAXDEPTH - 1
+    Limits.depth = Limits.depth == 0 ? MAXDEPTH - 1 : Limits.depth;
 }
 
 // Parses a 'go' and starts a search
@@ -105,6 +105,8 @@ static void UCIPosition(const char *line, Position *pos) {
             fflush(stdout);
             exit(EXIT_SUCCESS);
         }
+
+        pos->ply = 0;
 
         // Skip to the next move if any
         if ((line = strstr(line, " ")) == NULL)

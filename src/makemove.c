@@ -155,9 +155,6 @@ void TakeMove(Position *pos) {
     pos->rule50         = history(0).rule50;
     pos->castlingRights = history(0).castlingRights;
 
-    assert(0 <= pos->gamePly && pos->gamePly < MAXGAMEMOVES);
-    assert(    0 <= pos->ply && pos->ply < MAXDEPTH);
-
     // Get the move from history
     const Move move = history(0).move;
     const Square from = fromSq(move);
@@ -217,8 +214,6 @@ bool MakeMove(Position *pos, const Move move) {
     assert(ValidSquare(to));
     assert(ValidSide(color));
     assert(ValidPiece(pieceOn(from)));
-    assert(0 <= pos->gamePly && pos->gamePly < MAXGAMEMOVES);
-    assert(    0 <= pos->ply && pos->ply < MAXDEPTH);
 
     // Save position
     history(0).posKey         = pos->key;
@@ -231,9 +226,6 @@ bool MakeMove(Position *pos, const Move move) {
     pos->gamePly++;
     pos->ply++;
     pos->rule50++;
-
-    assert(0 <= pos->gamePly && pos->gamePly < MAXGAMEMOVES);
-    assert(    0 <= pos->ply && pos->ply < MAXDEPTH);
 
     // Hash out the old en passant if exist and unset it
     if (pos->epSquare != NO_SQ) {
