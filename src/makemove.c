@@ -305,7 +305,7 @@ bool MakeMove(Position *pos, const Move move) {
     assert(CheckBoard(pos));
 
     // If own king is attacked after the move, take it back immediately
-    if (SqAttacked(Lsb(colorPieceBB(color, KING)), sideToMove, pos)) {
+    if (SqAttacked(pos, Lsb(colorPieceBB(color, KING)), sideToMove)) {
         TakeMove(pos);
         return false;
     }

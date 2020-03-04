@@ -21,7 +21,7 @@
 #include "types.h"
 
 
-#ifdef DEV
+#ifndef NDEBUG
 bool MoveListOk(const MoveList *list, const Position *pos);
 #endif
 void GenAllMoves(const Position *pos, MoveList *list);

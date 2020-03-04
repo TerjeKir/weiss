@@ -122,7 +122,7 @@ static void InitSliderAttacks(Magic *m, Bitboard *table, const uint64_t *magics,
     }
 }
 
-// Initializes all attack lookups
+// Initializes all bitboard lookups
 CONSTR InitBitMasks() {
 
     for (Square sq = A1; sq <= H8; ++sq)
@@ -142,8 +142,8 @@ CONSTR InitBitMasks() {
 #endif
 }
 
-// Returns true if sq is attacked by color
-bool SqAttacked(const Square sq, const Color color, const Position *pos) {
+// Checks whether a square is attacked by the given color
+bool SqAttacked(const Position *pos, const Square sq, const Color color) {
 
     assert(ValidSquare(sq));
     assert(ValidSide(color));

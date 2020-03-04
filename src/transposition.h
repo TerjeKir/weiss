@@ -29,6 +29,10 @@
 #define MAXHASH 65536
 #define DEFAULTHASH 32
 
+#define ValidBound(bound) (bound >= BOUND_UPPER && bound <= BOUND_EXACT)
+#define ValidScore(score) (score >= -INFINITE && score <= INFINITE)
+#define ValidDepth(depth) (depth >= 1 && depth < MAXDEPTH)
+
 
 enum { BOUND_NONE, BOUND_UPPER, BOUND_LOWER, BOUND_EXACT };
 
