@@ -99,20 +99,18 @@ static void PrintThinking(const SearchInfo *info) {
           : score < -ISMATE ? -((INFINITE + score) / 2)
           : score * 100 / P_MG;
 
-    TimePoint elapsed = Now() - Limits.start;
-    Depth depth       = info->depth;
+    TimePoint elapsed = TimeSince(Limits.start);
     Depth seldepth    = info->seldepth > info->depth ? info->seldepth : info->depth;
     int hashFull      = HashFull();
-    int nps           = (int)(1000 * (info->nodes / (elapsed + 1)));
-    uint64_t nodes    = info->nodes;
-    uint64_t tbhits   = info->tbhits;
+    int nps           = (int)(1000 * info->nodes / (elapsed + 1));
 
     // Basic info
-    printf("info depth %d seldepth %d score %s %d time %" PRId64 " nodes %" PRIu64 " nps %d tbhits %" PRIu64 " hashfull %d ",
-            depth, seldepth, type, score, elapsed, nodes, nps, tbhits, hashFull);
+    printf("info depth %d seldepth %d score %s %d time %" PRId64
+           " nodes %" PRIu64 " nps %d tbhits %" PRIu64 " hashfull %d pv",
+            info->depth, seldepth, type, score, elapsed,
+            info->nodes, nps, info->tbhits, hashFull);
 
     // Principal variation
-    printf("pv");
     for (int i = 0; i < info->pv.length; i++)
         printf(" %s", MoveToStr(info->pv.line[i]));
 
@@ -347,9 +345,7 @@ static int AlphaBeta(Position *pos, SearchInfo *info, int alpha, int beta, Depth
         // Cutoff
         if (score >= beta) {
             // Don't return unproven mate scores
-            if (score >= ISMATE)
-                score = beta;
-            return score;
+            return score >= ISMATE ? beta : score;
         }
     }
 
@@ -558,13 +554,12 @@ void SearchPosition(Position *pos, SearchInfo *info) {
     // Iterative deepening
     for (info->depth = 1; info->depth <= Limits.depth; ++info->depth) {
 
+        // Jump here and go straight to printing conclusion when time's up
         if (setjmp(info->jumpBuffer)) break;
 
         // Search position, using aspiration windows for higher depths
-        if (info->depth > 6)
-            info->score = AspirationWindow(pos, info);
-        else
-            info->score = AlphaBeta(pos, info, -INFINITE, INFINITE, info->depth, &info->pv);
+        info->score = info->depth > 6 ? AspirationWindow(pos, info)
+                                      : AlphaBeta(pos, info, -INFINITE, INFINITE, info->depth, &info->pv);
 
         // Print thinking
         PrintThinking(info);
