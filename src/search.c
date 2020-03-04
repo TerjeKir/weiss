@@ -241,7 +241,7 @@ static int AlphaBeta(Position *pos, SearchInfo *info, int alpha, int beta, Depth
 
     // Extend search if in check
     const bool inCheck = SqAttacked(pos, Lsb(colorPieceBB(sideToMove, KING)), !sideToMove);
-    if (inCheck && pos->ply ) depth++;
+    if (inCheck && depth + 1 < MAXDEPTH) depth++;
 
     // Quiescence at the end of search
     if (depth <= 0)
