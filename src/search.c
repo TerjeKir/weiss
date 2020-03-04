@@ -241,7 +241,7 @@ static int AlphaBeta(Position *pos, SearchInfo *info, int alpha, int beta, Depth
 
     // Extend search if in check
     const bool inCheck = SqAttacked(pos, Lsb(colorPieceBB(sideToMove, KING)), !sideToMove);
-    if (inCheck) depth++;
+    if (inCheck && pos->ply ) depth++;
 
     // Quiescence at the end of search
     if (depth <= 0)
@@ -550,7 +550,7 @@ void SearchPosition(Position *pos, SearchInfo *info) {
     PrepareSearch(pos, info);
 
     // Iterative deepening
-    for (info->depth = 1; info->depth <= Limits.depth; ++info->depth) {
+    for (info->depth = 1; info->depth < Limits.depth; ++info->depth) {
 
         // Jump here and go straight to printing conclusion when time's up
         if (setjmp(info->jumpBuffer)) break;
