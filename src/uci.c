@@ -106,6 +106,8 @@ static void UCIPosition(const char *line, Position *pos) {
             exit(EXIT_SUCCESS);
         }
 
+        pos->ply = 0;
+
         // Skip to the next move if any
         if ((line = strstr(line, " ")) == NULL)
             return;
