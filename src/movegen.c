@@ -40,7 +40,7 @@ CONSTR InitMvvLva() {
             MvvLvaScores[Victim][Attacker] = VictimScore[Victim] - AttackerScore[Attacker];
 }
 
-#ifdef DEV
+#ifndef NDEBUG
 bool MoveListOk(const MoveList *list, const Position *pos) {
 
     if (list->count >= MAXPOSITIONMOVES)
