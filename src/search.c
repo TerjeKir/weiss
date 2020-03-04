@@ -153,7 +153,7 @@ static int QuiescenceDeltaMargin(const Position *pos) {
 }
 
 // Quiescence
-static int Quiescence(int alpha, const int beta, Position *pos, SearchInfo *info) {
+static int Quiescence(Position *pos, SearchInfo *info, int alpha, const int beta) {
 
     assert(CheckBoard(pos));
 
@@ -189,7 +189,7 @@ static int Quiescence(int alpha, const int beta, Position *pos, SearchInfo *info
 
     int futility = score + P_EG;
 
-    const bool inCheck = SqAttacked(Lsb(colorPieceBB(sideToMove, KING)), !sideToMove, pos);
+    const bool inCheck = SqAttacked(pos, Lsb(colorPieceBB(sideToMove, KING)), !sideToMove);
 
     InitNoisyMP(&mp, &list, pos);
 
@@ -207,7 +207,7 @@ static int Quiescence(int alpha, const int beta, Position *pos, SearchInfo *info
 
         // Recursively search the positions after making the moves, skipping illegal ones
         if (!MakeMove(pos, move)) continue;
-        score = -Quiescence(-beta, -alpha, pos, info);
+        score = -Quiescence(pos, info, -beta, -alpha);
         TakeMove(pos);
 
         // Found a new best move in this position
@@ -230,7 +230,7 @@ static int Quiescence(int alpha, const int beta, Position *pos, SearchInfo *info
 }
 
 // Alpha Beta
-static int AlphaBeta(int alpha, int beta, Depth depth, Position *pos, SearchInfo *info, PV *pv) {
+static int AlphaBeta(Position *pos, SearchInfo *info, int alpha, int beta, Depth depth, PV *pv) {
 
     assert(CheckBoard(pos));
 
@@ -244,12 +244,12 @@ static int AlphaBeta(int alpha, int beta, Depth depth, Position *pos, SearchInfo
     MoveList list;
 
     // Extend search if in check
-    const bool inCheck = SqAttacked(Lsb(colorPieceBB(sideToMove, KING)), !sideToMove, pos);
+    const bool inCheck = SqAttacked(pos, Lsb(colorPieceBB(sideToMove, KING)), !sideToMove);
     if (inCheck) depth++;
 
     // Quiescence at the end of search
     if (depth <= 0)
-        return Quiescence(alpha, beta, pos, info);
+        return Quiescence(pos, info, alpha, beta);
 
     // Check time situation
     if (OutOfTime(info) || ABORT_SIGNAL)
@@ -326,7 +326,7 @@ static int AlphaBeta(int alpha, int beta, Depth depth, Position *pos, SearchInfo
 
     // Razoring
     if (!pvNode && depth < 2 && eval + 640 < alpha)
-        return Quiescence(alpha, beta, pos, info);
+        return Quiescence(pos, info, alpha, beta);
 
     // Reverse Futility Pruning
     if (!pvNode && depth < 7 && eval - 225 * depth + 100 * improving >= beta)
@@ -341,7 +341,7 @@ static int AlphaBeta(int alpha, int beta, Depth depth, Position *pos, SearchInfo
         int R = 3 + depth / 5 + MIN(3, (eval - beta) / 256);
 
         MakeNullMove(pos);
-        score = -AlphaBeta(-beta, -beta + 1, depth - R, pos, info, &pvFromHere);
+        score = -AlphaBeta(pos, info, -beta, -beta + 1, depth - R, &pvFromHere);
         TakeNullMove(pos);
 
         // Cutoff
@@ -356,7 +356,7 @@ static int AlphaBeta(int alpha, int beta, Depth depth, Position *pos, SearchInfo
     // Internal iterative deepening
     if (depth >= 4 && !ttMove) {
 
-        AlphaBeta(alpha, beta, MAX(1, MIN(depth / 2, depth - 4)), pos, info, pv);
+        AlphaBeta(pos, info, alpha, beta, MAX(1, MIN(depth / 2, depth - 4)), pv);
 
         tte = ProbeTT(posKey, &ttHit);
 
@@ -410,15 +410,15 @@ move_loop:
             // Depth after reductions, avoiding going straight to quiescence
             Depth RDepth = MAX(1, newDepth - MAX(R, 1));
 
-            score = -AlphaBeta(-alpha - 1, -alpha, RDepth, pos, info, &pvFromHere);
+            score = -AlphaBeta(pos, info, -alpha - 1, -alpha, RDepth, &pvFromHere);
         }
         // Full depth zero-window search
         if (doLMR ? score > alpha : !pvNode || moveCount > 1)
-            score = -AlphaBeta(-alpha - 1, -alpha, newDepth, pos, info, &pvFromHere);
+            score = -AlphaBeta(pos, info, -alpha - 1, -alpha, newDepth, &pvFromHere);
 
         // Full depth alpha-beta window search
         if (pvNode && ((score > alpha && score < beta) || moveCount == 1))
-            score = -AlphaBeta(-beta, -alpha, newDepth, pos, info, &pvFromHere);
+            score = -AlphaBeta(pos, info, -beta, -alpha, newDepth, &pvFromHere);
 
         // Undo the move
         TakeMove(pos);
@@ -472,10 +472,8 @@ move_loop:
     StoreTTEntry(tte, posKey, bestMove, ScoreToTT(bestScore, pos->ply), depth, flag);
 
     assert(alpha >= oldAlpha);
-    assert(alpha <=  INFINITE);
-    assert(alpha >= -INFINITE);
-    assert(bestScore <=  INFINITE);
-    assert(bestScore >= -INFINITE);
+    assert(    -INFINITE <= alpha && alpha <= INFINITE);
+    assert(-INFINITE <= bestScore && bestScore <= INFINITE);
 
     return bestScore;
 }
@@ -499,7 +497,7 @@ static int AspirationWindow(Position *pos, SearchInfo *info) {
     // Search with aspiration window until the result is inside the window
     while (true) {
 
-        score = AlphaBeta(alpha, beta, depth, pos, info, &info->pv);
+        score = AlphaBeta(pos, info, alpha, beta, depth, &info->pv);
 
         // Failed low, relax lower bound and search again
         if (score <= alpha) {
@@ -566,7 +564,7 @@ void SearchPosition(Position *pos, SearchInfo *info) {
         if (info->depth > 6)
             info->score = AspirationWindow(pos, info);
         else
-            info->score = AlphaBeta(-INFINITE, INFINITE, info->depth, pos, info, &info->pv);
+            info->score = AlphaBeta(pos, info, -INFINITE, INFINITE, info->depth, &info->pv);
 
         // Print thinking
         PrintThinking(info);

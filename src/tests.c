@@ -38,7 +38,7 @@ static const char *BenchmarkFENs[] = {
     ""
 };
 
-void Benchmark(Depth depth, Position *pos, SearchInfo *info) {
+void Benchmark(Position *pos, SearchInfo *info, Depth depth) {
 
     uint64_t nodes = 0;
 
@@ -70,7 +70,7 @@ void Benchmark(Depth depth, Position *pos, SearchInfo *info) {
 /* Perft */
 static uint64_t leafNodes;
 
-static void RecursivePerft(const Depth depth, Position *pos) {
+static void RecursivePerft(Position *pos, const Depth depth) {
 
     assert(CheckBoard(pos));
 
@@ -87,7 +87,7 @@ static void RecursivePerft(const Depth depth, Position *pos) {
         if (!MakeMove(pos, list->moves[i].move))
             continue;
 
-        RecursivePerft(depth - 1, pos);
+        RecursivePerft(pos, depth - 1);
         TakeMove(pos);
     }
 
@@ -128,7 +128,7 @@ void Perft(char *line) {
         }
 
         uint64_t oldCount = leafNodes;
-        RecursivePerft(depth - 1, pos);
+        RecursivePerft(pos, depth - 1);
         uint64_t newCount = leafNodes - oldCount;
         printf("move %d : %s : %" PRId64 "\n", i + 1, MoveToStr(move), newCount);
         fflush(stdout);

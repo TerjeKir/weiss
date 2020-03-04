@@ -206,4 +206,4 @@ INLINE Bitboard PawnBBAttackBB(Bitboard pawns, Color color) {
     return ShiftBB(up+WEST, pawns) | ShiftBB(up+EAST, pawns);
 }
 
-bool SqAttacked(Square sq, Color color, const Position *pos);
+bool SqAttacked(const Position *pos, Square sq, Color color);

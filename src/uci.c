@@ -187,7 +187,7 @@ int main(int argc, char **argv) {
     // Benchmark
     if (argc > 1 && strstr(argv[1], "bench")) {
         InitTT();
-        Benchmark(argc > 2 ? atoi(argv[2]) : 13, pos, info);
+        Benchmark(pos, info, argc > 2 ? atoi(argv[2]) : 13);
         return EXIT_SUCCESS;
     }
 
