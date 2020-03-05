@@ -52,8 +52,8 @@ bool ProbeWDL(const Position *pos, int *score, int *bound) {
     if (tbresult == TB_RESULT_FAILED)
         return false;
 
-    *score = tbresult == TB_LOSS ? -INFINITE + MAXDEPTH + pos->ply + 1
-           : tbresult == TB_WIN  ?  INFINITE - MAXDEPTH - pos->ply - 1
+    *score = tbresult == TB_LOSS ? -FASTEST_TB_WIN + pos->ply
+           : tbresult == TB_WIN  ?  FASTEST_TB_WIN - pos->ply
                                  :  0;
 
     *bound = tbresult == TB_LOSS ? BOUND_UPPER

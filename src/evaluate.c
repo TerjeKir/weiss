@@ -267,7 +267,8 @@ int EvalPosition(const Position *pos) {
          +  (EgScore(eval) * (256 - pos->phase)))
          / 256;
 
-    assert(-INFINITE < eval && eval < INFINITE);
+    // Static evaluation shouldn't spill into TB- or mate-scores
+    assert(-SLOWEST_TB_WIN < eval && eval < SLOWEST_TB_WIN);
 
     // Return the evaluation, negated if we are black
     return sideToMove == WHITE ? eval : -eval;

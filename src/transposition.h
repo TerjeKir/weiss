@@ -30,7 +30,7 @@
 #define DEFAULTHASH 32
 
 #define ValidBound(bound) (bound >= BOUND_UPPER && bound <= BOUND_EXACT)
-#define ValidScore(score) (score >= -INFINITE && score <= INFINITE)
+#define ValidScore(score) (score >= -MATE && score <= MATE)
 #define ValidDepth(depth) (depth >= 1 && depth < MAXDEPTH)
 
 
@@ -64,17 +64,17 @@ extern TranspositionTable TT;
 // Mate scores are stored as mate in 0 as they depend on the current ply
 INLINE int ScoreToTT (const int score, const uint8_t ply) {
 
-    return score >=  ISMATE ? score + ply
-         : score <= -ISMATE ? score - ply
-                            : score;
+    return score >=  SLOWEST_TB_WIN ? score + ply
+         : score <= -SLOWEST_TB_WIN ? score - ply
+                                    : score;
 }
 
 // Translates from mate in 0 to the proper mate score at current ply
 INLINE int ScoreFromTT (const int score, const uint8_t ply) {
 
-    return score >=  ISMATE ? score - ply
-         : score <= -ISMATE ? score + ply
-                            : score;
+    return score >=  SLOWEST_TB_WIN ? score - ply
+         : score <= -SLOWEST_TB_WIN ? score + ply
+                                    : score;
 }
 
 INLINE TTEntry *GetEntry(Key posKey) {
