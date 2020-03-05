@@ -93,9 +93,9 @@ static void PrintThinking(const SearchInfo *info) {
     char *type = abs(score) > SLOWEST_MATE ? "mate" : "cp";
 
     // Convert score to mate score when applicable
-    score = score >  SLOWEST_MATE ?  ((MATE - score) / 2) + 1
-          : score < -SLOWEST_MATE ? -((MATE + score) / 2)
-          : score * 100 / P_MG;
+    score = score >=  SLOWEST_MATE ?  ((MATE - score) / 2) + 1
+          : score <= -SLOWEST_MATE ? -((MATE + score) / 2)
+                                   : score * 100 / P_MG;
 
     TimePoint elapsed = TimeSince(Limits.start);
     Depth seldepth    = info->seldepth > info->depth ? info->seldepth : info->depth;
