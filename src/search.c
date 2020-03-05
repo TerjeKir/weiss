@@ -90,7 +90,7 @@ static void PrintThinking(const SearchInfo *info) {
     int score = info->score;
 
     // Determine whether we have a centipawn or mate score
-    char *type = abs(score) > SLOWEST_MATE ? "mate" : "cp";
+    char *type = abs(score) >= SLOWEST_MATE ? "mate" : "cp";
 
     // Convert score to mate score when applicable
     score = score >=  SLOWEST_MATE ?  ((MATE - score) / 2) + 1
