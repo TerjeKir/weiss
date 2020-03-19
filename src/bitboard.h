@@ -169,27 +169,15 @@ INLINE bool Single(Bitboard bb) {
     return bb && !Multiple(bb);
 }
 
-// Returns the attack bitboard for a bishop based on what squares are occupied
-INLINE Bitboard BishopAttackBB(const Square sq, Bitboard occupied) {
-
-    return BishopTable[sq].attacks[AttackIndex(sq, occupied, BishopTable)];
-}
-
-// Returns the attack bitboard for a rook based on what squares are occupied
-INLINE Bitboard RookAttackBB(const Square sq, Bitboard occupied) {
-
-    return RookTable[sq].attacks[AttackIndex(sq, occupied, RookTable)];
-}
-
 // Returns the attack bitboard for a piece of piecetype on square sq
 INLINE Bitboard AttackBB(PieceType piecetype, Square sq, Bitboard occupied) {
 
     assert(piecetype != PAWN);
 
     switch(piecetype) {
-        case BISHOP: return BishopAttackBB(sq, occupied);
-        case ROOK  : return RookAttackBB(sq, occupied);
-        case QUEEN : return RookAttackBB(sq, occupied) | BishopAttackBB(sq, occupied);
+        case BISHOP: return BishopTable[sq].attacks[AttackIndex(sq, occupied, BishopTable)];
+        case ROOK  : return   RookTable[sq].attacks[AttackIndex(sq, occupied, RookTable)];
+        case QUEEN : return AttackBB(ROOK, sq, occupied) | AttackBB(BISHOP, sq, occupied);
         default    : return PseudoAttacks[piecetype][sq];
     }
 }
