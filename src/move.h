@@ -71,13 +71,13 @@ INLINE bool CastlePseudoLegal(const Position *pos, Color color, int side) {
 
     Square kingSq = color == WHITE ? E1 : E8;
 
+    Square rookSq = side == OO ? kingSq + 3 * EAST
+                               : kingSq + 4 * WEST;
+
     Square midway = side == OO ? kingSq + EAST
                                : kingSq + WEST;
 
-    Bitboard blocking = castle == WHITE_OO  ? MAKEBB2(F1, G1)
-                      : castle == WHITE_OOO ? MAKEBB3(B1, C1, D1)
-                      : castle == BLACK_OO  ? MAKEBB2(F8, G8)
-                                            : MAKEBB3(B8, C8, D8);
+    Bitboard blocking = BetweenBB[kingSq][rookSq];
 
     return (pos->castlingRights & castle)
         && !(pieceBB(ALL) & blocking)

@@ -24,9 +24,6 @@
 #define SETBIT(bb, sq) ((bb) |= SquareBB[(sq)])
 #define CLRBIT(bb, sq) ((bb) ^= SquareBB[(sq)])
 
-#define MAKEBB2(sq1, sq2)      ((1ULL << sq1) | (1ULL << sq2))
-#define MAKEBB3(sq1, sq2, sq3) ((1ULL << sq1) | (1ULL << sq2) | (1ULL << sq3))
-
 #ifdef USE_PEXT
 // Uses the bmi2 pext instruction in place of magic bitboards
 #include "x86intrin.h"
@@ -112,6 +109,7 @@ extern Bitboard PseudoAttacks[8][64];
 extern Bitboard PawnAttacks[2][64];
 
 extern Bitboard SquareBB[64];
+extern Bitboard BetweenBB[64][64];
 
 extern const Bitboard FileBB[8];
 extern const Bitboard RankBB[8];
