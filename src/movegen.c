@@ -105,18 +105,14 @@ INLINE void GenCastling(const Position *pos, MoveList *list, const Color color, 
 
     if (type != QUIET) return;
 
-    const int OO             = color == WHITE ? WHITE_OO  : BLACK_OO;
-    const int OOO            = color == WHITE ? WHITE_OOO : BLACK_OOO;
-    const Square from        = color == WHITE ? E1        : E8;
-    const Bitboard betweenKS = color == WHITE ? bitF1G1   : bitF8G8;
-    const Bitboard betweenQS = color == WHITE ? bitB1C1D1 : bitB8C8D8;
+    const Square from = color == WHITE ? E1 : E8;
 
     // King side castle
-    if (CastlePseudoLegal(pos, betweenKS, OO, from, from+1, color))
+    if (CastlePseudoLegal(pos, color, OO))
         AddMove(pos, list, from, from+2, EMPTY, FLAG_CASTLE, QUIET);
 
     // Queen side castle
-    if (CastlePseudoLegal(pos, betweenQS, OOO, from, from-1, color))
+    if (CastlePseudoLegal(pos, color, OOO))
         AddMove(pos, list, from, from-2, EMPTY, FLAG_CASTLE, QUIET);
 }
 

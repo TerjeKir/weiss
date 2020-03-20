@@ -53,10 +53,10 @@ bool MoveIsPseudoLegal(const Position *pos, const Move move) {
         case KING:
             if (moveIsCastle(move))
                 switch (to) {
-                    case C1: return CastlePseudoLegal(pos, bitB1C1D1, WHITE_OOO, E1, D1, WHITE);
-                    case G1: return CastlePseudoLegal(pos, bitF1G1,   WHITE_OO,  E1, F1, WHITE);
-                    case C8: return CastlePseudoLegal(pos, bitB8C8D8, BLACK_OOO, E8, D8, BLACK);
-                    case G8: return CastlePseudoLegal(pos, bitF8G8,   BLACK_OO,  E8, F8, BLACK);
+                    case C1: return CastlePseudoLegal(pos, WHITE, OOO);
+                    case G1: return CastlePseudoLegal(pos, WHITE, OO);
+                    case C8: return CastlePseudoLegal(pos, BLACK, OOO);
+                    case G8: return CastlePseudoLegal(pos, BLACK, OO);
                     default: assert(0); return false;
                 }
             // fall through
