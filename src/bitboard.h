@@ -24,6 +24,9 @@
 #define SETBIT(bb, sq) ((bb) |= SquareBB[(sq)])
 #define CLRBIT(bb, sq) ((bb) ^= SquareBB[(sq)])
 
+#define MAKEBB2(sq1, sq2)      ((1ULL << sq1) | (1ULL << sq2))
+#define MAKEBB3(sq1, sq2, sq3) ((1ULL << sq1) | (1ULL << sq2) | (1ULL << sq3))
+
 #ifdef USE_PEXT
 // Uses the bmi2 pext instruction in place of magic bitboards
 #include "x86intrin.h"
@@ -112,12 +115,6 @@ extern Bitboard SquareBB[64];
 
 extern const Bitboard FileBB[8];
 extern const Bitboard RankBB[8];
-
-// Used for checking legality of castling
-static const Bitboard bitB1C1D1 = (1ULL << B1) | (1ULL << C1) | (1ULL << D1);
-static const Bitboard bitB8C8D8 = (1ULL << B8) | (1ULL << C8) | (1ULL << D8);
-static const Bitboard bitF1G1   = (1ULL << F1) | (1ULL << G1);
-static const Bitboard bitF8G8   = (1ULL << F8) | (1ULL << G8);
 
 
 // Shifts a bitboard (protonspring version)

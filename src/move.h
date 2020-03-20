@@ -64,12 +64,25 @@
 
 
 // Checks legality of a specific castle move given the current position
-INLINE bool CastlePseudoLegal(const Position *pos, Bitboard between, int type, Square sq1, Square sq2, Color color) {
+INLINE bool CastlePseudoLegal(const Position *pos, Color color, int side) {
 
-    return (pos->castlingRights & type)
-        && !(pieceBB(ALL) & between)
-        && !SqAttacked(pos, sq1, !color)
-        && !SqAttacked(pos, sq2, !color);
+    uint8_t castle = color == WHITE ? side & WHITE_CASTLE
+                                    : side & BLACK_CASTLE;
+
+    Square kingSq = color == WHITE ? E1 : E8;
+
+    Square midway = side == OO ? kingSq + EAST
+                               : kingSq + WEST;
+
+    Bitboard blocking = castle == WHITE_OO  ? MAKEBB2(F1, G1)
+                      : castle == WHITE_OOO ? MAKEBB3(B1, C1, D1)
+                      : castle == BLACK_OO  ? MAKEBB2(F8, G8)
+                                            : MAKEBB3(B8, C8, D8);
+
+    return (pos->castlingRights & castle)
+        && !(pieceBB(ALL) & blocking)
+        && !SqAttacked(pos, kingSq, !color)
+        && !SqAttacked(pos, midway, !color);
 }
 
 bool MoveIsPseudoLegal(const Position *pos, Move move);
