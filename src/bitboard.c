@@ -29,6 +29,7 @@ const Bitboard RankBB[8] = {
 };
 
 Bitboard SquareBB[64];
+Bitboard BetweenBB[64][64];
 
 static Bitboard BishopAttacks[0x1480];
 static Bitboard RookAttacks[0x19000];
@@ -140,6 +141,12 @@ CONSTR InitBitMasks() {
     InitSliderAttacks(BishopTable, BishopAttacks, BishopMagics, BSteps);
     InitSliderAttacks(  RookTable,   RookAttacks,   RookMagics, RSteps);
 #endif
+
+    for (Square sq1 = A1; sq1 <= H8; sq1++)
+        for (Square sq2 = A1; sq2 <= H8; sq2++)
+            for (PieceType pt = BISHOP; pt <= ROOK; pt++)
+                if (AttackBB(pt, sq1, SquareBB[sq2]) & SquareBB[sq2])
+                    BetweenBB[sq1][sq2] = AttackBB(pt, sq1, SquareBB[sq2]) & AttackBB(pt, sq2, SquareBB[sq1]);
 }
 
 // Checks whether a square is attacked by the given color
