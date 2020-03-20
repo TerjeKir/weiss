@@ -93,10 +93,10 @@ static void InitNonSliderAttacks() {
 }
 
 // Initializes rook or bishop attack lookups
-#ifdef USE_PEXT
 static void InitSliderAttacks(Magic *m, Bitboard *table, const int *steps) {
-#else
-static void InitSliderAttacks(Magic *m, Bitboard *table, const uint64_t *magics, const int *steps) {
+
+#ifndef USE_PEXT
+    const uint64_t *magics = steps[0] == 8 ? RookMagics : BishopMagics;
 #endif
 
     for (Square sq = A1; sq <= H8; ++sq) {
@@ -134,13 +134,8 @@ CONSTR InitBitMasks() {
     const int BSteps[4] = { 7, 9, -7, -9 };
     const int RSteps[4] = { 8, 1, -8, -1 };
 
-#ifdef USE_PEXT
     InitSliderAttacks(BishopTable, BishopAttacks, BSteps);
     InitSliderAttacks(  RookTable,   RookAttacks, RSteps);
-#else
-    InitSliderAttacks(BishopTable, BishopAttacks, BishopMagics, BSteps);
-    InitSliderAttacks(  RookTable,   RookAttacks,   RookMagics, RSteps);
-#endif
 
     for (Square sq1 = A1; sq1 <= H8; sq1++)
         for (Square sq2 = A1; sq2 <= H8; sq2++)
