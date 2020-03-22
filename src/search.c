@@ -98,7 +98,7 @@ static void PrintThinking(const SearchInfo *info) {
                                    : score * 100 / P_MG;
 
     TimePoint elapsed = TimeSince(Limits.start);
-    Depth seldepth    = info->seldepth > info->depth ? info->seldepth : info->depth;
+    Depth seldepth    = info->seldepth;
     int hashFull      = HashFull();
     int nps           = (int)(1000 * info->nodes / (elapsed + 1));
 
@@ -251,8 +251,10 @@ static int AlphaBeta(Position *pos, SearchInfo *info, int alpha, int beta, Depth
     if (OutOfTime(info) || ABORT_SIGNAL)
         longjmp(info->jumpBuffer, true);
 
-    // Update node count
+    // Update node count and selective depth
     info->nodes++;
+    if (pos->ply > info->seldepth)
+        info->seldepth = pos->ply;
 
     // Early exits
     if (!root) {
@@ -565,6 +567,8 @@ void SearchPosition(Position *pos, SearchInfo *info) {
         // Save bestMove and ponderMove before overwriting the pv next iteration
         info->bestMove   = info->pv.line[0];
         info->ponderMove = info->pv.length > 1 ? info->pv.line[1] : NOMOVE;
+
+        info->seldepth = 0;
     }
 
     // Print conclusion
