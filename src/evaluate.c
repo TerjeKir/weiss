@@ -108,8 +108,6 @@ CONSTR InitEvalMasks() {
 // Check if the board is (likely) drawn, logic from sjeng
 static bool MaterialDraw(const Position *pos) {
 
-    assert(CheckBoard(pos));
-
     // No draw with pawns or queens
     if (pieceBB(PAWN) || pieceBB(QUEEN))
         return false;

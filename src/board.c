@@ -30,7 +30,6 @@ uint8_t SqDistance[64][64];
 
 //                                EMPTY,    bP,    bN,    bB,    bR,    bQ,    bK, EMPTY, EMPTY,    wP,    wN,    wB,    wR,    wQ,    wK, EMPTY
 const int NonPawn[PIECE_NB]    = { false, false,  true,  true,  true,  true, false, false, false, false,  true,  true,  true,  true, false, false };
-const int PiecePawn[PIECE_NB]  = { false,  true, false, false, false, false, false, false, false,  true, false, false, false, false, false, false };
 const int PhaseValue[PIECE_NB] = {     0,     0,     1,     1,     2,     4,     0,     0,     0,     0,     1,     1,     2,     4,     0,     0 };
 
 // Zobrist key tables
@@ -172,8 +171,6 @@ static void UpdatePosition(Position *pos) {
     }
 
     pos->phase = (pos->basePhase * 256 + 12) / 24;
-
-    assert(CheckBoard(pos));
 }
 
 // Parse FEN and set up the position as described
@@ -258,7 +255,7 @@ void ParseFen(const char *fen, Position *pos) {
     // Update the rest of position to match pos->board
     UpdatePosition(pos);
 
-    assert(CheckBoard(pos));
+    assert(PositionOk(pos));
 }
 
 #if defined DEV || !defined NDEBUG
@@ -300,51 +297,48 @@ void PrintBoard(const Position *pos) {
 
 #ifndef NDEBUG
 // Check board state makes sense
-bool CheckBoard(const Position *pos) {
+bool PositionOk(const Position *pos) {
 
     assert(0 <= pos->gamePly && pos->gamePly < MAXGAMEMOVES);
     assert(    0 <= pos->ply && pos->ply < MAXDEPTH);
 
-    int t_pieceCounts[PIECE_NB] = { 0 };
-    int t_bigPieces[2] = { 0, 0 };
+    int counts[PIECE_NB] = { 0 };
+    int nonPawnCount[2] = { 0, 0 };
 
-    int t_piece, color;
+    for (Square sq = A1; sq <= H8; ++sq) {
 
-    // Bitboards
-    assert(PopCount(pieceBB(PAWN)   & colorBB(WHITE)) <= 8);
-    assert(PopCount(pieceBB(KNIGHT) & colorBB(WHITE)) <= 10);
-    assert(PopCount(pieceBB(BISHOP) & colorBB(WHITE)) <= 10);
-    assert(PopCount(pieceBB(ROOK)   & colorBB(WHITE)) <= 10);
-    assert(PopCount(pieceBB(QUEEN)  & colorBB(WHITE)) <= 9);
-    assert(PopCount(pieceBB(KING)   & colorBB(WHITE)) == 1);
+        Piece piece = pieceOn(sq);
+        counts[piece]++;
+        Color color = ColorOf(piece);
+        nonPawnCount[color] += NonPawn[piece];
+    }
 
-    assert(PopCount(pieceBB(PAWN)   & colorBB(BLACK)) <= 8);
-    assert(PopCount(pieceBB(KNIGHT) & colorBB(BLACK)) <= 10);
-    assert(PopCount(pieceBB(BISHOP) & colorBB(BLACK)) <= 10);
-    assert(PopCount(pieceBB(ROOK)   & colorBB(BLACK)) <= 10);
-    assert(PopCount(pieceBB(QUEEN)  & colorBB(BLACK)) <= 9);
-    assert(PopCount(pieceBB(KING)   & colorBB(BLACK)) == 1);
+    assert(PopCount(colorPieceBB(WHITE, PAWN))   == counts[MakePiece(WHITE, PAWN)]);
+    assert(PopCount(colorPieceBB(WHITE, KNIGHT)) == counts[MakePiece(WHITE, KNIGHT)]);
+    assert(PopCount(colorPieceBB(WHITE, BISHOP)) == counts[MakePiece(WHITE, BISHOP)]);
+    assert(PopCount(colorPieceBB(WHITE, ROOK))   == counts[MakePiece(WHITE, ROOK)]);
+    assert(PopCount(colorPieceBB(WHITE, QUEEN))  == counts[MakePiece(WHITE, QUEEN)]);
+    assert(PopCount(colorPieceBB(WHITE, KING))   == counts[MakePiece(WHITE, KING)]);
+
+    assert(PopCount(colorPieceBB(BLACK, PAWN))   == counts[MakePiece(BLACK, PAWN)]);
+    assert(PopCount(colorPieceBB(BLACK, KNIGHT)) == counts[MakePiece(BLACK, KNIGHT)]);
+    assert(PopCount(colorPieceBB(BLACK, BISHOP)) == counts[MakePiece(BLACK, BISHOP)]);
+    assert(PopCount(colorPieceBB(BLACK, ROOK))   == counts[MakePiece(BLACK, ROOK)]);
+    assert(PopCount(colorPieceBB(BLACK, QUEEN))  == counts[MakePiece(BLACK, QUEEN)]);
+    assert(PopCount(colorPieceBB(BLACK, KING))   == counts[MakePiece(BLACK, KING)]);
 
     assert(pieceBB(ALL) == (colorBB(WHITE) | colorBB(BLACK)));
 
-    // check piece count and other counters
-    for (Square sq = A1; sq <= H8; ++sq) {
-
-        t_piece = pieceOn(sq);
-        t_pieceCounts[t_piece]++;
-        color = ColorOf(t_piece);
-
-        if (NonPawn[t_piece]) t_bigPieces[color]++;
-    }
-
-    assert(t_bigPieces[WHITE] == pos->nonPawnCount[WHITE] && t_bigPieces[BLACK] == pos->nonPawnCount[BLACK]);
+    assert(nonPawnCount[WHITE] == pos->nonPawnCount[WHITE]
+        && nonPawnCount[BLACK] == pos->nonPawnCount[BLACK]);
 
     assert(sideToMove == WHITE || sideToMove == BLACK);
 
     assert(pos->epSquare == NO_SQ
        || (RelativeRank(sideToMove, RankOf(pos->epSquare)) == RANK_6));
 
-    assert(pos->castlingRights >= 0 && pos->castlingRights <= 15);
+    assert(pos->castlingRights >= 0
+        && pos->castlingRights <= 15);
 
     assert(GeneratePosKey(pos) == pos->key);
 
@@ -356,37 +350,32 @@ bool CheckBoard(const Position *pos) {
 // Reverse the colors
 void MirrorBoard(Position *pos) {
 
-    assert(CheckBoard(pos));
-
-    Piece SwapPiece[PIECE_NB] = {EMPTY, wP, wN, wB, wR, wQ, wK, EMPTY, EMPTY, bP, bN, bB, bR, bQ, bK, EMPTY};
+    assert(PositionOk(pos));
 
     // Save the necessary position info mirrored
-    uint8_t tempPiecesArray[64];
+    uint8_t board[64];
     for (Square sq = A1; sq <= H8; ++sq)
-        tempPiecesArray[sq] = SwapPiece[pieceOn(MirrorSquare(sq))];
+        board[sq] = MirrorPiece(pieceOn(MirrorSquare(sq)));
 
-    Color tempSide = !sideToMove;
-    Square tempEnPas = pos->epSquare == NO_SQ ? NO_SQ : MirrorSquare(pos->epSquare);
-    uint8_t tempCastlingRights = 0;
-    if (pos->castlingRights & WHITE_OO)  tempCastlingRights |= BLACK_OO;
-    if (pos->castlingRights & WHITE_OOO) tempCastlingRights |= BLACK_OOO;
-    if (pos->castlingRights & BLACK_OO)  tempCastlingRights |= WHITE_OO;
-    if (pos->castlingRights & BLACK_OOO) tempCastlingRights |= WHITE_OOO;
+    Color stm = !sideToMove;
+    Square ep = pos->epSquare == NO_SQ ? NO_SQ : MirrorSquare(pos->epSquare);
+    uint8_t cr = (pos->castlingRights & WHITE_CASTLE) << 2
+               | (pos->castlingRights & BLACK_CASTLE) >> 2;
 
     // Clear the position
     ClearPosition(pos);
 
     // Fill in the mirrored position info
     for (Square sq = A1; sq <= H8; ++sq)
-        pieceOn(sq) = tempPiecesArray[sq];
+        pieceOn(sq) = board[sq];
 
-    sideToMove = tempSide;
-    pos->epSquare = tempEnPas;
-    pos->castlingRights = tempCastlingRights;
+    sideToMove = stm;
+    pos->epSquare = ep;
+    pos->castlingRights = cr;
 
     // Update the rest of the position to match pos->board
     UpdatePosition(pos);
 
-    assert(CheckBoard(pos));
+    assert(PositionOk(pos));
 }
 #endif

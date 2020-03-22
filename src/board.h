@@ -24,7 +24,6 @@
 extern uint8_t SqDistance[64][64];
 
 extern const int NonPawn[PIECE_NB];
-extern const int PiecePawn[PIECE_NB];
 extern const int PhaseValue[PIECE_NB];
 
 // Zobrist keys
@@ -37,7 +36,7 @@ void ParseFen(const char *fen, Position *pos);
 Key KeyAfter(const Position *pos, Move move);
 #ifndef NDEBUG
 void PrintBoard(const Position *pos);
-bool CheckBoard(const Position *pos);
+bool PositionOk(const Position *pos);
 #endif
 #ifdef DEV
 void PrintBoard(const Position *pos);
@@ -49,6 +48,11 @@ INLINE Square MirrorSquare(const Square sq) {
     return sq ^ 56;
 }
 
+// Returns the same piece of the opposite color
+INLINE Piece MirrorPiece(Piece piece) {
+    return piece == EMPTY ? EMPTY : piece ^ 8;
+}
+
 // Returns distance between sq1 and sq2
 INLINE int Distance(const Square sq1, const Square sq2) {
     return SqDistance[sq1][sq2];
@@ -56,15 +60,6 @@ INLINE int Distance(const Square sq1, const Square sq2) {
 
 INLINE int RelativeRank(const Color color, const int rank) {
     return color == WHITE ? rank : RANK_8 - rank;
-}
-
-INLINE bool ValidSquare(const Square sq) {
-    return sq <= H8;
-}
-
-INLINE bool ValidSide(const Color side) {
-    return side == WHITE
-        || side == BLACK;
 }
 
 INLINE bool ValidPiece(const Piece piece) {

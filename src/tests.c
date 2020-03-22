@@ -72,8 +72,6 @@ static uint64_t leafNodes;
 
 static void RecursivePerft(Position *pos, const Depth depth) {
 
-    assert(CheckBoard(pos));
-
     if (depth == 0) {
         leafNodes++;
         return;
@@ -105,8 +103,6 @@ void Perft(char *line) {
     char *perftFen = line + 8;
     !*perftFen ? ParseFen(PERFT_FEN, pos)
                : ParseFen(perftFen,  pos);
-
-    assert(CheckBoard(pos));
 
     printf("\nStarting perft to depth %d\n\n", depth);
     fflush(stdout);

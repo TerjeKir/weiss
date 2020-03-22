@@ -151,8 +151,6 @@ static int QuiescenceDeltaMargin(const Position *pos) {
 // Quiescence
 static int Quiescence(Position *pos, SearchInfo *info, int alpha, const int beta) {
 
-    assert(CheckBoard(pos));
-
     MovePicker mp;
     MoveList list;
 
@@ -227,8 +225,6 @@ static int Quiescence(Position *pos, SearchInfo *info, int alpha, const int beta
 
 // Alpha Beta
 static int AlphaBeta(Position *pos, SearchInfo *info, int alpha, int beta, Depth depth, PV *pv) {
-
-    assert(CheckBoard(pos));
 
     const bool pvNode = alpha != beta - 1;
     const bool root   = pos->ply == 0;
@@ -467,9 +463,9 @@ move_loop:
 
     StoreTTEntry(tte, posKey, bestMove, ScoreToTT(bestScore, pos->ply), depth, flag);
 
-    assert(ValidScore(bestScore));
-    assert(ValidScore(alpha));
     assert(alpha >= oldAlpha);
+    assert(ValidScore(alpha));
+    assert(ValidScore(bestScore));
 
     return bestScore;
 }
