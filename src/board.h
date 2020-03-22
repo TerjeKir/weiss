@@ -48,6 +48,11 @@ INLINE Square MirrorSquare(const Square sq) {
     return sq ^ 56;
 }
 
+// Returns the same piece of the opposite color
+INLINE Piece MirrorPiece(Piece piece) {
+    return piece == EMPTY ? EMPTY : piece ^ 8;
+}
+
 // Returns distance between sq1 and sq2
 INLINE int Distance(const Square sq1, const Square sq2) {
     return SqDistance[sq1][sq2];

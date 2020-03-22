@@ -352,31 +352,26 @@ void MirrorBoard(Position *pos) {
 
     assert(CheckBoard(pos));
 
-    Piece SwapPiece[PIECE_NB] = {EMPTY, wP, wN, wB, wR, wQ, wK, EMPTY, EMPTY, bP, bN, bB, bR, bQ, bK, EMPTY};
-
     // Save the necessary position info mirrored
-    uint8_t tempPiecesArray[64];
+    uint8_t board[64];
     for (Square sq = A1; sq <= H8; ++sq)
-        tempPiecesArray[sq] = SwapPiece[pieceOn(MirrorSquare(sq))];
+        board[sq] = MirrorPiece(pieceOn(MirrorSquare(sq)));
 
-    Color tempSide = !sideToMove;
-    Square tempEnPas = pos->epSquare == NO_SQ ? NO_SQ : MirrorSquare(pos->epSquare);
-    uint8_t tempCastlingRights = 0;
-    if (pos->castlingRights & WHITE_OO)  tempCastlingRights |= BLACK_OO;
-    if (pos->castlingRights & WHITE_OOO) tempCastlingRights |= BLACK_OOO;
-    if (pos->castlingRights & BLACK_OO)  tempCastlingRights |= WHITE_OO;
-    if (pos->castlingRights & BLACK_OOO) tempCastlingRights |= WHITE_OOO;
+    Color stm = !sideToMove;
+    Square ep = pos->epSquare == NO_SQ ? NO_SQ : MirrorSquare(pos->epSquare);
+    uint8_t cr = (pos->castlingRights & WHITE_CASTLE) << 2
+               | (pos->castlingRights & BLACK_CASTLE) >> 2;
 
     // Clear the position
     ClearPosition(pos);
 
     // Fill in the mirrored position info
     for (Square sq = A1; sq <= H8; ++sq)
-        pieceOn(sq) = tempPiecesArray[sq];
+        pieceOn(sq) = board[sq];
 
-    sideToMove = tempSide;
-    pos->epSquare = tempEnPas;
-    pos->castlingRights = tempCastlingRights;
+    sideToMove = stm;
+    pos->epSquare = ep;
+    pos->castlingRights = cr;
 
     // Update the rest of the position to match pos->board
     UpdatePosition(pos);
