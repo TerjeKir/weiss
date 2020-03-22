@@ -255,7 +255,7 @@ void ParseFen(const char *fen, Position *pos) {
     // Update the rest of position to match pos->board
     UpdatePosition(pos);
 
-    assert(CheckBoard(pos));
+    assert(PositionOk(pos));
 }
 
 #if defined DEV || !defined NDEBUG
@@ -297,7 +297,7 @@ void PrintBoard(const Position *pos) {
 
 #ifndef NDEBUG
 // Check board state makes sense
-bool CheckBoard(const Position *pos) {
+bool PositionOk(const Position *pos) {
 
     assert(0 <= pos->gamePly && pos->gamePly < MAXGAMEMOVES);
     assert(    0 <= pos->ply && pos->ply < MAXDEPTH);
@@ -350,7 +350,7 @@ bool CheckBoard(const Position *pos) {
 // Reverse the colors
 void MirrorBoard(Position *pos) {
 
-    assert(CheckBoard(pos));
+    assert(PositionOk(pos));
 
     // Save the necessary position info mirrored
     uint8_t board[64];
@@ -376,6 +376,6 @@ void MirrorBoard(Position *pos) {
     // Update the rest of the position to match pos->board
     UpdatePosition(pos);
 
-    assert(CheckBoard(pos));
+    assert(PositionOk(pos));
 }
 #endif

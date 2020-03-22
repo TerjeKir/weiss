@@ -36,7 +36,7 @@ void ParseFen(const char *fen, Position *pos);
 Key KeyAfter(const Position *pos, Move move);
 #ifndef NDEBUG
 void PrintBoard(const Position *pos);
-bool CheckBoard(const Position *pos);
+bool PositionOk(const Position *pos);
 #endif
 #ifdef DEV
 void PrintBoard(const Position *pos);

@@ -183,7 +183,7 @@ void TakeMove(Position *pos) {
     // Get old poskey from history
     pos->key = history(0).posKey;
 
-    assert(CheckBoard(pos));
+    assert(PositionOk(pos));
 }
 
 // Make a move - take it back and return false if move was illegal
@@ -273,7 +273,7 @@ bool MakeMove(Position *pos, const Move move) {
     sideToMove ^= 1;
     HASH_SIDE;
 
-    assert(CheckBoard(pos));
+    assert(PositionOk(pos));
 
     // If own king is attacked after the move, take it back immediately
     if (SqAttacked(pos, Lsb(colorPieceBB(color, KING)), sideToMove)) {
@@ -310,7 +310,7 @@ void MakeNullMove(Position *pos) {
         pos->epSquare = NO_SQ;
     }
 
-    assert(CheckBoard(pos));
+    assert(PositionOk(pos));
 }
 
 // Take back a null move
@@ -329,5 +329,5 @@ void TakeNullMove(Position *pos) {
     pos->rule50         = history(0).rule50;
     pos->castlingRights = history(0).castlingRights;
 
-    assert(CheckBoard(pos));
+    assert(PositionOk(pos));
 }
