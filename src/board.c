@@ -313,19 +313,22 @@ bool PositionOk(const Position *pos) {
         nonPawnCount[color] += NonPawn[piece];
     }
 
+    assert(counts[MakePiece(WHITE, KING)] == 1);
+    assert(counts[MakePiece(BLACK, KING)] == 1);
+
     assert(PopCount(colorPieceBB(WHITE, PAWN))   == counts[MakePiece(WHITE, PAWN)]);
     assert(PopCount(colorPieceBB(WHITE, KNIGHT)) == counts[MakePiece(WHITE, KNIGHT)]);
     assert(PopCount(colorPieceBB(WHITE, BISHOP)) == counts[MakePiece(WHITE, BISHOP)]);
     assert(PopCount(colorPieceBB(WHITE, ROOK))   == counts[MakePiece(WHITE, ROOK)]);
     assert(PopCount(colorPieceBB(WHITE, QUEEN))  == counts[MakePiece(WHITE, QUEEN)]);
-    assert(PopCount(colorPieceBB(WHITE, KING))   == counts[MakePiece(WHITE, KING)]);
+    assert(PopCount(colorPieceBB(WHITE, KING))   == 1);
 
     assert(PopCount(colorPieceBB(BLACK, PAWN))   == counts[MakePiece(BLACK, PAWN)]);
     assert(PopCount(colorPieceBB(BLACK, KNIGHT)) == counts[MakePiece(BLACK, KNIGHT)]);
     assert(PopCount(colorPieceBB(BLACK, BISHOP)) == counts[MakePiece(BLACK, BISHOP)]);
     assert(PopCount(colorPieceBB(BLACK, ROOK))   == counts[MakePiece(BLACK, ROOK)]);
     assert(PopCount(colorPieceBB(BLACK, QUEEN))  == counts[MakePiece(BLACK, QUEEN)]);
-    assert(PopCount(colorPieceBB(BLACK, KING))   == counts[MakePiece(BLACK, KING)]);
+    assert(PopCount(colorPieceBB(BLACK, KING))   == 1);
 
     assert(pieceBB(ALL) == (colorBB(WHITE) | colorBB(BLACK)));
 
@@ -342,6 +345,8 @@ bool PositionOk(const Position *pos) {
 
     assert(GeneratePosKey(pos) == pos->key);
 
+    assert(!SqAttacked(pos, Lsb(colorPieceBB(!sideToMove, KING)), sideToMove));
+
     return true;
 }
 #endif
@@ -349,8 +354,6 @@ bool PositionOk(const Position *pos) {
 #ifdef DEV
 // Reverse the colors
 void MirrorBoard(Position *pos) {
-
-    assert(PositionOk(pos));
 
     // Save the necessary position info mirrored
     uint8_t board[64];
