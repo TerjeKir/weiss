@@ -24,7 +24,6 @@
 extern uint8_t SqDistance[64][64];
 
 extern const int NonPawn[PIECE_NB];
-extern const int PiecePawn[PIECE_NB];
 extern const int PhaseValue[PIECE_NB];
 
 // Zobrist keys

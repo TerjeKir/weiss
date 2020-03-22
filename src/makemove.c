@@ -245,7 +245,7 @@ bool MakeMove(Position *pos, const Move move) {
     MovePiece(pos, from, to);
 
     // Pawn move specifics
-    if (PiecePawn[pieceOn(to)]) {
+    if (PieceTypeOf(pieceOn(to)) == PAWN) {
 
         // Reset 50mr after a pawn move
         pos->rule50 = 0;
