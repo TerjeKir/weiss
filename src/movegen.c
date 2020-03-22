@@ -61,14 +61,11 @@ bool MoveListOk(const MoveList *list, const Position *pos) {
 // Constructs and adds a move to the move list
 INLINE void AddMove(const Position *pos, MoveList *list, const Square from, const Square to, const Piece promo, const int flag, const int type) {
 
-    assert(ValidSquare(from));
-    assert(ValidSquare(to));
-
-    int *moveScore = &list->moves[list->count].score;
-
     const Move move = MOVE(from, to, pieceOn(to), promo, flag);
 
     // Add scores to help move ordering based on search history heuristics / mvvlva
+    int *moveScore = &list->moves[list->count].score;
+
     if (type == NOISY)
         *moveScore = MvvLvaScores[pieceOn(to)][pieceOn(from)];
 
@@ -216,8 +213,6 @@ INLINE void GenPieceType(const Position *pos, MoveList *list, const Color color,
 
 // Generate moves
 static void GenMoves(const Position *pos, MoveList *list, const Color color, const int type) {
-
-    assert(CheckBoard(pos));
 
     GenCastling (pos, list, color, type);
     GenPawn     (pos, list, color, type);

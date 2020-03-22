@@ -147,10 +147,6 @@ CONSTR InitBitMasks() {
 // Checks whether a square is attacked by the given color
 bool SqAttacked(const Position *pos, const Square sq, const Color color) {
 
-    assert(ValidSquare(sq));
-    assert(ValidSide(color));
-    assert(CheckBoard(pos));
-
     const Bitboard bishops = colorBB(color) & (pieceBB(BISHOP) | pieceBB(QUEEN));
     const Bitboard rooks   = colorBB(color) & (pieceBB(ROOK)   | pieceBB(QUEEN));
 

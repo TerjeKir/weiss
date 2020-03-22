@@ -43,13 +43,10 @@ static const uint8_t CastlePerm[64] = {
 // Remove a piece from a square sq
 static void ClearPiece(Position *pos, const Square sq) {
 
-    assert(ValidSquare(sq));
-
     const Piece piece = pieceOn(sq);
     const Color color = ColorOf(piece);
 
     assert(ValidPiece(piece));
-    assert(ValidSide(color));
 
     // Hash out the piece
     HASH_PCE(piece, sq);
@@ -77,11 +74,7 @@ static void ClearPiece(Position *pos, const Square sq) {
 // Add a piece piece to a square
 static void AddPiece(Position *pos, const Square sq, const Piece piece) {
 
-    assert(ValidPiece(piece));
-    assert(ValidSquare(sq));
-
     const Color color = ColorOf(piece);
-    assert(ValidSide(color));
 
     // Hash in piece at square
     HASH_PCE(piece, sq);
@@ -109,12 +102,10 @@ static void AddPiece(Position *pos, const Square sq, const Piece piece) {
 // Move a piece from one square to another
 static void MovePiece(Position *pos, const Square from, const Square to) {
 
-    assert(ValidSquare(from));
-    assert(ValidSquare(to));
-
     const Piece piece = pieceOn(from);
 
     assert(ValidPiece(piece));
+    assert(pieceOn(to) == EMPTY);
 
     // Hash out piece on old square, in on new square
     HASH_PCE(piece, from);
@@ -141,8 +132,6 @@ static void MovePiece(Position *pos, const Square from, const Square to) {
 // Take back the previous move
 void TakeMove(Position *pos) {
 
-    assert(CheckBoard(pos));
-
     // Decrement gamePly, ply
     pos->gamePly--;
     pos->ply--;
@@ -159,9 +148,6 @@ void TakeMove(Position *pos) {
     const Move move = history(0).move;
     const Square from = fromSq(move);
     const Square to = toSq(move);
-
-    assert(ValidSquare(from));
-    assert(ValidSquare(to));
 
     // Add in pawn captured by en passant
     if (moveIsEnPas(move))
@@ -189,9 +175,9 @@ void TakeMove(Position *pos) {
 
     // Remove promoted piece and put back the pawn
     if (promotion(move) != EMPTY) {
-        assert(ValidPiece(promotion(move)) && !PiecePawn[promotion(move)]);
+        assert(ValidPiece(promotion(move)) && NonPawn[promotion(move)]);
         ClearPiece(pos, from);
-        AddPiece(pos, from, MakePiece(ColorOf(promotion(move)), PAWN));
+        AddPiece(pos, from, MakePiece(sideToMove, PAWN));
     }
 
     // Get old poskey from history
@@ -203,17 +189,10 @@ void TakeMove(Position *pos) {
 // Make a move - take it back and return false if move was illegal
 bool MakeMove(Position *pos, const Move move) {
 
-    assert(CheckBoard(pos));
-
     const Square from = fromSq(move);
     const Square to   = toSq(move);
     const Piece capt  = capturing(move);
     const Color color = sideToMove;
-
-    assert(ValidSquare(from));
-    assert(ValidSquare(to));
-    assert(ValidSide(color));
-    assert(ValidPiece(pieceOn(from)));
 
     // Save position
     history(0).posKey         = pos->key;
@@ -308,8 +287,6 @@ bool MakeMove(Position *pos, const Move move) {
 // Pass the turn without moving
 void MakeNullMove(Position *pos) {
 
-    assert(CheckBoard(pos));
-
     // Save misc info for takeback
     history(0).posKey         = pos->key;
     history(0).move           = NOMOVE;
@@ -338,8 +315,6 @@ void MakeNullMove(Position *pos) {
 
 // Take back a null move
 void TakeNullMove(Position *pos) {
-
-    assert(CheckBoard(pos));
 
     // Decrease ply
     pos->gamePly--;

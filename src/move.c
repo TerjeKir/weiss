@@ -92,8 +92,6 @@ char *MoveToStr(const Move move) {
 // a2a4 b7b8q g7f8n
 Move ParseMove(const char *str, const Position *pos) {
 
-    assert(CheckBoard(pos));
-
     // Translate coordinates into square numbers
     Square from = (str[0] - 'a') + (8 * (str[1] - '1'));
     Square to   = (str[2] - 'a') + (8 * (str[3] - '1'));

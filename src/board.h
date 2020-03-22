@@ -58,15 +58,6 @@ INLINE int RelativeRank(const Color color, const int rank) {
     return color == WHITE ? rank : RANK_8 - rank;
 }
 
-INLINE bool ValidSquare(const Square sq) {
-    return sq <= H8;
-}
-
-INLINE bool ValidSide(const Color side) {
-    return side == WHITE
-        || side == BLACK;
-}
-
 INLINE bool ValidPiece(const Piece piece) {
     return (wP <= piece && piece <= wK)
         || (bP <= piece && piece <= bK);

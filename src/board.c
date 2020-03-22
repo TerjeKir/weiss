@@ -172,8 +172,6 @@ static void UpdatePosition(Position *pos) {
     }
 
     pos->phase = (pos->basePhase * 256 + 12) / 24;
-
-    assert(CheckBoard(pos));
 }
 
 // Parse FEN and set up the position as described
