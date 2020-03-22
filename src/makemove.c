@@ -273,13 +273,13 @@ bool MakeMove(Position *pos, const Move move) {
     sideToMove ^= 1;
     HASH_SIDE;
 
-    assert(PositionOk(pos));
-
     // If own king is attacked after the move, take it back immediately
     if (SqAttacked(pos, Lsb(colorPieceBB(color, KING)), sideToMove)) {
         TakeMove(pos);
         return false;
     }
+
+    assert(PositionOk(pos));
 
     return true;
 }
