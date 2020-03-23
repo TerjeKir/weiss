@@ -37,7 +37,7 @@
 int Reductions[32][32];
 
 SearchLimits Limits;
-extern bool ABORT_SIGNAL;
+extern volatile bool ABORT_SIGNAL;
 
 
 // Initializes the late move reduction array
@@ -566,6 +566,9 @@ void SearchPosition(Position *pos, SearchInfo *info) {
 
         info->seldepth = 0;
     }
+
+    // Wait for 'stop' in infinite search
+    while (!Limits.timelimit && !ABORT_SIGNAL) {}
 
     // Print conclusion
     PrintConclusion(info);
