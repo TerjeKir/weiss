@@ -37,7 +37,7 @@
 #define INPUT_SIZE 4096
 
 
-bool ABORT_SIGNAL = false;
+volatile bool ABORT_SIGNAL = false;
 
 
 // Checks if a string begins with another string
