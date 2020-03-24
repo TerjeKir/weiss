@@ -292,17 +292,24 @@ static int AlphaBeta(Position *pos, SearchInfo *info, int alpha, int beta, Depth
             return ttScore;
     }
 
+    int bestScore = -INFINITE;
+
     // Probe syzygy TBs
     int score, bound;
     if (ProbeWDL(pos, &score, &bound)) {
 
         info->tbhits++;
 
-        if (score >= beta ? bound & BOUND_LOWER
-                          : bound & BOUND_UPPER) {
+        if (    bound == BOUND_EXACT
+            || (bound == BOUND_LOWER ? score >= beta : score <= alpha)) {
 
-            StoreTTEntry(tte, posKey, NOMOVE, score, MAXDEPTH-1, bound);
+            StoreTTEntry(tte, posKey, NOMOVE, ScoreToTT(score, pos->ply), MAXDEPTH-1, bound);
             return score;
+        }
+
+        if (pvNode && bound == BOUND_LOWER) {
+            bestScore = score;
+            alpha = MAX(alpha, score);
         }
     }
 
@@ -362,7 +369,7 @@ move_loop:
     const int oldAlpha = alpha;
     int moveCount = 0, quietCount = 0;
     Move bestMove = NOMOVE;
-    int bestScore = score = -INFINITE;
+    score = -INFINITE;
 
     // Move loop
     Move move;
