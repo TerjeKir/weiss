@@ -54,7 +54,7 @@ INLINE void TimeControl(Color color, char *line) {
 
     // Read in relevant search constraints
     char *ptr = NULL;
-    // if ((ptr = strstr(line, "infinite")))
+    Limits.infinite = strstr(line, "infinite");
     if ((ptr = strstr(line, "wtime")) && color == WHITE) Limits.time = atoi(ptr + 6);
     if ((ptr = strstr(line, "btime")) && color == BLACK) Limits.time = atoi(ptr + 6);
     if ((ptr = strstr(line, "winc"))  && color == WHITE) Limits.inc  = atoi(ptr + 5);

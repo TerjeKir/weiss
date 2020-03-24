@@ -568,7 +568,7 @@ void SearchPosition(Position *pos, SearchInfo *info) {
     }
 
     // Wait for 'stop' in infinite search
-    while (!Limits.timelimit && !ABORT_SIGNAL) {}
+    while (Limits.infinite && !ABORT_SIGNAL) {}
 
     // Print conclusion
     PrintConclusion(info);
