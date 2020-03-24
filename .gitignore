@@ -1,3 +1,7 @@
+# Chess position files
+*.epd
+*.pgn
+
 # VS code settings
 *.json
 
