@@ -28,27 +28,27 @@
 static Bitboard PassedMask[2][64];
 static Bitboard IsolatedMask[64];
 
-const int PieceValue[2][PIECE_NB] = {
+tuneable_const int PieceValue[2][PIECE_NB] = {
     { 0, P_MG, N_MG, B_MG, R_MG, Q_MG, 0, 0,
       0, P_MG, N_MG, B_MG, R_MG, Q_MG, 0, 0 },
     { 0, P_EG, N_EG, B_EG, R_EG, Q_EG, 0, 0,
       0, P_EG, N_EG, B_EG, R_EG, Q_EG, 0, 0 }
 };
 
-// Various bonuses and maluses
-static const int PawnIsolated          = S(-20,-18);
-static const int BishopPair            = S( 65, 65);
-static const int KingLineVulnerability = S(-10,  0);
+// Misc bonuses and maluses
+tuneable_static_const int PawnIsolated   = S(-20,-18);
+tuneable_static_const int BishopPair     = S( 65, 65);
+tuneable_static_const int KingLineDanger = S(-10,  0);
 
 // Passed pawn [rank]
-static const int PawnPassed[8] = { 0, S(6, 6), S(13, 13), S(25, 25), S(45, 45), S(75, 75), S(130, 130), 0 };
+tuneable_static_const int PawnPassed[8] = { 0, S(6, 6), S(13, 13), S(25, 25), S(45, 45), S(75, 75), S(130, 130), 0 };
 
 // (Semi) open file for rook and queen [pt-4]
-static const int OpenFile[2] =     { S(25, 13), S(13, 20) };
-static const int SemiOpenFile[2] = { S(13, 20), S(10,  6) };
+tuneable_static_const int OpenFile[2] =     { S(25, 13), S(13, 20) };
+tuneable_static_const int SemiOpenFile[2] = { S(13, 20), S(10,  6) };
 
 // Mobility [pt-2][mobility]
-static const int Mobility[5][15] = {
+tuneable_static_const int Mobility[5][15] = {
     // Knight (0-8)
     { S(-65,-65), S(-32,-32), S(-20,-20), S(  0,  0), S( 20, 20), S( 32, 32), S( 45, 45), S( 50, 50), S( 65, 65) },
     // Bishop (0-13)
@@ -207,7 +207,7 @@ INLINE int EvalKings(const Position *pos, const Color color) {
     Square kingSq = Lsb(colorPieceBB(color, KING));
 
     // King safety
-    eval += KingLineVulnerability * PopCount(AttackBB(QUEEN, kingSq, colorBB(color) | pieceBB(PAWN)));
+    eval += KingLineDanger * PopCount(AttackBB(QUEEN, kingSq, colorBB(color) | pieceBB(PAWN)));
 
     return eval;
 }

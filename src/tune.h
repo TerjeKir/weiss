@@ -18,35 +18,10 @@
 
 #pragma once
 
-#include "types.h"
-
-
-// Check for (likely) material draw
-#define CHECK_MAT_DRAW
-
-
-#define MakeScore(mg, eg) ((int)((unsigned int)(eg) << 16) + (mg))
-#define S(mg, eg) MakeScore((mg), (eg))
-#define MgScore(s) ((int16_t)((uint16_t)((unsigned)((s)))))
-#define EgScore(s) ((int16_t)((uint16_t)((unsigned)((s) + 0x8000) >> 16)))
-
 #ifdef DEV
-#define tuneable_const
-#define tuneable_static_const
+void TuneDeclareAll();
+void TuneParseAll(const char *line, int value);
 #else
-#define tuneable_const const
-#define tuneable_static_const static const
+static void TuneDeclareAll() {};
+static void TuneParseAll(__attribute__((unused))const char *line, __attribute__((unused))int value) {};
 #endif
-
-
-extern tuneable_const int PieceValue[2][PIECE_NB];
-
-
-typedef struct EvalInfo {
-
-    Bitboard mobilityArea[2];
-
-} EvalInfo;
-
-
-int EvalPosition(const Position *pos);

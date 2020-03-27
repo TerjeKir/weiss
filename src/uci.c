@@ -29,6 +29,7 @@
 #include "tests.h"
 #include "time.h"
 #include "transposition.h"
+#include "tune.h"
 
 
 #define NAME "weiss 0.9-dev"
@@ -142,7 +143,9 @@ static void UCISetoption(char *line) {
 
         TB_LARGEST > 0 ? printf("TableBase init success - largest found: %d.\n", TB_LARGEST)
                        : printf("TableBase init failure - not found.\n");
-    }
+    // Sets evaluation parameters (dev mode)
+    } else
+        TuneParseAll(strstr(line, "name") + 5, atoi(OptionValue(line)));
     fflush(stdout);
 }
 
@@ -153,6 +156,7 @@ static void UCIInfo() {
     printf("option name Hash type spin default %d min %d max %d\n", DEFAULTHASH, MINHASH, MAXHASH);
     printf("option name SyzygyPath type string default <empty>\n");
     printf("option name Ponder type check default false\n"); // Turn on ponder stats in cutechess gui
+    TuneDeclareAll(); // Declares all evaluation parameters as options (dev mode)
     printf("uciok\n"); fflush(stdout);
 }
 
