@@ -146,8 +146,7 @@ void Perft(char *line) {
 
 void PrintEval(Position *pos) {
 
-    printf("Eval     : %d\n", EvalPosition(pos)); MirrorBoard(pos);
-    printf("Mirrored : %d\n", EvalPosition(pos)); MirrorBoard(pos);
+    printf("%d\n", sideToMove == WHITE ? EvalPosition(pos) : -EvalPosition(pos)), fflush(stdout);
 }
 
 // Checks evaluation is symmetric
