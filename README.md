@@ -1,5 +1,5 @@
-## weiss
-weiss is a UCI chess engine built with VICE by Bluefever as a base.
+## Weiss
+Weiss is a UCI chess engine built with VICE by Bluefever as a base.
 
 If you are interested in getting into chess programming, check out his video tutorials on youtube\
 https://www.youtube.com/playlist?list=PLZ1QII7yudbc-Ky058TEaOstZHVbT-2hg
@@ -13,7 +13,7 @@ Big thank you to everyone in TCEC chat for helping me out with both chess specif
 
 ### UCI settings
 
-weiss supports the following:
+Weiss supports the following:
 
 * #### Hash
   The size of the hash table in MB.
@@ -21,4 +21,4 @@ weiss supports the following:
 * #### SyzygyPath
   Path to syzygy tablebase files.
 
-Note: weiss will print a string indicating it supports Ponder, this is done to make cutechess GUI show pondermove accuracy. weiss does not actually support this option.
+Note: Weiss will print a string indicating it supports Ponder, this is done to make cutechess GUI show pondermove accuracy. Weiss does not actually support this option.
