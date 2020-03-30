@@ -4,11 +4,10 @@ weiss is a UCI chess engine built with VICE by Bluefever as a base.
 If you are interested in getting into chess programming, check out his video tutorials on youtube\
 https://www.youtube.com/playlist?list=PLZ1QII7yudbc-Ky058TEaOstZHVbT-2hg
 
+Also inspired by Ethereal, Stockfish and Demolito. 
 
-Also inspired by Ethereal and Stockfish. Help them out by letting your idle CPUs run test games:\
+Weiss is part of a testing framework maintained by Andrew Grant of Ethereal. You can help us out by letting your idle CPUs run test games:\
 http://chess.grantnet.us/index/
-
-http://tests.stockfishchess.org/tests
 
 Big thank you to everyone in TCEC chat for helping me out with both chess specifics as well as general programming!
 
