@@ -36,32 +36,32 @@ tuneable_const int PieceValue[2][PIECE_NB] = {
 };
 
 // Misc bonuses and maluses
-tuneable_static_const int PawnIsolated   = S(-27,-14);
-tuneable_static_const int BishopPair     = S( 65, 72);
-tuneable_static_const int KingLineDanger = S(-13,  5);
+tuneable_static_const int PawnIsolated   = S(-29,-13);
+tuneable_static_const int BishopPair     = S( 62, 68);
+tuneable_static_const int KingLineDanger = S(-12,  5);
 
 // Passed pawn [rank]
-tuneable_static_const int PawnPassed[8] = { 0, S(0, 7), S(10, 9), S(25, 18), S(46, 51), S(75, 80), S(130, 131), 0 };
+tuneable_static_const int PawnPassed[8] = { 0, S(-13, 4), S(-11, 3), S(11, 23), S(43, 62), S(77, 99), S(127, 135), 0 };
 
 // (Semi) open file for rook and queen [pt-4]
-tuneable_static_const int OpenFile[2] =     { S(40, 17), S( 8, 16) };
-tuneable_static_const int SemiOpenFile[2] = { S(12, 20), S(16,  5) };
+tuneable_static_const int OpenFile[2] =     { S(46, 14), S(-4, 14) };
+tuneable_static_const int SemiOpenFile[2] = { S(16, 21), S(14, 12) };
 
 // Mobility [pt-2][mobility]
 tuneable_static_const int Mobility[5][15] = {
     // Knight (0-8)
-    { S(-85,-47), S(-49,-47), S(  3,-22), S(  0, -6), S( 25,  4), S( 30, 32), S( 41, 35), S( 51, 34), S( 67, 30) },
+    { S(-95,-46), S(-51,-47), S( -4,-20), S(  2, -7), S( 25,  1), S( 31, 31), S( 42, 35), S( 53, 30), S( 65, 31) },
     // Bishop (0-13)
-    { S(-65,-57), S(-41,-46), S(-10,-16), S( -5,-11), S(  6,  7), S( 21, 22), S( 27, 24),
-      S( 31, 37), S( 31, 30), S( 39, 29), S( 41, 27), S( 52, 48), S( 66, 86), S( 42, 69) },
+    { S(-55,-56), S(-41,-41), S( -2, -8), S(  0,-19), S( 10,  4), S( 21, 13), S( 32, 25),
+      S( 29, 32), S( 41, 36), S( 42, 33), S( 43, 22), S( 54, 38), S( 61, 85), S( 42, 66) },
     // Rook (0-14)
-    { S(-68,-74), S(-44,-36), S(-15,-16), S( -7,-21), S(  2,-10), S( -1, 15), S( 12, 16),
-      S( 16, 24), S( 24, 33), S( 38, 41), S( 50, 37), S( 63, 44), S( 59, 55), S( 56, 53), S( 61, 67) },
+    { S(-62,-72), S(-42,-35), S(-14,-18), S( -6,-21), S(  3,-10), S( -4, 10), S( 11, 20),
+      S(  8, 27), S( 23, 31), S( 33, 41), S( 50, 33), S( 50, 38), S( 56, 46), S( 51, 46), S( 62, 69) },
     // Queen (0-27) (accessed from [QUEEN-2], and overflows into [QUEEN-1])
-    { S(-63,-49), S(-58,-47), S(-42,-32), S(-27,-42), S(-51,-47), S(-35,-32), S(-25,-31),
-      S(-18,-23), S( -7, -6), S(  5, -8), S(  4, 24), S(  9, 17), S( 17, 24), S( 22, 23), S( 33, 31) },
-    { S( 26, 49), S( 33, 57), S( 61, 49), S( 41, 68), S( 47, 67), S( 57, 76), S( 75, 85),
-      S( 84, 82), S( 90, 79), S(109, 95), S(103, 90), S(110,109), S(105,122) }
+    { S(-69,-46), S(-61,-43), S(-47,-39), S(-25,-49), S(-59,-44), S(-33,-35), S(-28,-26),
+      S(-15,-25), S( -6, -3), S(  6, -7), S(  3, 25), S( 11, 12), S( 20, 23), S( 24, 28), S( 33, 31) },
+    { S( 25, 55), S( 28, 52), S( 56, 44), S( 40, 67), S( 41, 60), S( 60, 81), S( 79, 86),
+      S( 84, 79), S( 88, 78), S(111, 96), S(105, 85), S(101,105), S(108,126) }
 };
 
 
