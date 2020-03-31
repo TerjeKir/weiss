@@ -28,6 +28,14 @@
 static Bitboard PassedMask[2][64];
 static Bitboard IsolatedMask[64];
 
+tuneable_const int PieceTypeValue[6] = { 0,
+    S(P_MG, P_EG),
+    S(N_MG, N_EG),
+    S(B_MG, B_EG),
+    S(R_MG, R_EG),
+    S(Q_MG, Q_EG)
+};
+
 tuneable_const int PieceValue[2][PIECE_NB] = {
     { 0, P_MG, N_MG, B_MG, R_MG, Q_MG, 0, 0,
       0, P_MG, N_MG, B_MG, R_MG, Q_MG, 0, 0 },
