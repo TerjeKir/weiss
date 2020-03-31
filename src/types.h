@@ -95,11 +95,11 @@ enum Phase {
 };
 
 enum PieceValue {
-    P_MG =  128, P_EG =  140,
-    N_MG =  430, N_EG =  450,
-    B_MG =  450, B_EG =  475,
-    R_MG =  700, R_EG =  740,
-    Q_MG = 1280, Q_EG = 1400
+    P_MG =  110, P_EG =  155,
+    N_MG =  437, N_EG =  448,
+    B_MG =  460, B_EG =  465,
+    R_MG =  670, R_EG =  755,
+    Q_MG = 1400, Q_EG = 1560
 };
 
 enum File {
