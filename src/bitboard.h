@@ -102,17 +102,17 @@ enum {
     rank8BB = 0xFF00000000000000,
 };
 
+extern const Bitboard FileBB[8];
+extern const Bitboard RankBB[8];
+
+extern Bitboard SquareBB[64];
+extern Bitboard BetweenBB[64][64];
+
 extern Magic BishopTable[64];
 extern Magic RookTable[64];
 
 extern Bitboard PseudoAttacks[8][64];
 extern Bitboard PawnAttacks[2][64];
-
-extern Bitboard SquareBB[64];
-extern Bitboard BetweenBB[64][64];
-
-extern const Bitboard FileBB[8];
-extern const Bitboard RankBB[8];
 
 
 // Shifts a bitboard (protonspring version)
@@ -177,11 +177,13 @@ INLINE Bitboard AttackBB(PieceType piecetype, Square sq, Bitboard occupied) {
     }
 }
 
+// Returns the attack bitboard for a pawn
 INLINE Bitboard PawnAttackBB(Color color, Square sq) {
 
     return PawnAttacks[color][sq];
 }
 
+// Returns the combined attack bitboard of all pawns in the given bitboard
 INLINE Bitboard PawnBBAttackBB(Bitboard pawns, Color color) {
 
     const Direction up = (color == WHITE ? NORTH : SOUTH);
