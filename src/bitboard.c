@@ -43,33 +43,28 @@ Bitboard PawnAttacks[2][64];
 
 // Helper function that returns a bitboard with the landing square of
 // the step, or an empty bitboard if the step would go outside the board
-INLINE Bitboard LandingSquare(Square sq, int step) {
+INLINE Bitboard LandingSquareBB(const Square sq, const int step) {
 
     const Square to = sq + step;
-    return (Bitboard)((unsigned)to <= H8 && Distance(sq, to) <= 2) << to;
+    return (Bitboard)(to <= H8 && Distance(sq, to) <= 2) << to;
 }
 
-// Helper function that makes slider attack bitboards
-static Bitboard MakeSliderAttacks(const Square sq, const Bitboard occupied, const int steps[]) {
+// Helper function that makes a slider attack bitboard
+static Bitboard MakeSliderAttackBB(const Square sq, const Bitboard occupied, const int steps[]) {
 
-    Bitboard result = 0;
+    Bitboard attacks = 0;
 
-    for (int dir = 0; dir < 4; ++dir)
+    for (int dir = 0; dir < 4; ++dir) {
 
-        for (Square to = sq + steps[dir];
-             to <= H8 && (Distance(to, to - steps[dir]) == 1);
-             to += steps[dir]) {
+        Square s = sq;
+        while(!(occupied & SquareBB[s]) && LandingSquareBB(s, steps[dir]))
+            attacks |= SquareBB[s += steps[dir]];
+    }
 
-            result |= (1ULL << to);
-
-            if (occupied & (1ULL << to))
-                break;
-        }
-
-    return result;
+    return attacks;
 }
 
-// Initializes non-slider attack bitboard lookups
+// Initializes non-slider attack lookups
 static void InitNonSliderAttacks() {
 
     int KSteps[8] = {  -9, -8, -7, -1,  1,  7,  8,  9 };
@@ -80,19 +75,19 @@ static void InitNonSliderAttacks() {
 
         // Kings and knights
         for (int i = 0; i < 8; ++i) {
-            PseudoAttacks[KING][sq]   |= LandingSquare(sq, KSteps[i]);
-            PseudoAttacks[KNIGHT][sq] |= LandingSquare(sq, NSteps[i]);
+            PseudoAttacks[KING][sq]   |= LandingSquareBB(sq, KSteps[i]);
+            PseudoAttacks[KNIGHT][sq] |= LandingSquareBB(sq, NSteps[i]);
         }
 
         // Pawns
         for (int i = 0; i < 2; ++i) {
-            PawnAttacks[WHITE][sq] |= LandingSquare(sq, PSteps[WHITE][i]);
-            PawnAttacks[BLACK][sq] |= LandingSquare(sq, PSteps[BLACK][i]);
+            PawnAttacks[WHITE][sq] |= LandingSquareBB(sq, PSteps[WHITE][i]);
+            PawnAttacks[BLACK][sq] |= LandingSquareBB(sq, PSteps[BLACK][i]);
         }
     }
 }
 
-// Initializes rook or bishop attack lookups
+// Initializes slider attack lookups
 static void InitSliderAttacks(Magic *m, Bitboard *table, const int *steps) {
 
 #ifndef USE_PEXT
@@ -107,7 +102,7 @@ static void InitSliderAttacks(Magic *m, Bitboard *table, const int *steps) {
         Bitboard edges = ((rank1BB | rank8BB) & ~RankBB[RankOf(sq)])
                        | ((fileABB | fileHBB) & ~FileBB[FileOf(sq)]);
 
-        m[sq].mask  = MakeSliderAttacks(sq, 0, steps) & ~edges;
+        m[sq].mask = MakeSliderAttackBB(sq, 0, steps) & ~edges;
 
 #ifndef USE_PEXT
         m[sq].magic = magics[sq];
@@ -116,7 +111,7 @@ static void InitSliderAttacks(Magic *m, Bitboard *table, const int *steps) {
 
         Bitboard occupied = 0;
         do {
-            m[sq].attacks[AttackIndex(sq, occupied, m)] = MakeSliderAttacks(sq, occupied, steps);
+            m[sq].attacks[AttackIndex(sq, occupied, m)] = MakeSliderAttackBB(sq, occupied, steps);
             occupied = (occupied - m[sq].mask) & m[sq].mask; // Carry rippler
             table++;
         } while (occupied);
@@ -150,12 +145,9 @@ bool SqAttacked(const Position *pos, const Square sq, const Color color) {
     const Bitboard bishops = colorBB(color) & (pieceBB(BISHOP) | pieceBB(QUEEN));
     const Bitboard rooks   = colorBB(color) & (pieceBB(ROOK)   | pieceBB(QUEEN));
 
-    if (   PawnAttackBB(!color, sq)           & colorPieceBB(color, PAWN)
-        || AttackBB(KNIGHT, sq, pieceBB(ALL)) & colorPieceBB(color, KNIGHT)
-        || AttackBB(KING,   sq, pieceBB(ALL)) & colorPieceBB(color, KING)
-        || AttackBB(BISHOP, sq, pieceBB(ALL)) & bishops
-        || AttackBB(ROOK,   sq, pieceBB(ALL)) & rooks)
-        return true;
-
-    return false;
+    return (   PawnAttackBB(!color, sq)           & colorPieceBB(color, PAWN)
+            || AttackBB(KNIGHT, sq, pieceBB(ALL)) & colorPieceBB(color, KNIGHT)
+            || AttackBB(KING,   sq, pieceBB(ALL)) & colorPieceBB(color, KING)
+            || AttackBB(BISHOP, sq, pieceBB(ALL)) & bishops
+            || AttackBB(ROOK,   sq, pieceBB(ALL)) & rooks);
 }
