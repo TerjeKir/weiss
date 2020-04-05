@@ -87,7 +87,7 @@ void TuneDeclareAll() {
     Declare(pe++, "Qpsq", PieceSqValue[ QUEEN], 64);
     Declare(pe++, "Kpsq", PieceSqValue[  KING], 64);
     // Mobility
-    Declare(pe++, "KMob", Mobility[KNIGHT-2],  9);
+    Declare(pe++, "NMob", Mobility[KNIGHT-2],  9);
     Declare(pe++, "BMob", Mobility[BISHOP-2], 14);
     Declare(pe++, "RMob", Mobility[  ROOK-2], 15);
     Declare(pe++, "QMob", Mobility[ QUEEN-2], 28);
