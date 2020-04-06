@@ -487,7 +487,7 @@ static int AspirationWindow(Position *pos, SearchInfo *info) {
     // delta based on the previous iteration's score
     const int bonus = score * score;
     const int initialWindow = 12 + bonus / 2048;
-    int delta = 64 + bonus / 256;
+    int delta = 16 + bonus / 256;
 
     // Initial window
     int alpha = MAX(score - initialWindow, -INFINITE);
