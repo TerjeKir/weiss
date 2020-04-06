@@ -52,8 +52,8 @@ tuneable_static_const int KingLineDanger = S(-12,  5);
 tuneable_static_const int PawnPassed[8] = { 0, S(-14, 1), S(-16, 10), S(3, 34), S( 30, 69), S( 74, 114), S(123, 146), 0 };
 
 // (Semi) open file for rook and queen [pt-4]
-tuneable_static_const int OpenFile[2] =     { S(46, 14), S(-4, 14) };
-tuneable_static_const int SemiOpenFile[2] = { S(16, 21), S(14, 12) };
+tuneable_static_const int OpenFile[2] =     { S(51, 20), S(-13, 16) };
+tuneable_static_const int SemiOpenFile[2] = { S(17, 21), S(  8, 10) };
 
 // Mobility [pt-2][mobility]
 tuneable_static_const int Mobility[5][15] = {
