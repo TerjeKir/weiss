@@ -485,7 +485,7 @@ static int AspirationWindow(Position *pos, SearchInfo *info) {
 
     // Dynamic bonus increasing initial window and relaxation
     // delta based on the previous iteration's score
-    const int bonus = score * score;
+    const int bonus = 0;
     const int initialWindow = 12 + bonus / 2048;
     int delta = 16 + bonus / 256;
 
