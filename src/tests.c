@@ -99,7 +99,6 @@ void Perft(char *line) {
     Position pos[1];
     Depth depth = 5;
     sscanf(line, "perft %d", &depth);
-    depth = MIN(6, depth);
 
     char *perftFen = line + 8;
     !*perftFen ? ParseFen(PERFT_FEN, pos)
