@@ -51,13 +51,9 @@ CONSTR InitReductions() {
 // Check time situation
 static bool OutOfTime(SearchInfo *info) {
 
-    if (  (info->nodes & 8191) == 8191
+    return (info->nodes & 4095) == 4095
         && Limits.timelimit
-        && TimeSince(Limits.start) >= Limits.maxUsage)
-
-        return true;
-
-    return false;
+        && TimeSince(Limits.start) >= Limits.maxUsage;
 }
 
 // Check if current position is a repetition
