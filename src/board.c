@@ -263,34 +263,58 @@ void ParseFen(const char *fen, Position *pos) {
 void PrintBoard(const Position *pos) {
 
     const char PceChar[]  = ".pnbrqk..PNBRQK";
-    const char SideChar[] = "bw-";
-    int file, rank;
+    char fen[100];
+    char *ptr = fen;
 
-    printf("\nGame Board:\n\n");
+    printf("\n");
+    for (int rank = RANK_8; rank >= RANK_1; --rank) {
 
-    for (rank = RANK_8; rank >= RANK_1; --rank) {
-        printf("%d  ", rank + 1);
-        for (file = FILE_A; file <= FILE_H; ++file) {
+        int cnt = 0;
+
+        for (int file = FILE_A; file <= FILE_H; ++file) {
             Square sq = (rank * 8) + file;
             Piece piece = pieceOn(sq);
+
+            // Build fen string
+            if (piece) {
+                if (cnt)
+                    *ptr++ = '0' + cnt;
+                *ptr++ = PceChar[piece];
+                cnt = 0;
+            } else
+                cnt++;
+
+            // Print board
             printf("%3c", PceChar[piece]);
         }
+
+        if (cnt)
+            *ptr++ = '0' + cnt;
+
+        *ptr++ = rank == RANK_1 ? ' ' : '/';
+
         printf("\n");
     }
 
-    printf("\n   ");
-    for (file = FILE_A; file <= FILE_H; ++file)
-        printf("%3c", 'a' + file);
+    *ptr++ = sideToMove == WHITE ? 'w' : 'b';
+    *ptr++ = ' ';
 
-    printf("\n");
-    printf("side: %c\n", SideChar[sideToMove]);
-    printf("epSquare: %d\n", pos->epSquare);
-    printf("castle: %c%c%c%c\n",
-           pos->castlingRights & WHITE_OO  ? 'K' : '-',
-           pos->castlingRights & WHITE_OOO ? 'Q' : '-',
-           pos->castlingRights & BLACK_OO  ? 'k' : '-',
-           pos->castlingRights & BLACK_OOO ? 'q' : '-');
-    printf("PosKey: %" PRIu64 "\n", pos->key);
+    int cr = pos->castlingRights;
+    if (!cr)
+        *ptr++ = '-';
+    else {
+        if (cr & WHITE_OO)  *ptr++ = 'K';
+        if (cr & WHITE_OOO) *ptr++ = 'Q';
+        if (cr & BLACK_OO)  *ptr++ = 'k';
+        if (cr & BLACK_OOO) *ptr++ = 'q';
+    }
+
+    char ep[3];
+    if (pos->epSquare == NO_SQ) ep[0] = '-';
+    else sprintf(ep, "%c%c", 'a' + pos->epSquare / 8, '1' + (pos->epSquare & 7));
+
+    printf("\n%s %s %d %d\n", fen, ep, pos->rule50, pos->gamePly + 1);
+    printf("Zobrist Key: %" PRIu64 "\n\n", pos->key);
     fflush(stdout);
 }
 #endif

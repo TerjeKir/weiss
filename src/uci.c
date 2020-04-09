@@ -219,9 +219,9 @@ int main(int argc, char **argv) {
 
 #ifdef DEV
         // Non UCI commands
-        else if (BeginsWith(line, "printboard")) PrintBoard(pos);
-        else if (BeginsWith(line, "perft"     )) Perft(line);
         else if (BeginsWith(line, "eval"      )) PrintEval(pos);
+        else if (BeginsWith(line, "print"     )) PrintBoard(pos);
+        else if (BeginsWith(line, "perft"     )) Perft(line);
         else if (BeginsWith(line, "mirrortest")) MirrorEvalTest(pos);
 #endif
     }
