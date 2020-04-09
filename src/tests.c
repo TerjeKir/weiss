@@ -83,14 +83,10 @@ static void RecursivePerft(Position *pos, const Depth depth) {
 
     for (unsigned i = 0; i < list->count; ++i) {
 
-        if (!MakeMove(pos, list->moves[i].move))
-            continue;
-
+        if (!MakeMove(pos, list->moves[i].move)) continue;
         RecursivePerft(pos, depth - 1);
         TakeMove(pos);
     }
-
-    return;
 }
 
 // Counts number of moves that can be made in a position to some depth
@@ -125,11 +121,11 @@ void Perft(char *line) {
 
         uint64_t oldCount = leafNodes;
         RecursivePerft(pos, depth - 1);
+        TakeMove(pos);
         uint64_t newCount = leafNodes - oldCount;
+
         printf("move %d : %s : %" PRId64 "\n", i + 1, MoveToStr(move), newCount);
         fflush(stdout);
-
-        TakeMove(pos);
     }
 
     const TimePoint elapsed = TimeSince(start) + 1;
@@ -140,8 +136,6 @@ void Perft(char *line) {
            "\nNPS  : %" PRId64 "\n",
            elapsed, leafNodes, leafNodes * 1000 / elapsed);
     fflush(stdout);
-
-    return;
 }
 
 extern int PieceSqValue[7][64];
@@ -155,7 +149,8 @@ void PrintEval(Position *pos) {
             PSQT[MakePiece(WHITE, pt)][MirrorSquare(sq)] = -PSQT[pt][sq];
         }
 
-    printf("%d\n", sideToMove == WHITE ? EvalPosition(pos) : -EvalPosition(pos)), fflush(stdout);
+    printf("%d\n", sideToMove == WHITE ? EvalPosition(pos) : -EvalPosition(pos));
+    fflush(stdout);
 }
 
 // Checks evaluation is symmetric
