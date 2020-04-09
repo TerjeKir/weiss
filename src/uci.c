@@ -103,7 +103,6 @@ static void UCIPosition(const char *line, Position *pos) {
         // Make the move
         if (!MakeMove(pos, move)) {
             printf("Weiss thinks this move is illegal: %s\n", MoveToStr(move));
-            fflush(stdout);
             exit(EXIT_SUCCESS);
         }
 
