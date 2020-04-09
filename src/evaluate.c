@@ -44,12 +44,12 @@ tuneable_const int PieceValue[2][PIECE_NB] = {
 };
 
 // Misc bonuses and maluses
-tuneable_static_const int PawnIsolated   = S(-30,-14);
-tuneable_static_const int BishopPair     = S( 53, 74);
-tuneable_static_const int KingLineDanger = S(-12,  5);
+tuneable_static_const int PawnIsolated   = S(-28,-16);
+tuneable_static_const int BishopPair     = S( 52, 72);
+tuneable_static_const int KingLineDanger = S(-12,  4);
 
 // Passed pawn [rank]
-tuneable_static_const int PawnPassed[8] = { 0, S(-14, 1), S(-16, 10), S(3, 34), S( 30, 69), S( 74, 114), S(123, 146), 0 };
+tuneable_static_const int PawnPassed[8] = { 0, S(-10, 1), S(-18, 10), S( -2, 33), S( 28, 76), S( 77,116), S(121,153), 0 };
 
 // (Semi) open file for rook and queen [pt-4]
 tuneable_static_const int OpenFile[2] =     { S(51, 20), S(-13, 16) };
