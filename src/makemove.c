@@ -61,7 +61,7 @@ static void ClearPiece(Position *pos, const Square sq) {
     pos->basePhase -= PhaseValue[piece];
     pos->phase = (pos->basePhase * 256 + 12) / 24;
 
-    // Update various piece lists
+    // Update non-pawn count
     if (NonPawn[piece])
         pos->nonPawnCount[color]--;
 
@@ -89,7 +89,7 @@ static void AddPiece(Position *pos, const Square sq, const Piece piece) {
     pos->basePhase += PhaseValue[piece];
     pos->phase = (pos->basePhase * 256 + 12) / 24;
 
-    // Update various piece lists
+    // Update non-pawn count
     if (NonPawn[piece])
         pos->nonPawnCount[color]++;
 
