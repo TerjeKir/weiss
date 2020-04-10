@@ -269,7 +269,7 @@ bool MakeMove(Position *pos, const Move move) {
     HASH_SIDE;
 
     // If own king is attacked after the move, take it back immediately
-    if (SqAttacked(pos, Lsb(colorPieceBB(sideToMove^1, KING)), sideToMove)) {
+    if (KingAttacked(pos, sideToMove^1)) {
         TakeMove(pos);
         return false;
     }

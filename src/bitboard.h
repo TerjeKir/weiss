@@ -192,3 +192,4 @@ INLINE Bitboard PawnBBAttackBB(Bitboard pawns, Color color) {
 }
 
 bool SqAttacked(const Position *pos, Square sq, Color color);
+bool KingAttacked(const Position *pos, Color color);
