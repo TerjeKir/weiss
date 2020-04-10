@@ -61,7 +61,7 @@ static void ClearPiece(Position *pos, const Square sq) {
     pos->basePhase -= PhaseValue[piece];
     pos->phase = (pos->basePhase * 256 + 12) / 24;
 
-    // Update various piece lists
+    // Update non-pawn count
     if (NonPawn[piece])
         pos->nonPawnCount[color]--;
 
@@ -89,7 +89,7 @@ static void AddPiece(Position *pos, const Square sq, const Piece piece) {
     pos->basePhase += PhaseValue[piece];
     pos->phase = (pos->basePhase * 256 + 12) / 24;
 
-    // Update various piece lists
+    // Update non-pawn count
     if (NonPawn[piece])
         pos->nonPawnCount[color]++;
 
@@ -192,7 +192,6 @@ bool MakeMove(Position *pos, const Move move) {
     const Square from = fromSq(move);
     const Square to   = toSq(move);
     const Piece capt  = capturing(move);
-    const Color color = sideToMove;
 
     // Save position
     history(0).posKey         = pos->key;
@@ -236,8 +235,6 @@ bool MakeMove(Position *pos, const Move move) {
     else if (capt != EMPTY) {
         assert(ValidPiece(capt));
         ClearPiece(pos, to);
-
-        // Reset 50mr after a capture
         pos->rule50 = 0;
     }
 
@@ -247,9 +244,7 @@ bool MakeMove(Position *pos, const Move move) {
     // Pawn move specifics
     if (PieceTypeOf(pieceOn(to)) == PAWN) {
 
-        // Reset 50mr after a pawn move
         pos->rule50 = 0;
-
         Piece promo = promotion(move);
 
         // If the move is a pawnstart we set the en passant square and hash it in
@@ -274,7 +269,7 @@ bool MakeMove(Position *pos, const Move move) {
     HASH_SIDE;
 
     // If own king is attacked after the move, take it back immediately
-    if (SqAttacked(pos, Lsb(colorPieceBB(color, KING)), sideToMove)) {
+    if (SqAttacked(pos, Lsb(colorPieceBB(sideToMove^1, KING)), sideToMove)) {
         TakeMove(pos);
         return false;
     }

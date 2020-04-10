@@ -131,9 +131,9 @@ void Perft(char *line) {
     const TimePoint elapsed = TimeSince(start) + 1;
 
     printf("\nPerft complete:"
-           "\nTime : %" PRId64 "ms"
-           "\nNodes: %" PRIu64
-           "\nNPS  : %" PRId64 "\n",
+           "\nTime  : %" PRId64 "ms"
+           "\nLeaves: %" PRIu64
+           "\nLPS   : %" PRId64 "\n",
            elapsed, leafNodes, leafNodes * 1000 / elapsed);
     fflush(stdout);
 }
