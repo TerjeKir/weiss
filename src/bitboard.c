@@ -151,3 +151,9 @@ bool SqAttacked(const Position *pos, const Square sq, const Color color) {
             || AttackBB(BISHOP, sq, pieceBB(ALL)) & bishops
             || AttackBB(ROOK,   sq, pieceBB(ALL)) & rooks);
 }
+
+// Checks whether a king is attacked
+bool KingAttacked(const Position *pos, const Color color) {
+
+    return SqAttacked(pos, Lsb(colorPieceBB(color, KING)), !color);
+}

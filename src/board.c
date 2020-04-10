@@ -369,7 +369,7 @@ bool PositionOk(const Position *pos) {
 
     assert(GeneratePosKey(pos) == pos->key);
 
-    assert(!SqAttacked(pos, Lsb(colorPieceBB(!sideToMove, KING)), sideToMove));
+    assert(!KingAttacked(!sideToMove));
 
     return true;
 }
