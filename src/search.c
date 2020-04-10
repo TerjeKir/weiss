@@ -311,7 +311,7 @@ static int AlphaBeta(Position *pos, SearchInfo *info, int alpha, int beta, Depth
 
     // Do a static evaluation for pruning considerations
     int eval = history(0).eval = inCheck          ? NOSCORE
-                               : lastMoveNullMove ? -history(-1).eval
+                               : lastMoveNullMove ? -history(-1).eval + 2 * Tempo
                                                   : EvalPosition(pos);
 
     // Improving if not in check, and current eval is higher than 2 plies ago
