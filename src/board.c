@@ -239,14 +239,8 @@ void ParseFen(const char *fen, Position *pos) {
     fen++;
 
     // En passant square
-    if (*fen == '-')
-        pos->epSquare = NO_SQ;
-    else {
-        int file = fen[0] - 'a';
-        int rank = fen[1] - '1';
-
-        pos->epSquare = (8 * rank) + file;
-    }
+    pos->epSquare = *fen != '-' ? (fen[0] - 'a') + 8 * (fen[1] - '1')
+                                : NO_SQ;
     fen += 2;
 
     // 50 move rule
