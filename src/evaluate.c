@@ -24,10 +24,6 @@
 #include "psqt.h"
 
 
-// Eval bit masks
-static Bitboard PassedMask[2][64];
-static Bitboard IsolatedMask[64];
-
 tuneable_const int PieceTypeValue[6] = { 0,
     S(P_MG, P_EG),
     S(N_MG, N_EG),
@@ -75,45 +71,6 @@ tuneable_static_const int Mobility[5][15] = {
       S( 76, 83), S( 92, 77), S(114, 98), S(116, 89), S(104,111), S(108,131) }
 };
 
-
-// Initialize evaluation bit masks
-CONSTR InitEvalMasks() {
-
-    // For each square a pawn can be on
-    for (Square sq = A2; sq <= H7; ++sq) {
-
-        // In front
-        for (Square tsq = sq + 8; tsq <= H8; tsq += 8)
-            PassedMask[WHITE][sq] |= (1ULL << tsq);
-
-        for (Square tsq = sq - 8; tsq <= H8; tsq -= 8)
-            PassedMask[BLACK][sq] |= (1ULL << tsq);
-
-        // Left side
-        if (FileOf(sq) > FILE_A) {
-
-            IsolatedMask[sq] |= FileBB[FileOf(sq) - 1];
-
-            for (Square tsq = sq + 7; tsq <= H8; tsq += 8)
-                PassedMask[WHITE][sq] |= (1ULL << tsq);
-
-            for (Square tsq = sq - 9; tsq <= H8; tsq -= 8)
-                PassedMask[BLACK][sq] |= (1ULL << tsq);
-        }
-
-        // Right side
-        if (FileOf(sq) < FILE_H) {
-
-            IsolatedMask[sq] |= FileBB[FileOf(sq) + 1];
-
-            for (Square tsq = sq + 9; tsq <= H8; tsq += 8)
-                PassedMask[WHITE][sq] |= (1ULL << tsq);
-
-            for (Square tsq = sq - 7; tsq <= H8; tsq -= 8)
-                PassedMask[BLACK][sq] |= (1ULL << tsq);
-        }
-    }
-}
 
 #ifdef CHECK_MAT_DRAW
 // Check if the board is (likely) drawn, logic from sjeng

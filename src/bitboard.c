@@ -40,6 +40,9 @@ Magic RookTable[64];
 Bitboard PseudoAttacks[TYPE_NB][64];
 Bitboard PawnAttacks[2][64];
 
+Bitboard PassedMask[2][64];
+Bitboard IsolatedMask[64];
+
 
 // Helper function that returns a bitboard with the landing square of
 // the step, or an empty bitboard if the step would go outside the board
@@ -118,11 +121,29 @@ static void InitSliderAttacks(Magic *m, Bitboard *table, const int *steps) {
     }
 }
 
+// Initializes evaluation bit masks
+static void InitEvalMasks() {
+
+    // For each square a pawn can be on
+    for (Square sq = A2; sq <= H7; ++sq) {
+
+        IsolatedMask[sq] = AdjacentFilesBB(sq);
+
+        PassedMask[WHITE][sq] = ShiftBB(NORTH * RelativeRank(WHITE, RankOf(sq)), ~rank1BB)
+                              & (FileBB[FileOf(sq)] | AdjacentFilesBB(sq));
+
+        PassedMask[BLACK][sq] = ShiftBB(SOUTH * RelativeRank(BLACK, RankOf(sq)), ~rank8BB)
+                              & (FileBB[FileOf(sq)] | AdjacentFilesBB(sq));
+    }
+}
+
 // Initializes all bitboard lookups
 CONSTR InitBitMasks() {
 
     for (Square sq = A1; sq <= H8; ++sq)
         SquareBB[sq] = (1ULL << sq);
+
+    InitEvalMasks();
 
     InitNonSliderAttacks();
 

@@ -114,10 +114,14 @@ extern Magic RookTable[64];
 extern Bitboard PseudoAttacks[8][64];
 extern Bitboard PawnAttacks[2][64];
 
+// Eval bit masks
+extern Bitboard PassedMask[2][64];
+extern Bitboard IsolatedMask[64];
+
 
 // Shifts a bitboard (protonspring version)
 // Doesn't work for shifting more than one step horizontally
-INLINE Bitboard ShiftBB(Direction dir, Bitboard bb) {
+INLINE Bitboard ShiftBB(const Direction dir, Bitboard bb) {
 
     // Horizontal shifts should not wrap around
     const int h = dir & 7;
@@ -128,6 +132,12 @@ INLINE Bitboard ShiftBB(Direction dir, Bitboard bb) {
     // Can only shift by positive numbers
     return dir > 0 ? bb <<  dir
                    : bb >> -dir;
+}
+
+INLINE Bitboard AdjacentFilesBB(const Square sq) {
+
+    return ShiftBB(WEST, FileBB[FileOf(sq)])
+         | ShiftBB(EAST, FileBB[FileOf(sq)]);
 }
 
 // Population count/Hamming weight
