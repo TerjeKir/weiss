@@ -369,7 +369,7 @@ bool PositionOk(const Position *pos) {
 
     assert(GeneratePosKey(pos) == pos->key);
 
-    assert(!KingAttacked(!sideToMove));
+    assert(!KingAttacked(pos, !sideToMove));
 
     return true;
 }
