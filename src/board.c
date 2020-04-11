@@ -180,12 +180,13 @@ void ParseFen(const char *fen, Position *pos) {
 
     ClearPosition(pos);
 
-    Piece piece;
-    int count = 1;
-    Square sq = A8;
-
     // Piece locations
+    Square sq = A8;
     while (*fen != ' ') {
+
+        Piece piece;
+        int count = 1;
+
         switch (*fen) {
             // Pieces
             case 'p': piece = bP; break;
@@ -214,7 +215,6 @@ void ParseFen(const char *fen, Position *pos) {
 
         pieceOn(sq) = piece;
         sq += count;
-        count = 1;
 
         fen++;
     }
