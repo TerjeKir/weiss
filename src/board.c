@@ -263,7 +263,7 @@ void PrintBoard(const Position *pos) {
     printf("\n");
     for (int rank = RANK_8; rank >= RANK_1; --rank) {
 
-        int cnt = 0;
+        int count = 0;
 
         for (int file = FILE_A; file <= FILE_H; ++file) {
             Square sq = (rank * 8) + file;
@@ -271,19 +271,19 @@ void PrintBoard(const Position *pos) {
 
             // Build fen string
             if (piece) {
-                if (cnt)
-                    *ptr++ = '0' + cnt;
+                if (count)
+                    *ptr++ = '0' + count;
                 *ptr++ = PceChar[piece];
-                cnt = 0;
+                count = 0;
             } else
-                cnt++;
+                count++;
 
             // Print board
             printf("%3c", PceChar[piece]);
         }
 
-        if (cnt)
-            *ptr++ = '0' + cnt;
+        if (count)
+            *ptr++ = '0' + count;
 
         *ptr++ = rank == RANK_1 ? ' ' : '/';
 
