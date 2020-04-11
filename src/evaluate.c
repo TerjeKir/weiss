@@ -43,6 +43,9 @@ tuneable_const int PieceValue[2][PIECE_NB] = {
       0, P_EG, N_EG, B_EG, R_EG, Q_EG, 0, 0 }
 };
 
+// Bonus for being the side to move
+tuneable_const int Tempo = 20;
+
 // Misc bonuses and maluses
 tuneable_static_const int PawnIsolated   = S(-28,-16);
 tuneable_static_const int BishopPair     = S( 52, 72);
@@ -277,5 +280,5 @@ int EvalPosition(const Position *pos) {
     assert(-SLOWEST_TB_WIN < eval && eval < SLOWEST_TB_WIN);
 
     // Return the evaluation, negated if we are black
-    return sideToMove == WHITE ? eval : -eval;
+    return (sideToMove == WHITE ? eval : -eval) + Tempo;
 }
