@@ -35,7 +35,7 @@
 #define DESTR static __attribute__((destructor)) void
 
 #define lastMoveNullMove (!root && history(-1).move == NOMOVE)
-#define history(offset) (pos->history[pos->gamePly + offset])
+#define history(offset) (pos->gameHistory[pos->gamePly + offset])
 #define killer1 (pos->killers[pos->ply][0])
 #define killer2 (pos->killers[pos->ply][1])
 
@@ -190,9 +190,9 @@ typedef struct {
 
     Key key;
 
-    History history[MAXGAMEMOVES];
+    History gameHistory[MAXGAMEMOVES];
 
-    int searchHistory[PIECE_NB][64];
+    int history[PIECE_NB][64];
     Move killers[MAXDEPTH][2];
 
 } Position;

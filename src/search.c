@@ -73,7 +73,7 @@ static void PrepareSearch(Position *pos, SearchInfo *info) {
 
     memset(info, 0, sizeof(SearchInfo));
 
-    memset(pos->searchHistory, 0, sizeof(pos->searchHistory));
+    memset(pos->history, 0, sizeof(pos->history));
     memset(pos->killers, 0, sizeof(pos->killers));
 
     // Mark TT as used
@@ -438,7 +438,7 @@ move_loop:
 
                 // Update search history
                 if (quiet)
-                    pos->searchHistory[pieceOn(fromSq(bestMove))][toSq(bestMove)] += depth * depth;
+                    pos->history[pieceOn(fromSq(bestMove))][toSq(bestMove)] += depth * depth;
 
                 // If score beats beta we have a cutoff
                 if (score >= beta) {
