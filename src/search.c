@@ -74,7 +74,7 @@ static void PrepareSearch(Position *pos, SearchInfo *info) {
     memset(info, 0, sizeof(SearchInfo));
 
     memset(pos->searchHistory, 0, sizeof(pos->searchHistory));
-    memset(pos->searchKillers, 0, sizeof(pos->searchKillers));
+    memset(pos->killers, 0, sizeof(pos->killers));
 
     // Mark TT as used
     TT.dirty = true;

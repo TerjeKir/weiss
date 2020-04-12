@@ -36,8 +36,8 @@
 
 #define lastMoveNullMove (!root && history(-1).move == NOMOVE)
 #define history(offset) (pos->history[pos->gamePly + offset])
-#define killer1 (pos->searchKillers[pos->ply][0])
-#define killer2 (pos->searchKillers[pos->ply][1])
+#define killer1 (pos->killers[pos->ply][0])
+#define killer2 (pos->killers[pos->ply][1])
 
 #define pieceBB(type) (pos->pieceBB[(type)])
 #define colorBB(color) (pos->colorBB[(color)])
@@ -193,7 +193,7 @@ typedef struct {
     History history[MAXGAMEMOVES];
 
     int searchHistory[PIECE_NB][64];
-    Move searchKillers[MAXDEPTH][2];
+    Move killers[MAXDEPTH][2];
 
 } Position;
 
