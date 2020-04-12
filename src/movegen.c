@@ -72,7 +72,7 @@ INLINE void AddMove(const Position *pos, MoveList *list, const Square from, cons
     if (type == QUIET)
         *moveScore = move == killer1 ? 900000
                    : move == killer2 ? 800000
-                                     : pos->searchHistory[pieceOn(from)][to];
+                                     : pos->history[pieceOn(from)][to];
 
     list->moves[list->count++].move = move;
 }

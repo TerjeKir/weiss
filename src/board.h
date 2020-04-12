@@ -53,16 +53,37 @@ INLINE Piece MirrorPiece(Piece piece) {
     return piece == EMPTY ? EMPTY : piece ^ 8;
 }
 
-// Returns distance between sq1 and sq2
+// Returns the distance between two squares
 INLINE int Distance(const Square sq1, const Square sq2) {
     return SqDistance[sq1][sq2];
-}
-
-INLINE int RelativeRank(const Color color, const int rank) {
-    return color == WHITE ? rank : RANK_8 - rank;
 }
 
 INLINE bool ValidPiece(const Piece piece) {
     return (wP <= piece && piece <= wK)
         || (bP <= piece && piece <= bK);
+}
+
+INLINE int FileOf(const Square square) {
+    return square & 7;
+}
+
+INLINE int RankOf(const Square square) {
+    return square >> 3;
+}
+
+// Converts a rank into the rank relative to the given color
+INLINE int RelativeRank(const Color color, const int rank) {
+    return color == WHITE ? rank : RANK_8 - rank;
+}
+
+INLINE Color ColorOf(const Piece piece) {
+    return piece >> 3;
+}
+
+INLINE PieceType PieceTypeOf(const Piece piece) {
+    return (piece & 7);
+}
+
+INLINE Piece MakePiece(const Color color, const PieceType pt) {
+    return (color << 3) + pt;
 }

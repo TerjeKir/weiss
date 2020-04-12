@@ -19,6 +19,7 @@
 #pragma once
 
 #include "types.h"
+#include "board.h"
 
 
 #define SETBIT(bb, sq) ((bb) |= SquareBB[(sq)])
