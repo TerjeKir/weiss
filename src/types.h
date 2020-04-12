@@ -27,6 +27,17 @@
 #include <assert.h>
 
 
+// Macro for printing size_t
+#ifdef _WIN32
+#  ifdef _WIN64
+#    define PRI_SIZET PRIu64
+#  else
+#    define PRI_SIZET PRIu32
+#  endif
+#else
+#  define PRI_SIZET "zu"
+#endif
+
 #define MIN(A, B) ((A) < (B) ? (A) : (B))
 #define MAX(A, B) ((A) > (B) ? (A) : (B))
 
@@ -229,36 +240,3 @@ typedef struct {
     bool timelimit, infinite;
 
 } SearchLimits;
-
-/* Functions */
-
-INLINE int FileOf(const Square square) {
-    return square & 7;
-}
-
-INLINE int RankOf(const Square square) {
-    return square >> 3;
-}
-
-INLINE Color ColorOf(const Piece piece) {
-    return piece >> 3;
-}
-
-INLINE PieceType PieceTypeOf(const Piece piece) {
-    return (piece & 7);
-}
-
-INLINE Piece MakePiece(const Color color, const PieceType pt) {
-    return (color << 3) + pt;
-}
-
-// Macro for printing size_t
-#ifdef _WIN32
-#  ifdef _WIN64
-#    define PRI_SIZET PRIu64
-#  else
-#    define PRI_SIZET PRIu32
-#  endif
-#else
-#  define PRI_SIZET "zu"
-#endif
