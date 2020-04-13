@@ -330,7 +330,8 @@ static int AlphaBeta(Position *pos, SearchInfo *info, int alpha, int beta, Depth
         return eval;
 
     // Null Move Pruning
-    if (   history(-1).move != NOMOVE
+    if (  !pvNode
+        && history(-1).move != NOMOVE
         && eval >= beta
         && pos->nonPawnCount[sideToMove] > 0
         && depth >= 3) {
