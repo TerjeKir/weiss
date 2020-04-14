@@ -375,7 +375,7 @@ move_loop:
         bool quiet = !moveIsNoisy(move);
 
         // Late move pruning
-        if (!pvNode && !inCheck && quiet && quietCount > (3 + 2 * depth * depth) / (2 - improving))
+        if (!pvNode && !inCheck && quietCount > (3 + 2 * depth * depth) / (2 - improving))
             break;
 
         __builtin_prefetch(GetEntry(KeyAfter(pos, move)));
