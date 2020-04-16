@@ -23,7 +23,7 @@
 #include "types.h"
 
 
-// Calls fathom to probe syzygy tablebases - heavily inspired by ethereal
+// Calls fathom to probe syzygy tablebases
 bool ProbeWDL(const Position *pos, int *score, int *bound) {
 
     // Don't probe at root, when en passant is possible, when castling is
@@ -52,12 +52,12 @@ bool ProbeWDL(const Position *pos, int *score, int *bound) {
     if (tbresult == TB_RESULT_FAILED)
         return false;
 
-    *score = tbresult == TB_LOSS ? -TBWIN + pos->ply
-           : tbresult == TB_WIN  ?  TBWIN - pos->ply
+    *score = tbresult == TB_WIN  ?  TBWIN - pos->ply
+           : tbresult == TB_LOSS ? -TBWIN + pos->ply
                                  :  0;
 
-    *bound = tbresult == TB_LOSS ? BOUND_UPPER
-           : tbresult == TB_WIN  ? BOUND_LOWER
+    *bound = tbresult == TB_WIN  ? BOUND_LOWER
+           : tbresult == TB_LOSS ? BOUND_UPPER
                                  : BOUND_EXACT;
 
     return true;
