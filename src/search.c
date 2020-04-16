@@ -80,6 +80,12 @@ static void PrepareSearch(Position *pos, SearchInfo *info) {
     TT.dirty = true;
 }
 
+// Translates an internal mate score into distance to mate
+INLINE int MateScore(const int score) {
+    return score > 0 ?  ((MATE - score) / 2) + 1
+                     : -((MATE + score) / 2);
+}
+
 // Print thinking
 static void PrintThinking(const SearchInfo *info) {
 
@@ -88,10 +94,10 @@ static void PrintThinking(const SearchInfo *info) {
     // Determine whether we have a centipawn or mate score
     char *type = abs(score) >= MATE_IN_MAX ? "mate" : "cp";
 
-    // Convert score to mate score when applicable
-    score = score >=  MATE_IN_MAX ?  ((MATE - score) / 2) + 1
-          : score <= -MATE_IN_MAX ? -((MATE + score) / 2)
-                                  : score * 100 / P_MG;
+    // Translate internal score into printed score
+    score = abs(score) >=  MATE_IN_MAX ? MateScore(score)
+          : abs(score) >= TBWIN_IN_MAX ? score
+                                       : score * 100 / P_MG;
 
     TimePoint elapsed = TimeSince(Limits.start);
     Depth seldepth    = info->seldepth;
