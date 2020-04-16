@@ -86,12 +86,12 @@ static void PrintThinking(const SearchInfo *info) {
     int score = info->score;
 
     // Determine whether we have a centipawn or mate score
-    char *type = abs(score) >= SLOWEST_MATE ? "mate" : "cp";
+    char *type = abs(score) >= MATE_IN_MAX ? "mate" : "cp";
 
     // Convert score to mate score when applicable
-    score = score >=  SLOWEST_MATE ?  ((MATE - score) / 2) + 1
-          : score <= -SLOWEST_MATE ? -((MATE + score) / 2)
-                                   : score * 100 / P_MG;
+    score = score >=  MATE_IN_MAX ?  ((MATE - score) / 2) + 1
+          : score <= -MATE_IN_MAX ? -((MATE + score) / 2)
+                                  : score * 100 / P_MG;
 
     TimePoint elapsed = TimeSince(Limits.start);
     Depth seldepth    = info->seldepth;
@@ -345,7 +345,7 @@ static int AlphaBeta(Position *pos, SearchInfo *info, int alpha, int beta, Depth
         // Cutoff
         if (score >= beta) {
             // Don't return unproven terminal win scores
-            return score >= SLOWEST_TB_WIN ? beta : score;
+            return score >= TBWIN_IN_MAX ? beta : score;
         }
     }
 
