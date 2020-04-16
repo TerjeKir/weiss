@@ -64,17 +64,17 @@ extern TranspositionTable TT;
 // Mate scores are stored as mate in 0 as they depend on the current ply
 INLINE int ScoreToTT (const int score, const uint8_t ply) {
 
-    return score >=  SLOWEST_TB_WIN ? score + ply
-         : score <= -SLOWEST_TB_WIN ? score - ply
-                                    : score;
+    return score >=  TBWIN_IN_MAX ? score + ply
+         : score <= -TBWIN_IN_MAX ? score - ply
+                                  : score;
 }
 
 // Translates from mate in 0 to the proper mate score at current ply
 INLINE int ScoreFromTT (const int score, const uint8_t ply) {
 
-    return score >=  SLOWEST_TB_WIN ? score - ply
-         : score <= -SLOWEST_TB_WIN ? score + ply
-                                    : score;
+    return score >=  TBWIN_IN_MAX ? score - ply
+         : score <= -TBWIN_IN_MAX ? score + ply
+                                  : score;
 }
 
 INLINE TTEntry *GetEntry(Key posKey) {

@@ -234,7 +234,7 @@ int EvalPosition(const Position *pos) {
          / 256;
 
     // Static evaluation shouldn't spill into TB- or mate-scores
-    assert(-SLOWEST_TB_WIN < eval && eval < SLOWEST_TB_WIN);
+    assert(abs(eval) < TBWIN_IN_MAX);
 
     // Return the evaluation, negated if we are black
     return (sideToMove == WHITE ? eval : -eval) + Tempo;
