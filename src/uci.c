@@ -32,7 +32,7 @@
 #include "tune.h"
 
 
-#define NAME "weiss 0.9-dev"
+#define NAME "Weiss 0.9-dev"
 
 #define START_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 #define INPUT_SIZE 4096
@@ -46,23 +46,31 @@ INLINE bool BeginsWith(const char *string, const char *token) {
     return strstr(string, token) == string;
 }
 
+// Sets a limit to the corresponding value in line, if any
+INLINE void SetLimit(const char *line, const char *token, int *limit) {
+    char *ptr = NULL;
+    if ((ptr = strstr(line, token)))
+        *limit = atoi(ptr + strlen(token));
+}
+
 // Parses the time controls
-INLINE void TimeControl(Color color, char *line) {
+static void ParseTimeControl(Color color, char *line) {
 
     memset(&Limits, 0, sizeof(SearchLimits));
 
     Limits.start = Now();
 
     // Read in relevant search constraints
-    char *ptr = NULL;
     Limits.infinite = strstr(line, "infinite");
-    if ((ptr = strstr(line, "wtime")) && color == WHITE) Limits.time = atoi(ptr + 6);
-    if ((ptr = strstr(line, "btime")) && color == BLACK) Limits.time = atoi(ptr + 6);
-    if ((ptr = strstr(line, "winc"))  && color == WHITE) Limits.inc  = atoi(ptr + 5);
-    if ((ptr = strstr(line, "binc"))  && color == BLACK) Limits.inc  = atoi(ptr + 5);
-    if ((ptr = strstr(line, "movestogo"))) Limits.movestogo = atoi(ptr + 10);
-    if ((ptr = strstr(line, "movetime")))  Limits.movetime  = atoi(ptr +  9);
-    if ((ptr = strstr(line, "depth")))     Limits.depth     = atoi(ptr +  6);
+    if (color == WHITE)
+        SetLimit(line, "wtime", &Limits.time),
+        SetLimit(line, "winc",  &Limits.inc);
+    else
+        SetLimit(line, "btime", &Limits.time),
+        SetLimit(line, "binc",  &Limits.inc);
+    SetLimit(line, "movestogo", &Limits.movestogo);
+    SetLimit(line, "movetime",  &Limits.movetime);
+    SetLimit(line, "depth",     &Limits.depth);
 
     // If no depth limit is given, use MAXDEPTH - 1
     Limits.depth = Limits.depth == 0 ? MAXDEPTH - 1 : Limits.depth;
@@ -75,7 +83,7 @@ static void *ParseGo(void *searchThreadInfo) {
     Position *pos    = sst->pos;
     SearchInfo *info = sst->info;
 
-    TimeControl(sideToMove, sst->line);
+    ParseTimeControl(sideToMove, sst->line);
 
     SearchPosition(pos, info);
 
@@ -174,7 +182,6 @@ INLINE bool GetInput(char *line) {
     if (fgets(line, INPUT_SIZE, stdin) == NULL)
         return false;
 
-    // Strip newline
     line[strcspn(line, "\r\n")] = '\0';
 
     return true;
