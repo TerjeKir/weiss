@@ -45,6 +45,7 @@ static void ClearPiece(Position *pos, const Square sq) {
 
     const Piece piece = pieceOn(sq);
     const Color color = ColorOf(piece);
+    const PieceType pt = PieceTypeOf(piece);
 
     assert(ValidPiece(piece));
 
@@ -65,15 +66,16 @@ static void ClearPiece(Position *pos, const Square sq) {
     pos->nonPawnCount[color] -= NonPawn[piece];
 
     // Update bitboards
-    CLRBIT(pieceBB(ALL), sq);
-    CLRBIT(colorBB(color), sq);
-    CLRBIT(pieceBB(PieceTypeOf(piece)), sq);
+    pieceBB(ALL)   ^= SquareBB[sq];
+    pieceBB(pt)    ^= SquareBB[sq];
+    colorBB(color) ^= SquareBB[sq];
 }
 
 // Add a piece piece to a square
 static void AddPiece(Position *pos, const Square sq, const Piece piece) {
 
     const Color color = ColorOf(piece);
+    const PieceType pt = PieceTypeOf(piece);
 
     // Hash in piece at square
     HASH_PCE(piece, sq);
@@ -92,15 +94,17 @@ static void AddPiece(Position *pos, const Square sq, const Piece piece) {
     pos->nonPawnCount[color] += NonPawn[piece];
 
     // Update bitboards
-    SETBIT(pieceBB(ALL), sq);
-    SETBIT(colorBB(color), sq);
-    SETBIT(pieceBB(PieceTypeOf(piece)), sq);
+    pieceBB(ALL)   |= SquareBB[sq];
+    pieceBB(pt)    |= SquareBB[sq];
+    colorBB(color) |= SquareBB[sq];
 }
 
 // Move a piece from one square to another
 static void MovePiece(Position *pos, const Square from, const Square to) {
 
     const Piece piece = pieceOn(from);
+    const Color color = ColorOf(piece);
+    const PieceType pt = PieceTypeOf(piece);
 
     assert(ValidPiece(piece));
     assert(pieceOn(to) == EMPTY);
@@ -117,14 +121,9 @@ static void MovePiece(Position *pos, const Square from, const Square to) {
     pos->material += PSQT[piece][to] - PSQT[piece][from];
 
     // Update bitboards
-    CLRBIT(pieceBB(ALL), from);
-    SETBIT(pieceBB(ALL), to);
-
-    CLRBIT(colorBB(ColorOf(piece)), from);
-    SETBIT(colorBB(ColorOf(piece)), to);
-
-    CLRBIT(pieceBB(PieceTypeOf(piece)), from);
-    SETBIT(pieceBB(PieceTypeOf(piece)), to);
+    pieceBB(ALL)   ^= SquareBB[from] ^ SquareBB[to];
+    pieceBB(pt)    ^= SquareBB[from] ^ SquareBB[to];
+    colorBB(color) ^= SquareBB[from] ^ SquareBB[to];
 }
 
 // Take back the previous move

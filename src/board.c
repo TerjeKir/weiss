@@ -152,11 +152,12 @@ static void UpdatePosition(Position *pos) {
         if (piece != EMPTY) {
 
             Color color = ColorOf(piece);
+            PieceType pt = PieceTypeOf(piece);
 
             // Bitboards
-            SETBIT(pieceBB(ALL), sq);
-            SETBIT(colorBB(ColorOf(piece)), sq);
-            SETBIT(pieceBB(PieceTypeOf(piece)), sq);
+            pieceBB(ALL)   |= SquareBB[sq];
+            pieceBB(pt)    |= SquareBB[sq];
+            colorBB(color) |= SquareBB[sq];
 
             // Non pawn piece count
             if (NonPawn[piece])
