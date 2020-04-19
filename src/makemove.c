@@ -162,15 +162,16 @@ void TakeMove(Position *pos) {
     MovePiece(pos, to, from, false);
 
     // Add back captured piece if any
-    Piece captured = capturing(move);
-    if (captured != EMPTY) {
-        assert(ValidPiece(captured));
-        AddPiece(pos, to, captured, false);
+    Piece capt = capturing(move);
+    if (capt != EMPTY) {
+        assert(ValidPiece(capt));
+        AddPiece(pos, to, capt, false);
     }
 
     // Remove promoted piece and put back the pawn
-    if (promotion(move) != EMPTY) {
-        assert(ValidPiece(promotion(move)) && NonPawn[promotion(move)]);
+    Piece promo = promotion(move);
+    if (promo != EMPTY) {
+        assert(ValidPiece(promo) && NonPawn[promo]);
         ClearPiece(pos, from, false);
         AddPiece(pos, from, MakePiece(sideToMove, PAWN), false);
     }
@@ -186,10 +187,6 @@ void TakeMove(Position *pos) {
 
 // Make a move - take it back and return false if move was illegal
 bool MakeMove(Position *pos, const Move move) {
-
-    const Square from = fromSq(move);
-    const Square to   = toSq(move);
-    const Piece capt  = capturing(move);
 
     // Save position
     history(0).posKey         = pos->key;
@@ -208,6 +205,9 @@ bool MakeMove(Position *pos, const Move move) {
         HASH_EP;
         pos->epSquare = NO_SQ;
     }
+
+    const Square from = fromSq(move);
+    const Square to   = toSq(move);
 
     // Rehash the castling rights if at least one side can castle,
     // and either the to or from square is the original square of
@@ -230,7 +230,8 @@ bool MakeMove(Position *pos, const Move move) {
         }
 
     // Remove captured piece if any
-    else if (capt != EMPTY) {
+    Piece capt = capturing(move);
+    if (capt != EMPTY) {
         assert(ValidPiece(capt));
         ClearPiece(pos, to, true);
         pos->rule50 = 0;
@@ -267,10 +268,8 @@ bool MakeMove(Position *pos, const Move move) {
     HASH_SIDE;
 
     // If own king is attacked after the move, take it back immediately
-    if (KingAttacked(pos, sideToMove^1)) {
-        TakeMove(pos);
-        return false;
-    }
+    if (KingAttacked(pos, sideToMove^1))
+        return TakeMove(pos), false;
 
     assert(PositionOk(pos));
 
