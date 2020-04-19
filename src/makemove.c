@@ -41,7 +41,7 @@ static const uint8_t CastlePerm[64] = {
 
 
 // Remove a piece from a square sq
-static void ClearPiece(Position *pos, const Square sq) {
+static void ClearPiece(Position *pos, const Square sq, const bool hash) {
 
     const Piece piece = pieceOn(sq);
     const Color color = ColorOf(piece);
@@ -50,7 +50,8 @@ static void ClearPiece(Position *pos, const Square sq) {
     assert(ValidPiece(piece));
 
     // Hash out the piece
-    HASH_PCE(piece, sq);
+    if (hash)
+        HASH_PCE(piece, sq);
 
     // Set square to empty
     pieceOn(sq) = EMPTY;
@@ -72,13 +73,14 @@ static void ClearPiece(Position *pos, const Square sq) {
 }
 
 // Add a piece piece to a square
-static void AddPiece(Position *pos, const Square sq, const Piece piece) {
+static void AddPiece(Position *pos, const Square sq, const Piece piece, const bool hash) {
 
     const Color color = ColorOf(piece);
     const PieceType pt = PieceTypeOf(piece);
 
     // Hash in piece at square
-    HASH_PCE(piece, sq);
+    if (hash)
+        HASH_PCE(piece, sq);
 
     // Update square
     pieceOn(sq) = piece;
@@ -100,7 +102,7 @@ static void AddPiece(Position *pos, const Square sq, const Piece piece) {
 }
 
 // Move a piece from one square to another
-static void MovePiece(Position *pos, const Square from, const Square to) {
+static void MovePiece(Position *pos, const Square from, const Square to, const bool hash) {
 
     const Piece piece = pieceOn(from);
     const Color color = ColorOf(piece);
@@ -110,8 +112,9 @@ static void MovePiece(Position *pos, const Square from, const Square to) {
     assert(pieceOn(to) == EMPTY);
 
     // Hash out piece on old square, in on new square
-    HASH_PCE(piece, from);
-    HASH_PCE(piece, to);
+    if (hash)
+        HASH_PCE(piece, from),
+        HASH_PCE(piece, to);
 
     // Set old square to empty, new to piece
     pieceOn(from) = EMPTY;
@@ -136,11 +139,6 @@ void TakeMove(Position *pos) {
     // Change side to play
     sideToMove ^= 1;
 
-    // Update castling rights, 50mr, en passant
-    pos->epSquare       = history(0).epSquare;
-    pos->rule50         = history(0).rule50;
-    pos->castlingRights = history(0).castlingRights;
-
     // Get the move from history
     const Move move = history(0).move;
     const Square from = fromSq(move);
@@ -148,37 +146,40 @@ void TakeMove(Position *pos) {
 
     // Add in pawn captured by en passant
     if (moveIsEnPas(move))
-        AddPiece(pos, to ^ 8, MakePiece(!sideToMove, PAWN));
+        AddPiece(pos, to ^ 8, MakePiece(!sideToMove, PAWN), false);
 
     // Move rook back if castling
     else if (moveIsCastle(move))
         switch (to) {
-            case C1: MovePiece(pos, D1, A1); break;
-            case C8: MovePiece(pos, D8, A8); break;
-            case G1: MovePiece(pos, F1, H1); break;
-            case G8: MovePiece(pos, F8, H8); break;
+            case C1: MovePiece(pos, D1, A1, false); break;
+            case C8: MovePiece(pos, D8, A8, false); break;
+            case G1: MovePiece(pos, F1, H1, false); break;
+            case G8: MovePiece(pos, F8, H8, false); break;
             default: assert(false); break;
         }
 
     // Make reverse move (from <-> to)
-    MovePiece(pos, to, from);
+    MovePiece(pos, to, from, false);
 
     // Add back captured piece if any
     Piece captured = capturing(move);
     if (captured != EMPTY) {
         assert(ValidPiece(captured));
-        AddPiece(pos, to, captured);
+        AddPiece(pos, to, captured, false);
     }
 
     // Remove promoted piece and put back the pawn
     if (promotion(move) != EMPTY) {
         assert(ValidPiece(promotion(move)) && NonPawn[promotion(move)]);
-        ClearPiece(pos, from);
-        AddPiece(pos, from, MakePiece(sideToMove, PAWN));
+        ClearPiece(pos, from, false);
+        AddPiece(pos, from, MakePiece(sideToMove, PAWN), false);
     }
 
-    // Get old poskey from history
-    pos->key = history(0).posKey;
+    // Get various info from history
+    pos->key            = history(0).posKey;
+    pos->epSquare       = history(0).epSquare;
+    pos->rule50         = history(0).rule50;
+    pos->castlingRights = history(0).castlingRights;
 
     assert(PositionOk(pos));
 }
@@ -221,22 +222,22 @@ bool MakeMove(Position *pos, const Move move) {
     // Move the rook during castling
     if (moveIsCastle(move))
         switch (to) {
-            case C1: MovePiece(pos, A1, D1); break;
-            case C8: MovePiece(pos, A8, D8); break;
-            case G1: MovePiece(pos, H1, F1); break;
-            case G8: MovePiece(pos, H8, F8); break;
+            case C1: MovePiece(pos, A1, D1, true); break;
+            case C8: MovePiece(pos, A8, D8, true); break;
+            case G1: MovePiece(pos, H1, F1, true); break;
+            case G8: MovePiece(pos, H8, F8, true); break;
             default: assert(false); break;
         }
 
     // Remove captured piece if any
     else if (capt != EMPTY) {
         assert(ValidPiece(capt));
-        ClearPiece(pos, to);
+        ClearPiece(pos, to, true);
         pos->rule50 = 0;
     }
 
     // Move the piece
-    MovePiece(pos, from, to);
+    MovePiece(pos, from, to, true);
 
     // Pawn move specifics
     if (PieceTypeOf(pieceOn(to)) == PAWN) {
@@ -251,13 +252,13 @@ bool MakeMove(Position *pos, const Move move) {
 
         // Remove pawn captured by en passant
         } else if (moveIsEnPas(move))
-            ClearPiece(pos, to ^ 8);
+            ClearPiece(pos, to ^ 8, true);
 
         // Replace promoting pawn with new piece
         else if (promo != EMPTY) {
             assert(ValidPiece(promo) && NonPawn[promo]);
-            ClearPiece(pos, to);
-            AddPiece(pos, to, promo);
+            ClearPiece(pos, to, true);
+            AddPiece(pos, to, promo, true);
         }
     }
 
