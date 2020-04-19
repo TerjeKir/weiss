@@ -62,8 +62,7 @@ static void ClearPiece(Position *pos, const Square sq) {
     pos->phase = (pos->basePhase * 256 + 12) / 24;
 
     // Update non-pawn count
-    if (NonPawn[piece])
-        pos->nonPawnCount[color]--;
+    pos->nonPawnCount[color] -= NonPawn[piece];
 
     // Update bitboards
     CLRBIT(pieceBB(ALL), sq);
@@ -90,8 +89,7 @@ static void AddPiece(Position *pos, const Square sq, const Piece piece) {
     pos->phase = (pos->basePhase * 256 + 12) / 24;
 
     // Update non-pawn count
-    if (NonPawn[piece])
-        pos->nonPawnCount[color]++;
+    pos->nonPawnCount[color] += NonPawn[piece];
 
     // Update bitboards
     SETBIT(pieceBB(ALL), sq);
