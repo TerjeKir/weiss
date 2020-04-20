@@ -22,10 +22,10 @@
 #include "psqt.h"
 
 
-#define HASH_PCE(piece, sq) (pos->key ^= (PieceKeys[(piece)][(sq)]))
-#define HASH_CA             (pos->key ^= (CastleKeys[(pos->castlingRights)]))
-#define HASH_SIDE           (pos->key ^= (SideKey))
-#define HASH_EP             (pos->key ^= (PieceKeys[EMPTY][(pos->epSquare)]))
+#define HASH_PCE(piece, sq) (pos->key ^= PieceKeys[(piece)][(sq)])
+#define HASH_CA             (pos->key ^= CastleKeys[pos->castlingRights])
+#define HASH_SIDE           (pos->key ^= SideKey)
+#define HASH_EP             (pos->key ^= PieceKeys[EMPTY][pos->epSquare])
 
 
 static const uint8_t CastlePerm[64] = {
@@ -201,23 +201,20 @@ bool MakeMove(Position *pos, const Move move) {
     pos->rule50++;
 
     // Hash out the old en passant if exist and unset it
-    if (pos->epSquare != NO_SQ) {
-        HASH_EP;
+    if (pos->epSquare != NO_SQ)
+        HASH_EP,
         pos->epSquare = NO_SQ;
-    }
 
     const Square from = fromSq(move);
-    const Square to   = toSq(move);
+    const Square to = toSq(move);
 
     // Rehash the castling rights if at least one side can castle,
     // and either the to or from square is the original square of
     // a king or rook.
-    if (pos->castlingRights && CastlePerm[from] ^ CastlePerm[to]) {
+    if (pos->castlingRights && CastlePerm[from] ^ CastlePerm[to])
+        HASH_CA,
+        pos->castlingRights &= CastlePerm[from] & CastlePerm[to],
         HASH_CA;
-        pos->castlingRights &= CastlePerm[from];
-        pos->castlingRights &= CastlePerm[to];
-        HASH_CA;
-    }
 
     // Move the rook during castling
     if (moveIsCastle(move))
@@ -297,10 +294,9 @@ void MakeNullMove(Position *pos) {
     HASH_SIDE;
 
     // Hash out en passant if there was one, and unset it
-    if (pos->epSquare != NO_SQ) {
-        HASH_EP;
+    if (pos->epSquare != NO_SQ)
+        HASH_EP,
         pos->epSquare = NO_SQ;
-    }
 
     assert(PositionOk(pos));
 }
