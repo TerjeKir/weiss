@@ -171,7 +171,7 @@ void TakeMove(Position *pos) {
     // Remove promoted piece and put back the pawn
     Piece promo = promotion(move);
     if (promo != EMPTY) {
-        assert(ValidPiece(promo) && NonPawn[promo]);
+        assert(ValidPromotion(promo));
         ClearPiece(pos, from, false);
         AddPiece(pos, from, MakePiece(sideToMove, PAWN), false);
     }
@@ -254,7 +254,7 @@ bool MakeMove(Position *pos, const Move move) {
 
         // Replace promoting pawn with new piece
         else if (promo != EMPTY) {
-            assert(ValidPiece(promo) && NonPawn[promo]);
+            assert(ValidPromotion(promo));
             ClearPiece(pos, to, true);
             AddPiece(pos, to, promo, true);
         }

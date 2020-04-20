@@ -63,6 +63,11 @@ INLINE bool ValidPiece(const Piece piece) {
         || (bP <= piece && piece <= bK);
 }
 
+INLINE bool ValidPromotion(const Piece piece) {
+    return (wN <= piece && piece <= wQ)
+        || (bN <= piece && piece <= bQ);
+}
+
 INLINE int FileOf(const Square square) {
     return square & 7;
 }
