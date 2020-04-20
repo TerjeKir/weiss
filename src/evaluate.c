@@ -86,26 +86,32 @@ static bool MaterialDraw(const Position *pos) {
         // No bishops
         if (!pieceBB(BISHOP)) {
             // Draw with 0-2 knights each (both 0 => KvK) (all nonpawns if any are knights)
-            return pos->nonPawnCount[WHITE] <= 2 && pos->nonPawnCount[BLACK] <= 2;
+            return pos->nonPawnCount[WHITE] <= 2
+                && pos->nonPawnCount[BLACK] <= 2;
 
         // No knights
         } else if (!pieceBB(KNIGHT)) {
             // Draw unless one side has 2 extra bishops (all nonpawns are bishops)
-            return abs(pos->nonPawnCount[WHITE] - pos->nonPawnCount[BLACK]) < 2;
+            return abs(  pos->nonPawnCount[WHITE]
+                       - pos->nonPawnCount[BLACK]) < 2;
 
         // Draw with 1-2 knights vs 1 bishop (there is at least 1 bishop, and at last 1 knight)
         } else if (Single(pieceBB(BISHOP))) {
             Color bishopOwner = colorPieceBB(WHITE, BISHOP) ? WHITE : BLACK;
-            return pos->nonPawnCount[bishopOwner] == 1 && pos->nonPawnCount[!bishopOwner] <= 2;
+            return pos->nonPawnCount[ bishopOwner] == 1
+                && pos->nonPawnCount[!bishopOwner] <= 2;
         }
     // Draw with 1 rook + up to 1 minor each
     } else if (Single(colorPieceBB(WHITE, ROOK)) && Single(colorPieceBB(BLACK, ROOK))) {
-        return pos->nonPawnCount[WHITE] <= 2 && pos->nonPawnCount[BLACK] <= 2;
+        return pos->nonPawnCount[WHITE] <= 2
+            && pos->nonPawnCount[BLACK] <= 2;
 
     // Draw with 1 rook vs 1-2 minors
     } else if (Single(pieceBB(ROOK))) {
         Color rookOwner = colorPieceBB(WHITE, ROOK) ? WHITE : BLACK;
-        return pos->nonPawnCount[rookOwner] == 1 && pos->nonPawnCount[!rookOwner] >= 1 && pos->nonPawnCount[!rookOwner] <= 2;
+        return pos->nonPawnCount[ rookOwner] == 1
+            && pos->nonPawnCount[!rookOwner] >= 1
+            && pos->nonPawnCount[!rookOwner] <= 2;
     }
 
     return false;

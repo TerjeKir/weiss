@@ -22,16 +22,15 @@
 #include "board.h"
 
 
-#define SETBIT(bb, sq) ((bb) |= SquareBB[(sq)])
-#define CLRBIT(bb, sq) ((bb) ^= SquareBB[(sq)])
-
 #ifdef USE_PEXT
 // Uses the bmi2 pext instruction in place of magic bitboards
 #include "x86intrin.h"
 #define AttackIndex(sq, occ, table) (_pext_u64(occ, table[sq].mask))
+
 #else
 // Uses magic bitboards as explained on https://www.chessprogramming.org/Magic_Bitboards
 #define AttackIndex(sq, occ, table) (((occ & table[sq].mask) * table[sq].magic) >> table[sq].shift)
+
 static const uint64_t RookMagics[64] = {
     0xA180022080400230ull, 0x0040100040022000ull, 0x0080088020001002ull, 0x0080080280841000ull,
     0x4200042010460008ull, 0x04800A0003040080ull, 0x0400110082041008ull, 0x008000A041000880ull,
