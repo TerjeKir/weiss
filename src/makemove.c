@@ -164,7 +164,7 @@ void TakeMove(Position *pos) {
     // Add back captured piece if any
     Piece capt = capturing(move);
     if (capt != EMPTY) {
-        assert(ValidPiece(capt));
+        assert(ValidCapture(capt));
         AddPiece(pos, to, capt, false);
     }
 
@@ -229,7 +229,7 @@ bool MakeMove(Position *pos, const Move move) {
     // Remove captured piece if any
     Piece capt = capturing(move);
     if (capt != EMPTY) {
-        assert(ValidPiece(capt));
+        assert(ValidCapture(capt));
         ClearPiece(pos, to, true);
         pos->rule50 = 0;
     }
