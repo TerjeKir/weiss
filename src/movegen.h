@@ -21,8 +21,5 @@
 #include "types.h"
 
 
-#ifndef NDEBUG
-bool MoveListOk(const MoveList *list, const Position *pos);
-#endif
 void GenNoisyMoves(const Position *pos, MoveList *list);
 void GenQuietMoves(const Position *pos, MoveList *list);

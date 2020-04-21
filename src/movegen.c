@@ -41,18 +41,14 @@ CONSTR InitMvvLva() {
 }
 
 #ifndef NDEBUG
-bool MoveListOk(const MoveList *list, const Position *pos) {
+static bool MoveListOk(const MoveList *list, const Position *pos) {
 
     if (list->count >= MAXPOSITIONMOVES)
         return false;
 
-    for (unsigned MoveNum = 0; MoveNum < list->count; ++MoveNum) {
-
-        if (!MoveIsPseudoLegal(pos, list->moves[MoveNum].move)) {
-            PrintBoard(pos);
-            return false;
-        }
-    }
+    for (unsigned i = 0; i < list->count; ++i)
+        if (!MoveIsPseudoLegal(pos, list->moves[i].move))
+            return PrintBoard(pos), false;
 
     return true;
 }
