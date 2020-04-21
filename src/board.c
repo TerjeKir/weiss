@@ -140,9 +140,6 @@ static void ClearPosition(Position *pos) {
 // Update the rest of a position to match pos->board
 static void UpdatePosition(Position *pos) {
 
-    // Generate the position key
-    pos->key = GeneratePosKey(pos);
-
     // Loop through each square on the board
     for (Square sq = A1; sq <= H8; ++sq) {
 
@@ -160,8 +157,7 @@ static void UpdatePosition(Position *pos) {
             colorBB(color) |= SquareBB[sq];
 
             // Non pawn piece count
-            if (NonPawn[piece])
-                pos->nonPawnCount[color]++;
+            pos->nonPawnCount[color] += NonPawn[piece];
 
             // Material score
             pos->material += PSQT[piece][sq];
@@ -221,6 +217,9 @@ void ParseFen(const char *fen, Position *pos) {
     }
     fen++;
 
+    // Update the rest of position to match pos->board
+    UpdatePosition(pos);
+
     // Side to move
     sideToMove = (*fen == 'w') ? WHITE : BLACK;
     fen += 2;
@@ -240,15 +239,18 @@ void ParseFen(const char *fen, Position *pos) {
     fen++;
 
     // En passant square
-    pos->epSquare = *fen != '-' ? AlgebraicToSq(fen[0], fen[1])
-                                : NO_SQ;
+    Square ep = AlgebraicToSq(fen[0], fen[1]);
+    bool epValid = *fen != '-' && (  PawnAttackBB(!sideToMove, ep)
+                                   & colorPieceBB(sideToMove, PAWN));
+    pos->epSquare = epValid ? ep
+                            : NO_SQ;
     fen += 2;
 
     // 50 move rule
     pos->rule50 = atoi(fen);
 
-    // Update the rest of position to match pos->board
-    UpdatePosition(pos);
+    // Generate the position key
+    pos->key = GeneratePosKey(pos);
 
     assert(PositionOk(pos));
 }
@@ -398,6 +400,9 @@ void MirrorBoard(Position *pos) {
 
     // Update the rest of the position to match pos->board
     UpdatePosition(pos);
+
+    // Generate the position key
+    pos->key = GeneratePosKey(pos);
 
     assert(PositionOk(pos));
 }
