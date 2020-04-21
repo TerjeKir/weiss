@@ -97,3 +97,7 @@ INLINE PieceType PieceTypeOf(const Piece piece) {
 INLINE Piece MakePiece(const Color color, const PieceType pt) {
     return (color << 3) + pt;
 }
+
+INLINE Square AlgebraicToSq(const char file, const char rank) {
+    return (file - 'a') + 8 * (rank - '1');
+}
