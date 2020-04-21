@@ -240,7 +240,7 @@ void ParseFen(const char *fen, Position *pos) {
     fen++;
 
     // En passant square
-    pos->epSquare = *fen != '-' ? (fen[0] - 'a') + 8 * (fen[1] - '1')
+    pos->epSquare = *fen != '-' ? AlgebraicToSq(fen[0], fen[1])
                                 : NO_SQ;
     fen += 2;
 
@@ -306,7 +306,8 @@ void PrintBoard(const Position *pos) {
 
     char ep[3];
     if (pos->epSquare == NO_SQ) ep[0] = '-';
-    else sprintf(ep, "%c%c", 'a' + pos->epSquare / 8, '1' + (pos->epSquare & 7));
+    else sprintf(ep, "%c%c", 'a' + FileOf(pos->epSquare),
+                             '1' + RankOf(pos->epSquare));
 
     printf("\n%s %s %d %d\n", fen, ep, pos->rule50, pos->gamePly + 1);
     printf("Zobrist Key: %" PRIu64 "\n\n", pos->key);
