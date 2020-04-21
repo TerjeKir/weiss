@@ -69,7 +69,17 @@ void Benchmark(Position *pos, SearchInfo *info, Depth depth) {
 #ifdef DEV
 
 /* Perft */
+
 static uint64_t leafNodes;
+
+// Generate all pseudo legal moves
+void GenAllMoves(const Position *pos, MoveList *list) {
+
+    list->count = list->next = 0;
+
+    GenNoisyMoves(pos, list);
+    GenQuietMoves(pos, list);
+}
 
 static void RecursivePerft(Position *pos, const Depth depth) {
 

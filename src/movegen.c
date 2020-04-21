@@ -236,12 +236,3 @@ void GenNoisyMoves(const Position *pos, MoveList *list) {
 
     GenMoves(pos, list, sideToMove, NOISY);
 }
-
-// Generate all pseudo legal moves
-void GenAllMoves(const Position *pos, MoveList *list) {
-
-    list->count = list->next = 0;
-
-    GenNoisyMoves(pos, list);
-    GenQuietMoves(pos, list);
-}
