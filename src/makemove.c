@@ -243,8 +243,9 @@ bool MakeMove(Position *pos, const Move move) {
         pos->rule50 = 0;
         Piece promo = promotion(move);
 
-        // If the move is a pawnstart we set the en passant square and hash it in
-        if (moveIsPStart(move)) {
+        // Set en passant square if applicable
+        if (moveIsPStart(move) && (  PawnAttackBB(sideToMove, to ^ 8)
+                                   & colorPieceBB(!sideToMove, PAWN))) {
             pos->epSquare = to ^ 8;
             HASH_EP;
 
