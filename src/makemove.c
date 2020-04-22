@@ -244,10 +244,13 @@ bool MakeMove(Position *pos, const Move move) {
         Piece promo = promotion(move);
 
         // Set en passant square if applicable
-        if (moveIsPStart(move) && (  PawnAttackBB(sideToMove, to ^ 8)
-                                   & colorPieceBB(!sideToMove, PAWN))) {
-            pos->epSquare = to ^ 8;
-            HASH_EP;
+        if (moveIsPStart(move)) {
+            if ((  PawnAttackBB(sideToMove, to ^ 8)
+                 & colorPieceBB(!sideToMove, PAWN))) {
+
+                pos->epSquare = to ^ 8;
+                HASH_EP;
+            }
 
         // Remove pawn captured by en passant
         } else if (moveIsEnPas(move))
