@@ -87,12 +87,15 @@ INLINE int MateScore(const int score) {
 }
 
 // Print thinking
-static void PrintThinking(const SearchInfo *info) {
-
-    int score = info->score;
+static void PrintThinking(const SearchInfo *info, int score, int alpha, int beta) {
 
     // Determine whether we have a centipawn or mate score
     char *type = abs(score) >= MATE_IN_MAX ? "mate" : "cp";
+
+    // Determine if score is an upper or lower bound
+    char *bound = score >= beta  ? " lowerbound"
+                : score <= alpha ? " upperbound"
+                                 : "";
 
     // Translate internal score into printed score
     score = abs(score) >=  MATE_IN_MAX ? MateScore(score)
@@ -105,9 +108,9 @@ static void PrintThinking(const SearchInfo *info) {
     int nps           = (int)(1000 * info->nodes / (elapsed + 1));
 
     // Basic info
-    printf("info depth %d seldepth %d score %s %d time %" PRId64
+    printf("info depth %d seldepth %d score %s %d%s time %" PRId64
            " nodes %" PRIu64 " nps %d tbhits %" PRIu64 " hashfull %d pv",
-            info->depth, seldepth, type, score, elapsed,
+            info->depth, seldepth, type, score, bound, elapsed,
             info->nodes, nps, info->tbhits, hashFull);
 
     // Principal variation
@@ -502,6 +505,11 @@ static int AspirationWindow(Position *pos, SearchInfo *info) {
 
         score = AlphaBeta(pos, info, alpha, beta, depth, &info->pv);
 
+        // Give an update when done, or after each iteration in long searches
+        if (   (score > alpha && score < beta)
+            || TimeSince(Limits.start) > 3000)
+            PrintThinking(info, score, alpha, beta);
+
         // Failed low, relax lower bound and search again
         if (score <= alpha) {
             alpha = MAX(alpha - delta, -INFINITE);
@@ -566,9 +574,6 @@ void SearchPosition(Position *pos, SearchInfo *info) {
 
         // Search position, using aspiration windows for higher depths
         info->score = AspirationWindow(pos, info);
-
-        // Print thinking
-        PrintThinking(info);
 
         // Save bestMove and ponderMove before overwriting the pv next iteration
         info->bestMove   = info->pv.line[0];
