@@ -87,12 +87,15 @@ INLINE int MateScore(const int score) {
 }
 
 // Print thinking
-static void PrintThinking(const SearchInfo *info) {
-
-    int score = info->score;
+static void PrintThinking(const SearchInfo *info, int score, int alpha, int beta) {
 
     // Determine whether we have a centipawn or mate score
     char *type = abs(score) >= MATE_IN_MAX ? "mate" : "cp";
+
+    // Determine if score is an upper or lower bound
+    char *bound = score >= beta  ? " lowerbound"
+                : score <= alpha ? " upperbound"
+                                 : "";
 
     // Translate internal score into printed score
     score = abs(score) >=  MATE_IN_MAX ? MateScore(score)
@@ -105,9 +108,9 @@ static void PrintThinking(const SearchInfo *info) {
     int nps           = (int)(1000 * info->nodes / (elapsed + 1));
 
     // Basic info
-    printf("info depth %d seldepth %d score %s %d time %" PRId64
+    printf("info depth %d seldepth %d score %s %d%s time %" PRId64
            " nodes %" PRIu64 " nps %d tbhits %" PRIu64 " hashfull %d pv",
-            info->depth, seldepth, type, score, elapsed,
+            info->depth, seldepth, type, score, bound, elapsed,
             info->nodes, nps, info->tbhits, hashFull);
 
     // Principal variation
@@ -431,17 +434,17 @@ move_loop:
             bestScore = score;
             bestMove  = move;
 
+            // Update the Principle Variation
+            if ((score > alpha && pvNode) || (root && moveCount == 1)) {
+                pv->length = 1 + pvFromHere.length;
+                pv->line[0] = move;
+                memcpy(pv->line + 1, pvFromHere.line, sizeof(int) * pvFromHere.length);
+            }
+
             // If score beats alpha we update alpha
             if (score > alpha) {
 
                 alpha = score;
-
-                // Update the Principle Variation
-                if (pvNode) {
-                    pv->length = 1 + pvFromHere.length;
-                    pv->line[0] = move;
-                    memcpy(pv->line + 1, pvFromHere.line, sizeof(int) * pvFromHere.length);
-                }
 
                 // Update search history
                 if (quiet)
@@ -489,14 +492,23 @@ static int AspirationWindow(Position *pos, SearchInfo *info) {
     const int initialWindow = 12;
     int delta = 16;
 
-    // Initial window
-    int alpha = MAX(score - initialWindow, -INFINITE);
-    int beta  = MIN(score + initialWindow,  INFINITE);
+    int alpha = -INFINITE;
+    int beta  =  INFINITE;
+
+    // Shrink the window at higher depths
+    if (depth > 6)
+        alpha = MAX(score - initialWindow, -INFINITE),
+        beta  = MIN(score + initialWindow,  INFINITE);
 
     // Search with aspiration window until the result is inside the window
     while (true) {
 
         score = AlphaBeta(pos, info, alpha, beta, depth, &info->pv);
+
+        // Give an update when done, or after each iteration in long searches
+        if (   (score > alpha && score < beta)
+            || TimeSince(Limits.start) > 3000)
+            PrintThinking(info, score, alpha, beta);
 
         // Failed low, relax lower bound and search again
         if (score <= alpha) {
@@ -507,7 +519,7 @@ static int AspirationWindow(Position *pos, SearchInfo *info) {
         // Failed high, relax upper bound and search again
         } else if (score >= beta) {
             beta = MIN(beta + delta, INFINITE);
-            depth -= 1;
+            depth -= (abs(score) < TBWIN_IN_MAX);
 
         // Score within the bounds is accepted as correct
         } else
@@ -561,11 +573,7 @@ void SearchPosition(Position *pos, SearchInfo *info) {
         if (setjmp(info->jumpBuffer)) break;
 
         // Search position, using aspiration windows for higher depths
-        info->score = info->depth > 6 ? AspirationWindow(pos, info)
-                                      : AlphaBeta(pos, info, -INFINITE, INFINITE, info->depth, &info->pv);
-
-        // Print thinking
-        PrintThinking(info);
+        info->score = AspirationWindow(pos, info);
 
         // Save bestMove and ponderMove before overwriting the pv next iteration
         info->bestMove   = info->pv.line[0];
