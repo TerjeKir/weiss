@@ -511,7 +511,7 @@ static int AspirationWindow(Position *pos, SearchInfo *info) {
         // Failed high, relax upper bound and search again
         } else if (score >= beta) {
             beta = MIN(beta + delta, INFINITE);
-            depth -= 1;
+            depth -= (abs(score) < TBWIN_IN_MAX);
 
         // Score within the bounds is accepted as correct
         } else
