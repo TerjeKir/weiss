@@ -489,9 +489,13 @@ static int AspirationWindow(Position *pos, SearchInfo *info) {
     const int initialWindow = 12;
     int delta = 16;
 
-    // Initial window
-    int alpha = MAX(score - initialWindow, -INFINITE);
-    int beta  = MIN(score + initialWindow,  INFINITE);
+    int alpha = -INFINITE;
+    int beta  =  INFINITE;
+
+    // Shrink the window at higher depths
+    if (depth > 6)
+        alpha = MAX(score - initialWindow, -INFINITE),
+        beta  = MIN(score + initialWindow,  INFINITE);
 
     // Search with aspiration window until the result is inside the window
     while (true) {
@@ -561,8 +565,7 @@ void SearchPosition(Position *pos, SearchInfo *info) {
         if (setjmp(info->jumpBuffer)) break;
 
         // Search position, using aspiration windows for higher depths
-        info->score = info->depth > 6 ? AspirationWindow(pos, info)
-                                      : AlphaBeta(pos, info, -INFINITE, INFINITE, info->depth, &info->pv);
+        info->score = AspirationWindow(pos, info);
 
         // Print thinking
         PrintThinking(info);
