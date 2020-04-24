@@ -434,17 +434,17 @@ move_loop:
             bestScore = score;
             bestMove  = move;
 
+            // Update the Principle Variation
+            if ((score > alpha && pvNode) || (root && moveCount == 1)) {
+                pv->length = 1 + pvFromHere.length;
+                pv->line[0] = move;
+                memcpy(pv->line + 1, pvFromHere.line, sizeof(int) * pvFromHere.length);
+            }
+
             // If score beats alpha we update alpha
             if (score > alpha) {
 
                 alpha = score;
-
-                // Update the Principle Variation
-                if (pvNode) {
-                    pv->length = 1 + pvFromHere.length;
-                    pv->line[0] = move;
-                    memcpy(pv->line + 1, pvFromHere.line, sizeof(int) * pvFromHere.length);
-                }
 
                 // Update search history
                 if (quiet)
