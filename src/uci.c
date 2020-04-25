@@ -32,7 +32,7 @@
 #include "tune.h"
 
 
-#define NAME "Weiss 0.9-dev"
+#define NAME "Weiss 0.10"
 
 #define START_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 #define INPUT_SIZE 4096
