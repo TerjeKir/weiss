@@ -530,7 +530,7 @@ static int AspirationWindow(Position *pos, SearchInfo *info) {
 }
 
 // Decides when to stop a search
-static void InitTimeManagement() {
+static void InitTimeManagement(int ply) {
 
     const int overhead = 30;
     const int minTime = 10;
@@ -548,21 +548,28 @@ static void InitTimeManagement() {
         return;
     }
 
-    double ratio = Limits.movestogo ? MAX(1.0, Limits.movestogo * 0.75)
-                                    : 30.0;
+    int mtg = Limits.movestogo ? MIN(Limits.movestogo, 50) : 50;
 
-    int timeThisMove = Limits.time / ratio + 1.5 * Limits.inc;
+    int timeLeft = MAX(0, Limits.time
+                        + Limits.inc * (mtg - 1)
+                        - overhead * (2 + mtg));
 
-    // Try to save at least 10ms for each move left to go
-    // as well as a buffer of 30ms, while using at least 10ms
-    Limits.maxUsage  = MAX(minTime, MIN(Limits.time - overhead - Limits.movestogo * minTime, timeThisMove));
+    double scale1 = MIN(0.5, 0.02 + ply * ply / 400000.0);
+    Limits.optimalUsage = MIN(0.2 * Limits.time, timeLeft * scale1);
+
+    double scale2 = MIN(0.5, 0.10 + ply * ply / 30000.0);
+    Limits.maxUsage = MIN(0.8 * Limits.time, timeLeft * scale2);
+
     Limits.timelimit = true;
+
+    // printf("Ply: %d, Time: %d, TimeLeft: %d, Scale1: %f, Opt: %d, Scale2: %f, Max: %d\n",
+    //     ply, Limits.time, timeLeft, scale1, Limits.optimalUsage, scale2, Limits.maxUsage);
 }
 
 // Root of search
 void SearchPosition(Position *pos, SearchInfo *info) {
 
-    InitTimeManagement();
+    InitTimeManagement(pos->gamePly);
 
     PrepareSearch(pos, info);
 
@@ -578,6 +585,10 @@ void SearchPosition(Position *pos, SearchInfo *info) {
         // Save bestMove and ponderMove before overwriting the pv next iteration
         info->bestMove   = info->pv.line[0];
         info->ponderMove = info->pv.length > 1 ? info->pv.line[1] : NOMOVE;
+
+        if (   Limits.timelimit
+            && TimeSince(Limits.start) > Limits.optimalUsage)
+            break;
 
         info->seldepth = 0;
     }
