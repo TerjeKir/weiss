@@ -533,11 +533,10 @@ static int AspirationWindow(Position *pos, SearchInfo *info) {
 static void InitTimeManagement(int ply) {
 
     const int overhead = 30;
-    const int minTime = 10;
 
     // In movetime mode we use all the time given each turn
     if (Limits.movetime) {
-        Limits.maxUsage = MAX(minTime, Limits.movetime - overhead);
+        Limits.maxUsage = Limits.optimalUsage = MAX(10, Limits.movetime - overhead);
         Limits.timelimit = true;
         return;
     }
@@ -554,16 +553,15 @@ static void InitTimeManagement(int ply) {
                         + Limits.inc * (mtg - 1)
                         - overhead * (2 + mtg));
 
+    // Time until we don't start the next depth iteration
     double scale1 = MIN(0.5, 0.02 + ply * ply / 400000.0);
     Limits.optimalUsage = MIN(0.2 * Limits.time, timeLeft * scale1);
 
+    // Time until we abort an iteration midway
     double scale2 = MIN(0.5, 0.10 + ply * ply / 30000.0);
     Limits.maxUsage = MIN(0.8 * Limits.time, timeLeft * scale2);
 
     Limits.timelimit = true;
-
-    // printf("Ply: %d, Time: %d, TimeLeft: %d, Scale1: %f, Opt: %d, Scale2: %f, Max: %d\n",
-    //     ply, Limits.time, timeLeft, scale1, Limits.optimalUsage, scale2, Limits.maxUsage);
 }
 
 // Root of search
