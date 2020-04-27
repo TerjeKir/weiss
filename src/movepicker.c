@@ -24,6 +24,9 @@
 // Return the next best move
 static Move PickNextMove(MoveList *list, const Move ttMove) {
 
+    if (list->next == list->count)
+        return NOMOVE;
+
     int bestIdx = list->next;
     int bestScore = list->moves[bestIdx].score;
 
@@ -37,8 +40,7 @@ static Move PickNextMove(MoveList *list, const Move ttMove) {
 
     // Avoid returning the ttMove again
     if (bestMove == ttMove)
-        return list->next < list->count ? PickNextMove(list, ttMove)
-                                        : NOMOVE;
+        return PickNextMove(list, ttMove);
 
     return bestMove;
 }
@@ -64,9 +66,8 @@ Move NextMove(MovePicker *mp) {
 
             // fall through
         case NOISY:
-            if (mp->list->next < mp->list->count)
-                if ((move = PickNextMove(mp->list, mp->ttMove)))
-                    return move;
+            if ((move = PickNextMove(mp->list, mp->ttMove)))
+                return move;
 
             mp->stage++;
 
@@ -80,10 +81,7 @@ Move NextMove(MovePicker *mp) {
 
             // fall through
         case QUIET:
-            if (mp->list->next < mp->list->count)
-                return PickNextMove(mp->list, mp->ttMove);
-
-            return NOMOVE;
+            return PickNextMove(mp->list, mp->ttMove);
 
         default:
             assert(0);
