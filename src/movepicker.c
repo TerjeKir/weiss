@@ -28,10 +28,9 @@ static Move PickNextMove(MoveList *list, const Move ttMove) {
     int bestScore = list->moves[bestIdx].score;
 
     for (int i = list->next + 1; i < list->count; ++i)
-        if (list->moves[i].score > bestScore) {
-            bestScore = list->moves[i].score;
+        if (list->moves[i].score > bestScore)
+            bestScore = list->moves[i].score,
             bestIdx = i;
-        }
 
     Move bestMove = list->moves[bestIdx].move;
     list->moves[bestIdx] = list->moves[list->next++];
