@@ -165,8 +165,8 @@ typedef struct {
 } MoveListEntry;
 
 typedef struct {
-    unsigned count;
-    unsigned next;
+    int count;
+    int next;
     MoveListEntry moves[MAXPOSITIONMOVES];
 } MoveList;
 
