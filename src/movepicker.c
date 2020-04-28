@@ -56,8 +56,7 @@ Move NextMove(MovePicker *mp) {
 
         case TTMOVE:
             mp->stage++;
-            if (MoveIsPseudoLegal(mp->pos, mp->ttMove))
-                return mp->ttMove;
+            return mp->ttMove;
 
             // fall through
         case GEN_NOISY:
@@ -93,18 +92,18 @@ Move NextMove(MovePicker *mp) {
 void InitNormalMP(MovePicker *mp, MoveList *list, Position *pos, Move ttMove) {
     list->count   = list->next = 0;
     mp->list      = list;
-    mp->onlyNoisy = false;
     mp->pos       = pos;
-    mp->stage     = TTMOVE;
-    mp->ttMove    = ttMove;
+    mp->ttMove    = MoveIsPseudoLegal(mp->pos, ttMove) ? ttMove : NOMOVE;
+    mp->stage     = mp->ttMove ? TTMOVE : GEN_NOISY;
+    mp->onlyNoisy = false;
 }
 
 // Init noisy movepicker
 void InitNoisyMP(MovePicker *mp, MoveList *list, Position *pos) {
     list->count   = list->next = 0;
     mp->list      = list;
-    mp->onlyNoisy = true;
     mp->pos       = pos;
-    mp->stage     = GEN_NOISY;
     mp->ttMove    = NOMOVE;
+    mp->stage     = GEN_NOISY;
+    mp->onlyNoisy = true;
 }
