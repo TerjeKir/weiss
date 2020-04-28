@@ -381,7 +381,7 @@ move_loop:
     Move move;
     while ((move = NextMove(&mp))) {
 
-        bool quiet = !moveIsNoisy(move);
+        bool quiet = moveIsQuiet(move);
 
         // Late move pruning
         if (!pvNode && !inCheck && quietCount > (3 + 2 * depth * depth) / (2 - improving))
