@@ -33,6 +33,50 @@
 TranspositionTable TT;
 
 
+// Probe the transposition table
+TTEntry* ProbeTT(const Key posKey, bool *ttHit) {
+
+    TTEntry* tte = GetEntry(posKey);
+
+    *ttHit = tte->posKey == posKey;
+
+    return tte;
+}
+
+// Store an entry in the transposition table
+void StoreTTEntry(TTEntry *tte, const Key posKey,
+                                const Move move,
+                                const int score,
+                                const Depth depth,
+                                const int bound) {
+
+    assert(ValidBound(bound));
+    assert(ValidDepth(depth));
+    assert(ValidScore(score));
+
+    // Store new data unless it would overwrite data about the same
+    // position searched to a higher depth.
+    if (posKey != tte->posKey || depth >= tte->depth || bound == BOUND_EXACT)
+        tte->posKey = posKey,
+        tte->move   = move,
+        tte->score  = score,
+        tte->depth  = depth,
+        tte->bound  = bound;
+}
+
+// Estimates the load factor of the transposition table (1 = 0.1%)
+int HashFull() {
+
+    int used = 0;
+    const int samples = 1000;
+
+    for (int i = 0; i < samples; ++i)
+        if (TT.table[i].move != NOMOVE)
+            used++;
+
+    return used / (samples / 1000);
+}
+
 // Clears the transposition table
 void ClearTT() {
 
@@ -84,46 +128,6 @@ void InitTT() {
 
     printf("HashTable init complete with %" PRI_SIZET " entries, using %" PRI_SIZET "MB.\n", TT.count, MB);
     fflush(stdout);
-}
-
-// Probe the transposition table
-TTEntry* ProbeTT(const Key posKey, bool *ttHit) {
-
-    TTEntry* tte = GetEntry(posKey);
-
-    *ttHit = tte->posKey == posKey;
-
-    return tte;
-}
-
-// Store an entry in the transposition table
-void StoreTTEntry(TTEntry *tte, const Key posKey, const Move move, const int score, const Depth depth, const int bound) {
-
-    assert(ValidBound(bound));
-    assert(ValidDepth(depth));
-    assert(ValidScore(score));
-
-    // Store new data unless it would overwrite data about the same
-    // position searched to a higher depth.
-    if (posKey != tte->posKey || depth >= tte->depth || bound == BOUND_EXACT)
-        tte->posKey = posKey,
-        tte->move   = move,
-        tte->score  = score,
-        tte->depth  = depth,
-        tte->bound  = bound;
-}
-
-// Estimates the load factor of the transposition table (1 = 0.1%)
-int HashFull() {
-
-    int used = 0;
-    const int samples = 1000;
-
-    for (int i = 0; i < samples; ++i)
-        if (TT.table[i].move != NOMOVE)
-            used++;
-
-    return used / (samples / 1000);
 }
 
 // Free allocated memory (if any) before exiting
