@@ -83,8 +83,8 @@ INLINE TTEntry *GetEntry(Key posKey) {
     return &TT.table[((uint32_t)posKey * (uint64_t)TT.count) >> 32];
 }
 
-void ClearTT();
-void InitTT();
 TTEntry* ProbeTT(Key posKey, bool *ttHit);
 void StoreTTEntry(TTEntry *tte, Key posKey, Move move, int score, Depth depth, int bound);
 int HashFull();
+void ClearTT();
+void InitTT();

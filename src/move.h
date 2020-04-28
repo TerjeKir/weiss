@@ -61,6 +61,7 @@
 #define moveIsCastle(move)  (move & FLAG_CASTLE)
 #define moveIsCapture(move) (move & MOVE_CAPT)
 #define moveIsNoisy(move)   (move & (MOVE_CAPT | MOVE_PROMO | FLAG_ENPAS))
+#define moveIsQuiet(move)   (!moveIsNoisy(move))
 
 
 // Checks legality of a specific castle move given the current position

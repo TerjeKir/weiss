@@ -40,6 +40,7 @@
 
 #define MIN(A, B) ((A) < (B) ? (A) : (B))
 #define MAX(A, B) ((A) > (B) ? (A) : (B))
+#define CLAMP(x, low, high)  (((x) > (high)) ? (high) : (((x) < (low)) ? (low) : (x)))
 
 #define INLINE static inline __attribute__((always_inline))
 #define CONSTR static __attribute__((constructor)) void

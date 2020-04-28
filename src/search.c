@@ -361,7 +361,7 @@ static int AlphaBeta(Position *pos, SearchInfo *info, int alpha, int beta, Depth
     // Internal iterative deepening
     if (depth >= 4 && !ttMove) {
 
-        AlphaBeta(pos, info, alpha, beta, MAX(1, MIN(depth / 2, depth - 4)), pv);
+        AlphaBeta(pos, info, alpha, beta, CLAMP(depth-4, 1, depth/2), pv);
 
         tte = ProbeTT(posKey, &ttHit);
 
@@ -381,7 +381,7 @@ move_loop:
     Move move;
     while ((move = NextMove(&mp))) {
 
-        bool quiet = !moveIsNoisy(move);
+        bool quiet = moveIsQuiet(move);
 
         // Late move pruning
         if (!pvNode && !inCheck && quietCount > (3 + 2 * depth * depth) / (2 - improving))
@@ -413,7 +413,7 @@ move_loop:
             R += quiet;
 
             // Depth after reductions, avoiding going straight to quiescence
-            Depth RDepth = MAX(1, newDepth - MAX(R, 1));
+            Depth RDepth = CLAMP(newDepth - R, 1, newDepth - 1);
 
             score = -AlphaBeta(pos, info, -alpha - 1, -alpha, RDepth, &pvFromHere);
         }
@@ -533,10 +533,11 @@ static int AspirationWindow(Position *pos, SearchInfo *info) {
 static void InitTimeManagement(int ply) {
 
     const int overhead = 30;
+    const int minThink = 10;
 
     // In movetime mode we use all the time given each turn
     if (Limits.movetime) {
-        Limits.maxUsage = Limits.optimalUsage = MAX(10, Limits.movetime - overhead);
+        Limits.maxUsage = Limits.optimalUsage = MAX(minThink, Limits.movetime - overhead);
         Limits.timelimit = true;
         return;
     }
@@ -555,11 +556,11 @@ static void InitTimeManagement(int ply) {
 
     // Time until we don't start the next depth iteration
     double scale1 = MIN(0.5, 0.02 + ply * ply / 400000.0);
-    Limits.optimalUsage = MIN(0.2 * Limits.time, timeLeft * scale1);
+    Limits.optimalUsage = CLAMP(timeLeft * scale1, minThink, 0.2 * Limits.time);
 
     // Time until we abort an iteration midway
     double scale2 = MIN(0.5, 0.10 + ply * ply / 30000.0);
-    Limits.maxUsage = MIN(0.8 * Limits.time, timeLeft * scale2);
+    Limits.maxUsage = CLAMP(timeLeft * scale2, minThink, 0.8 * Limits.time);
 
     Limits.timelimit = true;
 }
