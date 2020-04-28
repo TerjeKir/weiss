@@ -22,24 +22,21 @@
 
 
 // Return the next best move
-static Move PickNextMove(MoveList *list, Move ttMove) {
+static Move PickNextMove(MoveList *list, const Move ttMove) {
 
     if (list->next == list->count)
         return NOMOVE;
 
-    Move bestMove;
-    int bestScore = 0;
-    unsigned moveNum = list->next++;
-    unsigned bestNum = moveNum;
+    int bestIdx = list->next;
+    int bestScore = list->moves[bestIdx].score;
 
-    for (unsigned i = moveNum; i < list->count; ++i)
-        if (list->moves[i].score > bestScore) {
-            bestScore = list->moves[i].score;
-            bestNum   = i;
-        }
+    for (int i = list->next + 1; i < list->count; ++i)
+        if (list->moves[i].score > bestScore)
+            bestScore = list->moves[i].score,
+            bestIdx = i;
 
-    bestMove = list->moves[bestNum].move;
-    list->moves[bestNum] = list->moves[moveNum];
+    Move bestMove = list->moves[bestIdx].move;
+    list->moves[bestIdx] = list->moves[list->next++];
 
     // Avoid returning the ttMove again
     if (bestMove == ttMove)
@@ -69,9 +66,8 @@ Move NextMove(MovePicker *mp) {
 
             // fall through
         case NOISY:
-            if (mp->list->next < mp->list->count)
-                if ((move = PickNextMove(mp->list, mp->ttMove)))
-                    return move;
+            if ((move = PickNextMove(mp->list, mp->ttMove)))
+                return move;
 
             mp->stage++;
 
@@ -85,11 +81,7 @@ Move NextMove(MovePicker *mp) {
 
             // fall through
         case QUIET:
-            if (mp->list->next < mp->list->count)
-                if ((move = PickNextMove(mp->list, mp->ttMove)))
-                    return move;
-
-            return NOMOVE;
+            return PickNextMove(mp->list, mp->ttMove);
 
         default:
             assert(0);
