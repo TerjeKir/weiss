@@ -361,7 +361,7 @@ static int AlphaBeta(Position *pos, SearchInfo *info, int alpha, int beta, Depth
     // Internal iterative deepening
     if (depth >= 4 && !ttMove) {
 
-        AlphaBeta(pos, info, alpha, beta, MAX(1, MIN(depth / 2, depth - 4)), pv);
+        AlphaBeta(pos, info, alpha, beta, CLAMP(depth-4, 1, depth/2), pv);
 
         tte = ProbeTT(posKey, &ttHit);
 
@@ -413,7 +413,7 @@ move_loop:
             R += quiet;
 
             // Depth after reductions, avoiding going straight to quiescence
-            Depth RDepth = MAX(1, newDepth - MAX(R, 1));
+            Depth RDepth = CLAMP(newDepth - R, 1, newDepth - 1);
 
             score = -AlphaBeta(pos, info, -alpha - 1, -alpha, RDepth, &pvFromHere);
         }
