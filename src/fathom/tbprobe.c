@@ -420,8 +420,8 @@ static int probe_wdl(Pos *pos, int *success);
 static int probe_dtz(Pos *pos, int *success);
 static int root_probe_wdl(const Pos *pos, bool useRule50, struct TbRootMoves *rm);
 static int root_probe_dtz(const Pos *pos, bool hasRepeated, bool useRule50, struct TbRootMoves *rm);
-static uint16_t probe_root(Pos *pos, int *score, unsigned *results);
 #endif
+static uint16_t probe_root(Pos *pos, int *score, unsigned *results);
 
 unsigned tb_probe_wdl_impl(
     uint64_t white,
@@ -456,7 +456,6 @@ unsigned tb_probe_wdl_impl(
     return (unsigned)(v + 2);
 }
 
-#if 0
 static unsigned dtz_to_wdl(int cnt50, int dtz)
 {
     int wdl = 0;
@@ -515,6 +514,7 @@ unsigned tb_probe_root_impl(
     return res;
 }
 
+#if 0
 int tb_probe_root_dtz(
     uint64_t white,
     uint64_t black,
@@ -1771,12 +1771,12 @@ static int probe_dtm_table(const Pos *pos, int won, int *success)
 {
   return probe_table(pos, won, success, DTM);
 }
+#endif
 
 static int probe_dtz_table(const Pos *pos, int wdl, int *success)
 {
   return probe_table(pos, wdl, success, DTZ);
 }
-#endif
 
 // probe_ab() is not called for positions with en passant captures.
 static int probe_ab(const Pos *pos, int alpha, int beta, int *success)
@@ -2078,6 +2078,7 @@ Value TB_probe_dtm2(const Pos *pos, int wdl, int *success)
   v = wdl > 0 ? TB_VALUE_MATE - 2 * dtm + 1 : -TB_VALUE_MATE + 2 * dtm;
   return max(bestCap,v);
 }
+#endif
 
 static int WdlToDtz[] = { -1, -101, 0, 101, 1 };
 
@@ -2197,6 +2198,7 @@ int probe_dtz(Pos *pos, int *success)
   return best;
 }
 
+#if 0
 // Use the DTZ tables to rank and score all root moves in the list.
 // A return value of 0 means that not all probes were successful.
 static int root_probe_dtz(const Pos *pos, bool hasRepeated, bool useRule50, struct TbRootMoves *rm)
@@ -2389,6 +2391,7 @@ void tb_expand_mate(Pos *pos, struct TbRootMove *move, Value moveScore, unsigned
   // Get back to the root position.
   *pos = root;
 }
+#endif
 
 static const int wdl_to_dtz[] =
 {
@@ -2518,4 +2521,3 @@ static uint16_t probe_root(Pos *pos, int *score, unsigned *results)
         return 0;
     }
 }
-#endif

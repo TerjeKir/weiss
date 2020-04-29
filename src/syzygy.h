@@ -20,6 +20,7 @@
 
 #include "fathom/tbprobe.h"
 #include "bitboard.h"
+#include "move.h"
 #include "types.h"
 
 
@@ -59,6 +60,61 @@ bool ProbeWDL(const Position *pos, int *score, int *bound) {
     *bound = tbresult == TB_WIN  ? BOUND_LOWER
            : tbresult == TB_LOSS ? BOUND_UPPER
                                  : BOUND_EXACT;
+
+    return true;
+}
+
+// Calls fathom to get optimal moves in tablebase positions in root
+bool RootProbe(Position *pos, SearchInfo *info) {
+
+    // Tablebases contain no positions with castling legal,
+    // and if there are too many pieces a probe will fail
+    if (    pos->castlingRights
+        || (unsigned)PopCount(pieceBB(ALL)) > TB_LARGEST)
+        return false;
+
+    // Call fathom
+    unsigned result = tb_probe_root(
+        colorBB(WHITE), colorBB(BLACK),
+        pieceBB(KING), pieceBB(QUEEN),
+        pieceBB(ROOK), pieceBB(BISHOP),
+        pieceBB(KNIGHT), pieceBB(PAWN),
+        pos->rule50, 0,
+        pos->epSquare != NO_SQ ? pos->epSquare : 0,
+        pos->stm, NULL);
+
+    // Probe failed
+    if (   result == TB_RESULT_FAILED
+        || result == TB_RESULT_CHECKMATE
+        || result == TB_RESULT_STALEMATE)
+        return false;
+
+    unsigned wdl, dtz, from, to, promo;
+
+    // Extract information
+    wdl   = TB_GET_WDL(result);
+    dtz   = TB_GET_DTZ(result);
+    from  = TB_GET_FROM(result);
+    to    = TB_GET_TO(result);
+    promo = TB_GET_PROMOTES(result);
+
+    // Calculate score to print
+    int score = wdl == TB_WIN  ?  TBWIN - dtz
+              : wdl == TB_LOSS ? -TBWIN + dtz
+                               :  0;
+
+    // Construct the move to print, ignoring capture and
+    // flag fields as they aren't needed for printing
+    Move move = MOVE(from, to, 0, promo ? 6 - promo : 0, 0);
+
+    // Print thinking info
+    printf("info depth %d seldepth %d score cp %d "
+           "time 0 nodes 0 nps 0 tbhits 1 pv %s\n",
+           MAXDEPTH-1, MAXDEPTH-1, score, MoveToStr(move));
+    fflush(stdout);
+
+    // Set move to be printed as conclusion
+    info->bestMove = move;
 
     return true;
 }
