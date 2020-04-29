@@ -594,10 +594,10 @@ void SearchPosition(Position *pos, SearchInfo *info) {
         info->seldepth = 0;
     }
 
+conclusion:
+
     // Wait for 'stop' in infinite search
     while (Limits.infinite && !ABORT_SIGNAL) {}
-
-conclusion:
 
     // Print conclusion
     PrintConclusion(info);
