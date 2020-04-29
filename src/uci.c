@@ -117,8 +117,9 @@ static void UCISetoption(char *line) {
 
         tb_init(OptionValue(line));
 
-        TB_LARGEST > 0 ? printf("TableBase init success - largest found: %d.\n", TB_LARGEST)
-                       : printf("TableBase init failure - not found.\n");
+        TB_LARGEST ? printf("TableBase init success - largest found: %d.\n", TB_LARGEST)
+                   : printf("TableBase init failure - not found.\n");
+
     // Sets evaluation parameters (dev mode)
     } else
         TuneParseAll(strstr(line, "name") + 5, atoi(OptionValue(line)));
