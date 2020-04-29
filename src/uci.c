@@ -91,35 +91,25 @@ static void *ParseGo(void *searchThreadInfo) {
 }
 
 // Parses a 'position' and sets up the board
-static void UCIPosition(const char *line, Position *pos) {
+static void UCIPosition(char *line, Position *pos) {
 
     // Set up original position. This will either be a
     // position given as FEN, or the normal start position
     BeginsWith(line, "position fen") ? ParseFen(line + 13, pos)
                                      : ParseFen(START_FEN, pos);
 
-    // Skip to "moves" and make them to get to correct position
+    // Check if there are moves to be made from the initial position
     if ((line = strstr(line, "moves")) == NULL)
         return;
 
-    line += 6;
-    while (*line) {
+    // Loop over the moves and make them in succession
+    char *move = strtok(line, " ");
+    while ((move = strtok(NULL, " "))) {
 
-        // Parse a move
-        Move move = ParseMove(line, pos);
-
-        // Make the move
-        if (!MakeMove(pos, move)) {
-            printf("Weiss thinks this move is illegal: %s\n", MoveToStr(move));
-            exit(EXIT_SUCCESS);
-        }
+        // Parse and make move
+        MakeMove(pos, ParseMove(move, pos));
 
         pos->ply = 0;
-
-        // Skip to the next move if any
-        if ((line = strstr(line, " ")) == NULL)
-            return;
-        line += 1;
     }
 }
 
