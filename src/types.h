@@ -229,14 +229,6 @@ typedef struct {
 
 typedef struct {
 
-    Position *pos;
-    SearchInfo *info;
-    char line[4096];
-
-} ThreadInfo;
-
-typedef struct {
-
     TimePoint start;
     int time, inc, movestogo, movetime, depth;
     int optimalUsage, maxUsage;

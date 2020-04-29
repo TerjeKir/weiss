@@ -19,7 +19,6 @@
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 #include "fathom/tbprobe.h"
 #include "board.h"
@@ -30,28 +29,11 @@
 #include "time.h"
 #include "transposition.h"
 #include "tune.h"
-
-
-#define NAME "Weiss 0.10-dev"
-
-#define START_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-#define INPUT_SIZE 4096
+#include "uci.h"
 
 
 volatile bool ABORT_SIGNAL = false;
 
-
-// Checks if a string begins with another string
-INLINE bool BeginsWith(const char *string, const char *token) {
-    return strstr(string, token) == string;
-}
-
-// Sets a limit to the corresponding value in line, if any
-INLINE void SetLimit(const char *line, const char *token, int *limit) {
-    char *ptr = NULL;
-    if ((ptr = strstr(line, token)))
-        *limit = atoi(ptr + strlen(token));
-}
 
 // Parses the time controls
 static void ParseTimeControl(Color color, char *line) {
@@ -90,6 +72,13 @@ static void *ParseGo(void *searchThreadInfo) {
     return NULL;
 }
 
+INLINE void UCIGo(pthread_t *st, ThreadInfo *ti, char *line) {
+
+    ABORT_SIGNAL = false,
+    strncpy(ti->line, line, INPUT_SIZE),
+    pthread_create(st, NULL, &ParseGo, ti);
+}
+
 // Parses a 'position' and sets up the board
 static void UCIPosition(char *line, Position *pos) {
 
@@ -111,16 +100,6 @@ static void UCIPosition(char *line, Position *pos) {
 
         pos->ply = 0;
     }
-}
-
-// Returns the name of a setoption string
-INLINE bool OptionName(const char *name, const char *line) {
-    return BeginsWith(strstr(line, "name") + 5, name);
-}
-
-// Returns the value of a setoption string
-INLINE char *OptionValue(const char *line) {
-    return strstr(line, "value") + 6;
 }
 
 // Parses a 'setoption' and updates settings
@@ -155,26 +134,6 @@ static void UCIInfo() {
     printf("option name Ponder type check default false\n"); // Turn on ponder stats in cutechess gui
     TuneDeclareAll(); // Declares all evaluation parameters as options (dev mode)
     printf("uciok\n"); fflush(stdout);
-}
-
-INLINE void UCIGo(pthread_t *st, ThreadInfo *ti, char *line) {
-
-    ABORT_SIGNAL = false,
-    strncpy(ti->line, line, INPUT_SIZE),
-    pthread_create(st, NULL, &ParseGo, ti);
-}
-
-// Reads a line from stdin
-INLINE bool GetInput(char *line) {
-
-    memset(line, 0, INPUT_SIZE);
-
-    if (fgets(line, INPUT_SIZE, stdin) == NULL)
-        return false;
-
-    line[strcspn(line, "\r\n")] = '\0';
-
-    return true;
 }
 
 // Sets up the engine and follows UCI protocol commands
