@@ -485,7 +485,6 @@ static bool is_check(const Pos *pos)
 /*
  * Test if the position is valid.
  */
-#if 0
 static bool is_valid(const Pos *pos)
 {
     if (popcount(pos->kings) != 2)
@@ -534,7 +533,6 @@ static bool is_valid(const Pos *pos)
         return false;
     return is_legal(pos);
 }
-#endif
 
 #define do_bb_move(b, from, to)                                         \
     (((b) & (~board(to)) & (~board(from))) |                            \
@@ -606,7 +604,6 @@ static bool legal_move(const Pos *pos, TbMove move) {
 /*
  * Test if the king is in checkmate.
  */
-#if 0
 static bool is_mate(const Pos *pos)
 {
     if (!is_check(pos))
@@ -638,4 +635,3 @@ static TbMove *gen_legal(const Pos *pos, TbMove *moves)
   }
   return results;
 }
-#endif

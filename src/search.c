@@ -572,6 +572,8 @@ void SearchPosition(Position *pos, SearchInfo *info) {
 
     PrepareSearch(pos, info);
 
+    if (RootProbe(pos, info)) goto conclusion;
+
     // Iterative deepening
     for (info->depth = 1; info->depth <= Limits.depth; ++info->depth) {
 
@@ -594,6 +596,8 @@ void SearchPosition(Position *pos, SearchInfo *info) {
 
     // Wait for 'stop' in infinite search
     while (Limits.infinite && !ABORT_SIGNAL) {}
+
+conclusion:
 
     // Print conclusion
     PrintConclusion(info);
