@@ -49,7 +49,7 @@ bool ProbeWDL(const Position *pos, int *score, int *bound) {
         return false;
 
     // Call fathom
-    unsigned tbresult = tb_probe_wdl(
+    unsigned result = tb_probe_wdl(
         colorBB(WHITE),  colorBB(BLACK),
         pieceBB(KING),   pieceBB(QUEEN),
         pieceBB(ROOK),   pieceBB(BISHOP),
@@ -57,14 +57,14 @@ bool ProbeWDL(const Position *pos, int *score, int *bound) {
         0, sideToMove);
 
     // Probe failed
-    if (tbresult == TB_RESULT_FAILED)
+    if (result == TB_RESULT_FAILED)
         return false;
 
-    *score = TBScore(tbresult, pos->ply);
+    *score = TBScore(result, pos->ply);
 
-    *bound = tbresult == TB_WIN  ? BOUND_LOWER
-           : tbresult == TB_LOSS ? BOUND_UPPER
-                                 : BOUND_EXACT;
+    *bound = result == TB_WIN  ? BOUND_LOWER
+           : result == TB_LOSS ? BOUND_UPPER
+                               : BOUND_EXACT;
 
     return true;
 }
@@ -80,9 +80,9 @@ bool RootProbe(Position *pos, SearchInfo *info) {
 
     // Call fathom
     unsigned result = tb_probe_root(
-        colorBB(WHITE), colorBB(BLACK),
-        pieceBB(KING), pieceBB(QUEEN),
-        pieceBB(ROOK), pieceBB(BISHOP),
+        colorBB(WHITE),  colorBB(BLACK),
+        pieceBB(KING),   pieceBB(QUEEN),
+        pieceBB(ROOK),   pieceBB(BISHOP),
         pieceBB(KNIGHT), pieceBB(PAWN),
         pos->rule50,
         pos->epSquare != NO_SQ ? pos->epSquare : 0,
