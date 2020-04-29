@@ -421,7 +421,7 @@ static int probe_dtz(Pos *pos, int *success);
 static int root_probe_wdl(const Pos *pos, bool useRule50, struct TbRootMoves *rm);
 static int root_probe_dtz(const Pos *pos, bool hasRepeated, bool useRule50, struct TbRootMoves *rm);
 #endif
-static uint16_t probe_root(Pos *pos, int *score, unsigned *results);
+static uint16_t probe_root(Pos *pos, int *score);
 
 unsigned tb_probe_wdl_impl(
     uint64_t white,
@@ -477,8 +477,7 @@ unsigned tb_probe_root_impl(
     uint64_t pawns,
     unsigned rule50,
     unsigned ep,
-    bool turn,
-    unsigned *results)
+    bool turn)
 {
     Pos pos =
     {
@@ -497,7 +496,7 @@ unsigned tb_probe_root_impl(
     int dtz;
     if (!is_valid(&pos))
         return TB_RESULT_FAILED;
-    TbMove move = probe_root(&pos, &dtz, results);
+    TbMove move = probe_root(&pos, &dtz);
     if (move == 0)
         return TB_RESULT_FAILED;
     if (move == MOVE_CHECKMATE)
@@ -2399,7 +2398,7 @@ static const int wdl_to_dtz[] =
 };
 
 // This supports the original Fathom root probe API
-static uint16_t probe_root(Pos *pos, int *score, unsigned *results)
+static uint16_t probe_root(Pos *pos, int *score)
 {
     int success;
     int dtz = probe_dtz(pos, &success);
@@ -2412,7 +2411,6 @@ static uint16_t probe_root(Pos *pos, int *score, unsigned *results)
     uint16_t *end = gen_moves(pos, moves);
     size_t len = end - moves;
     size_t num_draw = 0;
-    unsigned j = 0;
     for (unsigned i = 0; i < len; i++)
     {
         Pos pos1;
@@ -2445,20 +2443,7 @@ static uint16_t probe_root(Pos *pos, int *score, unsigned *results)
         if (!success)
             return 0;
         scores[i] = v;
-        if (results != NULL)
-        {
-            unsigned res = 0;
-            res = TB_SET_WDL(res, dtz_to_wdl(pos->rule50, v));
-            res = TB_SET_FROM(res, move_from(moves[i]));
-            res = TB_SET_TO(res, move_to(moves[i]));
-            res = TB_SET_PROMOTES(res, move_promotes(moves[i]));
-            res = TB_SET_EP(res, is_en_passant(pos, moves[i]));
-            res = TB_SET_DTZ(res, (v < 0? -v: v));
-            results[j++] = res;
-        }
     }
-    if (results != NULL)
-        results[j++] = TB_RESULT_FAILED;
     if (score != NULL)
         *score = dtz;
 

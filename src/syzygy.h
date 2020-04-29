@@ -18,11 +18,21 @@
 
 #pragma once
 
+#include <stdio.h>
+
 #include "fathom/tbprobe.h"
 #include "bitboard.h"
 #include "move.h"
 #include "types.h"
 
+
+// Converts a tbresult into a score
+static int TBScore(const unsigned result, const int distance) {
+
+    return result == TB_WIN  ?  TBWIN - distance
+         : result == TB_LOSS ? -TBWIN + distance
+                             :  0;
+}
 
 // Calls fathom to probe syzygy tablebases
 bool ProbeWDL(const Position *pos, int *score, int *bound) {
@@ -39,27 +49,22 @@ bool ProbeWDL(const Position *pos, int *score, int *bound) {
         return false;
 
     // Call fathom
-    unsigned tbresult = tb_probe_wdl(colorBB(WHITE),
-                                     colorBB(BLACK),
-                                     pieceBB(KING),
-                                     pieceBB(QUEEN),
-                                     pieceBB(ROOK),
-                                     pieceBB(BISHOP),
-                                     pieceBB(KNIGHT),
-                                     pieceBB(PAWN),
-                                     0,
-                                     sideToMove);
+    unsigned result = tb_probe_wdl(
+        colorBB(WHITE),  colorBB(BLACK),
+        pieceBB(KING),   pieceBB(QUEEN),
+        pieceBB(ROOK),   pieceBB(BISHOP),
+        pieceBB(KNIGHT), pieceBB(PAWN),
+        0, sideToMove);
 
-    if (tbresult == TB_RESULT_FAILED)
+    // Probe failed
+    if (result == TB_RESULT_FAILED)
         return false;
 
-    *score = tbresult == TB_WIN  ?  TBWIN - pos->ply
-           : tbresult == TB_LOSS ? -TBWIN + pos->ply
-                                 :  0;
+    *score = TBScore(result, pos->ply);
 
-    *bound = tbresult == TB_WIN  ? BOUND_LOWER
-           : tbresult == TB_LOSS ? BOUND_UPPER
-                                 : BOUND_EXACT;
+    *bound = result == TB_WIN  ? BOUND_LOWER
+           : result == TB_LOSS ? BOUND_UPPER
+                               : BOUND_EXACT;
 
     return true;
 }
@@ -75,13 +80,13 @@ bool RootProbe(Position *pos, SearchInfo *info) {
 
     // Call fathom
     unsigned result = tb_probe_root(
-        colorBB(WHITE), colorBB(BLACK),
-        pieceBB(KING), pieceBB(QUEEN),
-        pieceBB(ROOK), pieceBB(BISHOP),
+        colorBB(WHITE),  colorBB(BLACK),
+        pieceBB(KING),   pieceBB(QUEEN),
+        pieceBB(ROOK),   pieceBB(BISHOP),
         pieceBB(KNIGHT), pieceBB(PAWN),
-        pos->rule50, 0,
+        pos->rule50,
         pos->epSquare != NO_SQ ? pos->epSquare : 0,
-        pos->stm, NULL);
+        sideToMove);
 
     // Probe failed
     if (   result == TB_RESULT_FAILED
@@ -99,9 +104,7 @@ bool RootProbe(Position *pos, SearchInfo *info) {
     promo = TB_GET_PROMOTES(result);
 
     // Calculate score to print
-    int score = wdl == TB_WIN  ?  TBWIN - dtz
-              : wdl == TB_LOSS ? -TBWIN + dtz
-                               :  0;
+    int score = TBScore(wdl, dtz);
 
     // Construct the move to print, ignoring capture and
     // flag fields as they aren't needed for printing
