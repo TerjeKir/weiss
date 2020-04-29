@@ -18,11 +18,21 @@
 
 #pragma once
 
+#include <stdio.h>
+
 #include "fathom/tbprobe.h"
 #include "bitboard.h"
 #include "move.h"
 #include "types.h"
 
+
+// Converts a tbresult into a score
+static int TBScore(const unsigned result, const int distance) {
+
+    return result == TB_WIN  ?  TBWIN - distance
+         : result == TB_LOSS ? -TBWIN + distance
+                             :  0;
+}
 
 // Calls fathom to probe syzygy tablebases
 bool ProbeWDL(const Position *pos, int *score, int *bound) {
@@ -39,23 +49,18 @@ bool ProbeWDL(const Position *pos, int *score, int *bound) {
         return false;
 
     // Call fathom
-    unsigned tbresult = tb_probe_wdl(colorBB(WHITE),
-                                     colorBB(BLACK),
-                                     pieceBB(KING),
-                                     pieceBB(QUEEN),
-                                     pieceBB(ROOK),
-                                     pieceBB(BISHOP),
-                                     pieceBB(KNIGHT),
-                                     pieceBB(PAWN),
-                                     0,
-                                     sideToMove);
+    unsigned tbresult = tb_probe_wdl(
+        colorBB(WHITE),  colorBB(BLACK),
+        pieceBB(KING),   pieceBB(QUEEN),
+        pieceBB(ROOK),   pieceBB(BISHOP),
+        pieceBB(KNIGHT), pieceBB(PAWN),
+        0, sideToMove);
 
+    // Probe failed
     if (tbresult == TB_RESULT_FAILED)
         return false;
 
-    *score = tbresult == TB_WIN  ?  TBWIN - pos->ply
-           : tbresult == TB_LOSS ? -TBWIN + pos->ply
-                                 :  0;
+    *score = TBScore(tbresult, pos->ply);
 
     *bound = tbresult == TB_WIN  ? BOUND_LOWER
            : tbresult == TB_LOSS ? BOUND_UPPER
@@ -99,9 +104,7 @@ bool RootProbe(Position *pos, SearchInfo *info) {
     promo = TB_GET_PROMOTES(result);
 
     // Calculate score to print
-    int score = wdl == TB_WIN  ?  TBWIN - dtz
-              : wdl == TB_LOSS ? -TBWIN + dtz
-                               :  0;
+    int score = TBScore(wdl, dtz);
 
     // Construct the move to print, ignoring capture and
     // flag fields as they aren't needed for printing
