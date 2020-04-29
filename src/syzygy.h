@@ -84,9 +84,9 @@ bool RootProbe(Position *pos, SearchInfo *info) {
         pieceBB(KING), pieceBB(QUEEN),
         pieceBB(ROOK), pieceBB(BISHOP),
         pieceBB(KNIGHT), pieceBB(PAWN),
-        pos->rule50, 0,
+        pos->rule50,
         pos->epSquare != NO_SQ ? pos->epSquare : 0,
-        pos->stm, NULL);
+        pos->stm);
 
     // Probe failed
     if (   result == TB_RESULT_FAILED

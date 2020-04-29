@@ -55,8 +55,7 @@ extern unsigned tb_probe_root_impl(
     uint64_t _pawns,
     unsigned _rule50,
     unsigned _ep,
-    bool     _turn,
-    unsigned *_results);
+    bool     _turn);
 
 
 /****************************************************************************/
@@ -252,15 +251,11 @@ static inline unsigned tb_probe_root(
     uint64_t _knights,
     uint64_t _pawns,
     unsigned _rule50,
-    unsigned _castling,
     unsigned _ep,
-    bool     _turn,
-    unsigned *_results)
+    bool     _turn)
 {
-    if (_castling != 0)
-        return TB_RESULT_FAILED;
     return tb_probe_root_impl(_white, _black, _kings, _queens, _rooks,
-        _bishops, _knights, _pawns, _rule50, _ep, _turn, _results);
+        _bishops, _knights, _pawns, _rule50, _ep, _turn);
 }
 
 
