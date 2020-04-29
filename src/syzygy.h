@@ -89,7 +89,7 @@ bool RootProbe(Position *pos, SearchInfo *info) {
         || result == TB_RESULT_STALEMATE)
         return false;
 
-    unsigned wdl, dtz, from, to, ep, promo;
+    unsigned wdl, dtz, from, to, promo;
 
     // Extract information
     wdl   = TB_GET_WDL(result);
