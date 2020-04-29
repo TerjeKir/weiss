@@ -86,7 +86,7 @@ bool RootProbe(Position *pos, SearchInfo *info) {
         pieceBB(KNIGHT), pieceBB(PAWN),
         pos->rule50,
         pos->epSquare != NO_SQ ? pos->epSquare : 0,
-        pos->stm);
+        sideToMove);
 
     // Probe failed
     if (   result == TB_RESULT_FAILED
