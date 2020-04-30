@@ -37,7 +37,7 @@ typedef struct {
 } ThreadInfo;
 
 
-// Reads a line from stdin
+// Reads a line from stdin and strips newline
 INLINE bool GetInput(char *line) {
 
     memset(line, 0, INPUT_SIZE);
@@ -62,12 +62,12 @@ INLINE void SetLimit(const char *line, const char *token, int *limit) {
         *limit = atoi(ptr + strlen(token));
 }
 
-// Returns the name of a setoption string
+// Tests whether the name in the setoption string matches
 INLINE bool OptionName(const char *name, const char *line) {
     return BeginsWith(strstr(line, "name") + 5, name);
 }
 
-// Returns the value of a setoption string
+// Returns the (string) value of a setoption string
 INLINE char *OptionValue(const char *line) {
     return strstr(line, "value") + 6;
 }
