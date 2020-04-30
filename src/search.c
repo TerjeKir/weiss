@@ -34,7 +34,7 @@
 #include "syzygy.h"
 
 
-int Reductions[32][32] = { 0 };
+int Reductions[32][32];
 
 SearchLimits Limits;
 extern volatile bool ABORT_SIGNAL;
@@ -61,7 +61,7 @@ static bool IsRepetition(const Position *pos) {
 
     // Compare current posKey to posKeys in history, skipping
     // opponents turns as that wouldn't be a repetition
-    for (int i = 4; i <= pos->rule50; i += 2)
+    for (int i = 4; i <= pos->rule50 && i <= pos->gamePly; i += 2)
         if (pos->key == history(-i).posKey)
             return true;
 

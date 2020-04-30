@@ -24,7 +24,7 @@
 #include "psqt.h"
 
 
-tuneable_const int PieceTypeValue[6] = { 0,
+tuneable_const int PieceTypeValue[7] = { 0,
     S(P_MG, P_EG),
     S(N_MG, N_EG),
     S(B_MG, B_EG),
@@ -55,7 +55,7 @@ tuneable_static_const int OpenFile[2] =     { S(51, 20), S(-13, 16) };
 tuneable_static_const int SemiOpenFile[2] = { S(17, 21), S(  8, 10) };
 
 // Mobility [pt-2][mobility]
-tuneable_static_const int Mobility[5][15] = {
+tuneable_static_const int Mobility[4][28] = {
     // Knight (0-8)
     { S(-89,-52), S(-48,-43), S( -3,-15), S(  9, -1), S( 26, 10), S( 34, 34), S( 47, 39), S( 63, 38), S( 66, 26) },
     // Bishop (0-13)
@@ -64,10 +64,10 @@ tuneable_static_const int Mobility[5][15] = {
     // Rook (0-14)
     { S(-59,-69), S(-44,-29), S(-10,-13), S( -5,-13), S( -1,  2), S(  2, 14), S(  9, 26),
       S( 15, 30), S( 23, 36), S( 31, 45), S( 49, 42), S( 51, 48), S( 54, 48), S( 55, 49), S( 60, 61) },
-    // Queen (0-27) (accessed from [QUEEN-2], and overflows into [QUEEN-1])
+    // Queen (0-27)
     { S(-62,-48), S(-63,-35), S(-50,-44), S(-30,-43), S(-62,-40), S(-40,-37), S(-25,-30),
-      S(-14,-23), S( -5,  7), S(  6, -2), S(  8, 22), S( 19, 10), S( 20, 26), S( 23, 32), S( 34, 36) },
-    { S( 34, 50), S( 31, 51), S( 49, 45), S( 37, 63), S( 41, 63), S( 60, 92), S( 76, 83),
+      S(-14,-23), S( -5,  7), S(  6, -2), S(  8, 22), S( 19, 10), S( 20, 26), S( 23, 32), S( 34, 36),
+      S( 34, 50), S( 31, 51), S( 49, 45), S( 37, 63), S( 41, 63), S( 60, 92), S( 76, 83),
       S( 76, 83), S( 92, 77), S(114, 98), S(116, 89), S(104,111), S(108,131) }
 };
 
