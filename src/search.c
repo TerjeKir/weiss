@@ -34,7 +34,7 @@
 #include "syzygy.h"
 
 
-int Reductions[32][32];
+int Reductions[32][32] = { 0 };
 
 SearchLimits Limits;
 extern volatile bool ABORT_SIGNAL;
@@ -43,8 +43,8 @@ extern volatile bool ABORT_SIGNAL;
 // Initializes the late move reduction array
 CONSTR InitReductions() {
 
-    for (int depth = 0; depth < 32; ++depth)
-        for (int moves = 0; moves < 32; ++moves)
+    for (int depth = 1; depth < 32; ++depth)
+        for (int moves = 1; moves < 32; ++moves)
             Reductions[depth][moves] = 0.75 + log(depth) * log(moves) / 2.25;
 }
 
