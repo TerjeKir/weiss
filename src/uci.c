@@ -98,7 +98,12 @@ static void UCIPosition(char *line, Position *pos) {
         // Parse and make move
         MakeMove(pos, ParseMove(move, pos));
 
+        // Reset ply to avoid triggering asserts in debug mode in long games
         pos->ply = 0;
+
+        // Reset gamePly so long games don't go out of bounds of arrays
+        if (pos->rule50 == 0)
+            pos->gamePly = 0;
     }
 }
 
