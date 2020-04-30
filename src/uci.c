@@ -59,9 +59,9 @@ static void ParseTimeControl(Color color, char *line) {
 }
 
 // Parses a 'go' and starts a search
-static void *ParseGo(void *searchThreadInfo) {
+static void *ParseGo(void *goInfo) {
 
-    ThreadInfo *sst  = (ThreadInfo*)searchThreadInfo;
+    GoInfo *sst  = (GoInfo*)goInfo;
     Position *pos    = sst->pos;
     SearchInfo *info = sst->info;
 
@@ -72,11 +72,11 @@ static void *ParseGo(void *searchThreadInfo) {
     return NULL;
 }
 
-INLINE void UCIGo(pthread_t *st, ThreadInfo *ti, char *line) {
+INLINE void UCIGo(pthread_t *st, GoInfo *goInfo, char *line) {
 
     ABORT_SIGNAL = false,
-    strncpy(ti->line, line, INPUT_SIZE),
-    pthread_create(st, NULL, &ParseGo, ti);
+    strncpy(goInfo->line, line, INPUT_SIZE),
+    pthread_create(st, NULL, &ParseGo, goInfo);
 }
 
 // Parses a 'position' and sets up the board
@@ -133,6 +133,7 @@ static void UCISetoption(char *line) {
 
 // Prints UCI info
 static void UCIInfo() {
+
     printf("id name %s\n", NAME);
     printf("id author Terje Kirstihagen\n");
     printf("option name Hash type spin default %d min %d max %d\n", DEFAULTHASH, MINHASH, MAXHASH);
@@ -140,6 +141,21 @@ static void UCIInfo() {
     printf("option name Ponder type check default false\n"); // Turn on ponder stats in cutechess gui
     TuneDeclareAll(); // Declares all evaluation parameters as options (dev mode)
     printf("uciok\n"); fflush(stdout);
+}
+
+// Stops searching
+static void UCIStop(pthread_t searchThread) {
+
+    ABORT_SIGNAL = true;
+    pthread_join(searchThread, NULL);
+}
+
+// Signals the engine is ready
+static void UCIIsReady() {
+
+    InitTT();
+    printf("readyok\n");
+    fflush(stdout);
 }
 
 // Sets up the engine and follows UCI protocol commands
@@ -163,17 +179,17 @@ int main(int argc, char **argv) {
 
     // Search thread setup
     pthread_t searchThread;
-    ThreadInfo threadInfo = { .pos = pos, .info = info };
+    GoInfo goInfo = { .pos = pos, .info = info };
 
     // Input loop
     char line[INPUT_SIZE];
     while (GetInput(line)) {
         // UCI commands
-        if      (BeginsWith(line, "go"        )) UCIGo(&searchThread, &threadInfo, line);
-        else if (BeginsWith(line, "isready"   )) InitTT(), printf("readyok\n"), fflush(stdout);
+        if      (BeginsWith(line, "go"        )) UCIGo(&searchThread, &goInfo, line);
+        else if (BeginsWith(line, "isready"   )) UCIIsReady();
         else if (BeginsWith(line, "position"  )) UCIPosition(line, pos);
         else if (BeginsWith(line, "ucinewgame")) ClearTT();
-        else if (BeginsWith(line, "stop"      )) ABORT_SIGNAL = true, pthread_join(searchThread, NULL);
+        else if (BeginsWith(line, "stop"      )) UCIStop(searchThread);
         else if (BeginsWith(line, "quit"      )) break;
         else if (BeginsWith(line, "uci"       )) UCIInfo();
         else if (BeginsWith(line, "setoption" )) UCISetoption(line);

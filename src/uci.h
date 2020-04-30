@@ -34,7 +34,7 @@ typedef struct {
     SearchInfo *info;
     char line[4096];
 
-} ThreadInfo;
+} GoInfo;
 
 
 // Reads a line from stdin and strips newline
