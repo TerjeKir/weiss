@@ -143,6 +143,8 @@ CONSTR InitBitMasks() {
     for (Square sq = A1; sq <= H8; ++sq)
         SquareBB[sq] = (1ULL << sq);
 
+    InitDistance();
+
     InitEvalMasks();
 
     InitNonSliderAttacks();
