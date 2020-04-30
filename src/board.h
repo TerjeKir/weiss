@@ -32,6 +32,7 @@ extern uint64_t CastleKeys[16];
 extern uint64_t SideKey;
 
 
+void InitDistance();
 void ParseFen(const char *fen, Position *pos);
 Key KeyAfter(const Position *pos, Move move);
 #ifndef NDEBUG

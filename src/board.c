@@ -39,7 +39,7 @@ uint64_t SideKey;
 
 
 // Initialize distance lookup table
-CONSTR InitDistance() {
+void InitDistance() {
 
     for (Square sq1 = A1; sq1 <= H8; ++sq1)
         for (Square sq2 = A1; sq2 <= H8; ++sq2) {

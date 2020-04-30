@@ -43,8 +43,8 @@ extern volatile bool ABORT_SIGNAL;
 // Initializes the late move reduction array
 CONSTR InitReductions() {
 
-    for (int depth = 0; depth < 32; ++depth)
-        for (int moves = 0; moves < 32; ++moves)
+    for (int depth = 1; depth < 32; ++depth)
+        for (int moves = 1; moves < 32; ++moves)
             Reductions[depth][moves] = 0.75 + log(depth) * log(moves) / 2.25;
 }
 
@@ -61,7 +61,7 @@ static bool IsRepetition(const Position *pos) {
 
     // Compare current posKey to posKeys in history, skipping
     // opponents turns as that wouldn't be a repetition
-    for (int i = 4; i <= pos->rule50; i += 2)
+    for (int i = 4; i <= pos->rule50 && i <= pos->gamePly; i += 2)
         if (pos->key == history(-i).posKey)
             return true;
 

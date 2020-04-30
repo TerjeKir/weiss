@@ -41,7 +41,7 @@
 
 extern tuneable_const int Tempo;
 
-extern tuneable_const int PieceTypeValue[6];
+extern tuneable_const int PieceTypeValue[7];
 extern tuneable_const int PieceValue[2][PIECE_NB];
 
 
