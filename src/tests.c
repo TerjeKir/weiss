@@ -91,7 +91,7 @@ static void RecursivePerft(Position *pos, const Depth depth) {
     MoveList list[1];
     GenAllMoves(pos, list);
 
-    for (unsigned i = 0; i < list->count; ++i) {
+    for (int i = 0; i < list->count; ++i) {
 
         if (!MakeMove(pos, list->moves[i].move)) continue;
         RecursivePerft(pos, depth - 1);
@@ -119,7 +119,7 @@ void Perft(char *line) {
     MoveList list[1];
     GenAllMoves(pos, list);
 
-    for (unsigned i = 0; i < list->count; ++i) {
+    for (int i = 0; i < list->count; ++i) {
 
         Move move = list->moves[i].move;
 

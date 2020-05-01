@@ -35,7 +35,7 @@ ParserEntry ParserEntries[PARSER_ENTRY_NB];
 
 
 // Piece values
-extern int PieceTypeValue[6];
+extern int PieceTypeValue[7];
 
 // PSQT values
 extern int PieceSqValue[7][64];
@@ -53,7 +53,7 @@ extern int OpenFile[2];
 extern int SemiOpenFile[2];
 
 // Mobility
-extern int Mobility[5][15];
+extern int Mobility[4][28];
 
 
 static void Declare(ParserEntry *pe, const char *name, void *buffer, int count) {

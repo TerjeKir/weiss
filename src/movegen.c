@@ -46,7 +46,7 @@ static bool MoveListOk(const MoveList *list, const Position *pos) {
     if (list->count >= MAXPOSITIONMOVES)
         return false;
 
-    for (unsigned i = 0; i < list->count; ++i)
+    for (int i = 0; i < list->count; ++i)
         if (!MoveIsPseudoLegal(pos, list->moves[i].move))
             return PrintBoard(pos), false;
 
