@@ -186,10 +186,9 @@ int main(int argc, char **argv) {
         else if (BeginsWith(str, "position"  )) UCIPosition(str, pos);
         else if (BeginsWith(str, "ucinewgame")) ClearTT();
         else if (BeginsWith(str, "stop"      )) UCIStop(searchThread);
-        else if (BeginsWith(str, "quit"      )) break;
+        else if (BeginsWith(str, "quit"      )) exit(EXIT_SUCCESS);
         else if (BeginsWith(str, "uci"       )) UCIInfo();
         else if (BeginsWith(str, "setoption" )) UCISetoption(str);
-
 #ifdef DEV
         // Non UCI commands
         else if (BeginsWith(str, "eval"      )) PrintEval(pos);
@@ -198,5 +197,4 @@ int main(int argc, char **argv) {
         else if (BeginsWith(str, "mirrortest")) MirrorEvalTest(pos);
 #endif
     }
-    return EXIT_SUCCESS;
 }
