@@ -32,42 +32,42 @@ typedef struct {
 
     Position *pos;
     SearchInfo *info;
-    char line[4096];
+    char str[4096];
 
 } GoInfo;
 
 
 // Reads a line from stdin and strips newline
-INLINE bool GetInput(char *line) {
+INLINE bool GetInput(char *str) {
 
-    memset(line, 0, INPUT_SIZE);
+    memset(str, 0, INPUT_SIZE);
 
-    if (fgets(line, INPUT_SIZE, stdin) == NULL)
+    if (fgets(str, INPUT_SIZE, stdin) == NULL)
         return false;
 
-    line[strcspn(line, "\r\n")] = '\0';
+    str[strcspn(str, "\r\n")] = '\0';
 
     return true;
 }
 
 // Checks if a string begins with another string
-INLINE bool BeginsWith(const char *string, const char *token) {
-    return strstr(string, token) == string;
-}
-
-// Sets a limit to the corresponding value in line, if any
-INLINE void SetLimit(const char *line, const char *token, int *limit) {
-    char *ptr = NULL;
-    if ((ptr = strstr(line, token)))
-        *limit = atoi(ptr + strlen(token));
+INLINE bool BeginsWith(const char *str, const char *token) {
+    return strstr(str, token) == str;
 }
 
 // Tests whether the name in the setoption string matches
-INLINE bool OptionName(const char *name, const char *line) {
-    return BeginsWith(strstr(line, "name") + 5, name);
+INLINE bool OptionName(const char *str, const char *name) {
+    return BeginsWith(strstr(str, "name") + 5, name);
 }
 
 // Returns the (string) value of a setoption string
-INLINE char *OptionValue(const char *line) {
-    return strstr(line, "value") + 6;
+INLINE char *OptionValue(const char *str) {
+    return strstr(str, "value") + 6;
+}
+
+// Sets a limit to the corresponding value in line, if any
+INLINE void SetLimit(const char *str, const char *token, int *limit) {
+    char *ptr = NULL;
+    if ((ptr = strstr(str, token)))
+        *limit = atoi(ptr + strlen(token));
 }

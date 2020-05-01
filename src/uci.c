@@ -36,63 +36,62 @@ volatile bool ABORT_SIGNAL = false;
 
 
 // Parses the time controls
-static void ParseTimeControl(Color color, char *line) {
+static void ParseTimeControl(char *str, Color color) {
 
     memset(&Limits, 0, sizeof(SearchLimits));
 
     Limits.start = Now();
 
     // Read in relevant search constraints
-    Limits.infinite = strstr(line, "infinite");
+    Limits.infinite = strstr(str, "infinite");
     if (color == WHITE)
-        SetLimit(line, "wtime", &Limits.time),
-        SetLimit(line, "winc",  &Limits.inc);
+        SetLimit(str, "wtime", &Limits.time),
+        SetLimit(str, "winc",  &Limits.inc);
     else
-        SetLimit(line, "btime", &Limits.time),
-        SetLimit(line, "binc",  &Limits.inc);
-    SetLimit(line, "movestogo", &Limits.movestogo);
-    SetLimit(line, "movetime",  &Limits.movetime);
-    SetLimit(line, "depth",     &Limits.depth);
+        SetLimit(str, "btime", &Limits.time),
+        SetLimit(str, "binc",  &Limits.inc);
+    SetLimit(str, "movestogo", &Limits.movestogo);
+    SetLimit(str, "movetime",  &Limits.movetime);
+    SetLimit(str, "depth",     &Limits.depth);
 
     // If no depth limit is given, use MAXDEPTH - 1
     Limits.depth = Limits.depth == 0 ? MAXDEPTH - 1 : Limits.depth;
 }
 
 // Parses a 'go' and starts a search
-static void *ParseGo(void *goInfo) {
+static void *ParseGo(void *voidGoInfo) {
 
-    GoInfo *sst  = (GoInfo*)goInfo;
-    Position *pos    = sst->pos;
-    SearchInfo *info = sst->info;
+    GoInfo *goInfo   = voidGoInfo;
+    Position *pos    = goInfo->pos;
+    SearchInfo *info = goInfo->info;
 
-    ParseTimeControl(sideToMove, sst->line);
+    ParseTimeControl(goInfo->str, sideToMove);
 
     SearchPosition(pos, info);
 
     return NULL;
 }
 
-INLINE void UCIGo(pthread_t *st, GoInfo *goInfo, char *line) {
-
+INLINE void UCIGo(pthread_t *st, GoInfo *goInfo, char *str) {
     ABORT_SIGNAL = false,
-    strncpy(goInfo->line, line, INPUT_SIZE),
+    strncpy(goInfo->str, str, INPUT_SIZE),
     pthread_create(st, NULL, &ParseGo, goInfo);
 }
 
 // Parses a 'position' and sets up the board
-static void UCIPosition(char *line, Position *pos) {
+static void UCIPosition(char *str, Position *pos) {
 
     // Set up original position. This will either be a
     // position given as FEN, or the normal start position
-    BeginsWith(line, "position fen") ? ParseFen(line + 13, pos)
+    BeginsWith(str, "position fen") ? ParseFen(str + 13, pos)
                                      : ParseFen(START_FEN, pos);
 
     // Check if there are moves to be made from the initial position
-    if ((line = strstr(line, "moves")) == NULL)
+    if ((str = strstr(str, "moves")) == NULL)
         return;
 
     // Loop over the moves and make them in succession
-    char *move = strtok(line, " ");
+    char *move = strtok(str, " ");
     while ((move = strtok(NULL, " "))) {
 
         // Parse and make move
@@ -108,32 +107,31 @@ static void UCIPosition(char *line, Position *pos) {
 }
 
 // Parses a 'setoption' and updates settings
-static void UCISetoption(char *line) {
+static void UCISetoption(char *str) {
 
     // Sets the size of the transposition table
-    if (OptionName("Hash", line)) {
+    if (OptionName(str, "Hash")) {
 
-        TT.requestedMB = atoi(OptionValue(line));
+        TT.requestedMB = atoi(OptionValue(str));
 
         printf("Hash will use %" PRI_SIZET "MB after next 'isready'.\n", TT.requestedMB);
 
     // Sets the syzygy tablebase path
-    } else if (OptionName("SyzygyPath", line)) {
+    } else if (OptionName(str, "SyzygyPath")) {
 
-        tb_init(OptionValue(line));
+        tb_init(OptionValue(str));
 
         TB_LARGEST ? printf("TableBase init success - largest found: %d.\n", TB_LARGEST)
                    : printf("TableBase init failure - not found.\n");
 
     // Sets evaluation parameters (dev mode)
     } else
-        TuneParseAll(strstr(line, "name") + 5, atoi(OptionValue(line)));
+        TuneParseAll(strstr(str, "name") + 5, atoi(OptionValue(str)));
     fflush(stdout);
 }
 
 // Prints UCI info
 static void UCIInfo() {
-
     printf("id name %s\n", NAME);
     printf("id author Terje Kirstihagen\n");
     printf("option name Hash type spin default %d min %d max %d\n", DEFAULTHASH, MINHASH, MAXHASH);
@@ -145,14 +143,12 @@ static void UCIInfo() {
 
 // Stops searching
 static void UCIStop(pthread_t searchThread) {
-
     ABORT_SIGNAL = true;
     pthread_join(searchThread, NULL);
 }
 
 // Signals the engine is ready
 static void UCIIsReady() {
-
     InitTT();
     printf("readyok\n");
     fflush(stdout);
@@ -182,24 +178,24 @@ int main(int argc, char **argv) {
     GoInfo goInfo = { .pos = pos, .info = info };
 
     // Input loop
-    char line[INPUT_SIZE];
-    while (GetInput(line)) {
+    char str[INPUT_SIZE];
+    while (GetInput(str)) {
         // UCI commands
-        if      (BeginsWith(line, "go"        )) UCIGo(&searchThread, &goInfo, line);
-        else if (BeginsWith(line, "isready"   )) UCIIsReady();
-        else if (BeginsWith(line, "position"  )) UCIPosition(line, pos);
-        else if (BeginsWith(line, "ucinewgame")) ClearTT();
-        else if (BeginsWith(line, "stop"      )) UCIStop(searchThread);
-        else if (BeginsWith(line, "quit"      )) break;
-        else if (BeginsWith(line, "uci"       )) UCIInfo();
-        else if (BeginsWith(line, "setoption" )) UCISetoption(line);
+        if      (BeginsWith(str, "go"        )) UCIGo(&searchThread, &goInfo, str);
+        else if (BeginsWith(str, "isready"   )) UCIIsReady();
+        else if (BeginsWith(str, "position"  )) UCIPosition(str, pos);
+        else if (BeginsWith(str, "ucinewgame")) ClearTT();
+        else if (BeginsWith(str, "stop"      )) UCIStop(searchThread);
+        else if (BeginsWith(str, "quit"      )) break;
+        else if (BeginsWith(str, "uci"       )) UCIInfo();
+        else if (BeginsWith(str, "setoption" )) UCISetoption(str);
 
 #ifdef DEV
         // Non UCI commands
-        else if (BeginsWith(line, "eval"      )) PrintEval(pos);
-        else if (BeginsWith(line, "print"     )) PrintBoard(pos);
-        else if (BeginsWith(line, "perft"     )) Perft(line);
-        else if (BeginsWith(line, "mirrortest")) MirrorEvalTest(pos);
+        else if (BeginsWith(str, "eval"      )) PrintEval(pos);
+        else if (BeginsWith(str, "print"     )) PrintBoard(pos);
+        else if (BeginsWith(str, "perft"     )) Perft(str);
+        else if (BeginsWith(str, "mirrortest")) MirrorEvalTest(pos);
 #endif
     }
     return EXIT_SUCCESS;
