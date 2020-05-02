@@ -50,13 +50,16 @@ bool MoveIsPseudoLegal(const Position *pos, const Move move) {
         if (PieceTypeOf(pieceOn(from)) == PAWN) {
 
             // Pawn moves to the last rank must promote
-            if (   RelativeRank(color, to) == RANK_8
+            if (   RelativeRank(color, RankOf(to)) == RANK_8
                 && !promotion(move))
                 return false;
 
             return (moveIsCapture(move)) ? SquareBB[to] & PawnAttackBB(color, from)
                                          : (to + 8 - 16 * color) == from;
         }
+
+        if (promotion(move))
+            return false;
 
         // Normal moves by any other piece
         return SquareBB[to] & AttackBB(PieceTypeOf(pieceOn(from)), from, pieceBB(ALL));
