@@ -72,9 +72,10 @@ static void *ParseGo(void *voidGoInfo) {
     return NULL;
 }
 
+// Starts a new thread to handle the go command and search
 INLINE void UCIGo(pthread_t *st, GoInfo *goInfo, char *str) {
-    ABORT_SIGNAL = false,
-    strncpy(goInfo->str, str, INPUT_SIZE),
+    ABORT_SIGNAL = false;
+    strncpy(goInfo->str, str, INPUT_SIZE);
     pthread_create(st, NULL, &ParseGo, goInfo);
 }
 
