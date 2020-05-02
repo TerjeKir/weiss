@@ -168,7 +168,7 @@ int main(int argc, char **argv) {
     if (argc > 1 && strstr(argv[1], "bench")) {
         InitTT();
         Benchmark(pos, info, argc > 2 ? atoi(argv[2]) : 13);
-        return EXIT_SUCCESS;
+        return 0;
     }
 
     // Setup the default position
@@ -185,11 +185,11 @@ int main(int argc, char **argv) {
             case GO         : UCIGo(&searchThread, &goInfo, str); break;
             case UCI        : UCIInfo();             break;
             case STOP       : UCIStop(searchThread); break;
-            case QUIT       : exit(EXIT_SUCCESS);
             case ISREADY    : UCIIsReady();          break;
             case POSITION   : UCIPosition(str, pos); break;
             case SETOPTION  : UCISetoption(str);     break;
             case UCINEWGAME : ClearTT();             break;
+            case QUIT       : return 0;
 #ifdef DEV
             // Non-UCI commands
             case EVAL       : PrintEval(pos);      break;
