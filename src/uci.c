@@ -85,7 +85,7 @@ static void UCIPosition(char *str, Position *pos) {
     // Set up original position. This will either be a
     // position given as FEN, or the normal start position
     BeginsWith(str, "position fen") ? ParseFen(str + 13, pos)
-                                     : ParseFen(START_FEN, pos);
+                                    : ParseFen(START_FEN, pos);
 
     // Check if there are moves to be made from the initial position
     if ((str = strstr(str, "moves")) == NULL)
@@ -184,17 +184,17 @@ int main(int argc, char **argv) {
         switch (HashInput(str)) {
             case GO         : UCIGo(&searchThread, &goInfo, str); break;
             case ISREADY    : UCIIsReady();          break;
-            case POSITION   : UCIPosition(str, pos);  break;
+            case POSITION   : UCIPosition(str, pos); break;
+            case SETOPTION  : UCISetoption(str);     break;
             case UCINEWGAME : ClearTT();             break;
-            case STOP       : UCIStop(searchThread); break;
             case UCI        : UCIInfo();             break;
-            case SETOPTION  : UCISetoption(str);      break;
+            case STOP       : UCIStop(searchThread); break;
             case QUIT       : exit(EXIT_SUCCESS);
 #ifdef DEV
-            // Non UCI commands
+            // Non-UCI commands
             case EVAL       : PrintEval(pos);      break;
             case PRINT      : PrintBoard(pos);     break;
-            case PERFT      : Perft(str);           break;
+            case PERFT      : Perft(str);          break;
             case MIRRORTEST : MirrorEvalTest(pos); break;
 #endif
         }
