@@ -59,6 +59,7 @@
 #define moveIsEnPas(move)   (move & FLAG_ENPAS)
 #define moveIsPStart(move)  (move & FLAG_PAWNSTART)
 #define moveIsCastle(move)  (move & FLAG_CASTLE)
+#define moveIsSpecial(move) (move & MOVE_FLAGS)
 #define moveIsCapture(move) (move & MOVE_CAPT)
 #define moveIsNoisy(move)   (move & (MOVE_CAPT | MOVE_PROMO | FLAG_ENPAS))
 #define moveIsQuiet(move)   (!moveIsNoisy(move))

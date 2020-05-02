@@ -43,26 +43,34 @@ bool MoveIsPseudoLegal(const Position *pos, const Move move) {
 
     assert(ValidPiece(pieceOn(from)));
 
-    // Make sure the piece at 'from' can move to 'to' (ignoring pins/moving into check)
-    switch (PieceTypeOf(pieceOn(from))) {
-        case PAWN:
-            return (moveIsEnPas(move))   ? to == pos->epSquare
-                 : (moveIsPStart(move))  ? pieceOn(to ^ 8) == EMPTY
-                 : (moveIsCapture(move)) ? SquareBB[to] & PawnAttackBB(color, from)
+    // All moves but castling, en passant and pawn starts
+    if (!moveIsSpecial(move)) {
+
+        // Normal pawn moves
+        if (PieceTypeOf(pieceOn(from)) == PAWN)
+            return (moveIsCapture(move)) ? SquareBB[to] & PawnAttackBB(color, from)
                                          : (to + 8 - 16 * color) == from;
-        case KING:
-            if (moveIsCastle(move))
-                switch (to) {
-                    case C1: return CastlePseudoLegal(pos, WHITE, OOO);
-                    case G1: return CastlePseudoLegal(pos, WHITE, OO);
-                    case C8: return CastlePseudoLegal(pos, BLACK, OOO);
-                    case G8: return CastlePseudoLegal(pos, BLACK, OO);
-                    default: assert(0); return false;
-                }
-            // fall through
-        default:
-            return SquareBB[to] & AttackBB(PieceTypeOf(pieceOn(from)), from, pieceBB(ALL));
+
+        // Normal moves by any other piece
+        return SquareBB[to] & AttackBB(PieceTypeOf(pieceOn(from)), from, pieceBB(ALL));
     }
+
+    if (moveIsCastle(move))
+        switch (to) {
+            case C1: return CastlePseudoLegal(pos, WHITE, OOO);
+            case G1: return CastlePseudoLegal(pos, WHITE, OO);
+            case C8: return CastlePseudoLegal(pos, BLACK, OOO);
+            case G8: return CastlePseudoLegal(pos, BLACK, OO);
+            default: assert(0); return false;
+        }
+
+    if (moveIsEnPas(move))
+        return PieceTypeOf(pieceOn(from)) == PAWN && to == pos->epSquare;
+
+    if (moveIsPStart(move))
+        return PieceTypeOf(pieceOn(from)) == PAWN && pieceOn(to ^ 8) == EMPTY;
+
+    return false; // Unreachable
 }
 
 // Translates a move to a string
