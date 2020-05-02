@@ -183,13 +183,13 @@ int main(int argc, char **argv) {
     while (GetInput(str)) {
         switch (HashInput(str)) {
             case GO         : UCIGo(&searchThread, &goInfo, str); break;
+            case UCI        : UCIInfo();             break;
+            case STOP       : UCIStop(searchThread); break;
+            case QUIT       : exit(EXIT_SUCCESS);
             case ISREADY    : UCIIsReady();          break;
             case POSITION   : UCIPosition(str, pos); break;
             case SETOPTION  : UCISetoption(str);     break;
             case UCINEWGAME : ClearTT();             break;
-            case UCI        : UCIInfo();             break;
-            case STOP       : UCIStop(searchThread); break;
-            case QUIT       : exit(EXIT_SUCCESS);
 #ifdef DEV
             // Non-UCI commands
             case EVAL       : PrintEval(pos);      break;
