@@ -76,8 +76,7 @@ bool MoveIsPseudoLegal(const Position *pos, const Move move) {
 
     if (moveIsEnPas(move))
         return PieceTypeOf(pieceOn(from)) == PAWN
-            && to == pos->epSquare
-            && to & PawnAttackBB(color, from);
+            && to == pos->epSquare;
 
     if (moveIsPStart(move))
         return PieceTypeOf(pieceOn(from)) == PAWN
