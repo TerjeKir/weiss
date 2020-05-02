@@ -71,3 +71,29 @@ INLINE void SetLimit(const char *str, const char *token, int *limit) {
     if ((ptr = strstr(str, token)))
         *limit = atoi(ptr + strlen(token));
 }
+
+enum InputCommands {
+    // UCI
+    GO          = 11,
+    ISREADY     = 113,
+    POSITION    = 17,
+    UCINEWGAME  = 6,
+    STOP        = 28,
+    QUIT        = 29,
+    UCI         = 127,
+    SETOPTION   = 96,
+    // Non-UCI
+    EVAL        = 26,
+    PRINT       = 112,
+    PERFT       = 116,
+    MIRRORTEST  = 4
+};
+
+// Hashes the first token in a string
+static int HashInput(char *str) {
+    int hash = 0;
+    int len = 1;
+    while (*str && *str != ' ')
+        hash ^= *(str++) ^ len++;
+    return hash;
+}

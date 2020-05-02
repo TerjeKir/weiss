@@ -180,21 +180,22 @@ int main(int argc, char **argv) {
     // Input loop
     char str[INPUT_SIZE];
     while (GetInput(str)) {
-        // UCI commands
-        if      (BeginsWith(str, "go"        )) UCIGo(&searchThread, &goInfo, str);
-        else if (BeginsWith(str, "isready"   )) UCIIsReady();
-        else if (BeginsWith(str, "position"  )) UCIPosition(str, pos);
-        else if (BeginsWith(str, "ucinewgame")) ClearTT();
-        else if (BeginsWith(str, "stop"      )) UCIStop(searchThread);
-        else if (BeginsWith(str, "quit"      )) exit(EXIT_SUCCESS);
-        else if (BeginsWith(str, "uci"       )) UCIInfo();
-        else if (BeginsWith(str, "setoption" )) UCISetoption(str);
+        switch (HashInput(str)) {
+            case GO         : UCIGo(&searchThread, &goInfo, str); break;
+            case ISREADY    : UCIIsReady();          break;
+            case POSITION   : UCIPosition(str, pos);  break;
+            case UCINEWGAME : ClearTT();             break;
+            case STOP       : UCIStop(searchThread); break;
+            case UCI        : UCIInfo();             break;
+            case SETOPTION  : UCISetoption(str);      break;
+            case QUIT       : exit(EXIT_SUCCESS);
 #ifdef DEV
-        // Non UCI commands
-        else if (BeginsWith(str, "eval"      )) PrintEval(pos);
-        else if (BeginsWith(str, "print"     )) PrintBoard(pos);
-        else if (BeginsWith(str, "perft"     )) Perft(str);
-        else if (BeginsWith(str, "mirrortest")) MirrorEvalTest(pos);
+            // Non UCI commands
+            case EVAL       : PrintEval(pos);      break;
+            case PRINT      : PrintBoard(pos);     break;
+            case PERFT      : Perft(str);           break;
+            case MIRRORTEST : MirrorEvalTest(pos); break;
 #endif
+        }
     }
 }
