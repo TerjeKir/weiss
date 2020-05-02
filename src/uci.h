@@ -75,13 +75,13 @@ INLINE void SetLimit(const char *str, const char *token, int *limit) {
 enum InputCommands {
     // UCI
     GO          = 11,
-    ISREADY     = 113,
-    POSITION    = 17,
-    UCINEWGAME  = 6,
+    UCI         = 127,
     STOP        = 28,
     QUIT        = 29,
-    UCI         = 127,
+    ISREADY     = 113,
+    POSITION    = 17,
     SETOPTION   = 96,
+    UCINEWGAME  = 6,
     // Non-UCI
     EVAL        = 26,
     PRINT       = 112,
