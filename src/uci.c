@@ -72,9 +72,10 @@ static void *ParseGo(void *voidGoInfo) {
     return NULL;
 }
 
+// Starts a new thread to handle the go command and search
 INLINE void UCIGo(pthread_t *st, GoInfo *goInfo, char *str) {
-    ABORT_SIGNAL = false,
-    strncpy(goInfo->str, str, INPUT_SIZE),
+    ABORT_SIGNAL = false;
+    strncpy(goInfo->str, str, INPUT_SIZE);
     pthread_create(st, NULL, &ParseGo, goInfo);
 }
 
@@ -84,7 +85,7 @@ static void UCIPosition(char *str, Position *pos) {
     // Set up original position. This will either be a
     // position given as FEN, or the normal start position
     BeginsWith(str, "position fen") ? ParseFen(str + 13, pos)
-                                     : ParseFen(START_FEN, pos);
+                                    : ParseFen(START_FEN, pos);
 
     // Check if there are moves to be made from the initial position
     if ((str = strstr(str, "moves")) == NULL)
@@ -167,7 +168,7 @@ int main(int argc, char **argv) {
     if (argc > 1 && strstr(argv[1], "bench")) {
         InitTT();
         Benchmark(pos, info, argc > 2 ? atoi(argv[2]) : 13);
-        return EXIT_SUCCESS;
+        return 0;
     }
 
     // Setup the default position
@@ -180,21 +181,22 @@ int main(int argc, char **argv) {
     // Input loop
     char str[INPUT_SIZE];
     while (GetInput(str)) {
-        // UCI commands
-        if      (BeginsWith(str, "go"        )) UCIGo(&searchThread, &goInfo, str);
-        else if (BeginsWith(str, "isready"   )) UCIIsReady();
-        else if (BeginsWith(str, "position"  )) UCIPosition(str, pos);
-        else if (BeginsWith(str, "ucinewgame")) ClearTT();
-        else if (BeginsWith(str, "stop"      )) UCIStop(searchThread);
-        else if (BeginsWith(str, "quit"      )) exit(EXIT_SUCCESS);
-        else if (BeginsWith(str, "uci"       )) UCIInfo();
-        else if (BeginsWith(str, "setoption" )) UCISetoption(str);
+        switch (HashInput(str)) {
+            case GO         : UCIGo(&searchThread, &goInfo, str); break;
+            case UCI        : UCIInfo();             break;
+            case STOP       : UCIStop(searchThread); break;
+            case ISREADY    : UCIIsReady();          break;
+            case POSITION   : UCIPosition(str, pos); break;
+            case SETOPTION  : UCISetoption(str);     break;
+            case UCINEWGAME : ClearTT();             break;
+            case QUIT       : return 0;
 #ifdef DEV
-        // Non UCI commands
-        else if (BeginsWith(str, "eval"      )) PrintEval(pos);
-        else if (BeginsWith(str, "print"     )) PrintBoard(pos);
-        else if (BeginsWith(str, "perft"     )) Perft(str);
-        else if (BeginsWith(str, "mirrortest")) MirrorEvalTest(pos);
+            // Non-UCI commands
+            case EVAL       : PrintEval(pos);      break;
+            case PRINT      : PrintBoard(pos);     break;
+            case PERFT      : Perft(str);          break;
+            case MIRRORTEST : MirrorEvalTest(pos); break;
 #endif
+        }
     }
 }
