@@ -73,13 +73,15 @@ Move NextMove(MovePicker *mp) {
             // fall through
         case KILLER1:
             mp->stage++;
-            if (MoveIsPseudoLegal(mp->pos, mp->kill1))
+            if (   mp->kill1 != mp->ttMove
+                && MoveIsPseudoLegal(mp->pos, mp->kill1))
                 return mp->kill1;
 
             // fall through
         case KILLER2:
             mp->stage++;
-            if (MoveIsPseudoLegal(mp->pos, mp->kill2))
+            if (   mp->kill2 != mp->ttMove
+                && MoveIsPseudoLegal(mp->pos, mp->kill2))
                 return mp->kill2;
 
             // fall through
