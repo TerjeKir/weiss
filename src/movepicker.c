@@ -22,7 +22,7 @@
 
 
 // Return the next best move
-static Move PickNextMove(MoveList *list, const Move ttMove) {
+static Move PickNextMove(MoveList *list, const Move ttMove, const Move kill1, const Move kill2) {
 
     if (list->next == list->count)
         return NOMOVE;
@@ -39,8 +39,8 @@ static Move PickNextMove(MoveList *list, const Move ttMove) {
     list->moves[bestIdx] = list->moves[list->next++];
 
     // Avoid returning the ttMove again
-    if (bestMove == ttMove)
-        return PickNextMove(list, ttMove);
+    if (bestMove == ttMove || bestMove == kill1 || bestMove == kill2)
+        return PickNextMove(list, ttMove, kill1, kill2);
 
     return bestMove;
 }
@@ -65,10 +65,24 @@ Move NextMove(MovePicker *mp) {
 
             // fall through
         case NOISY:
-            if ((move = PickNextMove(mp->list, mp->ttMove)))
+            if ((move = PickNextMove(mp->list, mp->ttMove, NOMOVE, NOMOVE)))
                 return move;
 
             mp->stage++;
+
+            // fall through
+        case KILLER1:
+            mp->stage++;
+            if (   mp->kill1 != mp->ttMove
+                && MoveIsPseudoLegal(mp->pos, mp->kill1))
+                return mp->kill1;
+
+            // fall through
+        case KILLER2:
+            mp->stage++;
+            if (   mp->kill2 != mp->ttMove
+                && MoveIsPseudoLegal(mp->pos, mp->kill2))
+                return mp->kill2;
 
             // fall through
         case GEN_QUIET:
@@ -80,7 +94,7 @@ Move NextMove(MovePicker *mp) {
 
             // fall through
         case QUIET:
-            return PickNextMove(mp->list, mp->ttMove);
+            return PickNextMove(mp->list, mp->ttMove, mp->kill1, mp->kill2);
 
         default:
             assert(0);
@@ -89,12 +103,14 @@ Move NextMove(MovePicker *mp) {
 }
 
 // Init normal movepicker
-void InitNormalMP(MovePicker *mp, MoveList *list, Position *pos, Move ttMove) {
+void InitNormalMP(MovePicker *mp, MoveList *list, Position *pos, Move ttMove, Move kill1, Move kill2) {
     list->count   = list->next = 0;
     mp->list      = list;
     mp->pos       = pos;
     mp->ttMove    = MoveIsPseudoLegal(mp->pos, ttMove) ? ttMove : NOMOVE;
     mp->stage     = mp->ttMove ? TTMOVE : GEN_NOISY;
+    mp->kill1     = kill1;
+    mp->kill2     = kill2;
     mp->onlyNoisy = false;
 }
 
@@ -104,6 +120,8 @@ void InitNoisyMP(MovePicker *mp, MoveList *list, Position *pos) {
     mp->list      = list;
     mp->pos       = pos;
     mp->ttMove    = NOMOVE;
+    mp->kill1     = NOMOVE;
+    mp->kill2     = NOMOVE;
     mp->stage     = GEN_NOISY;
     mp->onlyNoisy = true;
 }
