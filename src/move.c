@@ -41,30 +41,7 @@ bool MoveIsPseudoLegal(const Position *pos, const Move move) {
         || capturing(move) != pieceOn(to))
         return false;
 
-    assert(ValidPiece(pieceOn(from)));
-
-    // All moves but castling, en passant and pawn starts
-    if (!moveIsSpecial(move)) {
-
-        // Normal pawn moves
-        if (PieceTypeOf(pieceOn(from)) == PAWN) {
-
-            // Pawn moves to the last rank must promote
-            if (   RelativeRank(color, RankOf(to)) == RANK_8
-                && !promotion(move))
-                return false;
-
-            return (moveIsCapture(move)) ? SquareBB[to] & PawnAttackBB(color, from)
-                                         : (to + 8 - 16 * color) == from;
-        }
-
-        if (promotion(move))
-            return false;
-
-        // Normal moves by any other piece
-        return SquareBB[to] & AttackBB(PieceTypeOf(pieceOn(from)), from, pieceBB(ALL));
-    }
-
+    // Castling
     if (moveIsCastle(move))
         switch (to) {
             case C1: return CastlePseudoLegal(pos, WHITE, OOO);
@@ -74,17 +51,35 @@ bool MoveIsPseudoLegal(const Position *pos, const Move move) {
             default: assert(0); return false;
         }
 
-    if (moveIsEnPas(move))
-        return PieceTypeOf(pieceOn(from)) == PAWN
-            && to == pos->epSquare
-            && SquareBB[to] & PawnAttackBB(color, from);
+    // All non-pawn, non-castling moves
+    if (PieceTypeOf(pieceOn(from)) != PAWN) {
 
-    if (moveIsPStart(move))
-        return PieceTypeOf(pieceOn(from)) == PAWN
-            && pieceOn(to ^ 8) == EMPTY
-            && (to + 16 - 32 * color) == from;
+        // No flags or promotion, and the piece currently attacks it
+        return !moveIsSpecial(move)
+            && SquareBB[to] & AttackBB(PieceTypeOf(pieceOn(from)), from, pieceBB(ALL));
 
-    return false; // Unreachable
+    // Pawn moves
+    } else {
+
+        // En passant
+        if (moveIsEnPas(move))
+            return to == pos->epSquare
+                && SquareBB[to] & PawnAttackBB(color, from);
+
+        // Pawn start
+        if (moveIsPStart(move))
+            return pieceOn(to ^ 8) == EMPTY
+                && (to + 16 - 32 * color) == from;
+
+        // Pawn moves to the last rank must promote
+        if (   RelativeRank(color, RankOf(to)) == RANK_8
+            && !promotion(move))
+            return false;
+
+        // Normal moves and promotions
+        return (moveIsCapture(move)) ? SquareBB[to] & PawnAttackBB(color, from)
+                                     : (to + 8 - 16 * color) == from;
+    }
 }
 
 // Translates a move to a string
