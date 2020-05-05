@@ -370,7 +370,7 @@ static int AlphaBeta(Position *pos, SearchInfo *info, int alpha, int beta, Depth
 
 move_loop:
 
-    InitNormalMP(&mp, &list, pos, ttMove);
+    InitNormalMP(&mp, &list, pos, ttMove, killer1, killer2);
 
     const int oldAlpha = alpha;
     int moveCount = 0, quietCount = 0;

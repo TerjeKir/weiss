@@ -66,9 +66,7 @@ INLINE void AddMove(const Position *pos, MoveList *list, const Square from, cons
         *moveScore = MvvLvaScores[pieceOn(to)][pieceOn(from)];
 
     if (type == QUIET)
-        *moveScore = move == killer1 ? 900000
-                   : move == killer2 ? 800000
-                                     : pos->history[pieceOn(from)][to];
+        *moveScore = pos->history[pieceOn(from)][to];
 
     list->moves[list->count++].move = move;
 }
