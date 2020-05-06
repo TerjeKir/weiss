@@ -213,16 +213,6 @@ bool MakeMove(Position *pos, const Move move) {
     pos->castlingRights &= CastlePerm[from] & CastlePerm[to];
     HASH_CA;
 
-    // Move the rook during castling
-    if (moveIsCastle(move))
-        switch (to) {
-            case C1: MovePiece(pos, A1, D1, true); break;
-            case C8: MovePiece(pos, A8, D8, true); break;
-            case G1: MovePiece(pos, H1, F1, true); break;
-            case G8: MovePiece(pos, H8, F8, true); break;
-            default: assert(false); break;
-        }
-
     // Remove captured piece if any
     Piece capt = capturing(move);
     if (capt != EMPTY) {
@@ -259,7 +249,16 @@ bool MakeMove(Position *pos, const Move move) {
             ClearPiece(pos, to, true);
             AddPiece(pos, to, promo, true);
         }
-    }
+
+    // Move the rook during castling
+    } else if (moveIsCastle(move))
+        switch (to) {
+            case C1: MovePiece(pos, A1, D1, true); break;
+            case C8: MovePiece(pos, A8, D8, true); break;
+            case G1: MovePiece(pos, H1, F1, true); break;
+            case G8: MovePiece(pos, H8, F8, true); break;
+            default: assert(false); break;
+        }
 
     // Change turn to play
     sideToMove ^= 1;
