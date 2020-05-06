@@ -26,20 +26,6 @@
 
 enum { QUIET, NOISY };
 
-#ifndef NDEBUG
-static bool MoveListOk(const MoveList *list, const Position *pos) {
-
-    if (list->count >= MAXPOSITIONMOVES)
-        return false;
-
-    for (int i = 0; i < list->count; ++i)
-        if (!MoveIsPseudoLegal(pos, list->moves[i].move))
-            return PrintBoard(pos), false;
-
-    return true;
-}
-#endif
-
 // Constructs and adds a move to the move list
 INLINE void AddMove(const Position *pos, MoveList *list, const Square from, const Square to, const Piece promo, const int flag) {
 
@@ -183,8 +169,6 @@ static void GenMoves(const Position *pos, MoveList *list, const Color color, con
     GenPieceType(pos, list, color, type, BISHOP);
     GenPieceType(pos, list, color, type, QUEEN);
     GenPieceType(pos, list, color, type, KING);
-
-    assert(MoveListOk(list, pos));
 }
 
 // Generate quiet moves
