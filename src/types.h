@@ -97,7 +97,7 @@ enum PieceType {
 };
 
 enum Piece {
-    EMPTY = 0, ALL = 0, PIECE_MIN,
+    EMPTY = 0, ALL = 0,
     bP = 1, bN, bB, bR, bQ, bK,
     wP = 9, wN, wB, wR, wQ, wK,
     PIECE_NB = 16

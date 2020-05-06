@@ -30,8 +30,8 @@ CONSTR InitMvvLva() {
     const int VictimScore[PIECE_NB]   = {0, 106, 206, 306, 406, 506, 606, 0, 0, 106, 206, 306, 406, 506, 606, 0};
     const int AttackerScore[PIECE_NB] = {0,   1,   2,   3,   4,   5,   6, 0, 0,   1,   2,   3,   4,   5,   6, 0};
 
-    for (Piece Attacker = PIECE_MIN; Attacker < PIECE_NB; ++Attacker)
-        for (Piece Victim = PIECE_MIN; Victim < PIECE_NB; ++Victim)
+    for (Piece Attacker = EMPTY; Attacker < PIECE_NB; ++Attacker)
+        for (Piece Victim = EMPTY; Victim < PIECE_NB; ++Victim)
             MvvLvaScores[Victim][Attacker] = VictimScore[Victim] - AttackerScore[Attacker];
 }
 
