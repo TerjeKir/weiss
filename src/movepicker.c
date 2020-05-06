@@ -52,7 +52,7 @@ static Move PickNextMove(MoveList *list, const Move ttMove, const Move kill1, co
     Move bestMove = list->moves[bestIdx].move;
     list->moves[bestIdx] = list->moves[list->next++];
 
-    // Avoid returning the ttMove again
+    // Avoid returning the TT or killer moves again
     if (bestMove == ttMove || bestMove == kill1 || bestMove == kill2)
         return PickNextMove(list, ttMove, kill1, kill2);
 
