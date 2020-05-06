@@ -26,68 +26,22 @@
 
 enum { QUIET, NOISY };
 
-static int MvvLvaScores[PIECE_NB][PIECE_NB];
-
-
-// Initializes the MostValuableVictim-LeastValuableAttacker scores used for ordering captures
-CONSTR InitMvvLva() {
-
-    const int VictimScore[PIECE_NB]   = {0, 106, 206, 306, 406, 506, 606, 0, 0, 106, 206, 306, 406, 506, 606, 0};
-    const int AttackerScore[PIECE_NB] = {0,   1,   2,   3,   4,   5,   6, 0, 0,   1,   2,   3,   4,   5,   6, 0};
-
-    for (Piece Attacker = PIECE_MIN; Attacker < PIECE_NB; ++Attacker)
-        for (Piece Victim = PIECE_MIN; Victim < PIECE_NB; ++Victim)
-            MvvLvaScores[Victim][Attacker] = VictimScore[Victim] - AttackerScore[Attacker];
-}
-
-#ifndef NDEBUG
-static bool MoveListOk(const MoveList *list, const Position *pos) {
-
-    if (list->count >= MAXPOSITIONMOVES)
-        return false;
-
-    for (int i = 0; i < list->count; ++i)
-        if (!MoveIsPseudoLegal(pos, list->moves[i].move))
-            return PrintBoard(pos), false;
-
-    return true;
-}
-#endif
-
 // Constructs and adds a move to the move list
-INLINE void AddMove(const Position *pos, MoveList *list, const Square from, const Square to, const Piece promo, const int flag, const int type) {
+INLINE void AddMove(const Position *pos, MoveList *list, const Square from, const Square to, const Piece promo, const int flag) {
 
-    const Move move = MOVE(from, to, pieceOn(to), promo, flag);
-
-    // Add scores to help move ordering based on search history heuristics / mvvlva
-    int *moveScore = &list->moves[list->count].score;
-
-    if (type == NOISY)
-        *moveScore = MvvLvaScores[pieceOn(to)][pieceOn(from)];
-
-    if (type == QUIET)
-        *moveScore = pos->history[pieceOn(from)][to];
-
-    list->moves[list->count++].move = move;
-}
-
-// Adds en passants
-INLINE void AddEnPas(MoveList *list, const Square from, const Square to) {
-
-    list->moves[list->count].move = MOVE(from, to, EMPTY, EMPTY, FLAG_ENPAS);
-    list->moves[list->count++].score = 105;
+    list->moves[list->count++].move = MOVE(from, to, pieceOn(to), promo, flag);
 }
 
 // Adds promotions
 INLINE void AddPromotions(const Position *pos, MoveList *list, const Square from, const Square to, const Color color, const int type) {
 
     if (type == NOISY)
-        AddMove(pos, list, from, to, MakePiece(color, QUEEN), FLAG_NONE, NOISY);
+        AddMove(pos, list, from, to, MakePiece(color, QUEEN), FLAG_NONE);
 
     if (type == QUIET) {
-        AddMove(pos, list, from, to, MakePiece(color, KNIGHT), FLAG_NONE, NOISY);
-        AddMove(pos, list, from, to, MakePiece(color, ROOK  ), FLAG_NONE, NOISY);
-        AddMove(pos, list, from, to, MakePiece(color, BISHOP), FLAG_NONE, NOISY);
+        AddMove(pos, list, from, to, MakePiece(color, KNIGHT), FLAG_NONE);
+        AddMove(pos, list, from, to, MakePiece(color, ROOK  ), FLAG_NONE);
+        AddMove(pos, list, from, to, MakePiece(color, BISHOP), FLAG_NONE);
     }
 }
 
@@ -100,11 +54,11 @@ INLINE void GenCastling(const Position *pos, MoveList *list, const Color color, 
 
     // King side castle
     if (CastlePseudoLegal(pos, color, OO))
-        AddMove(pos, list, from, from+2, EMPTY, FLAG_CASTLE, QUIET);
+        AddMove(pos, list, from, from+2, EMPTY, FLAG_CASTLE);
 
     // Queen side castle
     if (CastlePseudoLegal(pos, color, OOO))
-        AddMove(pos, list, from, from-2, EMPTY, FLAG_CASTLE, QUIET);
+        AddMove(pos, list, from, from-2, EMPTY, FLAG_CASTLE);
 }
 
 // Pawns are a mess
@@ -131,12 +85,12 @@ INLINE void GenPawn(const Position *pos, MoveList *list, const Color color, cons
         // Normal pawn moves
         while (pawnMoves) {
             Square to = PopLsb(&pawnMoves);
-            AddMove(pos, list, to - up, to, EMPTY, FLAG_NONE, QUIET);
+            AddMove(pos, list, to - up, to, EMPTY, FLAG_NONE);
         }
         // Pawn starts
         while (pawnStarts) {
             Square to = PopLsb(&pawnStarts);
-            AddMove(pos, list, to - up * 2, to, EMPTY, FLAG_PAWNSTART, QUIET);
+            AddMove(pos, list, to - up * 2, to, EMPTY, FLAG_PAWNSTART);
         }
     }
 
@@ -170,17 +124,17 @@ INLINE void GenPawn(const Position *pos, MoveList *list, const Color color, cons
 
         while (lAttacks) {
             Square to = PopLsb(&lAttacks);
-            AddMove(pos, list, to - (up+left), to, EMPTY, FLAG_NONE, NOISY);
+            AddMove(pos, list, to - (up+left), to, EMPTY, FLAG_NONE);
         }
         while (rAttacks) {
             Square to = PopLsb(&rAttacks);
-            AddMove(pos, list, to - (up+right), to, EMPTY, FLAG_NONE, NOISY);
+            AddMove(pos, list, to - (up+right), to, EMPTY, FLAG_NONE);
         }
         // En passant
         if (pos->epSquare != NO_SQ) {
             Bitboard enPassers = not7th & PawnAttackBB(!color, pos->epSquare);
             while (enPassers)
-                AddEnPas(list, PopLsb(&enPassers), pos->epSquare);
+                AddMove(pos, list, PopLsb(&enPassers), pos->epSquare, EMPTY, FLAG_ENPAS);
         }
     }
 }
@@ -201,7 +155,7 @@ INLINE void GenPieceType(const Position *pos, MoveList *list, const Color color,
         Bitboard moves = targets & AttackBB(pt, from, occupied);
 
         while (moves)
-            AddMove(pos, list, from, PopLsb(&moves), EMPTY, 0, type);
+            AddMove(pos, list, from, PopLsb(&moves), EMPTY, FLAG_NONE);
     }
 }
 
@@ -215,8 +169,6 @@ static void GenMoves(const Position *pos, MoveList *list, const Color color, con
     GenPieceType(pos, list, color, type, BISHOP);
     GenPieceType(pos, list, color, type, QUEEN);
     GenPieceType(pos, list, color, type, KING);
-
-    assert(MoveListOk(list, pos));
 }
 
 // Generate quiet moves
