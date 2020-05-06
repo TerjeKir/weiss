@@ -208,13 +208,10 @@ bool MakeMove(Position *pos, const Move move) {
     const Square from = fromSq(move);
     const Square to = toSq(move);
 
-    // Rehash the castling rights if at least one side can castle,
-    // and either the to or from square is the original square of
-    // a king or rook.
-    if (pos->castlingRights && CastlePerm[from] ^ CastlePerm[to])
-        HASH_CA,
-        pos->castlingRights &= CastlePerm[from] & CastlePerm[to],
-        HASH_CA;
+    // Rehash the castling rights
+    HASH_CA;
+    pos->castlingRights &= CastlePerm[from] & CastlePerm[to];
+    HASH_CA;
 
     // Move the rook during castling
     if (moveIsCastle(move))
