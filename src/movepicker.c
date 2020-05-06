@@ -21,6 +21,20 @@
 #include "movepicker.h"
 
 
+static int MvvLvaScores[PIECE_NB][PIECE_NB];
+
+
+// Initializes the MostValuableVictim-LeastValuableAttacker scores used for ordering captures
+CONSTR InitMvvLva() {
+
+    const int VictimScore[PIECE_NB]   = {0, 106, 206, 306, 406, 506, 606, 0, 0, 106, 206, 306, 406, 506, 606, 0};
+    const int AttackerScore[PIECE_NB] = {0,   1,   2,   3,   4,   5,   6, 0, 0,   1,   2,   3,   4,   5,   6, 0};
+
+    for (Piece Attacker = PIECE_MIN; Attacker < PIECE_NB; ++Attacker)
+        for (Piece Victim = PIECE_MIN; Victim < PIECE_NB; ++Victim)
+            MvvLvaScores[Victim][Attacker] = VictimScore[Victim] - AttackerScore[Attacker];
+}
+
 // Return the next best move
 static Move PickNextMove(MoveList *list, const Move ttMove, const Move kill1, const Move kill2) {
 
@@ -45,6 +59,22 @@ static Move PickNextMove(MoveList *list, const Move ttMove, const Move kill1, co
     return bestMove;
 }
 
+// Gives a score to each move left in the list
+static void ScoreMoves(MoveList *list, Position *pos, const int stage) {
+
+    for (int i = list->next; i < list->count; ++i) {
+
+        Move move = list->moves[i].move;
+
+        if (stage == GEN_NOISY)
+            list->moves[i].score = moveIsEnPas(move) ? 105
+                                 : MvvLvaScores[pieceOn(toSq(move))][pieceOn(fromSq(move))];
+
+        if (stage == GEN_QUIET)
+            list->moves[i].score = pos->history[pieceOn(fromSq(move))][toSq(move)];
+    }
+}
+
 // Returns the next move to try in a position
 Move NextMove(MovePicker *mp) {
 
@@ -61,6 +91,7 @@ Move NextMove(MovePicker *mp) {
             // fall through
         case GEN_NOISY:
             GenNoisyMoves(mp->pos, mp->list);
+            ScoreMoves(mp->list, mp->pos, GEN_NOISY);
             mp->stage++;
 
             // fall through
@@ -90,6 +121,7 @@ Move NextMove(MovePicker *mp) {
                 return NOMOVE;
 
             GenQuietMoves(mp->pos, mp->list);
+            ScoreMoves(mp->list, mp->pos, GEN_QUIET);
             mp->stage++;
 
             // fall through
