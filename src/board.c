@@ -106,8 +106,7 @@ static Key GeneratePosKey(const Position *pos) {
         posKey ^= SideKey;
 
     // En passant
-    if (pos->epSquare)
-        posKey ^= PieceKeys[EMPTY][pos->epSquare];
+    posKey ^= PieceKeys[EMPTY][pos->epSquare];
 
     // Castling rights
     posKey ^= CastleKeys[pos->castlingRights];
