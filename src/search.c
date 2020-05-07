@@ -532,8 +532,8 @@ static int AspirationWindow(Position *pos, SearchInfo *info) {
 // Decides when to stop a search
 static void InitTimeManagement(int ply) {
 
-    const int overhead = 30;
-    const int minThink = 10;
+    const int overhead = 5;
+    const int minThink = 1;
 
     // In movetime mode we use all the time given each turn
     if (Limits.movetime) {
