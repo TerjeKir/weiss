@@ -70,7 +70,7 @@ CONSTR InitHashKeys() {
     SideKey = Rand64();
 
     // En passant
-    for (Square sq = A1; sq <= H8; ++sq)
+    for (Square sq = A3; sq <= H6; ++sq)
         PieceKeys[0][sq] = Rand64();
 
     // White pieces
@@ -106,8 +106,7 @@ static Key GeneratePosKey(const Position *pos) {
         posKey ^= SideKey;
 
     // En passant
-    if (pos->epSquare != NO_SQ)
-        posKey ^= PieceKeys[EMPTY][pos->epSquare];
+    posKey ^= PieceKeys[EMPTY][pos->epSquare];
 
     // Castling rights
     posKey ^= CastleKeys[pos->castlingRights];
@@ -242,8 +241,7 @@ void ParseFen(const char *fen, Position *pos) {
     Square ep = AlgebraicToSq(fen[0], fen[1]);
     bool epValid = *fen != '-' && (  PawnAttackBB(!sideToMove, ep)
                                    & colorPieceBB(sideToMove, PAWN));
-    pos->epSquare = epValid ? ep
-                            : NO_SQ;
+    pos->epSquare = epValid ? ep : 0;
     fen += 2;
 
     // 50 move rule
@@ -307,7 +305,7 @@ void PrintBoard(const Position *pos) {
     }
 
     char ep[3] = "-";
-    if (pos->epSquare != NO_SQ)
+    if (pos->epSquare)
         ep[0] = 'a' + FileOf(pos->epSquare),
         ep[1] = '1' + RankOf(pos->epSquare);
 
@@ -359,7 +357,7 @@ bool PositionOk(const Position *pos) {
 
     assert(sideToMove == WHITE || sideToMove == BLACK);
 
-    assert(pos->epSquare == NO_SQ
+    assert(!pos->epSquare
        || (RelativeRank(sideToMove, RankOf(pos->epSquare)) == RANK_6));
 
     assert(pos->castlingRights >= 0
@@ -383,7 +381,7 @@ void MirrorBoard(Position *pos) {
         board[sq] = MirrorPiece(pieceOn(MirrorSquare(sq)));
 
     Color stm = !sideToMove;
-    Square ep = pos->epSquare == NO_SQ ? NO_SQ : MirrorSquare(pos->epSquare);
+    Square ep = pos->epSquare == 0 ? 0 : MirrorSquare(pos->epSquare);
     uint8_t cr = (pos->castlingRights & WHITE_CASTLE) << 2
                | (pos->castlingRights & BLACK_CASTLE) >> 2;
 

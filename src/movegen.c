@@ -131,7 +131,7 @@ INLINE void GenPawn(const Position *pos, MoveList *list, const Color color, cons
             AddMove(pos, list, to - (up+right), to, EMPTY, FLAG_NONE);
         }
         // En passant
-        if (pos->epSquare != NO_SQ) {
+        if (pos->epSquare) {
             Bitboard enPassers = not7th & PawnAttackBB(!color, pos->epSquare);
             while (enPassers)
                 AddMove(pos, list, PopLsb(&enPassers), pos->epSquare, EMPTY, FLAG_ENPAS);

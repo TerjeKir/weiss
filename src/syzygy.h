@@ -41,11 +41,11 @@ bool ProbeWDL(const Position *pos, int *score, int *bound) {
     // possible, or when 50 move rule was not reset by the last move.
     // Finally, there is obviously no point if there are more pieces than
     // we have TBs for.
-    if (   (pos->ply            == 0)
-        || (pos->epSquare       != NO_SQ)
-        || (pos->castlingRights != 0)
-        || (pos->rule50         != 0)
-        || ((unsigned)PopCount(pieceBB(ALL)) > TB_LARGEST))
+    if (   !pos->ply
+        ||  pos->epSquare
+        ||  pos->castlingRights
+        ||  pos->rule50
+        || (unsigned)PopCount(pieceBB(ALL)) > TB_LARGEST)
         return false;
 
     // Call fathom
@@ -84,9 +84,7 @@ bool RootProbe(Position *pos, SearchInfo *info) {
         pieceBB(KING),   pieceBB(QUEEN),
         pieceBB(ROOK),   pieceBB(BISHOP),
         pieceBB(KNIGHT), pieceBB(PAWN),
-        pos->rule50,
-        pos->epSquare != NO_SQ ? pos->epSquare : 0,
-        sideToMove);
+        pos->rule50, pos->epSquare, sideToMove);
 
     // Probe failed
     if (   result == TB_RESULT_FAILED
