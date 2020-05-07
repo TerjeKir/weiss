@@ -200,7 +200,7 @@ bool MakeMove(Position *pos, const Move move) {
     pos->rule50++;
 
     // Hash out en passant if there was one, and unset it
-    HASH_EP,
+    HASH_EP;
     pos->epSquare = 0;
 
     const Square from = fromSq(move);
@@ -291,7 +291,7 @@ void MakeNullMove(Position *pos) {
     HASH_SIDE;
 
     // Hash out en passant if there was one, and unset it
-    HASH_EP,
+    HASH_EP;
     pos->epSquare = 0;
 
     assert(PositionOk(pos));
