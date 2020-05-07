@@ -200,9 +200,9 @@ bool MakeMove(Position *pos, const Move move) {
     pos->rule50++;
 
     // Hash out the old en passant if exist and unset it
-    if (pos->epSquare != NO_SQ)
+    if (pos->epSquare)
         HASH_EP,
-        pos->epSquare = NO_SQ;
+        pos->epSquare = 0;
 
     const Square from = fromSq(move);
     const Square to = toSq(move);
@@ -292,9 +292,9 @@ void MakeNullMove(Position *pos) {
     HASH_SIDE;
 
     // Hash out en passant if there was one, and unset it
-    if (pos->epSquare != NO_SQ)
+    if (pos->epSquare)
         HASH_EP,
-        pos->epSquare = NO_SQ;
+        pos->epSquare = 0;
 
     assert(PositionOk(pos));
 }
