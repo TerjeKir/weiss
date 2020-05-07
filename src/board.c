@@ -70,7 +70,7 @@ CONSTR InitHashKeys() {
     SideKey = Rand64();
 
     // En passant
-    for (Square sq = A1; sq <= H8; ++sq)
+    for (Square sq = A3; sq <= H6; ++sq)
         PieceKeys[0][sq] = Rand64();
 
     // White pieces
