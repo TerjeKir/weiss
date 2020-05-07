@@ -154,8 +154,7 @@ void TakeMove(Position *pos) {
             case C1: MovePiece(pos, D1, A1, false); break;
             case C8: MovePiece(pos, D8, A8, false); break;
             case G1: MovePiece(pos, F1, H1, false); break;
-            case G8: MovePiece(pos, F8, H8, false); break;
-            default: assert(false); break;
+            default: MovePiece(pos, F8, H8, false); break;
         }
 
     // Make reverse move (from <-> to)
@@ -256,8 +255,7 @@ bool MakeMove(Position *pos, const Move move) {
             case C1: MovePiece(pos, A1, D1, true); break;
             case C8: MovePiece(pos, A8, D8, true); break;
             case G1: MovePiece(pos, H1, F1, true); break;
-            case G8: MovePiece(pos, H8, F8, true); break;
-            default: assert(false); break;
+            default: MovePiece(pos, H8, F8, true); break;
         }
 
     // Change turn to play
