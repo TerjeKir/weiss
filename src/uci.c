@@ -118,14 +118,6 @@ static void UCISetoption(char *str, Thread **threads) {
 
         printf("Hash will use %" PRI_SIZET "MB after next 'isready'.\n", TT.requestedMB);
 
-    // Sets the syzygy tablebase path
-    } else if (OptionName(str, "SyzygyPath")) {
-
-        tb_init(OptionValue(str));
-
-        TB_LARGEST ? printf("TableBase init success - largest found: %d.\n", TB_LARGEST)
-                   : printf("TableBase init failure - not found.\n");
-
     // Sets number of threads to use for searching
     } else if (OptionName(str, "Threads")) {
 
@@ -133,6 +125,14 @@ static void UCISetoption(char *str, Thread **threads) {
         *threads = InitThreads(atoi(OptionValue(str)));
 
         printf("Search will use %d threads.\n", (*threads)->count);
+
+    // Sets the syzygy tablebase path
+    } else if (OptionName(str, "SyzygyPath")) {
+
+        tb_init(OptionValue(str));
+
+        TB_LARGEST ? printf("TableBase init success - largest found: %d.\n", TB_LARGEST)
+                   : printf("TableBase init failure - not found.\n");
 
     // Sets evaluation parameters (dev mode)
     } else
