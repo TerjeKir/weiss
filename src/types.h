@@ -210,7 +210,7 @@ typedef struct {
 
 } Position;
 
-typedef struct {
+typedef struct Thread {
 
     uint64_t nodes;
     uint64_t tbhits;
@@ -227,6 +227,7 @@ typedef struct {
 
     Position pos;
     int index;
+    struct Thread *threads;
 
 } Thread;
 

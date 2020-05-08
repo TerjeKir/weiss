@@ -110,14 +110,16 @@ static void PrintThinking(const Thread *thread, int score, int alpha, int beta) 
 
     TimePoint elapsed = TimeSince(Limits.start);
     Depth seldepth    = thread->seldepth;
+    uint64_t nodes    = TotalNodes(thread->threads, threadCount);
+    uint64_t tbhits   = TotalTBHits(thread->threads, threadCount);
     int hashFull      = HashFull();
-    int nps           = (int)(1000 * thread->nodes / (elapsed + 1));
+    int nps           = (int)(1000 * nodes / (elapsed + 1));
 
     // Basic info
     printf("info depth %d seldepth %d score %s %d%s time %" PRId64
            " nodes %" PRIu64 " nps %d tbhits %" PRIu64 " hashfull %d pv",
             thread->depth, seldepth, type, score, bound, elapsed,
-            thread->nodes, nps, thread->tbhits, hashFull);
+            nodes, nps, tbhits, hashFull);
 
     // Principal variation
     for (int i = 0; i < thread->pv.length; i++)

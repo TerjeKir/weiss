@@ -34,7 +34,7 @@
 
 
 volatile bool ABORT_SIGNAL = false;
-int threadCount = 2;
+int threadCount = 1;
 
 
 // Parses the time controls
