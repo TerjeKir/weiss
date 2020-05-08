@@ -492,6 +492,7 @@ move_loop:
 // Aspiration window
 static int AspirationWindow(Position *pos, Thread *thread) {
 
+    bool mainThread = thread->index == 0;
     int score = thread->score;
     int depth = thread->depth;
 
@@ -512,8 +513,8 @@ static int AspirationWindow(Position *pos, Thread *thread) {
         score = AlphaBeta(pos, thread, alpha, beta, depth, &thread->pv);
 
         // Give an update when done, or after each iteration in long searches
-        if (   (score > alpha && score < beta)
-            || TimeSince(Limits.start) > 3000)
+        if (mainThread && (   (score > alpha && score < beta)
+                           || TimeSince(Limits.start) > 3000))
             PrintThinking(thread, score, alpha, beta);
 
         // Failed low, relax lower bound and search again
@@ -576,8 +577,6 @@ void *IterativeDeepening(void *voidThread) {
 
     Thread *thread = voidThread;
     Position *pos = &thread->pos;
-
-    printf("Thread %d:\n", thread->index);
 
     // Iterative deepening
     for (thread->depth = 1; thread->depth <= Limits.depth; ++thread->depth) {
