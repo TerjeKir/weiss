@@ -22,34 +22,35 @@
 #include "types.h"
 
 
+// Allocates memory for thread structs
 Thread *InitThreads(int threadCount) {
 
     Thread *threads = calloc(threadCount, sizeof(Thread));
 
+    // Each thread knows its own index
     for (int i = 0; i < threadCount; ++i)
         threads[i].index = i;
 
+    // The main thread needs this
     threads[0].threads = threads;
 
     return threads;
 }
 
+// Tallies the nodes searched by all threads
 uint64_t TotalNodes(Thread *threads, int threadCount) {
 
     uint64_t total = 0;
-
     for (int i = 0; i < threadCount; ++i)
         total += threads[i].nodes;
-
     return total;
 }
 
+// Tallies the tbhits of all threads
 uint64_t TotalTBHits(Thread *threads, int threadCount) {
 
     uint64_t total = 0;
-
     for (int i = 0; i < threadCount; ++i)
         total += threads[i].tbhits;
-
     return total;
 }
