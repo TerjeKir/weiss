@@ -17,6 +17,7 @@
 */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "board.h"
@@ -43,21 +44,26 @@ static const char *BenchmarkFENs[] = {
     ""
 };
 
-void Benchmark(Position *pos, Thread *threads, Depth depth) {
+void Benchmark(int argc, char **argv) {
+
+    // Default depth 15, with 1 thread
+    Limits.depth     = argc > 2 ? atoi(argv[2]) : 15;
+    Limits.timelimit = false;
+    int threadCount  = argc > 3 ? atoi(argv[3]) : 1;
+
+    Position pos;
+    Thread *threads = InitThreads(threadCount);
+    InitTT();
 
     uint64_t nodes = 0;
-
-    Limits.depth = depth;
-    Limits.timelimit = false;
-
     TimePoint start = Now();
 
     for (int i = 0; strcmp(BenchmarkFENs[i], ""); ++i) {
         printf("Bench %d: %s\n", i + 1, BenchmarkFENs[i]);
-        ParseFen(BenchmarkFENs[i], pos);
+        ParseFen(BenchmarkFENs[i], &pos);
         Limits.start = Now();
         ABORT_SIGNAL = false;
-        SearchPosition(pos, threads);
+        SearchPosition(&pos, threads);
         nodes += TotalNodes(threads);
         ClearTT();
     }
