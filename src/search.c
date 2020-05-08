@@ -49,9 +49,9 @@ CONSTR InitReductions() {
 }
 
 // Check time situation
-static bool OutOfTime(SearchInfo *info) {
+static bool OutOfTime(Thread *thread) {
 
-    return (info->nodes & 4095) == 4095
+    return (thread->nodes & 4095) == 4095
         && Limits.timelimit
         && TimeSince(Limits.start) >= Limits.maxUsage;
 }
@@ -69,9 +69,9 @@ static bool IsRepetition(const Position *pos) {
 }
 
 // Get ready to start a search
-static void PrepareSearch(Position *pos, SearchInfo *info) {
+static void PrepareSearch(Position *pos, Thread *thread) {
 
-    memset(info, 0, sizeof(SearchInfo));
+    memset(thread, 0, sizeof(Thread));
 
     memset(pos->history, 0, sizeof(pos->history));
     memset(pos->killers, 0, sizeof(pos->killers));
@@ -87,7 +87,7 @@ INLINE int MateScore(const int score) {
 }
 
 // Print thinking
-static void PrintThinking(const SearchInfo *info, int score, int alpha, int beta) {
+static void PrintThinking(const Thread *thread, int score, int alpha, int beta) {
 
     // Determine whether we have a centipawn or mate score
     char *type = abs(score) >= MATE_IN_MAX ? "mate" : "cp";
@@ -103,30 +103,30 @@ static void PrintThinking(const SearchInfo *info, int score, int alpha, int beta
                                        : score * 100 / P_MG;
 
     TimePoint elapsed = TimeSince(Limits.start);
-    Depth seldepth    = info->seldepth;
+    Depth seldepth    = thread->seldepth;
     int hashFull      = HashFull();
-    int nps           = (int)(1000 * info->nodes / (elapsed + 1));
+    int nps           = (int)(1000 * thread->nodes / (elapsed + 1));
 
     // Basic info
     printf("info depth %d seldepth %d score %s %d%s time %" PRId64
            " nodes %" PRIu64 " nps %d tbhits %" PRIu64 " hashfull %d pv",
-            info->depth, seldepth, type, score, bound, elapsed,
-            info->nodes, nps, info->tbhits, hashFull);
+            thread->depth, seldepth, type, score, bound, elapsed,
+            thread->nodes, nps, thread->tbhits, hashFull);
 
     // Principal variation
-    for (int i = 0; i < info->pv.length; i++)
-        printf(" %s", MoveToStr(info->pv.line[i]));
+    for (int i = 0; i < thread->pv.length; i++)
+        printf(" %s", MoveToStr(thread->pv.line[i]));
 
     printf("\n");
     fflush(stdout);
 }
 
 // Print conclusion of search - best move and ponder move
-static void PrintConclusion(const SearchInfo *info) {
+static void PrintConclusion(const Thread *thread) {
 
-    printf("bestmove %s", MoveToStr(info->bestMove));
-    if (info->ponderMove)
-        printf(" ponder %s", MoveToStr(info->ponderMove));
+    printf("bestmove %s", MoveToStr(thread->bestMove));
+    if (thread->ponderMove)
+        printf(" ponder %s", MoveToStr(thread->ponderMove));
     printf("\n\n");
     fflush(stdout);
 }
@@ -154,19 +154,19 @@ static int QuiescenceDeltaMargin(const Position *pos) {
 }
 
 // Quiescence
-static int Quiescence(Position *pos, SearchInfo *info, int alpha, const int beta) {
+static int Quiescence(Position *pos, Thread *thread, int alpha, const int beta) {
 
     MovePicker mp;
     MoveList list;
 
     // Check time situation
-    if (OutOfTime(info) || ABORT_SIGNAL)
-        longjmp(info->jumpBuffer, true);
+    if (OutOfTime(thread) || ABORT_SIGNAL)
+        longjmp(thread->jumpBuffer, true);
 
     // Update node count and selective depth
-    info->nodes++;
-    if (pos->ply > info->seldepth)
-        info->seldepth = pos->ply;
+    thread->nodes++;
+    if (pos->ply > thread->seldepth)
+        thread->seldepth = pos->ply;
 
     // Check for draw
     if (IsRepetition(pos) || pos->rule50 >= 100)
@@ -206,7 +206,7 @@ static int Quiescence(Position *pos, SearchInfo *info, int alpha, const int beta
 
         // Recursively search the positions after making the moves, skipping illegal ones
         if (!MakeMove(pos, move)) continue;
-        score = -Quiescence(pos, info, -beta, -alpha);
+        score = -Quiescence(pos, thread, -beta, -alpha);
         TakeMove(pos);
 
         // Found a new best move in this position
@@ -229,7 +229,7 @@ static int Quiescence(Position *pos, SearchInfo *info, int alpha, const int beta
 }
 
 // Alpha Beta
-static int AlphaBeta(Position *pos, SearchInfo *info, int alpha, int beta, Depth depth, PV *pv) {
+static int AlphaBeta(Position *pos, Thread *thread, int alpha, int beta, Depth depth, PV *pv) {
 
     const bool pvNode = alpha != beta - 1;
     const bool root   = pos->ply == 0;
@@ -246,16 +246,16 @@ static int AlphaBeta(Position *pos, SearchInfo *info, int alpha, int beta, Depth
 
     // Quiescence at the end of search
     if (depth <= 0)
-        return Quiescence(pos, info, alpha, beta);
+        return Quiescence(pos, thread, alpha, beta);
 
     // Check time situation
-    if (OutOfTime(info) || ABORT_SIGNAL)
-        longjmp(info->jumpBuffer, true);
+    if (OutOfTime(thread) || ABORT_SIGNAL)
+        longjmp(thread->jumpBuffer, true);
 
     // Update node count and selective depth
-    info->nodes++;
-    if (pos->ply > info->seldepth)
-        info->seldepth = pos->ply;
+    thread->nodes++;
+    if (pos->ply > thread->seldepth)
+        thread->seldepth = pos->ply;
 
     // Early exits
     if (!root) {
@@ -303,7 +303,7 @@ static int AlphaBeta(Position *pos, SearchInfo *info, int alpha, int beta, Depth
     int score, bound;
     if (ProbeWDL(pos, &score, &bound)) {
 
-        info->tbhits++;
+        thread->tbhits++;
 
         if (    bound == BOUND_EXACT
             || (bound == BOUND_LOWER ? score >= beta : score <= alpha)) {
@@ -332,7 +332,7 @@ static int AlphaBeta(Position *pos, SearchInfo *info, int alpha, int beta, Depth
 
     // Razoring
     if (!pvNode && depth < 2 && eval + 640 < alpha)
-        return Quiescence(pos, info, alpha, beta);
+        return Quiescence(pos, thread, alpha, beta);
 
     // Reverse Futility Pruning
     if (!pvNode && depth < 7 && eval - 225 * depth + 100 * improving >= beta)
@@ -348,7 +348,7 @@ static int AlphaBeta(Position *pos, SearchInfo *info, int alpha, int beta, Depth
         int R = 3 + depth / 5 + MIN(3, (eval - beta) / 256);
 
         MakeNullMove(pos);
-        score = -AlphaBeta(pos, info, -beta, -beta + 1, depth - R, &pvFromHere);
+        score = -AlphaBeta(pos, thread, -beta, -beta + 1, depth - R, &pvFromHere);
         TakeNullMove(pos);
 
         // Cutoff
@@ -361,7 +361,7 @@ static int AlphaBeta(Position *pos, SearchInfo *info, int alpha, int beta, Depth
     // Internal iterative deepening
     if (depth >= 4 && !ttMove) {
 
-        AlphaBeta(pos, info, alpha, beta, CLAMP(depth-4, 1, depth/2), pv);
+        AlphaBeta(pos, thread, alpha, beta, CLAMP(depth-4, 1, depth/2), pv);
 
         tte = ProbeTT(posKey, &ttHit);
 
@@ -415,15 +415,15 @@ move_loop:
             // Depth after reductions, avoiding going straight to quiescence
             Depth RDepth = CLAMP(newDepth - R, 1, newDepth - 1);
 
-            score = -AlphaBeta(pos, info, -alpha - 1, -alpha, RDepth, &pvFromHere);
+            score = -AlphaBeta(pos, thread, -alpha - 1, -alpha, RDepth, &pvFromHere);
         }
         // Full depth zero-window search
         if (doLMR ? score > alpha : !pvNode || moveCount > 1)
-            score = -AlphaBeta(pos, info, -alpha - 1, -alpha, newDepth, &pvFromHere);
+            score = -AlphaBeta(pos, thread, -alpha - 1, -alpha, newDepth, &pvFromHere);
 
         // Full depth alpha-beta window search
         if (pvNode && ((score > alpha && score < beta) || moveCount == 1))
-            score = -AlphaBeta(pos, info, -beta, -alpha, newDepth, &pvFromHere);
+            score = -AlphaBeta(pos, thread, -beta, -alpha, newDepth, &pvFromHere);
 
         // Undo the move
         TakeMove(pos);
@@ -484,10 +484,10 @@ move_loop:
 }
 
 // Aspiration window
-static int AspirationWindow(Position *pos, SearchInfo *info) {
+static int AspirationWindow(Position *pos, Thread *thread) {
 
-    int score = info->score;
-    int depth = info->depth;
+    int score = thread->score;
+    int depth = thread->depth;
 
     const int initialWindow = 12;
     int delta = 16;
@@ -503,18 +503,18 @@ static int AspirationWindow(Position *pos, SearchInfo *info) {
     // Search with aspiration window until the result is inside the window
     while (true) {
 
-        score = AlphaBeta(pos, info, alpha, beta, depth, &info->pv);
+        score = AlphaBeta(pos, thread, alpha, beta, depth, &thread->pv);
 
         // Give an update when done, or after each iteration in long searches
         if (   (score > alpha && score < beta)
             || TimeSince(Limits.start) > 3000)
-            PrintThinking(info, score, alpha, beta);
+            PrintThinking(thread, score, alpha, beta);
 
         // Failed low, relax lower bound and search again
         if (score <= alpha) {
             alpha = MAX(alpha - delta, -INFINITE);
             beta  = (alpha + beta) / 2;
-            depth = info->depth;
+            depth = thread->depth;
 
         // Failed high, relax upper bound and search again
         } else if (score >= beta) {
@@ -566,32 +566,32 @@ static void InitTimeManagement(int ply) {
 }
 
 // Root of search
-void SearchPosition(Position *pos, SearchInfo *info) {
+void SearchPosition(Position *pos, Thread *thread) {
 
     InitTimeManagement(pos->gamePly);
 
-    PrepareSearch(pos, info);
+    PrepareSearch(pos, thread);
 
-    if (RootProbe(pos, info)) goto conclusion;
+    if (RootProbe(pos, thread)) goto conclusion;
 
     // Iterative deepening
-    for (info->depth = 1; info->depth <= Limits.depth; ++info->depth) {
+    for (thread->depth = 1; thread->depth <= Limits.depth; ++thread->depth) {
 
         // Jump here and go straight to printing conclusion when time's up
-        if (setjmp(info->jumpBuffer)) break;
+        if (setjmp(thread->jumpBuffer)) break;
 
         // Search position, using aspiration windows for higher depths
-        info->score = AspirationWindow(pos, info);
+        thread->score = AspirationWindow(pos, thread);
 
         // Save bestMove and ponderMove before overwriting the pv next iteration
-        info->bestMove   = info->pv.line[0];
-        info->ponderMove = info->pv.length > 1 ? info->pv.line[1] : NOMOVE;
+        thread->bestMove   = thread->pv.line[0];
+        thread->ponderMove = thread->pv.length > 1 ? thread->pv.line[1] : NOMOVE;
 
         if (   Limits.timelimit
             && TimeSince(Limits.start) > Limits.optimalUsage)
             break;
 
-        info->seldepth = 0;
+        thread->seldepth = 0;
     }
 
 conclusion:
@@ -600,5 +600,5 @@ conclusion:
     while (Limits.infinite && !ABORT_SIGNAL) {}
 
     // Print conclusion
-    PrintConclusion(info);
+    PrintConclusion(thread);
 }

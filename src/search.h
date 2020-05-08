@@ -23,4 +23,4 @@
 
 extern SearchLimits Limits;
 
-void SearchPosition(Position *pos, SearchInfo *info);
+void SearchPosition(Position *pos, Thread *thread);

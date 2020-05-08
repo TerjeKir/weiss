@@ -39,7 +39,7 @@ static const char *BenchmarkFENs[] = {
     ""
 };
 
-void Benchmark(Position *pos, SearchInfo *info, Depth depth) {
+void Benchmark(Position *pos, Thread *thread, Depth depth) {
 
     uint64_t nodes = 0;
 
@@ -52,8 +52,8 @@ void Benchmark(Position *pos, SearchInfo *info, Depth depth) {
         printf("Bench %d: %s\n", i + 1, BenchmarkFENs[i]);
         ParseFen(BenchmarkFENs[i], pos);
         Limits.start = Now();
-        SearchPosition(pos, info);
-        nodes += info->nodes;
+        SearchPosition(pos, thread);
+        nodes += thread->nodes;
         ClearTT();
     }
 

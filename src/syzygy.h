@@ -70,7 +70,7 @@ bool ProbeWDL(const Position *pos, int *score, int *bound) {
 }
 
 // Calls fathom to get optimal moves in tablebase positions in root
-bool RootProbe(Position *pos, SearchInfo *info) {
+bool RootProbe(Position *pos, Thread *thread) {
 
     // Tablebases contain no positions with castling legal,
     // and if there are too many pieces a probe will fail
@@ -115,7 +115,7 @@ bool RootProbe(Position *pos, SearchInfo *info) {
     fflush(stdout);
 
     // Set move to be printed as conclusion
-    info->bestMove = move;
+    thread->bestMove = move;
 
     return true;
 }

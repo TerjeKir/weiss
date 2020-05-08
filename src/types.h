@@ -225,7 +225,7 @@ typedef struct {
 
     jmp_buf jumpBuffer;
 
-} SearchInfo;
+} Thread;
 
 typedef struct {
 

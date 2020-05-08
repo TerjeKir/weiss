@@ -31,7 +31,7 @@
 typedef struct {
 
     Position *pos;
-    SearchInfo *info;
+    Thread *thread;
     char str[4096];
 
 } GoInfo;

@@ -61,13 +61,13 @@ static void ParseTimeControl(char *str, Color color) {
 // Parses a 'go' and starts a search
 static void *ParseGo(void *voidGoInfo) {
 
-    GoInfo *goInfo   = voidGoInfo;
-    Position *pos    = goInfo->pos;
-    SearchInfo *info = goInfo->info;
+    GoInfo *goInfo = voidGoInfo;
+    Position *pos  = goInfo->pos;
+    Thread *thread = goInfo->thread;
 
     ParseTimeControl(goInfo->str, sideToMove);
 
-    SearchPosition(pos, info);
+    SearchPosition(pos, thread);
 
     return NULL;
 }
@@ -160,14 +160,14 @@ int main(int argc, char **argv) {
 
     // Init engine
     Position pos[1];
-    SearchInfo info[1];
+    Thread thread[1];
     TT.currentMB = 0;
     TT.requestedMB = DEFAULTHASH;
 
     // Benchmark
     if (argc > 1 && strstr(argv[1], "bench")) {
         InitTT();
-        Benchmark(pos, info, argc > 2 ? atoi(argv[2]) : 15);
+        Benchmark(pos, thread, argc > 2 ? atoi(argv[2]) : 15);
         return 0;
     }
 
@@ -176,7 +176,7 @@ int main(int argc, char **argv) {
 
     // Search thread setup
     pthread_t searchThread;
-    GoInfo goInfo = { .pos = pos, .info = info };
+    GoInfo goInfo = { .pos = pos, .thread = thread };
 
     // Input loop
     char str[INPUT_SIZE];
