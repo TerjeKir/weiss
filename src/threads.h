@@ -20,5 +20,5 @@
 
 
 Thread *InitThreads(int threadCount);
-uint64_t TotalNodes(Thread *threads, int threadCount);
-uint64_t TotalTBHits(Thread *threads, int threadCount);
+uint64_t TotalNodes(const Thread *threads);
+uint64_t TotalTBHits(const Thread *threads);

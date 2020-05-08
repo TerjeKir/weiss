@@ -34,7 +34,6 @@
 
 
 volatile bool ABORT_SIGNAL = false;
-int threadCount = 1;
 
 
 // Parses the time controls
@@ -110,7 +109,7 @@ static void UCIPosition(char *str, Position *pos) {
 }
 
 // Parses a 'setoption' and updates settings
-static void UCISetoption(char *str) {
+static void UCISetoption(char *str, Thread **threads) {
 
     // Sets the size of the transposition table
     if (OptionName(str, "Hash")) {
@@ -130,9 +129,10 @@ static void UCISetoption(char *str) {
     // Sets number of threads to use for searching
     } else if (OptionName(str, "Threads")) {
 
-        threadCount = atoi(OptionValue(str));
+        free(*threads);
+        *threads = InitThreads(atoi(OptionValue(str)));
 
-        printf("Search will use %d threads.\n", threadCount);
+        printf("Search will use %d threads.\n", (*threads)->count);
 
     // Sets evaluation parameters (dev mode)
     } else
@@ -159,9 +159,8 @@ static void UCIStop(pthread_t searchThread) {
 }
 
 // Signals the engine is ready
-static void UCIIsReady(Thread **threads) {
+static void UCIIsReady() {
     InitTT();
-    free(*threads); *threads = InitThreads(threadCount);
     printf("readyok\n");
     fflush(stdout);
 }
@@ -171,7 +170,7 @@ int main(int argc, char **argv) {
 
     // Init engine
     Position pos[1];
-    Thread *threads = InitThreads(threadCount);
+    Thread *threads = InitThreads(1);
     TT.currentMB = 0;
     TT.requestedMB = DEFAULTHASH;
 
@@ -194,12 +193,12 @@ int main(int argc, char **argv) {
     while (GetInput(str)) {
         switch (HashInput(str)) {
             case GO         : UCIGo(&searchThread, &goInfo, str); break;
-            case UCI        : UCIInfo();             break;
-            case STOP       : UCIStop(searchThread); break;
-            case ISREADY    : UCIIsReady(&threads);  break;
-            case POSITION   : UCIPosition(str, pos); break;
-            case SETOPTION  : UCISetoption(str);     break;
-            case UCINEWGAME : ClearTT();             break;
+            case UCI        : UCIInfo();                          break;
+            case STOP       : UCIStop(searchThread);              break;
+            case ISREADY    : UCIIsReady();                       break;
+            case POSITION   : UCIPosition(str, pos);              break;
+            case SETOPTION  : UCISetoption(str, &threads); goInfo.threads = threads; break;
+            case UCINEWGAME : ClearTT();                          break;
             case QUIT       : return 0;
 #ifdef DEV
             // Non-UCI commands

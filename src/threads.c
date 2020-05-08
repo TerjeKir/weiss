@@ -23,34 +23,34 @@
 
 
 // Allocates memory for thread structs
-Thread *InitThreads(int threadCount) {
+Thread *InitThreads(int count) {
 
-    Thread *threads = calloc(threadCount, sizeof(Thread));
+    Thread *threads = calloc(count, sizeof(Thread));
 
     // Each thread knows its own index
-    for (int i = 0; i < threadCount; ++i)
+    for (int i = 0; i < count; ++i)
         threads[i].index = i;
 
-    // The main thread needs this
-    threads[0].threads = threads;
+    // The main thread keeps track of how many threads are in use
+    threads[0].count = count;
 
     return threads;
 }
 
 // Tallies the nodes searched by all threads
-uint64_t TotalNodes(Thread *threads, int threadCount) {
+uint64_t TotalNodes(const Thread *threads) {
 
     uint64_t total = 0;
-    for (int i = 0; i < threadCount; ++i)
+    for (int i = 0; i < threads->count; ++i)
         total += threads[i].nodes;
     return total;
 }
 
 // Tallies the tbhits of all threads
-uint64_t TotalTBHits(Thread *threads, int threadCount) {
+uint64_t TotalTBHits(const Thread *threads) {
 
     uint64_t total = 0;
-    for (int i = 0; i < threadCount; ++i)
+    for (int i = 0; i < threads->count; ++i)
         total += threads[i].tbhits;
     return total;
 }

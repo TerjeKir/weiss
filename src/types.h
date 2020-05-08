@@ -227,7 +227,7 @@ typedef struct Thread {
 
     Position pos;
     int index;
-    struct Thread *threads;
+    int count;
 
 } Thread;
 

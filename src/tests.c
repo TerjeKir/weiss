@@ -35,7 +35,6 @@
 
 
 extern volatile bool ABORT_SIGNAL;
-extern int threadCount;
 
 
 /* Benchmark heavily inspired by Ethereal*/
@@ -59,7 +58,7 @@ void Benchmark(Position *pos, Thread *threads, Depth depth) {
         Limits.start = Now();
         ABORT_SIGNAL = false;
         SearchPosition(pos, threads);
-        nodes += TotalNodes(threads, threadCount);
+        nodes += TotalNodes(threads);
         ClearTT();
     }
 

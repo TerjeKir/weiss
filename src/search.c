@@ -40,7 +40,6 @@ int Reductions[32][32];
 
 SearchLimits Limits;
 extern volatile bool ABORT_SIGNAL;
-extern int threadCount;
 
 
 // Initializes the late move reduction array
@@ -77,7 +76,7 @@ static void PrepareSearch(Position *pos, Thread *threads) {
     memset(pos->history, 0, sizeof(pos->history));
     memset(pos->killers, 0, sizeof(pos->killers));
 
-    for (int i = 0; i < threadCount; ++i) {
+    for (int i = 0; i < threads->count; ++i) {
         memset(&threads[i], 0, offsetof(Thread, pos));
         memcpy(&threads[i].pos, pos, sizeof(Position));
     }
@@ -110,8 +109,8 @@ static void PrintThinking(const Thread *thread, int score, int alpha, int beta) 
 
     TimePoint elapsed = TimeSince(Limits.start);
     Depth seldepth    = thread->seldepth;
-    uint64_t nodes    = TotalNodes(thread->threads, threadCount);
-    uint64_t tbhits   = TotalTBHits(thread->threads, threadCount);
+    uint64_t nodes    = TotalNodes(thread);
+    uint64_t tbhits   = TotalTBHits(thread);
     int hashFull      = HashFull();
     int nps           = (int)(1000 * nodes / (elapsed + 1));
 
@@ -605,7 +604,7 @@ void *IterativeDeepening(void *voidThread) {
 
 void SearchPosition(Position *pos, Thread *threads) {
 
-    pthread_t pthreads[threadCount];
+    pthread_t pthreads[threads->count];
 
     InitTimeManagement(pos->gamePly);
 
@@ -614,13 +613,13 @@ void SearchPosition(Position *pos, Thread *threads) {
     if (RootProbe(pos, threads)) goto conclusion;
 
     // Make extra threads and begin searching
-    for (int i = 1; i < threadCount; ++i)
+    for (int i = 1; i < threads->count; ++i)
         pthread_create(&pthreads[i], NULL, &IterativeDeepening, &threads[i]);
     IterativeDeepening(&threads[0]);
 
     // Signal the other threads to stop and wait for them
     ABORT_SIGNAL = true;
-    for (int i = 1; i < threadCount; ++i)
+    for (int i = 1; i < threads->count; ++i)
         pthread_join(pthreads[i], NULL);
 
 conclusion:
