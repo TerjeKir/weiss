@@ -225,6 +225,9 @@ typedef struct {
 
     jmp_buf jumpBuffer;
 
+    Position pos;
+    int index;
+
 } Thread;
 
 typedef struct {

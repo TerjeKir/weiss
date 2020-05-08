@@ -26,6 +26,7 @@
 #include "move.h"
 #include "search.h"
 #include "tests.h"
+#include "threads.h"
 #include "time.h"
 #include "transposition.h"
 #include "tune.h"
@@ -33,6 +34,7 @@
 
 
 volatile bool ABORT_SIGNAL = false;
+int threadCount = 2;
 
 
 // Parses the time controls
@@ -63,11 +65,11 @@ static void *ParseGo(void *voidGoInfo) {
 
     GoInfo *goInfo = voidGoInfo;
     Position *pos  = goInfo->pos;
-    Thread *thread = goInfo->thread;
+    Thread *threads = goInfo->threads;
 
     ParseTimeControl(goInfo->str, sideToMove);
 
-    SearchPosition(pos, thread);
+    SearchPosition(pos, threads);
 
     return NULL;
 }
@@ -125,6 +127,13 @@ static void UCISetoption(char *str) {
         TB_LARGEST ? printf("TableBase init success - largest found: %d.\n", TB_LARGEST)
                    : printf("TableBase init failure - not found.\n");
 
+    // Sets number of threads to use for searching
+    } else if (OptionName(str, "Threads")) {
+
+        threadCount = atoi(OptionValue(str));
+
+        printf("Search will use %d threads.\n", threadCount);
+
     // Sets evaluation parameters (dev mode)
     } else
         TuneParseAll(strstr(str, "name") + 5, atoi(OptionValue(str)));
@@ -136,6 +145,7 @@ static void UCIInfo() {
     printf("id name %s\n", NAME);
     printf("id author Terje Kirstihagen\n");
     printf("option name Hash type spin default %d min %d max %d\n", DEFAULTHASH, MINHASH, MAXHASH);
+    printf("option name Threads type spin default %d min %d max %d\n", 1, 1, 256);
     printf("option name SyzygyPath type string default <empty>\n");
     printf("option name Ponder type check default false\n"); // Turn on ponder stats in cutechess gui
     TuneDeclareAll(); // Declares all evaluation parameters as options (dev mode)
@@ -149,8 +159,9 @@ static void UCIStop(pthread_t searchThread) {
 }
 
 // Signals the engine is ready
-static void UCIIsReady() {
+static void UCIIsReady(Thread **threads) {
     InitTT();
+    free(*threads); *threads = InitThreads(threadCount);
     printf("readyok\n");
     fflush(stdout);
 }
@@ -160,14 +171,14 @@ int main(int argc, char **argv) {
 
     // Init engine
     Position pos[1];
-    Thread thread[1];
+    Thread *threads = InitThreads(threadCount);
     TT.currentMB = 0;
     TT.requestedMB = DEFAULTHASH;
 
     // Benchmark
     if (argc > 1 && strstr(argv[1], "bench")) {
         InitTT();
-        Benchmark(pos, thread, argc > 2 ? atoi(argv[2]) : 15);
+        Benchmark(pos, threads, argc > 2 ? atoi(argv[2]) : 15);
         return 0;
     }
 
@@ -176,7 +187,7 @@ int main(int argc, char **argv) {
 
     // Search thread setup
     pthread_t searchThread;
-    GoInfo goInfo = { .pos = pos, .thread = thread };
+    GoInfo goInfo = { .pos = pos, .threads = threads };
 
     // Input loop
     char str[INPUT_SIZE];
@@ -185,7 +196,7 @@ int main(int argc, char **argv) {
             case GO         : UCIGo(&searchThread, &goInfo, str); break;
             case UCI        : UCIInfo();             break;
             case STOP       : UCIStop(searchThread); break;
-            case ISREADY    : UCIIsReady();          break;
+            case ISREADY    : UCIIsReady(&threads);  break;
             case POSITION   : UCIPosition(str, pos); break;
             case SETOPTION  : UCISetoption(str);     break;
             case UCINEWGAME : ClearTT();             break;
