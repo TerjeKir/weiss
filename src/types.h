@@ -48,8 +48,8 @@
 
 #define lastMoveNullMove (!root && history(-1).move == NOMOVE)
 #define history(offset) (pos->gameHistory[pos->gamePly + offset])
-#define killer1 (pos->killers[pos->ply][0])
-#define killer2 (pos->killers[pos->ply][1])
+#define killer1 (thread->killers[pos->ply][0])
+#define killer2 (thread->killers[pos->ply][1])
 
 #define pieceBB(type) (pos->pieceBB[(type)])
 #define colorBB(color) (pos->colorBB[(color)])
@@ -181,7 +181,7 @@ typedef struct {
     int eval;
 } History;
 
-typedef struct {
+typedef struct Position {
 
     uint8_t board[64];
     Bitboard pieceBB[TYPE_NB];
@@ -205,9 +205,6 @@ typedef struct {
 
     History gameHistory[MAXGAMEMOVES];
 
-    int history[PIECE_NB][64];
-    Move killers[MAXDEPTH][2];
-
 } Position;
 
 typedef struct Thread {
@@ -225,7 +222,12 @@ typedef struct Thread {
 
     jmp_buf jumpBuffer;
 
+    int history[PIECE_NB][64];
+    Move killers[MAXDEPTH][2];
+
+    // Anything below here is not zeroed out between searches
     Position pos;
+
     int index;
     int count;
 

@@ -74,9 +74,6 @@ static bool IsRepetition(const Position *pos) {
 // Get ready to start a search
 static void PrepareSearch(Position *pos, Thread *threads) {
 
-    memset(pos->history, 0, sizeof(pos->history));
-    memset(pos->killers, 0, sizeof(pos->killers));
-
     for (int i = 0; i < threads->count; ++i) {
         memset(&threads[i], 0, offsetof(Thread, pos));
         memcpy(&threads[i].pos, pos, sizeof(Position));
@@ -162,8 +159,9 @@ static int QuiescenceDeltaMargin(const Position *pos) {
 }
 
 // Quiescence
-static int Quiescence(Position *pos, Thread *thread, int alpha, const int beta) {
+static int Quiescence(Thread *thread, int alpha, const int beta) {
 
+    Position *pos = &thread->pos;
     MovePicker mp;
     MoveList list;
 
@@ -198,7 +196,7 @@ static int Quiescence(Position *pos, Thread *thread, int alpha, const int beta) 
 
     const bool inCheck = KingAttacked(pos, sideToMove);
 
-    InitNoisyMP(&mp, &list, pos);
+    InitNoisyMP(&mp, &list, thread);
 
     int bestScore = score;
 
@@ -214,7 +212,7 @@ static int Quiescence(Position *pos, Thread *thread, int alpha, const int beta) 
 
         // Recursively search the positions after making the moves, skipping illegal ones
         if (!MakeMove(pos, move)) continue;
-        score = -Quiescence(pos, thread, -beta, -alpha);
+        score = -Quiescence(thread, -beta, -alpha);
         TakeMove(pos);
 
         // Found a new best move in this position
@@ -237,7 +235,11 @@ static int Quiescence(Position *pos, Thread *thread, int alpha, const int beta) 
 }
 
 // Alpha Beta
-static int AlphaBeta(Position *pos, Thread *thread, int alpha, int beta, Depth depth, PV *pv) {
+static int AlphaBeta(Thread *thread, int alpha, int beta, Depth depth, PV *pv) {
+
+    Position *pos = &thread->pos;
+    MovePicker mp;
+    MoveList list;
 
     const bool pvNode = alpha != beta - 1;
     const bool root   = pos->ply == 0;
@@ -245,16 +247,13 @@ static int AlphaBeta(Position *pos, Thread *thread, int alpha, int beta, Depth d
     PV pvFromHere;
     pv->length = 0;
 
-    MovePicker mp;
-    MoveList list;
-
     // Extend search if in check
     const bool inCheck = KingAttacked(pos, sideToMove);
     if (inCheck && depth + 1 < MAXDEPTH) depth++;
 
     // Quiescence at the end of search
     if (depth <= 0)
-        return Quiescence(pos, thread, alpha, beta);
+        return Quiescence(thread, alpha, beta);
 
     // Check time situation
     if (OutOfTime(thread) || ABORT_SIGNAL)
@@ -340,7 +339,7 @@ static int AlphaBeta(Position *pos, Thread *thread, int alpha, int beta, Depth d
 
     // Razoring
     if (!pvNode && depth < 2 && eval + 640 < alpha)
-        return Quiescence(pos, thread, alpha, beta);
+        return Quiescence(thread, alpha, beta);
 
     // Reverse Futility Pruning
     if (!pvNode && depth < 7 && eval - 225 * depth + 100 * improving >= beta)
@@ -356,7 +355,7 @@ static int AlphaBeta(Position *pos, Thread *thread, int alpha, int beta, Depth d
         int R = 3 + depth / 5 + MIN(3, (eval - beta) / 256);
 
         MakeNullMove(pos);
-        score = -AlphaBeta(pos, thread, -beta, -beta + 1, depth - R, &pvFromHere);
+        score = -AlphaBeta(thread, -beta, -beta + 1, depth - R, &pvFromHere);
         TakeNullMove(pos);
 
         // Cutoff
@@ -369,7 +368,7 @@ static int AlphaBeta(Position *pos, Thread *thread, int alpha, int beta, Depth d
     // Internal iterative deepening
     if (depth >= 4 && !ttMove) {
 
-        AlphaBeta(pos, thread, alpha, beta, CLAMP(depth-4, 1, depth/2), pv);
+        AlphaBeta(thread, alpha, beta, CLAMP(depth-4, 1, depth/2), pv);
 
         tte = ProbeTT(posKey, &ttHit);
 
@@ -378,7 +377,7 @@ static int AlphaBeta(Position *pos, Thread *thread, int alpha, int beta, Depth d
 
 move_loop:
 
-    InitNormalMP(&mp, &list, pos, ttMove, killer1, killer2);
+    InitNormalMP(&mp, &list, thread, ttMove, killer1, killer2);
 
     const int oldAlpha = alpha;
     int moveCount = 0, quietCount = 0;
@@ -423,15 +422,15 @@ move_loop:
             // Depth after reductions, avoiding going straight to quiescence
             Depth RDepth = CLAMP(newDepth - R, 1, newDepth - 1);
 
-            score = -AlphaBeta(pos, thread, -alpha - 1, -alpha, RDepth, &pvFromHere);
+            score = -AlphaBeta(thread, -alpha - 1, -alpha, RDepth, &pvFromHere);
         }
         // Full depth zero-window search
         if (doLMR ? score > alpha : !pvNode || moveCount > 1)
-            score = -AlphaBeta(pos, thread, -alpha - 1, -alpha, newDepth, &pvFromHere);
+            score = -AlphaBeta(thread, -alpha - 1, -alpha, newDepth, &pvFromHere);
 
         // Full depth alpha-beta window search
         if (pvNode && ((score > alpha && score < beta) || moveCount == 1))
-            score = -AlphaBeta(pos, thread, -beta, -alpha, newDepth, &pvFromHere);
+            score = -AlphaBeta(thread, -beta, -alpha, newDepth, &pvFromHere);
 
         // Undo the move
         TakeMove(pos);
@@ -456,7 +455,7 @@ move_loop:
 
                 // Update search history
                 if (quiet)
-                    pos->history[pieceOn(fromSq(bestMove))][toSq(bestMove)] += depth * depth;
+                    thread->history[pieceOn(fromSq(bestMove))][toSq(bestMove)] += depth * depth;
 
                 // If score beats beta we have a cutoff
                 if (score >= beta) {
@@ -492,7 +491,7 @@ move_loop:
 }
 
 // Aspiration window
-static int AspirationWindow(Position *pos, Thread *thread) {
+static int AspirationWindow(Thread *thread) {
 
     bool mainThread = thread->index == 0;
     int score = thread->score;
@@ -512,7 +511,7 @@ static int AspirationWindow(Position *pos, Thread *thread) {
     // Search with aspiration window until the result is inside the window
     while (true) {
 
-        score = AlphaBeta(pos, thread, alpha, beta, depth, &thread->pv);
+        score = AlphaBeta(thread, alpha, beta, depth, &thread->pv);
 
         // Give an update when done, or after each iteration in long searches
         if (mainThread && (   (score > alpha && score < beta)
@@ -578,7 +577,6 @@ static void InitTimeManagement(int ply) {
 void *IterativeDeepening(void *voidThread) {
 
     Thread *thread = voidThread;
-    Position *pos = &thread->pos;
 
     // Iterative deepening
     for (thread->depth = 1; thread->depth <= Limits.depth; ++thread->depth) {
@@ -587,7 +585,7 @@ void *IterativeDeepening(void *voidThread) {
         if (setjmp(thread->jumpBuffer)) break;
 
         // Search position, using aspiration windows for higher depths
-        thread->score = AspirationWindow(pos, thread);
+        thread->score = AspirationWindow(thread);
 
         // Save bestMove and ponderMove before overwriting the pv next iteration
         thread->bestMove   = thread->pv.line[0];
