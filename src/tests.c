@@ -57,19 +57,18 @@ void Benchmark(int argc, char **argv) {
     InitTT();
 
     uint64_t nodes = 0;
-    TimePoint start = Now();
+    TimePoint elapsed = 1; // To avoid possible div/0
 
     for (int i = 0; strcmp(BenchmarkFENs[i], ""); ++i) {
         printf("Bench %d: %s\n", i + 1, BenchmarkFENs[i]);
         ParseFen(BenchmarkFENs[i], &pos);
-        Limits.start = Now();
         ABORT_SIGNAL = false;
+        Limits.start = Now();
         SearchPosition(&pos, threads);
+        elapsed += TimeSince(Limits.start);
         nodes += TotalNodes(threads);
         ClearTT();
     }
-
-    TimePoint elapsed = TimeSince(start) + 1;
 
     printf("Benchmark complete:"
            "\nTime : %" PRId64 "ms"
