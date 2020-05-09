@@ -181,7 +181,7 @@ typedef struct {
     int eval;
 } History;
 
-typedef struct {
+typedef struct Position {
 
     uint8_t board[64];
     Bitboard pieceBB[TYPE_NB];
