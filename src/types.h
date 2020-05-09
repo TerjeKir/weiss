@@ -225,7 +225,9 @@ typedef struct Thread {
     int history[PIECE_NB][64];
     Move killers[MAXDEPTH][2];
 
+    // Anything below here is not zeroed out between searches
     Position pos;
+
     int index;
     int count;
 
