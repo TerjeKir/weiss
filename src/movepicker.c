@@ -60,7 +60,9 @@ static Move PickNextMove(MoveList *list, const Move ttMove, const Move kill1, co
 }
 
 // Gives a score to each move left in the list
-static void ScoreMoves(MoveList *list, const Position *pos, const int stage) {
+static void ScoreMoves(MoveList *list, const Thread *thread, const int stage) {
+
+    const Position *pos = &thread->pos;
 
     for (int i = list->next; i < list->count; ++i) {
 
@@ -71,7 +73,7 @@ static void ScoreMoves(MoveList *list, const Position *pos, const int stage) {
                                  : MvvLvaScores[pieceOn(toSq(move))][pieceOn(fromSq(move))];
 
         if (stage == GEN_QUIET)
-            list->moves[i].score = pos->history[pieceOn(fromSq(move))][toSq(move)];
+            list->moves[i].score = thread->history[pieceOn(fromSq(move))][toSq(move)];
     }
 }
 
@@ -92,7 +94,7 @@ Move NextMove(MovePicker *mp) {
             // fall through
         case GEN_NOISY:
             GenNoisyMoves(pos, mp->list);
-            ScoreMoves(mp->list, pos, GEN_NOISY);
+            ScoreMoves(mp->list, mp->thread, GEN_NOISY);
             mp->stage++;
 
             // fall through
@@ -122,7 +124,7 @@ Move NextMove(MovePicker *mp) {
                 return NOMOVE;
 
             GenQuietMoves(pos, mp->list);
-            ScoreMoves(mp->list, pos, GEN_QUIET);
+            ScoreMoves(mp->list, mp->thread, GEN_QUIET);
             mp->stage++;
 
             // fall through

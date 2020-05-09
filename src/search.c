@@ -74,9 +74,6 @@ static bool IsRepetition(const Position *pos) {
 // Get ready to start a search
 static void PrepareSearch(Position *pos, Thread *threads) {
 
-    memset(pos->history, 0, sizeof(pos->history));
-    memset(pos->killers, 0, sizeof(pos->killers));
-
     for (int i = 0; i < threads->count; ++i) {
         memset(&threads[i], 0, offsetof(Thread, pos));
         memcpy(&threads[i].pos, pos, sizeof(Position));
@@ -458,7 +455,7 @@ move_loop:
 
                 // Update search history
                 if (quiet)
-                    pos->history[pieceOn(fromSq(bestMove))][toSq(bestMove)] += depth * depth;
+                    thread->history[pieceOn(fromSq(bestMove))][toSq(bestMove)] += depth * depth;
 
                 // If score beats beta we have a cutoff
                 if (score >= beta) {
