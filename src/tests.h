@@ -21,7 +21,7 @@
 #include "types.h"
 
 
-void Benchmark(Position *pos, Thread *thread, Depth depth);
+void Benchmark(int argc, char **argv);
 
 #ifdef DEV
 void Perft(char *line);
