@@ -26,6 +26,7 @@
 #include "move.h"
 #include "search.h"
 #include "tests.h"
+#include "threads.h"
 #include "time.h"
 #include "transposition.h"
 #include "tune.h"
@@ -61,13 +62,13 @@ static void ParseTimeControl(char *str, Color color) {
 // Parses a 'go' and starts a search
 static void *ParseGo(void *voidGoInfo) {
 
-    GoInfo *goInfo   = voidGoInfo;
-    Position *pos    = goInfo->pos;
-    SearchInfo *info = goInfo->info;
+    GoInfo *goInfo = voidGoInfo;
+    Position *pos  = goInfo->pos;
+    Thread *threads = goInfo->threads;
 
     ParseTimeControl(goInfo->str, sideToMove);
 
-    SearchPosition(pos, info);
+    SearchPosition(pos, threads);
 
     return NULL;
 }
@@ -108,7 +109,7 @@ static void UCIPosition(char *str, Position *pos) {
 }
 
 // Parses a 'setoption' and updates settings
-static void UCISetoption(char *str) {
+static void UCISetoption(char *str, Thread **threads) {
 
     // Sets the size of the transposition table
     if (OptionName(str, "Hash")) {
@@ -125,6 +126,14 @@ static void UCISetoption(char *str) {
         TB_LARGEST ? printf("TableBase init success - largest found: %d.\n", TB_LARGEST)
                    : printf("TableBase init failure - not found.\n");
 
+    // Sets number of threads to use for searching
+    } else if (OptionName(str, "Threads")) {
+
+        free(*threads);
+        *threads = InitThreads(atoi(OptionValue(str)));
+
+        printf("Search will use %d threads.\n", (*threads)->count);
+
     // Sets evaluation parameters (dev mode)
     } else
         TuneParseAll(strstr(str, "name") + 5, atoi(OptionValue(str)));
@@ -136,6 +145,7 @@ static void UCIInfo() {
     printf("id name %s\n", NAME);
     printf("id author Terje Kirstihagen\n");
     printf("option name Hash type spin default %d min %d max %d\n", DEFAULTHASH, MINHASH, MAXHASH);
+    printf("option name Threads type spin default %d min %d max %d\n", 1, 1, 256);
     printf("option name SyzygyPath type string default <empty>\n");
     printf("option name Ponder type check default false\n"); // Turn on ponder stats in cutechess gui
     TuneDeclareAll(); // Declares all evaluation parameters as options (dev mode)
@@ -160,14 +170,14 @@ int main(int argc, char **argv) {
 
     // Init engine
     Position pos[1];
-    SearchInfo info[1];
+    Thread *threads = InitThreads(1);
     TT.currentMB = 0;
     TT.requestedMB = DEFAULTHASH;
 
     // Benchmark
     if (argc > 1 && strstr(argv[1], "bench")) {
         InitTT();
-        Benchmark(pos, info, argc > 2 ? atoi(argv[2]) : 15);
+        Benchmark(pos, threads, argc > 2 ? atoi(argv[2]) : 15);
         return 0;
     }
 
@@ -176,19 +186,19 @@ int main(int argc, char **argv) {
 
     // Search thread setup
     pthread_t searchThread;
-    GoInfo goInfo = { .pos = pos, .info = info };
+    GoInfo goInfo = { .pos = pos, .threads = threads };
 
     // Input loop
     char str[INPUT_SIZE];
     while (GetInput(str)) {
         switch (HashInput(str)) {
             case GO         : UCIGo(&searchThread, &goInfo, str); break;
-            case UCI        : UCIInfo();             break;
-            case STOP       : UCIStop(searchThread); break;
-            case ISREADY    : UCIIsReady();          break;
-            case POSITION   : UCIPosition(str, pos); break;
-            case SETOPTION  : UCISetoption(str);     break;
-            case UCINEWGAME : ClearTT();             break;
+            case UCI        : UCIInfo();                          break;
+            case STOP       : UCIStop(searchThread);              break;
+            case ISREADY    : UCIIsReady();                       break;
+            case POSITION   : UCIPosition(str, pos);              break;
+            case SETOPTION  : UCISetoption(str, &threads); goInfo.threads = threads; break;
+            case UCINEWGAME : ClearTT();                          break;
             case QUIT       : return 0;
 #ifdef DEV
             // Non-UCI commands

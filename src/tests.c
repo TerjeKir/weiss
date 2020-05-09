@@ -26,11 +26,15 @@
 #include "movegen.h"
 #include "psqt.h"
 #include "search.h"
+#include "threads.h"
 #include "time.h"
 #include "transposition.h"
 
 
 #define PERFT_FEN "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1"
+
+
+extern volatile bool ABORT_SIGNAL;
 
 
 /* Benchmark heavily inspired by Ethereal*/
@@ -39,7 +43,7 @@ static const char *BenchmarkFENs[] = {
     ""
 };
 
-void Benchmark(Position *pos, SearchInfo *info, Depth depth) {
+void Benchmark(Position *pos, Thread *threads, Depth depth) {
 
     uint64_t nodes = 0;
 
@@ -52,8 +56,9 @@ void Benchmark(Position *pos, SearchInfo *info, Depth depth) {
         printf("Bench %d: %s\n", i + 1, BenchmarkFENs[i]);
         ParseFen(BenchmarkFENs[i], pos);
         Limits.start = Now();
-        SearchPosition(pos, info);
-        nodes += info->nodes;
+        ABORT_SIGNAL = false;
+        SearchPosition(pos, threads);
+        nodes += TotalNodes(threads);
         ClearTT();
     }
 

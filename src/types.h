@@ -210,7 +210,7 @@ typedef struct {
 
 } Position;
 
-typedef struct {
+typedef struct Thread {
 
     uint64_t nodes;
     uint64_t tbhits;
@@ -225,7 +225,11 @@ typedef struct {
 
     jmp_buf jumpBuffer;
 
-} SearchInfo;
+    Position pos;
+    int index;
+    int count;
+
+} Thread;
 
 typedef struct {
 

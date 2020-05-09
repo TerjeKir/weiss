@@ -18,9 +18,7 @@
 
 #pragma once
 
-#include "types.h"
 
-
-extern SearchLimits Limits;
-
-void SearchPosition(Position *pos, Thread *thread);
+Thread *InitThreads(int threadCount);
+uint64_t TotalNodes(const Thread *threads);
+uint64_t TotalTBHits(const Thread *threads);
