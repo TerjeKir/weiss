@@ -62,8 +62,8 @@ static void ParseTimeControl(char *str, Color color) {
 // Parses a 'go' and starts a search
 static void *ParseGo(void *voidEngine) {
 
-    Engine *engine = voidEngine;
-    Position *pos  = engine->pos;
+    Engine *engine  = voidEngine;
+    Position *pos   = &engine->pos;
     Thread *threads = engine->threads;
 
     ParseTimeControl(engine->str, sideToMove);
@@ -175,13 +175,11 @@ int main(int argc, char **argv) {
         return Benchmark(argc, argv), 0;
 
     // Init engine
-    Position pos[1];
+    Engine engine = { .threads = InitThreads(1) };
+    Position *pos = &engine.pos;
 
     // Setup the default position
     ParseFen(START_FEN, pos);
-
-    // Search thread setup
-    Engine engine = { .pos = pos, .threads = InitThreads(1) };
 
     // Input loop
     char str[INPUT_SIZE];

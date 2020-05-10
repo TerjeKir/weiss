@@ -30,7 +30,7 @@
 
 typedef struct {
 
-    Position *pos;
+    Position pos;
     Thread *threads;
     char str[4096];
 
