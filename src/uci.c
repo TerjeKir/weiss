@@ -118,14 +118,6 @@ static void UCISetoption(char *str, Thread **threads) {
 
         printf("Hash will use %" PRI_SIZET "MB after next 'isready'.\n", TT.requestedMB);
 
-    // Sets the syzygy tablebase path
-    } else if (OptionName(str, "SyzygyPath")) {
-
-        tb_init(OptionValue(str));
-
-        TB_LARGEST ? printf("TableBase init success - largest found: %d.\n", TB_LARGEST)
-                   : printf("TableBase init failure - not found.\n");
-
     // Sets number of threads to use for searching
     } else if (OptionName(str, "Threads")) {
 
@@ -133,6 +125,14 @@ static void UCISetoption(char *str, Thread **threads) {
         *threads = InitThreads(atoi(OptionValue(str)));
 
         printf("Search will use %d threads.\n", (*threads)->count);
+
+    // Sets the syzygy tablebase path
+    } else if (OptionName(str, "SyzygyPath")) {
+
+        tb_init(OptionValue(str));
+
+        TB_LARGEST ? printf("TableBase init success - largest found: %d.\n", TB_LARGEST)
+                   : printf("TableBase init failure - not found.\n");
 
     // Sets evaluation parameters (dev mode)
     } else
@@ -170,7 +170,6 @@ int main(int argc, char **argv) {
 
     // Init engine
     Position pos[1];
-    Thread *threads = InitThreads(1);
     TT.currentMB = 0;
     TT.requestedMB = DEFAULTHASH;
 
@@ -185,7 +184,7 @@ int main(int argc, char **argv) {
 
     // Search thread setup
     pthread_t searchThread;
-    GoInfo goInfo = { .pos = pos, .threads = threads };
+    GoInfo goInfo = { .pos = pos, .threads = InitThreads(1) };
 
     // Input loop
     char str[INPUT_SIZE];
@@ -196,7 +195,7 @@ int main(int argc, char **argv) {
             case STOP       : UCIStop(searchThread);              break;
             case ISREADY    : UCIIsReady();                       break;
             case POSITION   : UCIPosition(str, pos);              break;
-            case SETOPTION  : UCISetoption(str, &threads); goInfo.threads = threads; break;
+            case SETOPTION  : UCISetoption(str, &goInfo.threads); break;
             case UCINEWGAME : ClearTT();                          break;
             case QUIT       : return 0;
 #ifdef DEV
