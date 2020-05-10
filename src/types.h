@@ -19,6 +19,7 @@
 #pragma once
 
 #include <inttypes.h>
+#include <pthread.h>
 #include <setjmp.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -230,6 +231,9 @@ typedef struct Thread {
 
     int index;
     int count;
+
+    pthread_mutex_t mutex;
+    pthread_cond_t sleepCondition;
 
 } Thread;
 

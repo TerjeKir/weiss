@@ -153,8 +153,9 @@ static void UCIInfo() {
 }
 
 // Stops searching
-static void UCIStop(pthread_t searchThread) {
+static void UCIStop(pthread_t searchThread, Thread *threads) {
     ABORT_SIGNAL = true;
+    Wake(threads);
     pthread_join(searchThread, NULL);
 }
 
@@ -192,12 +193,12 @@ int main(int argc, char **argv) {
         switch (HashInput(str)) {
             case GO         : UCIGo(&searchThread, &goInfo, str); break;
             case UCI        : UCIInfo();                          break;
-            case STOP       : UCIStop(searchThread);              break;
+            case STOP       : UCIStop(searchThread, goInfo.threads); break;
             case ISREADY    : UCIIsReady();                       break;
             case POSITION   : UCIPosition(str, pos);              break;
             case SETOPTION  : UCISetoption(str, &goInfo.threads); break;
             case UCINEWGAME : ClearTT();                          break;
-            case QUIT       : return 0;
+            case QUIT       : Wake(goInfo.threads); return 0;
 #ifdef DEV
             // Non-UCI commands
             case EVAL       : PrintEval(pos);      break;
