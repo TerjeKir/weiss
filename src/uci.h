@@ -32,7 +32,6 @@ typedef struct {
 
     Position pos;
     Thread *threads;
-    char str[4096];
 
 } Engine;
 

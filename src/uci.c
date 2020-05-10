@@ -59,25 +59,20 @@ static void ParseTimeControl(char *str, Color color) {
     Limits.depth = Limits.depth == 0 ? MAXDEPTH - 1 : Limits.depth;
 }
 
-// Parses a 'go' and starts a search
-static void *ParseGo(void *voidEngine) {
+// Begins a search with the given setup
+static void *BeginSearch(void *voidEngine) {
 
-    Engine *engine  = voidEngine;
-    Position *pos   = &engine->pos;
-    Thread *threads = engine->threads;
-
-    ParseTimeControl(engine->str, sideToMove);
-
-    SearchPosition(pos, threads);
-
+    Engine *engine = voidEngine;
+    SearchPosition(&engine->pos, engine->threads);
     return NULL;
 }
 
-// Starts a new thread to handle the go command and search
+// Parses the given limits and creates a new thread to start the search
 INLINE void UCIGo(Engine *engine, char *str) {
+
     ABORT_SIGNAL = false;
-    strncpy(engine->str, str, INPUT_SIZE);
-    pthread_create(&engine->threads->pthreads[0], NULL, &ParseGo, engine);
+    ParseTimeControl(str, engine->pos.stm);
+    pthread_create(&engine->threads->pthreads[0], NULL, &BeginSearch, engine);
 }
 
 // Parses a 'position' and sets up the board
