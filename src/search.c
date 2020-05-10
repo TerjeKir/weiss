@@ -616,15 +616,15 @@ void SearchPosition(Position *pos, Thread *threads) {
         pthread_create(&pthreads[i], NULL, &IterativeDeepening, &threads[i]);
     IterativeDeepening(&threads[0]);
 
-    // Signal the other threads to stop and wait for them
-    ABORT_SIGNAL = true;
-    for (int i = 1; i < threads->count; ++i)
-        pthread_join(pthreads[i], NULL);
-
 conclusion:
 
     // Wait for 'stop' in infinite search
     while (Limits.infinite && !ABORT_SIGNAL) {}
+
+    // Signal any extra threads to stop and wait for them
+    ABORT_SIGNAL = true;
+    for (int i = 1; i < threads->count; ++i)
+        pthread_join(pthreads[i], NULL);
 
     // Print conclusion
     PrintConclusion(threads);
