@@ -74,6 +74,7 @@ static bool IsRepetition(const Position *pos) {
 // Get ready to start a search
 static void PrepareSearch(Position *pos, Thread *threads) {
 
+    // Setup threads for a new search
     for (int i = 0; i < threads->count; ++i) {
         memset(&threads[i], 0, offsetof(Thread, pos));
         memcpy(&threads[i].pos, pos, sizeof(Position));
@@ -537,7 +538,7 @@ static int AspirationWindow(Thread *thread) {
     }
 }
 
-// Decides when to stop a search
+// Decide how much time to spend this turn
 static void InitTimeManagement(int ply) {
 
     const int overhead = 5;
@@ -573,7 +574,7 @@ static void InitTimeManagement(int ply) {
     Limits.timelimit = true;
 }
 
-// Root of search
+// Iterative deepening
 void *IterativeDeepening(void *voidThread) {
 
     Thread *thread = voidThread;
@@ -581,7 +582,7 @@ void *IterativeDeepening(void *voidThread) {
     // Iterative deepening
     for (thread->depth = 1; thread->depth <= Limits.depth; ++thread->depth) {
 
-        // Jump here and go straight to printing conclusion when time's up
+        // Jump here and return if we run out of allocated time mid-search
         if (setjmp(thread->jumpBuffer)) break;
 
         // Search position, using aspiration windows for higher depths
@@ -601,30 +602,30 @@ void *IterativeDeepening(void *voidThread) {
     return NULL;
 }
 
+// Root of search
 void SearchPosition(Position *pos, Thread *threads) {
-
-    pthread_t pthreads[threads->count];
 
     InitTimeManagement(pos->gamePly);
 
     PrepareSearch(pos, threads);
 
+    // Probe TBs for a move if already in a TB position
     if (RootProbe(pos, threads)) goto conclusion;
 
     // Make extra threads and begin searching
     for (int i = 1; i < threads->count; ++i)
-        pthread_create(&pthreads[i], NULL, &IterativeDeepening, &threads[i]);
+        pthread_create(&threads->pthreads[i], NULL, &IterativeDeepening, &threads[i]);
     IterativeDeepening(&threads[0]);
-
-    // Signal the other threads to stop and wait for them
-    ABORT_SIGNAL = true;
-    for (int i = 1; i < threads->count; ++i)
-        pthread_join(pthreads[i], NULL);
 
 conclusion:
 
     // Wait for 'stop' in infinite search
-    while (Limits.infinite && !ABORT_SIGNAL) {}
+    if (Limits.infinite) Wait(threads, &ABORT_SIGNAL);
+
+    // Signal any extra threads to stop and wait for them
+    ABORT_SIGNAL = true;
+    for (int i = 1; i < threads->count; ++i)
+        pthread_join(threads->pthreads[i], NULL);
 
     // Print conclusion
     PrintConclusion(threads);

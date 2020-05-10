@@ -34,6 +34,13 @@ Thread *InitThreads(int count) {
     // The main thread keeps track of how many threads are in use
     threads[0].count = count;
 
+    // Used for letting the main thread sleep
+    pthread_mutex_init(&threads->mutex, NULL);
+    pthread_cond_init(&threads->sleepCondition, NULL);
+
+    // Array of pthreads
+    threads->pthreads = calloc(count, sizeof(pthread_t));
+
     return threads;
 }
 
@@ -53,4 +60,21 @@ uint64_t TotalTBHits(const Thread *threads) {
     for (int i = 0; i < threads->count; ++i)
         total += threads[i].tbhits;
     return total;
+}
+
+// Thread sleeps until it is woken up
+void Wait(Thread *thread, volatile bool *condition) {
+
+    pthread_mutex_lock(&thread->mutex);
+    while (!*condition)
+        pthread_cond_wait(&thread->sleepCondition, &thread->mutex);
+    pthread_mutex_unlock(&thread->mutex);
+}
+
+// Wakes up a sleeping thread
+void Wake(Thread *thread) {
+
+    pthread_mutex_lock(&thread->mutex);
+    pthread_cond_signal(&thread->sleepCondition);
+    pthread_mutex_unlock(&thread->mutex);
 }

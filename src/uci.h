@@ -30,11 +30,10 @@
 
 typedef struct {
 
-    Position *pos;
+    Position pos;
     Thread *threads;
-    char str[4096];
 
-} GoInfo;
+} Engine;
 
 
 // Reads a line from stdin and strips newline

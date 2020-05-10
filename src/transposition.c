@@ -30,7 +30,7 @@
 #include "transposition.h"
 
 
-TranspositionTable TT;
+TranspositionTable TT = { .requestedMB = DEFAULTHASH };
 
 
 // Probe the transposition table
