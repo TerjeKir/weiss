@@ -605,8 +605,6 @@ void *IterativeDeepening(void *voidThread) {
 // Root of search
 void SearchPosition(Position *pos, Thread *threads) {
 
-    pthread_t pthreads[threads->count];
-
     InitTimeManagement(pos->gamePly);
 
     PrepareSearch(pos, threads);
@@ -616,7 +614,7 @@ void SearchPosition(Position *pos, Thread *threads) {
 
     // Make extra threads and begin searching
     for (int i = 1; i < threads->count; ++i)
-        pthread_create(&pthreads[i], NULL, &IterativeDeepening, &threads[i]);
+        pthread_create(&threads->pthreads[i], NULL, &IterativeDeepening, &threads[i]);
     IterativeDeepening(&threads[0]);
 
 conclusion:
@@ -627,7 +625,7 @@ conclusion:
     // Signal any extra threads to stop and wait for them
     ABORT_SIGNAL = true;
     for (int i = 1; i < threads->count; ++i)
-        pthread_join(pthreads[i], NULL);
+        pthread_join(threads->pthreads[i], NULL);
 
     // Print conclusion
     PrintConclusion(threads);

@@ -234,6 +234,7 @@ typedef struct Thread {
 
     pthread_mutex_t mutex;
     pthread_cond_t sleepCondition;
+    pthread_t *pthreads;
 
 } Thread;
 

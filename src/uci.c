@@ -60,13 +60,13 @@ static void ParseTimeControl(char *str, Color color) {
 }
 
 // Parses a 'go' and starts a search
-static void *ParseGo(void *voidGoInfo) {
+static void *ParseGo(void *voidEngine) {
 
-    GoInfo *goInfo = voidGoInfo;
-    Position *pos  = goInfo->pos;
-    Thread *threads = goInfo->threads;
+    Engine *engine = voidEngine;
+    Position *pos  = engine->pos;
+    Thread *threads = engine->threads;
 
-    ParseTimeControl(goInfo->str, sideToMove);
+    ParseTimeControl(engine->str, sideToMove);
 
     SearchPosition(pos, threads);
 
@@ -74,10 +74,10 @@ static void *ParseGo(void *voidGoInfo) {
 }
 
 // Starts a new thread to handle the go command and search
-INLINE void UCIGo(pthread_t *st, GoInfo *goInfo, char *str) {
+INLINE void UCIGo(Engine *engine, char *str) {
     ABORT_SIGNAL = false;
-    strncpy(goInfo->str, str, INPUT_SIZE);
-    pthread_create(st, NULL, &ParseGo, goInfo);
+    strncpy(engine->str, str, INPUT_SIZE);
+    pthread_create(&engine->threads->pthreads[0], NULL, &ParseGo, engine);
 }
 
 // Parses a 'position' and sets up the board
@@ -109,7 +109,7 @@ static void UCIPosition(char *str, Position *pos) {
 }
 
 // Parses a 'setoption' and updates settings
-static void UCISetoption(char *str, Thread **threads) {
+static void UCISetoption(char *str, Engine *engine) {
 
     // Sets the size of the transposition table
     if (OptionName(str, "Hash")) {
@@ -121,10 +121,11 @@ static void UCISetoption(char *str, Thread **threads) {
     // Sets number of threads to use for searching
     } else if (OptionName(str, "Threads")) {
 
-        free(*threads);
-        *threads = InitThreads(atoi(OptionValue(str)));
+        free(engine->threads->pthreads);
+        free(engine->threads);
+        engine->threads = InitThreads(atoi(OptionValue(str)));
 
-        printf("Search will use %d threads.\n", (*threads)->count);
+        printf("Search will use %d threads.\n", engine->threads->count);
 
     // Sets the syzygy tablebase path
     } else if (OptionName(str, "SyzygyPath")) {
@@ -153,10 +154,10 @@ static void UCIInfo() {
 }
 
 // Stops searching
-static void UCIStop(pthread_t searchThread, Thread *threads) {
+static void UCIStop(Engine *engine) {
     ABORT_SIGNAL = true;
-    Wake(threads);
-    pthread_join(searchThread, NULL);
+    Wake(engine->threads);
+    pthread_join(engine->threads->pthreads[0], NULL);
 }
 
 // Signals the engine is ready
@@ -184,21 +185,20 @@ int main(int argc, char **argv) {
     ParseFen(START_FEN, pos);
 
     // Search thread setup
-    pthread_t searchThread;
-    GoInfo goInfo = { .pos = pos, .threads = InitThreads(1) };
+    Engine engine = { .pos = pos, .threads = InitThreads(1) };
 
     // Input loop
     char str[INPUT_SIZE];
     while (GetInput(str)) {
         switch (HashInput(str)) {
-            case GO         : UCIGo(&searchThread, &goInfo, str); break;
-            case UCI        : UCIInfo();                          break;
-            case STOP       : UCIStop(searchThread, goInfo.threads); break;
-            case ISREADY    : UCIIsReady();                       break;
-            case POSITION   : UCIPosition(str, pos);              break;
-            case SETOPTION  : UCISetoption(str, &goInfo.threads); break;
-            case UCINEWGAME : ClearTT();                          break;
-            case QUIT       : Wake(goInfo.threads); return 0;
+            case GO         : UCIGo(&engine, str);        break;
+            case UCI        : UCIInfo();                  break;
+            case STOP       : UCIStop(&engine);           break;
+            case ISREADY    : UCIIsReady();               break;
+            case POSITION   : UCIPosition(str, pos);      break;
+            case SETOPTION  : UCISetoption(str, &engine); break;
+            case UCINEWGAME : ClearTT();                  break;
+            case QUIT       : return 0;
 #ifdef DEV
             // Non-UCI commands
             case EVAL       : PrintEval(pos);      break;

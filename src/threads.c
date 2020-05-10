@@ -34,8 +34,12 @@ Thread *InitThreads(int count) {
     // The main thread keeps track of how many threads are in use
     threads[0].count = count;
 
+    // Used for letting the main thread sleep
     pthread_mutex_init(&threads->mutex, NULL);
     pthread_cond_init(&threads->sleepCondition, NULL);
+
+    // Array of pthreads
+    threads->pthreads = calloc(count, sizeof(pthread_t));
 
     return threads;
 }
