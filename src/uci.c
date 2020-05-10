@@ -81,7 +81,7 @@ INLINE void UCIGo(Engine *engine, char *str) {
 }
 
 // Parses a 'position' and sets up the board
-static void UCIPosition(char *str, Position *pos) {
+static void UCIPosition(Position *pos, char *str) {
 
     // Set up original position. This will either be a
     // position given as FEN, or the normal start position
@@ -109,7 +109,7 @@ static void UCIPosition(char *str, Position *pos) {
 }
 
 // Parses a 'setoption' and updates settings
-static void UCISetoption(char *str, Engine *engine) {
+static void UCISetOption(Engine *engine, char *str) {
 
     // Sets the size of the transposition table
     if (OptionName(str, "Hash")) {
@@ -170,16 +170,12 @@ static void UCIIsReady() {
 // Sets up the engine and follows UCI protocol commands
 int main(int argc, char **argv) {
 
+    // Benchmark
+    if (argc > 1 && strstr(argv[1], "bench"))
+        return Benchmark(argc, argv), 0;
+
     // Init engine
     Position pos[1];
-    TT.currentMB = 0;
-    TT.requestedMB = DEFAULTHASH;
-
-    // Benchmark
-    if (argc > 1 && strstr(argv[1], "bench")) {
-        Benchmark(argc, argv);
-        return 0;
-    }
 
     // Setup the default position
     ParseFen(START_FEN, pos);
@@ -195,8 +191,8 @@ int main(int argc, char **argv) {
             case UCI        : UCIInfo();                  break;
             case STOP       : UCIStop(&engine);           break;
             case ISREADY    : UCIIsReady();               break;
-            case POSITION   : UCIPosition(str, pos);      break;
-            case SETOPTION  : UCISetoption(str, &engine); break;
+            case POSITION   : UCIPosition(pos, str);      break;
+            case SETOPTION  : UCISetOption(&engine, str); break;
             case UCINEWGAME : ClearTT();                  break;
             case QUIT       : return 0;
 #ifdef DEV
