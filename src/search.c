@@ -615,7 +615,8 @@ void SearchPosition(Position *pos, Thread *threads) {
     if (RootProbe(pos, threads)) goto conclusion;
 
     // Probe noobpwnftw's Chess Cloud Database
-    if (noobbook && ProbeNoob(pos, threads)) goto conclusion;
+    if (   noobbook && Limits.optimalUsage > 1000
+        && ProbeNoob(pos, threads)) goto conclusion;
 
     // Make extra threads and begin searching
     for (int i = 1; i < threads->count; ++i)
