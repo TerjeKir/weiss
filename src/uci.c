@@ -34,6 +34,7 @@
 
 
 volatile bool ABORT_SIGNAL = false;
+bool noobbook = false;
 
 
 // Parses the time controls
@@ -130,6 +131,10 @@ static void UCISetOption(Engine *engine, char *str) {
         TB_LARGEST ? printf("TableBase init success - largest found: %d.\n", TB_LARGEST)
                    : printf("TableBase init failure - not found.\n");
 
+    } else if (OptionName(str, "NoobBook")) {
+
+        noobbook = !strncmp(OptionValue(str), "true", 4);
+
     // Sets evaluation parameters (dev mode)
     } else
         TuneParseAll(strstr(str, "name") + 5, atoi(OptionValue(str)));
@@ -143,6 +148,7 @@ static void UCIInfo() {
     printf("option name Hash type spin default %d min %d max %d\n", DEFAULTHASH, MINHASH, MAXHASH);
     printf("option name Threads type spin default %d min %d max %d\n", 1, 1, 256);
     printf("option name SyzygyPath type string default <empty>\n");
+    printf("option name NoobBook type check default false\n");
     printf("option name Ponder type check default false\n"); // Turn on ponder stats in cutechess gui
     TuneDeclareAll(); // Declares all evaluation parameters as options (dev mode)
     printf("uciok\n"); fflush(stdout);
