@@ -31,26 +31,25 @@
 
 #undef INFINITE
 
+#include "../board.h"
 #include "../move.h"
 #include "../types.h"
 
 
 void error(const char *msg) { perror(msg); exit(0); }
 
-Move ProbeNoob(Position *pos, char *board) {
+// Probes noobpwnftw's Chess Cloud Database
+bool ProbeNoob(Position *pos, Thread *threads) {
 
     WSADATA wsaData;
-    if (WSAStartup(MAKEWORD(2,0), &wsaData) != 0) {
-        fprintf(stderr, "WSAStartup failed.\n");
-        exit(1);
-    }
+    if (WSAStartup(MAKEWORD(2,0), &wsaData) != 0)
+        error("WSAStartup failed.");
 
     // Make the message
     char *message_fmt = "GET http://www.chessdb.cn/cdb.php?action=querybest&board=%s\r\n\r\n";
-    char message[1024], response[1024];
+    char message[256], response[32];
 
-    sprintf(message, message_fmt, board);
-    printf("Request: %s", message);
+    sprintf(message, message_fmt, BoardToFen(pos));
 
     // Create socket
     SOCKET sockfd;
@@ -87,5 +86,11 @@ Move ProbeNoob(Position *pos, char *board) {
     close(sockfd);
     WSACleanup();
 
-    return ParseMove(&response[5], pos);
+    // Either "invalid board" or "nobestmove"
+    if (strstr(response, "move") != response)
+        return false;
+
+    threads->bestMove = ParseMove(&response[5], pos);
+
+    return true;
 }

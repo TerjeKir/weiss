@@ -19,4 +19,4 @@
 #include "../types.h"
 
 
-Move ProbeNoob(Position *pos, char *board);
+bool ProbeNoob(Position *pos, Thread *threads);
