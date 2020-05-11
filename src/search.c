@@ -24,6 +24,7 @@
 #include <string.h>
 
 #include "fathom/tbprobe.h"
+#include "noobprobe/noobprobe.h"
 #include "bitboard.h"
 #include "board.h"
 #include "evaluate.h"
@@ -41,6 +42,7 @@ int Reductions[32][32];
 
 SearchLimits Limits;
 extern volatile bool ABORT_SIGNAL;
+bool noobbook = true;
 
 
 // Initializes the late move reduction array
@@ -611,6 +613,14 @@ void SearchPosition(Position *pos, Thread *threads) {
 
     // Probe TBs for a move if already in a TB position
     if (RootProbe(pos, threads)) goto conclusion;
+
+    if (noobbook) {
+        Move noobmove = ProbeNoob(pos, "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+        if (noobmove) {
+            threads->bestMove = noobmove;
+            goto conclusion;
+        }
+    }
 
     // Make extra threads and begin searching
     for (int i = 1; i < threads->count; ++i)
