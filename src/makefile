@@ -18,7 +18,7 @@
 
 # General
 EXE    = weiss
-SRC    = *.c fathom/tbprobe.c
+SRC    = *.c fathom/tbprobe.c noobprobe/noobprobe.c
 OUT    = ../bin/
 COMP   = gcc
 
@@ -41,9 +41,14 @@ PGODIR = "../pgo"
 PGOGEN = -fprofile-generate=$(PGODIR)
 PGOUSE = -fprofile-use=$(PGODIR)
 
+# Link winsock32 on windows
+ifeq ($(OS), Windows_NT)
+	LIBS += -lwsock32
+endif
+
 # Try to detect windows environment by seeing
 # whether the shell filters out the "s or not.
-ifeq ($(shell echo "check_quotes"),"check_quotes")
+ifeq ($(shell echo "check_quotes"), "check_quotes")
 	RUNBENCH = $(EXE) bench 12 > nul 2>&1
 	CLEAN    = rmdir /s /q $(PGODIR)
 else

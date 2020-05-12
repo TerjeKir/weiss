@@ -13,11 +13,14 @@ Weiss supports the following:
 
 * #### Hash
   The size of the hash table in MB.
-  
+
 * #### Threads
   The number of threads to use for searching.
 
 * #### SyzygyPath
   Path to syzygy tablebase files.
+
+* #### NoobBook
+  Allow Weiss to probe noobpwnftw's online opening database.
 
 Note: Weiss will print a string indicating it supports Ponder, this is done to make cutechess GUI show pondermove accuracy. Weiss does not actually support this option.

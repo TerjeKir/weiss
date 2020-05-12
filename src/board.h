@@ -35,6 +35,7 @@ extern uint64_t SideKey;
 void InitDistance();
 void ParseFen(const char *fen, Position *pos);
 Key KeyAfter(const Position *pos, Move move);
+char *BoardToFen(const Position *pos);
 #ifndef NDEBUG
 void PrintBoard(const Position *pos);
 bool PositionOk(const Position *pos);
