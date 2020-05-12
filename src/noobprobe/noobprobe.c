@@ -73,9 +73,9 @@ bool ProbeNoob(Position *pos, Thread *threads) {
 
     // Fill in server struct
     SOCKADDR_IN server = { 0 };
-    server.sin_addr.s_addr = *(uint64_t *)hostent->h_addr;
     server.sin_family = AF_INET;
     server.sin_port = htons(80);
+    server.sin_addr.s_addr = *(uint64_t *)hostent->h_addr;
 
     // Connect
     if (connect(sockfd, (struct sockaddr *)&server, sizeof(server)) < 0)
