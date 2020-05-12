@@ -16,10 +16,10 @@
   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include <stdio.h> /* printf, sprintf */
-#include <stdlib.h> /* exit */
-#include <unistd.h> /* read, write, close */
-#include <string.h> /* memcpy, memset */
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
 
 #ifdef _WIN32
 #include <winsock2.h>
@@ -27,6 +27,15 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>
+#define SOCKET int
+#define INVALID_SOCKET -1
+#define HOSTENT struct hostent
+#define IN_ADDR struct in_addr
+#define SOCKADDR_IN struct sockaddr_in
+#define SOCKET_ERROR -1
+#define WSADATA int
+#define WSAStartup(a, b) (*b = 0)
+#define WSACleanup()
 #endif
 
 #undef INFINITE
@@ -42,7 +51,7 @@ void error(const char *msg) { perror(msg); exit(0); }
 bool ProbeNoob(Position *pos, Thread *threads) {
 
     WSADATA wsaData;
-    if (WSAStartup(MAKEWORD(2,0), &wsaData) != 0)
+    if (WSAStartup(MAKEWORD(2,2), &wsaData) != 0)
         error("WSAStartup failed.");
 
     // Make the message
@@ -61,11 +70,10 @@ bool ProbeNoob(Position *pos, Thread *threads) {
     if ((hostent = gethostbyname("www.chessdb.cn")) == NULL)
         error("ERROR no such host");
 
-    IN_ADDR **addr_list = (IN_ADDR **) hostent->h_addr_list;
-
     // Fill in server struct
     SOCKADDR_IN server = { 0 };
-    server.sin_addr.s_addr = inet_addr(inet_ntoa(*addr_list[0]));
+    memcpy(&server.sin_addr.s_addr, hostent->h_addr, hostent->h_length);
+    server.sin_addr.s_addr = *(uint64_t *)hostent->h_addr;
     server.sin_family = AF_INET;
     server.sin_port = htons(80);
 
