@@ -50,6 +50,7 @@ void error(const char *msg) { perror(msg); exit(0); }
 // Probes noobpwnftw's Chess Cloud Database
 bool ProbeNoob(Position *pos, Thread *threads) {
 
+    // Setup sockets on windows, does nothing on linux
     WSADATA wsaData;
     if (WSAStartup(MAKEWORD(2,2), &wsaData) != 0)
         error("WSAStartup failed.");
@@ -72,7 +73,6 @@ bool ProbeNoob(Position *pos, Thread *threads) {
 
     // Fill in server struct
     SOCKADDR_IN server = { 0 };
-    memcpy(&server.sin_addr.s_addr, hostent->h_addr, hostent->h_length);
     server.sin_addr.s_addr = *(uint64_t *)hostent->h_addr;
     server.sin_family = AF_INET;
     server.sin_port = htons(80);
