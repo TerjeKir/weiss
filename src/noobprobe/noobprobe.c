@@ -23,6 +23,8 @@
 
 #ifdef _WIN32
 #include <winsock2.h>
+#undef INFINITE
+
 #else
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -37,8 +39,6 @@
 #define WSAStartup(a, b) (*b = 0)
 #define WSACleanup()
 #endif
-
-#undef INFINITE
 
 #include "../board.h"
 #include "../move.h"
