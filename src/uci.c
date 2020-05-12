@@ -33,10 +33,6 @@
 #include "uci.h"
 
 
-volatile bool ABORT_SIGNAL = false;
-bool noobbook = false;
-
-
 // Parses the time controls
 static void ParseTimeControl(char *str, Color color) {
 
