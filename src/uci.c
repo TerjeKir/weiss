@@ -127,6 +127,7 @@ static void UCISetOption(Engine *engine, char *str) {
         TB_LARGEST ? printf("TableBase init success - largest found: %d.\n", TB_LARGEST)
                    : printf("TableBase init failure - not found.\n");
 
+    // Toggles probing of Chess Cloud Database
     } else if (OptionName(str, "NoobBook")) {
 
         noobbook = !strncmp(OptionValue(str), "true", 4);
