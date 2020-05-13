@@ -47,7 +47,7 @@
 /*
  * Define TB_NO_THREADS if your program is not multi-threaded.
  */
-#define TB_NO_THREADS
+// #define TB_NO_THREADS
 
 /*
  * Define TB_NO_HW_POP_COUNT if there is no hardware popcount instruction.
