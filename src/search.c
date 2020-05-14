@@ -41,8 +41,8 @@
 int Reductions[32][32];
 
 SearchLimits Limits;
-extern volatile bool ABORT_SIGNAL;
-extern bool noobbook;
+volatile bool ABORT_SIGNAL = false;
+bool noobbook = false;
 
 
 // Initializes the late move reduction array
