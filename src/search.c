@@ -56,7 +56,8 @@ CONSTR InitReductions() {
 // Check time situation
 static bool OutOfTime(Thread *thread) {
 
-    return (thread->nodes & 4095) == 4095
+    return thread->index == 0
+        && (thread->nodes & 4095) == 4095
         && Limits.timelimit
         && TimeSince(Limits.start) >= Limits.maxUsage;
 }
@@ -589,6 +590,10 @@ void *IterativeDeepening(void *voidThread) {
 
         // Search position, using aspiration windows for higher depths
         thread->score = AspirationWindow(thread);
+
+        // Only the main thread concerns itself with the rest
+        if (!thread->index == 0)
+            continue;
 
         // Save bestMove and ponderMove before overwriting the pv next iteration
         thread->bestMove   = thread->pv.line[0];
