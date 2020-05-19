@@ -44,6 +44,7 @@ tuneable_const int Tempo = 20;
 
 // Misc bonuses and maluses
 tuneable_static_const int PawnIsolated   = S(-28,-16);
+tuneable_static_const int PawnDoubled    = S( -6,-32);
 tuneable_static_const int BishopPair     = S( 52, 72);
 tuneable_static_const int KingLineDanger = S(-12,  4);
 
@@ -123,9 +124,13 @@ INLINE int EvalPawns(const Position *pos, const Color color) {
 
     int eval = 0;
 
-    Bitboard pieces = colorPieceBB(color, PAWN);
-    while (pieces) {
-        Square sq = PopLsb(&pieces);
+    Bitboard pawns = colorPieceBB(color, PAWN);
+
+    // Doubled pawns
+    eval += PawnDoubled * PopCount(pawns & ShiftBB(NORTH, pawns));
+
+    while (pawns) {
+        Square sq = PopLsb(&pawns);
 
         // Isolation penalty
         if (!(IsolatedMask[sq] & colorPieceBB(color, PAWN)))
