@@ -369,6 +369,34 @@ static int AlphaBeta(Thread *thread, int alpha, int beta, Depth depth, PV *pv) {
         }
     }
 
+    // ProbCut
+    if (  !pvNode
+        && depth >= 5
+        && abs(beta) < TBWIN_IN_MAX) {
+
+        int pbBeta = beta + 200;
+
+        MovePicker pbMP;
+        MoveList pbList;
+        InitNoisyMP(&pbMP, &pbList, thread);
+
+        Move pbMove;
+        while ((pbMove = NextMove(&pbMP))) {
+
+            if (!MakeMove(pos, pbMove)) continue;
+
+            int pbScore = -Quiescence(thread, -pbBeta, -pbBeta+1);
+
+            if (pbScore >= pbBeta)
+                pbScore = -AlphaBeta(thread, -pbBeta, -pbBeta+1, depth-4, &pvFromHere);
+
+            TakeMove(pos);
+
+            if (pbScore >= pbBeta)
+                return pbScore;
+        }
+    }
+
     // Internal iterative deepening
     if (depth >= 4 && !ttMove) {
 
