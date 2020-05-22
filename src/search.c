@@ -280,7 +280,8 @@ static int AlphaBeta(Thread *thread, int alpha, int beta, Depth depth, PV *pv) {
         && history(-1).move != NOMOVE
         && eval >= beta
         && pos->nonPawnCount[sideToMove] > 0
-        && depth >= 3) {
+        && depth >= 3
+        && (!ttHit || ttScore >= beta)) {
 
         int R = 3 + depth / 5 + MIN(3, (eval - beta) / 256);
 
