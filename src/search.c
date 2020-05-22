@@ -36,6 +36,7 @@
 #include "threads.h"
 #include "transposition.h"
 #include "syzygy.h"
+#include "uci.h"
 
 
 int Reductions[32][32];
@@ -53,15 +54,6 @@ CONSTR InitReductions() {
             Reductions[depth][moves] = 0.75 + log(depth) * log(moves) / 2.25;
 }
 
-// Check time situation
-static bool OutOfTime(Thread *thread) {
-
-    return (thread->nodes & 4095) == 4095
-        && thread->index == 0
-        && Limits.timelimit
-        && TimeSince(Limits.start) >= Limits.maxUsage;
-}
-
 // Check if current position is a repetition
 static bool IsRepetition(const Position *pos) {
 
@@ -72,72 +64,6 @@ static bool IsRepetition(const Position *pos) {
             return true;
 
     return false;
-}
-
-// Get ready to start a search
-static void PrepareSearch(Position *pos, Thread *threads) {
-
-    // Setup threads for a new search
-    for (int i = 0; i < threads->count; ++i) {
-        memset(&threads[i], 0, offsetof(Thread, pos));
-        memcpy(&threads[i].pos, pos, sizeof(Position));
-    }
-
-    // Mark TT as used
-    TT.dirty = true;
-}
-
-// Translates an internal mate score into distance to mate
-INLINE int MateScore(const int score) {
-    return score > 0 ?  ((MATE - score) / 2) + 1
-                     : -((MATE + score) / 2);
-}
-
-// Print thinking
-static void PrintThinking(const Thread *thread, int score, int alpha, int beta) {
-
-    // Determine whether we have a centipawn or mate score
-    char *type = abs(score) >= MATE_IN_MAX ? "mate" : "cp";
-
-    // Determine if score is an upper or lower bound
-    char *bound = score >= beta  ? " lowerbound"
-                : score <= alpha ? " upperbound"
-                                 : "";
-
-    // Translate internal score into printed score
-    score = abs(score) >=  MATE_IN_MAX ? MateScore(score)
-          : abs(score) >= TBWIN_IN_MAX ? score
-                                       : score * 100 / P_MG;
-
-    TimePoint elapsed = TimeSince(Limits.start);
-    Depth seldepth    = thread->seldepth;
-    uint64_t nodes    = TotalNodes(thread);
-    uint64_t tbhits   = TotalTBHits(thread);
-    int hashFull      = HashFull();
-    int nps           = (int)(1000 * nodes / (elapsed + 1));
-
-    // Basic info
-    printf("info depth %d seldepth %d score %s %d%s time %" PRId64
-           " nodes %" PRIu64 " nps %d tbhits %" PRIu64 " hashfull %d pv",
-            thread->depth, seldepth, type, score, bound, elapsed,
-            nodes, nps, tbhits, hashFull);
-
-    // Principal variation
-    for (int i = 0; i < thread->pv.length; i++)
-        printf(" %s", MoveToStr(thread->pv.line[i]));
-
-    printf("\n");
-    fflush(stdout);
-}
-
-// Print conclusion of search - best move and ponder move
-static void PrintConclusion(const Thread *thread) {
-
-    printf("bestmove %s", MoveToStr(thread->bestMove));
-    if (thread->ponderMove)
-        printf(" ponder %s", MoveToStr(thread->ponderMove));
-    printf("\n\n");
-    fflush(stdout);
 }
 
 INLINE bool PawnOn7th(const Position *pos) {
@@ -569,44 +495,8 @@ static int AspirationWindow(Thread *thread) {
     }
 }
 
-// Decide how much time to spend this turn
-static void InitTimeManagement(int ply) {
-
-    const int overhead = 5;
-    const int minThink = 1;
-
-    // In movetime mode we use all the time given each turn
-    if (Limits.movetime) {
-        Limits.maxUsage = Limits.optimalUsage = MAX(minThink, Limits.movetime - overhead);
-        Limits.timelimit = true;
-        return;
-    }
-
-    // No time and no movetime means there is no timelimit
-    if (!Limits.time) {
-        Limits.timelimit = false;
-        return;
-    }
-
-    int mtg = Limits.movestogo ? MIN(Limits.movestogo, 50) : 50;
-
-    int timeLeft = MAX(0, Limits.time
-                        + Limits.inc * (mtg - 1)
-                        - overhead * (2 + mtg));
-
-    // Time until we don't start the next depth iteration
-    double scale1 = MIN(0.5, 0.02 + ply * ply / 400000.0);
-    Limits.optimalUsage = CLAMP(timeLeft * scale1, minThink, 0.2 * Limits.time);
-
-    // Time until we abort an iteration midway
-    double scale2 = MIN(0.5, 0.10 + ply * ply / 30000.0);
-    Limits.maxUsage = CLAMP(timeLeft * scale2, minThink, 0.8 * Limits.time);
-
-    Limits.timelimit = true;
-}
-
 // Iterative deepening
-void *IterativeDeepening(void *voidThread) {
+static void *IterativeDeepening(void *voidThread) {
 
     Thread *thread = voidThread;
     bool mainThread = thread->index == 0;
@@ -635,6 +525,19 @@ void *IterativeDeepening(void *voidThread) {
     }
 
     return NULL;
+}
+
+// Get ready to start a search
+static void PrepareSearch(Position *pos, Thread *threads) {
+
+    // Setup threads for a new search
+    for (int i = 0; i < threads->count; ++i) {
+        memset(&threads[i], 0, offsetof(Thread, pos));
+        memcpy(&threads[i].pos, pos, sizeof(Position));
+    }
+
+    // Mark TT as used
+    TT.dirty = true;
 }
 
 // Root of search
