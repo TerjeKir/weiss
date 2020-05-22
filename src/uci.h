@@ -36,6 +36,24 @@ typedef struct {
 } Engine;
 
 
+enum InputCommands {
+    // UCI
+    GO          = 11,
+    UCI         = 127,
+    STOP        = 28,
+    QUIT        = 29,
+    ISREADY     = 113,
+    POSITION    = 17,
+    SETOPTION   = 96,
+    UCINEWGAME  = 6,
+    // Non-UCI
+    EVAL        = 26,
+    PRINT       = 112,
+    PERFT       = 116,
+    MIRRORTEST  = 4
+};
+
+
 // Reads a line from stdin and strips newline
 INLINE bool GetInput(char *str) {
 
@@ -70,23 +88,6 @@ INLINE void SetLimit(const char *str, const char *token, int *limit) {
     if ((ptr = strstr(str, token)))
         *limit = atoi(ptr + strlen(token));
 }
-
-enum InputCommands {
-    // UCI
-    GO          = 11,
-    UCI         = 127,
-    STOP        = 28,
-    QUIT        = 29,
-    ISREADY     = 113,
-    POSITION    = 17,
-    SETOPTION   = 96,
-    UCINEWGAME  = 6,
-    // Non-UCI
-    EVAL        = 26,
-    PRINT       = 112,
-    PERFT       = 116,
-    MIRRORTEST  = 4
-};
 
 void PrintThinking(const Thread *thread, int score, int alpha, int beta);
 void PrintConclusion(const Thread *thread);
