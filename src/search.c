@@ -281,7 +281,7 @@ static int AlphaBeta(Thread *thread, int alpha, int beta, Depth depth, PV *pv) {
         && eval >= beta
         && pos->nonPawnCount[sideToMove] > 0
         && depth >= 3
-        && (!ttHit || ttScore >= beta)) {
+        && (!ttHit || ttScore >= beta || tte->depth < depth)) {
 
         int R = 3 + depth / 5 + MIN(3, (eval - beta) / 256);
 
