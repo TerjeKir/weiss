@@ -30,3 +30,6 @@ INLINE TimePoint Now() {
 INLINE int TimeSince(const TimePoint tp) {
     return Now() - tp;
 }
+
+void InitTimeManagement(int ply);
+bool OutOfTime(Thread *thread);
