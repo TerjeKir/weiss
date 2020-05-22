@@ -165,6 +165,15 @@ static void UCIIsReady() {
     fflush(stdout);
 }
 
+// Hashes the first token in a string
+static int HashInput(char *str) {
+    int hash = 0;
+    int len = 1;
+    while (*str && *str != ' ')
+        hash ^= *(str++) ^ len++;
+    return hash;
+};
+
 // Sets up the engine and follows UCI protocol commands
 int main(int argc, char **argv) {
 
@@ -200,4 +209,57 @@ int main(int argc, char **argv) {
 #endif
         }
     }
+}
+
+// Translates an internal mate score into distance to mate
+INLINE int MateScore(const int score) {
+    return score > 0 ?  ((MATE - score) / 2) + 1
+                     : -((MATE + score) / 2);
+}
+
+// Print thinking
+void PrintThinking(const Thread *thread, int score, int alpha, int beta) {
+
+    // Determine whether we have a centipawn or mate score
+    char *type = abs(score) >= MATE_IN_MAX ? "mate" : "cp";
+
+    // Determine if score is an upper or lower bound
+    char *bound = score >= beta  ? " lowerbound"
+                : score <= alpha ? " upperbound"
+                                 : "";
+
+    // Translate internal score into printed score
+    score = abs(score) >=  MATE_IN_MAX ? MateScore(score)
+          : abs(score) >= TBWIN_IN_MAX ? score
+                                       : score * 100 / P_MG;
+
+    TimePoint elapsed = TimeSince(Limits.start);
+    Depth seldepth    = thread->seldepth;
+    uint64_t nodes    = TotalNodes(thread);
+    uint64_t tbhits   = TotalTBHits(thread);
+    int hashFull      = HashFull();
+    int nps           = (int)(1000 * nodes / (elapsed + 1));
+
+    // Basic info
+    printf("info depth %d seldepth %d score %s %d%s time %" PRId64
+           " nodes %" PRIu64 " nps %d tbhits %" PRIu64 " hashfull %d pv",
+            thread->depth, seldepth, type, score, bound, elapsed,
+            nodes, nps, tbhits, hashFull);
+
+    // Principal variation
+    for (int i = 0; i < thread->pv.length; i++)
+        printf(" %s", MoveToStr(thread->pv.line[i]));
+
+    printf("\n");
+    fflush(stdout);
+}
+
+// Print conclusion of search - best move and ponder move
+void PrintConclusion(const Thread *thread) {
+
+    printf("bestmove %s", MoveToStr(thread->bestMove));
+    if (thread->ponderMove)
+        printf(" ponder %s", MoveToStr(thread->ponderMove));
+    printf("\n\n");
+    fflush(stdout);
 }

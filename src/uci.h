@@ -88,11 +88,5 @@ enum InputCommands {
     MIRRORTEST  = 4
 };
 
-// Hashes the first token in a string
-static int HashInput(char *str) {
-    int hash = 0;
-    int len = 1;
-    while (*str && *str != ' ')
-        hash ^= *(str++) ^ len++;
-    return hash;
-}
+void PrintThinking(const Thread *thread, int score, int alpha, int beta);
+void PrintConclusion(const Thread *thread);
