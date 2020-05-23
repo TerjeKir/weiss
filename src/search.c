@@ -124,8 +124,6 @@ static int Quiescence(Thread *thread, int alpha, const int beta) {
 
     int futility = score + P_EG;
 
-    const bool inCheck = KingAttacked(pos, sideToMove);
-
     InitNoisyMP(&mp, &list, thread);
 
     int bestScore = score;
@@ -134,8 +132,7 @@ static int Quiescence(Thread *thread, int alpha, const int beta) {
     Move move;
     while ((move = NextMove(&mp))) {
 
-        if (   !inCheck
-            && futility + PieceValue[EG][pieceOn(toSq(move))] <= alpha
+        if (   futility + PieceValue[EG][pieceOn(toSq(move))] <= alpha
             && !(  PieceTypeOf(pieceOn(fromSq(move))) == PAWN
                 && RelativeRank(sideToMove, RankOf(toSq(move))) > 5))
             continue;
