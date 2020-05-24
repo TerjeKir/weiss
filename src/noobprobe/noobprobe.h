@@ -19,4 +19,7 @@
 #include "../types.h"
 
 
+extern int failedQueries;
+
+
 bool ProbeNoob(Position *pos, Thread *threads);
