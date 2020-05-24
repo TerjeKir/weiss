@@ -129,10 +129,3 @@ void InitTT() {
     printf("HashTable init complete with %" PRI_SIZET " entries, using %" PRI_SIZET "MB.\n", TT.count, MB);
     fflush(stdout);
 }
-
-// Free allocated memory (if any) before exiting
-DESTR FreeTT() {
-
-    if (TT.mem)
-        free(TT.mem);
-}

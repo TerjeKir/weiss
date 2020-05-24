@@ -45,7 +45,6 @@
 
 #define INLINE static inline __attribute__((always_inline))
 #define CONSTR static __attribute__((constructor)) void
-#define DESTR static __attribute__((destructor)) void
 
 #define lastMoveNullMove (!root && history(-1).move == NOMOVE)
 #define history(offset) (pos->gameHistory[pos->gamePly + offset])
