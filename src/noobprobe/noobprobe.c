@@ -97,7 +97,7 @@ bool ProbeNoob(Position *pos, Thread *threads) {
     close(sockfd);
     WSACleanup();
 
-    // Either "invalid board" or "nobestmove"
+    // On success the response will be "move:[MOVE]"
     if (strstr(response, "move") != response)
         return failedQueries++, false;
 
