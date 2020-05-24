@@ -201,12 +201,12 @@ int main(int argc, char **argv) {
         switch (HashInput(str)) {
             case GO         : UCIGo(&engine, str);        break;
             case UCI        : UCIInfo();                  break;
-            case STOP       : UCIStop(&engine);           break;
             case ISREADY    : UCIIsReady();               break;
             case POSITION   : UCIPosition(pos, str);      break;
             case SETOPTION  : UCISetOption(&engine, str); break;
             case UCINEWGAME : UCINewGame();               break;
-            case QUIT       : return 0;
+            case STOP       : UCIStop(&engine);           break;
+            case QUIT       : UCIStop(&engine);           return 0;
 #ifdef DEV
             // Non-UCI commands
             case EVAL       : PrintEval(pos);      break;
