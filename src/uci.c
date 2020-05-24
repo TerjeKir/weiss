@@ -21,6 +21,7 @@
 #include <stdlib.h>
 
 #include "fathom/tbprobe.h"
+#include "noobprobe/noobprobe.h"
 #include "board.h"
 #include "makemove.h"
 #include "move.h"
@@ -165,6 +166,12 @@ static void UCIIsReady() {
     fflush(stdout);
 }
 
+// Reset for a new game
+static void UCINewGame() {
+    ClearTT();
+    failedQueries = 0;
+}
+
 // Hashes the first token in a string
 static int HashInput(char *str) {
     int hash = 0;
@@ -198,7 +205,7 @@ int main(int argc, char **argv) {
             case ISREADY    : UCIIsReady();               break;
             case POSITION   : UCIPosition(pos, str);      break;
             case SETOPTION  : UCISetOption(&engine, str); break;
-            case UCINEWGAME : ClearTT();                  break;
+            case UCINEWGAME : UCINewGame();               break;
             case QUIT       : return 0;
 #ifdef DEV
             // Non-UCI commands
