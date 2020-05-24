@@ -156,7 +156,8 @@ static void UCIInfo() {
 static void UCIStop(Engine *engine) {
     ABORT_SIGNAL = true;
     Wake(engine->threads);
-    pthread_join(engine->threads->pthreads[0], NULL);
+    if (engine->threads->pthreads[0])
+        pthread_join(engine->threads->pthreads[0], NULL);
 }
 
 // Signals the engine is ready
