@@ -103,5 +103,5 @@ bool ProbeNoob(Position *pos, Thread *threads) {
 
     threads->bestMove = ParseMove(&response[5], pos);
 
-    return true;
+    return failedQueries = 0, true;
 }
