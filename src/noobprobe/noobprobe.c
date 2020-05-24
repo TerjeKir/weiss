@@ -45,6 +45,9 @@
 #include "../types.h"
 
 
+int failedQueries;
+
+
 void error(const char *msg) { perror(msg); exit(0); }
 
 // Probes noobpwnftw's Chess Cloud Database
@@ -96,7 +99,7 @@ bool ProbeNoob(Position *pos, Thread *threads) {
 
     // Either "invalid board" or "nobestmove"
     if (strstr(response, "move") != response)
-        return false;
+        return failedQueries++, false;
 
     threads->bestMove = ParseMove(&response[5], pos);
 
