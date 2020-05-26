@@ -27,12 +27,10 @@ Thread *InitThreads(int count) {
 
     Thread *threads = calloc(count, sizeof(Thread));
 
-    // Each thread knows its own index
+    // Each thread knows its own index and total thread count
     for (int i = 0; i < count; ++i)
-        threads[i].index = i;
-
-    // The main thread keeps track of how many threads are in use
-    threads[0].count = count;
+        threads[i].index = i,
+        threads[i].count = count;
 
     // Used for letting the main thread sleep
     pthread_mutex_init(&threads->mutex, NULL);

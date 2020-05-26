@@ -161,15 +161,15 @@ static void UCIStop(Engine *engine) {
 }
 
 // Signals the engine is ready
-static void UCIIsReady() {
-    InitTT();
+static void UCIIsReady(Engine *engine) {
+    InitTT(engine->threads);
     printf("readyok\n");
     fflush(stdout);
 }
 
 // Reset for a new game
-static void UCINewGame() {
-    ClearTT();
+static void UCINewGame(Engine *engine) {
+    ClearTT(engine->threads);
     failedQueries = 0;
 }
 
@@ -202,10 +202,10 @@ int main(int argc, char **argv) {
         switch (HashInput(str)) {
             case GO         : UCIGo(&engine, str);        break;
             case UCI        : UCIInfo();                  break;
-            case ISREADY    : UCIIsReady();               break;
+            case ISREADY    : UCIIsReady(&engine);        break;
             case POSITION   : UCIPosition(pos, str);      break;
             case SETOPTION  : UCISetOption(&engine, str); break;
-            case UCINEWGAME : UCINewGame();               break;
+            case UCINEWGAME : UCINewGame(&engine);        break;
             case STOP       : UCIStop(&engine);           break;
             case QUIT       : UCIStop(&engine);           return 0;
 #ifdef DEV

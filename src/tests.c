@@ -54,7 +54,7 @@ void Benchmark(int argc, char **argv) {
 
     Position pos;
     Thread *threads = InitThreads(threadCount);
-    InitTT();
+    InitTT(threads);
 
     uint64_t nodes = 0;
     TimePoint elapsed = 1; // To avoid possible div/0
@@ -67,7 +67,7 @@ void Benchmark(int argc, char **argv) {
         SearchPosition(&pos, threads);
         elapsed += TimeSince(Limits.start);
         nodes += TotalNodes(threads);
-        ClearTT();
+        ClearTT(threads);
     }
 
     printf("Benchmark complete:"
