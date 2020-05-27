@@ -752,6 +752,8 @@ bool tb_init(const char *path)
     initialized = 1;
   }
 
+  TB_LARGEST = 0;
+
   // if pathString is set, we need to clean up first.
   if (pathString) {
     free(pathString);
@@ -794,7 +796,6 @@ bool tb_init(const char *path)
 
   tbNumPiece = tbNumPawn = 0;
   TB_MaxCardinality = TB_MaxCardinalityDTM = 0;
-  TB_LARGEST = 0;
 
   if (!pieceEntry) {
     pieceEntry = (struct PieceEntry*)malloc(TB_MAX_PIECE * sizeof(*pieceEntry));
@@ -903,16 +904,17 @@ bool tb_init(const char *path)
           }
 
 finished:
-  /* TBD - assumes UCI
-  printf("info string Found %d WDL, %d DTM and %d DTZ tablebase files.\n",
-      numWdl, numDtm, numDtz);
-  fflush(stdout);
-  */
+
   // Set TB_LARGEST, for backward compatibility with pre-7-man Fathom
   TB_LARGEST = (unsigned)TB_MaxCardinality;
   if ((unsigned)TB_MaxCardinalityDTM > TB_LARGEST) {
     TB_LARGEST = TB_MaxCardinalityDTM;
   }
+
+  printf("info string Found %d WDL, %d DTM and %d DTZ tablebase files. Largest %u-men.\n",
+      numWdl, numDtm, numDtz, TB_LARGEST);
+  fflush(stdout);
+
   return true;
 }
 
