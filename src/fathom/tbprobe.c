@@ -752,6 +752,8 @@ bool tb_init(const char *path)
     initialized = 1;
   }
 
+  TB_LARGEST = 0;
+
   // if pathString is set, we need to clean up first.
   if (pathString) {
     free(pathString);
@@ -794,7 +796,6 @@ bool tb_init(const char *path)
 
   tbNumPiece = tbNumPawn = 0;
   TB_MaxCardinality = TB_MaxCardinalityDTM = 0;
-  TB_LARGEST = 0;
 
   if (!pieceEntry) {
     pieceEntry = (struct PieceEntry*)malloc(TB_MAX_PIECE * sizeof(*pieceEntry));
