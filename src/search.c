@@ -566,11 +566,10 @@ conclusion:
     if (Limits.infinite) Wait(threads, &ABORT_SIGNAL);
 
     // Signal any extra threads to stop and wait for them
-    if (threadsSpawned) {
-        ABORT_SIGNAL = true;
+    ABORT_SIGNAL = true;
+    if (threadsSpawned)
         for (int i = 1; i < threads->count; ++i)
             pthread_join(threads->pthreads[i], NULL);
-    }
 
     // Print conclusion
     PrintConclusion(threads);
