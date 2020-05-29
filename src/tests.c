@@ -35,14 +35,20 @@
 #define PERFT_FEN "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1"
 
 
-extern volatile bool ABORT_SIGNAL;
-
-
 /* Benchmark heavily inspired by Ethereal*/
+
 static const char *BenchmarkFENs[] = {
     #include "bench.csv"
-    ""
 };
+
+typedef struct BenchResult {
+
+    TimePoint elapsed;
+    uint64_t nodes;
+    int score;
+    Move best;
+
+} BenchResult;
 
 void Benchmark(int argc, char **argv) {
 
@@ -56,25 +62,47 @@ void Benchmark(int argc, char **argv) {
     Thread *threads = InitThreads(threadCount);
     InitTT(threads);
 
-    uint64_t nodes = 0;
-    TimePoint elapsed = 1; // To avoid possible div/0
+    int FENCount = sizeof(BenchmarkFENs) / sizeof(char *);
+    BenchResult results[FENCount];
+    TimePoint totalElapsed = 1; // Avoid possible div/0
+    uint64_t totalNodes = 0;
 
-    for (int i = 0; strcmp(BenchmarkFENs[i], ""); ++i) {
-        printf("Bench %d: %s\n", i + 1, BenchmarkFENs[i]);
+    for (int i = 0; i < FENCount; ++i) {
+
+        printf("[# %2d] %s\n", i + 1, BenchmarkFENs[i]);
+
+        // Search
         ParseFen(BenchmarkFENs[i], &pos);
         ABORT_SIGNAL = false;
         Limits.start = Now();
         SearchPosition(&pos, threads);
-        elapsed += TimeSince(Limits.start);
-        nodes += TotalNodes(threads);
+
+        // Collect results
+        BenchResult *r = &results[i];
+        r->elapsed = TimeSince(Limits.start);
+        r->nodes   = TotalNodes(threads);
+        r->score   = threads->score;
+        r->best    = threads->bestMove;
+
+        totalElapsed += r->elapsed;
+        totalNodes   += r->nodes;
+
         ClearTT(threads);
     }
 
-    printf("Benchmark complete:"
-           "\nTime : %" PRId64 "ms"
-           "\nNodes: %" PRIu64
-           "\nNPS  : %" PRId64 "\n",
-           elapsed, nodes, 1000 * nodes / elapsed);
+    puts("======================================================");
+
+    for (int i = 0; i < FENCount; ++i) {
+        BenchResult *r = &results[i];
+        printf("[# %2d] %5d cp  %5s %10" PRIu64 " nodes %10d nps\n",
+               i+1, r->score, MoveToStr(r->best), r->nodes,
+               (int)(1000.0 * r->nodes / (r->elapsed + 1)));
+    }
+
+    puts("======================================================");
+
+    printf("OVERALL: %7" PRIi64 " ms %13" PRIu64 " nodes %10d nps\n",
+           totalElapsed, totalNodes, (int)(1000.0 * totalNodes / totalElapsed));
 }
 
 #ifdef DEV
