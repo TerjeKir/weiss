@@ -95,10 +95,7 @@ void Benchmark(int argc, char **argv) {
     for (int i = 0; i < FENCount; ++i) {
         BenchResult *r = &results[i];
         printf("[# %2d] %5d cp  %5s %10" PRIu64 " nodes %10d nps\n",
-               i+1,
-               r->score,
-               MoveToStr(r->best),
-               r->nodes,
+               i+1, r->score, MoveToStr(r->best), r->nodes,
                (int)(1000.0 * r->nodes / (r->elapsed + 1)));
     }
 
