@@ -335,6 +335,8 @@ move_loop:
 
     InitNormalMP(&mp, &list, thread, ttMove, killer1, killer2);
 
+    Move quiets[32] = { 0 };
+
     const int oldAlpha = alpha;
     int moveCount = 0, quietCount = 0;
     Move bestMove = NOMOVE;
@@ -358,7 +360,7 @@ move_loop:
         // Increment counts
         moveCount++;
         if (quiet)
-            quietCount++;
+            quiets[quietCount++] = move;
 
         const Depth newDepth = depth - 1;
 
@@ -427,6 +429,14 @@ move_loop:
             }
         }
     }
+
+    // Lower history scores of moves that failed to produce a cut
+    if (bestScore >= beta && moveIsQuiet(bestMove))
+        for (int i = 0; i < quietCount; ++i) {
+            Move m = quiets[i];
+            if (m == bestMove) continue;
+            thread->history[pieceOn(fromSq(m))][toSq(m)] -= depth * depth;
+        }
 
     // Checkmate or stalemate
     if (!moveCount)
