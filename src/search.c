@@ -359,7 +359,7 @@ move_loop:
 
         // Increment counts
         moveCount++;
-        if (quiet)
+        if (quiet && quietCount < 32)
             quiets[quietCount++] = move;
 
         const Depth newDepth = depth - 1;
