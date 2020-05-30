@@ -545,6 +545,8 @@ void SearchPosition(Position *pos, Thread *threads) {
 
     PrepareSearch(pos, threads);
 
+    bool threadsSpawned = false;
+
     // Probe TBs for a move if already in a TB position
     if (RootProbe(pos, threads)) goto conclusion;
 
@@ -553,6 +555,7 @@ void SearchPosition(Position *pos, Thread *threads) {
         && failedQueries < 3 && ProbeNoob(pos, threads)) goto conclusion;
 
     // Make extra threads and begin searching
+    threadsSpawned = true;
     for (int i = 1; i < threads->count; ++i)
         pthread_create(&threads->pthreads[i], NULL, &IterativeDeepening, &threads[i]);
     IterativeDeepening(&threads[0]);
@@ -564,8 +567,9 @@ conclusion:
 
     // Signal any extra threads to stop and wait for them
     ABORT_SIGNAL = true;
-    for (int i = 1; i < threads->count; ++i)
-        pthread_join(threads->pthreads[i], NULL);
+    if (threadsSpawned)
+        for (int i = 1; i < threads->count; ++i)
+            pthread_join(threads->pthreads[i], NULL);
 
     // Print conclusion
     PrintConclusion(threads);
