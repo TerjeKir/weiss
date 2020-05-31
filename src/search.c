@@ -521,12 +521,14 @@ static void *IterativeDeepening(void *voidThread) {
         // Only the main thread concerns itself with the rest
         if (!mainThread) continue;
 
+        bool uncertain = thread->pv.line[0] != thread->bestMove;
+
         // Save bestMove and ponderMove before overwriting the pv next iteration
         thread->bestMove   = thread->pv.line[0];
         thread->ponderMove = thread->pv.length > 1 ? thread->pv.line[1] : NOMOVE;
 
         if (   Limits.timelimit
-            && TimeSince(Limits.start) > Limits.optimalUsage)
+            && TimeSince(Limits.start) > Limits.optimalUsage * (1 + uncertain))
             break;
 
         thread->seldepth = 0;
