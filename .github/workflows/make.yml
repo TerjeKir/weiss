@@ -1,0 +1,15 @@
+name: Make CI
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v1
+    - name: test
+      run: cd src && make bench-pgo
+    - name: release
+      run: cd src && make release
