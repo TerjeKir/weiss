@@ -141,7 +141,7 @@ static void UCIInfo() {
     printf("id name %s\n", NAME);
     printf("id author Terje Kirstihagen\n");
     printf("option name Hash type spin default %d min %d max %d\n", DEFAULTHASH, MINHASH, MAXHASH);
-    printf("option name Threads type spin default %d min %d max %d\n", 1, 1, 256);
+    printf("option name Threads type spin default %d min %d max %d\n", 1, 1, 2048);
     printf("option name SyzygyPath type string default <empty>\n");
     printf("option name NoobBook type check default false\n");
     printf("option name Ponder type check default false\n"); // Turn on ponder stats in cutechess gui
