@@ -133,7 +133,7 @@ Key KeyAfter(const Position *pos, const Move move) {
 // Clears the board
 static void ClearPosition(Position *pos) {
 
-    memset(pos, EMPTY, sizeof(Position));
+    memset(pos, 0, sizeof(Position));
 }
 
 // Update the rest of a position to match pos->board
@@ -339,7 +339,7 @@ void PrintBoard(const Position *pos) {
 // Check board state makes sense
 bool PositionOk(const Position *pos) {
 
-    assert(0 <= pos->gamePly && pos->gamePly < MAXGAMEMOVES);
+    assert(0 <= pos->histPly && pos->histPly < MAXGAMEMOVES);
     assert(    0 <= pos->ply && pos->ply < MAXDEPTH);
 
     int counts[PIECE_NB] = { 0 };

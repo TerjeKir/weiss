@@ -59,7 +59,7 @@ static bool IsRepetition(const Position *pos) {
 
     // Compare current posKey to posKeys in history, skipping
     // opponents turns as that wouldn't be a repetition
-    for (int i = 4; i <= pos->rule50 && i <= pos->gamePly; i += 2)
+    for (int i = 4; i <= pos->rule50 && i <= pos->histPly; i += 2)
         if (pos->key == history(-i).posKey)
             return true;
 

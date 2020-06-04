@@ -132,8 +132,8 @@ static void MovePiece(Position *pos, const Square from, const Square to, const b
 // Take back the previous move
 void TakeMove(Position *pos) {
 
-    // Decrement gamePly, ply
-    pos->gamePly--;
+    // Decrement histPly, ply
+    pos->histPly--;
     pos->ply--;
 
     // Change side to play
@@ -194,8 +194,8 @@ bool MakeMove(Position *pos, const Move move) {
     history(0).rule50         = pos->rule50;
     history(0).castlingRights = pos->castlingRights;
 
-    // Increment gamePly, ply and 50mr
-    pos->gamePly++;
+    // Increment histPly, ply and 50mr
+    pos->histPly++;
     pos->ply++;
     pos->rule50++;
 
@@ -282,7 +282,7 @@ void MakeNullMove(Position *pos) {
 
     // Increase ply
     pos->ply++;
-    pos->gamePly++;
+    pos->histPly++;
 
     pos->rule50 = 0;
 
@@ -301,7 +301,7 @@ void MakeNullMove(Position *pos) {
 void TakeNullMove(Position *pos) {
 
     // Decrease ply
-    pos->gamePly--;
+    pos->histPly--;
     pos->ply--;
 
     // Change side to play
