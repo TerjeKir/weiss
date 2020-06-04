@@ -25,11 +25,10 @@
 void InitTimeManagement(int ply) {
 
     const int overhead = 5;
-    const int minThink = 1;
 
     // In movetime mode we use all the time given each turn
     if (Limits.movetime) {
-        Limits.maxUsage = Limits.optimalUsage = MAX(minThink, Limits.movetime - overhead);
+        Limits.maxUsage = Limits.optimalUsage = Limits.movetime - overhead;
         Limits.timelimit = true;
         return;
     }
@@ -48,11 +47,11 @@ void InitTimeManagement(int ply) {
 
     // Time until we don't start the next depth iteration
     double scale1 = MIN(0.5, 0.02 + ply * ply / 400000.0);
-    Limits.optimalUsage = CLAMP(timeLeft * scale1, minThink, 0.2 * Limits.time);
+    Limits.optimalUsage = MIN(timeLeft * scale1, 0.2 * Limits.time);
 
     // Time until we abort an iteration midway
     double scale2 = MIN(0.5, 0.10 + ply * ply / 30000.0);
-    Limits.maxUsage = CLAMP(timeLeft * scale2, minThink, 0.8 * Limits.time);
+    Limits.maxUsage = MIN(timeLeft * scale2, 0.8 * Limits.time);
 
     Limits.timelimit = true;
 }
