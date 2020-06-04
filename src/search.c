@@ -553,7 +553,7 @@ static void PrepareSearch(Position *pos, Thread *threads) {
 // Root of search
 void SearchPosition(Position *pos, Thread *threads) {
 
-    InitTimeManagement(0);
+    InitTimeManagement();
 
     PrepareSearch(pos, threads);
 

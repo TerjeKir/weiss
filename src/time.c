@@ -22,7 +22,7 @@
 
 
 // Decide how much time to spend this turn
-void InitTimeManagement(int ply) {
+void InitTimeManagement() {
 
     const int overhead = 5;
 
@@ -46,11 +46,11 @@ void InitTimeManagement(int ply) {
                         - overhead * (2 + mtg));
 
     // Time until we don't start the next depth iteration
-    double scale1 = MIN(0.5, 0.02 + ply * ply / 400000.0);
+    double scale1 = 0.5;
     Limits.optimalUsage = MIN(timeLeft * scale1, 0.2 * Limits.time);
 
     // Time until we abort an iteration midway
-    double scale2 = MIN(0.5, 0.10 + ply * ply / 30000.0);
+    double scale2 = 0.5;
     Limits.maxUsage = MIN(timeLeft * scale2, 0.8 * Limits.time);
 
     Limits.timelimit = true;
