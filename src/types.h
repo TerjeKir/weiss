@@ -79,10 +79,10 @@ enum Limit {
 
 enum Score {
     TBWIN        = 30000,
-    TBWIN_IN_MAX = TBWIN - MAXDEPTH,
+    TBWIN_IN_MAX = TBWIN - 999,
 
-    MATE        = TBWIN + MAXDEPTH + 1,
-    MATE_IN_MAX = MATE - MAXDEPTH,
+    MATE        = 31000,
+    MATE_IN_MAX = MATE - 999,
 
     INFINITE = MATE + 1,
     NOSCORE  = MATE + 2,
