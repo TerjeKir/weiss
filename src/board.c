@@ -133,7 +133,7 @@ Key KeyAfter(const Position *pos, const Move move) {
 // Clears the board
 static void ClearPosition(Position *pos) {
 
-    memset(pos, EMPTY, sizeof(Position));
+    memset(pos, 0, sizeof(Position));
 }
 
 // Update the rest of a position to match pos->board
@@ -242,10 +242,10 @@ void ParseFen(const char *fen, Position *pos) {
     bool epValid = *fen != '-' && (  PawnAttackBB(!sideToMove, ep)
                                    & colorPieceBB(sideToMove, PAWN));
     pos->epSquare = epValid ? ep : 0;
-    fen += 2;
 
-    // 50 move rule
-    pos->rule50 = atoi(fen);
+    // 50 move rule and game moves
+    pos->rule50 = atoi(fen += 2);
+    pos->gameMoves = atoi(fen += 2);
 
     // Generate the position key
     pos->key = GeneratePosKey(pos);
@@ -306,7 +306,7 @@ char *BoardToFen(const Position *pos) {
         ep[1] = '1' + RankOf(pos->epSquare);
 
     // Add en passant, 50mr and game ply to the base
-    sprintf(ptr, " %s %d %d", ep, pos->rule50, pos->gamePly + 1);
+    sprintf(ptr, " %s %d %d", ep, pos->rule50, pos->gameMoves);
 
     return fen;
 }
@@ -339,7 +339,7 @@ void PrintBoard(const Position *pos) {
 // Check board state makes sense
 bool PositionOk(const Position *pos) {
 
-    assert(0 <= pos->gamePly && pos->gamePly < MAXGAMEMOVES);
+    assert(0 <= pos->histPly && pos->histPly < MAXGAMEMOVES);
     assert(    0 <= pos->ply && pos->ply < MAXDEPTH);
 
     int counts[PIECE_NB] = { 0 };

@@ -95,9 +95,12 @@ static void UCIPosition(Position *pos, char *str) {
         // Reset ply to avoid triggering asserts in debug mode in long games
         pos->ply = 0;
 
-        // Reset gamePly so long games don't go out of bounds of arrays
+        // Keep track of how many moves have been played so far for TM
+        pos->gameMoves += sideToMove == WHITE;
+
+        // Reset histPly so long games don't go out of bounds of arrays
         if (pos->rule50 == 0)
-            pos->gamePly = 0;
+            pos->histPly = 0;
     }
 }
 

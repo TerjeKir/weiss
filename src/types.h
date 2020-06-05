@@ -47,7 +47,7 @@
 #define CONSTR static __attribute__((constructor)) void
 
 #define lastMoveNullMove (!root && history(-1).move == NOMOVE)
-#define history(offset) (pos->gameHistory[pos->gamePly + offset])
+#define history(offset) (pos->gameHistory[pos->histPly + offset])
 #define killer1 (thread->killers[pos->ply][0])
 #define killer2 (thread->killers[pos->ply][1])
 
@@ -199,7 +199,8 @@ typedef struct Position {
     uint8_t castlingRights;
 
     uint8_t ply;
-    uint16_t gamePly;
+    uint16_t histPly;
+    uint16_t gameMoves;
 
     Key key;
 
