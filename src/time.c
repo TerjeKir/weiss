@@ -59,7 +59,7 @@ void InitTimeManagement() {
     // X moves in Y time
     } else {
 
-        scale1 = 0.9 / mtg;
+        scale1 = 0.8 / mtg;
         Limits.optimalUsage = MIN(timeLeft * scale1, 0.8 * Limits.time);
 
         Limits.maxUsage = MIN(4 * Limits.optimalUsage, 0.8 * Limits.time);
