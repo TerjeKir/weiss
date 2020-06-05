@@ -242,10 +242,10 @@ void ParseFen(const char *fen, Position *pos) {
     bool epValid = *fen != '-' && (  PawnAttackBB(!sideToMove, ep)
                                    & colorPieceBB(sideToMove, PAWN));
     pos->epSquare = epValid ? ep : 0;
-    fen += 2;
 
-    // 50 move rule
-    pos->rule50 = atoi(fen);
+    // 50 move rule and game moves
+    pos->rule50 = atoi(fen += 2);
+    pos->gameMoves = atoi(fen += 2);
 
     // Generate the position key
     pos->key = GeneratePosKey(pos);
@@ -306,7 +306,7 @@ char *BoardToFen(const Position *pos) {
         ep[1] = '1' + RankOf(pos->epSquare);
 
     // Add en passant, 50mr and game ply to the base
-    sprintf(ptr, " %s %d %d", ep, pos->rule50, pos->gamePly + 1);
+    sprintf(ptr, " %s %d %d", ep, pos->rule50, pos->gameMoves);
 
     return fen;
 }

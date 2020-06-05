@@ -200,7 +200,7 @@ typedef struct Position {
 
     uint8_t ply;
     uint16_t histPly;
-    uint16_t gamePly;
+    uint16_t gameMoves;
 
     Key key;
 

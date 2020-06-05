@@ -96,7 +96,7 @@ static void UCIPosition(Position *pos, char *str) {
         pos->ply = 0;
 
         // Keep track of how many moves have been played so far for TM
-        pos->gamePly++;
+        pos->gameMoves += sideToMove == WHITE;
 
         // Reset histPly so long games don't go out of bounds of arrays
         if (pos->rule50 == 0)
