@@ -45,25 +45,20 @@ void InitTimeManagement() {
                         + Limits.inc * (mtg - 1)
                         - overhead * (2 + mtg));
 
-    double scale1, scale2;
-
     // Basetime for the whole game
     if (!Limits.movestogo) {
 
-        scale1 = 0.02;
-        Limits.optimalUsage = MIN(timeLeft * scale1, 0.2 * Limits.time);
-
-        scale2 = 0.10;
-        Limits.maxUsage = MIN(timeLeft * scale2, 0.8 * Limits.time);
+        double scale = 0.02;
+        Limits.optimalUsage = MIN(timeLeft * scale, 0.2 * Limits.time);
 
     // X moves in Y time
     } else {
 
-        scale1 = 0.7 / mtg;
-        Limits.optimalUsage = MIN(timeLeft * scale1, 0.8 * Limits.time);
-
-        Limits.maxUsage = MIN(5 * Limits.optimalUsage, 0.8 * Limits.time);
+        double scale = 0.7 / mtg;
+        Limits.optimalUsage = MIN(timeLeft * scale, 0.8 * Limits.time);
     }
+
+    Limits.maxUsage = MIN(5 * Limits.optimalUsage, 0.8 * Limits.time);
 
     Limits.timelimit = true;
 }
