@@ -26,16 +26,17 @@ void InitTimeManagement() {
 
     const int overhead = 5;
 
-    // In movetime mode we use all the time given each turn
+    // No time to manage
+    if (!Limits.timelimit)
+        return;
+
+    // In movetime mode just use all the time given each turn
     if (Limits.movetime) {
         Limits.maxUsage = Limits.optimalUsage = Limits.movetime - overhead;
         return;
     }
 
-    // No time and no movetime means there is no timelimit
-    if (!Limits.time)
-        return;
-
+    // Plan as if there are 50 moves left of the game
     int mtg = Limits.movestogo ? MIN(Limits.movestogo, 50) : 50;
 
     int timeLeft = MAX(0, Limits.time
