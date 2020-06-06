@@ -62,7 +62,7 @@ void InitTimeManagement() {
         scale1 = 0.7 / mtg;
         Limits.optimalUsage = MIN(timeLeft * scale1, 0.8 * Limits.time);
 
-        Limits.maxUsage = MIN(4 * Limits.optimalUsage, 0.8 * Limits.time);
+        Limits.maxUsage = MIN(5 * Limits.optimalUsage, 0.8 * Limits.time);
     }
 
     Limits.timelimit = true;
