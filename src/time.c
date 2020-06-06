@@ -36,7 +36,7 @@ void InitTimeManagement() {
         return;
     }
 
-    // Plan as if there are 50 moves left of the game
+    // Plan as if there are at most 50 moves left to play with current time
     int mtg = Limits.movestogo ? MIN(Limits.movestogo, 50) : 50;
 
     int timeLeft = MAX(0, Limits.time
