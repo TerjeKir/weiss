@@ -29,15 +29,12 @@ void InitTimeManagement() {
     // In movetime mode we use all the time given each turn
     if (Limits.movetime) {
         Limits.maxUsage = Limits.optimalUsage = Limits.movetime - overhead;
-        Limits.timelimit = true;
         return;
     }
 
     // No time and no movetime means there is no timelimit
-    if (!Limits.time) {
-        Limits.timelimit = false;
+    if (!Limits.time)
         return;
-    }
 
     int mtg = Limits.movestogo ? MIN(Limits.movestogo, 50) : 50;
 
@@ -59,8 +56,6 @@ void InitTimeManagement() {
     }
 
     Limits.maxUsage = MIN(5 * Limits.optimalUsage, 0.8 * Limits.time);
-
-    Limits.timelimit = true;
 }
 
 // Check time situation
