@@ -296,7 +296,8 @@ static int AlphaBeta(Thread *thread, int alpha, int beta, Depth depth, PV *pv) {
     // ProbCut
     if (  !pvNode
         && depth >= 5
-        && abs(beta) < TBWIN_IN_MAX) {
+        && abs(beta) < TBWIN_IN_MAX
+        && (!ttHit || !(tte->bound & BOUND_UPPER) || ttScore >= beta)) {
 
         int pbBeta = beta + 200;
 
