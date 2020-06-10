@@ -19,14 +19,14 @@
 # General
 EXE    = weiss
 SRC    = *.c pyrrhic/tbprobe.c noobprobe/noobprobe.c tuner/tuner.c
-CC     = gcc
+COMP   = g++
 
 # Defines
 POPCNT = -msse3 -mpopcnt
 PEXT   = $(POPCNT) -DUSE_PEXT -mbmi2
 
 # Flags
-STD    = -std=gnu11
+STD    = -std=c++11
 LIBS   = -pthread -lm
 WARN   = -Wall -Wextra -Wshadow
 

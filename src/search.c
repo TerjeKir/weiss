@@ -502,7 +502,7 @@ static int AspirationWindow(Thread *thread) {
 // Iterative deepening
 static void *IterativeDeepening(void *voidThread) {
 
-    Thread *thread = voidThread;
+    Thread *thread = (Thread *)voidThread;
     bool mainThread = thread->index == 0;
 
     // Iterative deepening

@@ -59,7 +59,7 @@ bool ProbeNoob(Position *pos, Thread *threads) {
         error("WSAStartup failed.");
 
     // Make the message
-    char *message_fmt = "GET http://www.chessdb.cn/cdb.php?action=querybest&board=%s\r\n\r\n";
+    const char *message_fmt = "GET http://www.chessdb.cn/cdb.php?action=querybest&board=%s\r\n\r\n";
     char message[256], response[32];
 
     sprintf(message, message_fmt, BoardToFen(pos));

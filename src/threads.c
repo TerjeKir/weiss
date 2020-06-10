@@ -25,7 +25,7 @@
 // Allocates memory for thread structs
 Thread *InitThreads(int count) {
 
-    Thread *threads = calloc(count, sizeof(Thread));
+    Thread *threads = (Thread *)calloc(count, sizeof(Thread));
 
     // Each thread knows its own index and total thread count
     for (int i = 0; i < count; ++i)
@@ -37,7 +37,7 @@ Thread *InitThreads(int count) {
     pthread_cond_init(&threads->sleepCondition, NULL);
 
     // Array of pthreads
-    threads->pthreads = calloc(count, sizeof(pthread_t));
+    threads->pthreads = (pthread_t *)calloc(count, sizeof(pthread_t));
 
     return threads;
 }

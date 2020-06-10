@@ -62,7 +62,7 @@ static void ParseTimeControl(char *str, Color color) {
 // Begins a search with the given setup
 static void *BeginSearch(void *voidEngine) {
 
-    Engine *engine = voidEngine;
+    Engine *engine = (Engine *)voidEngine;
     SearchPosition(&engine->pos, engine->threads);
     return NULL;
 }
@@ -232,12 +232,12 @@ INLINE int MateScore(const int score) {
 void PrintThinking(const Thread *thread, int score, int alpha, int beta) {
 
     // Determine whether we have a centipawn or mate score
-    char *type = abs(score) >= MATE_IN_MAX ? "mate" : "cp";
+    const char *type = abs(score) >= MATE_IN_MAX ? "mate" : "cp";
 
     // Determine if score is an upper or lower bound
-    char *bound = score >= beta  ? " lowerbound"
-                : score <= alpha ? " upperbound"
-                                 : "";
+    const char *bound = score >= beta  ? " lowerbound"
+                      : score <= alpha ? " upperbound"
+                                       : "";
 
     // Translate internal score into printed score
     score = abs(score) >=  MATE_IN_MAX ? MateScore(score)

@@ -121,7 +121,7 @@ extern Bitboard IsolatedMask[64];
 
 // Shifts a bitboard (protonspring version)
 // Doesn't work for shifting more than one step horizontally
-INLINE Bitboard ShiftBB(const Direction dir, Bitboard bb) {
+INLINE Bitboard ShiftBB(const int dir, Bitboard bb) {
 
     // Horizontal shifts should not wrap around
     const int h = dir & 7;

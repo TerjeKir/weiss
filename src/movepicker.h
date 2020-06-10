@@ -21,14 +21,14 @@
 #include "types.h"
 
 
-typedef enum MPStage {
+enum {
     TTMOVE, GEN_NOISY, NOISY, KILLER1, KILLER2, GEN_QUIET, QUIET
-} MPStage;
+};
 
 typedef struct MovePicker {
     Thread *thread;
     MoveList *list;
-    MPStage stage;
+    int stage;
     Move ttMove, kill1, kill2;
     bool onlyNoisy;
 } MovePicker;

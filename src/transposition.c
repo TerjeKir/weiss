@@ -79,7 +79,7 @@ int HashFull() {
 
 static void *ThreadClearTT(void *voidThread) {
 
-    Thread *thread = voidThread;
+    Thread *thread = (Thread *)voidThread;
 
     // Logic for dividing the work taken from CFish
     size_t twoMB  = 2 * 1024 * 1024;
