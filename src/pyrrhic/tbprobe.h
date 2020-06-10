@@ -253,5 +253,4 @@ int tb_probe_root_wdl(
     unsigned rule50,   unsigned ep,
     bool     turn,     bool useRule50,
     struct TbRootMoves *_results);
-
 #endif
