@@ -78,13 +78,13 @@ INLINE bool OptionName(const char *str, const char *name) {
 }
 
 // Returns the (string) value of a setoption string
-INLINE char *OptionValue(const char *str) {
+INLINE const char *OptionValue(const char *str) {
     return strstr(str, "value") + 6;
 }
 
 // Sets a limit to the corresponding value in line, if any
 INLINE void SetLimit(const char *str, const char *token, int *limit) {
-    char *ptr = NULL;
+    const char *ptr = NULL;
     if ((ptr = strstr(str, token)))
         *limit = atoi(ptr + strlen(token));
 }
