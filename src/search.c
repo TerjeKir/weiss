@@ -413,7 +413,7 @@ move_loop:
                 alpha = score;
 
                 // Update search history
-                if (quiet)
+                if (quiet && depth > 1)
                     thread->history[pieceOn(fromSq(bestMove))][toSq(bestMove)] += depth * depth;
 
                 // If score beats beta we have a cutoff
