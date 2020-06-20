@@ -26,7 +26,7 @@ POPCNT = -msse3 -mpopcnt
 PEXT   = $(POPCNT) -DUSE_PEXT -mbmi2
 
 # Flags
-STD    = -std=c++11
+STD    = -std=c++17
 LIBS   = -pthread -lm
 WARN   = -Wall -Wextra -Wshadow
 
