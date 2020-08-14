@@ -322,15 +322,9 @@ static int AlphaBeta(Thread *thread, int alpha, int beta, Depth depth, PV *pv) {
         }
     }
 
-    // Internal iterative deepening
-    if (depth >= 4 && !ttMove) {
-
-        AlphaBeta(thread, alpha, beta, CLAMP(depth-4, 1, depth/2), pv);
-
-        tte = ProbeTT(posKey, &ttHit);
-
-        ttMove = ttHit ? tte->move : NOMOVE;
-    }
+    // Internal iterative deepening based on Rebel's idea
+    if (depth >= 4 && !ttMove)
+        depth--;
 
 move_loop:
 
