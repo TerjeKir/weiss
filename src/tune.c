@@ -24,7 +24,7 @@
 #include "evaluate.h"
 
 
-enum { NAME_MAX_CHAR = 64, PARSER_ENTRY_NB = 20 };
+enum { NAME_MAX_CHAR = 64, PARSER_ENTRY_NB = 21 };
 
 typedef struct ParserEntry {
     char name[NAME_MAX_CHAR];
@@ -43,6 +43,7 @@ extern int PieceSqValue[7][64];
 // Misc
 extern int PawnDoubled;
 extern int PawnIsolated;
+extern int PawnSupport;
 extern int BishopPair;
 extern int KingLineDanger;
 
@@ -101,8 +102,9 @@ void TuneDeclareAll() {
     // Passed pawn
     Declare(pe++, "Passed", &PawnPassed[1], 6);
     // Misc
-    Declare(pe++, "Doubled",  &PawnDoubled,   1);
+    Declare(pe++, "Doubled",  &PawnDoubled,    1);
     Declare(pe++, "Isolated", &PawnIsolated,   1);
+    Declare(pe++, "Support",  &PawnSupport,    1);
     Declare(pe++, "BPair",    &BishopPair,     1);
     Declare(pe++, "KLDanger", &KingLineDanger, 1);
 
