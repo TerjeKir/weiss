@@ -149,7 +149,6 @@ static void UCIInfo() {
     printf("option name Threads type spin default %d min %d max %d\n", 1, 1, 2048);
     printf("option name SyzygyPath type string default <empty>\n");
     printf("option name NoobBook type check default false\n");
-    printf("option name Ponder type check default false\n"); // Turn on ponder stats in cutechess gui
     TuneDeclareAll(); // Declares all evaluation parameters as options (dev mode)
     printf("uciok\n"); fflush(stdout);
 }
