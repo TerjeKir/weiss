@@ -24,6 +24,7 @@
 #include "psqt.h"
 
 
+// Piecetype values, combines with PSQTs [piecetype]
 tuneable_const int PieceTypeValue[7] = { 0,
     S(P_MG, P_EG),
     S(N_MG, N_EG),
@@ -32,6 +33,7 @@ tuneable_const int PieceTypeValue[7] = { 0,
     S(Q_MG, Q_EG)
 };
 
+// Phase piece values, lookup used for futility pruning [phase][piece]
 tuneable_const int PieceValue[2][PIECE_NB] = {
     { 0, P_MG, N_MG, B_MG, R_MG, Q_MG, 0, 0,
       0, P_MG, N_MG, B_MG, R_MG, Q_MG, 0, 0 },
@@ -68,9 +70,9 @@ tuneable_static_const int Mobility[4][28] = {
       S( 15, 30), S( 23, 36), S( 31, 45), S( 49, 42), S( 51, 48), S( 54, 48), S( 55, 49), S( 60, 61) },
     // Queen (0-27)
     { S(-62,-48), S(-63,-35), S(-50,-44), S(-30,-43), S(-62,-40), S(-40,-37), S(-25,-30),
-      S(-14,-23), S( -5,  7), S(  6, -2), S(  8, 22), S( 19, 10), S( 20, 26), S( 23, 32), S( 34, 36),
-      S( 34, 50), S( 31, 51), S( 49, 45), S( 37, 63), S( 41, 63), S( 60, 92), S( 76, 83),
-      S( 76, 83), S( 92, 77), S(114, 98), S(116, 89), S(104,111), S(108,131) }
+      S(-14,-23), S( -5,  7), S(  6, -2), S(  8, 22), S( 19, 10), S( 20, 26), S( 23, 32),
+      S( 34, 36), S( 34, 50), S( 31, 51), S( 49, 45), S( 37, 63), S( 41, 63), S( 60, 92),
+      S( 76, 83), S( 76, 83), S( 92, 77), S(114, 98), S(116, 89), S(104,111), S(108,131) }
 };
 
 
@@ -130,15 +132,17 @@ INLINE int EvalPawns(const Position *pos, const Color color) {
     // Doubled pawns
     eval += PawnDoubled * PopCount(pawns & ShiftBB(NORTH, pawns));
 
+    // Supported pawns
     eval += PawnSupport * PopCount(pawns & PawnBBAttackBB(pawns, color));
 
     while (pawns) {
         Square sq = PopLsb(&pawns);
 
-        // Isolation penalty
+        // Isolated pawns
         if (!(IsolatedMask[sq] & colorPieceBB(color, PAWN)))
             eval += PawnIsolated;
-        // Passed bonus
+
+        // Passed pawns
         if (!((PassedMask[color][sq]) & colorPieceBB(!color, PAWN)))
             eval += PawnPassed[RelativeRank(color, RankOf(sq))];
     }
@@ -165,14 +169,15 @@ INLINE int EvalPiece(const Position *pos, const EvalInfo *ei, const Color color,
 
         // if (pt == KNIGHT) {}
         // if (pt == BISHOP) {}
-        // if (pt == ROOK) {}
-        // if (pt == QUEEN) {}
+        // if (pt == ROOK)   {}
+        // if (pt == QUEEN)  {}
 
         if (pt == ROOK || pt == QUEEN) {
 
-            // Open/Semi-open file bonus
+            // Open file
             if (!(pieceBB(PAWN) & FileBB[FileOf(sq)]))
                 eval += OpenFile[pt-4];
+            // Semi-open file
             else if (!(colorPieceBB(color, PAWN) & FileBB[FileOf(sq)]))
                 eval += SemiOpenFile[pt-4];
         }
@@ -188,7 +193,7 @@ INLINE int EvalKings(const Position *pos, const Color color) {
 
     Square kingSq = Lsb(colorPieceBB(color, KING));
 
-    // King safety
+    // Open lines from the king
     eval += KingLineDanger * PopCount(AttackBB(QUEEN, kingSq, colorBB(color) | pieceBB(PAWN)));
 
     return eval;
@@ -236,7 +241,7 @@ int EvalPosition(const Position *pos) {
     InitEvalInfo(pos, &ei, WHITE);
     InitEvalInfo(pos, &ei, BLACK);
 
-    // Material
+    // Material (includes PSQT)
     int eval = pos->material;
 
     // Evaluate pieces
