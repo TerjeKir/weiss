@@ -22,5 +22,3 @@ Weiss supports the following:
 
 * #### NoobBook
   Allow Weiss to query and play moves suggested by [noobpwnftw's online opening database](https://www.chessdb.cn/queryc_en/).
-
-Note: Weiss will print a string indicating it supports Ponder, this is done to make cutechess GUI show pondermove accuracy. Weiss does not actually support this option.
