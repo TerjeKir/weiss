@@ -40,10 +40,10 @@ bool ProbeWDL(const Position *pos, int *score, int *bound) {
     // Don't probe at root, when castling is possible, or when 50 move rule
     // was not reset by the last move. Finally, there is obviously no point
     // if there are more pieces than we have TBs for.
-    if (   !pos->ply
-        ||  pos->castlingRights
-        ||  pos->rule50
-        || (unsigned)PopCount(pieceBB(ALL)) > TB_LARGEST)
+    if (  !pos->ply
+        || pos->castlingRights
+        || pos->rule50
+        || PopCount(pieceBB(ALL)) > TB_LARGEST)
         return false;
 
     // Call pyrrhic
@@ -72,8 +72,8 @@ bool RootProbe(Position *pos, Thread *thread) {
 
     // Tablebases contain no positions with castling legal,
     // and if there are too many pieces a probe will fail
-    if (    pos->castlingRights
-        || (unsigned)PopCount(pieceBB(ALL)) > TB_LARGEST)
+    if (   pos->castlingRights
+        || PopCount(pieceBB(ALL)) > TB_LARGEST)
         return false;
 
     // Call pyrrhic

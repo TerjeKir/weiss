@@ -245,7 +245,7 @@ static void unmap_file(void *data, map_t mapping)
 #endif
 
 int TB_MaxCardinality = 0, TB_MaxCardinalityDTM = 0;
-unsigned TB_LARGEST = 0;
+int TB_LARGEST = 0;
 
 static const char *tbSuffix[] = { ".rtbw", ".rtbm", ".rtbz" };
 static uint32_t tbMagic[] = { 0x5d23e871, 0x88ac504b, 0xa50c66d7 };
@@ -767,8 +767,8 @@ finished:
   fflush(stdout);
   //*/
   // Set TB_LARGEST, for backward compatibility with pre-7-man Fathom
-  TB_LARGEST = (unsigned)TB_MaxCardinality;
-  if ((unsigned)TB_MaxCardinalityDTM > TB_LARGEST) {
+  TB_LARGEST = TB_MaxCardinality;
+  if (TB_MaxCardinalityDTM > TB_LARGEST) {
     TB_LARGEST = TB_MaxCardinalityDTM;
   }
   return true;
