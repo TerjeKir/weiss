@@ -23,7 +23,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "fathom/tbprobe.h"
+#include "pyrrhic/tbprobe.h"
 #include "noobprobe/noobprobe.h"
 #include "bitboard.h"
 #include "board.h"

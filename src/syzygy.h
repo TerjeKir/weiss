@@ -20,7 +20,7 @@
 
 #include <stdio.h>
 
-#include "fathom/tbprobe.h"
+#include "pyrrhic/tbprobe.h"
 #include "bitboard.h"
 #include "move.h"
 #include "types.h"
@@ -34,27 +34,25 @@ static int TBScore(const unsigned result, const int distance) {
                              :  0;
 }
 
-// Calls fathom to probe syzygy tablebases
+// Calls pyrrhic to probe syzygy tablebases
 bool ProbeWDL(const Position *pos, int *score, int *bound) {
 
-    // Don't probe at root, when en passant is possible, when castling is
-    // possible, or when 50 move rule was not reset by the last move.
-    // Finally, there is obviously no point if there are more pieces than
-    // we have TBs for.
-    if (   !pos->ply
-        ||  pos->epSquare
-        ||  pos->castlingRights
-        ||  pos->rule50
-        || (unsigned)PopCount(pieceBB(ALL)) > TB_LARGEST)
+    // Don't probe at root, when castling is possible, or when 50 move rule
+    // was not reset by the last move. Finally, there is obviously no point
+    // if there are more pieces than we have TBs for.
+    if (  !pos->ply
+        || pos->castlingRights
+        || pos->rule50
+        || PopCount(pieceBB(ALL)) > TB_LARGEST)
         return false;
 
-    // Call fathom
+    // Call pyrrhic
     unsigned result = tb_probe_wdl(
         colorBB(WHITE),  colorBB(BLACK),
         pieceBB(KING),   pieceBB(QUEEN),
         pieceBB(ROOK),   pieceBB(BISHOP),
         pieceBB(KNIGHT), pieceBB(PAWN),
-        0, sideToMove);
+        pos->epSquare, sideToMove);
 
     // Probe failed
     if (result == TB_RESULT_FAILED)
@@ -69,16 +67,16 @@ bool ProbeWDL(const Position *pos, int *score, int *bound) {
     return true;
 }
 
-// Calls fathom to get optimal moves in tablebase positions in root
+// Calls pyrrhic to get optimal moves in tablebase positions in root
 bool RootProbe(Position *pos, Thread *thread) {
 
     // Tablebases contain no positions with castling legal,
     // and if there are too many pieces a probe will fail
-    if (    pos->castlingRights
-        || (unsigned)PopCount(pieceBB(ALL)) > TB_LARGEST)
+    if (   pos->castlingRights
+        || PopCount(pieceBB(ALL)) > TB_LARGEST)
         return false;
 
-    // Call fathom
+    // Call pyrrhic
     unsigned result = tb_probe_root(
         colorBB(WHITE),  colorBB(BLACK),
         pieceBB(KING),   pieceBB(QUEEN),
