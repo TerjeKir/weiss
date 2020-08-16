@@ -20,7 +20,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "fathom/tbprobe.h"
+#include "pyrrhic/tbprobe.h"
 #include "noobprobe/noobprobe.h"
 #include "board.h"
 #include "makemove.h"

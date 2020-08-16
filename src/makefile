@@ -18,7 +18,7 @@
 
 # General
 EXE    = weiss
-SRC    = *.c fathom/tbprobe.c noobprobe/noobprobe.c
+SRC    = *.c pyrrhic/tbprobe.c noobprobe/noobprobe.c
 OUT    = ../bin/
 COMP   = gcc
 
