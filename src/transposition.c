@@ -109,8 +109,6 @@ void ClearTT(Thread *threads) {
     for (int i = 0; i < threads->count; ++i)
         pthread_join(threads->pthreads[i], NULL);
 
-    threads->pthreads[0] = 0;
-
     TT.dirty = false;
 }
 
