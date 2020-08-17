@@ -73,6 +73,7 @@ INLINE void UCIGo(Engine *engine, char *str) {
     ABORT_SIGNAL = false;
     ParseTimeControl(str, engine->pos.stm);
     pthread_create(&engine->threads->pthreads[0], NULL, &BeginSearch, engine);
+    pthread_detach(engine->threads->pthreads[0]);
 }
 
 // Parses a 'position' and sets up the board
@@ -157,8 +158,6 @@ static void UCIInfo() {
 static void UCIStop(Engine *engine) {
     ABORT_SIGNAL = true;
     Wake(engine->threads);
-    if (engine->threads->pthreads[0])
-        pthread_join(engine->threads->pthreads[0], NULL);
 }
 
 // Signals the engine is ready
