@@ -18,6 +18,7 @@
 
 #include "bitboard.h"
 #include "board.h"
+#include "evaluate.h"
 #include "move.h"
 #include "psqt.h"
 
@@ -61,7 +62,7 @@ static void ClearPiece(Position *pos, const Square sq, const bool hash) {
 
     // Update phase
     pos->basePhase -= PhaseValue[piece];
-    pos->phase = (pos->basePhase * 256 + 12) / 24;
+    pos->phase = UpdatePhase(pos->basePhase);
 
     // Update non-pawn count
     pos->nonPawnCount[color] -= NonPawn[piece];
@@ -90,7 +91,7 @@ static void AddPiece(Position *pos, const Square sq, const Piece piece, const bo
 
     // Update phase
     pos->basePhase += PhaseValue[piece];
-    pos->phase = (pos->basePhase * 256 + 12) / 24;
+    pos->phase = UpdatePhase(pos->basePhase);
 
     // Update non-pawn count
     pos->nonPawnCount[color] += NonPawn[piece];

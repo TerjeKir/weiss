@@ -25,11 +25,6 @@
 #define CHECK_MAT_DRAW
 
 
-#define MakeScore(mg, eg) ((int)((unsigned int)(eg) << 16) + (mg))
-#define S(mg, eg) MakeScore((mg), (eg))
-#define MgScore(s) ((int16_t)((uint16_t)((unsigned)((s)))))
-#define EgScore(s) ((int16_t)((uint16_t)((unsigned)((s) + 0x8000) >> 16)))
-
 #ifdef DEV
 #define tuneable_const
 #define tuneable_static_const
@@ -52,4 +47,40 @@ typedef struct EvalInfo {
 } EvalInfo;
 
 
+// Tapered Eval
+
+// The importance of many features of a chess position vary based
+// on what part of the game we are in. King safety is extremely
+// valuable while there are many pieces on the board, but as pieces
+// are traded off it is often extremely important for the king to
+// get involved in the battle. To account for this we need to assign
+// different values to the evaluation terms depending on the phase
+// the game is in.
+
+// This is accomplished by having a gliding transition from midgame
+// to endgame based on the number of and types of pieces left. The
+// final phase value ranges from 256 (midgame) to 0 (endgame). Each
+// term is given two values, one for each phase, stored in a single
+// integer.
+
+enum Phase {
+    MG, EG
+};
+
+static const int MidGame = 256;
+
+extern const int PhaseValue[PIECE_NB];
+
+#define MakeScore(mg, eg) ((int)((unsigned int)(eg) << 16) + (mg))
+#define S(mg, eg) MakeScore((mg), (eg))
+#define MgScore(s) ((int16_t)((uint16_t)((unsigned)((s)))))
+#define EgScore(s) ((int16_t)((uint16_t)((unsigned)((s) + 0x8000) >> 16)))
+
+// Calculates the phase from the sum of values of the pieces left
+static inline int UpdatePhase(int base) {
+
+    return (base * MidGame + 12) / 24;
+}
+
+// Returns a static evaluation of the position
 int EvalPosition(const Position *pos);

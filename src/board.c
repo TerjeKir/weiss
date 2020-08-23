@@ -22,15 +22,15 @@
 
 #include "bitboard.h"
 #include "board.h"
+#include "evaluate.h"
 #include "move.h"
 #include "psqt.h"
 
 
 uint8_t SqDistance[64][64];
 
-//                                EMPTY,    bP,    bN,    bB,    bR,    bQ,    bK, EMPTY, EMPTY,    wP,    wN,    wB,    wR,    wQ,    wK, EMPTY
-const int NonPawn[PIECE_NB]    = { false, false,  true,  true,  true,  true, false, false, false, false,  true,  true,  true,  true, false, false };
-const int PhaseValue[PIECE_NB] = {     0,     0,     1,     1,     2,     4,     0,     0,     0,     0,     1,     1,     2,     4,     0,     0 };
+//                              EMPTY,    bP,    bN,    bB,    bR,    bQ,    bK, EMPTY, EMPTY,    wP,    wN,    wB,    wR,    wQ,    wK, EMPTY
+const int NonPawn[PIECE_NB] = { false, false,  true,  true,  true,  true, false, false, false, false,  true,  true,  true,  true, false, false };
 
 // Zobrist key tables
 uint64_t PieceKeys[PIECE_NB][64];
@@ -166,7 +166,7 @@ static void UpdatePosition(Position *pos) {
         }
     }
 
-    pos->phase = (pos->basePhase * 256 + 12) / 24;
+    pos->phase = UpdatePhase(pos->basePhase);
 }
 
 // Parse FEN and set up the position as described
