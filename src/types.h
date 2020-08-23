@@ -18,14 +18,13 @@
 
 #pragma once
 
+#define NDEBUG
+#include <assert.h>
 #include <inttypes.h>
 #include <pthread.h>
 #include <setjmp.h>
 #include <stdbool.h>
 #include <stdint.h>
-
-#define NDEBUG
-#include <assert.h>
 
 
 // Macro for printing size_t
@@ -71,8 +70,9 @@ typedef int32_t Color;
 typedef int32_t Piece;
 typedef int32_t PieceType;
 
+
 enum Limit {
-    MAXGAMEMOVES     = 512,
+    MAXGAMEMOVES     = 256,
     MAXPOSITIONMOVES = 256,
     MAXDEPTH         = 128
 };
@@ -148,8 +148,6 @@ enum CastlingRights {
     WHITE_CASTLE = WHITE_OO | WHITE_OOO,
     BLACK_CASTLE = BLACK_OO | BLACK_OOO
 };
-
-/* Structs */
 
 typedef struct PV {
     int length;
