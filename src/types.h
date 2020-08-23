@@ -176,30 +176,3 @@ typedef struct {
     uint8_t padding; // not used
     int eval;
 } History;
-
-typedef struct Position {
-
-    uint8_t board[64];
-    Bitboard pieceBB[TYPE_NB];
-    Bitboard colorBB[2];
-
-    int nonPawnCount[2];
-
-    int material;
-    int phaseValue;
-    int phase;
-
-    Color stm;
-    uint8_t epSquare;
-    uint8_t rule50;
-    uint8_t castlingRights;
-
-    uint8_t ply;
-    uint16_t histPly;
-    uint16_t gameMoves;
-
-    Key key;
-
-    History gameHistory[MAXGAMEMOVES];
-
-} Position;
