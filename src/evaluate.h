@@ -21,10 +21,6 @@
 #include "types.h"
 
 
-// Check for (likely) material draw
-#define CHECK_MAT_DRAW
-
-
 #ifdef DEV
 #define tuneable_const
 #define tuneable_static_const

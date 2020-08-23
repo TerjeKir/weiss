@@ -82,7 +82,6 @@ tuneable_static_const int Mobility[4][28] = {
 };
 
 
-#ifdef CHECK_MAT_DRAW
 // Check if the board is (likely) drawn, logic from sjeng
 static bool MaterialDraw(const Position *pos) {
 
@@ -126,7 +125,6 @@ static bool MaterialDraw(const Position *pos) {
 
     return false;
 }
-#endif
 
 // Evaluates pawns
 INLINE int EvalPawns(const Position *pos, const Color color) {
@@ -238,9 +236,7 @@ INLINE void InitEvalInfo(const Position *pos, EvalInfo *ei, const Color color) {
 // Calculate a static evaluation of a position
 int EvalPosition(const Position *pos) {
 
-#ifdef CHECK_MAT_DRAW
     if (MaterialDraw(pos)) return 0;
-#endif
 
     EvalInfo ei;
 
