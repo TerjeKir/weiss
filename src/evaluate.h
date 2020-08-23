@@ -59,9 +59,7 @@ typedef struct EvalInfo {
 // term is given two values, one for each phase, stored in a single
 // integer.
 
-enum Phase {
-    MG, EG
-};
+enum Phase { MG, EG };
 
 static const int MidGame = 256;
 
@@ -72,10 +70,10 @@ extern const int PhaseValue[PIECE_NB];
 #define MgScore(s) ((int16_t)((uint16_t)((unsigned)((s)))))
 #define EgScore(s) ((int16_t)((uint16_t)((unsigned)((s) + 0x8000) >> 16)))
 
-// Calculates the phase from the sum of values of the pieces left
-static inline int UpdatePhase(int base) {
+// Calculates the phase from the phase values of the pieces left
+static inline int UpdatePhase(int value) {
 
-    return (base * MidGame + 12) / 24;
+    return (value * MidGame + 12) / 24;
 }
 
 // Returns a static evaluation of the position

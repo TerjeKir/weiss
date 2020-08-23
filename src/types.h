@@ -186,7 +186,7 @@ typedef struct Position {
     int nonPawnCount[2];
 
     int material;
-    int basePhase;
+    int phaseValue;
     int phase;
 
     Color stm;

@@ -162,11 +162,11 @@ static void UpdatePosition(Position *pos) {
             pos->material += PSQT[piece][sq];
 
             // Phase
-            pos->basePhase += PhaseValue[piece];
+            pos->phaseValue += PhaseValue[piece];
         }
     }
 
-    pos->phase = UpdatePhase(pos->basePhase);
+    pos->phase = UpdatePhase(pos->phaseValue);
 }
 
 // Parse FEN and set up the position as described

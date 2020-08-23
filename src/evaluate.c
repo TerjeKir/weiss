@@ -250,9 +250,9 @@ int EvalPosition(const Position *pos) {
     eval += EvalPieces(pos, &ei);
 
     // Adjust score by phase
-    eval = ((MgScore(eval) * pos->phase)
-         +  (EgScore(eval) * (MidGame - pos->phase)))
-         / MidGame;
+    eval =  ((MgScore(eval) * pos->phase)
+          +  (EgScore(eval) * (MidGame - pos->phase)))
+          / MidGame;
 
     // Static evaluation shouldn't spill into TB- or mate-scores
     assert(abs(eval) < TBWIN_IN_MAX);
