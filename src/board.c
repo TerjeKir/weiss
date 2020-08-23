@@ -29,8 +29,10 @@
 
 uint8_t SqDistance[64][64];
 
-//                              EMPTY,    bP,    bN,    bB,    bR,    bQ,    bK, EMPTY, EMPTY,    wP,    wN,    wB,    wR,    wQ,    wK, EMPTY
-const int NonPawn[PIECE_NB] = { false, false,  true,  true,  true,  true, false, false, false, false,  true,  true,  true,  true, false, false };
+const int NonPawn[PIECE_NB] = {
+    false, false,  true,  true,  true,  true, false, false,
+    false, false,  true,  true,  true,  true, false, false
+};
 
 // Zobrist key tables
 uint64_t PieceKeys[PIECE_NB][64];
