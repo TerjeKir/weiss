@@ -155,14 +155,3 @@ typedef struct PV {
     int length;
     Move line[MAXDEPTH];
 } PV;
-
-typedef struct {
-    Move move;
-    int score;
-} MoveListEntry;
-
-typedef struct {
-    int count;
-    int next;
-    MoveListEntry moves[MAXPOSITIONMOVES];
-} MoveList;

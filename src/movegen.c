@@ -19,9 +19,9 @@
 #include <stdio.h>
 
 #include "bitboard.h"
-#include "board.h"
 #include "makemove.h"
 #include "move.h"
+#include "movegen.h"
 
 
 enum { QUIET, NOISY };
