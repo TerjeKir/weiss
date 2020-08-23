@@ -19,7 +19,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "types.h"
+#include "threads.h"
 
 
 // Allocates memory for thread structs

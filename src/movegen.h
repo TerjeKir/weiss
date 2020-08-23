@@ -18,7 +18,20 @@
 
 #pragma once
 
+#include "board.h"
 #include "types.h"
+
+
+typedef struct {
+    Move move;
+    int score;
+} MoveListEntry;
+
+typedef struct {
+    int count;
+    int next;
+    MoveListEntry moves[MAXPOSITIONMOVES];
+} MoveList;
 
 
 void GenNoisyMoves(const Position *pos, MoveList *list);

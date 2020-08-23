@@ -18,7 +18,19 @@
 
 #pragma once
 
+#include "board.h"
+#include "threads.h"
 #include "types.h"
+
+
+typedef struct {
+
+    TimePoint start;
+    int time, inc, movestogo, movetime, depth;
+    int optimalUsage, maxUsage;
+    bool timelimit, infinite;
+
+} SearchLimits;
 
 
 extern SearchLimits Limits;

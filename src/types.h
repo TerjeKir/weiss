@@ -18,14 +18,13 @@
 
 #pragma once
 
+#define NDEBUG
+#include <assert.h>
 #include <inttypes.h>
 #include <pthread.h>
 #include <setjmp.h>
 #include <stdbool.h>
 #include <stdint.h>
-
-#define NDEBUG
-#include <assert.h>
 
 
 // Macro for printing size_t
@@ -71,8 +70,9 @@ typedef int32_t Color;
 typedef int32_t Piece;
 typedef int32_t PieceType;
 
+
 enum Limit {
-    MAXGAMEMOVES     = 512,
+    MAXGAMEMOVES     = 256,
     MAXPOSITIONMOVES = 256,
     MAXDEPTH         = 128
 };
@@ -149,96 +149,7 @@ enum CastlingRights {
     BLACK_CASTLE = BLACK_OO | BLACK_OOO
 };
 
-/* Structs */
-
 typedef struct PV {
     int length;
     Move line[MAXDEPTH];
 } PV;
-
-typedef struct {
-    Move move;
-    int score;
-} MoveListEntry;
-
-typedef struct {
-    int count;
-    int next;
-    MoveListEntry moves[MAXPOSITIONMOVES];
-} MoveList;
-
-typedef struct {
-    Key posKey;
-    Move move;
-    uint8_t epSquare;
-    uint8_t rule50;
-    uint8_t castlingRights;
-    uint8_t padding; // not used
-    int eval;
-} History;
-
-typedef struct Position {
-
-    uint8_t board[64];
-    Bitboard pieceBB[TYPE_NB];
-    Bitboard colorBB[2];
-
-    int nonPawnCount[2];
-
-    int material;
-    int phaseValue;
-    int phase;
-
-    Color stm;
-    uint8_t epSquare;
-    uint8_t rule50;
-    uint8_t castlingRights;
-
-    uint8_t ply;
-    uint16_t histPly;
-    uint16_t gameMoves;
-
-    Key key;
-
-    History gameHistory[MAXGAMEMOVES];
-
-} Position;
-
-typedef struct Thread {
-
-    uint64_t nodes;
-    uint64_t tbhits;
-
-    int score;
-    Depth depth;
-    Move bestMove;
-    Move ponderMove;
-    Depth seldepth;
-
-    PV pv;
-
-    jmp_buf jumpBuffer;
-
-    int history[PIECE_NB][64];
-    Move killers[MAXDEPTH][2];
-
-    // Anything below here is not zeroed out between searches
-    Position pos;
-
-    int index;
-    int count;
-
-    pthread_mutex_t mutex;
-    pthread_cond_t sleepCondition;
-    pthread_t *pthreads;
-
-} Thread;
-
-typedef struct {
-
-    TimePoint start;
-    int time, inc, movestogo, movetime, depth;
-    int optimalUsage, maxUsage;
-    bool timelimit, infinite;
-
-} SearchLimits;

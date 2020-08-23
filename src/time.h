@@ -20,6 +20,8 @@
 
 #include <time.h>
 
+#include "threads.h"
+
 
 INLINE TimePoint Now() {
     struct timespec t;
