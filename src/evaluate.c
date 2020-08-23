@@ -41,6 +41,12 @@ tuneable_const int PieceValue[2][PIECE_NB] = {
       0, P_EG, N_EG, B_EG, R_EG, Q_EG, 0, 0 }
 };
 
+// Phase value for each piece [piece]
+const int PhaseValue[PIECE_NB] = {
+    0, 0, 1, 1, 2, 4, 0, 0,
+    0, 0, 1, 1, 2, 4, 0, 0
+};
+
 // Bonus for being the side to move
 tuneable_const int Tempo = 20;
 
@@ -76,7 +82,6 @@ tuneable_static_const int Mobility[4][28] = {
 };
 
 
-#ifdef CHECK_MAT_DRAW
 // Check if the board is (likely) drawn, logic from sjeng
 static bool MaterialDraw(const Position *pos) {
 
@@ -120,7 +125,6 @@ static bool MaterialDraw(const Position *pos) {
 
     return false;
 }
-#endif
 
 // Evaluates pawns
 INLINE int EvalPawns(const Position *pos, const Color color) {
@@ -232,9 +236,7 @@ INLINE void InitEvalInfo(const Position *pos, EvalInfo *ei, const Color color) {
 // Calculate a static evaluation of a position
 int EvalPosition(const Position *pos) {
 
-#ifdef CHECK_MAT_DRAW
     if (MaterialDraw(pos)) return 0;
-#endif
 
     EvalInfo ei;
 
@@ -248,9 +250,9 @@ int EvalPosition(const Position *pos) {
     eval += EvalPieces(pos, &ei);
 
     // Adjust score by phase
-    eval = ((MgScore(eval) * pos->phase)
-         +  (EgScore(eval) * (256 - pos->phase)))
-         / 256;
+    eval =  ((MgScore(eval) * pos->phase)
+          +  (EgScore(eval) * (MidGame - pos->phase)))
+          / MidGame;
 
     // Static evaluation shouldn't spill into TB- or mate-scores
     assert(abs(eval) < TBWIN_IN_MAX);

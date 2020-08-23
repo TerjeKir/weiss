@@ -103,10 +103,6 @@ enum Piece {
     PIECE_NB = 16
 };
 
-enum Phase {
-    MG, EG
-};
-
 enum PieceValue {
     P_MG =  110, P_EG =  155,
     N_MG =  437, N_EG =  448,
@@ -190,7 +186,7 @@ typedef struct Position {
     int nonPawnCount[2];
 
     int material;
-    int basePhase;
+    int phaseValue;
     int phase;
 
     Color stm;
