@@ -166,13 +166,3 @@ typedef struct {
     int next;
     MoveListEntry moves[MAXPOSITIONMOVES];
 } MoveList;
-
-typedef struct {
-    Key posKey;
-    Move move;
-    uint8_t epSquare;
-    uint8_t rule50;
-    uint8_t castlingRights;
-    uint8_t padding; // not used
-    int eval;
-} History;

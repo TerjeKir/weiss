@@ -21,6 +21,16 @@
 #include "types.h"
 
 
+typedef struct {
+    Key posKey;
+    Move move;
+    uint8_t epSquare;
+    uint8_t rule50;
+    uint8_t castlingRights;
+    uint8_t padding; // not used
+    int eval;
+} History;
+
 typedef struct Position {
 
     uint8_t board[64];
