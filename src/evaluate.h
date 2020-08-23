@@ -45,19 +45,14 @@ typedef struct EvalInfo {
 
 // Tapered Eval
 
-// The importance of many features of a chess position vary based
-// on what part of the game we are in. King safety is extremely
-// valuable while there are many pieces on the board, but as pieces
-// are traded off it is often extremely important for the king to
-// get involved in the battle. To account for this we need to assign
-// different values to the evaluation terms depending on the phase
-// the game is in.
-
-// This is accomplished by having a gliding transition from midgame
-// to endgame based on the number of and types of pieces left. The
-// final phase value ranges from 256 (midgame) to 0 (endgame). Each
-// term is given two values, one for each phase, stored in a single
-// integer.
+// The game is split into two phases, midgame where all the non-pawns
+// are still on the board, and endgame where only kings and pawns are
+// left. There's a gliding transition between them, depending on how
+// many of each piece type are left, represented by a phase value
+// ranging from 256 (midgame) to 0 (endgame). This allows features to
+// vary in importance depending on the situation on the board. Each
+// feature is given two values, one for each phase. These are stored
+// as a single integer and handled using the defines below.
 
 enum Phase { MG, EG };
 
