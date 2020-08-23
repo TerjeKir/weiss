@@ -40,9 +40,9 @@
 #define WSACleanup()
 #endif
 
+#include "noobprobe.h"
 #include "../board.h"
 #include "../move.h"
-#include "../types.h"
 
 
 int failedQueries;

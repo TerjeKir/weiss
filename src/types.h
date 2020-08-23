@@ -203,33 +203,3 @@ typedef struct Position {
     History gameHistory[MAXGAMEMOVES];
 
 } Position;
-
-typedef struct Thread {
-
-    uint64_t nodes;
-    uint64_t tbhits;
-
-    int score;
-    Depth depth;
-    Move bestMove;
-    Move ponderMove;
-    Depth seldepth;
-
-    PV pv;
-
-    jmp_buf jumpBuffer;
-
-    int history[PIECE_NB][64];
-    Move killers[MAXDEPTH][2];
-
-    // Anything below here is not zeroed out between searches
-    Position pos;
-
-    int index;
-    int count;
-
-    pthread_mutex_t mutex;
-    pthread_cond_t sleepCondition;
-    pthread_t *pthreads;
-
-} Thread;
