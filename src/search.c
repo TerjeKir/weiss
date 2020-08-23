@@ -35,6 +35,7 @@
 #include "time.h"
 #include "threads.h"
 #include "transposition.h"
+#include "search.h"
 #include "syzygy.h"
 #include "uci.h"
 

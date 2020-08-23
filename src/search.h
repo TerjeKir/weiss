@@ -21,6 +21,16 @@
 #include "types.h"
 
 
+typedef struct {
+
+    TimePoint start;
+    int time, inc, movestogo, movetime, depth;
+    int optimalUsage, maxUsage;
+    bool timelimit, infinite;
+
+} SearchLimits;
+
+
 extern SearchLimits Limits;
 extern volatile bool ABORT_SIGNAL;
 extern bool noobbook;
