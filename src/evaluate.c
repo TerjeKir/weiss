@@ -19,9 +19,7 @@
 #include <stdlib.h>
 
 #include "bitboard.h"
-#include "board.h"
 #include "evaluate.h"
-#include "psqt.h"
 
 
 // Piecetype values, combines with PSQTs [piecetype]
@@ -133,13 +131,15 @@ INLINE int EvalPawns(const Position *pos, const Color color) {
 
     Bitboard pawns = colorPieceBB(color, PAWN);
 
-    // Doubled pawns
+    // Doubled pawns (only when one is blocking the other from moving)
     eval += PawnDoubled * PopCount(pawns & ShiftBB(NORTH, pawns));
 
     // Supported pawns
     eval += PawnSupport * PopCount(pawns & PawnBBAttackBB(pawns, color));
 
+    // Evaluate each individual pawn
     while (pawns) {
+
         Square sq = PopLsb(&pawns);
 
         // Isolated pawns
@@ -165,7 +165,9 @@ INLINE int EvalPiece(const Position *pos, const EvalInfo *ei, const Color color,
     if (pt == BISHOP && Multiple(pieces))
         eval += BishopPair;
 
+    // Evaluate each individual piece
     while (pieces) {
+
         Square sq = PopLsb(&pieces);
 
         // Mobility
