@@ -29,7 +29,7 @@ PEXT   = $(POPCNT) -DUSE_PEXT -mbmi2
 
 # Flags
 STD    = -std=gnu11
-LIBS   = -pthread -lm
+LIBS   = -pthread -lm -fopenmp
 WARN   = -Wall -Wextra -Wshadow
 
 CFLAGS = $(STD) $(WARN) -O3 -flto -march=native

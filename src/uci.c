@@ -31,6 +31,7 @@
 #include "time.h"
 #include "transposition.h"
 #include "tune.h"
+#include "tuner.h"
 #include "uci.h"
 
 
@@ -188,6 +189,10 @@ int main(int argc, char **argv) {
     // Benchmark
     if (argc > 1 && strstr(argv[1], "bench"))
         return Benchmark(argc, argv), 0;
+
+    // Tuner
+    if (argc > 1 && strstr(argv[1], "tune"))
+        return runTuner(), 0;
 
     // Init engine
     Engine engine = { .threads = InitThreads(1) };
