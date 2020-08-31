@@ -23,37 +23,20 @@
 
 #define TRACE (1)
 
-#define DATASET     "../EPDs/E12.33-1M-D12-Resolved.epd"
+#define DATASET      "../EPDs/E12.33-1M-D12-Resolved.epd"
 #define NPOSITIONS   ( 9999740) // Total FENS in the book
 #define BATCHSIZE    ( 9999740) // FENs per mini-batch
 
+#define NTERMS       (     518) // Number of terms being tuned
 #define MAXEPOCHS    (   10000) // Max number of epochs allowed
-#define PRETTYIFY    (       1) // Whether to format as if we tune everything
 #define REPORTING    (      50) // How often to print the new parameters
 
-#define NPARTITIONS  (      4) // Total thread partitions
+#define NPARTITIONS  (      64) // Total thread partitions
 #define KPRECISION   (      10) // Iterations for computing K
 
 #define LRRATE       (    1.00) // Global Learning rate
 #define LRDROPRATE   (    1.00) // Cut LR by this each LR-step
 #define LRSTEPRATE   (     250) // Cut LR after this many epochs
-
-#define NTERMS       (     518)
-
-
-#define TunePieceValue          (1)
-#define TunePSQT                (1)
-#define TuneMobility            (1)
-
-#define TunePawnDoubled         (1)
-#define TunePawnIsolated        (1)
-#define TunePawnSupport         (1)
-#define TunePawnPassed          (1)
-
-#define TuneBishopPair          (1)
-#define TuneOpenFile            (1)
-#define TuneSemiOpenFile        (1)
-#define TuneKingLineDanger      (1)
 
 
 typedef struct EvalTrace {
