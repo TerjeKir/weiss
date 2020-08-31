@@ -76,17 +76,17 @@ static int QuiescenceDeltaMargin(const Position *pos) {
 
     // Optimistic we can improve our position by a pawn without capturing anything,
     // or if we have a pawn on the 7th we can hope to improve by a queen instead
-    const int DeltaBase = PawnOn7th(pos) ? Q_MG : P_MG;
+    const int DeltaBase = PawnOn7th(pos) ? 1400 : 110;
 
     // Look for possible captures on the board
     const Bitboard enemy = colorBB(!sideToMove);
 
     // Find the most valuable piece we could take and add to our base
-    return DeltaBase + ((enemy & pieceBB(QUEEN )) ? Q_MG
-                      : (enemy & pieceBB(ROOK  )) ? R_MG
-                      : (enemy & pieceBB(BISHOP)) ? B_MG
-                      : (enemy & pieceBB(KNIGHT)) ? N_MG
-                                                  : P_MG);
+    return DeltaBase + ((enemy & pieceBB(QUEEN )) ? 1400
+                      : (enemy & pieceBB(ROOK  )) ? 670
+                      : (enemy & pieceBB(BISHOP)) ? 460
+                      : (enemy & pieceBB(KNIGHT)) ? 437
+                                                  : 110);
 }
 
 // Quiescence
@@ -123,7 +123,7 @@ static int Quiescence(Thread *thread, int alpha, const int beta) {
     if (score > alpha)
         alpha = score;
 
-    int futility = score + P_EG;
+    int futility = score + 155;
 
     InitNoisyMP(&mp, &list, thread);
 
