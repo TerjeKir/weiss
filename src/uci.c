@@ -191,8 +191,10 @@ int main(int argc, char **argv) {
         return Benchmark(argc, argv), 0;
 
     // Tuner
+#ifdef TUNE
     if (argc > 1 && strstr(argv[1], "tune"))
-        return runTuner(), 0;
+        return Tune(), 0;
+#endif
 
     // Init engine
     Engine engine = { .threads = InitThreads(1) };

@@ -21,7 +21,12 @@
 #include "types.h"
 
 
-#define TRACE (1)
+#ifdef TUNE
+    #define TRACE (1)
+#else
+    #define TRACE (0)
+#endif
+
 
 #define DATASET      "../EPDs/E12.33-1M-D12-Resolved.epd"
 #define NPOSITIONS   ( 9999740) // Total FENS in the book
@@ -59,6 +64,8 @@ typedef struct EvalTrace {
 
 } EvalTrace;
 
+#ifdef TUNE
+
 typedef struct TTuple {
     int index, wcoeff, bcoeff;
 } TTuple;
@@ -72,4 +79,7 @@ typedef struct TEntry {
 
 typedef double TVector[NTERMS][2];
 
-void runTuner();
+// Runs the tuner
+void Tune();
+
+#endif

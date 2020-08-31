@@ -28,39 +28,40 @@
 
 
 // Piece values
-extern int PieceTypeValue[7];
-extern int PieceValue[2][PIECE_NB];
+extern const int PieceValue[2][PIECE_NB];
 
 // PSQT values
-extern int PieceSqValue[7][64];
+extern const int PieceSqValue[7][64];
 
 // Misc
-extern int PawnDoubled;
-extern int PawnIsolated;
-extern int PawnSupport;
-extern int BishopPair;
-extern int KingLineDanger;
+extern const int PawnDoubled;
+extern const int PawnIsolated;
+extern const int PawnSupport;
+extern const int BishopPair;
+extern const int KingLineDanger;
 
 // Passed pawn [rank]
-extern int PawnPassed[8];
+extern const int PawnPassed[8];
 
 // (Semi) open file for rook and queen [pt-4]
-extern int OpenFile[2];
-extern int SemiOpenFile[2];
+extern const int OpenFile[2];
+extern const int SemiOpenFile[2];
 
 // Mobility
-extern int Mobility[4][28];
+extern const int Mobility[4][28];
 
 
 EvalTrace T, EmptyTrace;
 
 
-void print_0(char *name, TVector params, int i, char *S) {
+#ifdef TUNE
+
+void Print_0(char *name, TVector params, int i, char *S) {
 
     printf("const int %s%s = S(%3d,%3d);\n", name, S, (int) params[i][MG], (int) params[i][EG]);
 }
 
-void print_1(char *name, TVector params, int i, int A, char *S) {
+void Print_1(char *name, TVector params, int i, int A, char *S) {
 
     printf("const int %s%s = { ", name, S);
 
@@ -80,7 +81,7 @@ void print_1(char *name, TVector params, int i, int A, char *S) {
     }
 }
 
-void print_2(char *name, TVector params, int i, int A, int B, char *S) {
+void Print_2(char *name, TVector params, int i, int A, int B, char *S) {
 
     printf("const int %s%s = {\n", name, S);
 
@@ -194,7 +195,7 @@ void InitBaseParams(TVector tparams) {
     }
 }
 
-void printParameters(TVector params, TVector current) {
+void PrintParameters(TVector params, TVector current) {
 
     TVector tparams;
 
@@ -245,7 +246,7 @@ void printParameters(TVector params, TVector current) {
     }
 }
 
-void initCoefficients(TVector coeffs) {
+void InitCoefficients(TVector coeffs) {
 
     int i = 0;
 
@@ -299,12 +300,12 @@ void initCoefficients(TVector coeffs) {
     coeffs[i++][BLACK] = T.KingLineDanger[BLACK];
 
     if (i != NTERMS){
-        printf("Error in initCoefficients(): i = %d ; NTERMS = %d\n", i, NTERMS);
+        printf("Error in InitCoefficients(): i = %d ; NTERMS = %d\n", i, NTERMS);
         exit(EXIT_FAILURE);
     }
 }
 
-void initTunerTuples(TEntry *entry, TVector coeffs) {
+void InitTunerTuples(TEntry *entry, TVector coeffs) {
 
     int length = 0, tidx = 0;
 
@@ -322,7 +323,7 @@ void initTunerTuples(TEntry *entry, TVector coeffs) {
             entry->tuples[tidx++] = (TTuple) { i, coeffs[i][WHITE], coeffs[i][BLACK] };
 }
 
-void initTunerEntry(TEntry *entry, Position *pos) {
+void InitTunerEntry(TEntry *entry, Position *pos) {
 
     // Save time by computing phase scalars now
     entry->pfactors[MG] = 0 + pos->phaseValue / 24.0;
@@ -335,15 +336,15 @@ void initTunerEntry(TEntry *entry, Position *pos) {
                                      : -EvalPosition(pos);
 
     // evaluate() -> [[NTERMS][COLOUR_NB]]
-    initCoefficients(coeffs);
-    initTunerTuples(entry, coeffs);
+    InitCoefficients(coeffs);
+    InitTunerTuples(entry, coeffs);
 
     // Save some of the evaluation modifiers
     entry->eval = T.eval;
     entry->turn = pos->stm;
 }
 
-void initTunerEntries(TEntry *entries) {
+void InitTunerEntries(TEntry *entries) {
 
     Position pos;
     char line[128];
@@ -360,15 +361,15 @@ void initTunerEntries(TEntry *entries) {
 
         // Set the board with the current FEN and initialize
         ParseFen(line, &pos);
-        initTunerEntry(&entries[i], &pos);
+        InitTunerEntry(&entries[i], &pos);
     }
 }
 
-double sigmoid(double K, double E) {
+double Sigmoid(double K, double E) {
     return 1.0 / (1.0 + exp(-K * E / 400.0));
 }
 
-double staticEvaluationErrors(TEntry * entries, double K) {
+double StaticEvaluationErrors(TEntry * entries, double K) {
 
     // Compute the error of the dataset using the Static Evaluation.
     // We provide simple speedups that make use of the OpenMP Library.
@@ -377,17 +378,17 @@ double staticEvaluationErrors(TEntry * entries, double K) {
     {
         #pragma omp for schedule(static, NPOSITIONS / NPARTITIONS) reduction(+:total)
         for (int i = 0; i < NPOSITIONS; i++)
-            total += pow(entries[i].result - sigmoid(K, entries[i].seval), 2);
+            total += pow(entries[i].result - Sigmoid(K, entries[i].seval), 2);
     }
 
     return total / (double) NPOSITIONS;
 }
 
-double computeOptimalK(TEntry * entries) {
+double ComputeOptimalK(TEntry * entries) {
 
     double start = 0.0, end = 10, step = 1.0;
     double curr = start, error;
-    double best = staticEvaluationErrors(entries, start);
+    double best = StaticEvaluationErrors(entries, start);
 
     for (int i = 0; i < KPRECISION; i++) {
 
@@ -395,7 +396,7 @@ double computeOptimalK(TEntry * entries) {
         curr = start - step;
         while (curr < end) {
             curr = curr + step;
-            error = staticEvaluationErrors(entries, curr);
+            error = StaticEvaluationErrors(entries, curr);
             if (error <= best)
                 best = error, start = curr;
         }
@@ -409,7 +410,7 @@ double computeOptimalK(TEntry * entries) {
     return start;
 }
 
-double linearEvaluation(TEntry *entry, TVector params) {
+double LinearEvaluation(TEntry *entry, TVector params) {
 
     double mixed;
     double midgame, endgame;
@@ -433,10 +434,10 @@ double linearEvaluation(TEntry *entry, TVector params) {
     return mixed + (entry->turn == WHITE ? Tempo : -Tempo);
 }
 
-void updateSingleGradient(TEntry *entry, TVector gradient, TVector params, double K) {
+void UpdateSingleGradient(TEntry *entry, TVector gradient, TVector params, double K) {
 
-    double E = linearEvaluation(entry, params);
-    double S = sigmoid(K, E);
+    double E = LinearEvaluation(entry, params);
+    double S = Sigmoid(K, E);
     double X = (entry->result - S) * S * (1 - S);
 
     double mgBase = X * entry->pfactors[MG];
@@ -452,14 +453,14 @@ void updateSingleGradient(TEntry *entry, TVector gradient, TVector params, doubl
     }
 }
 
-void computeGradient(TEntry *entries, TVector gradient, TVector params, double K, int batch) {
+void ComputeGradient(TEntry *entries, TVector gradient, TVector params, double K, int batch) {
 
     // #pragma omp parallel shared(gradient)
     {
         TVector local = {0};
         // #pragma omp for schedule(static, BATCHSIZE / NPARTITIONS)
         for (int i = batch * BATCHSIZE; i < (batch + 1) * BATCHSIZE; i++)
-            updateSingleGradient(&entries[i], local, params, K);
+            UpdateSingleGradient(&entries[i], local, params, K);
 
         for (int i = 0; i < NTERMS; i++) {
             gradient[i][MG] += local[i][MG];
@@ -468,7 +469,7 @@ void computeGradient(TEntry *entries, TVector gradient, TVector params, double K
     }
 }
 
-double tunedEvaluationErrors(TEntry *entries, TVector params, double K) {
+double TunedEvaluationErrors(TEntry *entries, TVector params, double K) {
 
     double total = 0.0;
 
@@ -476,32 +477,32 @@ double tunedEvaluationErrors(TEntry *entries, TVector params, double K) {
     {
         #pragma omp for schedule(static, NPOSITIONS / NPARTITIONS) reduction(+:total)
         for (int i = 0; i < NPOSITIONS; i++)
-            total += pow(entries[i].result - sigmoid(K, linearEvaluation(&entries[i], params)), 2);
+            total += pow(entries[i].result - Sigmoid(K, LinearEvaluation(&entries[i], params)), 2);
     }
 
     return total / (double) NPOSITIONS;
 }
 
-void runTuner() {
+void Tune() {
 
     TVector currentParams = {0};
     TVector params = {0}, adagrad = {0};
     double K, error, rate = LRRATE;
     TEntry *entries = calloc(NPOSITIONS, sizeof(TEntry));
 
-    initTunerEntries(entries);
+    InitTunerEntries(entries);
     puts("Init entries: Complete");
-    K = computeOptimalK(entries);
+    K = ComputeOptimalK(entries);
     printf("Optimal K: %g\n", K);
 
     InitBaseParams(currentParams);
-    printParameters(params, currentParams);
+    PrintParameters(params, currentParams);
 
     for (int epoch = 0; epoch < MAXEPOCHS; epoch++) {
         for (int batch = 0; batch < NPOSITIONS / BATCHSIZE; batch++) {
 
             TVector gradient = {0};
-            computeGradient(entries, gradient, params, K, batch);
+            ComputeGradient(entries, gradient, params, K, batch);
 
             for (int i = 0; i < NTERMS; i++) {
                 adagrad[i][MG] += pow((K / 200.0) * gradient[i][MG] / BATCHSIZE, 2.0);
@@ -511,11 +512,13 @@ void runTuner() {
             }
         }
 
-        error = tunedEvaluationErrors(entries, params, K);
+        error = TunedEvaluationErrors(entries, params, K);
         printf("Epoch [%d] Error = [%-8g], Rate = [%g]\n", epoch, error, rate);
 
         // Pre-scheduled Learning Rate drops
         if (epoch && epoch % LRSTEPRATE == 0) rate = rate / LRDROPRATE;
-        if (epoch && epoch % REPORTING == 0) printParameters(params, currentParams);
+        if (epoch && epoch % REPORTING == 0) PrintParameters(params, currentParams);
     }
 }
+
+#endif
