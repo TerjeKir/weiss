@@ -67,7 +67,7 @@ typedef struct EvalTrace {
 #ifdef TUNE
 
 typedef struct TTuple {
-    int index, wcoeff, bcoeff;
+    int index, coeff;
 } TTuple;
 
 typedef struct TEntry {
@@ -77,6 +77,7 @@ typedef struct TEntry {
     TTuple *tuples; int ntuples;
 } TEntry;
 
+typedef double TCoeffs[NTERMS];
 typedef double TVector[NTERMS][2];
 
 // Runs the tuner

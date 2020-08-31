@@ -246,58 +246,38 @@ void PrintParameters(TVector params, TVector current) {
     }
 }
 
-void InitCoefficients(TVector coeffs) {
+void InitCoefficients(TCoeffs coeffs) {
 
     int i = 0;
 
-    for (int pt = PAWN-1; pt <= QUEEN-1; ++pt) {
-        coeffs[i  ][WHITE] = T.PieceValue[pt][WHITE];
-        coeffs[i++][BLACK] = T.PieceValue[pt][BLACK];
-    }
+    for (int pt = PAWN-1; pt <= QUEEN-1; ++pt)
+        coeffs[i++] = T.PieceValue[pt][WHITE] - T.PieceValue[pt][BLACK];
 
-    for (int pt = PAWN; pt <= KING; ++pt) {
-        for (int sq = 0; sq < 64; ++sq) {
-            coeffs[i  ][WHITE] = T.PSQT[pt-1][sq][WHITE];
-            coeffs[i++][BLACK] = T.PSQT[pt-1][sq][BLACK];
-        }
-    }
+    for (int pt = PAWN; pt <= KING; ++pt)
+        for (int sq = 0; sq < 64; ++sq)
+            coeffs[i++] = T.PSQT[pt-1][sq][WHITE] - T.PSQT[pt-1][sq][BLACK];
 
-    for (int pt = KNIGHT-2; pt <= QUEEN-2; ++pt) {
-        for (int mob = 0; mob < 28; ++mob) {
-            coeffs[i  ][WHITE] = T.Mobility[pt][mob][WHITE];
-            coeffs[i++][BLACK] = T.Mobility[pt][mob][BLACK];
-        }
-    }
+    for (int pt = KNIGHT-2; pt <= QUEEN-2; ++pt)
+        for (int mob = 0; mob < 28; ++mob)
+            coeffs[i++] = T.Mobility[pt][mob][WHITE] - T.Mobility[pt][mob][BLACK];
 
-    coeffs[i  ][WHITE] = T.PawnDoubled[WHITE];
-    coeffs[i++][BLACK] = T.PawnDoubled[BLACK];
+    coeffs[i++] = T.PawnDoubled[WHITE] - T.PawnDoubled[BLACK];
+    coeffs[i++] = T.PawnIsolated[WHITE] - T.PawnIsolated[BLACK];
+    coeffs[i++] = T.PawnSupport[WHITE] - T.PawnSupport[BLACK];
 
-    coeffs[i  ][WHITE] = T.PawnIsolated[WHITE];
-    coeffs[i++][BLACK] = T.PawnIsolated[BLACK];
+    for (int j = 0; j < 8; ++j)
+        coeffs[i++] = T.PawnPassed[j][WHITE] - T.PawnPassed[j][BLACK];
 
-    coeffs[i  ][WHITE] = T.PawnSupport[WHITE];
-    coeffs[i++][BLACK] = T.PawnSupport[BLACK];
-
-    for (int j = 0; j < 8; ++j) {
-        coeffs[i  ][WHITE] = T.PawnPassed[j][WHITE];
-        coeffs[i++][BLACK] = T.PawnPassed[j][BLACK];
-    }
-
-    coeffs[i  ][WHITE] = T.BishopPair[WHITE];
-    coeffs[i++][BLACK] = T.BishopPair[BLACK];
+    coeffs[i++] = T.BishopPair[WHITE] - T.BishopPair[BLACK];
 
     for (int j = 0; j < 2; ++j) {
-        coeffs[i  ][WHITE] = T.OpenFile[j][WHITE];
-        coeffs[i++][BLACK] = T.OpenFile[j][BLACK];
+        coeffs[i++] = T.OpenFile[j][WHITE] - T.OpenFile[j][BLACK];
     }
 
-    for (int j = 0; j < 2; ++j) {
-        coeffs[i  ][WHITE] = T.SemiOpenFile[j][WHITE];
-        coeffs[i++][BLACK] = T.SemiOpenFile[j][BLACK];
-    }
+    for (int j = 0; j < 2; ++j)
+        coeffs[i++] = T.SemiOpenFile[j][WHITE] - T.SemiOpenFile[j][BLACK];
 
-    coeffs[i  ][WHITE] = T.KingLineDanger[WHITE];
-    coeffs[i++][BLACK] = T.KingLineDanger[BLACK];
+    coeffs[i++] = T.KingLineDanger[WHITE] - T.KingLineDanger[BLACK];
 
     if (i != NTERMS){
         printf("Error in InitCoefficients(): i = %d ; NTERMS = %d\n", i, NTERMS);
@@ -305,13 +285,13 @@ void InitCoefficients(TVector coeffs) {
     }
 }
 
-void InitTunerTuples(TEntry *entry, TVector coeffs) {
+void InitTunerTuples(TEntry *entry, TCoeffs coeffs) {
 
     int length = 0, tidx = 0;
 
     // Count the needed Coefficients
     for (int i = 0; i < NTERMS; i++)
-        length += coeffs[i][WHITE] - coeffs[i][BLACK] != 0.0;
+        length += coeffs[i] != 0.0;
 
     // Allocate space for new Tuples (Normally, we don’t malloc())
     entry->tuples  = malloc(sizeof(TTuple) * length);
@@ -319,8 +299,8 @@ void InitTunerTuples(TEntry *entry, TVector coeffs) {
 
     // Finally setup each of our TTuples for this TEntry
     for (int i = 0; i < NTERMS; i++)
-        if (coeffs[i][WHITE] - coeffs[i][BLACK] != 0.0)
-            entry->tuples[tidx++] = (TTuple) { i, coeffs[i][WHITE], coeffs[i][BLACK] };
+        if (coeffs[i] != 0.0)
+            entry->tuples[tidx++] = (TTuple) { i, coeffs[i] };
 }
 
 void InitTunerEntry(TEntry *entry, Position *pos) {
@@ -331,7 +311,7 @@ void InitTunerEntry(TEntry *entry, Position *pos) {
     entry->phase = pos->phase;
 
     // Save a white POV static evaluation
-    TVector coeffs; T = EmptyTrace;
+    TCoeffs coeffs; T = EmptyTrace;
     entry->seval = pos->stm == WHITE ?  EvalPosition(pos)
                                      : -EvalPosition(pos);
 
@@ -412,24 +392,18 @@ double ComputeOptimalK(TEntry * entries) {
 
 double LinearEvaluation(TEntry *entry, TVector params) {
 
-    double mixed;
-    double midgame, endgame;
-    double mg[COLOR_NB] = {0}, eg[COLOR_NB] = {0};
+    double midgame = MgScore(entry->eval);
+    double endgame = EgScore(entry->eval);
 
     // Save any modifications for MG or EG for each evaluation type
     for (int i = 0; i < entry->ntuples; i++) {
-        mg[WHITE] += (double) entry->tuples[i].wcoeff * params[entry->tuples[i].index][MG];
-        mg[BLACK] += (double) entry->tuples[i].bcoeff * params[entry->tuples[i].index][MG];
-        eg[WHITE] += (double) entry->tuples[i].wcoeff * params[entry->tuples[i].index][EG];
-        eg[BLACK] += (double) entry->tuples[i].bcoeff * params[entry->tuples[i].index][EG];
+        midgame += (double) entry->tuples[i].coeff * params[entry->tuples[i].index][MG];
+        endgame += (double) entry->tuples[i].coeff * params[entry->tuples[i].index][EG];
     }
 
-    midgame = (double) MgScore(entry->eval) + mg[WHITE] - mg[BLACK];
-    endgame = (double) EgScore(entry->eval) + eg[WHITE] - eg[BLACK];
-
-    mixed =  (midgame * entry->phase
-           +  endgame * (256 - entry->phase))
-           / 256;
+    double mixed =  (midgame * entry->phase
+                  +  endgame * (256 - entry->phase))
+                  / 256;
 
     return mixed + (entry->turn == WHITE ? Tempo : -Tempo);
 }
@@ -444,12 +418,11 @@ void UpdateSingleGradient(TEntry *entry, TVector gradient, TVector params, doubl
     double egBase = X * entry->pfactors[EG];
 
     for (int i = 0; i < entry->ntuples; i++) {
-        int index  = entry->tuples[i].index;
-        int wcoeff = entry->tuples[i].wcoeff;
-        int bcoeff = entry->tuples[i].bcoeff;
+        int index = entry->tuples[i].index;
+        int coeff = entry->tuples[i].coeff;
 
-        gradient[index][MG] += mgBase * (wcoeff - bcoeff);
-        gradient[index][EG] += egBase * (wcoeff - bcoeff);
+        gradient[index][MG] += mgBase * coeff;
+        gradient[index][EG] += egBase * coeff;
     }
 }
 
