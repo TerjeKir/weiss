@@ -208,7 +208,7 @@ void PrintParameters(TVector params, TVector current) {
     puts("");
 
     // Piece values
-    print_1("PieceValue", tparams, i, 5, "[5]");
+    Print_1("PieceValue", tparams, i, 5, "[5]");
     i+=5;
 
     // PSQT
@@ -216,27 +216,27 @@ void PrintParameters(TVector params, TVector current) {
     i+=6*64;
 
     // Mobility
-    print_2("Mobility", tparams, i, 4, 28, "[4][28]");
+    Print_2("Mobility", tparams, i, 4, 28, "[4][28]");
     i+=4*28;
 
     // Pawn stuff
-    print_0("PawnDoubled", tparams, i, " ");
+    Print_0("PawnDoubled", tparams, i, " ");
     i++;
-    print_0("PawnIsolated", tparams, i, "");
+    Print_0("PawnIsolated", tparams, i, "");
     i++;
-    print_0("PawnSupport", tparams, i, " ");
+    Print_0("PawnSupport", tparams, i, " ");
     i++;
-    print_1("PawnPassed", tparams, i, 8, "[8]");
+    Print_1("PawnPassed", tparams, i, 8, "[8]");
     i+=8;
 
     // Misc
-    print_0("BishopPair", tparams, i, "");
+    Print_0("BishopPair", tparams, i, "");
     i++;
-    print_1("OpenFile", tparams, i, 2, "[2]    ");
+    Print_1("OpenFile", tparams, i, 2, "[2]    ");
     i+=2;
-    print_1("SemiOpenFile", tparams, i, 2, "[2]");
+    Print_1("SemiOpenFile", tparams, i, 2, "[2]");
     i+=2;
-    print_0("KingLineDanger", tparams, i, "");
+    Print_0("KingLineDanger", tparams, i, "");
     i++;
     puts("");
 
