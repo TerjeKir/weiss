@@ -18,7 +18,7 @@
 
 #pragma once
 
-#ifdef DEV
+#if 0
 void TuneDeclareAll();
 void TuneParseAll(const char *line, int value);
 #else
