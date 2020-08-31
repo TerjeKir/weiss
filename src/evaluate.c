@@ -18,9 +18,9 @@
 
 #include <stdlib.h>
 
+#include "tuner/tuner.h"
 #include "bitboard.h"
 #include "evaluate.h"
-#include "tuner.h"
 
 
 extern EvalTrace T;

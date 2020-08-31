@@ -21,9 +21,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "board.h"
-#include "evaluate.h"
-#include "psqt.h"
+#include "../board.h"
+#include "../evaluate.h"
+#include "../psqt.h"
 #include "tuner.h"
 
 
