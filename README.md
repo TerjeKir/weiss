@@ -1,5 +1,5 @@
 ## Weiss
-Weiss is a chess engine written using [VICE](https://www.youtube.com/watch?v=bGAfaepBco4&list=PLZ1QII7yudbc-Ky058TEaOstZHVbT-2hg) as a base, and otherwise inspired by [Ethereal](https://github.com/AndyGrant/Ethereal), [Stockfish](https://stockfishchess.org/) and [Demolito](https://github.com/lucasart/Demolito).
+Weiss is a chess engine written using [VICE](https://www.youtube.com/watch?v=bGAfaepBco4&list=PLZ1QII7yudbc-Ky058TEaOstZHVbT-2hg) as a base, and otherwise inspired by [Ethereal](https://github.com/AndyGrant/Ethereal) and [Stockfish](https://stockfishchess.org/).
 
 Weiss is part of the [OpenBench](http://chess.grantnet.us/index/) testing framework. You can help us out by [letting your idle CPUs run test games](https://github.com/AndyGrant/OpenBench/)!
 

@@ -24,7 +24,6 @@
 
 extern const int Tempo;
 
-extern const int PieceTypeValue[7];
 extern const int PieceValue[2][PIECE_NB];
 
 

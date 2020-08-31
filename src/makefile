@@ -18,7 +18,7 @@
 
 # General
 EXE    = weiss
-SRC    = *.c pyrrhic/tbprobe.c noobprobe/noobprobe.c
+SRC    = *.c pyrrhic/tbprobe.c noobprobe/noobprobe.c tuner/tuner.c
 OUT    = ../bin/
 COMP   = gcc
 
@@ -93,5 +93,5 @@ release:
 dev:
 	$(BENCH)-dev $(PEXT) $(DEV)
 
-gprof:
-	$(COMP) $(PFLAGS) $(SRC) $(LIBS) $(PEXT) -o $(OUT)$(EXE)-prof
+tune:
+	$(BENCH) $(PEXT) -DTUNE -fopenmp

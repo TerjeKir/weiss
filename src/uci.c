@@ -22,6 +22,7 @@
 
 #include "pyrrhic/tbprobe.h"
 #include "noobprobe/noobprobe.h"
+#include "tuner/tuner.h"
 #include "board.h"
 #include "makemove.h"
 #include "move.h"
@@ -30,7 +31,6 @@
 #include "threads.h"
 #include "time.h"
 #include "transposition.h"
-#include "tune.h"
 #include "uci.h"
 
 
@@ -135,10 +135,8 @@ static void UCISetOption(Engine *engine, char *str) {
     } else if (OptionName(str, "NoobBook")) {
 
         noobbook = !strncmp(OptionValue(str), "true", 4);
+    }
 
-    // Sets evaluation parameters (dev mode)
-    } else
-        TuneParseAll(strstr(str, "name") + 5, atoi(OptionValue(str)));
     fflush(stdout);
 }
 
@@ -150,7 +148,6 @@ static void UCIInfo() {
     printf("option name Threads type spin default %d min %d max %d\n", 1, 1, 2048);
     printf("option name SyzygyPath type string default <empty>\n");
     printf("option name NoobBook type check default false\n");
-    TuneDeclareAll(); // Declares all evaluation parameters as options (dev mode)
     printf("uciok\n"); fflush(stdout);
 }
 
@@ -188,6 +185,12 @@ int main(int argc, char **argv) {
     // Benchmark
     if (argc > 1 && strstr(argv[1], "bench"))
         return Benchmark(argc, argv), 0;
+
+    // Tuner
+#ifdef TUNE
+    if (argc > 1 && strstr(argv[1], "tune"))
+        return Tune(), 0;
+#endif
 
     // Init engine
     Engine engine = { .threads = InitThreads(1) };

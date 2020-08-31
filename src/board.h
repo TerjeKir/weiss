@@ -87,6 +87,10 @@ INLINE Square MirrorSquare(const Square sq) {
     return sq ^ 56;
 }
 
+INLINE Square RelativeSquare(const Color color, const Square sq) {
+    return color == WHITE ? sq : MirrorSquare(sq);
+}
+
 // Returns the same piece of the opposite color
 INLINE Piece MirrorPiece(Piece piece) {
     return piece == EMPTY ? EMPTY : piece ^ 8;

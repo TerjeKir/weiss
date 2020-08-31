@@ -89,7 +89,7 @@ enum Score {
 };
 
 enum Color {
-    BLACK, WHITE
+    BLACK, WHITE, COLOR_NB
 };
 
 enum PieceType {

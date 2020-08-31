@@ -18,8 +18,12 @@
 
 #include <stdlib.h>
 
+#include "tuner/tuner.h"
 #include "bitboard.h"
 #include "evaluate.h"
+
+
+extern EvalTrace T;
 
 
 // Piecetype values, combines with PSQTs [piecetype]
@@ -128,28 +132,39 @@ static bool MaterialDraw(const Position *pos) {
 // Evaluates pawns
 INLINE int EvalPawns(const Position *pos, const Color color) {
 
-    int eval = 0;
+    int eval = 0, count;
 
     Bitboard pawns = colorPieceBB(color, PAWN);
 
     // Doubled pawns (only when one is blocking the other from moving)
-    eval += PawnDoubled * PopCount(pawns & ShiftBB(NORTH, pawns));
+    count = PopCount(pawns & ShiftBB(NORTH, pawns));
+    eval += PawnDoubled * count;
+    if (TRACE) T.PawnDoubled[color] += count;
 
     // Supported pawns
-    eval += PawnSupport * PopCount(pawns & PawnBBAttackBB(pawns, color));
+    count = PopCount(pawns & PawnBBAttackBB(pawns, color));
+    eval += PawnSupport * count;
+    if (TRACE) T.PawnSupport[color] += count;
 
     // Evaluate each individual pawn
     while (pawns) {
 
         Square sq = PopLsb(&pawns);
 
+        if (TRACE) T.PieceValue[PAWN-1][color]++;
+        if (TRACE) T.PSQT[PAWN-1][RelativeSquare(color, sq)][color]++;
+
         // Isolated pawns
-        if (!(IsolatedMask[sq] & colorPieceBB(color, PAWN)))
+        if (!(IsolatedMask[sq] & colorPieceBB(color, PAWN))) {
             eval += PawnIsolated;
+            if (TRACE) T.PawnIsolated[color]++;
+        }
 
         // Passed pawns
-        if (!((PassedMask[color][sq]) & colorPieceBB(!color, PAWN)))
+        if (!((PassedMask[color][sq]) & colorPieceBB(!color, PAWN))) {
             eval += PawnPassed[RelativeRank(color, RankOf(sq))];
+            if (TRACE) T.PawnPassed[RelativeRank(color, RankOf(sq))][color]++;
+        }
     }
 
     return eval;
@@ -163,30 +178,35 @@ INLINE int EvalPiece(const Position *pos, const EvalInfo *ei, const Color color,
     Bitboard pieces = colorPieceBB(color, pt);
 
     // Bishop pair
-    if (pt == BISHOP && Multiple(pieces))
+    if (pt == BISHOP && Multiple(pieces)) {
         eval += BishopPair;
+        if (TRACE) T.BishopPair[color]++;
+    }
 
     // Evaluate each individual piece
     while (pieces) {
 
         Square sq = PopLsb(&pieces);
 
-        // Mobility
-        eval += Mobility[pt-2][PopCount(AttackBB(pt, sq, pieceBB(ALL)) & ei->mobilityArea[color])];
+        if (TRACE) T.PieceValue[pt-1][color]++;
+        if (TRACE) T.PSQT[pt-1][RelativeSquare(color, sq)][color]++;
 
-        // if (pt == KNIGHT) {}
-        // if (pt == BISHOP) {}
-        // if (pt == ROOK)   {}
-        // if (pt == QUEEN)  {}
+        // Mobility
+        int mob = PopCount(AttackBB(pt, sq, pieceBB(ALL)) & ei->mobilityArea[color]);
+        eval += Mobility[pt-2][mob];
+        if (TRACE) T.Mobility[pt-2][mob][color]++;
 
         if (pt == ROOK || pt == QUEEN) {
 
             // Open file
-            if (!(pieceBB(PAWN) & FileBB[FileOf(sq)]))
+            if (!(pieceBB(PAWN) & FileBB[FileOf(sq)])) {
                 eval += OpenFile[pt-4];
+                if (TRACE) T.OpenFile[pt-4][color]++;
             // Semi-open file
-            else if (!(colorPieceBB(color, PAWN) & FileBB[FileOf(sq)]))
+            } else if (!(colorPieceBB(color, PAWN) & FileBB[FileOf(sq)])) {
                 eval += SemiOpenFile[pt-4];
+                if (TRACE) T.SemiOpenFile[pt-4][color]++;
+            }
         }
     }
 
@@ -200,8 +220,12 @@ INLINE int EvalKings(const Position *pos, const Color color) {
 
     Square kingSq = Lsb(colorPieceBB(color, KING));
 
+    if (TRACE) T.PSQT[KING-1][RelativeSquare(color, kingSq)][color]++;
+
     // Open lines from the king
-    eval += KingLineDanger * PopCount(AttackBB(QUEEN, kingSq, colorBB(color) | pieceBB(PAWN)));
+    int count = PopCount(AttackBB(QUEEN, kingSq, colorBB(color) | pieceBB(PAWN)));
+    eval += KingLineDanger * count;
+    if (TRACE) T.KingLineDanger[color] += count;
 
     return eval;
 }
@@ -251,6 +275,8 @@ int EvalPosition(const Position *pos) {
 
     // Evaluate pieces
     eval += EvalPieces(pos, &ei);
+
+    if (TRACE) T.eval = eval;
 
     // Adjust score by phase
     eval =  ((MgScore(eval) * pos->phase)
