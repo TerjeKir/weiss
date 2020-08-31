@@ -29,7 +29,7 @@ PEXT   = $(POPCNT) -DUSE_PEXT -mbmi2
 
 # Flags
 STD    = -std=gnu11
-LIBS   = -pthread -lm -fopenmp
+LIBS   = -pthread -lm
 WARN   = -Wall -Wextra -Wshadow
 
 CFLAGS = $(STD) $(WARN) -O3 -flto -march=native
@@ -94,4 +94,4 @@ dev:
 	$(BENCH)-dev $(PEXT) $(DEV)
 
 tune:
-	$(BENCH) $(PEXT) -DTUNE
+	$(BENCH) $(PEXT) -DTUNE -fopenmp
