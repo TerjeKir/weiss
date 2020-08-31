@@ -187,16 +187,7 @@ void Perft(char *line) {
     fflush(stdout);
 }
 
-extern int PieceSqValue[7][64];
-
 void PrintEval(Position *pos) {
-
-    // Re-initialize PSQT in case the values have been changed
-    for (PieceType pt = PAWN; pt <= KING; ++pt)
-        for (Square sq = A1; sq <= H8; ++sq) {
-            PSQT[MakePiece(BLACK, pt)][sq] = -(PieceTypeValue[pt] + PieceSqValue[pt][sq]);
-            PSQT[MakePiece(WHITE, pt)][MirrorSquare(sq)] = -PSQT[pt][sq];
-        }
 
     printf("%d\n", sideToMove == WHITE ? EvalPosition(pos) : -EvalPosition(pos));
     fflush(stdout);

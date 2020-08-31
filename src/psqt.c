@@ -24,7 +24,7 @@
 int PSQT[PIECE_NB][64];
 
 // Blacks point of view - makes it easier to visualize as the board isn't upside down
-tuneable_static_const int PieceSqValue[7][64] = {
+static const int PieceSqValue[7][64] = {
     { 0 }, // Unused
     { // Pawn
              0,          0,          0,          0,          0,          0,          0,          0,

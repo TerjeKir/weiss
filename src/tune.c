@@ -16,7 +16,7 @@
   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifdef DEV
+#if 0
 
 #include <stdio.h>
 #include <string.h>

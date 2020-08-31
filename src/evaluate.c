@@ -23,7 +23,7 @@
 
 
 // Piecetype values, combines with PSQTs [piecetype]
-tuneable_const int PieceTypeValue[7] = { 0,
+const int PieceTypeValue[7] = { 0,
     S(P_MG, P_EG),
     S(N_MG, N_EG),
     S(B_MG, B_EG),
@@ -32,7 +32,7 @@ tuneable_const int PieceTypeValue[7] = { 0,
 };
 
 // Phase piece values, lookup used for futility pruning [phase][piece]
-tuneable_const int PieceValue[2][PIECE_NB] = {
+const int PieceValue[2][PIECE_NB] = {
     { 0, P_MG, N_MG, B_MG, R_MG, Q_MG, 0, 0,
       0, P_MG, N_MG, B_MG, R_MG, Q_MG, 0, 0 },
     { 0, P_EG, N_EG, B_EG, R_EG, Q_EG, 0, 0,
@@ -46,24 +46,24 @@ const int PhaseValue[PIECE_NB] = {
 };
 
 // Bonus for being the side to move
-tuneable_const int Tempo = 20;
+const int Tempo = 20;
 
 // Misc bonuses and maluses
-tuneable_static_const int PawnDoubled    = S( -6,-34);
-tuneable_static_const int PawnIsolated   = S(-27,-13);
-tuneable_static_const int PawnSupport    = S(  5,  4);
-tuneable_static_const int BishopPair     = S( 52, 72);
-tuneable_static_const int KingLineDanger = S(-12,  4);
+const int PawnDoubled    = S( -6,-34);
+const int PawnIsolated   = S(-27,-13);
+const int PawnSupport    = S(  5,  4);
+const int BishopPair     = S( 52, 72);
+const int KingLineDanger = S(-12,  4);
 
 // Passed pawn [rank]
-tuneable_static_const int PawnPassed[8] = { 0, S(-13,  0), S(-19, 10), S( -2, 34), S( 31, 74), S( 76,116), S(122,154), 0 };
+const int PawnPassed[8] = { 0, S(-13,  0), S(-19, 10), S( -2, 34), S( 31, 74), S( 76,116), S(122,154), 0 };
 
 // (Semi) open file for rook and queen [pt-4]
-tuneable_static_const int OpenFile[2] =     { S(51, 20), S(-13, 16) };
-tuneable_static_const int SemiOpenFile[2] = { S(17, 21), S(  8, 10) };
+const int OpenFile[2] =     { S(51, 20), S(-13, 16) };
+const int SemiOpenFile[2] = { S(17, 21), S(  8, 10) };
 
 // Mobility [pt-2][mobility]
-tuneable_static_const int Mobility[4][28] = {
+const int Mobility[4][28] = {
     // Knight (0-8)
     { S(-89,-52), S(-48,-43), S( -3,-15), S(  9, -1), S( 26, 10), S( 34, 34), S( 47, 39), S( 63, 38), S( 66, 26) },
     // Bishop (0-13)

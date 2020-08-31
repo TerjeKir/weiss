@@ -22,19 +22,10 @@
 #include "types.h"
 
 
-#ifdef DEV
-#define tuneable_const
-#define tuneable_static_const
-#else
-#define tuneable_const const
-#define tuneable_static_const static const
-#endif
+extern const int Tempo;
 
-
-extern tuneable_const int Tempo;
-
-extern tuneable_const int PieceTypeValue[7];
-extern tuneable_const int PieceValue[2][PIECE_NB];
+extern const int PieceTypeValue[7];
+extern const int PieceValue[2][PIECE_NB];
 
 
 typedef struct EvalInfo {
