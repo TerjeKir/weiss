@@ -104,10 +104,10 @@ enum Piece {
 };
 
 enum PieceValue {
-    P_MG =   93, P_EG =  155,
-    N_MG =  430, N_EG =  460,
-    B_MG =  452, B_EG =  472,
-    R_MG =  616, R_EG =  821,
+    P_MG =   92, P_EG =  155,
+    N_MG =  427, N_EG =  461,
+    B_MG =  449, B_EG =  473,
+    R_MG =  610, R_EG =  824,
     Q_MG = 1401, Q_EG = 1563
 };
 
