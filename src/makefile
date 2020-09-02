@@ -19,11 +19,9 @@
 # General
 EXE    = weiss
 SRC    = *.c pyrrhic/tbprobe.c noobprobe/noobprobe.c tuner/tuner.c
-OUT    = ../bin/
 COMP   = gcc
 
 # Defines
-DEV    = -DDEV
 POPCNT = -msse3 -mpopcnt
 PEXT   = $(POPCNT) -DUSE_PEXT -mbmi2
 
@@ -32,23 +30,18 @@ STD    = -std=gnu11
 LIBS   = -pthread -lm
 WARN   = -Wall -Wextra -Wshadow
 
-CFLAGS = $(STD) $(WARN) -O3 -flto -march=native
-RFLAGS = $(STD) $(WARN) -O3 -flto -static
-PFLAGS = $(STD) $(WARN) -O0 -march=native -pg -p
+FLAGS  = $(STD) $(WARN) -O3 -flto
+CFLAGS = $(FLAGS) -march=native
+RFLAGS = $(FLAGS) -static
 
 # PGO
 PGODIR = "../pgo"
 PGOGEN = -fprofile-generate=$(PGODIR)
 PGOUSE = -fprofile-use=$(PGODIR)
 
-# Link winsock32 on windows
-ifeq ($(OS), Windows_NT)
-	LIBS += -lwsock32
-endif
-
 # Try to detect windows environment by seeing
-# whether the shell filters out the "s or not.
-ifeq ($(shell echo "check_quotes"), "check_quotes")
+# whether the shell filters out " or not.
+ifeq ($(shell echo "test"), "test")
 	RUNBENCH = $(EXE) bench 12 > nul 2>&1
 	CLEAN    = rmdir /s /q $(PGODIR)
 else
@@ -56,33 +49,26 @@ else
 	CLEAN    = $(RM) -rf $(PGODIR)
 endif
 
+# Link winsock32 on windows for NoobBook
+ifeq ($(OS), Windows_NT)
+	LIBS += -lwsock32
+endif
+
 # Compilations
-BASE    = $(COMP) $(CFLAGS) $(SRC) $(LIBS)
-RELEASE = $(COMP) $(RFLAGS) $(SRC) $(LIBS) -o $(OUT)$(EXE)
-BENCH   = $(BASE) -o $(EXE)
-BIN     = $(BASE) -o $(OUT)$(EXE)
+BASIC   = $(COMP) $(CFLAGS) $(SRC) $(LIBS) -o $(EXE)
+RELEASE = $(COMP) $(RFLAGS) $(SRC) $(LIBS) -o $(EXE)
 
-# For OpenBench
-bench-basic:
-	$(BENCH)
+# Targets
+basic:
+	$(BASIC)
 
-bench-pext:
-	$(BENCH) $(PEXT)
-
-bench-pgo:
-	$(BENCH) $(PEXT) $(PGOGEN)
-	$(RUNBENCH)
-	$(BENCH) $(PEXT) $(PGOUSE)
-	$(CLEAN)
-
-# For normal use
 pext:
-	$(BIN)-pext $(PEXT)
+	$(BASIC) $(PEXT)
 
 pgo:
-	$(BENCH) $(PEXT) $(PGOGEN)
+	$(BASIC) $(PEXT) $(PGOGEN)
 	$(RUNBENCH)
-	$(BIN)-pext-pgo.exe $(PEXT) $(PGOUSE)
+	$(BASIC) $(PEXT) $(PGOUSE)
 	$(CLEAN)
 
 release:
@@ -91,7 +77,7 @@ release:
 	$(RELEASE)-pext.exe     $(PEXT)
 
 dev:
-	$(BENCH)-dev $(PEXT) $(DEV)
+	$(BASIC)-dev $(PEXT) -DDEV
 
 tune:
-	$(BENCH) $(PEXT) -DTUNE -fopenmp
+	$(BASIC) $(PEXT) -DTUNE -fopenmp
