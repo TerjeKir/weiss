@@ -59,7 +59,9 @@ extern const int PhaseValue[PIECE_NB];
 // Calculates the phase from the phase values of the pieces left
 static inline int UpdatePhase(int value) {
 
-    return (value * MidGame + 12) / 24;
+    value = CLAMP(value, 5, 22);
+
+    return ((value - 5) * MidGame) / (22 - 5);
 }
 
 // Returns a static evaluation of the position
