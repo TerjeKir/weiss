@@ -306,8 +306,9 @@ void InitTunerTuples(TEntry *entry, TCoeffs coeffs) {
 void InitTunerEntry(TEntry *entry, Position *pos) {
 
     // Save time by computing phase scalars now
-    entry->pfactors[MG] = 0 + pos->phaseValue / 24.0;
-    entry->pfactors[EG] = 1 - pos->phaseValue / 24.0;
+    int phaseValue = CLAMP(pos->phaseValue, 5, 22);
+    entry->pfactors[MG] = 0 + (phaseValue - 5) / 17.0;
+    entry->pfactors[EG] = 1 - (phaseValue - 5) / 17.0;
     entry->phase = pos->phase;
 
     // Save a white POV static evaluation

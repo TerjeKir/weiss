@@ -28,9 +28,9 @@
 #endif
 
 
-#define DATASET      "../EPDs/I_LIKE_BIG_BOOKS_AND_I_CANNOT_LIE.epd"
-#define NPOSITIONS   (19996623) // Total FENS in the book
-#define BATCHSIZE    (19996623) // FENs per mini-batch
+#define DATASET      "../../Datasets/Andrew/BIG.book"
+#define NPOSITIONS   (22494809) // Total FENS in the book
+#define BATCHSIZE    (22494809) // FENs per mini-batch
 
 #define NTERMS       (     518) // Number of terms being tuned
 #define MAXEPOCHS    (   10000) // Max number of epochs allowed
