@@ -506,13 +506,17 @@ void Tune() {
     TEntry *entries = calloc(NPOSITIONS, sizeof(TEntry));
     TupleStack      = calloc(STACKSIZE,  sizeof(TTuple));
 
+    printf("Running tuner with %d terms.\n", NTERMS);
+    printf("Using %s\n", DATASET);
+    printf("\nInitializing data:\n");
     InitTunerEntries(entries);
-    puts("Init entries: Complete");
+    printf("Initialization complete.\n");
+    printf("\nCalculating optimal K.\n");
     K = ComputeOptimalK(entries);
-    printf("Optimal K: %g\n", K);
+    printf("Done, optimal K: %g\n\n", K);
 
     InitBaseParams(currentParams);
-    PrintParameters(params, currentParams);
+    // PrintParameters(params, currentParams);
 
     for (int epoch = 0; epoch < MAXEPOCHS; epoch++) {
         for (int batch = 0; batch < NPOSITIONS / BATCHSIZE; batch++) {
