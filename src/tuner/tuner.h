@@ -69,14 +69,14 @@ typedef struct EvalTrace {
 #ifdef TUNE
 
 typedef struct TTuple {
-    int index, coeff;
+    int16_t index, coeff;
 } TTuple;
 
 typedef struct TEntry {
-    int seval, phase, turn;
+    int16_t seval, phase, turn, ntuples;
     int eval;
     double result, pfactors[2];
-    TTuple *tuples; int ntuples;
+    TTuple *tuples;
 } TEntry;
 
 typedef double TCoeffs[NTERMS];
