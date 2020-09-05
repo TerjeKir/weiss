@@ -331,9 +331,8 @@ void InitTunerTuples(TEntry *entry, TCoeffs coeffs) {
 void InitTunerEntry(TEntry *entry, Position *pos) {
 
     // Save time by computing phase scalars now
-    int phaseValue = CLAMP(pos->phaseValue, 5, 22);
-    entry->pfactors[MG] = 0 + (phaseValue - 5) / 17.0;
-    entry->pfactors[EG] = 1 - (phaseValue - 5) / 17.0;
+    entry->pfactors[MG] = 0 + pos->phaseValue / 24.0;
+    entry->pfactors[EG] = 1 - pos->phaseValue / 24.0;
     entry->phase = pos->phase;
 
     // Save a white POV static evaluation
@@ -454,10 +453,10 @@ void UpdateSingleGradient(TEntry *entry, TVector gradient, TVector params, doubl
 
 void ComputeGradient(TEntry *entries, TVector gradient, TVector params, double K, int batch) {
 
-    // #pragma omp parallel shared(gradient)
+    #pragma omp parallel shared(gradient)
     {
         TVector local = {0};
-        // #pragma omp for schedule(static, BATCHSIZE / NPARTITIONS)
+        #pragma omp for schedule(static, BATCHSIZE / NPARTITIONS)
         for (int i = batch * BATCHSIZE; i < (batch + 1) * BATCHSIZE; i++)
             UpdateSingleGradient(&entries[i], local, params, K);
 
