@@ -52,6 +52,8 @@ extern const int Mobility[4][28];
 
 
 EvalTrace T, EmptyTrace;
+TTuple *TupleStack;
+int TupleStackSize;
 
 
 #ifdef TUNE
@@ -322,9 +324,19 @@ void InitTunerTuples(TEntry *entry, TCoeffs coeffs) {
     for (int i = 0; i < NTERMS; i++)
         length += coeffs[i] != 0.0;
 
-    // Allocate space for new Tuples (Normally, we don’t malloc())
-    entry->tuples  = malloc(sizeof(TTuple) * length);
-    entry->ntuples = length;
+    // Allocate additional memory if needed
+    if (length > TupleStackSize) {
+        TupleStackSize = STACKSIZE;
+        TupleStack = calloc(STACKSIZE, sizeof(TTuple));
+        int ttupleMB = STACKSIZE * sizeof(TTuple) / (1 << 20);
+        printf(" Allocating Tuner Tuples [%dMB]\n", ttupleMB);
+    }
+
+    // Claim part of the Tuple Stack
+    entry->tuples   = TupleStack;
+    entry->ntuples  = length;
+    TupleStack     += length;
+    TupleStackSize -= length;
 
     // Finally setup each of our TTuples for this TEntry
     for (int i = 0; i < NTERMS; i++)
@@ -491,6 +503,7 @@ void Tune() {
     TVector params = {0}, adagrad = {0};
     double K, error, rate = LRRATE;
     TEntry *entries = calloc(NPOSITIONS, sizeof(TEntry));
+    TupleStack      = calloc(STACKSIZE,  sizeof(TTuple));
 
     InitTunerEntries(entries);
     puts("Init entries: Complete");

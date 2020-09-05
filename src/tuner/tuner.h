@@ -43,6 +43,7 @@
 #define LRDROPRATE   (    1.00) // Cut LR by this each LR-step
 #define LRSTEPRATE   (     250) // Cut LR after this many epochs
 
+#define STACKSIZE ((int)((double) NPOSITIONS * NTERMS / 64))
 
 typedef struct EvalTrace {
 
