@@ -53,8 +53,11 @@ extern const int Mobility[4][28];
 
 EvalTrace T, EmptyTrace;
 
-
 #ifdef TUNE
+
+TTuple *TupleStack;
+int TupleStackSize;
+
 
 void PrintSingle(char *name, TVector params, int i, char *S) {
 
@@ -83,20 +86,20 @@ void PrintArray(char *name, TVector params, int i, int A, char *S) {
 
 void PrintPSQT(TVector params, int i) {
 
-    puts("\n// Blacks point of view - makes it easier to visualize as the board isn't upside down");
+    puts("\n// Black's point of view - easier to read as it's not upside down");
     puts("const int PieceSqValue[7][64] = {\n    { 0 },");
 
     for (int pt = 0; pt < 6; pt++) {
 
-        printf("    {\n    ");
+        printf("\n    {");
 
         for (int sq = 0; sq < 64; sq++) {
-            if (sq && sq % 8 == 0) printf("\n    ");
-            printf("S(%3d,%3d)", (int) params[i+MirrorSquare(sq)][MG],
-                                 (int) params[i+MirrorSquare(sq)][EG]);
-            printf("%s", sq == 64 - 1 ? "" : ", ");
+            if (sq && sq % 8 == 0) printf("\n     ");
+            printf(" S(%3d,%3d)", (int) params[i+MirrorSquare(sq)][MG],
+                                  (int) params[i+MirrorSquare(sq)][EG]);
+            printf("%s", sq == 64 - 1 ? "" : ",");
         }
-        printf("},\n\n");
+        printf(" },\n");
         i += 64;
     }
     puts("};");
@@ -115,7 +118,6 @@ void PrintMob(TVector params, int i) {
         printf("%s", mob == 8 ? "" : ",");
     }
     printf(" },\n");
-    i+=28-9;
 
     printf("    // Bishop (0-13)\n");
     printf("    {");
@@ -125,7 +127,6 @@ void PrintMob(TVector params, int i) {
         printf("%s", mob == 13 ? "" : ",");
     }
     printf(" },\n");
-    i+=28-14;
 
     printf("    // Rook (0-14)\n");
     printf("    {");
@@ -135,7 +136,6 @@ void PrintMob(TVector params, int i) {
         printf("%s", mob == 14 ? "" : ",");
     }
     printf(" },\n");
-    i+=28-15;
 
     printf("    // Queen (0-27)\n");
     printf("    {");
@@ -172,6 +172,9 @@ void InitBaseParams(TVector tparams) {
     // Mobility
     for (int pt = KNIGHT; pt <= QUEEN; ++pt) {
         for (int mob = 0; mob < 28; ++mob) {
+            if (pt == KNIGHT && mob >  8) break;
+            if (pt == BISHOP && mob > 13) break;
+            if (pt == ROOK   && mob > 14) break;
             tparams[i][MG] = MgScore(Mobility[pt-2][mob]);
             tparams[i][EG] = EgScore(Mobility[pt-2][mob]);
             i++;
@@ -247,7 +250,7 @@ void PrintParameters(TVector params, TVector current) {
 
     // Mobility
     PrintMob(tparams, i);
-    i+=4*28;
+    i+=9+14+15+28;
 
     puts("\n// Misc bonuses and maluses");
     PrintSingle("PawnDoubled", tparams, i++, "   ");
@@ -284,9 +287,13 @@ void InitCoefficients(TCoeffs coeffs) {
         for (int sq = 0; sq < 64; ++sq)
             coeffs[i++] = T.PSQT[pt-1][sq][WHITE] - T.PSQT[pt-1][sq][BLACK];
 
-    for (int pt = KNIGHT-2; pt <= QUEEN-2; ++pt)
-        for (int mob = 0; mob < 28; ++mob)
-            coeffs[i++] = T.Mobility[pt][mob][WHITE] - T.Mobility[pt][mob][BLACK];
+    for (int pt = KNIGHT; pt <= QUEEN; ++pt)
+        for (int mob = 0; mob < 28; ++mob) {
+            if (pt == KNIGHT && mob >  8) break;
+            if (pt == BISHOP && mob > 13) break;
+            if (pt == ROOK   && mob > 14) break;
+            coeffs[i++] = T.Mobility[pt-2][mob][WHITE] - T.Mobility[pt-2][mob][BLACK];
+        }
 
     coeffs[i++] = T.PawnDoubled[WHITE]    - T.PawnDoubled[BLACK];
     coeffs[i++] = T.PawnIsolated[WHITE]   - T.PawnIsolated[BLACK];
@@ -318,9 +325,19 @@ void InitTunerTuples(TEntry *entry, TCoeffs coeffs) {
     for (int i = 0; i < NTERMS; i++)
         length += coeffs[i] != 0.0;
 
-    // Allocate space for new Tuples (Normally, we don’t malloc())
-    entry->tuples  = malloc(sizeof(TTuple) * length);
-    entry->ntuples = length;
+    // Allocate additional memory if needed
+    if (length > TupleStackSize) {
+        TupleStackSize = STACKSIZE;
+        TupleStack = calloc(STACKSIZE, sizeof(TTuple));
+        int ttupleMB = STACKSIZE * sizeof(TTuple) / (1 << 20);
+        printf(" Allocating Tuner Tuples [%dMB]\n", ttupleMB);
+    }
+
+    // Claim part of the Tuple Stack
+    entry->tuples   = TupleStack;
+    entry->ntuples  = length;
+    TupleStack     += length;
+    TupleStackSize -= length;
 
     // Finally setup each of our TTuples for this TEntry
     for (int i = 0; i < NTERMS; i++)
@@ -331,9 +348,8 @@ void InitTunerTuples(TEntry *entry, TCoeffs coeffs) {
 void InitTunerEntry(TEntry *entry, Position *pos) {
 
     // Save time by computing phase scalars now
-    int phaseValue = CLAMP(pos->phaseValue, 5, 22);
-    entry->pfactors[MG] = 0 + (phaseValue - 5) / 17.0;
-    entry->pfactors[EG] = 1 - (phaseValue - 5) / 17.0;
+    entry->pfactors[MG] = 0 + pos->phaseValue / 24.0;
+    entry->pfactors[EG] = 1 - pos->phaseValue / 24.0;
     entry->phase = pos->phase;
 
     // Save a white POV static evaluation
@@ -454,10 +470,10 @@ void UpdateSingleGradient(TEntry *entry, TVector gradient, TVector params, doubl
 
 void ComputeGradient(TEntry *entries, TVector gradient, TVector params, double K, int batch) {
 
-    // #pragma omp parallel shared(gradient)
+    #pragma omp parallel shared(gradient)
     {
         TVector local = {0};
-        // #pragma omp for schedule(static, BATCHSIZE / NPARTITIONS)
+        #pragma omp for schedule(static, BATCHSIZE / NPARTITIONS)
         for (int i = batch * BATCHSIZE; i < (batch + 1) * BATCHSIZE; i++)
             UpdateSingleGradient(&entries[i], local, params, K);
 
@@ -488,14 +504,19 @@ void Tune() {
     TVector params = {0}, adagrad = {0};
     double K, error, rate = LRRATE;
     TEntry *entries = calloc(NPOSITIONS, sizeof(TEntry));
+    TupleStack      = calloc(STACKSIZE,  sizeof(TTuple));
 
+    printf("Running tuner with %d terms.\n", NTERMS);
+    printf("Using %s\n", DATASET);
+    printf("\nInitializing data:\n");
     InitTunerEntries(entries);
-    puts("Init entries: Complete");
+    printf("Initialization complete.\n");
+    printf("\nCalculating optimal K.\n");
     K = ComputeOptimalK(entries);
-    printf("Optimal K: %g\n", K);
+    printf("Done, optimal K: %g\n\n", K);
 
     InitBaseParams(currentParams);
-    PrintParameters(params, currentParams);
+    // PrintParameters(params, currentParams);
 
     for (int epoch = 0; epoch < MAXEPOCHS; epoch++) {
         for (int batch = 0; batch < NPOSITIONS / BATCHSIZE; batch++) {
