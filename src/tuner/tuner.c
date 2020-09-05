@@ -52,11 +52,12 @@ extern const int Mobility[4][28];
 
 
 EvalTrace T, EmptyTrace;
+
+#ifdef TUNE
+
 TTuple *TupleStack;
 int TupleStackSize;
 
-
-#ifdef TUNE
 
 void PrintSingle(char *name, TVector params, int i, char *S) {
 
