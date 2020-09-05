@@ -56,12 +56,12 @@ EvalTrace T, EmptyTrace;
 
 #ifdef TUNE
 
-void Print_0(char *name, TVector params, int i, char *S) {
+void PrintSingle(char *name, TVector params, int i, char *S) {
 
     printf("const int %s%s = S(%3d,%3d);\n", name, S, (int) params[i][MG], (int) params[i][EG]);
 }
 
-void Print_1(char *name, TVector params, int i, int A, char *S) {
+void PrintArray(char *name, TVector params, int i, int A, char *S) {
 
     printf("const int %s%s = { ", name, S);
 
@@ -81,28 +81,10 @@ void Print_1(char *name, TVector params, int i, int A, char *S) {
     }
 }
 
-void Print_2(char *name, TVector params, int i, int A, int B, char *S) {
-
-    printf("const int %s%s = {\n", name, S);
-
-    for (int a = 0; a < A; a++) {
-
-        printf("   {");
-
-        for (int b = 0; b < B; b++, i++) {
-            if (b && b % 8 == 0) printf("\n    ");
-            printf("S(%3d,%3d)", (int) params[i][MG], (int) params[i][EG]);
-            printf("%s", b == B - 1 ? "" : ", ");
-        }
-        printf("},\n");
-    }
-    printf("};\n\n");
-}
-
-// Print the PSQTs from black's pov
 void PrintPSQT(TVector params, int i) {
 
-    printf("const int PieceSqValue[7][64] = {\n    { 0 },\n");
+    puts("\n// Blacks point of view - makes it easier to visualize as the board isn't upside down");
+    puts("const int PieceSqValue[7][64] = {\n    { 0 },");
 
     for (int pt = 0; pt < 6; pt++) {
 
@@ -117,7 +99,54 @@ void PrintPSQT(TVector params, int i) {
         printf("},\n\n");
         i += 64;
     }
-    printf("};\n\n");
+    puts("};");
+}
+
+void PrintMob(TVector params, int i) {
+
+    printf("\n// Mobility [pt-2][mobility]\n");
+    printf("const int Mobility[4][28] = {\n");
+
+    printf("    // Knight (0-8)\n");
+    printf("    {");
+    for (int mob = 0; mob <= 8; ++mob, ++i) {
+        if (mob && mob % 8 == 0) printf("\n     ");
+        printf(" S(%3d,%3d)", (int) params[i][MG], (int) params[i][EG]);
+        printf("%s", mob == 8 ? "" : ",");
+    }
+    printf(" },\n");
+    i+=28-9;
+
+    printf("    // Bishop (0-13)\n");
+    printf("    {");
+    for (int mob = 0; mob <= 13; ++mob, ++i) {
+        if (mob && mob % 8 == 0) printf("\n     ");
+        printf(" S(%3d,%3d)", (int) params[i][MG], (int) params[i][EG]);
+        printf("%s", mob == 13 ? "" : ",");
+    }
+    printf(" },\n");
+    i+=28-14;
+
+    printf("    // Rook (0-14)\n");
+    printf("    {");
+    for (int mob = 0; mob <= 14; ++mob, ++i) {
+        if (mob && mob % 8 == 0) printf("\n     ");
+        printf(" S(%3d,%3d)", (int) params[i][MG], (int) params[i][EG]);
+        printf("%s", mob == 14 ? "" : ",");
+    }
+    printf(" },\n");
+    i+=28-15;
+
+    printf("    // Queen (0-27)\n");
+    printf("    {");
+    for (int mob = 0; mob <= 27; ++mob, ++i) {
+        if (mob && mob % 8 == 0) printf("\n     ");
+        printf(" S(%3d,%3d)", (int) params[i][MG], (int) params[i][EG]);
+        printf("%s", mob == 27 ? "" : ",");
+    }
+    printf(" }\n");
+
+    printf("};\n");
 }
 
 void InitBaseParams(TVector tparams) {
@@ -149,7 +178,7 @@ void InitBaseParams(TVector tparams) {
         }
     }
 
-    // Pawn stuff
+    // Misc
     tparams[i][MG] = MgScore(PawnDoubled);
     tparams[i][EG] = EgScore(PawnDoubled);
     i++;
@@ -162,17 +191,22 @@ void InitBaseParams(TVector tparams) {
     tparams[i][EG] = EgScore(PawnSupport);
     i++;
 
+    tparams[i][MG] = MgScore(BishopPair);
+    tparams[i][EG] = EgScore(BishopPair);
+    i++;
+
+    tparams[i][MG] = MgScore(KingLineDanger);
+    tparams[i][EG] = EgScore(KingLineDanger);
+    i++;
+
+    // Passed pawns
     for (int j = 0; j < 8; ++j) {
         tparams[i][MG] = MgScore(PawnPassed[j]);
         tparams[i][EG] = EgScore(PawnPassed[j]);
         i++;
     }
 
-    // Misc
-    tparams[i][MG] = MgScore(BishopPair);
-    tparams[i][EG] = EgScore(BishopPair);
-    i++;
-
+    // Semi-open and open files
     for (int j = 0; j < 2; ++j) {
         tparams[i][MG] = MgScore(OpenFile[j]);
         tparams[i][EG] = EgScore(OpenFile[j]);
@@ -184,10 +218,6 @@ void InitBaseParams(TVector tparams) {
         tparams[i][EG] = EgScore(SemiOpenFile[j]);
         i++;
     }
-
-    tparams[i][MG] = MgScore(KingLineDanger);
-    tparams[i][EG] = EgScore(KingLineDanger);
-    i++;
 
     if (i != NTERMS) {
         printf("Error 1 in printParameters(): i = %d ; NTERMS = %d\n", i, NTERMS);
@@ -208,7 +238,7 @@ void PrintParameters(TVector params, TVector current) {
     puts("");
 
     // Piece values
-    Print_1("PieceValue", tparams, i, 5, "[5]");
+    PrintArray("PieceValue", tparams, i, 5, "[5]");
     i+=5;
 
     // PSQT
@@ -216,28 +246,25 @@ void PrintParameters(TVector params, TVector current) {
     i+=6*64;
 
     // Mobility
-    Print_2("Mobility", tparams, i, 4, 28, "[4][28]");
+    PrintMob(tparams, i);
     i+=4*28;
 
-    // Pawn stuff
-    Print_0("PawnDoubled", tparams, i, " ");
-    i++;
-    Print_0("PawnIsolated", tparams, i, "");
-    i++;
-    Print_0("PawnSupport", tparams, i, " ");
-    i++;
-    Print_1("PawnPassed", tparams, i, 8, "[8]");
+    puts("\n// Misc bonuses and maluses");
+    PrintSingle("PawnDoubled", tparams, i++, "   ");
+    PrintSingle("PawnIsolated", tparams, i++, "  ");
+    PrintSingle("PawnSupport", tparams, i++, "   ");
+    PrintSingle("BishopPair", tparams, i++, "    ");
+    PrintSingle("KingLineDanger", tparams, i++, "");
+
+    puts("\n// Passed pawn [rank]");
+    PrintArray("PawnPassed", tparams, i, 8, "[8]");
     i+=8;
 
-    // Misc
-    Print_0("BishopPair", tparams, i, "");
-    i++;
-    Print_1("OpenFile", tparams, i, 2, "[2]    ");
+    puts("\n// (Semi) open file for rook and queen [pt-4]");
+    PrintArray("OpenFile", tparams, i, 2, "[2]    ");
     i+=2;
-    Print_1("SemiOpenFile", tparams, i, 2, "[2]");
+    PrintArray("SemiOpenFile", tparams, i, 2, "[2]");
     i+=2;
-    Print_0("KingLineDanger", tparams, i, "");
-    i++;
     puts("");
 
     if (i != NTERMS) {
@@ -261,23 +288,21 @@ void InitCoefficients(TCoeffs coeffs) {
         for (int mob = 0; mob < 28; ++mob)
             coeffs[i++] = T.Mobility[pt][mob][WHITE] - T.Mobility[pt][mob][BLACK];
 
-    coeffs[i++] = T.PawnDoubled[WHITE] - T.PawnDoubled[BLACK];
-    coeffs[i++] = T.PawnIsolated[WHITE] - T.PawnIsolated[BLACK];
-    coeffs[i++] = T.PawnSupport[WHITE] - T.PawnSupport[BLACK];
+    coeffs[i++] = T.PawnDoubled[WHITE]    - T.PawnDoubled[BLACK];
+    coeffs[i++] = T.PawnIsolated[WHITE]   - T.PawnIsolated[BLACK];
+    coeffs[i++] = T.PawnSupport[WHITE]    - T.PawnSupport[BLACK];
+    coeffs[i++] = T.BishopPair[WHITE]     - T.BishopPair[BLACK];
+    coeffs[i++] = T.KingLineDanger[WHITE] - T.KingLineDanger[BLACK];
 
     for (int j = 0; j < 8; ++j)
         coeffs[i++] = T.PawnPassed[j][WHITE] - T.PawnPassed[j][BLACK];
 
-    coeffs[i++] = T.BishopPair[WHITE] - T.BishopPair[BLACK];
-
-    for (int j = 0; j < 2; ++j) {
+    for (int j = 0; j < 2; ++j)
         coeffs[i++] = T.OpenFile[j][WHITE] - T.OpenFile[j][BLACK];
-    }
 
     for (int j = 0; j < 2; ++j)
         coeffs[i++] = T.SemiOpenFile[j][WHITE] - T.SemiOpenFile[j][BLACK];
 
-    coeffs[i++] = T.KingLineDanger[WHITE] - T.KingLineDanger[BLACK];
 
     if (i != NTERMS){
         printf("Error in InitCoefficients(): i = %d ; NTERMS = %d\n", i, NTERMS);
@@ -306,8 +331,9 @@ void InitTunerTuples(TEntry *entry, TCoeffs coeffs) {
 void InitTunerEntry(TEntry *entry, Position *pos) {
 
     // Save time by computing phase scalars now
-    entry->pfactors[MG] = 0 + pos->phaseValue / 24.0;
-    entry->pfactors[EG] = 1 - pos->phaseValue / 24.0;
+    int phaseValue = CLAMP(pos->phaseValue, 5, 22);
+    entry->pfactors[MG] = 0 + (phaseValue - 5) / 17.0;
+    entry->pfactors[EG] = 1 - (phaseValue - 5) / 17.0;
     entry->phase = pos->phase;
 
     // Save a white POV static evaluation
