@@ -32,7 +32,7 @@
 #define NPOSITIONS   (22494809) // Total FENS in the book
 #define BATCHSIZE    (22494809) // FENs per mini-batch
 
-#define NTERMS       (     518) // Number of terms being tuned
+#define NTERMS       (     472) // Number of terms being tuned
 #define MAXEPOCHS    (   10000) // Max number of epochs allowed
 #define REPORTING    (      50) // How often to print the new parameters
 

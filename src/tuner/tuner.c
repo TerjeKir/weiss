@@ -115,7 +115,6 @@ void PrintMob(TVector params, int i) {
         printf("%s", mob == 8 ? "" : ",");
     }
     printf(" },\n");
-    i+=28-9;
 
     printf("    // Bishop (0-13)\n");
     printf("    {");
@@ -125,7 +124,6 @@ void PrintMob(TVector params, int i) {
         printf("%s", mob == 13 ? "" : ",");
     }
     printf(" },\n");
-    i+=28-14;
 
     printf("    // Rook (0-14)\n");
     printf("    {");
@@ -135,7 +133,6 @@ void PrintMob(TVector params, int i) {
         printf("%s", mob == 14 ? "" : ",");
     }
     printf(" },\n");
-    i+=28-15;
 
     printf("    // Queen (0-27)\n");
     printf("    {");
@@ -172,6 +169,9 @@ void InitBaseParams(TVector tparams) {
     // Mobility
     for (int pt = KNIGHT; pt <= QUEEN; ++pt) {
         for (int mob = 0; mob < 28; ++mob) {
+            if (pt == KNIGHT && mob >  8) break;
+            if (pt == BISHOP && mob > 13) break;
+            if (pt == ROOK   && mob > 14) break;
             tparams[i][MG] = MgScore(Mobility[pt-2][mob]);
             tparams[i][EG] = EgScore(Mobility[pt-2][mob]);
             i++;
@@ -247,7 +247,7 @@ void PrintParameters(TVector params, TVector current) {
 
     // Mobility
     PrintMob(tparams, i);
-    i+=4*28;
+    i+=9+14+15+28;
 
     puts("\n// Misc bonuses and maluses");
     PrintSingle("PawnDoubled", tparams, i++, "   ");
@@ -284,9 +284,13 @@ void InitCoefficients(TCoeffs coeffs) {
         for (int sq = 0; sq < 64; ++sq)
             coeffs[i++] = T.PSQT[pt-1][sq][WHITE] - T.PSQT[pt-1][sq][BLACK];
 
-    for (int pt = KNIGHT-2; pt <= QUEEN-2; ++pt)
-        for (int mob = 0; mob < 28; ++mob)
-            coeffs[i++] = T.Mobility[pt][mob][WHITE] - T.Mobility[pt][mob][BLACK];
+    for (int pt = KNIGHT; pt <= QUEEN; ++pt)
+        for (int mob = 0; mob < 28; ++mob) {
+            if (pt == KNIGHT && mob >  8) break;
+            if (pt == BISHOP && mob > 13) break;
+            if (pt == ROOK   && mob > 14) break;
+            coeffs[i++] = T.Mobility[pt-2][mob][WHITE] - T.Mobility[pt-2][mob][BLACK];
+        }
 
     coeffs[i++] = T.PawnDoubled[WHITE]    - T.PawnDoubled[BLACK];
     coeffs[i++] = T.PawnIsolated[WHITE]   - T.PawnIsolated[BLACK];
