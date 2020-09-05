@@ -86,20 +86,20 @@ void PrintArray(char *name, TVector params, int i, int A, char *S) {
 
 void PrintPSQT(TVector params, int i) {
 
-    puts("\n// Blacks point of view - makes it easier to visualize as the board isn't upside down");
+    puts("\n// Black's point of view - easier to read as it's not upside down");
     puts("const int PieceSqValue[7][64] = {\n    { 0 },");
 
     for (int pt = 0; pt < 6; pt++) {
 
-        printf("    {\n    ");
+        printf("\n    {");
 
         for (int sq = 0; sq < 64; sq++) {
-            if (sq && sq % 8 == 0) printf("\n    ");
-            printf("S(%3d,%3d)", (int) params[i+MirrorSquare(sq)][MG],
-                                 (int) params[i+MirrorSquare(sq)][EG]);
-            printf("%s", sq == 64 - 1 ? "" : ", ");
+            if (sq && sq % 8 == 0) printf("\n     ");
+            printf(" S(%3d,%3d)", (int) params[i+MirrorSquare(sq)][MG],
+                                  (int) params[i+MirrorSquare(sq)][EG]);
+            printf("%s", sq == 64 - 1 ? "" : ",");
         }
-        printf("},\n\n");
+        printf(" },\n");
         i += 64;
     }
     puts("};");
