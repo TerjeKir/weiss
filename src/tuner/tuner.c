@@ -238,7 +238,7 @@ void PrintParameters(TVector params, TVector current) {
     }
 
     int i = 0;
-    puts("");
+    puts("\n");
 
     // Piece values
     PrintArray("PieceValue", tparams, i, 5, "[5]");
@@ -514,7 +514,7 @@ void Tune() {
     printf("Initialization complete.\n");
     printf("\nCalculating optimal K.\n");
     K = ComputeOptimalK(entries);
-    printf("Done, optimal K: %g\n\n", K);
+    printf("Done, optimal K: %g\n", K);
 
     InitBaseParams(currentParams);
     // PrintParameters(params, currentParams);
@@ -534,7 +534,7 @@ void Tune() {
         }
 
         error = TunedEvaluationErrors(entries, params, K);
-        printf("Epoch [%d] Error = [%.8f], Rate = [%g]\n", epoch, error, rate);
+        printf("\rEpoch [%d] Error = [%.8f], Rate = [%g]", epoch, error, rate);
 
         // Pre-scheduled Learning Rate drops
         if (epoch % LRSTEPRATE == 0) rate = rate / LRDROPRATE;
