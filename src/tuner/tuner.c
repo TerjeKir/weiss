@@ -238,7 +238,7 @@ void PrintParameters(TVector params, TVector current) {
     }
 
     int i = 0;
-    puts("");
+    puts("\n");
 
     // Piece values
     PrintArray("PieceValue", tparams, i, 5, "[5]");
@@ -380,6 +380,7 @@ void InitTunerEntries(TEntry *entries) {
         if      (strstr(line, "[1.0]")) entries[i].result = 1.0;
         else if (strstr(line, "[0.5]")) entries[i].result = 0.5;
         else if (strstr(line, "[0.0]")) entries[i].result = 0.0;
+        else    {printf("Cannot Parse %s\n", line); exit(EXIT_FAILURE);}
 
         // Set the board with the current FEN and initialize
         ParseFen(line, &pos);
@@ -513,12 +514,12 @@ void Tune() {
     printf("Initialization complete.\n");
     printf("\nCalculating optimal K.\n");
     K = ComputeOptimalK(entries);
-    printf("Done, optimal K: %g\n\n", K);
+    printf("Done, optimal K: %g\n", K);
 
     InitBaseParams(currentParams);
     // PrintParameters(params, currentParams);
 
-    for (int epoch = 0; epoch < MAXEPOCHS; epoch++) {
+    for (int epoch = 1; epoch <= MAXEPOCHS; epoch++) {
         for (int batch = 0; batch < NPOSITIONS / BATCHSIZE; batch++) {
 
             TVector gradient = {0};
@@ -533,11 +534,11 @@ void Tune() {
         }
 
         error = TunedEvaluationErrors(entries, params, K);
-        printf("Epoch [%d] Error = [%-8g], Rate = [%g]\n", epoch, error, rate);
+        printf("\rEpoch [%d] Error = [%.8f], Rate = [%g]", epoch, error, rate);
 
         // Pre-scheduled Learning Rate drops
-        if (epoch && epoch % LRSTEPRATE == 0) rate = rate / LRDROPRATE;
-        if (epoch && epoch % REPORTING == 0) PrintParameters(params, currentParams);
+        if (epoch % LRSTEPRATE == 0) rate = rate / LRDROPRATE;
+        if (epoch % REPORTING == 0) PrintParameters(params, currentParams);
     }
 }
 
