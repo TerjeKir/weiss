@@ -19,7 +19,7 @@
 # General
 EXE    = weiss
 SRC    = *.c pyrrhic/tbprobe.c noobprobe/noobprobe.c tuner/tuner.c
-COMP   = gcc
+CC     = gcc
 
 # Defines
 POPCNT = -msse3 -mpopcnt
@@ -39,6 +39,15 @@ PGODIR = "../pgo"
 PGOGEN = -fprofile-generate=$(PGODIR)
 PGOUSE = -fprofile-use=$(PGODIR)
 
+# Use pext if supported and not a ryzen cpu
+PROPS = $(shell echo | $(CC) -march=native -E -dM -)
+CPU   = $(shell echo | $(CC) -march=native -Q --help=target | grep march)
+ifneq ($(findstring __BMI2__, $(PROPS)),)
+	ifeq ($(findstring znver, $(CPU)),)
+		CFLAGS += -DUSE_PEXT
+	endif
+endif
+
 # Try to detect windows environment by seeing
 # whether the shell filters out " or not.
 ifeq ($(shell echo "test"), "test")
@@ -55,29 +64,26 @@ ifeq ($(OS), Windows_NT)
 endif
 
 # Compilations
-BASIC   = $(COMP) $(CFLAGS) $(SRC) $(LIBS) -o $(EXE)
-RELEASE = $(COMP) $(RFLAGS) $(SRC) $(LIBS) -o $(EXE)
+BASIC   = $(CC) $(CFLAGS) $(SRC) $(LIBS) -o $(EXE)
+RELEASE = $(CC) $(RFLAGS) $(SRC) $(LIBS) -o $(EXE)
 
 # Targets
+pgo:
+	$(BASIC) $(PGOGEN)
+	$(RUNBENCH)
+	$(BASIC) $(PGOUSE)
+	$(CLEAN)
+
 basic:
 	$(BASIC)
 
-pext:
-	$(BASIC) $(PEXT)
+dev:
+	$(BASIC) -DDEV
 
-pgo:
-	$(BASIC) $(PEXT) $(PGOGEN)
-	$(RUNBENCH)
-	$(BASIC) $(PEXT) $(PGOUSE)
-	$(CLEAN)
+tune:
+	$(BASIC) -DTUNE -fopenmp
 
 release:
 	$(RELEASE)-nopopcnt.exe
 	$(RELEASE)-popcnt.exe   $(POPCNT)
 	$(RELEASE)-pext.exe     $(PEXT)
-
-dev:
-	$(BASIC)-dev $(PEXT) -DDEV
-
-tune:
-	$(BASIC) $(PEXT) -DTUNE -fopenmp
