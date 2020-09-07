@@ -77,13 +77,13 @@ pgo:
 basic:
 	$(BASIC)
 
-release:
-	$(RELEASE)-nopopcnt.exe
-	$(RELEASE)-popcnt.exe   $(POPCNT)
-	$(RELEASE)-pext.exe     $(PEXT)
-
 dev:
 	$(BASIC) -DDEV
 
 tune:
 	$(BASIC) -DTUNE -fopenmp
+
+release:
+	$(RELEASE)-nopopcnt.exe
+	$(RELEASE)-popcnt.exe   $(POPCNT)
+	$(RELEASE)-pext.exe     $(PEXT)
