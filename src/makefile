@@ -39,6 +39,15 @@ PGODIR = "../pgo"
 PGOGEN = -fprofile-generate=$(PGODIR)
 PGOUSE = -fprofile-use=$(PGODIR)
 
+# Use pext if supported and not a ryzen cpu
+PROPS = $(shell echo | $(CC) -march=native -E -dM -)
+CPU   = $(shell echo | $(CC) -march=native -Q --help=target | grep march)
+ifneq ($(findstring __BMI2__, $(PROPS)),)
+	ifeq ($(findstring znver, $(CPU)),)
+		CFLAGS += -DUSE_PEXT
+	endif
+endif
+
 # Try to detect windows environment by seeing
 # whether the shell filters out " or not.
 ifeq ($(shell echo "test"), "test")
@@ -62,13 +71,10 @@ RELEASE = $(COMP) $(RFLAGS) $(SRC) $(LIBS) -o $(EXE)
 basic:
 	$(BASIC)
 
-pext:
-	$(BASIC) $(PEXT)
-
 pgo:
-	$(BASIC) $(PEXT) $(PGOGEN)
+	$(BASIC) $(PGOGEN)
 	$(RUNBENCH)
-	$(BASIC) $(PEXT) $(PGOUSE)
+	$(BASIC) $(PGOUSE)
 	$(CLEAN)
 
 release:
@@ -77,7 +83,7 @@ release:
 	$(RELEASE)-pext.exe     $(PEXT)
 
 dev:
-	$(BASIC)-dev $(PEXT) -DDEV
+	$(BASIC) -DDEV
 
 tune:
-	$(BASIC) $(PEXT) -DTUNE -fopenmp
+	$(BASIC) -DTUNE -fopenmp
