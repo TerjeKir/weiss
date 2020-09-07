@@ -26,6 +26,8 @@ extern const int Tempo;
 
 extern const int PieceValue[2][PIECE_NB];
 
+extern const int PieceTypeValue[7];
+
 
 typedef struct EvalInfo {
 

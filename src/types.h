@@ -88,7 +88,7 @@ enum Score {
     NOSCORE  = MATE + 2,
 };
 
-enum Color {
+enum {
     BLACK, WHITE, COLOR_NB
 };
 

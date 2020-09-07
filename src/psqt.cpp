@@ -21,9 +21,6 @@
 #include "psqt.h"
 
 
-extern const int PieceTypeValue[7];
-
-
 int PSQT[PIECE_NB][64];
 
 // Black's point of view - easier to read as it's not upside down
