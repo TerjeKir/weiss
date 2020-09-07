@@ -19,7 +19,7 @@
 # General
 EXE    = weiss
 SRC    = *.c pyrrhic/tbprobe.c noobprobe/noobprobe.c tuner/tuner.c
-COMP   = gcc
+CC     = gcc
 
 # Defines
 POPCNT = -msse3 -mpopcnt
@@ -64,8 +64,8 @@ ifeq ($(OS), Windows_NT)
 endif
 
 # Compilations
-BASIC   = $(COMP) $(CFLAGS) $(SRC) $(LIBS) -o $(EXE)
-RELEASE = $(COMP) $(RFLAGS) $(SRC) $(LIBS) -o $(EXE)
+BASIC   = $(CC) $(CFLAGS) $(SRC) $(LIBS) -o $(EXE)
+RELEASE = $(CC) $(RFLAGS) $(SRC) $(LIBS) -o $(EXE)
 
 # Targets
 pgo:
