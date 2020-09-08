@@ -258,7 +258,7 @@ static int AlphaBeta(Thread *thread, int alpha, int beta, Depth depth, PV *pv) {
                                : lastMoveNullMove ? -history(-1).eval + 2 * Tempo
                                                   : EvalPosition(pos);
 
-    // Use ttScore as eval if useful
+    // Use ttScore as eval if it is more informative
     if (   ttScore != NOSCORE
         && (tte->bound & (ttScore > eval ? BOUND_LOWER : BOUND_UPPER)))
         eval = ttScore;
