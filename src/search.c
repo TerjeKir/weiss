@@ -282,6 +282,7 @@ static int AlphaBeta(Thread *thread, int alpha, int beta, Depth depth, PV *pv) {
     if (  !pvNode
         && history(-1).move != NOMOVE
         && eval >= beta
+        && history(0).eval >= beta
         && pos->nonPawnCount[sideToMove] > 0
         && depth >= 3
         && (!ttHit || !(tte->bound & BOUND_UPPER) || ttScore >= beta)) {
