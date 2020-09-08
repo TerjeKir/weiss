@@ -258,6 +258,11 @@ static int AlphaBeta(Thread *thread, int alpha, int beta, Depth depth, PV *pv) {
                                : lastMoveNullMove ? -history(-1).eval + 2 * Tempo
                                                   : EvalPosition(pos);
 
+    // Use ttScore as eval if useful
+    if (   ttScore != NOSCORE
+        && (tte->bound & (ttScore > eval ? BOUND_LOWER : BOUND_UPPER)))
+        eval = ttScore;
+
     // Improving if not in check, and current eval is higher than 2 plies ago
     bool improving = !inCheck && pos->ply >= 2 && eval > history(-2).eval;
 
