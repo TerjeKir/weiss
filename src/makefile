@@ -41,9 +41,8 @@ PGOUSE = -fprofile-use=$(PGODIR)
 
 # Use pext if supported and not a ryzen cpu
 PROPS = $(shell echo | $(CC) -march=native -E -dM -)
-CPU   = $(shell echo | $(CC) -march=native -Q --help=target | grep march)
 ifneq ($(findstring __BMI2__, $(PROPS)),)
-	ifeq ($(findstring znver, $(CPU)),)
+	ifeq ($(findstring znver, $(PROPS)),)
 		CFLAGS += -DUSE_PEXT
 	endif
 endif
