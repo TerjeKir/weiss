@@ -271,21 +271,24 @@ static int AlphaBeta(Thread *thread, int alpha, int beta, Depth depth, PV *pv) {
         goto move_loop;
 
     // Razoring
-    if (!pvNode && depth < 2 && eval + 640 < alpha)
+    if (  !pvNode
+        && depth < 2
+        && eval + 640 < alpha)
         return Quiescence(thread, alpha, beta);
 
     // Reverse Futility Pruning
-    if (!pvNode && depth < 7 && eval - 225 * depth + 100 * improving >= beta)
+    if (  !pvNode
+        && depth < 7
+        && eval - 225 * depth + 100 * improving >= beta)
         return eval;
 
     // Null Move Pruning
     if (  !pvNode
-        && history(-1).move != NOMOVE
-        && eval >= beta
-        && history(0).eval >= beta
-        && pos->nonPawnCount[sideToMove] > 0
         && depth >= 3
-        && (!ttHit || !(tte->bound & BOUND_UPPER) || ttScore >= beta)) {
+        && eval >= beta
+        && history( 0).eval >= beta
+        && history(-1).move != NOMOVE
+        && pos->nonPawnCount[sideToMove] > 0) {
 
         int R = 3 + depth / 5 + MIN(3, (eval - beta) / 256);
 
@@ -304,7 +307,9 @@ static int AlphaBeta(Thread *thread, int alpha, int beta, Depth depth, PV *pv) {
     if (  !pvNode
         && depth >= 5
         && abs(beta) < TBWIN_IN_MAX
-        && (!ttHit || !(tte->bound & BOUND_UPPER) || ttScore >= beta)) {
+        && !(   ttHit
+             && tte->bound & BOUND_UPPER
+             && ttScore < beta)) {
 
         int pbBeta = beta + 200;
 
@@ -351,7 +356,9 @@ move_loop:
         bool quiet = moveIsQuiet(move);
 
         // Late move pruning
-        if (!pvNode && !inCheck && quietCount > (3 + 2 * depth * depth) / (2 - improving))
+        if (   !pvNode
+            && !inCheck
+            &&  quietCount > (3 + 2 * depth * depth) / (2 - improving))
             break;
 
         __builtin_prefetch(GetEntry(KeyAfter(pos, move)));
