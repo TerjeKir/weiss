@@ -356,9 +356,9 @@ move_loop:
         bool quiet = moveIsQuiet(move);
 
         // Late move pruning
-        if (   !pvNode
-            && !inCheck
-            &&  quietCount > (3 + 2 * depth * depth) / (2 - improving))
+        if (  !pvNode
+            && bestScore > -TBWIN_IN_MAX
+            && quietCount > (3 + 2 * depth * depth) / (2 - improving))
             break;
 
         __builtin_prefetch(GetEntry(KeyAfter(pos, move)));
