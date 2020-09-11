@@ -295,7 +295,7 @@ int EvalPosition(const Position *pos) {
     if (!pieceBB(QUEEN) && !pieceBB(ROOK) && !pieceBB(KNIGHT) 
     && pos->nonPawnCount[WHITE] == 1 && pos->nonPawnCount[BLACK] == 1){
         // if exactly 1 on the black - its opposite color endgame
-        if (PopCount((pieceBB(BISHOP) & 0xAA55AA55AA55AA55)) == 1){
+        if (Single((pieceBB(BISHOP) & 0xAA55AA55AA55AA55))){
             eval = eval / 2;
         }
     } 
