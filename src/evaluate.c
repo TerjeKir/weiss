@@ -289,6 +289,13 @@ int EvalPosition(const Position *pos) {
     // Static evaluation shouldn't spill into TB- or mate-scores
     assert(abs(eval) < TBWIN_IN_MAX);
 
+    // Scale down eval for opposite-colored bishops endgames
+    if (    !pieceBB(QUEEN) && !pieceBB(ROOK) && !pieceBB(KNIGHT) 
+            && pos->nonPawnCount[WHITE] == 1 
+            && pos->nonPawnCount[BLACK] == 1
+            && (Single(pieceBB(BISHOP) & BlackSquaresBB)))
+            eval = eval / 2;
+
     // Return the evaluation, negated if we are black
     return (sideToMove == WHITE ? eval : -eval) + Tempo;
 }
