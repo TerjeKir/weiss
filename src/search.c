@@ -123,7 +123,7 @@ static int Quiescence(Thread *thread, int alpha, const int beta) {
     if (score > alpha)
         alpha = score;
 
-    int futility = score + 155;
+    int futility = score + 60;
 
     InitNoisyMP(&mp, &list, thread);
 
