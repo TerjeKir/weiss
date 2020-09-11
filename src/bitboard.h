@@ -100,6 +100,8 @@ enum {
     rank6BB = 0xFF0000000000,
     rank7BB = 0xFF000000000000,
     rank8BB = 0xFF00000000000000,
+
+    BlackSquaresBB = 0xAA55AA55AA55AA55,
 };
 
 extern const Bitboard FileBB[8];
