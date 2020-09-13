@@ -50,7 +50,7 @@ const int PhaseValue[PIECE_NB] = {
 };
 
 // Bonus for being the side to move
-const int Tempo = 20;
+const int Tempo = 15;
 
 // Misc bonuses and maluses
 const int PawnDoubled    = S(-11,-26);
@@ -290,8 +290,8 @@ int EvalPosition(const Position *pos) {
     assert(abs(eval) < TBWIN_IN_MAX);
 
     // Scale down eval for opposite-colored bishops endgames
-    if (    !pieceBB(QUEEN) && !pieceBB(ROOK) && !pieceBB(KNIGHT) 
-            && pos->nonPawnCount[WHITE] == 1 
+    if (    !pieceBB(QUEEN) && !pieceBB(ROOK) && !pieceBB(KNIGHT)
+            && pos->nonPawnCount[WHITE] == 1
             && pos->nonPawnCount[BLACK] == 1
             && (Single(pieceBB(BISHOP) & BlackSquaresBB)))
             eval = eval / 2;
