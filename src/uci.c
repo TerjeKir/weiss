@@ -177,7 +177,7 @@ static int HashInput(char *str) {
     while (*str && *str != ' ')
         hash ^= *(str++) ^ len++;
     return hash;
-};
+}
 
 // Sets up the engine and follows UCI protocol commands
 int main(int argc, char **argv) {
