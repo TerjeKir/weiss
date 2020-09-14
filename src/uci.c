@@ -71,6 +71,7 @@ static void *BeginSearch(void *voidEngine) {
 INLINE void UCIGo(Engine *engine, char *str) {
 
     ABORT_SIGNAL = false;
+    InitTT(engine->threads);
     ParseTimeControl(str, engine->pos.stm);
     pthread_create(&engine->threads->pthreads[0], NULL, &BeginSearch, engine);
     pthread_detach(engine->threads->pthreads[0]);
