@@ -16,6 +16,7 @@
   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include "board.h"
 #include "move.h"
 #include "movepicker.h"
 
@@ -97,9 +98,17 @@ Move NextMove(MovePicker *mp) {
             mp->stage++;
 
             // fall through
-        case NOISY:
-            if ((move = PickNextMove(mp->list, mp->ttMove, NOMOVE, NOMOVE)))
+        case NOISY_GOOD:
+            if ((move = PickNextMove(mp->list, mp->ttMove, NOMOVE, NOMOVE))) {
+
+                // Save seemingly bad noisy moves for last
+                if (!SEE(pos, move, 0)) {
+                    mp->list->moves[mp->bads++].move = move;
+                    return NextMove(mp);
+                }
+
                 return move;
+            }
 
             mp->stage++;
 
@@ -119,16 +128,27 @@ Move NextMove(MovePicker *mp) {
 
             // fall through
         case GEN_QUIET:
-            if (mp->onlyNoisy)
-                return NOMOVE;
+            if (!mp->onlyNoisy)
+                GenQuietMoves(pos, mp->list),
+                ScoreMoves(mp->list, mp->thread, GEN_QUIET);
 
-            GenQuietMoves(pos, mp->list);
-            ScoreMoves(mp->list, mp->thread, GEN_QUIET);
             mp->stage++;
 
             // fall through
         case QUIET:
-            return PickNextMove(mp->list, mp->ttMove, mp->kill1, mp->kill2);
+            if (!mp->onlyNoisy)
+                if ((move = PickNextMove(mp->list, mp->ttMove, mp->kill1, mp->kill2)))
+                    return move;
+
+            mp->stage++;
+            mp->list->next = 0;
+
+            // fall through
+        case NOISY_BAD:
+            if (mp->bads--)
+                return mp->list->moves[mp->list->next++].move;
+
+            return NOMOVE;
 
         default:
             assert(0);
@@ -145,6 +165,7 @@ void InitNormalMP(MovePicker *mp, MoveList *list, Thread *thread, Move ttMove, M
     mp->stage     = mp->ttMove ? TTMOVE : GEN_NOISY;
     mp->kill1     = kill1;
     mp->kill2     = kill2;
+    mp->bads      = 0;
     mp->onlyNoisy = false;
 }
 
@@ -157,5 +178,6 @@ void InitNoisyMP(MovePicker *mp, MoveList *list, Thread *thread) {
     mp->kill1     = NOMOVE;
     mp->kill2     = NOMOVE;
     mp->stage     = GEN_NOISY;
+    mp->bads      = 0;
     mp->onlyNoisy = true;
 }

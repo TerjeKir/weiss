@@ -22,7 +22,7 @@
 
 
 typedef enum MPStage {
-    TTMOVE, GEN_NOISY, NOISY, KILLER1, KILLER2, GEN_QUIET, QUIET
+    TTMOVE, GEN_NOISY, NOISY_GOOD, KILLER1, KILLER2, GEN_QUIET, QUIET, NOISY_BAD
 } MPStage;
 
 typedef struct MovePicker {
@@ -30,6 +30,7 @@ typedef struct MovePicker {
     MoveList *list;
     MPStage stage;
     Move ttMove, kill1, kill2;
+    int bads;
     bool onlyNoisy;
 } MovePicker;
 

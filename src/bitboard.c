@@ -162,6 +162,20 @@ CONSTR InitBitMasks() {
                     BetweenBB[sq1][sq2] = AttackBB(pt, sq1, SquareBB[sq2]) & AttackBB(pt, sq2, SquareBB[sq1]);
 }
 
+// Returns a bitboard with all attackers of a square
+Bitboard Attackers(const Position *pos, const Square sq, const Bitboard occ) {
+
+    const Bitboard bishops = pieceBB(BISHOP) | pieceBB(QUEEN);
+    const Bitboard rooks   = pieceBB(ROOK)   | pieceBB(QUEEN);
+
+    return (PawnAttackBB(WHITE, sq) & colorPieceBB(BLACK, PAWN))
+         | (PawnAttackBB(BLACK, sq) & colorPieceBB(WHITE, PAWN))
+         | (AttackBB(KNIGHT, sq, occ) & pieceBB(KNIGHT))
+         | (AttackBB(KING,   sq, occ) & pieceBB(KING))
+         | (AttackBB(BISHOP, sq, occ) & bishops)
+         | (AttackBB(ROOK,   sq, occ) & rooks);
+}
+
 // Checks whether a square is attacked by the given color
 bool SqAttacked(const Position *pos, const Square sq, const Color color) {
 

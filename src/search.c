@@ -358,8 +358,10 @@ move_loop:
         // Late move pruning
         if (  !pvNode
             && bestScore > -TBWIN_IN_MAX
-            && quietCount > (3 + 2 * depth * depth) / (2 - improving))
-            break;
+            && quietCount > (3 + 2 * depth * depth) / (2 - improving)) {
+            mp.onlyNoisy = true;
+            continue;
+        }
 
         __builtin_prefetch(GetEntry(KeyAfter(pos, move)));
 

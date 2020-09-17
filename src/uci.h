@@ -18,8 +18,11 @@
 
 #pragma once
 
-#include "types.h"
+#include <stdio.h>
 #include <string.h>
+
+#include "board.h"
+#include "threads.h"
 
 
 #define NAME "Weiss 1.1-dev"
