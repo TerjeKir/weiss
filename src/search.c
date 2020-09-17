@@ -105,10 +105,6 @@ static int Quiescence(Thread *thread, int alpha, const int beta) {
     if (pos->ply > thread->seldepth)
         thread->seldepth = pos->ply;
 
-    // Check for draw
-    if (IsRepetition(pos) || pos->rule50 >= 100)
-        return 0;
-
     // If we are at max depth, return static eval
     if (pos->ply >= MAXDEPTH)
         return EvalPosition(pos);
@@ -175,22 +171,9 @@ static int AlphaBeta(Thread *thread, int alpha, int beta, Depth depth, PV *pv) {
     PV pvFromHere;
     pv->length = 0;
 
-    // Extend search if in check
-    const bool inCheck = KingAttacked(pos, sideToMove);
-    if (inCheck && depth + 1 < MAXDEPTH) depth++;
-
-    // Quiescence at the end of search
-    if (depth <= 0)
-        return Quiescence(thread, alpha, beta);
-
     // Check time situation
     if (OutOfTime(thread) || ABORT_SIGNAL)
         longjmp(thread->jumpBuffer, true);
-
-    // Update node count and selective depth
-    thread->nodes++;
-    if (pos->ply > thread->seldepth)
-        thread->seldepth = pos->ply;
 
     // Early exits
     if (!root) {
@@ -209,6 +192,19 @@ static int AlphaBeta(Thread *thread, int alpha, int beta, Depth depth, PV *pv) {
         if (alpha >= beta)
             return alpha;
     }
+
+    // Extend search if in check
+    const bool inCheck = KingAttacked(pos, sideToMove);
+    if (inCheck && depth + 1 < MAXDEPTH) depth++;
+
+    // Quiescence at the end of search
+    if (depth <= 0)
+        return Quiescence(thread, alpha, beta);
+
+    // Update node count and selective depth
+    thread->nodes++;
+    if (pos->ply > thread->seldepth)
+        thread->seldepth = pos->ply;    
 
     // Probe transposition table
     bool ttHit;
