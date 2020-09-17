@@ -450,7 +450,7 @@ bool SEE(const Position *pos, const Move move, const int threshold) {
     if (value >= 0) return true;
 
     Bitboard occupied = (pieceBB(ALL) ^ BB(from)) | BB(to);
-    Bitboard attackers = Attackers(pos, to, occupied) ^ BB(from);
+    Bitboard attackers = Attackers(pos, to, occupied);
 
     Bitboard bishops = pieceBB(BISHOP) | pieceBB(QUEEN);
     Bitboard rooks   = pieceBB(ROOK  ) | pieceBB(QUEEN);
@@ -460,36 +460,38 @@ bool SEE(const Position *pos, const Move move, const int threshold) {
     // Make captures until one side runs out, or fail to beat threshold
     while (true) {
 
+        // Remove used pieces from attackers
+        attackers &= occupied;
+
         Bitboard myAttackers = attackers & colorBB(side);
         if (!myAttackers) break;
 
+        // Pick next least valuable piece to capture with
         PieceType pt;
         for (pt = PAWN; pt < KING; ++pt)
             if (myAttackers & pieceBB(pt))
                 break;
 
-        occupied ^= BB(Lsb(myAttackers & pieceBB(pt)));
-
-        if (pt == PAWN || pt == BISHOP || pt == QUEEN)
-            attackers |= AttackBB(BISHOP, to, occupied) & bishops;
-
-        if (pt == ROOK || pt == QUEEN)
-            attackers |= AttackBB(ROOK, to, occupied) & rooks;
-
-        attackers &= occupied;
-
         side = !side;
 
-        value = -value - 1 - PieceValue[MG][pt];
-
-        if (value >= 0) {
+        // Value beats threshold, or can't beat threshold (negamaxed)
+        if ((value = -value - 1 - PieceValue[MG][pt]) >= 0) {
 
             if (pt == KING && (attackers & colorBB(side)))
                 side = !side;
 
             break;
         }
+
+        // Remove the used piece from occupied
+        occupied ^= BB(Lsb(myAttackers & pieceBB(pt)));
+
+        // Add possible discovered attacks from behind the used piece
+        if (pt == PAWN || pt == BISHOP || pt == QUEEN)
+            attackers |= AttackBB(BISHOP, to, occupied) & bishops;
+        if (pt == ROOK || pt == QUEEN)
+            attackers |= AttackBB(ROOK, to, occupied) & rooks;
     }
 
-    return side != sideToMove;
+    return side != ColorOf(pieceOn(from));
 }
