@@ -482,8 +482,8 @@ static int AspirationWindow(Thread *thread) {
     // Search with aspiration window until the result is inside the window
     while (true) {
 
-        if (alpha < -2000) alpha = -INFINITE;
-        if (beta  >  2000) beta  =  INFINITE;
+        if (alpha < -3500) alpha = -INFINITE;
+        if (beta  >  3500) beta  =  INFINITE;
 
         score = AlphaBeta(thread, alpha, beta, depth, &thread->pv);
 
