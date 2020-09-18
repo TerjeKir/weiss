@@ -139,13 +139,11 @@ Move NextMove(MovePicker *mp) {
 
             mp->stage++;
             mp->list->next = 0;
+            mp->list->moves[mp->bads].move = NOMOVE;
 
             // fall through
         case NOISY_BAD:
-            if (mp->bads--)
-                return mp->list->moves[mp->list->next++].move;
-
-            return NOMOVE;
+            return mp->list->moves[mp->list->next++].move;
 
         default:
             assert(0);
