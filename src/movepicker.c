@@ -99,16 +99,13 @@ Move NextMove(MovePicker *mp) {
 
             // fall through
         case NOISY_GOOD:
-            if ((move = PickNextMove(mp->list, mp->ttMove, NOMOVE, NOMOVE))) {
+            while ((move = PickNextMove(mp->list, mp->ttMove, NOMOVE, NOMOVE)))
 
                 // Save seemingly bad noisy moves for last
-                if (!SEE(pos, move, 0)) {
+                if (SEE(pos, move, 0))
+                    return move;
+                else
                     mp->list->moves[mp->bads++].move = move;
-                    return NextMove(mp);
-                }
-
-                return move;
-            }
 
             mp->stage++;
 
@@ -142,13 +139,11 @@ Move NextMove(MovePicker *mp) {
 
             mp->stage++;
             mp->list->next = 0;
+            mp->list->moves[mp->bads].move = NOMOVE;
 
             // fall through
         case NOISY_BAD:
-            if (mp->bads--)
-                return mp->list->moves[mp->list->next++].move;
-
-            return NOMOVE;
+            return mp->list->moves[mp->list->next++].move;
 
         default:
             assert(0);
