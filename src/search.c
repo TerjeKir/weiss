@@ -100,8 +100,7 @@ static int Quiescence(Thread *thread, int alpha, const int beta) {
     if (OutOfTime(thread) || ABORT_SIGNAL)
         longjmp(thread->jumpBuffer, true);
 
-    // Update node count and selective depth
-    thread->nodes++;
+    // Update selective depth
     if (pos->ply > thread->seldepth)
         thread->seldepth = pos->ply;
 
@@ -201,10 +200,9 @@ static int AlphaBeta(Thread *thread, int alpha, int beta, Depth depth, PV *pv) {
     if (depth <= 0)
         return Quiescence(thread, alpha, beta);
 
-    // Update node count and selective depth
-    thread->nodes++;
+    // Update selective depth
     if (pos->ply > thread->seldepth)
-        thread->seldepth = pos->ply;    
+        thread->seldepth = pos->ply;
 
     // Probe transposition table
     bool ttHit;

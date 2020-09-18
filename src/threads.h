@@ -24,7 +24,6 @@
 
 typedef struct Thread {
 
-    uint64_t nodes;
     uint64_t tbhits;
 
     int score;
