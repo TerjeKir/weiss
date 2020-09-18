@@ -47,7 +47,7 @@ uint64_t TotalNodes(const Thread *threads) {
 
     uint64_t total = 0;
     for (int i = 0; i < threads->count; ++i)
-        total += threads[i].nodes;
+        total += threads[i].pos.nodes;
     return total;
 }
 

@@ -266,6 +266,8 @@ bool MakeMove(Position *pos, const Move move) {
     if (KingAttacked(pos, sideToMove^1))
         return TakeMove(pos), false;
 
+    pos->nodes++;
+
     assert(PositionOk(pos));
 
     return true;

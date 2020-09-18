@@ -54,6 +54,8 @@ typedef struct Position {
 
     Key key;
 
+    uint64_t nodes;
+
     History gameHistory[MAXGAMEMOVES];
 
 } Position;
