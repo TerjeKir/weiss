@@ -30,7 +30,6 @@ typedef struct Thread {
     Depth depth;
     Move bestMove;
     Move ponderMove;
-    Depth seldepth;
 
     PV pv;
 

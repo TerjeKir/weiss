@@ -100,10 +100,6 @@ static int Quiescence(Thread *thread, int alpha, const int beta) {
     if (OutOfTime(thread) || ABORT_SIGNAL)
         longjmp(thread->jumpBuffer, true);
 
-    // Update selective depth
-    if (pos->ply > thread->seldepth)
-        thread->seldepth = pos->ply;
-
     // If we are at max depth, return static eval
     if (pos->ply >= MAXDEPTH)
         return EvalPosition(pos);
@@ -199,10 +195,6 @@ static int AlphaBeta(Thread *thread, int alpha, int beta, Depth depth, PV *pv) {
     // Quiescence at the end of search
     if (depth <= 0)
         return Quiescence(thread, alpha, beta);
-
-    // Update selective depth
-    if (pos->ply > thread->seldepth)
-        thread->seldepth = pos->ply;
 
     // Probe transposition table
     bool ttHit;
@@ -515,6 +507,7 @@ static int AspirationWindow(Thread *thread) {
 static void *IterativeDeepening(void *voidThread) {
 
     Thread *thread = voidThread;
+    Position *pos = &thread->pos;
     bool mainThread = thread->index == 0;
 
     // Iterative deepening
@@ -539,7 +532,9 @@ static void *IterativeDeepening(void *voidThread) {
             && TimeSince(Limits.start) > Limits.optimalUsage * (1 + uncertain))
             break;
 
-        thread->seldepth = 0;
+        // Clear key history for seldepth calculation
+        for (int i = 1; i < MAXDEPTH; ++i)
+            history(i).posKey = 0;
     }
 
     return NULL;
