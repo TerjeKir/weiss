@@ -507,6 +507,7 @@ static int AspirationWindow(Thread *thread) {
 static void *IterativeDeepening(void *voidThread) {
 
     Thread *thread = voidThread;
+    Position *pos = &thread->pos;
     bool mainThread = thread->index == 0;
 
     // Iterative deepening
@@ -531,7 +532,9 @@ static void *IterativeDeepening(void *voidThread) {
             && TimeSince(Limits.start) > Limits.optimalUsage * (1 + uncertain))
             break;
 
-        // thread->seldepth = 0;
+        // Clear key history for seldepth calculation
+        for (int i = 1; i < MAXDEPTH; ++i)
+            history(i).posKey = 0;
     }
 
     return NULL;
