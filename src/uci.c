@@ -232,6 +232,8 @@ INLINE int MateScore(const int score) {
 // Print thinking
 void PrintThinking(const Thread *thread, int score, int alpha, int beta) {
 
+    const Position *pos = &thread->pos;
+
     // Determine whether we have a centipawn or mate score
     char *type = abs(score) >= MATE_IN_MAX ? "mate" : "cp";
 
@@ -246,11 +248,14 @@ void PrintThinking(const Thread *thread, int score, int alpha, int beta) {
                                        : score * 100 / P_MG;
 
     TimePoint elapsed = TimeSince(Limits.start);
-    Depth seldepth    = thread->seldepth;
     uint64_t nodes    = TotalNodes(thread);
     uint64_t tbhits   = TotalTBHits(thread);
     int hashFull      = HashFull();
     int nps           = (int)(1000 * nodes / (elapsed + 1));
+
+    Depth seldepth = MAXDEPTH-1;
+    for (; seldepth > 0; --seldepth)
+        if (history(seldepth).posKey != 0) break;
 
     // Basic info
     printf("info depth %d seldepth %d score %s %d%s time %" PRId64
