@@ -339,6 +339,14 @@ move_loop:
     Move move;
     while ((move = NextMove(&mp))) {
 
+        if (  !inCheck
+            && eval > 500
+            && pos->histPly >= 2
+            && pos->rule50 != 0
+            && fromSq(move) == toSq(history(-2).move)
+            && toSq(move) == fromSq(history(-2).move))
+            continue;
+
         bool quiet = moveIsQuiet(move);
 
         // Late move pruning
