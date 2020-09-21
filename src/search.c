@@ -253,7 +253,7 @@ static int AlphaBeta(Thread *thread, int alpha, int beta, Depth depth, PV *pv) {
     bool improving = !inCheck && pos->ply >= 2 && eval > history(-2).eval;
 
     // Skip pruning while in check and at the root
-    if (inCheck || root)
+    if (inCheck || root || thread->depth < 6)
         goto move_loop;
 
     // Razoring
@@ -342,7 +342,7 @@ move_loop:
         bool quiet = moveIsQuiet(move);
 
         // Late move pruning
-        if (  !pvNode
+        if (  !pvNode && thread->depth > 6
             && bestScore > -TBWIN_IN_MAX
             && quietCount > (3 + 2 * depth * depth) / (2 - improving)) {
             mp.onlyNoisy = true;
