@@ -359,7 +359,7 @@ move_loop:
         if (quiet && quietCount < 32)
             quiets[quietCount++] = move;
 
-        // If alpha <= 0 and we take back our last move, opponent can do the same
+        // If alpha > 0 and we take back our last move, opponent can do the same
         // and get a fail high by repetition
         if (   pos->rule50 >= 3
             && pos->histPly >= 2
