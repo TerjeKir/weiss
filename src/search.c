@@ -359,6 +359,20 @@ move_loop:
         if (quiet && quietCount < 32)
             quiets[quietCount++] = move;
 
+        // If alpha > 0 and we take back our last move, opponent can do the same
+        // and get a fail high by repetition
+        if (   pos->rule50 >= 3
+            && pos->histPly >= 2
+            && alpha > 0
+            // The current move has been made and is -1, 2 back is then -3
+            && fromSq(move) == toSq(history(-3).move)
+            && toSq(move) == fromSq(history(-3).move)) {
+
+            score = 0;
+            pvFromHere.length = 0;
+            goto skip_search;
+        }
+
         const Depth newDepth = depth - 1;
 
         bool doLMR = depth > 2 && moveCount > (2 + pvNode);
@@ -386,6 +400,8 @@ move_loop:
         // Full depth alpha-beta window search
         if (pvNode && ((score > alpha && score < beta) || moveCount == 1))
             score = -AlphaBeta(thread, -beta, -alpha, newDepth, &pvFromHere);
+
+skip_search:
 
         // Undo the move
         TakeMove(pos);
