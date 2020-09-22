@@ -483,7 +483,8 @@ static int AspirationWindow(Thread *thread) {
     int alpha = -INFINITE;
     int beta  =  INFINITE;
 
-    thread->doEarlyPruning = depth > 5;
+    int earlyPruningLimit = Limits.timelimit ? (Limits.optimalUsage + 250) / 250 : 6;
+    thread->doEarlyPruning = depth > MIN(6, earlyPruningLimit);
 
     // Shrink the window at higher depths
     if (depth > 6)
