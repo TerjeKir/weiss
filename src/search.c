@@ -375,7 +375,7 @@ move_loop:
 
         const Depth newDepth = depth - 1;
 
-        bool doLMR = depth > 2 && moveCount > (2 + pvNode);
+        bool doLMR = depth > 2 && moveCount > (2 + pvNode) && thread->depth > 6;
 
         // Reduced depth zero-window search
         if (doLMR) {
