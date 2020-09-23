@@ -252,7 +252,7 @@ static int AlphaBeta(Thread *thread, int alpha, int beta, Depth depth, PV *pv) {
     // Improving if not in check, and current eval is higher than 2 plies ago
     bool improving = !inCheck && pos->ply >= 2 && eval > history(-2).eval;
 
-    // Skip pruning while in check and at the root
+    // Skip pruning in check, at root and during early iterations
     if (inCheck || root || !thread->doPruning)
         goto move_loop;
 
@@ -308,19 +308,22 @@ static int AlphaBeta(Thread *thread, int alpha, int beta, Depth depth, PV *pv) {
 
             if (!MakeMove(pos, pbMove)) continue;
 
+            // See if a quiescence search beats pbBeta
             int pbScore = -Quiescence(thread, -pbBeta, -pbBeta+1);
 
+            // If it did do a proper search with reduced depth
             if (pbScore >= pbBeta)
                 pbScore = -AlphaBeta(thread, -pbBeta, -pbBeta+1, depth-4, &pvFromHere);
 
             TakeMove(pos);
 
+            // Cut if the reduced depth search beats pbBeta
             if (pbScore >= pbBeta)
                 return pbScore;
         }
     }
 
-    // Internal iterative deepening based on Rebel's idea
+    // Internal iterative reduction based on Rebel's idea
     if (depth >= 4 && !ttMove)
         depth--;
 
