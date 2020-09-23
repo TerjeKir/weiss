@@ -253,7 +253,7 @@ static int AlphaBeta(Thread *thread, int alpha, int beta, Depth depth, PV *pv) {
     bool improving = !inCheck && pos->ply >= 2 && eval > history(-2).eval;
 
     // Skip pruning while in check and at the root
-    if (inCheck || root || thread->depth < 6)
+    if (inCheck || root || !thread->doEarlyPruning)
         goto move_loop;
 
     // Razoring
@@ -342,7 +342,8 @@ move_loop:
         bool quiet = moveIsQuiet(move);
 
         // Late move pruning
-        if (  !pvNode && thread->depth > 6
+        if (  !pvNode
+            && thread->doEarlyPruning
             && bestScore > -TBWIN_IN_MAX
             && quietCount > (3 + 2 * depth * depth) / (2 - improving)) {
             mp.onlyNoisy = true;
@@ -375,7 +376,7 @@ move_loop:
 
         const Depth newDepth = depth - 1;
 
-        bool doLMR = depth > 2 && moveCount > (2 + pvNode) && thread->depth > 6;
+        bool doLMR = depth > 2 && moveCount > (2 + pvNode) && thread->doEarlyPruning;
 
         // Reduced depth zero-window search
         if (doLMR) {
@@ -481,6 +482,9 @@ static int AspirationWindow(Thread *thread) {
 
     int alpha = -INFINITE;
     int beta  =  INFINITE;
+
+    int earlyPruningLimit = Limits.timelimit ? (Limits.optimalUsage + 250) / 250 : 6;
+    thread->doEarlyPruning = depth > MIN(6, earlyPruningLimit);
 
     // Shrink the window at higher depths
     if (depth > 6)

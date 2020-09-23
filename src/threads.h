@@ -28,9 +28,10 @@ typedef struct Thread {
 
     int score;
     Depth depth;
+    bool doEarlyPruning;
+
     Move bestMove;
     Move ponderMove;
-
     PV pv;
 
     jmp_buf jumpBuffer;
