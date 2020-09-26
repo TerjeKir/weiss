@@ -198,7 +198,7 @@ static int AlphaBeta(Thread *thread, int alpha, int beta, Depth depth, PV *pv) {
 
     // Probe transposition table
     bool ttHit;
-    Key posKey = pos->key;
+    Key posKey = pos->key ^ ((Key)history(0).excludedMove << 32);
     TTEntry *tte = ProbeTT(posKey, &ttHit);
 
     Move ttMove = ttHit ? tte->move : NOMOVE;
@@ -253,7 +253,7 @@ static int AlphaBeta(Thread *thread, int alpha, int beta, Depth depth, PV *pv) {
     bool improving = !inCheck && pos->ply >= 2 && eval > history(-2).eval;
 
     // Skip pruning in check, at root and during early iterations
-    if (inCheck || root || !thread->doPruning)
+    if (inCheck || root || !thread->doPruning || history(0).excludedMove)
         goto move_loop;
 
     // Razoring
@@ -358,6 +358,35 @@ move_loop:
         // Make the move, skipping to the next if illegal
         if (!MakeMove(pos, move)) continue;
 
+        Depth extension = 0;
+
+        // Singular extension
+        if (   depth > 8
+            && move == ttMove
+            && !history(0).excludedMove
+            && tte->depth > depth - 3
+            && tte->bound != BOUND_UPPER
+            && abs(ttScore) < TBWIN_IN_MAX / 4
+            && !root) {
+
+            // ttMove has been made to check legality
+            TakeMove(pos);
+
+            // Search to reduced depth with a zero window a bit lower than ttScore
+            int singBeta = ttScore - depth * 2;
+            int singDepth = depth / 2;
+
+            history(0).excludedMove = move;
+            score = AlphaBeta(thread, singBeta-1, singBeta, singDepth, &pvFromHere);
+            history(0).excludedMove = NOMOVE;
+
+            // Extend as this move seems forced
+            if (score < singBeta)
+                extension = 1;
+
+            MakeMove(pos, move);
+        }
+
         // Increment counts
         moveCount++;
         if (quiet && quietCount < 32)
@@ -377,7 +406,7 @@ move_loop:
             goto skip_search;
         }
 
-        const Depth newDepth = depth - 1;
+        const Depth newDepth = depth - 1 + extension;
 
         bool doLMR =   depth > 2
                     && moveCount > (2 + pvNode)
