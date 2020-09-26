@@ -24,7 +24,6 @@
 typedef struct {
     Key posKey;
     Move move;
-    Move excludedMove;
     uint8_t epSquare;
     uint8_t rule50;
     uint8_t castlingRights;
