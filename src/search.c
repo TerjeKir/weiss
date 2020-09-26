@@ -154,7 +154,7 @@ static int Quiescence(Thread *thread, int alpha, const int beta) {
 }
 
 // Alpha Beta
-static int AlphaBeta(Thread *thread, int alpha, int beta, Depth depth, PV *pv) {
+static int AlphaBeta(Thread *thread, int alpha, int beta, Depth depth, PV *pv, Move excluded) {
 
     Position *pos = &thread->pos;
     MovePicker mp;
@@ -198,7 +198,7 @@ static int AlphaBeta(Thread *thread, int alpha, int beta, Depth depth, PV *pv) {
 
     // Probe transposition table
     bool ttHit;
-    Key posKey = pos->key;
+    Key posKey = pos->key ^ (((Key)excluded) << 32);
     TTEntry *tte = ProbeTT(posKey, &ttHit);
 
     Move ttMove = ttHit ? tte->move : NOMOVE;
@@ -252,8 +252,8 @@ static int AlphaBeta(Thread *thread, int alpha, int beta, Depth depth, PV *pv) {
     // Improving if not in check, and current eval is higher than 2 plies ago
     bool improving = !inCheck && pos->ply >= 2 && eval > history(-2).eval;
 
-    // Skip pruning in check, at root and during early iterations
-    if (inCheck || root || !thread->doPruning)
+    // Skip pruning in check, at root, during early iterations, and when proving singularity
+    if (inCheck || root || !thread->doPruning || excluded)
         goto move_loop;
 
     // Razoring
@@ -279,7 +279,7 @@ static int AlphaBeta(Thread *thread, int alpha, int beta, Depth depth, PV *pv) {
         int R = 3 + depth / 5 + MIN(3, (eval - beta) / 256);
 
         MakeNullMove(pos);
-        score = -AlphaBeta(thread, -beta, -beta + 1, depth - R, &pvFromHere);
+        score = -AlphaBeta(thread, -beta, -beta + 1, depth - R, &pvFromHere, 0);
         TakeNullMove(pos);
 
         // Cutoff
@@ -313,7 +313,7 @@ static int AlphaBeta(Thread *thread, int alpha, int beta, Depth depth, PV *pv) {
 
             // If it did do a proper search with reduced depth
             if (pbScore >= pbBeta)
-                pbScore = -AlphaBeta(thread, -pbBeta, -pbBeta+1, depth-4, &pvFromHere);
+                pbScore = -AlphaBeta(thread, -pbBeta, -pbBeta+1, depth-4, &pvFromHere, 0);
 
             TakeMove(pos);
 
@@ -342,6 +342,8 @@ move_loop:
     Move move;
     while ((move = NextMove(&mp))) {
 
+        if (move == excluded) continue;
+
         bool quiet = moveIsQuiet(move);
 
         // Late move pruning
@@ -357,6 +359,33 @@ move_loop:
 
         // Make the move, skipping to the next if illegal
         if (!MakeMove(pos, move)) continue;
+
+        Depth extension = 0;
+
+        // Singular extension
+        if (   depth > 8
+            && move == ttMove
+            && !excluded
+            && tte->depth > depth - 3
+            && tte->bound != BOUND_UPPER
+            && abs(ttScore) < TBWIN_IN_MAX / 4
+            && !root) {
+
+            // ttMove has been made to check legality
+            TakeMove(pos);
+
+            // Search to reduced depth with a zero window a bit lower than ttScore
+            int singBeta = ttScore - depth * 2;
+            int singDepth = depth / 2;
+
+            score = AlphaBeta(thread, singBeta-1, singBeta, singDepth, &pvFromHere, move);
+
+            // Extend as this move seems forced
+            if (score < singBeta)
+                extension = 1;
+
+            MakeMove(pos, move);
+        }
 
         // Increment counts
         moveCount++;
@@ -377,7 +406,7 @@ move_loop:
             goto skip_search;
         }
 
-        const Depth newDepth = depth - 1;
+        const Depth newDepth = depth - 1 + extension;
 
         bool doLMR =   depth > 2
                     && moveCount > (2 + pvNode)
@@ -397,15 +426,15 @@ move_loop:
             // Depth after reductions, avoiding going straight to quiescence
             Depth RDepth = CLAMP(newDepth - R, 1, newDepth - 1);
 
-            score = -AlphaBeta(thread, -alpha - 1, -alpha, RDepth, &pvFromHere);
+            score = -AlphaBeta(thread, -alpha - 1, -alpha, RDepth, &pvFromHere, 0);
         }
         // Full depth zero-window search
         if (doLMR ? score > alpha : !pvNode || moveCount > 1)
-            score = -AlphaBeta(thread, -alpha - 1, -alpha, newDepth, &pvFromHere);
+            score = -AlphaBeta(thread, -alpha - 1, -alpha, newDepth, &pvFromHere, 0);
 
         // Full depth alpha-beta window search
         if (pvNode && ((score > alpha && score < beta) || moveCount == 1))
-            score = -AlphaBeta(thread, -beta, -alpha, newDepth, &pvFromHere);
+            score = -AlphaBeta(thread, -beta, -alpha, newDepth, &pvFromHere, 0);
 
 skip_search:
 
@@ -459,14 +488,17 @@ skip_search:
 
     // Checkmate or stalemate
     if (!moveCount)
-        return inCheck ? -MATE + pos->ply : 0;
+        return excluded ? alpha
+             : inCheck  ? -MATE + pos->ply
+                        : 0;
 
     // Store in TT
     const int flag = bestScore >= beta ? BOUND_LOWER
                    : alpha != oldAlpha ? BOUND_EXACT
                                        : BOUND_UPPER;
 
-    StoreTTEntry(tte, posKey, bestMove, ScoreToTT(bestScore, pos->ply), depth, flag);
+    if (!excluded)
+        StoreTTEntry(tte, posKey, bestMove, ScoreToTT(bestScore, pos->ply), depth, flag);
 
     assert(alpha >= oldAlpha);
     assert(ValidScore(alpha));
@@ -502,7 +534,7 @@ static int AspirationWindow(Thread *thread) {
         if (alpha < -3500) alpha = -INFINITE;
         if (beta  >  3500) beta  =  INFINITE;
 
-        score = AlphaBeta(thread, alpha, beta, depth, &thread->pv);
+        score = AlphaBeta(thread, alpha, beta, depth, &thread->pv, 0);
 
         // Give an update when done, or after each iteration in long searches
         if (mainThread && (   (score > alpha && score < beta)
