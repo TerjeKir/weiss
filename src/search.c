@@ -114,19 +114,21 @@ static int Quiescence(Thread *thread, int alpha, const int beta) {
     if (score > alpha)
         alpha = score;
 
-    int futility = score + 60;
-
     InitNoisyMP(&mp, &list, thread);
 
+    int futility = score + 60;
     int bestScore = score;
 
     // Move loop
     Move move;
     while ((move = NextMove(&mp))) {
 
+        // Skip moves SEE deem bad
+        if (mp.stage > NOISY_GOOD) break;
+
         if (   futility + PieceValue[EG][pieceOn(toSq(move))] <= alpha
-            && !(  PieceTypeOf(pieceOn(fromSq(move))) == PAWN
-                && RelativeRank(sideToMove, RankOf(toSq(move))) > 5))
+            && !(   PieceTypeOf(pieceOn(fromSq(move))) == PAWN
+                 && RelativeRank(sideToMove, RankOf(toSq(move))) > 5))
             continue;
 
         // Recursively search the positions after making the moves, skipping illegal ones
@@ -159,12 +161,11 @@ static int AlphaBeta(Thread *thread, int alpha, int beta, Depth depth, PV *pv, M
     Position *pos = &thread->pos;
     MovePicker mp;
     MoveList list;
+    PV pvFromHere;
+    pv->length = 0;
 
     const bool pvNode = alpha != beta - 1;
     const bool root   = pos->ply == 0;
-
-    PV pvFromHere;
-    pv->length = 0;
 
     // Check time situation
     if (OutOfTime(thread) || ABORT_SIGNAL)
@@ -206,10 +207,6 @@ static int AlphaBeta(Thread *thread, int alpha, int beta, Depth depth, PV *pv, M
 
     // Trust the ttScore in non-pvNodes as long as the entry depth is equal or higher
     if (!pvNode && ttHit && tte->depth >= depth) {
-
-        assert(ValidBound(tte->bound));
-        assert(ValidDepth(tte->depth));
-        assert(ValidScore(ttScore));
 
         // Check if ttScore causes a cutoff
         if (ttScore >= beta ? tte->bound & BOUND_LOWER
@@ -279,7 +276,7 @@ static int AlphaBeta(Thread *thread, int alpha, int beta, Depth depth, PV *pv, M
         int R = 3 + depth / 5 + MIN(3, (eval - beta) / 256);
 
         MakeNullMove(pos);
-        score = -AlphaBeta(thread, -beta, -beta + 1, depth - R, &pvFromHere, 0);
+        score = -AlphaBeta(thread, -beta, -beta+1, depth-R, &pvFromHere, 0);
         TakeNullMove(pos);
 
         // Cutoff
@@ -297,7 +294,7 @@ static int AlphaBeta(Thread *thread, int alpha, int beta, Depth depth, PV *pv, M
              && tte->bound & BOUND_UPPER
              && ttScore < beta)) {
 
-        int pbBeta = beta + 200;
+        int threshold = beta + 200;
 
         MovePicker pbMP;
         MoveList pbList;
@@ -309,16 +306,16 @@ static int AlphaBeta(Thread *thread, int alpha, int beta, Depth depth, PV *pv, M
             if (!MakeMove(pos, pbMove)) continue;
 
             // See if a quiescence search beats pbBeta
-            int pbScore = -Quiescence(thread, -pbBeta, -pbBeta+1);
+            int pbScore = -Quiescence(thread, -threshold, -threshold+1);
 
             // If it did do a proper search with reduced depth
-            if (pbScore >= pbBeta)
-                pbScore = -AlphaBeta(thread, -pbBeta, -pbBeta+1, depth-4, &pvFromHere, 0);
+            if (pbScore >= threshold)
+                pbScore = -AlphaBeta(thread, -threshold, -threshold+1, depth-4, &pvFromHere, 0);
 
             TakeMove(pos);
 
             // Cut if the reduced depth search beats pbBeta
-            if (pbScore >= pbBeta)
+            if (pbScore >= threshold)
                 return pbScore;
         }
     }
@@ -375,15 +372,14 @@ move_loop:
             TakeMove(pos);
 
             // Search to reduced depth with a zero window a bit lower than ttScore
-            int singBeta = ttScore - depth * 2;
-            int singDepth = depth / 2;
-
-            score = AlphaBeta(thread, singBeta-1, singBeta, singDepth, &pvFromHere, move);
+            int threshold = ttScore - depth * 2;
+            score = AlphaBeta(thread, threshold-1, threshold, depth/2, &pvFromHere, move);
 
             // Extend as this move seems forced
-            if (score < singBeta)
+            if (score < threshold)
                 extension = 1;
 
+            // Replay ttMove
             MakeMove(pos, move);
         }
 
@@ -426,11 +422,11 @@ move_loop:
             // Depth after reductions, avoiding going straight to quiescence
             Depth RDepth = CLAMP(newDepth - R, 1, newDepth - 1);
 
-            score = -AlphaBeta(thread, -alpha - 1, -alpha, RDepth, &pvFromHere, 0);
+            score = -AlphaBeta(thread, -alpha-1, -alpha, RDepth, &pvFromHere, 0);
         }
         // Full depth zero-window search
         if (doLMR ? score > alpha : !pvNode || moveCount > 1)
-            score = -AlphaBeta(thread, -alpha - 1, -alpha, newDepth, &pvFromHere, 0);
+            score = -AlphaBeta(thread, -alpha-1, -alpha, newDepth, &pvFromHere, 0);
 
         // Full depth alpha-beta window search
         if (pvNode && ((score > alpha && score < beta) || moveCount == 1))
@@ -499,10 +495,6 @@ skip_search:
 
     if (!excluded)
         StoreTTEntry(tte, posKey, bestMove, ScoreToTT(bestScore, pos->ply), depth, flag);
-
-    assert(alpha >= oldAlpha);
-    assert(ValidScore(alpha));
-    assert(ValidScore(bestScore));
 
     return bestScore;
 }
@@ -585,6 +577,7 @@ static void *IterativeDeepening(void *voidThread) {
         thread->bestMove   = thread->pv.line[0];
         thread->ponderMove = thread->pv.length > 1 ? thread->pv.line[1] : NOMOVE;
 
+        // If an iteration finishes after optimal time usage, stop the search
         if (   Limits.timelimit
             && TimeSince(Limits.start) > Limits.optimalUsage * (1 + uncertain))
             break;
