@@ -375,15 +375,14 @@ move_loop:
             TakeMove(pos);
 
             // Search to reduced depth with a zero window a bit lower than ttScore
-            int singBeta = ttScore - depth * 2;
-            int singDepth = depth / 2;
-
-            score = AlphaBeta(thread, singBeta-1, singBeta, singDepth, &pvFromHere, move);
+            int threshold = ttScore - depth * 2;
+            score = AlphaBeta(thread, threshold-1, threshold, depth/2, &pvFromHere, move);
 
             // Extend as this move seems forced
-            if (score < singBeta)
+            if (score < threshold)
                 extension = 1;
 
+            // Replay ttMove
             MakeMove(pos, move);
         }
 
