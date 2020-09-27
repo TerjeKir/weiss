@@ -207,10 +207,6 @@ static int AlphaBeta(Thread *thread, int alpha, int beta, Depth depth, PV *pv, M
     // Trust the ttScore in non-pvNodes as long as the entry depth is equal or higher
     if (!pvNode && ttHit && tte->depth >= depth) {
 
-        assert(ValidBound(tte->bound));
-        assert(ValidDepth(tte->depth));
-        assert(ValidScore(ttScore));
-
         // Check if ttScore causes a cutoff
         if (ttScore >= beta ? tte->bound & BOUND_LOWER
                             : tte->bound & BOUND_UPPER)
@@ -498,10 +494,6 @@ skip_search:
 
     if (!excluded)
         StoreTTEntry(tte, posKey, bestMove, ScoreToTT(bestScore, pos->ply), depth, flag);
-
-    assert(alpha >= oldAlpha);
-    assert(ValidScore(alpha));
-    assert(ValidScore(bestScore));
 
     return bestScore;
 }
