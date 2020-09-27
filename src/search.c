@@ -159,12 +159,11 @@ static int AlphaBeta(Thread *thread, int alpha, int beta, Depth depth, PV *pv, M
     Position *pos = &thread->pos;
     MovePicker mp;
     MoveList list;
+    PV pvFromHere;
+    pv->length = 0;
 
     const bool pvNode = alpha != beta - 1;
     const bool root   = pos->ply == 0;
-
-    PV pvFromHere;
-    pv->length = 0;
 
     // Check time situation
     if (OutOfTime(thread) || ABORT_SIGNAL)
@@ -293,7 +292,7 @@ static int AlphaBeta(Thread *thread, int alpha, int beta, Depth depth, PV *pv, M
              && tte->bound & BOUND_UPPER
              && ttScore < beta)) {
 
-        int pbBeta = beta + 200;
+        int threshold = beta + 200;
 
         MovePicker pbMP;
         MoveList pbList;
@@ -305,16 +304,16 @@ static int AlphaBeta(Thread *thread, int alpha, int beta, Depth depth, PV *pv, M
             if (!MakeMove(pos, pbMove)) continue;
 
             // See if a quiescence search beats pbBeta
-            int pbScore = -Quiescence(thread, -pbBeta, -pbBeta+1);
+            int pbScore = -Quiescence(thread, -threshold, -threshold+1);
 
             // If it did do a proper search with reduced depth
-            if (pbScore >= pbBeta)
-                pbScore = -AlphaBeta(thread, -pbBeta, -pbBeta+1, depth-4, &pvFromHere, 0);
+            if (pbScore >= threshold)
+                pbScore = -AlphaBeta(thread, -threshold, -threshold+1, depth-4, &pvFromHere, 0);
 
             TakeMove(pos);
 
             // Cut if the reduced depth search beats pbBeta
-            if (pbScore >= pbBeta)
+            if (pbScore >= threshold)
                 return pbScore;
         }
     }
