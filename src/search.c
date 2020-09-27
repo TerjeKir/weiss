@@ -123,6 +123,7 @@ static int Quiescence(Thread *thread, int alpha, const int beta) {
     Move move;
     while ((move = NextMove(&mp))) {
 
+        // Skip moves SEE deem bad
         if (mp.stage > NOISY_GOOD) break;
 
         if (   futility + PieceValue[EG][pieceOn(toSq(move))] <= alpha
