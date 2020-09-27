@@ -114,10 +114,9 @@ static int Quiescence(Thread *thread, int alpha, const int beta) {
     if (score > alpha)
         alpha = score;
 
-    int futility = score + 60;
-
     InitNoisyMP(&mp, &list, thread);
 
+    int futility = score + 60;
     int bestScore = score;
 
     // Move loop
@@ -125,8 +124,8 @@ static int Quiescence(Thread *thread, int alpha, const int beta) {
     while ((move = NextMove(&mp))) {
 
         if (   futility + PieceValue[EG][pieceOn(toSq(move))] <= alpha
-            && !(  PieceTypeOf(pieceOn(fromSq(move))) == PAWN
-                && RelativeRank(sideToMove, RankOf(toSq(move))) > 5))
+            && !(   PieceTypeOf(pieceOn(fromSq(move))) == PAWN
+                 && RelativeRank(sideToMove, RankOf(toSq(move))) > 5))
             continue;
 
         // Recursively search the positions after making the moves, skipping illegal ones
@@ -274,7 +273,7 @@ static int AlphaBeta(Thread *thread, int alpha, int beta, Depth depth, PV *pv, M
         int R = 3 + depth / 5 + MIN(3, (eval - beta) / 256);
 
         MakeNullMove(pos);
-        score = -AlphaBeta(thread, -beta, -beta + 1, depth - R, &pvFromHere, 0);
+        score = -AlphaBeta(thread, -beta, -beta+1, depth-R, &pvFromHere, 0);
         TakeNullMove(pos);
 
         // Cutoff
@@ -420,11 +419,11 @@ move_loop:
             // Depth after reductions, avoiding going straight to quiescence
             Depth RDepth = CLAMP(newDepth - R, 1, newDepth - 1);
 
-            score = -AlphaBeta(thread, -alpha - 1, -alpha, RDepth, &pvFromHere, 0);
+            score = -AlphaBeta(thread, -alpha-1, -alpha, RDepth, &pvFromHere, 0);
         }
         // Full depth zero-window search
         if (doLMR ? score > alpha : !pvNode || moveCount > 1)
-            score = -AlphaBeta(thread, -alpha - 1, -alpha, newDepth, &pvFromHere, 0);
+            score = -AlphaBeta(thread, -alpha-1, -alpha, newDepth, &pvFromHere, 0);
 
         // Full depth alpha-beta window search
         if (pvNode && ((score > alpha && score < beta) || moveCount == 1))
