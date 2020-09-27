@@ -576,6 +576,7 @@ static void *IterativeDeepening(void *voidThread) {
         thread->bestMove   = thread->pv.line[0];
         thread->ponderMove = thread->pv.length > 1 ? thread->pv.line[1] : NOMOVE;
 
+        // If an iteration finishes after optimal time usage, stop the search
         if (   Limits.timelimit
             && TimeSince(Limits.start) > Limits.optimalUsage * (1 + uncertain))
             break;
