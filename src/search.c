@@ -456,7 +456,7 @@ skip_search:
 
                 // Update search history
                 if (quiet && depth > 1)
-                    thread->history[pieceOn(fromSq(bestMove))][toSq(bestMove)] += depth * depth;
+                    thread->history[sideToMove][fromSq(move)][toSq(move)] += depth * depth;
 
                 // If score beats beta we have a cutoff
                 if (score >= beta) {
@@ -478,7 +478,7 @@ skip_search:
         for (int i = 0; i < quietCount; ++i) {
             Move m = quiets[i];
             if (m == bestMove) continue;
-            thread->history[pieceOn(fromSq(m))][toSq(m)] -= depth * depth;
+            thread->history[sideToMove][fromSq(m)][toSq(m)] -= depth * depth;
         }
 
     // Checkmate or stalemate
