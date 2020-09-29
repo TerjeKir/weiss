@@ -53,7 +53,7 @@ CONSTR InitReductions() {
     for (int depth = 1; depth < 32; ++depth)
         for (int moves = 1; moves < 32; ++moves)
             Reductions[0][depth][moves] = 0.75 + log(depth) * log(moves) / 3.0, // capture
-            Reductions[1][depth][moves] = 0.75 + log(depth) * log(moves) / 2.25; // quiet
+            Reductions[1][depth][moves] = 1.75 + log(depth) * log(moves) / 2.25; // quiet
 }
 
 // Check if current position is a repetition
@@ -417,8 +417,6 @@ move_loop:
             R -= pvNode;
             // Reduce less when improving
             R -= improving;
-            // Reduce more for quiets
-            R += quiet;
 
             // Depth after reductions, avoiding going straight to quiescence
             Depth RDepth = CLAMP(newDepth - R, 1, newDepth - 1);
