@@ -40,7 +40,7 @@
 #include "uci.h"
 
 
-int Reductions[32][32];
+int Reductions[2][32][32];
 
 SearchLimits Limits;
 volatile bool ABORT_SIGNAL = false;
@@ -52,7 +52,8 @@ CONSTR InitReductions() {
 
     for (int depth = 1; depth < 32; ++depth)
         for (int moves = 1; moves < 32; ++moves)
-            Reductions[depth][moves] = 0.75 + log(depth) * log(moves) / 2.25;
+            Reductions[0][depth][moves] = 0.75 + log(depth) * log(moves) / 3.0, // capture
+            Reductions[1][depth][moves] = 0.75 + log(depth) * log(moves) / 2.25; // quiet
 }
 
 // Check if current position is a repetition
@@ -411,7 +412,7 @@ move_loop:
         // Reduced depth zero-window search
         if (doLMR) {
             // Base reduction
-            int R = Reductions[MIN(31, depth)][MIN(31, moveCount)];
+            int R = Reductions[quiet][MIN(31, depth)][MIN(31, moveCount)];
             // Reduce less in pv nodes
             R -= pvNode;
             // Reduce less when improving
