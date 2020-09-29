@@ -73,7 +73,7 @@ static void ScoreMoves(MoveList *list, const Thread *thread, const int stage) {
                                  : MvvLvaScores[pieceOn(toSq(move))][pieceOn(fromSq(move))];
 
         if (stage == GEN_QUIET)
-            list->moves[i].score = thread->history[pieceOn(fromSq(move))][toSq(move)];
+            list->moves[i].score = thread->history[sideToMove][fromSq(move)][toSq(move)];
     }
 }
 
