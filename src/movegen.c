@@ -68,10 +68,8 @@ INLINE void GenPawn(const Position *pos, MoveList *list, const Color color, cons
     const Direction left  = color == WHITE ? WEST  : EAST;
     const Direction right = color == WHITE ? EAST  : WEST;
 
-    const Bitboard empty   = pos->checkers ? BetweenBB[Lsb(colorPieceBB(color, KING))][Lsb(pos->checkers)]
-                                           : ~pieceBB(ALL);
-    const Bitboard enemies = pos->checkers ? pos->checkers
-                                           : colorBB(!color);
+    const Bitboard empty   = ~pieceBB(ALL);
+    const Bitboard enemies = pos->checkers ? pos->checkers : colorBB(!color);
     const Bitboard pawns   = colorPieceBB(color, PAWN);
 
     const Bitboard on7th  = pawns & RankBB[RelativeRank(color, RANK_7)];
@@ -83,6 +81,10 @@ INLINE void GenPawn(const Position *pos, MoveList *list, const Color color, cons
         Bitboard pawnMoves  = empty & ShiftBB(up, not7th);
         Bitboard pawnStarts = empty & ShiftBB(up, pawnMoves)
                                     & RankBB[RelativeRank(color, RANK_4)];
+
+        if (pos->checkers)
+            pawnMoves  &= BetweenBB[Lsb(colorPieceBB(color, KING))][Lsb(pos->checkers)],
+            pawnStarts &= BetweenBB[Lsb(colorPieceBB(color, KING))][Lsb(pos->checkers)];
 
         // Normal pawn moves
         while (pawnMoves) {
