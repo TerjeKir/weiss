@@ -311,10 +311,9 @@ void TakeNullMove(Position *pos) {
     sideToMove ^= 1;
 
     // Get info from history
-    pos->key            = history(0).posKey;
-    pos->epSquare       = history(0).epSquare;
-    pos->rule50         = history(0).rule50;
-    pos->castlingRights = history(0).castlingRights;
+    pos->key      = history(0).posKey;
+    pos->epSquare = history(0).epSquare;
+    pos->rule50   = history(0).rule50;
 
     assert(PositionOk(pos));
 }
