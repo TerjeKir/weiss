@@ -83,7 +83,7 @@ INLINE bool CastlePseudoLegal(const Position *pos, Color color, int side) {
 
     return (pos->castlingRights & castle)
         && !(pieceBB(ALL) & blocking)
-        && !SqAttacked(pos, kingSq, !color)
+        && !pos->checkers
         && !SqAttacked(pos, midway, !color);
 }
 

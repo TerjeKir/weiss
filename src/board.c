@@ -168,6 +168,7 @@ static void UpdatePosition(Position *pos) {
         }
     }
 
+    pos->checkers = Checkers(pos);
     pos->phase = UpdatePhase(pos->phaseValue);
 }
 

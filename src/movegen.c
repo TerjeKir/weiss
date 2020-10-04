@@ -68,9 +68,11 @@ INLINE void GenPawn(const Position *pos, MoveList *list, const Color color, cons
     const Direction left  = color == WHITE ? WEST  : EAST;
     const Direction right = color == WHITE ? EAST  : WEST;
 
-    const Bitboard empty   = ~pieceBB(ALL);
-    const Bitboard enemies =  colorBB(!color);
-    const Bitboard pawns   =  colorPieceBB(color, PAWN);
+    const Bitboard empty   = pos->checkers ? BetweenBB[Lsb(colorPieceBB(color, KING))][Lsb(pos->checkers)]
+                                           : ~pieceBB(ALL);
+    const Bitboard enemies = pos->checkers ? pos->checkers
+                                           : colorBB(!color);
+    const Bitboard pawns   = colorPieceBB(color, PAWN);
 
     const Bitboard on7th  = pawns & RankBB[RelativeRank(color, RANK_7)];
     const Bitboard not7th = pawns ^ on7th;
@@ -143,8 +145,8 @@ INLINE void GenPawn(const Position *pos, MoveList *list, const Color color, cons
 INLINE void GenPieceType(const Position *pos, MoveList *list, const Color color, const int type, const PieceType pt) {
 
     const Bitboard occupied = pieceBB(ALL);
-    const Bitboard enemies  = colorBB(!color);
-    const Bitboard targets  = type == NOISY ? enemies : ~occupied;
+    const Bitboard enemies  = pos->checkers && pt != KING ? pos->checkers : colorBB(!color);
+    const Bitboard targets  = type == QUIET ? ~occupied : enemies;
 
     Bitboard pieces = colorPieceBB(color, pt);
 
@@ -161,6 +163,9 @@ INLINE void GenPieceType(const Position *pos, MoveList *list, const Color color,
 
 // Generate moves
 static void GenMoves(const Position *pos, MoveList *list, const Color color, const int type) {
+
+    if (Multiple(pos->checkers))
+        return GenPieceType(pos, list, color, type, KING);
 
     GenCastling (pos, list, color, type);
     GenPawn     (pos, list, color, type);

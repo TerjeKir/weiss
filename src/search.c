@@ -191,7 +191,7 @@ static int AlphaBeta(Thread *thread, int alpha, int beta, Depth depth, PV *pv, M
     }
 
     // Extend search if in check
-    const bool inCheck = KingAttacked(pos, sideToMove);
+    const bool inCheck = pos->checkers;
     if (inCheck && depth + 1 < MAXDEPTH) depth++;
 
     // Quiescence at the end of search

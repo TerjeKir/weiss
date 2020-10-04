@@ -178,6 +178,7 @@ void TakeMove(Position *pos) {
 
     // Get various info from history
     pos->key            = history(0).posKey;
+    pos->checkers       = history(0).checkers;
     pos->epSquare       = history(0).epSquare;
     pos->rule50         = history(0).rule50;
     pos->castlingRights = history(0).castlingRights;
@@ -190,6 +191,7 @@ bool MakeMove(Position *pos, const Move move) {
 
     // Save position
     history(0).posKey         = pos->key;
+    history(0).checkers       = pos->checkers;
     history(0).move           = move;
     history(0).epSquare       = pos->epSquare;
     history(0).rule50         = pos->rule50;
@@ -266,6 +268,7 @@ bool MakeMove(Position *pos, const Move move) {
     if (KingAttacked(pos, sideToMove^1))
         return TakeMove(pos), false;
 
+    pos->checkers = Checkers(pos);
     pos->nodes++;
 
     assert(PositionOk(pos));

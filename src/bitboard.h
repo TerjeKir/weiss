@@ -206,3 +206,9 @@ INLINE Bitboard PawnBBAttackBB(Bitboard pawns, Color color) {
 Bitboard Attackers(const Position *pos, const Square sq, const Bitboard occ);
 bool SqAttacked(const Position *pos, Square sq, Color color);
 bool KingAttacked(const Position *pos, Color color);
+
+INLINE Bitboard Checkers(const Position *pos) {
+
+    return colorBB(!sideToMove)
+         & Attackers(pos, Lsb(colorPieceBB(sideToMove, KING)), pieceBB(ALL));
+}
