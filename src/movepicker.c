@@ -99,9 +99,8 @@ Move NextMove(MovePicker *mp) {
 
             // fall through
         case NOISY_GOOD:
+            // Save seemingly bad noisy moves for later
             while ((move = PickNextMove(mp->list, mp->ttMove, NOMOVE, NOMOVE)))
-
-                // Save seemingly bad noisy moves for last
                 if (SEE(pos, move, 0))
                     return move;
                 else

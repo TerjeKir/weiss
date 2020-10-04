@@ -49,7 +49,7 @@ Bitboard IsolatedMask[64];
 INLINE Bitboard LandingSquareBB(const Square sq, const int step) {
 
     const Square to = sq + step;
-    return (Bitboard)(to <= H8 && Distance(sq, to) <= 2) << to;
+    return (Bitboard)(to <= H8 && Distance(sq, to) <= 2) << (to & H8);
 }
 
 // Helper function that makes a slider attack bitboard
