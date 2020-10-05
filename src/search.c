@@ -156,6 +156,25 @@ static int Quiescence(Thread *thread, int alpha, const int beta) {
     return bestScore;
 }
 
+// Updates various history heuristics when a quiet move causes a cutoff
+INLINE void UpdateHistory(Thread *thread, Move quiets[], Move move, Depth depth, int count) {
+
+    const Position *pos = &thread->pos;
+
+    // Update killers
+    if (killer1 != move) {
+        killer2 = killer1;
+        killer1 = move;
+    }
+
+    // Lower history scores of moves that failed to produce a cut
+    for (int i = 0; i < count; ++i) {
+        Move m = quiets[i];
+        if (m == move) continue;
+        thread->history[sideToMove][fromSq(m)][toSq(m)] -= depth * depth;
+    }
+}
+
 // Alpha Beta
 static int AlphaBeta(Thread *thread, int alpha, int beta, Depth depth, PV *pv, Move excluded) {
 
@@ -459,27 +478,15 @@ skip_search:
                     thread->history[sideToMove][fromSq(move)][toSq(move)] += depth * depth;
 
                 // If score beats beta we have a cutoff
-                if (score >= beta) {
-
-                    // Update killers if quiet move
-                    if (quiet && killer1 != move) {
-                        killer2 = killer1;
-                        killer1 = move;
-                    }
-
+                if (score >= beta)
                     break;
-                }
             }
         }
     }
 
     // Lower history scores of moves that failed to produce a cut
     if (bestScore >= beta && moveIsQuiet(bestMove))
-        for (int i = 0; i < quietCount; ++i) {
-            Move m = quiets[i];
-            if (m == bestMove) continue;
-            thread->history[sideToMove][fromSq(m)][toSq(m)] -= depth * depth;
-        }
+        UpdateHistory(thread, quiets, bestMove, depth, quietCount);
 
     // Checkmate or stalemate
     if (!moveCount)
