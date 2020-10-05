@@ -157,13 +157,9 @@ static int Quiescence(Thread *thread, int alpha, const int beta) {
 }
 
 // Updates various history heuristics when a quiet move causes a cutoff
-static void UpdateHistory(Thread *thread, Move quiets[], Move move, Depth depth, int count) {
+INLINE void UpdateHistory(Thread *thread, Move quiets[], Move move, Depth depth, int count) {
 
     const Position *pos = &thread->pos;
-
-    // Update main history
-    if (depth > 1)
-        thread->history[sideToMove][fromSq(move)][toSq(move)] += depth * depth;
 
     // Update killers
     if (killer1 != move) {
@@ -472,16 +468,16 @@ skip_search:
                 memcpy(pv->line + 1, pvFromHere.line, sizeof(int) * pvFromHere.length);
             }
 
-            // If score beats beta we have a cutoff
-            if (score >= beta)
-                break;
-
             // If score beats alpha we update alpha
             if (score > alpha) {
                 alpha = score;
 
                 if (quiet && depth > 1)
                     thread->history[sideToMove][fromSq(move)][toSq(move)] += depth * depth;
+
+                // If score beats beta we have a cutoff
+                if (score >= beta)
+                    break;
             }
         }
     }
