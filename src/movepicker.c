@@ -93,18 +93,18 @@ Move NextMove(MovePicker *mp) {
 
             // fall through
         case GEN_NOISY:
-            GenNoisyMoves(pos, mp->list);
-            ScoreMoves(mp->list, mp->thread, GEN_NOISY);
+            GenNoisyMoves(pos, &mp->list);
+            ScoreMoves(&mp->list, mp->thread, GEN_NOISY);
             mp->stage++;
 
             // fall through
         case NOISY_GOOD:
             // Save seemingly bad noisy moves for later
-            while ((move = PickNextMove(mp->list, mp->ttMove, NOMOVE, NOMOVE)))
+            while ((move = PickNextMove(&mp->list, mp->ttMove, NOMOVE, NOMOVE)))
                 if (SEE(pos, move, 0))
                     return move;
                 else
-                    mp->list->moves[mp->bads++].move = move;
+                    mp->list.moves[mp->bads++].move = move;
 
             mp->stage++;
 
@@ -125,24 +125,24 @@ Move NextMove(MovePicker *mp) {
             // fall through
         case GEN_QUIET:
             if (!mp->onlyNoisy)
-                GenQuietMoves(pos, mp->list),
-                ScoreMoves(mp->list, mp->thread, GEN_QUIET);
+                GenQuietMoves(pos, &mp->list),
+                ScoreMoves(&mp->list, mp->thread, GEN_QUIET);
 
             mp->stage++;
 
             // fall through
         case QUIET:
             if (!mp->onlyNoisy)
-                if ((move = PickNextMove(mp->list, mp->ttMove, mp->kill1, mp->kill2)))
+                if ((move = PickNextMove(&mp->list, mp->ttMove, mp->kill1, mp->kill2)))
                     return move;
 
             mp->stage++;
-            mp->list->next = 0;
-            mp->list->moves[mp->bads].move = NOMOVE;
+            mp->list.next = 0;
+            mp->list.moves[mp->bads].move = NOMOVE;
 
             // fall through
         case NOISY_BAD:
-            return mp->list->moves[mp->list->next++].move;
+            return mp->list.moves[mp->list.next++].move;
 
         default:
             assert(0);
@@ -151,9 +151,8 @@ Move NextMove(MovePicker *mp) {
 }
 
 // Init normal movepicker
-void InitNormalMP(MovePicker *mp, MoveList *list, Thread *thread, Move ttMove, Move kill1, Move kill2) {
-    list->count   = list->next = 0;
-    mp->list      = list;
+void InitNormalMP(MovePicker *mp, Thread *thread, Move ttMove, Move kill1, Move kill2) {
+    mp->list.count = mp->list.next = 0;
     mp->thread    = thread;
     mp->ttMove    = MoveIsPseudoLegal(&thread->pos, ttMove) ? ttMove : NOMOVE;
     mp->stage     = mp->ttMove ? TTMOVE : GEN_NOISY;
@@ -164,9 +163,8 @@ void InitNormalMP(MovePicker *mp, MoveList *list, Thread *thread, Move ttMove, M
 }
 
 // Init noisy movepicker
-void InitNoisyMP(MovePicker *mp, MoveList *list, Thread *thread) {
-    list->count   = list->next = 0;
-    mp->list      = list;
+void InitNoisyMP(MovePicker *mp, Thread *thread) {
+    mp->list.count = mp->list.next = 0;
     mp->thread    = thread;
     mp->ttMove    = NOMOVE;
     mp->kill1     = NOMOVE;
