@@ -242,17 +242,14 @@ static int AlphaBeta(Thread *thread, int alpha, int beta, Depth depth, PV *pv, M
 
         thread->tbhits++;
 
-        if (    bound == BOUND_EXACT
-            || (bound == BOUND_LOWER ? score >= beta : score <= alpha)) {
-
+        if (bound == BOUND_EXACT || (bound == BOUND_LOWER ? score >= beta : score <= alpha)) {
             StoreTTEntry(tte, posKey, NOMOVE, ScoreToTT(score, pos->ply), MAXDEPTH-1, bound);
             return score;
         }
 
-        if (pvNode && bound == BOUND_LOWER) {
-            bestScore = score;
+        if (pvNode && bound == BOUND_LOWER)
+            bestScore = score,
             alpha = MAX(alpha, score);
-        }
     }
 
     // Do a static evaluation for pruning considerations
