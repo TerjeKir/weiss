@@ -23,6 +23,7 @@
 
 typedef struct {
     Key posKey;
+    Bitboard checkers;
     Move move;
     uint8_t epSquare;
     uint8_t rule50;
@@ -36,6 +37,7 @@ typedef struct Position {
     uint8_t board[64];
     Bitboard pieceBB[TYPE_NB];
     Bitboard colorBB[2];
+    Bitboard checkers;
 
     int nonPawnCount[2];
 
