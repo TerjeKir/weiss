@@ -95,7 +95,6 @@ static int Quiescence(Thread *thread, int alpha, const int beta) {
 
     Position *pos = &thread->pos;
     MovePicker mp;
-    MoveList list;
 
     // Check time situation
     if (OutOfTime(thread) || ABORT_SIGNAL)
@@ -115,7 +114,7 @@ static int Quiescence(Thread *thread, int alpha, const int beta) {
     if (score > alpha)
         alpha = score;
 
-    InitNoisyMP(&mp, &list, thread);
+    InitNoisyMP(&mp, thread);
 
     int futility = score + 60;
     int bestScore = score;
@@ -184,7 +183,6 @@ static int AlphaBeta(Thread *thread, int alpha, int beta, Depth depth, PV *pv, M
 
     Position *pos = &thread->pos;
     MovePicker mp;
-    MoveList list;
     PV pvFromHere;
     pv->length = 0;
 
@@ -312,8 +310,7 @@ static int AlphaBeta(Thread *thread, int alpha, int beta, Depth depth, PV *pv, M
         int threshold = beta + 200;
 
         MovePicker pbMP;
-        MoveList pbList;
-        InitNoisyMP(&pbMP, &pbList, thread);
+        InitNoisyMP(&pbMP, thread);
 
         Move pbMove;
         while ((pbMove = NextMove(&pbMP))) {
@@ -341,7 +338,7 @@ static int AlphaBeta(Thread *thread, int alpha, int beta, Depth depth, PV *pv, M
 
 move_loop:
 
-    InitNormalMP(&mp, &list, thread, ttMove, killer1, killer2);
+    InitNormalMP(&mp, thread, ttMove, killer1, killer2);
 
     Move quiets[32] = { 0 };
     Move bestMove = NOMOVE;
