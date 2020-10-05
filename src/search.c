@@ -167,6 +167,10 @@ INLINE void UpdateHistory(Thread *thread, Move quiets[], Move move, Depth depth,
         killer1 = move;
     }
 
+    // Bonus to the move that caused the beta cutoff
+    if (depth > 1)
+        thread->history[sideToMove][fromSq(move)][toSq(move)] += depth * depth;
+
     // Lower history scores of moves that failed to produce a cut
     for (int i = 0; i < count; ++i) {
         Move m = quiets[i];
@@ -473,10 +477,6 @@ skip_search:
 
                 alpha = score;
 
-                // Update search history
-                if (quiet && depth > 1)
-                    thread->history[sideToMove][fromSq(move)][toSq(move)] += depth * depth;
-
                 // If score beats beta we have a cutoff
                 if (score >= beta)
                     break;
@@ -484,7 +484,7 @@ skip_search:
         }
     }
 
-    // Lower history scores of moves that failed to produce a cut
+    // Update history if a quiet move causes a beta cutoff
     if (bestScore >= beta && moveIsQuiet(bestMove))
         UpdateHistory(thread, quiets, bestMove, depth, quietCount);
 
