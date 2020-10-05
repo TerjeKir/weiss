@@ -229,35 +229,27 @@ static int AlphaBeta(Thread *thread, int alpha, int beta, Depth depth, PV *pv, M
     Move ttMove = ttHit ? tte->move : NOMOVE;
     int ttScore = ttHit ? ScoreFromTT(tte->score, pos->ply) : NOSCORE;
 
-    // Trust the ttScore in non-pvNodes as long as the entry depth is equal or higher
-    if (!pvNode && ttHit && tte->depth >= depth) {
-
-        // Check if ttScore causes a cutoff
-        if (ttScore >= beta ? tte->bound & BOUND_LOWER
-                            : tte->bound & BOUND_UPPER)
-
-            return ttScore;
-    }
+    // Trust TT if not a pvnode and the entry depth is sufficiently high
+    if (   !pvNode && ttHit && tte->depth >= depth
+        && (ttScore >= beta ? tte->bound & BOUND_LOWER : tte->bound & BOUND_UPPER))
+        return ttScore;
 
     int bestScore = -INFINITE;
 
     // Probe syzygy TBs
-    int score, bound;
-    if (ProbeWDL(pos, &score, &bound)) {
+    int tbScore, bound;
+    if (ProbeWDL(pos, &tbScore, &bound)) {
 
         thread->tbhits++;
 
-        if (    bound == BOUND_EXACT
-            || (bound == BOUND_LOWER ? score >= beta : score <= alpha)) {
-
-            StoreTTEntry(tte, posKey, NOMOVE, ScoreToTT(score, pos->ply), MAXDEPTH-1, bound);
-            return score;
+        if (bound == BOUND_EXACT || (bound == BOUND_LOWER ? tbScore >= beta : tbScore <= alpha)) {
+            StoreTTEntry(tte, posKey, NOMOVE, ScoreToTT(tbScore, pos->ply), MAXDEPTH-1, bound);
+            return tbScore;
         }
 
-        if (pvNode && bound == BOUND_LOWER) {
-            bestScore = score;
-            alpha = MAX(alpha, score);
-        }
+        if (pvNode && bound == BOUND_LOWER)
+            bestScore = tbScore,
+            alpha = MAX(alpha, tbScore);
     }
 
     // Do a static evaluation for pruning considerations
@@ -300,14 +292,13 @@ static int AlphaBeta(Thread *thread, int alpha, int beta, Depth depth, PV *pv, M
         int R = 3 + depth / 5 + MIN(3, (eval - beta) / 256);
 
         MakeNullMove(pos);
-        score = -AlphaBeta(thread, -beta, -beta+1, depth-R, &pvFromHere, 0);
+        int score = -AlphaBeta(thread, -beta, -beta+1, depth-R, &pvFromHere, 0);
         TakeNullMove(pos);
 
         // Cutoff
-        if (score >= beta) {
+        if (score >= beta)
             // Don't return unproven terminal win scores
             return score >= TBWIN_IN_MAX ? beta : score;
-        }
     }
 
     // ProbCut
@@ -353,11 +344,10 @@ move_loop:
     InitNormalMP(&mp, &list, thread, ttMove, killer1, killer2);
 
     Move quiets[32] = { 0 };
-
+    Move bestMove = NOMOVE;
     const int oldAlpha = alpha;
     int moveCount = 0, quietCount = 0;
-    Move bestMove = NOMOVE;
-    score = -INFINITE;
+    int score = -INFINITE;
 
     // Move loop
     Move move;
@@ -459,13 +449,13 @@ skip_search:
         // Undo the move
         TakeMove(pos);
 
-        // Found a new best move in this position
+        // New best move
         if (score > bestScore) {
 
             bestScore = score;
             bestMove  = move;
 
-            // Update the Principle Variation
+            // Update PV
             if ((score > alpha && pvNode) || (root && moveCount == 1)) {
                 pv->length = 1 + pvFromHere.length;
                 pv->line[0] = move;
@@ -474,7 +464,6 @@ skip_search:
 
             // If score beats alpha we update alpha
             if (score > alpha) {
-
                 alpha = score;
 
                 // If score beats beta we have a cutoff
@@ -498,7 +487,6 @@ skip_search:
     const int flag = bestScore >= beta ? BOUND_LOWER
                    : alpha != oldAlpha ? BOUND_EXACT
                                        : BOUND_UPPER;
-
     if (!excluded)
         StoreTTEntry(tte, posKey, bestMove, ScoreToTT(bestScore, pos->ply), depth, flag);
 
@@ -518,6 +506,7 @@ static int AspirationWindow(Thread *thread) {
     int alpha = -INFINITE;
     int beta  =  INFINITE;
 
+    // Decide how deep to go before starting to prune
     int pruningLimit = Limits.timelimit ? (Limits.optimalUsage + 250) / 250 : 6;
     thread->doPruning = depth > MIN(6, pruningLimit);
 
