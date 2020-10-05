@@ -470,8 +470,10 @@ skip_search:
 
             // If score beats alpha we update alpha
             if (score > alpha) {
+
                 alpha = score;
 
+                // Update search history
                 if (quiet && depth > 1)
                     thread->history[sideToMove][fromSq(move)][toSq(move)] += depth * depth;
 
