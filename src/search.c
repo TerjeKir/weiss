@@ -229,15 +229,10 @@ static int AlphaBeta(Thread *thread, int alpha, int beta, Depth depth, PV *pv, M
     Move ttMove = ttHit ? tte->move : NOMOVE;
     int ttScore = ttHit ? ScoreFromTT(tte->score, pos->ply) : NOSCORE;
 
-    // Trust the ttScore in non-pvNodes as long as the entry depth is equal or higher
-    if (!pvNode && ttHit && tte->depth >= depth) {
-
-        // Check if ttScore causes a cutoff
-        if (ttScore >= beta ? tte->bound & BOUND_LOWER
-                            : tte->bound & BOUND_UPPER)
-
-            return ttScore;
-    }
+    // Trust TT if not a pvnode and the entry depth is sufficiently high
+    if (   !pvNode && ttHit && tte->depth >= depth
+        && (ttScore >= beta ? tte->bound & BOUND_LOWER : tte->bound & BOUND_UPPER))
+        return ttScore;
 
     int bestScore = -INFINITE;
 
