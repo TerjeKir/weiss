@@ -34,6 +34,7 @@ typedef struct {
 
 typedef struct {
 
+    int eval;
     Move excluded;
     Move killers[2];
 

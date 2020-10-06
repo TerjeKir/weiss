@@ -29,7 +29,6 @@ typedef struct {
     uint8_t rule50;
     uint8_t castlingRights;
     uint8_t padding; // not used
-    int eval;
 } History;
 
 typedef struct Position {

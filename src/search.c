@@ -251,9 +251,9 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
     }
 
     // Do a static evaluation for pruning considerations
-    int eval = history(0).eval = inCheck          ? NOSCORE
-                               : lastMoveNullMove ? -history(-1).eval + 2 * Tempo
-                                                  : EvalPosition(pos);
+    int eval = ss->eval = inCheck          ? NOSCORE
+                        : lastMoveNullMove ? -(ss-1)->eval + 2 * Tempo
+                                           : EvalPosition(pos);
 
     // Use ttScore as eval if it is more informative
     if (   ttScore != NOSCORE
@@ -261,7 +261,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
         eval = ttScore;
 
     // Improving if not in check, and current eval is higher than 2 plies ago
-    bool improving = !inCheck && pos->ply >= 2 && eval > history(-2).eval;
+    bool improving = !inCheck && pos->ply >= 2 && eval > (ss-2)->eval;
 
     // Skip pruning in check, at root, during early iterations, and when proving singularity
     if (inCheck || root || !thread->doPruning || ss->excluded)
@@ -283,7 +283,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
     if (  !pvNode
         && depth >= 3
         && eval >= beta
-        && history( 0).eval >= beta
+        && ss->eval >= beta
         && history(-1).move != NOMOVE
         && pos->nonPawnCount[sideToMove] > 0) {
 
