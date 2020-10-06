@@ -52,7 +52,7 @@ CONSTR InitReductions() {
 
     for (int depth = 1; depth < 32; ++depth)
         for (int moves = 1; moves < 32; ++moves)
-            Reductions[0][depth][moves] = 0.60 + log(depth) * log(moves) / 3.5, // capture
+            Reductions[0][depth][moves] = 0.00 + log(depth) * log(moves) / 3.25, // capture
             Reductions[1][depth][moves] = 1.75 + log(depth) * log(moves) / 2.25; // quiet
 }
 
