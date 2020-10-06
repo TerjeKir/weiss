@@ -37,6 +37,7 @@ typedef struct {
     int eval;
     Move excluded;
     Move killers[2];
+    PV pv;
 
 } Stack;
 

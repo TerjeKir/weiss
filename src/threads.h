@@ -32,7 +32,6 @@ typedef struct Thread {
 
     Move bestMove;
     Move ponderMove;
-    PV pv;
 
     jmp_buf jumpBuffer;
 

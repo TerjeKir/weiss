@@ -179,12 +179,11 @@ INLINE void UpdateHistory(Thread *thread, Stack *ss, Move quiets[], Move move, D
 }
 
 // Alpha Beta
-static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth, PV *pv) {
+static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth) {
 
     Position *pos = &thread->pos;
     MovePicker mp;
-    PV pvFromHere;
-    pv->length = 0;
+    ss->pv.length = 0;
 
     const bool pvNode = alpha != beta - 1;
     const bool root   = pos->ply == 0;
@@ -290,7 +289,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
         int R = 3 + depth / 5 + MIN(3, (eval - beta) / 256);
 
         MakeNullMove(pos);
-        int score = -AlphaBeta(thread, ss+1, -beta, -beta+1, depth-R, &pvFromHere);
+        int score = -AlphaBeta(thread, ss+1, -beta, -beta+1, depth-R);
         TakeNullMove(pos);
 
         // Cutoff
@@ -322,7 +321,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
 
             // If it did do a proper search with reduced depth
             if (pbScore >= threshold)
-                pbScore = -AlphaBeta(thread, ss+1, -threshold, -threshold+1, depth-4, &pvFromHere);
+                pbScore = -AlphaBeta(thread, ss+1, -threshold, -threshold+1, depth-4);
 
             TakeMove(pos);
 
@@ -385,7 +384,7 @@ move_loop:
             // Search to reduced depth with a zero window a bit lower than ttScore
             int threshold = ttScore - depth * 2;
             ss->excluded = move;
-            score = AlphaBeta(thread, ss, threshold-1, threshold, depth/2, &pvFromHere);
+            score = AlphaBeta(thread, ss, threshold-1, threshold, depth/2);
             ss->excluded = NOMOVE;
 
             // Extend as this move seems forced
@@ -411,7 +410,7 @@ move_loop:
             && toSq(move) == fromSq(history(-3).move)) {
 
             score = 0;
-            pvFromHere.length = 0;
+            (ss+1)->pv.length = 0;
             goto skip_search;
         }
 
@@ -433,15 +432,15 @@ move_loop:
             // Depth after reductions, avoiding going straight to quiescence
             Depth RDepth = CLAMP(newDepth - R, 1, newDepth - 1);
 
-            score = -AlphaBeta(thread, ss+1, -alpha-1, -alpha, RDepth, &pvFromHere);
+            score = -AlphaBeta(thread, ss+1, -alpha-1, -alpha, RDepth);
         }
         // Full depth zero-window search
         if (doLMR ? score > alpha : !pvNode || moveCount > 1)
-            score = -AlphaBeta(thread, ss+1, -alpha-1, -alpha, newDepth, &pvFromHere);
+            score = -AlphaBeta(thread, ss+1, -alpha-1, -alpha, newDepth);
 
         // Full depth alpha-beta window search
         if (pvNode && ((score > alpha && score < beta) || moveCount == 1))
-            score = -AlphaBeta(thread, ss+1, -beta, -alpha, newDepth, &pvFromHere);
+            score = -AlphaBeta(thread, ss+1, -beta, -alpha, newDepth);
 
 skip_search:
 
@@ -456,9 +455,9 @@ skip_search:
 
             // Update PV
             if ((score > alpha && pvNode) || (root && moveCount == 1)) {
-                pv->length = 1 + pvFromHere.length;
-                pv->line[0] = move;
-                memcpy(pv->line + 1, pvFromHere.line, sizeof(int) * pvFromHere.length);
+                ss->pv.length = 1 + (ss+1)->pv.length;
+                ss->pv.line[0] = move;
+                memcpy(ss->pv.line+1, (ss+1)->pv.line, sizeof(int) * (ss+1)->pv.length);
             }
 
             // If score beats alpha we update alpha
@@ -520,12 +519,12 @@ static int AspirationWindow(Thread *thread, Stack *ss) {
         if (alpha < -3500) alpha = -INFINITE;
         if (beta  >  3500) beta  =  INFINITE;
 
-        score = AlphaBeta(thread, ss, alpha, beta, depth, &thread->pv);
+        score = AlphaBeta(thread, ss, alpha, beta, depth);
 
         // Give an update when done, or after each iteration in long searches
         if (mainThread && (   (score > alpha && score < beta)
                            || TimeSince(Limits.start) > 3000))
-            PrintThinking(thread, score, alpha, beta);
+            PrintThinking(thread, ss, score, alpha, beta);
 
         // Failed low, relax lower bound and search again
         if (score <= alpha) {
@@ -568,11 +567,11 @@ static void *IterativeDeepening(void *voidThread) {
         // Only the main thread concerns itself with the rest
         if (!mainThread) continue;
 
-        bool uncertain = thread->pv.line[0] != thread->bestMove;
+        bool uncertain = ss->pv.line[0] != thread->bestMove;
 
         // Save bestMove and ponderMove before overwriting the pv next iteration
-        thread->bestMove   = thread->pv.line[0];
-        thread->ponderMove = thread->pv.length > 1 ? thread->pv.line[1] : NOMOVE;
+        thread->bestMove   = ss->pv.line[0];
+        thread->ponderMove = ss->pv.length > 1 ? ss->pv.line[1] : NOMOVE;
 
         // If an iteration finishes after optimal time usage, stop the search
         if (   Limits.timelimit
