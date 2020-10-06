@@ -96,9 +96,6 @@ static void UCIPosition(Position *pos, char *str) {
         // Parse and make move
         MakeMove(pos, ParseMove(move, pos));
 
-        // Reset ply to avoid triggering asserts in debug mode in long games
-        pos->ply = 0;
-
         // Keep track of how many moves have been played so far for TM
         pos->gameMoves += sideToMove == WHITE;
 

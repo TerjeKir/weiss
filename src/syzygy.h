@@ -35,12 +35,12 @@ static int TBScore(const unsigned result, const int distance) {
 }
 
 // Calls pyrrhic to probe syzygy tablebases
-bool ProbeWDL(const Position *pos, int *score, int *bound) {
+bool ProbeWDL(const Position *pos, int *score, int *bound, int ply) {
 
     // Don't probe at root, when castling is possible, or when 50 move rule
     // was not reset by the last move. Finally, there is obviously no point
     // if there are more pieces than we have TBs for.
-    if (  !pos->ply
+    if (  !ply
         || pos->castlingRights
         || pos->rule50
         || PopCount(pieceBB(ALL)) > TB_LARGEST)
@@ -58,7 +58,7 @@ bool ProbeWDL(const Position *pos, int *score, int *bound) {
     if (result == TB_RESULT_FAILED)
         return false;
 
-    *score = TBScore(result, pos->ply);
+    *score = TBScore(result, ply);
 
     *bound = result == TB_WIN  ? BOUND_LOWER
            : result == TB_LOSS ? BOUND_UPPER

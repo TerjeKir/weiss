@@ -133,9 +133,8 @@ static void MovePiece(Position *pos, const Square from, const Square to, const b
 // Take back the previous move
 void TakeMove(Position *pos) {
 
-    // Decrement histPly, ply
+    // Decrement histPly
     pos->histPly--;
-    pos->ply--;
 
     // Change side to play
     sideToMove ^= 1;
@@ -197,9 +196,8 @@ bool MakeMove(Position *pos, const Move move) {
     history(0).rule50         = pos->rule50;
     history(0).castlingRights = pos->castlingRights;
 
-    // Increment histPly, ply and 50mr
+    // Increment histPly and 50mr
     pos->histPly++;
-    pos->ply++;
     pos->rule50++;
 
     // Hash out en passant if there was one, and unset it
@@ -286,13 +284,9 @@ void MakeNullMove(Position *pos) {
     history(0).rule50         = pos->rule50;
     history(0).castlingRights = pos->castlingRights;
 
-    // Increase ply
-    pos->ply++;
+    // Incremental updates
     pos->histPly++;
-
     pos->rule50 = 0;
-
-    // Change side to play
     sideToMove ^= 1;
     HASH_SIDE;
 
@@ -306,11 +300,8 @@ void MakeNullMove(Position *pos) {
 // Take back a null move
 void TakeNullMove(Position *pos) {
 
-    // Decrease ply
+    // Incremental updates
     pos->histPly--;
-    pos->ply--;
-
-    // Change side to play
     sideToMove ^= 1;
 
     // Get info from history

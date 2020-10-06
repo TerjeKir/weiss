@@ -35,6 +35,7 @@ typedef struct {
 typedef struct {
 
     int eval;
+    Depth ply;
     Move excluded;
     Move killers[2];
     PV pv;

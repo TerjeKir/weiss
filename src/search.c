@@ -91,7 +91,7 @@ static int QuiescenceDeltaMargin(const Position *pos) {
 }
 
 // Quiescence
-static int Quiescence(Thread *thread, int alpha, const int beta) {
+static int Quiescence(Thread *thread, Stack *ss, int alpha, const int beta) {
 
     Position *pos = &thread->pos;
     MovePicker mp;
@@ -101,7 +101,7 @@ static int Quiescence(Thread *thread, int alpha, const int beta) {
         longjmp(thread->jumpBuffer, true);
 
     // If we are at max depth, return static eval
-    if (pos->ply >= MAXDEPTH)
+    if (ss->ply >= MAXDEPTH)
         return EvalPosition(pos);
 
     // Standing Pat -- If the stand-pat beats beta there is most likely also a move that beats beta
@@ -133,7 +133,7 @@ static int Quiescence(Thread *thread, int alpha, const int beta) {
 
         // Recursively search the positions after making the moves, skipping illegal ones
         if (!MakeMove(pos, move)) continue;
-        score = -Quiescence(thread, -beta, -alpha);
+        score = -Quiescence(thread, ss+1, -beta, -alpha);
         TakeMove(pos);
 
         // Found a new best move in this position
@@ -186,7 +186,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
     ss->pv.length = 0;
 
     const bool pvNode = alpha != beta - 1;
-    const bool root   = pos->ply == 0;
+    const bool root   = ss->ply == 0;
 
     // Check time situation
     if (OutOfTime(thread) || ABORT_SIGNAL)
@@ -200,12 +200,12 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
             return 0;
 
         // Max depth reached
-        if (pos->ply >= MAXDEPTH)
+        if (ss->ply >= MAXDEPTH)
             return EvalPosition(pos);
 
         // Mate distance pruning
-        alpha = MAX(alpha, -MATE + pos->ply);
-        beta  = MIN(beta,   MATE - pos->ply - 1);
+        alpha = MAX(alpha, -MATE + ss->ply);
+        beta  = MIN(beta,   MATE - ss->ply - 1);
         if (alpha >= beta)
             return alpha;
     }
@@ -216,7 +216,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
 
     // Quiescence at the end of search
     if (depth <= 0)
-        return Quiescence(thread, alpha, beta);
+        return Quiescence(thread, ss, alpha, beta);
 
     // Probe transposition table
     bool ttHit;
@@ -224,7 +224,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
     TTEntry *tte = ProbeTT(posKey, &ttHit);
 
     Move ttMove = ttHit ? tte->move : NOMOVE;
-    int ttScore = ttHit ? ScoreFromTT(tte->score, pos->ply) : NOSCORE;
+    int ttScore = ttHit ? ScoreFromTT(tte->score, ss->ply) : NOSCORE;
 
     // Trust TT if not a pvnode and the entry depth is sufficiently high
     if (   !pvNode && ttHit && tte->depth >= depth
@@ -235,12 +235,12 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
 
     // Probe syzygy TBs
     int tbScore, bound;
-    if (ProbeWDL(pos, &tbScore, &bound)) {
+    if (ProbeWDL(pos, &tbScore, &bound, ss->ply)) {
 
         thread->tbhits++;
 
         if (bound == BOUND_EXACT || (bound == BOUND_LOWER ? tbScore >= beta : tbScore <= alpha)) {
-            StoreTTEntry(tte, posKey, NOMOVE, ScoreToTT(tbScore, pos->ply), MAXDEPTH-1, bound);
+            StoreTTEntry(tte, posKey, NOMOVE, ScoreToTT(tbScore, ss->ply), MAXDEPTH-1, bound);
             return tbScore;
         }
 
@@ -260,7 +260,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
         eval = ttScore;
 
     // Improving if not in check, and current eval is higher than 2 plies ago
-    bool improving = !inCheck && pos->ply >= 2 && eval > (ss-2)->eval;
+    bool improving = !inCheck && ss->ply >= 2 && eval > (ss-2)->eval;
 
     // Skip pruning in check, at root, during early iterations, and when proving singularity
     if (inCheck || root || !thread->doPruning || ss->excluded)
@@ -270,7 +270,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
     if (  !pvNode
         && depth < 2
         && eval + 640 < alpha)
-        return Quiescence(thread, alpha, beta);
+        return Quiescence(thread, ss, alpha, beta);
 
     // Reverse Futility Pruning
     if (  !pvNode
@@ -317,7 +317,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
             if (!MakeMove(pos, pbMove)) continue;
 
             // See if a quiescence search beats pbBeta
-            int pbScore = -Quiescence(thread, -threshold, -threshold+1);
+            int pbScore = -Quiescence(thread, ss+1, -threshold, -threshold+1);
 
             // If it did do a proper search with reduced depth
             if (pbScore >= threshold)
@@ -478,7 +478,7 @@ skip_search:
     // Checkmate or stalemate
     if (!moveCount)
         return ss->excluded ? alpha
-             : inCheck      ? -MATE + pos->ply
+             : inCheck      ? -MATE + ss->ply
                             : 0;
 
     // Store in TT
@@ -486,7 +486,7 @@ skip_search:
                    : alpha != oldAlpha ? BOUND_EXACT
                                        : BOUND_UPPER;
     if (!ss->excluded)
-        StoreTTEntry(tte, posKey, bestMove, ScoreToTT(bestScore, pos->ply), depth, flag);
+        StoreTTEntry(tte, posKey, bestMove, ScoreToTT(bestScore, ss->ply), depth, flag);
 
     return bestScore;
 }
@@ -550,6 +550,8 @@ static void *IterativeDeepening(void *voidThread) {
 
     Stack searchStack[MAXDEPTH], *ss = searchStack;
     memset(searchStack, 0, sizeof(searchStack));
+    for (Depth d = 0; d < MAXDEPTH; ++d)
+        (ss+d)->ply = d;
 
     Thread *thread = voidThread;
     Position *pos = &thread->pos;

@@ -49,7 +49,6 @@ typedef struct Position {
     uint8_t rule50;
     uint8_t castlingRights;
 
-    uint8_t ply;
     uint16_t histPly;
     uint16_t gameMoves;
 
