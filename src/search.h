@@ -32,6 +32,13 @@ typedef struct {
 
 } SearchLimits;
 
+typedef struct {
+
+    Move excluded;
+    Move killers[2];
+
+} Stack;
+
 
 extern SearchLimits Limits;
 extern volatile bool ABORT_SIGNAL;

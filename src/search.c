@@ -156,14 +156,14 @@ static int Quiescence(Thread *thread, int alpha, const int beta) {
 }
 
 // Updates various history heuristics when a quiet move causes a cutoff
-INLINE void UpdateHistory(Thread *thread, Move quiets[], Move move, Depth depth, int count) {
+INLINE void UpdateHistory(Thread *thread, Stack *ss, Move quiets[], Move move, Depth depth, int count) {
 
     const Position *pos = &thread->pos;
 
     // Update killers
-    if (killer1 != move) {
-        killer2 = killer1;
-        killer1 = move;
+    if (ss->killers[0] != move) {
+        ss->killers[1] = ss->killers[0];
+        ss->killers[0] = move;
     }
 
     // Bonus to the move that caused the beta cutoff
@@ -179,7 +179,7 @@ INLINE void UpdateHistory(Thread *thread, Move quiets[], Move move, Depth depth,
 }
 
 // Alpha Beta
-static int AlphaBeta(Thread *thread, int alpha, int beta, Depth depth, PV *pv, Move excluded) {
+static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth, PV *pv) {
 
     Position *pos = &thread->pos;
     MovePicker mp;
@@ -221,7 +221,7 @@ static int AlphaBeta(Thread *thread, int alpha, int beta, Depth depth, PV *pv, M
 
     // Probe transposition table
     bool ttHit;
-    Key posKey = pos->key ^ (((Key)excluded) << 32);
+    Key posKey = pos->key ^ (((Key)ss->excluded) << 32);
     TTEntry *tte = ProbeTT(posKey, &ttHit);
 
     Move ttMove = ttHit ? tte->move : NOMOVE;
@@ -264,7 +264,7 @@ static int AlphaBeta(Thread *thread, int alpha, int beta, Depth depth, PV *pv, M
     bool improving = !inCheck && pos->ply >= 2 && eval > history(-2).eval;
 
     // Skip pruning in check, at root, during early iterations, and when proving singularity
-    if (inCheck || root || !thread->doPruning || excluded)
+    if (inCheck || root || !thread->doPruning || ss->excluded)
         goto move_loop;
 
     // Razoring
@@ -290,7 +290,7 @@ static int AlphaBeta(Thread *thread, int alpha, int beta, Depth depth, PV *pv, M
         int R = 3 + depth / 5 + MIN(3, (eval - beta) / 256);
 
         MakeNullMove(pos);
-        int score = -AlphaBeta(thread, -beta, -beta+1, depth-R, &pvFromHere, 0);
+        int score = -AlphaBeta(thread, ss+1, -beta, -beta+1, depth-R, &pvFromHere);
         TakeNullMove(pos);
 
         // Cutoff
@@ -322,7 +322,7 @@ static int AlphaBeta(Thread *thread, int alpha, int beta, Depth depth, PV *pv, M
 
             // If it did do a proper search with reduced depth
             if (pbScore >= threshold)
-                pbScore = -AlphaBeta(thread, -threshold, -threshold+1, depth-4, &pvFromHere, 0);
+                pbScore = -AlphaBeta(thread, ss+1, -threshold, -threshold+1, depth-4, &pvFromHere);
 
             TakeMove(pos);
 
@@ -338,7 +338,7 @@ static int AlphaBeta(Thread *thread, int alpha, int beta, Depth depth, PV *pv, M
 
 move_loop:
 
-    InitNormalMP(&mp, thread, ttMove, killer1, killer2);
+    InitNormalMP(&mp, thread, ttMove, ss->killers[0], ss->killers[1]);
 
     Move quiets[32] = { 0 };
     Move bestMove = NOMOVE;
@@ -350,7 +350,7 @@ move_loop:
     Move move;
     while ((move = NextMove(&mp))) {
 
-        if (move == excluded) continue;
+        if (move == ss->excluded) continue;
 
         bool quiet = moveIsQuiet(move);
 
@@ -373,7 +373,7 @@ move_loop:
         // Singular extension
         if (   depth > 8
             && move == ttMove
-            && !excluded
+            && !ss->excluded
             && tte->depth > depth - 3
             && tte->bound != BOUND_UPPER
             && abs(ttScore) < TBWIN_IN_MAX / 4
@@ -384,7 +384,9 @@ move_loop:
 
             // Search to reduced depth with a zero window a bit lower than ttScore
             int threshold = ttScore - depth * 2;
-            score = AlphaBeta(thread, threshold-1, threshold, depth/2, &pvFromHere, move);
+            ss->excluded = move;
+            score = AlphaBeta(thread, ss, threshold-1, threshold, depth/2, &pvFromHere);
+            ss->excluded = NOMOVE;
 
             // Extend as this move seems forced
             if (score < threshold)
@@ -431,15 +433,15 @@ move_loop:
             // Depth after reductions, avoiding going straight to quiescence
             Depth RDepth = CLAMP(newDepth - R, 1, newDepth - 1);
 
-            score = -AlphaBeta(thread, -alpha-1, -alpha, RDepth, &pvFromHere, 0);
+            score = -AlphaBeta(thread, ss+1, -alpha-1, -alpha, RDepth, &pvFromHere);
         }
         // Full depth zero-window search
         if (doLMR ? score > alpha : !pvNode || moveCount > 1)
-            score = -AlphaBeta(thread, -alpha-1, -alpha, newDepth, &pvFromHere, 0);
+            score = -AlphaBeta(thread, ss+1, -alpha-1, -alpha, newDepth, &pvFromHere);
 
         // Full depth alpha-beta window search
         if (pvNode && ((score > alpha && score < beta) || moveCount == 1))
-            score = -AlphaBeta(thread, -beta, -alpha, newDepth, &pvFromHere, 0);
+            score = -AlphaBeta(thread, ss+1, -beta, -alpha, newDepth, &pvFromHere);
 
 skip_search:
 
@@ -472,26 +474,26 @@ skip_search:
 
     // Update history if a quiet move causes a beta cutoff
     if (bestScore >= beta && moveIsQuiet(bestMove))
-        UpdateHistory(thread, quiets, bestMove, depth, quietCount);
+        UpdateHistory(thread, ss, quiets, bestMove, depth, quietCount);
 
     // Checkmate or stalemate
     if (!moveCount)
-        return excluded ? alpha
-             : inCheck  ? -MATE + pos->ply
-                        : 0;
+        return ss->excluded ? alpha
+             : inCheck      ? -MATE + pos->ply
+                            : 0;
 
     // Store in TT
     const int flag = bestScore >= beta ? BOUND_LOWER
                    : alpha != oldAlpha ? BOUND_EXACT
                                        : BOUND_UPPER;
-    if (!excluded)
+    if (!ss->excluded)
         StoreTTEntry(tte, posKey, bestMove, ScoreToTT(bestScore, pos->ply), depth, flag);
 
     return bestScore;
 }
 
 // Aspiration window
-static int AspirationWindow(Thread *thread) {
+static int AspirationWindow(Thread *thread, Stack *ss) {
 
     bool mainThread = thread->index == 0;
     int score = thread->score;
@@ -518,7 +520,7 @@ static int AspirationWindow(Thread *thread) {
         if (alpha < -3500) alpha = -INFINITE;
         if (beta  >  3500) beta  =  INFINITE;
 
-        score = AlphaBeta(thread, alpha, beta, depth, &thread->pv, 0);
+        score = AlphaBeta(thread, ss, alpha, beta, depth, &thread->pv);
 
         // Give an update when done, or after each iteration in long searches
         if (mainThread && (   (score > alpha && score < beta)
@@ -547,6 +549,9 @@ static int AspirationWindow(Thread *thread) {
 // Iterative deepening
 static void *IterativeDeepening(void *voidThread) {
 
+    Stack searchStack[MAXDEPTH], *ss = searchStack;
+    memset(searchStack, 0, sizeof(searchStack));
+
     Thread *thread = voidThread;
     Position *pos = &thread->pos;
     bool mainThread = thread->index == 0;
@@ -558,7 +563,7 @@ static void *IterativeDeepening(void *voidThread) {
         if (setjmp(thread->jumpBuffer)) break;
 
         // Search position, using aspiration windows for higher depths
-        thread->score = AspirationWindow(thread);
+        thread->score = AspirationWindow(thread, ss);
 
         // Only the main thread concerns itself with the rest
         if (!mainThread) continue;
