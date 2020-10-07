@@ -25,10 +25,9 @@ typedef struct {
     Key posKey;
     Bitboard checkers;
     Move move;
-    uint8_t epSquare;
-    uint8_t rule50;
-    uint8_t castlingRights;
-    uint8_t padding; // not used
+    Square epSquare;
+    int rule50;
+    int castlingRights;
 } History;
 
 typedef struct Position {
@@ -45,9 +44,9 @@ typedef struct Position {
     int phase;
 
     Color stm;
-    uint8_t epSquare;
-    uint8_t rule50;
-    uint8_t castlingRights;
+    Square epSquare;
+    int rule50;
+    int castlingRights;
 
     uint16_t histPly;
     uint16_t gameMoves;
