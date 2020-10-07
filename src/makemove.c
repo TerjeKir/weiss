@@ -68,9 +68,9 @@ static void ClearPiece(Position *pos, const Square sq, const bool hash) {
     pos->nonPawnCount[color] -= NonPawn[piece];
 
     // Update bitboards
-    pieceBB(ALL)   ^= SquareBB[sq];
-    pieceBB(pt)    ^= SquareBB[sq];
-    colorBB(color) ^= SquareBB[sq];
+    pieceBB(ALL)   ^= BB(sq);
+    pieceBB(pt)    ^= BB(sq);
+    colorBB(color) ^= BB(sq);
 }
 
 // Add a piece piece to a square
@@ -97,9 +97,9 @@ static void AddPiece(Position *pos, const Square sq, const Piece piece, const bo
     pos->nonPawnCount[color] += NonPawn[piece];
 
     // Update bitboards
-    pieceBB(ALL)   |= SquareBB[sq];
-    pieceBB(pt)    |= SquareBB[sq];
-    colorBB(color) |= SquareBB[sq];
+    pieceBB(ALL)   |= BB(sq);
+    pieceBB(pt)    |= BB(sq);
+    colorBB(color) |= BB(sq);
 }
 
 // Move a piece from one square to another
@@ -125,19 +125,16 @@ static void MovePiece(Position *pos, const Square from, const Square to, const b
     pos->material += PSQT[piece][to] - PSQT[piece][from];
 
     // Update bitboards
-    pieceBB(ALL)   ^= SquareBB[from] ^ SquareBB[to];
-    pieceBB(pt)    ^= SquareBB[from] ^ SquareBB[to];
-    colorBB(color) ^= SquareBB[from] ^ SquareBB[to];
+    pieceBB(ALL)   ^= BB(from) ^ BB(to);
+    pieceBB(pt)    ^= BB(from) ^ BB(to);
+    colorBB(color) ^= BB(from) ^ BB(to);
 }
 
 // Take back the previous move
 void TakeMove(Position *pos) {
 
-    // Decrement histPly, ply
+    // Incremental updates
     pos->histPly--;
-    pos->ply--;
-
-    // Change side to play
     sideToMove ^= 1;
 
     // Get the move from history
@@ -197,9 +194,8 @@ bool MakeMove(Position *pos, const Move move) {
     history(0).rule50         = pos->rule50;
     history(0).castlingRights = pos->castlingRights;
 
-    // Increment histPly, ply and 50mr
+    // Incremental updates
     pos->histPly++;
-    pos->ply++;
     pos->rule50++;
 
     // Hash out en passant if there was one, and unset it
@@ -286,13 +282,9 @@ void MakeNullMove(Position *pos) {
     history(0).rule50         = pos->rule50;
     history(0).castlingRights = pos->castlingRights;
 
-    // Increase ply
-    pos->ply++;
+    // Incremental updates
     pos->histPly++;
-
     pos->rule50 = 0;
-
-    // Change side to play
     sideToMove ^= 1;
     HASH_SIDE;
 
@@ -306,11 +298,8 @@ void MakeNullMove(Position *pos) {
 // Take back a null move
 void TakeNullMove(Position *pos) {
 
-    // Decrease ply
+    // Incremental updates
     pos->histPly--;
-    pos->ply--;
-
-    // Change side to play
     sideToMove ^= 1;
 
     // Get info from history

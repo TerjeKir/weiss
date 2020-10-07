@@ -28,7 +28,6 @@ const Bitboard RankBB[8] = {
     rank1BB, rank2BB, rank3BB, rank4BB, rank5BB, rank6BB, rank7BB, rank8BB
 };
 
-Bitboard SquareBB[64];
 Bitboard BetweenBB[64][64];
 
 static Bitboard BishopAttacks[0x1480];
@@ -60,8 +59,8 @@ static Bitboard MakeSliderAttackBB(const Square sq, const Bitboard occupied, con
     for (int dir = 0; dir < 4; ++dir) {
 
         Square s = sq;
-        while(!(occupied & SquareBB[s]) && LandingSquareBB(s, steps[dir]))
-            attacks |= SquareBB[s += steps[dir]];
+        while(!(occupied & BB(s)) && LandingSquareBB(s, steps[dir]))
+            attacks |= BB((s += steps[dir]));
     }
 
     return attacks;
@@ -140,9 +139,6 @@ static void InitEvalMasks() {
 // Initializes all bitboard lookups
 CONSTR InitBitMasks() {
 
-    for (Square sq = A1; sq <= H8; ++sq)
-        SquareBB[sq] = (1ULL << sq);
-
     InitDistance();
 
     InitEvalMasks();
@@ -158,8 +154,8 @@ CONSTR InitBitMasks() {
     for (Square sq1 = A1; sq1 <= H8; sq1++)
         for (Square sq2 = A1; sq2 <= H8; sq2++)
             for (PieceType pt = BISHOP; pt <= ROOK; pt++)
-                if (AttackBB(pt, sq1, SquareBB[sq2]) & SquareBB[sq2])
-                    BetweenBB[sq1][sq2] = AttackBB(pt, sq1, SquareBB[sq2]) & AttackBB(pt, sq2, SquareBB[sq1]);
+                if (AttackBB(pt, sq1, BB(sq2)) & BB(sq2))
+                    BetweenBB[sq1][sq2] = AttackBB(pt, sq1, BB(sq2)) & AttackBB(pt, sq2, BB(sq1));
 }
 
 // Returns a bitboard with all attackers of a square

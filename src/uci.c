@@ -96,9 +96,6 @@ static void UCIPosition(Position *pos, char *str) {
         // Parse and make move
         MakeMove(pos, ParseMove(move, pos));
 
-        // Reset ply to avoid triggering asserts in debug mode in long games
-        pos->ply = 0;
-
         // Keep track of how many moves have been played so far for TM
         pos->gameMoves += sideToMove == WHITE;
 
@@ -230,7 +227,7 @@ INLINE int MateScore(const int score) {
 }
 
 // Print thinking
-void PrintThinking(const Thread *thread, int score, int alpha, int beta) {
+void PrintThinking(const Thread *thread, const Stack *ss, int score, int alpha, int beta) {
 
     const Position *pos = &thread->pos;
 
@@ -264,8 +261,8 @@ void PrintThinking(const Thread *thread, int score, int alpha, int beta) {
             nodes, nps, tbhits, hashFull);
 
     // Principal variation
-    for (int i = 0; i < thread->pv.length; i++)
-        printf(" %s", MoveToStr(thread->pv.line[i]));
+    for (int i = 0; i < ss->pv.length; i++)
+        printf(" %s", MoveToStr(ss->pv.line[i]));
 
     printf("\n");
     fflush(stdout);

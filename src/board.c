@@ -153,9 +153,9 @@ static void UpdatePosition(Position *pos) {
             PieceType pt = PieceTypeOf(piece);
 
             // Bitboards
-            pieceBB(ALL)   |= SquareBB[sq];
-            pieceBB(pt)    |= SquareBB[sq];
-            colorBB(color) |= SquareBB[sq];
+            pieceBB(ALL)   |= BB(sq);
+            pieceBB(pt)    |= BB(sq);
+            colorBB(color) |= BB(sq);
 
             // Non pawn piece count
             pos->nonPawnCount[color] += NonPawn[piece];
@@ -343,7 +343,6 @@ void PrintBoard(const Position *pos) {
 bool PositionOk(const Position *pos) {
 
     assert(0 <= pos->histPly && pos->histPly < MAXGAMEMOVES);
-    assert(    0 <= pos->ply && pos->ply < MAXDEPTH);
 
     int counts[PIECE_NB] = { 0 };
     int nonPawnCount[2] = { 0, 0 };
@@ -356,27 +355,20 @@ bool PositionOk(const Position *pos) {
         nonPawnCount[color] += NonPawn[piece];
     }
 
-    assert(counts[MakePiece(WHITE, KING)] == 1);
-    assert(counts[MakePiece(BLACK, KING)] == 1);
+    for (Color c = BLACK; c <= WHITE; ++c) {
 
-    assert(PopCount(colorPieceBB(WHITE, PAWN))   == counts[MakePiece(WHITE, PAWN)]);
-    assert(PopCount(colorPieceBB(WHITE, KNIGHT)) == counts[MakePiece(WHITE, KNIGHT)]);
-    assert(PopCount(colorPieceBB(WHITE, BISHOP)) == counts[MakePiece(WHITE, BISHOP)]);
-    assert(PopCount(colorPieceBB(WHITE, ROOK))   == counts[MakePiece(WHITE, ROOK)]);
-    assert(PopCount(colorPieceBB(WHITE, QUEEN))  == counts[MakePiece(WHITE, QUEEN)]);
-    assert(PopCount(colorPieceBB(WHITE, KING))   == 1);
+        assert(PopCount(colorPieceBB(c, PAWN))   == counts[MakePiece(c, PAWN)]);
+        assert(PopCount(colorPieceBB(c, KNIGHT)) == counts[MakePiece(c, KNIGHT)]);
+        assert(PopCount(colorPieceBB(c, BISHOP)) == counts[MakePiece(c, BISHOP)]);
+        assert(PopCount(colorPieceBB(c, ROOK))   == counts[MakePiece(c, ROOK)]);
+        assert(PopCount(colorPieceBB(c, QUEEN))  == counts[MakePiece(c, QUEEN)]);
+        assert(PopCount(colorPieceBB(c, KING))   == 1);
+        assert(counts[MakePiece(c, KING)] == 1);
 
-    assert(PopCount(colorPieceBB(BLACK, PAWN))   == counts[MakePiece(BLACK, PAWN)]);
-    assert(PopCount(colorPieceBB(BLACK, KNIGHT)) == counts[MakePiece(BLACK, KNIGHT)]);
-    assert(PopCount(colorPieceBB(BLACK, BISHOP)) == counts[MakePiece(BLACK, BISHOP)]);
-    assert(PopCount(colorPieceBB(BLACK, ROOK))   == counts[MakePiece(BLACK, ROOK)]);
-    assert(PopCount(colorPieceBB(BLACK, QUEEN))  == counts[MakePiece(BLACK, QUEEN)]);
-    assert(PopCount(colorPieceBB(BLACK, KING))   == 1);
+        assert(nonPawnCount[c] == pos->nonPawnCount[c]);
+    }
 
     assert(pieceBB(ALL) == (colorBB(WHITE) | colorBB(BLACK)));
-
-    assert(nonPawnCount[WHITE] == pos->nonPawnCount[WHITE]
-        && nonPawnCount[BLACK] == pos->nonPawnCount[BLACK]);
 
     assert(sideToMove == WHITE || sideToMove == BLACK);
 
@@ -428,8 +420,6 @@ void MirrorBoard(Position *pos) {
     assert(PositionOk(pos));
 }
 #endif
-
-#define BB(sq) (1ull << sq)
 
 // Static Exchange Evaluation
 bool SEE(const Position *pos, const Move move, const int threshold) {

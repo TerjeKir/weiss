@@ -32,12 +32,10 @@ typedef struct Thread {
 
     Move bestMove;
     Move ponderMove;
-    PV pv;
 
     jmp_buf jumpBuffer;
 
     int history[2][64][64];
-    Move killers[MAXDEPTH][2];
 
     // Anything below here is not zeroed out between searches
     Position pos;

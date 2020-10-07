@@ -47,9 +47,8 @@
 
 #define lastMoveNullMove (!root && history(-1).move == NOMOVE)
 #define history(offset) (pos->gameHistory[pos->histPly + offset])
-#define killer1 (thread->killers[pos->ply][0])
-#define killer2 (thread->killers[pos->ply][1])
 
+#define BB(sq) (1ull << sq)
 #define pieceBB(type) (pos->pieceBB[(type)])
 #define colorBB(color) (pos->colorBB[(color)])
 #define colorPieceBB(color, type) (colorBB(color) & pieceBB(type))
