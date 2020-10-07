@@ -133,10 +133,8 @@ static void MovePiece(Position *pos, const Square from, const Square to, const b
 // Take back the previous move
 void TakeMove(Position *pos) {
 
-    // Decrement histPly
+    // Incremental updates
     pos->histPly--;
-
-    // Change side to play
     sideToMove ^= 1;
 
     // Get the move from history
@@ -196,7 +194,7 @@ bool MakeMove(Position *pos, const Move move) {
     history(0).rule50         = pos->rule50;
     history(0).castlingRights = pos->castlingRights;
 
-    // Increment histPly and 50mr
+    // Incremental updates
     pos->histPly++;
     pos->rule50++;
 
