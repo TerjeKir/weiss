@@ -48,6 +48,7 @@
 #define lastMoveNullMove (!root && history(-1).move == NOMOVE)
 #define history(offset) (pos->gameHistory[pos->histPly + offset])
 
+#define BB(sq) (1ull << sq)
 #define pieceBB(type) (pos->pieceBB[(type)])
 #define colorBB(color) (pos->colorBB[(color)])
 #define colorPieceBB(color, type) (colorBB(color) & pieceBB(type))

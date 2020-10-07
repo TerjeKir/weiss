@@ -107,7 +107,6 @@ enum {
 extern const Bitboard FileBB[8];
 extern const Bitboard RankBB[8];
 
-extern Bitboard SquareBB[64];
 extern Bitboard BetweenBB[64][64];
 
 extern Magic BishopTable[64];
