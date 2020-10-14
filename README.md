@@ -23,5 +23,5 @@ Weiss supports the following:
 * #### NoobBook
   Allow Weiss to query and play moves suggested by [noobpwnftw's online opening database](https://www.chessdb.cn/queryc_en/).
   
-  #### NoobBookLimit
+* #### NoobBookLimit
   Limit the use of NoobBook to the first x moves of the game. Only relevant with NoobBook set to true.
