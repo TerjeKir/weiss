@@ -45,6 +45,7 @@
 #include "../move.h"
 
 
+bool noobbook;
 int failedQueries;
 
 
@@ -52,6 +53,9 @@ void error(const char *msg) { perror(msg); exit(0); }
 
 // Probes noobpwnftw's Chess Cloud Database
 bool ProbeNoob(Position *pos, Thread *threads) {
+
+    // Stop querying after 3 failures
+    if (!noobbook || failedQueries >= 3) return false;
 
     // Setup sockets on windows, does nothing on linux
     WSADATA wsaData;

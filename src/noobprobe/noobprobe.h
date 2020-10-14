@@ -20,6 +20,7 @@
 #include "../types.h"
 
 
+extern bool noobbook;
 extern int failedQueries;
 
 

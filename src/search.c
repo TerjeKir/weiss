@@ -44,7 +44,6 @@ int Reductions[2][32][32];
 
 SearchLimits Limits;
 volatile bool ABORT_SIGNAL = false;
-bool noobbook = false;
 
 
 // Initializes the late move reduction array
@@ -614,8 +613,8 @@ void SearchPosition(Position *pos, Thread *threads) {
     if (RootProbe(pos, threads)) goto conclusion;
 
     // Probe noobpwnftw's Chess Cloud Database
-    if (   noobbook && (!Limits.timelimit || Limits.maxUsage > 2000)
-        && failedQueries < 3 && ProbeNoob(pos, threads)) goto conclusion;
+    if (   (!Limits.timelimit || Limits.maxUsage > 2000)
+        && ProbeNoob(pos, threads)) goto conclusion;
 
     // Make extra threads and begin searching
     threadsSpawned = true;
