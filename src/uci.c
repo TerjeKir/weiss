@@ -129,6 +129,11 @@ static void UCISetOption(Engine *engine, char *str) {
 
         tb_init(OptionValue(str));
 
+    // Sets max depth for using NoobBook
+    } else if (OptionName(str, "NoobBookLimit")) {
+
+        noobLimit = atoi(OptionValue(str));
+
     // Toggles probing of Chess Cloud Database
     } else if (OptionName(str, "NoobBook")) {
 
@@ -146,6 +151,7 @@ static void UCIInfo() {
     printf("option name Threads type spin default %d min %d max %d\n", 1, 1, 2048);
     printf("option name SyzygyPath type string default <empty>\n");
     printf("option name NoobBook type check default false\n");
+    printf("option name NoobBookLimit type spin default 0 min 0 max 1000\n");
     printf("uciok\n"); fflush(stdout);
 }
 
