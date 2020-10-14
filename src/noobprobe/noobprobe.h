@@ -20,7 +20,9 @@
 #include "../types.h"
 
 
+extern bool noobbook;
 extern int failedQueries;
+extern int noobLimit;
 
 
 bool ProbeNoob(Position *pos, Thread *threads);
