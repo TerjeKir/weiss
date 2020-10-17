@@ -25,19 +25,16 @@
 #include "threads.h"
 
 
-#define NAME "Weiss 1.1-dev"
+#define NAME "Weiss 1.2"
 
 #define START_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 #define INPUT_SIZE 4096
 
 
 typedef struct {
-
     Position pos;
     Thread *threads;
-
 } Engine;
-
 
 enum InputCommands {
     // UCI
