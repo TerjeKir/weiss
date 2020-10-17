@@ -568,10 +568,7 @@ static void *IterativeDeepening(void *voidThread) {
         if (!mainThread) continue;
 
         // Stop searching after finding a short enough mate
-        if (   Limits.mate
-            && thread->score >= MATE_IN_MAX
-            && MATE - thread->score <= 2 * Limits.mate)
-            break;
+        if (MATE - abs(thread->score) <= 2 * Limits.mate) break;
 
         bool uncertain = ss->pv.line[0] != thread->bestMove;
 
