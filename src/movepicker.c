@@ -147,7 +147,7 @@ Move NextMove(MovePicker *mp) {
         default:
             assert(0);
             return NOMOVE;
-        }
+    }
 }
 
 // Init normal movepicker
