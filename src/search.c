@@ -307,11 +307,10 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
 
         int threshold = beta + 200;
 
-        MovePicker pbMP;
-        InitNoisyMP(&pbMP, thread);
+        InitNoisyMP(&mp, thread);
 
         Move pbMove;
-        while ((pbMove = NextMove(&pbMP))) {
+        while ((pbMove = NextMove(&mp))) {
 
             if (!MakeMove(pos, pbMove)) continue;
 
