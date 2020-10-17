@@ -28,6 +28,7 @@ typedef struct {
     TimePoint start;
     int time, inc, movestogo, movetime, depth;
     int optimalUsage, maxUsage;
+    int mate;
     bool timelimit, infinite;
 
 } SearchLimits;
