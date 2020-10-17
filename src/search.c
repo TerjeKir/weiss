@@ -307,13 +307,12 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
 
         int threshold = beta + 200;
 
-        MovePicker pbMP;
-        InitNoisyMP(&pbMP, thread);
+        InitNoisyMP(&mp, thread);
 
-        Move pbMove;
-        while ((pbMove = NextMove(&pbMP))) {
+        Move move;
+        while ((move = NextMove(&mp))) {
 
-            if (!MakeMove(pos, pbMove)) continue;
+            if (!MakeMove(pos, move)) continue;
 
             // See if a quiescence search beats pbBeta
             int pbScore = -Quiescence(thread, ss+1, -threshold, -threshold+1);
