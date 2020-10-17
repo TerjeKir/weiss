@@ -52,6 +52,7 @@ static void ParseTimeControl(char *str, Color color) {
     SetLimit(str, "movestogo", &Limits.movestogo);
     SetLimit(str, "movetime",  &Limits.movetime);
     SetLimit(str, "depth",     &Limits.depth);
+    SetLimit(str, "mate",      &Limits.mate);
 
     Limits.timelimit = Limits.time || Limits.movetime;
 

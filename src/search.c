@@ -567,6 +567,9 @@ static void *IterativeDeepening(void *voidThread) {
         // Only the main thread concerns itself with the rest
         if (!mainThread) continue;
 
+        // Stop searching after finding a short enough mate
+        if (MATE - abs(thread->score) <= 2 * Limits.mate) break;
+
         bool uncertain = ss->pv.line[0] != thread->bestMove;
 
         // Save bestMove and ponderMove before overwriting the pv next iteration
