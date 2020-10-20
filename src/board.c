@@ -16,6 +16,7 @@
   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -38,6 +39,8 @@ const int NonPawn[PIECE_NB] = {
 uint64_t PieceKeys[PIECE_NB][64];
 uint64_t CastleKeys[16];
 uint64_t SideKey;
+
+static const char PieceChars[] = ".pnbrqk..PNBRQK";
 
 
 // Initialize distance lookup table
@@ -169,49 +172,18 @@ static void UpdatePosition(Position *pos) {
 // Parse FEN and set up the position as described
 void ParseFen(const char *fen, Position *pos) {
 
-    assert(fen != NULL);
-
     memset(pos, 0, sizeof(Position));
+    char c;
 
     // Piece locations
     Square sq = A8;
-    while (*fen != ' ') {
-
-        Piece piece;
-        int count = 1;
-
-        switch (*fen) {
-            // Pieces
-            case 'p': piece = bP; break;
-            case 'n': piece = bN; break;
-            case 'b': piece = bB; break;
-            case 'r': piece = bR; break;
-            case 'q': piece = bQ; break;
-            case 'k': piece = bK; break;
-            case 'P': piece = wP; break;
-            case 'N': piece = wN; break;
-            case 'B': piece = wB; break;
-            case 'R': piece = wR; break;
-            case 'Q': piece = wQ; break;
-            case 'K': piece = wK; break;
-            // Next rank
-            case '/':
-                sq -= 16;
-                fen++;
-                continue;
-            // Numbers of empty squares
-            default:
-                piece = EMPTY;
-                count = *fen - '0';
-                break;
-        }
-
-        pieceOn(sq) = piece;
-        sq += count;
-
-        fen++;
-    }
-    fen++;
+    while ((c = *fen++) != ' ')
+        if (isdigit(c))
+            sq += c - '0';
+        else if (c == '/')
+            sq -= 16;
+        else
+            pieceOn(sq++) = strchr(PieceChars, c) - PieceChars;
 
     // Update the rest of position to match pos->board
     UpdatePosition(pos);
@@ -253,7 +225,6 @@ void ParseFen(const char *fen, Position *pos) {
 // Translates a move to a string
 char *BoardToFen(const Position *pos) {
 
-    const char PceChar[]  = ".pnbrqk..PNBRQK";
     static char fen[100];
     char *ptr = fen;
 
@@ -269,7 +240,7 @@ char *BoardToFen(const Position *pos) {
             if (piece) {
                 if (count)
                     *ptr++ = '0' + count;
-                *ptr++ = PceChar[piece];
+                *ptr++ = PieceChars[piece];
                 count = 0;
             } else
                 count++;
@@ -312,14 +283,12 @@ char *BoardToFen(const Position *pos) {
 // Print the board with misc info
 void PrintBoard(const Position *pos) {
 
-    const char PceChar[]  = ".pnbrqk..PNBRQK";
-
     // Print board
     printf("\n");
     for (int rank = RANK_8; rank >= RANK_1; --rank) {
         for (int file = FILE_A; file <= FILE_H; ++file) {
             Square sq = (rank * 8) + file;
-            printf("%3c", PceChar[pieceOn(sq)]);
+            printf("%3c", PieceChars[pieceOn(sq)]);
         }
         printf("\n");
     }
