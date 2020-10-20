@@ -97,26 +97,26 @@ CONSTR InitHashKeys() {
 // a search this is incrementally updated instead.
 static Key GeneratePosKey(const Position *pos) {
 
-    Key posKey = 0;
+    Key key = 0;
 
     // Pieces
     for (Square sq = A1; sq <= H8; ++sq) {
         Piece piece = pieceOn(sq);
         if (piece != EMPTY)
-            posKey ^= PieceKeys[piece][sq];
+            key ^= PieceKeys[piece][sq];
     }
 
     // Side to play
     if (sideToMove == WHITE)
-        posKey ^= SideKey;
+        key ^= SideKey;
 
     // En passant
-    posKey ^= PieceKeys[EMPTY][pos->epSquare];
+    key ^= PieceKeys[EMPTY][pos->epSquare];
 
     // Castling rights
-    posKey ^= CastleKeys[pos->castlingRights];
+    key ^= CastleKeys[pos->castlingRights];
 
-    return posKey;
+    return key;
 }
 
 // Calculates the position key after a move. Fails
