@@ -135,38 +135,28 @@ Key KeyAfter(const Position *pos, const Move move) {
     return key ^ PieceKeys[piece][from] ^ PieceKeys[piece][to];
 }
 
-// Update the rest of a position to match pos->board
-static void UpdatePosition(Position *pos) {
+// Add a piece piece to a square
+static void AddPiece(Position *pos, const Square sq, const Piece piece) {
 
-    // Loop through each square on the board
-    for (Square sq = A1; sq <= H8; ++sq) {
+    const Color color = ColorOf(piece);
+    const PieceType pt = PieceTypeOf(piece);
 
-        Piece piece = pieceOn(sq);
+    // Update square
+    pieceOn(sq) = piece;
 
-        // If it isn't empty we update the relevant lists
-        if (piece != EMPTY) {
+    // Update material
+    pos->material += PSQT[piece][sq];
 
-            Color color = ColorOf(piece);
-            PieceType pt = PieceTypeOf(piece);
+    // Update phase
+    pos->phaseValue += PhaseValue[piece];
 
-            // Bitboards
-            pieceBB(ALL)   |= BB(sq);
-            pieceBB(pt)    |= BB(sq);
-            colorBB(color) |= BB(sq);
+    // Update non-pawn count
+    pos->nonPawnCount[color] += NonPawn[piece];
 
-            // Non pawn piece count
-            pos->nonPawnCount[color] += NonPawn[piece];
-
-            // Material score
-            pos->material += PSQT[piece][sq];
-
-            // Phase
-            pos->phaseValue += PhaseValue[piece];
-        }
-    }
-
-    pos->checkers = Checkers(pos);
-    pos->phase = UpdatePhase(pos->phaseValue);
+    // Update bitboards
+    pieceBB(ALL)   |= BB(sq);
+    pieceBB(pt)    |= BB(sq);
+    colorBB(color) |= BB(sq);
 }
 
 // Parse FEN and set up the position as described
@@ -183,10 +173,7 @@ void ParseFen(const char *fen, Position *pos) {
         else if (c == '/')
             sq -= 16;
         else
-            pieceOn(sq++) = strchr(PieceChars, c) - PieceChars;
-
-    // Update the rest of position to match pos->board
-    UpdatePosition(pos);
+            AddPiece(pos, sq++, strchr(PieceChars, c) - PieceChars);
 
     // Side to move
     sideToMove = (*fen == 'w') ? WHITE : BLACK;
@@ -212,8 +199,10 @@ void ParseFen(const char *fen, Position *pos) {
     pos->rule50 = atoi(fen += 2);
     pos->gameMoves = atoi(fen += 2);
 
-    // Generate the position key
+    // Calculate some initial states
     pos->key = GeneratePosKey(pos);
+    pos->checkers = Checkers(pos);
+    pos->phase = UpdatePhase(pos->phaseValue);
 
     assert(PositionOk(pos));
 }
