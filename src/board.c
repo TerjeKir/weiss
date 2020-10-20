@@ -132,12 +132,6 @@ Key KeyAfter(const Position *pos, const Move move) {
     return key ^ PieceKeys[piece][from] ^ PieceKeys[piece][to];
 }
 
-// Clears the board
-static void ClearPosition(Position *pos) {
-
-    memset(pos, 0, sizeof(Position));
-}
-
 // Update the rest of a position to match pos->board
 static void UpdatePosition(Position *pos) {
 
@@ -177,7 +171,7 @@ void ParseFen(const char *fen, Position *pos) {
 
     assert(fen != NULL);
 
-    ClearPosition(pos);
+    memset(pos, 0, sizeof(Position));
 
     // Piece locations
     Square sq = A8;
@@ -401,7 +395,7 @@ void MirrorBoard(Position *pos) {
                | (pos->castlingRights & BLACK_CASTLE) >> 2;
 
     // Clear the position
-    ClearPosition(pos);
+    memset(pos, 0, sizeof(Position));
 
     // Fill in the mirrored position info
     for (Square sq = A1; sq <= H8; ++sq)
