@@ -25,6 +25,14 @@
 
 extern EvalTrace T;
 
+typedef struct PawnEntry {
+    Key key;
+    int eval;
+} PawnEntry;
+
+#define PAWN_CACHE_SIZE 128 * 1024
+PawnEntry cache[PAWN_CACHE_SIZE];
+
 
 // Piecetype values, combines with PSQTs [piecetype]
 const int PieceTypeValue[7] = { 0,
@@ -173,6 +181,25 @@ INLINE int EvalPawns(const Position *pos, const Color color) {
     return eval;
 }
 
+uint64_t hits, misses;
+#include <stdio.h>
+// Tries to get pawn eval from cache, otherwise evaluates and saves
+int ProbePawnCache(const Position *pos) {
+
+    PawnEntry *pe = &cache[pos->key % PAWN_CACHE_SIZE];
+
+    if (pe->key != pos->key)
+        pe->key = pos->key,
+        pe->eval = EvalPawns(pos, WHITE) - EvalPawns(pos, BLACK),
+        misses++;
+    else
+        hits++;
+
+    if (((hits+misses) & 131071) == 0) printf("Hits: %" PRIu64 " Misses: %" PRIu64 "\n", hits, misses);
+
+    return pe->eval;
+}
+
 // Evaluates knights, bishops, rooks, or queens
 INLINE int EvalPiece(const Position *pos, const EvalInfo *ei, const Color color, const PieceType pt) {
 
@@ -235,9 +262,7 @@ INLINE int EvalKings(const Position *pos, const Color color) {
 
 INLINE int EvalPieces(const Position *pos, const EvalInfo *ei) {
 
-    return  EvalPawns(pos, WHITE)
-          - EvalPawns(pos, BLACK)
-          + EvalPiece(pos, ei, WHITE, KNIGHT)
+    return  EvalPiece(pos, ei, WHITE, KNIGHT)
           - EvalPiece(pos, ei, BLACK, KNIGHT)
           + EvalPiece(pos, ei, WHITE, BISHOP)
           - EvalPiece(pos, ei, BLACK, BISHOP)
@@ -275,6 +300,9 @@ int EvalPosition(const Position *pos) {
 
     // Material (includes PSQT)
     int eval = pos->material;
+
+    // Evaluate pawns
+    eval += ProbePawnCache(pos);
 
     // Evaluate pieces
     eval += EvalPieces(pos, &ei);
