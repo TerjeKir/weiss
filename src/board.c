@@ -163,11 +163,12 @@ static void AddPiece(Position *pos, const Square sq, const Piece piece) {
 void ParseFen(const char *fen, Position *pos) {
 
     memset(pos, 0, sizeof(Position));
-    char c;
+    char c, *copy = strdup(fen);
+    char *token = strtok(copy, " ");
 
     // Piece locations
     Square sq = A8;
-    while ((c = *fen++) != ' ')
+    while ((c = *token++))
         if (isdigit(c))
             sq += c - '0';
         else if (c == '/')
@@ -176,11 +177,11 @@ void ParseFen(const char *fen, Position *pos) {
             AddPiece(pos, sq++, strchr(PieceChars, c) - PieceChars);
 
     // Side to move
-    sideToMove = (*fen == 'w') ? WHITE : BLACK;
-    fen += 2;
+    sideToMove = *strtok(NULL, " ") == 'w' ? WHITE : BLACK;
 
     // Castling rights
-    while ((c = *fen++) != ' ')
+    token = strtok(NULL, " ");
+    while ((c = *token++))
         switch (c) {
             case 'K': pos->castlingRights |= WHITE_OO;  break;
             case 'Q': pos->castlingRights |= WHITE_OOO; break;
@@ -190,19 +191,23 @@ void ParseFen(const char *fen, Position *pos) {
         }
 
     // En passant square
-    Square ep = AlgebraicToSq(fen[0], fen[1]);
-    bool epValid = *fen != '-' && (  PawnAttackBB(!sideToMove, ep)
-                                   & colorPieceBB(sideToMove, PAWN));
-    pos->epSquare = epValid ? ep : 0;
+    token = strtok(NULL, " ");
+    if (*token != '-') {
+        Square ep = AlgebraicToSq(token[0], token[1]);
+        bool epValid = PawnAttackBB(!sideToMove, ep) & colorPieceBB(sideToMove, PAWN);
+        pos->epSquare = epValid ? ep : 0;
+    }
 
     // 50 move rule and game moves
-    pos->rule50 = atoi(fen += 2);
-    pos->gameMoves = atoi(fen += 2);
+    pos->rule50 = atoi(strtok(NULL, " "));
+    pos->gameMoves = atoi(strtok(NULL, " "));
 
     // Calculate some initial states
     pos->key = GeneratePosKey(pos);
     pos->checkers = Checkers(pos);
     pos->phase = UpdatePhase(pos->phaseValue);
+
+    free(copy);
 
     assert(PositionOk(pos));
 }
