@@ -143,6 +143,6 @@ INLINE Piece MakePiece(const Color color, const PieceType pt) {
     return (color << 3) + pt;
 }
 
-INLINE Square AlgebraicToSq(const char file, const char rank) {
-    return (file - 'a') + 8 * (rank - '1');
+INLINE Square StrToSq(const char *str) {
+    return (str[0] - 'a') + 8 * (str[1] - '1');
 }

@@ -193,7 +193,7 @@ void ParseFen(const char *fen, Position *pos) {
     // En passant square
     token = strtok(NULL, " ");
     if (*token != '-') {
-        Square ep = AlgebraicToSq(token[0], token[1]);
+        Square ep = StrToSq(token);
         bool epValid = PawnAttackBB(!sideToMove, ep) & colorPieceBB(sideToMove, PAWN);
         pos->epSquare = epValid ? ep : 0;
     }

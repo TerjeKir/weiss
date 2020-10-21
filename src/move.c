@@ -110,8 +110,8 @@ char *MoveToStr(const Move move) {
 Move ParseMove(const char *str, const Position *pos) {
 
     // Translate coordinates into square numbers
-    Square from = AlgebraicToSq(str[0], str[1]);
-    Square to   = AlgebraicToSq(str[2], str[3]);
+    Square from = StrToSq(str);
+    Square to   = StrToSq(str+2);
 
     Piece promo = str[4] == 'q' ? MakePiece(sideToMove, QUEEN)
                 : str[4] == 'n' ? MakePiece(sideToMove, KNIGHT)
