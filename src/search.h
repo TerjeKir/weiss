@@ -24,23 +24,19 @@
 
 
 typedef struct {
-
     TimePoint start;
     int time, inc, movestogo, movetime, depth;
     int optimalUsage, maxUsage;
     int mate;
     bool timelimit, infinite;
-
 } SearchLimits;
 
 typedef struct {
-
     int eval;
     Depth ply;
     Move excluded;
     Move killers[2];
     PV pv;
-
 } Stack;
 
 

@@ -71,15 +71,12 @@ static const uint64_t BishopMagics[64] = {
 #endif
 
 typedef struct {
-
     Bitboard *attacks;
     Bitboard mask;
-
 #ifndef USE_PEXT
     uint64_t magic;
     int shift;
 #endif
-
 } Magic;
 
 enum {
