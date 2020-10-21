@@ -194,17 +194,17 @@ void ParseFen(const char *fen, Position *pos) {
     token = strtok(NULL, " ");
     if (*token != '-') {
         Square ep = StrToSq(token);
-        bool epValid = PawnAttackBB(!sideToMove, ep) & colorPieceBB(sideToMove, PAWN);
-        pos->epSquare = epValid ? ep : 0;
+        bool usable = PawnAttackBB(!sideToMove, ep) & colorPieceBB(sideToMove, PAWN);
+        pos->epSquare = usable ? ep : 0;
     }
 
     // 50 move rule and game moves
     pos->rule50 = atoi(strtok(NULL, " "));
     pos->gameMoves = atoi(strtok(NULL, " "));
 
-    // Calculate some initial states
-    pos->key = GeneratePosKey(pos);
+    // Final initializations
     pos->checkers = Checkers(pos);
+    pos->key = GeneratePosKey(pos);
     pos->phase = UpdatePhase(pos->phaseValue);
 
     free(copy);
