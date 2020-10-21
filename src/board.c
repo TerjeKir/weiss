@@ -358,17 +358,16 @@ void MirrorBoard(Position *pos) {
 
     // Fill in the mirrored position info
     for (Square sq = A1; sq <= H8; ++sq)
-        pieceOn(sq) = board[sq];
+        if (board[sq]) AddPiece(pos, sq, board[sq]);
 
     sideToMove = stm;
     pos->epSquare = ep;
     pos->castlingRights = cr;
 
-    // Update the rest of the position to match pos->board
-    UpdatePosition(pos);
-
-    // Generate the position key
+    // Final initializations
+    pos->checkers = Checkers(pos);
     pos->key = GeneratePosKey(pos);
+    pos->phase = UpdatePhase(pos->phaseValue);
 
     assert(PositionOk(pos));
 }
