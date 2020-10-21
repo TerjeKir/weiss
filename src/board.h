@@ -22,7 +22,7 @@
 
 
 typedef struct {
-    Key posKey;
+    Key key;
     Bitboard checkers;
     Move move;
     Square epSquare;

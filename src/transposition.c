@@ -34,17 +34,17 @@ TranspositionTable TT = { .requestedMB = DEFAULTHASH };
 
 
 // Probe the transposition table
-TTEntry* ProbeTT(const Key posKey, bool *ttHit) {
+TTEntry* ProbeTT(const Key key, bool *ttHit) {
 
-    TTEntry* tte = GetEntry(posKey);
+    TTEntry* tte = GetEntry(key);
 
-    *ttHit = tte->posKey == posKey;
+    *ttHit = tte->key == key;
 
     return tte;
 }
 
 // Store an entry in the transposition table
-void StoreTTEntry(TTEntry *tte, const Key posKey,
+void StoreTTEntry(TTEntry *tte, const Key key,
                                 const Move move,
                                 const int score,
                                 const Depth depth,
@@ -56,12 +56,12 @@ void StoreTTEntry(TTEntry *tte, const Key posKey,
 
     // Store new data unless it would overwrite data about the same
     // position searched to a higher depth.
-    if (posKey != tte->posKey || depth >= tte->depth || bound == BOUND_EXACT)
-        tte->posKey = posKey,
-        tte->move   = move,
-        tte->score  = score,
-        tte->depth  = depth,
-        tte->bound  = bound;
+    if (key != tte->key || depth >= tte->depth || bound == BOUND_EXACT)
+        tte->key   = key,
+        tte->move  = move,
+        tte->score = score,
+        tte->depth = depth,
+        tte->bound = bound;
 }
 
 // Estimates the load factor of the transposition table (1 = 0.1%)

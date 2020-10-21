@@ -38,24 +38,20 @@
 enum { BOUND_NONE, BOUND_UPPER, BOUND_LOWER, BOUND_EXACT };
 
 typedef struct {
-
-    Key posKey;
+    Key key;
     Move move;
     int16_t score;
     uint8_t depth;
     uint8_t bound;
-
 } TTEntry;
 
 typedef struct {
-
     void *mem;
     TTEntry *table;
     size_t count;
     size_t currentMB;
     size_t requestedMB;
     bool dirty;
-
 } TranspositionTable;
 
 
@@ -78,14 +74,14 @@ INLINE int ScoreFromTT (const int score, const uint8_t ply) {
                                   : score;
 }
 
-INLINE TTEntry *GetEntry(Key posKey) {
+INLINE TTEntry *GetEntry(Key key) {
 
     // https://lemire.me/blog/2016/06/27/a-fast-alternative-to-the-modulo-reduction/
-    return &TT.table[((uint32_t)posKey * (uint64_t)TT.count) >> 32];
+    return &TT.table[((uint32_t)key * (uint64_t)TT.count) >> 32];
 }
 
-TTEntry* ProbeTT(Key posKey, bool *ttHit);
-void StoreTTEntry(TTEntry *tte, Key posKey, Move move, int score, Depth depth, int bound);
+TTEntry* ProbeTT(Key key, bool *ttHit);
+void StoreTTEntry(TTEntry *tte, Key key, Move move, int score, Depth depth, int bound);
 int HashFull();
 void ClearTT(Thread *threads);
 void InitTT(Thread *threads);

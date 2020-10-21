@@ -58,10 +58,10 @@ CONSTR InitReductions() {
 // Check if current position is a repetition
 static bool IsRepetition(const Position *pos) {
 
-    // Compare current posKey to posKeys in history, skipping
+    // Compare current key to keys in history, skipping
     // opponents turns as that wouldn't be a repetition
     for (int i = 4; i <= pos->rule50 && i <= pos->histPly; i += 2)
-        if (pos->key == history(-i).posKey)
+        if (pos->key == history(-i).key)
             return true;
 
     return false;
@@ -219,8 +219,8 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
 
     // Probe transposition table
     bool ttHit;
-    Key posKey = pos->key ^ (((Key)ss->excluded) << 32);
-    TTEntry *tte = ProbeTT(posKey, &ttHit);
+    Key key = pos->key ^ (((Key)ss->excluded) << 32);
+    TTEntry *tte = ProbeTT(key, &ttHit);
 
     Move ttMove = ttHit ? tte->move : NOMOVE;
     int ttScore = ttHit ? ScoreFromTT(tte->score, ss->ply) : NOSCORE;
@@ -239,7 +239,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
         thread->tbhits++;
 
         if (bound == BOUND_EXACT || (bound == BOUND_LOWER ? tbScore >= beta : tbScore <= alpha)) {
-            StoreTTEntry(tte, posKey, NOMOVE, ScoreToTT(tbScore, ss->ply), MAXDEPTH-1, bound);
+            StoreTTEntry(tte, key, NOMOVE, ScoreToTT(tbScore, ss->ply), MAXDEPTH-1, bound);
             return tbScore;
         }
 
@@ -484,7 +484,7 @@ skip_search:
                    : alpha != oldAlpha ? BOUND_EXACT
                                        : BOUND_UPPER;
     if (!ss->excluded)
-        StoreTTEntry(tte, posKey, bestMove, ScoreToTT(bestScore, ss->ply), depth, flag);
+        StoreTTEntry(tte, key, bestMove, ScoreToTT(bestScore, ss->ply), depth, flag);
 
     return bestScore;
 }
@@ -583,7 +583,7 @@ static void *IterativeDeepening(void *voidThread) {
 
         // Clear key history for seldepth calculation
         for (int i = 1; i < MAXDEPTH; ++i)
-            history(i).posKey = 0;
+            history(i).key = 0;
     }
 
     return NULL;

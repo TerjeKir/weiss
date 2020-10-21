@@ -259,7 +259,7 @@ void PrintThinking(const Thread *thread, const Stack *ss, int score, int alpha, 
 
     Depth seldepth = MAXDEPTH;
     for (; seldepth > 0; --seldepth)
-        if (history(seldepth-1).posKey != 0) break;
+        if (history(seldepth-1).key != 0) break;
 
     // Basic info
     printf("info depth %d seldepth %d score %s %d%s time %" PRId64
