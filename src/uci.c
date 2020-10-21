@@ -114,7 +114,7 @@ static void UCISetOption(Engine *engine, char *str) {
 
         TT.requestedMB = atoi(OptionValue(str));
 
-        printf("Hash will use %" PRI_SIZET "MB after next 'isready'.\n", TT.requestedMB);
+        printf("Hash will use %" PRIu64 "MB after next 'isready'.\n", TT.requestedMB);
 
     // Sets number of threads to use for searching
     } else if (OptionName(str, "Threads")) {

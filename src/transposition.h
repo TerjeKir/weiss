@@ -48,9 +48,9 @@ typedef struct {
 typedef struct {
     void *mem;
     TTEntry *table;
-    size_t count;
-    size_t currentMB;
-    size_t requestedMB;
+    uint64_t count;
+    uint64_t currentMB;
+    uint64_t requestedMB;
     bool dirty;
 } TranspositionTable;
 
