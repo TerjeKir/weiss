@@ -16,6 +16,7 @@
   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -38,6 +39,8 @@ const int NonPawn[PIECE_NB] = {
 uint64_t PieceKeys[PIECE_NB][64];
 uint64_t CastleKeys[16];
 uint64_t SideKey;
+
+static const char PieceChars[] = ".pnbrqk..PNBRQK";
 
 
 // Initialize distance lookup table
@@ -94,26 +97,26 @@ CONSTR InitHashKeys() {
 // a search this is incrementally updated instead.
 static Key GeneratePosKey(const Position *pos) {
 
-    Key posKey = 0;
+    Key key = 0;
 
     // Pieces
     for (Square sq = A1; sq <= H8; ++sq) {
         Piece piece = pieceOn(sq);
         if (piece != EMPTY)
-            posKey ^= PieceKeys[piece][sq];
+            key ^= PieceKeys[piece][sq];
     }
 
     // Side to play
     if (sideToMove == WHITE)
-        posKey ^= SideKey;
+        key ^= SideKey;
 
     // En passant
-    posKey ^= PieceKeys[EMPTY][pos->epSquare];
+    key ^= PieceKeys[EMPTY][pos->epSquare];
 
     // Castling rights
-    posKey ^= CastleKeys[pos->castlingRights];
+    key ^= CastleKeys[pos->castlingRights];
 
-    return posKey;
+    return key;
 }
 
 // Calculates the position key after a move. Fails
@@ -132,126 +135,75 @@ Key KeyAfter(const Position *pos, const Move move) {
     return key ^ PieceKeys[piece][from] ^ PieceKeys[piece][to];
 }
 
-// Clears the board
-static void ClearPosition(Position *pos) {
+// Add a piece piece to a square
+static void AddPiece(Position *pos, const Square sq, const Piece piece) {
 
-    memset(pos, 0, sizeof(Position));
-}
+    const Color color = ColorOf(piece);
+    const PieceType pt = PieceTypeOf(piece);
 
-// Update the rest of a position to match pos->board
-static void UpdatePosition(Position *pos) {
+    // Update board
+    pieceOn(sq) = piece;
 
-    // Loop through each square on the board
-    for (Square sq = A1; sq <= H8; ++sq) {
+    // Update misc
+    pos->material += PSQT[piece][sq];
+    pos->phaseValue += PhaseValue[piece];
+    pos->nonPawnCount[color] += NonPawn[piece];
 
-        Piece piece = pieceOn(sq);
-
-        // If it isn't empty we update the relevant lists
-        if (piece != EMPTY) {
-
-            Color color = ColorOf(piece);
-            PieceType pt = PieceTypeOf(piece);
-
-            // Bitboards
-            pieceBB(ALL)   |= BB(sq);
-            pieceBB(pt)    |= BB(sq);
-            colorBB(color) |= BB(sq);
-
-            // Non pawn piece count
-            pos->nonPawnCount[color] += NonPawn[piece];
-
-            // Material score
-            pos->material += PSQT[piece][sq];
-
-            // Phase
-            pos->phaseValue += PhaseValue[piece];
-        }
-    }
-
-    pos->checkers = Checkers(pos);
-    pos->phase = UpdatePhase(pos->phaseValue);
+    // Update bitboards
+    pieceBB(ALL)   |= BB(sq);
+    pieceBB(pt)    |= BB(sq);
+    colorBB(color) |= BB(sq);
 }
 
 // Parse FEN and set up the position as described
 void ParseFen(const char *fen, Position *pos) {
 
-    assert(fen != NULL);
-
-    ClearPosition(pos);
+    memset(pos, 0, sizeof(Position));
+    char c, *copy = strdup(fen);
+    char *token = strtok(copy, " ");
 
     // Piece locations
     Square sq = A8;
-    while (*fen != ' ') {
-
-        Piece piece;
-        int count = 1;
-
-        switch (*fen) {
-            // Pieces
-            case 'p': piece = bP; break;
-            case 'n': piece = bN; break;
-            case 'b': piece = bB; break;
-            case 'r': piece = bR; break;
-            case 'q': piece = bQ; break;
-            case 'k': piece = bK; break;
-            case 'P': piece = wP; break;
-            case 'N': piece = wN; break;
-            case 'B': piece = wB; break;
-            case 'R': piece = wR; break;
-            case 'Q': piece = wQ; break;
-            case 'K': piece = wK; break;
-            // Next rank
-            case '/':
-                sq -= 16;
-                fen++;
-                continue;
-            // Numbers of empty squares
-            default:
-                piece = EMPTY;
-                count = *fen - '0';
-                break;
-        }
-
-        pieceOn(sq) = piece;
-        sq += count;
-
-        fen++;
-    }
-    fen++;
-
-    // Update the rest of position to match pos->board
-    UpdatePosition(pos);
+    while ((c = *token++))
+        if (isdigit(c))
+            sq += c - '0';
+        else if (c == '/')
+            sq -= 16;
+        else
+            AddPiece(pos, sq++, strchr(PieceChars, c) - PieceChars);
 
     // Side to move
-    sideToMove = (*fen == 'w') ? WHITE : BLACK;
-    fen += 2;
+    sideToMove = *strtok(NULL, " ") == 'w' ? WHITE : BLACK;
 
     // Castling rights
-    while (*fen != ' ') {
-
-        switch (*fen) {
+    token = strtok(NULL, " ");
+    while ((c = *token++))
+        switch (c) {
             case 'K': pos->castlingRights |= WHITE_OO;  break;
             case 'Q': pos->castlingRights |= WHITE_OOO; break;
             case 'k': pos->castlingRights |= BLACK_OO;  break;
             case 'q': pos->castlingRights |= BLACK_OOO; break;
             default: break;
         }
-        fen++;
-    }
-    fen++;
 
     // En passant square
-    Square ep = AlgebraicToSq(fen[0], fen[1]);
-    bool epValid = *fen != '-' && (  PawnAttackBB(!sideToMove, ep)
-                                   & colorPieceBB(sideToMove, PAWN));
-    pos->epSquare = epValid ? ep : 0;
+    token = strtok(NULL, " ");
+    if (*token != '-') {
+        Square ep = StrToSq(token);
+        bool usable = PawnAttackBB(!sideToMove, ep) & colorPieceBB(sideToMove, PAWN);
+        pos->epSquare = usable ? ep : 0;
+    }
 
     // 50 move rule and game moves
-    pos->rule50 = atoi(fen += 2);
-    pos->gameMoves = atoi(fen += 2);
+    pos->rule50 = atoi(strtok(NULL, " "));
+    pos->gameMoves = atoi(strtok(NULL, " "));
 
-    // Generate the position key
+    // Final initializations
+    pos->checkers = Checkers(pos);
     pos->key = GeneratePosKey(pos);
+    pos->phase = UpdatePhase(pos->phaseValue);
+
+    free(copy);
 
     assert(PositionOk(pos));
 }
@@ -259,7 +211,6 @@ void ParseFen(const char *fen, Position *pos) {
 // Translates a move to a string
 char *BoardToFen(const Position *pos) {
 
-    const char PceChar[]  = ".pnbrqk..PNBRQK";
     static char fen[100];
     char *ptr = fen;
 
@@ -275,7 +226,7 @@ char *BoardToFen(const Position *pos) {
             if (piece) {
                 if (count)
                     *ptr++ = '0' + count;
-                *ptr++ = PceChar[piece];
+                *ptr++ = PieceChars[piece];
                 count = 0;
             } else
                 count++;
@@ -314,18 +265,82 @@ char *BoardToFen(const Position *pos) {
     return fen;
 }
 
+// Static Exchange Evaluation
+bool SEE(const Position *pos, const Move move, const int threshold) {
+
+    assert(MoveIsPseudoLegal(pos, move));
+
+    if (moveIsSpecial(move))
+        return true;
+
+    Square to = toSq(move);
+    Square from = fromSq(move);
+
+    // Making the move and not losing it must beat the threshold
+    int value = PieceValue[MG][pieceOn(to)] - threshold;
+    if (value < 0) return false;
+
+    // Trivial if we still beat the threshold after losing the piece
+    value -= PieceValue[MG][pieceOn(from)];
+    if (value >= 0) return true;
+
+    Bitboard occupied = (pieceBB(ALL) ^ BB(from)) | BB(to);
+    Bitboard attackers = Attackers(pos, to, occupied);
+
+    Bitboard bishops = pieceBB(BISHOP) | pieceBB(QUEEN);
+    Bitboard rooks   = pieceBB(ROOK  ) | pieceBB(QUEEN);
+
+    Color side = !ColorOf(pieceOn(from));
+
+    // Make captures until one side runs out, or fail to beat threshold
+    while (true) {
+
+        // Remove used pieces from attackers
+        attackers &= occupied;
+
+        Bitboard myAttackers = attackers & colorBB(side);
+        if (!myAttackers) break;
+
+        // Pick next least valuable piece to capture with
+        PieceType pt;
+        for (pt = PAWN; pt < KING; ++pt)
+            if (myAttackers & pieceBB(pt))
+                break;
+
+        side = !side;
+
+        // Value beats threshold, or can't beat threshold (negamaxed)
+        if ((value = -value - 1 - PieceValue[MG][pt]) >= 0) {
+
+            if (pt == KING && (attackers & colorBB(side)))
+                side = !side;
+
+            break;
+        }
+
+        // Remove the used piece from occupied
+        occupied ^= BB(Lsb(myAttackers & pieceBB(pt)));
+
+        // Add possible discovered attacks from behind the used piece
+        if (pt == PAWN || pt == BISHOP || pt == QUEEN)
+            attackers |= AttackBB(BISHOP, to, occupied) & bishops;
+        if (pt == ROOK || pt == QUEEN)
+            attackers |= AttackBB(ROOK, to, occupied) & rooks;
+    }
+
+    return side != ColorOf(pieceOn(from));
+}
+
 #if defined DEV || !defined NDEBUG
 // Print the board with misc info
 void PrintBoard(const Position *pos) {
-
-    const char PceChar[]  = ".pnbrqk..PNBRQK";
 
     // Print board
     printf("\n");
     for (int rank = RANK_8; rank >= RANK_1; --rank) {
         for (int file = FILE_A; file <= FILE_H; ++file) {
             Square sq = (rank * 8) + file;
-            printf("%3c", PceChar[pieceOn(sq)]);
+            printf("%3c", PieceChars[pieceOn(sq)]);
         }
         printf("\n");
     }
@@ -401,88 +416,21 @@ void MirrorBoard(Position *pos) {
                | (pos->castlingRights & BLACK_CASTLE) >> 2;
 
     // Clear the position
-    ClearPosition(pos);
+    memset(pos, 0, sizeof(Position));
 
     // Fill in the mirrored position info
     for (Square sq = A1; sq <= H8; ++sq)
-        pieceOn(sq) = board[sq];
+        if (board[sq]) AddPiece(pos, sq, board[sq]);
 
     sideToMove = stm;
     pos->epSquare = ep;
     pos->castlingRights = cr;
 
-    // Update the rest of the position to match pos->board
-    UpdatePosition(pos);
-
-    // Generate the position key
+    // Final initializations
+    pos->checkers = Checkers(pos);
     pos->key = GeneratePosKey(pos);
+    pos->phase = UpdatePhase(pos->phaseValue);
 
     assert(PositionOk(pos));
 }
 #endif
-
-// Static Exchange Evaluation
-bool SEE(const Position *pos, const Move move, const int threshold) {
-
-    assert(MoveIsPseudoLegal(pos, move));
-
-    if (moveIsSpecial(move))
-        return true;
-
-    Square to = toSq(move);
-    Square from = fromSq(move);
-
-    // Making the move and not losing it must beat the threshold
-    int value = PieceValue[MG][pieceOn(to)] - threshold;
-    if (value < 0) return false;
-
-    // Trivial if we still beat the threshold after losing the piece
-    value -= PieceValue[MG][pieceOn(from)];
-    if (value >= 0) return true;
-
-    Bitboard occupied = (pieceBB(ALL) ^ BB(from)) | BB(to);
-    Bitboard attackers = Attackers(pos, to, occupied);
-
-    Bitboard bishops = pieceBB(BISHOP) | pieceBB(QUEEN);
-    Bitboard rooks   = pieceBB(ROOK  ) | pieceBB(QUEEN);
-
-    Color side = !ColorOf(pieceOn(from));
-
-    // Make captures until one side runs out, or fail to beat threshold
-    while (true) {
-
-        // Remove used pieces from attackers
-        attackers &= occupied;
-
-        Bitboard myAttackers = attackers & colorBB(side);
-        if (!myAttackers) break;
-
-        // Pick next least valuable piece to capture with
-        PieceType pt;
-        for (pt = PAWN; pt < KING; ++pt)
-            if (myAttackers & pieceBB(pt))
-                break;
-
-        side = !side;
-
-        // Value beats threshold, or can't beat threshold (negamaxed)
-        if ((value = -value - 1 - PieceValue[MG][pt]) >= 0) {
-
-            if (pt == KING && (attackers & colorBB(side)))
-                side = !side;
-
-            break;
-        }
-
-        // Remove the used piece from occupied
-        occupied ^= BB(Lsb(myAttackers & pieceBB(pt)));
-
-        // Add possible discovered attacks from behind the used piece
-        if (pt == PAWN || pt == BISHOP || pt == QUEEN)
-            attackers |= AttackBB(BISHOP, to, occupied) & bishops;
-        if (pt == ROOK || pt == QUEEN)
-            attackers |= AttackBB(ROOK, to, occupied) & rooks;
-    }
-
-    return side != ColorOf(pieceOn(from));
-}

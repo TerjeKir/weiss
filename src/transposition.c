@@ -34,17 +34,17 @@ TranspositionTable TT = { .requestedMB = DEFAULTHASH };
 
 
 // Probe the transposition table
-TTEntry* ProbeTT(const Key posKey, bool *ttHit) {
+TTEntry* ProbeTT(const Key key, bool *ttHit) {
 
-    TTEntry* tte = GetEntry(posKey);
+    TTEntry* tte = GetEntry(key);
 
-    *ttHit = tte->posKey == posKey;
+    *ttHit = tte->key == key;
 
     return tte;
 }
 
 // Store an entry in the transposition table
-void StoreTTEntry(TTEntry *tte, const Key posKey,
+void StoreTTEntry(TTEntry *tte, const Key key,
                                 const Move move,
                                 const int score,
                                 const Depth depth,
@@ -56,12 +56,12 @@ void StoreTTEntry(TTEntry *tte, const Key posKey,
 
     // Store new data unless it would overwrite data about the same
     // position searched to a higher depth.
-    if (posKey != tte->posKey || depth >= tte->depth || bound == BOUND_EXACT)
-        tte->posKey = posKey,
-        tte->move   = move,
-        tte->score  = score,
-        tte->depth  = depth,
-        tte->bound  = bound;
+    if (key != tte->key || depth >= tte->depth || bound == BOUND_EXACT)
+        tte->key   = key,
+        tte->move  = move,
+        tte->score = score,
+        tte->depth = depth,
+        tte->bound = bound;
 }
 
 // Estimates the load factor of the transposition table (1 = 0.1%)
@@ -82,12 +82,12 @@ static void *ThreadClearTT(void *voidThread) {
     Thread *thread = voidThread;
 
     // Logic for dividing the work taken from CFish
-    size_t twoMB  = 2 * 1024 * 1024;
-    size_t total  = TT.count * sizeof(TTEntry);
-    size_t slice  = (total + thread->count - 1) / thread->count;
-    size_t blocks = (slice + twoMB - 1) / twoMB;
-    size_t begin  = thread->index * blocks * twoMB;
-    size_t end    = begin + blocks * twoMB;
+    uint64_t twoMB  = 2 * 1024 * 1024;
+    uint64_t total  = TT.count * sizeof(TTEntry);
+    uint64_t slice  = (total + thread->count - 1) / thread->count;
+    uint64_t blocks = (slice + twoMB - 1) / twoMB;
+    uint64_t begin  = thread->index * blocks * twoMB;
+    uint64_t end    = begin + blocks * twoMB;
     begin = MIN(begin, total);
     end   = MIN(end, total);
 
@@ -119,9 +119,9 @@ void InitTT(Thread *threads) {
     if (TT.currentMB == TT.requestedMB)
         return;
 
-    size_t MB = TT.requestedMB;
+    uint64_t MB = TT.requestedMB;
 
-    size_t size = MB * 1024 * 1024;
+    uint64_t size = MB * 1024 * 1024;
     TT.count = size / sizeof(TTEntry);
 
     // Free memory if already allocated
@@ -141,7 +141,7 @@ void InitTT(Thread *threads) {
 
     // Allocation failed
     if (!TT.mem) {
-        printf("Allocating %" PRI_SIZET "MB for the transposition table failed.\n", MB);
+        printf("Allocating %" PRIu64 "MB for the transposition table failed.\n", MB);
         exit(EXIT_FAILURE);
     }
 
@@ -151,6 +151,6 @@ void InitTT(Thread *threads) {
     TT.dirty = true;
     ClearTT(threads);
 
-    printf("HashTable init complete with %" PRI_SIZET " entries, using %" PRI_SIZET "MB.\n", TT.count, MB);
+    printf("HashTable init complete with %" PRIu64 " entries, using %" PRIu64 "MB.\n", TT.count, MB);
     fflush(stdout);
 }

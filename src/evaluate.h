@@ -23,14 +23,11 @@
 
 
 extern const int Tempo;
-
 extern const int PieceValue[2][PIECE_NB];
 
 
 typedef struct EvalInfo {
-
     Bitboard mobilityArea[2];
-
 } EvalInfo;
 
 
@@ -48,7 +45,6 @@ typedef struct EvalInfo {
 enum Phase { MG, EG };
 
 static const int MidGame = 256;
-
 extern const int PhaseValue[PIECE_NB];
 
 #define MakeScore(mg, eg) ((int)((unsigned int)(eg) << 16) + (mg))
