@@ -22,6 +22,14 @@
 #include "types.h"
 
 
+typedef struct {
+    int eval;
+    Depth ply;
+    Move excluded;
+    Move killers[2];
+    PV pv;
+} Stack;
+
 typedef struct Thread {
 
     uint64_t tbhits;
@@ -34,6 +42,8 @@ typedef struct Thread {
     Move ponderMove;
 
     jmp_buf jumpBuffer;
+
+    Stack ss[MAXDEPTH];
 
     int history[2][64][64];
 
