@@ -546,13 +546,9 @@ static int AspirationWindow(Thread *thread, Stack *ss) {
 // Iterative deepening
 static void *IterativeDeepening(void *voidThread) {
 
-    Stack searchStack[MAXDEPTH], *ss = searchStack;
-    memset(searchStack, 0, sizeof(searchStack));
-    for (Depth d = 0; d < MAXDEPTH; ++d)
-        (ss+d)->ply = d;
-
     Thread *thread = voidThread;
     Position *pos = &thread->pos;
+    Stack *ss = thread->ss;
     bool mainThread = thread->index == 0;
 
     // Iterative deepening
@@ -593,9 +589,11 @@ static void *IterativeDeepening(void *voidThread) {
 static void PrepareSearch(Position *pos, Thread *threads) {
 
     // Setup threads for a new search
-    for (int i = 0; i < threads->count; ++i) {
-        memset(&threads[i], 0, offsetof(Thread, pos));
-        memcpy(&threads[i].pos, pos, sizeof(Position));
+    for (Thread *t = threads; t < threads + threads->count; ++t) {
+        memset(t, 0, offsetof(Thread, pos));
+        memcpy(&t->pos, pos, sizeof(Position));
+        for (Depth d = 0; d < MAXDEPTH; ++d)
+            (t->ss+d)->ply = d;
     }
 
     // Mark TT as used
