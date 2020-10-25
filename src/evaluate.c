@@ -199,6 +199,9 @@ static Key GenPawnKey(const Position *pos) {
 // Tries to get pawn eval from cache, otherwise evaluates and saves
 int ProbePawnCache(const Position *pos) {
 
+    // Can't cache when tuning as full trace is needed
+    if (TRACE) return EvalPawns(pos, WHITE) - EvalPawns(pos, BLACK);
+
     Key key = GenPawnKey(pos);
     PawnEntry *pe = &cache[key % PAWN_CACHE_SIZE];
 
