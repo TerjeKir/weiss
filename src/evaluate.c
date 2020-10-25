@@ -181,21 +181,30 @@ INLINE int EvalPawns(const Position *pos, const Color color) {
     return eval;
 }
 
-uint64_t hits, misses;
-#include <stdio.h>
+static Key GenPawnKey(const Position *pos) {
+
+    Key key = 0;
+
+    Bitboard whitePawns = colorPieceBB(WHITE, PAWN);
+    while (whitePawns)
+        key ^= PieceKeys[wP][PopLsb(&whitePawns)];
+
+    Bitboard blackPawns = colorPieceBB(BLACK, PAWN);
+    while (blackPawns)
+        key ^= PieceKeys[bP][PopLsb(&blackPawns)];
+
+    return key;
+}
+
 // Tries to get pawn eval from cache, otherwise evaluates and saves
 int ProbePawnCache(const Position *pos) {
 
-    PawnEntry *pe = &cache[pos->key % PAWN_CACHE_SIZE];
+    Key key = GenPawnKey(pos);
+    PawnEntry *pe = &cache[key % PAWN_CACHE_SIZE];
 
-    if (pe->key != pos->key)
-        pe->key = pos->key,
-        pe->eval = EvalPawns(pos, WHITE) - EvalPawns(pos, BLACK),
-        misses++;
-    else
-        hits++;
-
-    if (((hits+misses) & 131071) == 0) printf("Hits: %" PRIu64 " Misses: %" PRIu64 "\n", hits, misses);
+    if (pe->key != key)
+        pe->key = key,
+        pe->eval = EvalPawns(pos, WHITE) - EvalPawns(pos, BLACK);
 
     return pe->eval;
 }
