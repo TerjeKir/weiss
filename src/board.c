@@ -149,6 +149,9 @@ static void AddPiece(Position *pos, const Square sq, const Piece piece) {
     pos->phaseValue += PhaseValue[piece];
     pos->nonPawnCount[color] += NonPawn[piece];
 
+    if (PieceTypeOf(piece) == PAWN)
+        pos->pawnKey ^= PieceKeys[piece][sq];
+
     // Update bitboards
     pieceBB(ALL)   |= BB(sq);
     pieceBB(pt)    |= BB(sq);

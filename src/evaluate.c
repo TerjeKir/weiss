@@ -202,11 +202,11 @@ int ProbePawnCache(const Position *pos) {
     // Can't cache when tuning as full trace is needed
     if (TRACE) return EvalPawns(pos, WHITE) - EvalPawns(pos, BLACK);
 
-    Key key = GenPawnKey(pos);
+    Key key = pos->pawnKey;
     PawnEntry *pe = &cache[key % PAWN_CACHE_SIZE];
 
     if (pe->key != key)
-        pe->key = key,
+        pe->key  = key,
         pe->eval = EvalPawns(pos, WHITE) - EvalPawns(pos, BLACK);
 
     return pe->eval;
