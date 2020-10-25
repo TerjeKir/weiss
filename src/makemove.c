@@ -124,8 +124,7 @@ static void MovePiece(Position *pos, const Square from, const Square to, const b
         HASH_PCE(piece, to);
 
     if (PieceTypeOf(piece) == PAWN)
-        pos->pawnKey ^= PieceKeys[piece][from],
-        pos->pawnKey ^= PieceKeys[piece][to];
+        pos->pawnKey ^= PieceKeys[piece][from] ^ PieceKeys[piece][to];
 
     // Set old square to empty, new to piece
     pieceOn(from) = EMPTY;
