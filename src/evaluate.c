@@ -181,21 +181,6 @@ INLINE int EvalPawns(const Position *pos, const Color color) {
     return eval;
 }
 
-static Key GenPawnKey(const Position *pos) {
-
-    Key key = 0;
-
-    Bitboard whitePawns = colorPieceBB(WHITE, PAWN);
-    while (whitePawns)
-        key ^= PieceKeys[wP][PopLsb(&whitePawns)];
-
-    Bitboard blackPawns = colorPieceBB(BLACK, PAWN);
-    while (blackPawns)
-        key ^= PieceKeys[bP][PopLsb(&blackPawns)];
-
-    return key;
-}
-
 // Tries to get pawn eval from cache, otherwise evaluates and saves
 int ProbePawnCache(const Position *pos) {
 
