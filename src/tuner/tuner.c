@@ -354,8 +354,8 @@ void InitTunerEntry(TEntry *entry, Position *pos) {
 
     // Save a white POV static evaluation
     TCoeffs coeffs; T = EmptyTrace;
-    entry->seval = pos->stm == WHITE ?  EvalPosition(pos)
-                                     : -EvalPosition(pos);
+    entry->seval = pos->stm == WHITE ?  EvalPosition(pos, NULL)
+                                     : -EvalPosition(pos, NULL);
 
     // evaluate() -> [[NTERMS][COLOUR_NB]]
     InitCoefficients(coeffs);

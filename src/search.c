@@ -101,11 +101,11 @@ static int Quiescence(Thread *thread, Stack *ss, int alpha, const int beta) {
 
     // If we are at max depth, return static eval
     if (ss->ply >= MAXDEPTH)
-        return EvalPosition(pos);
+        return EvalPosition(pos, thread->pawnCache);
 
     // Standing Pat -- If the stand-pat beats beta there is most likely also a move that beats beta
     // so we assume we have a beta cutoff. If the stand-pat beats alpha we use it as alpha.
-    int score = EvalPosition(pos);
+    int score = EvalPosition(pos, thread->pawnCache);
     if (score >= beta)
         return score;
     if (score + QuiescenceDeltaMargin(pos) < alpha)
@@ -200,7 +200,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
 
         // Max depth reached
         if (ss->ply >= MAXDEPTH)
-            return EvalPosition(pos);
+            return EvalPosition(pos, thread->pawnCache);
 
         // Mate distance pruning
         alpha = MAX(alpha, -MATE + ss->ply);
@@ -251,7 +251,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
     // Do a static evaluation for pruning considerations
     int eval = ss->eval = inCheck          ? NOSCORE
                         : lastMoveNullMove ? -(ss-1)->eval + 2 * Tempo
-                                           : EvalPosition(pos);
+                                           : EvalPosition(pos, thread->pawnCache);
 
     // Use ttScore as eval if it is more informative
     if (   ttScore != NOSCORE
