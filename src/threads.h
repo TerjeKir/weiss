@@ -50,6 +50,7 @@ typedef struct Thread {
 
     // Anything below here is not zeroed out between searches
     Position pos;
+    PawnCache pawnCache;
 
     int index;
     int count;
@@ -58,13 +59,12 @@ typedef struct Thread {
     pthread_cond_t sleepCondition;
     pthread_t *pthreads;
 
-    PawnCache pawnCache;
-
 } Thread;
 
 
 Thread *InitThreads(int threadCount);
 uint64_t TotalNodes(const Thread *threads);
 uint64_t TotalTBHits(const Thread *threads);
+void ResetThreads(Thread *threads);
 void Wait(Thread *thread, volatile bool *condition);
 void Wake(Thread *thread);
