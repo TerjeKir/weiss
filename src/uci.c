@@ -172,6 +172,7 @@ static void UCIIsReady(Engine *engine) {
 // Reset for a new game
 static void UCINewGame(Engine *engine) {
     ClearTT(engine->threads);
+    ResetThreads(engine->threads);
     failedQueries = 0;
 }
 

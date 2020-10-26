@@ -60,6 +60,13 @@ uint64_t TotalTBHits(const Thread *threads) {
     return total;
 }
 
+// Resets all data that isn't reset each turn
+void ResetThreads(Thread *threads) {
+
+    for (int i = 0; i < threads->count; ++i)
+        memset(threads[i].pawnCache, 0, sizeof(PawnCache));
+}
+
 // Thread sleeps until it is woken up
 void Wait(Thread *thread, volatile bool *condition) {
 

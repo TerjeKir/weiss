@@ -238,7 +238,7 @@ void Perft(char *line) {
 
 void PrintEval(Position *pos) {
 
-    printf("%d\n", sideToMove == WHITE ? EvalPosition(pos) : -EvalPosition(pos));
+    printf("%d\n", sideToMove == WHITE ? EvalPosition(pos, NULL) : -EvalPosition(pos, NULL));
     fflush(stdout);
 }
 
@@ -262,9 +262,9 @@ void MirrorEvalTest(Position *pos) {
 
         ParseFen(lineIn, pos);
         positions++;
-        ev1 = EvalPosition(pos);
+        ev1 = EvalPosition(pos, NULL);
         MirrorBoard(pos);
-        ev2 = EvalPosition(pos);
+        ev2 = EvalPosition(pos, NULL);
 
         if (ev1 != ev2) {
             printf("\n\n\n");

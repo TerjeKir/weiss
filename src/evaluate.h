@@ -22,13 +22,18 @@
 #include "types.h"
 
 
+#define PAWN_CACHE_SIZE 128 * 1024
+
+typedef struct PawnEntry {
+    Key key;
+    int eval;
+} PawnEntry;
+
+typedef PawnEntry PawnCache[PAWN_CACHE_SIZE];
+
+
 extern const int Tempo;
 extern const int PieceValue[2][PIECE_NB];
-
-
-typedef struct EvalInfo {
-    Bitboard mobilityArea[2];
-} EvalInfo;
 
 
 // Tapered Eval
@@ -59,4 +64,4 @@ static inline int UpdatePhase(int value) {
 }
 
 // Returns a static evaluation of the position
-int EvalPosition(const Position *pos);
+int EvalPosition(const Position *pos, PawnCache pc);

@@ -52,6 +52,7 @@ typedef struct Position {
     uint16_t gameMoves;
 
     Key key;
+    Key pawnKey;
 
     uint64_t nodes;
 

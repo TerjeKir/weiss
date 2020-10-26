@@ -23,6 +23,11 @@
 #include "evaluate.h"
 
 
+typedef struct EvalInfo {
+    Bitboard mobilityArea[2];
+} EvalInfo;
+
+
 extern EvalTrace T;
 
 
@@ -173,6 +178,22 @@ INLINE int EvalPawns(const Position *pos, const Color color) {
     return eval;
 }
 
+// Tries to get pawn eval from cache, otherwise evaluates and saves
+int ProbePawnCache(const Position *pos, PawnCache pc) {
+
+    // Can't cache when tuning as full trace is needed
+    if (TRACE || !pc) return EvalPawns(pos, WHITE) - EvalPawns(pos, BLACK);
+
+    Key key = pos->pawnKey;
+    PawnEntry *pe = &pc[key % PAWN_CACHE_SIZE];
+
+    if (pe->key != key)
+        pe->key  = key,
+        pe->eval = EvalPawns(pos, WHITE) - EvalPawns(pos, BLACK);
+
+    return pe->eval;
+}
+
 // Evaluates knights, bishops, rooks, or queens
 INLINE int EvalPiece(const Position *pos, const EvalInfo *ei, const Color color, const PieceType pt) {
 
@@ -235,9 +256,7 @@ INLINE int EvalKings(const Position *pos, const Color color) {
 
 INLINE int EvalPieces(const Position *pos, const EvalInfo *ei) {
 
-    return  EvalPawns(pos, WHITE)
-          - EvalPawns(pos, BLACK)
-          + EvalPiece(pos, ei, WHITE, KNIGHT)
+    return  EvalPiece(pos, ei, WHITE, KNIGHT)
           - EvalPiece(pos, ei, BLACK, KNIGHT)
           + EvalPiece(pos, ei, WHITE, BISHOP)
           - EvalPiece(pos, ei, BLACK, BISHOP)
@@ -264,7 +283,7 @@ INLINE void InitEvalInfo(const Position *pos, EvalInfo *ei, const Color color) {
 }
 
 // Calculate a static evaluation of a position
-int EvalPosition(const Position *pos) {
+int EvalPosition(const Position *pos, PawnCache pc) {
 
     if (MaterialDraw(pos)) return 0;
 
@@ -275,6 +294,9 @@ int EvalPosition(const Position *pos) {
 
     // Material (includes PSQT)
     int eval = pos->material;
+
+    // Evaluate pawns
+    eval += ProbePawnCache(pos, pc);
 
     // Evaluate pieces
     eval += EvalPieces(pos, &ei);

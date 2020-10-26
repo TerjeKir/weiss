@@ -54,6 +54,9 @@ static void ClearPiece(Position *pos, const Square sq, const bool hash) {
     if (hash)
         HASH_PCE(piece, sq);
 
+    if (PieceTypeOf(piece) == PAWN)
+        pos->pawnKey ^= PieceKeys[piece][sq];
+
     // Set square to empty
     pieceOn(sq) = EMPTY;
 
@@ -82,6 +85,9 @@ static void AddPiece(Position *pos, const Square sq, const Piece piece, const bo
     // Hash in piece at square
     if (hash)
         HASH_PCE(piece, sq);
+
+    if (PieceTypeOf(piece) == PAWN)
+        pos->pawnKey ^= PieceKeys[piece][sq];
 
     // Update square
     pieceOn(sq) = piece;
@@ -116,6 +122,9 @@ static void MovePiece(Position *pos, const Square from, const Square to, const b
     if (hash)
         HASH_PCE(piece, from),
         HASH_PCE(piece, to);
+
+    if (PieceTypeOf(piece) == PAWN)
+        pos->pawnKey ^= PieceKeys[piece][from] ^ PieceKeys[piece][to];
 
     // Set old square to empty, new to piece
     pieceOn(from) = EMPTY;

@@ -149,6 +149,9 @@ static void AddPiece(Position *pos, const Square sq, const Piece piece) {
     pos->phaseValue += PhaseValue[piece];
     pos->nonPawnCount[color] += NonPawn[piece];
 
+    if (PieceTypeOf(piece) == PAWN)
+        pos->pawnKey ^= PieceKeys[piece][sq];
+
     // Update bitboards
     pieceBB(ALL)   |= BB(sq);
     pieceBB(pt)    |= BB(sq);
@@ -354,6 +357,20 @@ void PrintBoard(const Position *pos) {
 #endif
 
 #ifndef NDEBUG
+// Generates the pawn key from scratch
+static Key GenPawnKey(const Position *pos) {
+
+    Key key = 0;
+
+    for (Color c = BLACK; c <= WHITE; c++) {
+        Bitboard pawns = colorPieceBB(c, PAWN);
+        while (pawns)
+            key ^= PieceKeys[MakePiece(c, PAWN)][PopLsb(&pawns)];
+    }
+
+    return key;
+}
+
 // Check board state makes sense
 bool PositionOk(const Position *pos) {
 
@@ -394,6 +411,7 @@ bool PositionOk(const Position *pos) {
         && pos->castlingRights <= 15);
 
     assert(GeneratePosKey(pos) == pos->key);
+    assert(GenPawnKey(pos) == pos->pawnKey);
 
     assert(!KingAttacked(pos, !sideToMove));
 
