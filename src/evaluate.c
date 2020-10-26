@@ -288,7 +288,6 @@ int EvalPosition(const Position *pos, PawnCache pc) {
     if (MaterialDraw(pos)) return 0;
 
     EvalInfo ei;
-
     InitEvalInfo(pos, &ei, WHITE);
     InitEvalInfo(pos, &ei, BLACK);
 
@@ -308,15 +307,12 @@ int EvalPosition(const Position *pos, PawnCache pc) {
           +  (EgScore(eval) * (MidGame - pos->phase)))
           / MidGame;
 
-    // Static evaluation shouldn't spill into TB- or mate-scores
-    assert(abs(eval) < TBWIN_IN_MAX);
-
     // Scale down eval for opposite-colored bishops endgames
     if (  !pieceBB(QUEEN) && !pieceBB(ROOK) && !pieceBB(KNIGHT)
         && pos->nonPawnCount[WHITE] == 1
         && pos->nonPawnCount[BLACK] == 1
         && (Single(pieceBB(BISHOP) & BlackSquaresBB)))
-        eval = eval / 2;
+        eval /= 2;
 
     // Return the evaluation, negated if we are black
     return (sideToMove == WHITE ? eval : -eval) + Tempo;
