@@ -93,27 +93,17 @@ CONSTR InitHashKeys() {
         CastleKeys[i] = Rand64();
 }
 
-// Generates a hash key for the position. During
-// a search this is incrementally updated instead.
-static Key GeneratePosKey(const Position *pos) {
+// Generates a hash key from scratch
+static Key GenPosKey(const Position *pos) {
 
     Key key = 0;
 
-    // Pieces
-    for (Square sq = A1; sq <= H8; ++sq) {
-        Piece piece = pieceOn(sq);
-        if (piece != EMPTY)
-            key ^= PieceKeys[piece][sq];
-    }
+    for (Square sq = A1; sq <= H8; ++sq)
+        if (pieceOn(sq) != EMPTY)
+            key ^= PieceKeys[pieceOn(sq)][sq];
 
-    // Side to play
-    if (sideToMove == WHITE)
-        key ^= SideKey;
-
-    // En passant
+    if (sideToMove == WHITE) key ^= SideKey;
     key ^= PieceKeys[EMPTY][pos->epSquare];
-
-    // Castling rights
     key ^= CastleKeys[pos->castlingRights];
 
     return key;
@@ -203,7 +193,7 @@ void ParseFen(const char *fen, Position *pos) {
 
     // Final initializations
     pos->checkers = Checkers(pos);
-    pos->key = GeneratePosKey(pos);
+    pos->key = GenPosKey(pos);
     pos->phase = UpdatePhase(pos->phaseValue);
 
     free(copy);
@@ -410,7 +400,7 @@ bool PositionOk(const Position *pos) {
     assert(pos->castlingRights >= 0
         && pos->castlingRights <= 15);
 
-    assert(GeneratePosKey(pos) == pos->key);
+    assert(GenPosKey(pos) == pos->key);
     assert(GenPawnKey(pos) == pos->pawnKey);
 
     assert(!KingAttacked(pos, !sideToMove));
@@ -446,7 +436,7 @@ void MirrorBoard(Position *pos) {
 
     // Final initializations
     pos->checkers = Checkers(pos);
-    pos->key = GeneratePosKey(pos);
+    pos->key = GenPosKey(pos);
     pos->phase = UpdatePhase(pos->phaseValue);
 
     assert(PositionOk(pos));
