@@ -91,12 +91,10 @@ static const char *BenchmarkFENs[] = {
 };
 
 typedef struct BenchResult {
-
     TimePoint elapsed;
     uint64_t nodes;
     int score;
     Move best;
-
 } BenchResult;
 
 void Benchmark(int argc, char **argv) {
