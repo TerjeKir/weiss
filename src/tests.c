@@ -91,12 +91,10 @@ static const char *BenchmarkFENs[] = {
 };
 
 typedef struct BenchResult {
-
     TimePoint elapsed;
     uint64_t nodes;
     int score;
     Move best;
-
 } BenchResult;
 
 void Benchmark(int argc, char **argv) {
@@ -162,9 +160,7 @@ static uint64_t leafNodes;
 
 // Generate all pseudo legal moves
 void GenAllMoves(const Position *pos, MoveList *list) {
-
     list->count = list->next = 0;
-
     GenNoisyMoves(pos, list);
     GenQuietMoves(pos, list);
 }
@@ -237,7 +233,6 @@ void Perft(char *line) {
 }
 
 void PrintEval(Position *pos) {
-
     printf("%d\n", sideToMove == WHITE ? EvalPosition(pos, NULL) : -EvalPosition(pos, NULL));
     fflush(stdout);
 }

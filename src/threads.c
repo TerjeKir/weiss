@@ -44,7 +44,6 @@ Thread *InitThreads(int count) {
 
 // Tallies the nodes searched by all threads
 uint64_t TotalNodes(const Thread *threads) {
-
     uint64_t total = 0;
     for (int i = 0; i < threads->count; ++i)
         total += threads[i].pos.nodes;
@@ -53,7 +52,6 @@ uint64_t TotalNodes(const Thread *threads) {
 
 // Tallies the tbhits of all threads
 uint64_t TotalTBHits(const Thread *threads) {
-
     uint64_t total = 0;
     for (int i = 0; i < threads->count; ++i)
         total += threads[i].tbhits;
@@ -62,14 +60,12 @@ uint64_t TotalTBHits(const Thread *threads) {
 
 // Resets all data that isn't reset each turn
 void ResetThreads(Thread *threads) {
-
     for (int i = 0; i < threads->count; ++i)
         memset(threads[i].pawnCache, 0, sizeof(PawnCache));
 }
 
 // Thread sleeps until it is woken up
 void Wait(Thread *thread, volatile bool *condition) {
-
     pthread_mutex_lock(&thread->mutex);
     while (!*condition)
         pthread_cond_wait(&thread->sleepCondition, &thread->mutex);
@@ -78,7 +74,6 @@ void Wait(Thread *thread, volatile bool *condition) {
 
 // Wakes up a sleeping thread
 void Wake(Thread *thread) {
-
     pthread_mutex_lock(&thread->mutex);
     pthread_cond_signal(&thread->sleepCondition);
     pthread_mutex_unlock(&thread->mutex);

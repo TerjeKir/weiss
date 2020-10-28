@@ -60,7 +60,6 @@ int TupleStackSize;
 
 
 void PrintSingle(char *name, TVector params, int i, char *S) {
-
     printf("const int %s%s = S(%3d,%3d);\n", name, S, (int) params[i][MG], (int) params[i][EG]);
 }
 

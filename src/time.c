@@ -59,7 +59,6 @@ void InitTimeManagement() {
 
 // Check time situation
 bool OutOfTime(Thread *thread) {
-
     return (thread->pos.nodes & 4095) == 4095
         && thread->index == 0
         && Limits.timelimit

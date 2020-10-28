@@ -133,42 +133,35 @@ INLINE Bitboard ShiftBB(const Direction dir, Bitboard bb) {
 }
 
 INLINE Bitboard AdjacentFilesBB(const Square sq) {
-
     return ShiftBB(WEST, FileBB[FileOf(sq)])
          | ShiftBB(EAST, FileBB[FileOf(sq)]);
 }
 
 // Population count/Hamming weight
 INLINE int PopCount(const Bitboard bb) {
-
     return __builtin_popcountll(bb);
 }
 
 // Returns the index of the least significant bit
 INLINE int Lsb(const Bitboard bb) {
-
     assert(bb);
     return __builtin_ctzll(bb);
 }
 
 // Returns the index of the least significant bit and unsets it
 INLINE int PopLsb(Bitboard *bb) {
-
     int lsb = Lsb(*bb);
     *bb &= (*bb - 1);
-
     return lsb;
 }
 
 // Checks whether or not a bitboard has multiple set bits
 INLINE bool Multiple(Bitboard bb) {
-
     return bb & (bb - 1);
 }
 
 // Checks whether or not a bitboard has a single set bit
 INLINE bool Single(Bitboard bb) {
-
     return bb && !Multiple(bb);
 }
 
@@ -187,15 +180,12 @@ INLINE Bitboard AttackBB(PieceType piecetype, Square sq, Bitboard occupied) {
 
 // Returns the attack bitboard for a pawn
 INLINE Bitboard PawnAttackBB(Color color, Square sq) {
-
     return PawnAttacks[color][sq];
 }
 
 // Returns the combined attack bitboard of all pawns in the given bitboard
 INLINE Bitboard PawnBBAttackBB(Bitboard pawns, Color color) {
-
     const Direction up = (color == WHITE ? NORTH : SOUTH);
-
     return ShiftBB(up+WEST, pawns) | ShiftBB(up+EAST, pawns);
 }
 
@@ -204,7 +194,6 @@ bool SqAttacked(const Position *pos, Square sq, Color color);
 bool KingAttacked(const Position *pos, Color color);
 
 INLINE Bitboard Checkers(const Position *pos) {
-
     return colorBB(!sideToMove)
          & Attackers(pos, Lsb(colorPieceBB(sideToMove, KING)), pieceBB(ALL));
 }

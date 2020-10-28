@@ -38,7 +38,6 @@
 static void ParseTimeControl(char *str, Color color) {
 
     memset(&Limits, 0, sizeof(SearchLimits));
-
     Limits.start = Now();
 
     // Read in relevant search constraints
@@ -62,7 +61,6 @@ static void ParseTimeControl(char *str, Color color) {
 
 // Begins a search with the given setup
 static void *BeginSearch(void *voidEngine) {
-
     Engine *engine = voidEngine;
     SearchPosition(&engine->pos, engine->threads);
     return NULL;
@@ -70,7 +68,6 @@ static void *BeginSearch(void *voidEngine) {
 
 // Parses the given limits and creates a new thread to start the search
 INLINE void UCIGo(Engine *engine, char *str) {
-
     ABORT_SIGNAL = false;
     InitTT(engine->threads);
     ParseTimeControl(str, engine->pos.stm);
@@ -87,8 +84,7 @@ static void UCIPosition(Position *pos, char *str) {
                                     : ParseFen(START_FEN, pos);
 
     // Check if there are moves to be made from the initial position
-    if ((str = strstr(str, "moves")) == NULL)
-        return;
+    if ((str = strstr(str, "moves")) == NULL) return;
 
     // Loop over the moves and make them in succession
     char *move = strtok(str, " ");
@@ -97,7 +93,7 @@ static void UCIPosition(Position *pos, char *str) {
         // Parse and make move
         MakeMove(pos, ParseMove(move, pos));
 
-        // Keep track of how many moves have been played so far for TM
+        // Keep track of how many moves have been played
         pos->gameMoves += sideToMove == WHITE;
 
         // Reset histPly so long games don't go out of bounds of arrays
@@ -111,33 +107,26 @@ static void UCISetOption(Engine *engine, char *str) {
 
     // Sets the size of the transposition table
     if (OptionName(str, "Hash")) {
-
         TT.requestedMB = atoi(OptionValue(str));
-
         printf("Hash will use %" PRIu64 "MB after next 'isready'.\n", TT.requestedMB);
 
     // Sets number of threads to use for searching
     } else if (OptionName(str, "Threads")) {
-
         free(engine->threads->pthreads);
         free(engine->threads);
         engine->threads = InitThreads(atoi(OptionValue(str)));
-
         printf("Search will use %d threads.\n", engine->threads->count);
 
     // Sets the syzygy tablebase path
     } else if (OptionName(str, "SyzygyPath")) {
-
         tb_init(OptionValue(str));
 
     // Sets max depth for using NoobBook
     } else if (OptionName(str, "NoobBookLimit")) {
-
         noobLimit = atoi(OptionValue(str));
 
     // Toggles probing of Chess Cloud Database
     } else if (OptionName(str, "NoobBook")) {
-
         noobbook = !strncmp(OptionValue(str), "true", 4);
     }
 
@@ -201,8 +190,6 @@ int main(int argc, char **argv) {
     // Init engine
     Engine engine = { .threads = InitThreads(1) };
     Position *pos = &engine.pos;
-
-    // Setup the default position
     ParseFen(START_FEN, pos);
 
     // Input loop
@@ -278,7 +265,6 @@ void PrintThinking(const Thread *thread, const Stack *ss, int score, int alpha, 
 
 // Print conclusion of search - best move and ponder move
 void PrintConclusion(const Thread *thread) {
-
     printf("bestmove %s", MoveToStr(thread->bestMove));
     if (thread->ponderMove)
         printf(" ponder %s", MoveToStr(thread->ponderMove));

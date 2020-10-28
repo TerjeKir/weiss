@@ -28,7 +28,6 @@
 
 // Converts a tbresult into a score
 static int TBScore(const unsigned result, const int distance) {
-
     return result == TB_WIN  ?  TBWIN - distance
          : result == TB_LOSS ? -TBWIN + distance
                              :  0;
