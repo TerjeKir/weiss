@@ -43,12 +43,11 @@
 int Reductions[2][32][32];
 
 SearchLimits Limits;
-volatile bool ABORT_SIGNAL = false;
+volatile bool ABORT_SIGNAL;
 
 
 // Initializes the late move reduction array
 CONSTR InitReductions() {
-
     for (int depth = 1; depth < 32; ++depth)
         for (int moves = 1; moves < 32; ++moves)
             Reductions[0][depth][moves] = 0.00 + log(depth) * log(moves) / 3.25, // capture
@@ -57,26 +56,21 @@ CONSTR InitReductions() {
 
 // Check if current position is a repetition
 static bool IsRepetition(const Position *pos) {
-
-    // Compare current key to keys in history, skipping
-    // opponents turns as that wouldn't be a repetition
     for (int i = 4; i <= pos->rule50 && i <= pos->histPly; i += 2)
         if (pos->key == history(-i).key)
             return true;
-
     return false;
-}
-
-INLINE bool PawnOn7th(const Position *pos) {
-    return colorPieceBB(sideToMove, PAWN) & RankBB[RelativeRank(sideToMove, RANK_7)];
 }
 
 // Dynamic delta pruning margin
 static int QuiescenceDeltaMargin(const Position *pos) {
 
+    bool pawnOn7th =  colorPieceBB(sideToMove, PAWN)
+                    & RankBB[RelativeRank(sideToMove, RANK_7)];
+
     // Optimistic we can improve our position by a pawn without capturing anything,
     // or if we have a pawn on the 7th we can hope to improve by a queen instead
-    const int DeltaBase = PawnOn7th(pos) ? 1400 : 110;
+    const int DeltaBase = pawnOn7th ? 1400 : 110;
 
     // Look for possible captures on the board
     const Bitboard enemy = colorBB(!sideToMove);
@@ -103,20 +97,26 @@ static int Quiescence(Thread *thread, Stack *ss, int alpha, const int beta) {
     if (ss->ply >= MAXDEPTH)
         return EvalPosition(pos, thread->pawnCache);
 
-    // Standing Pat -- If the stand-pat beats beta there is most likely also a move that beats beta
-    // so we assume we have a beta cutoff. If the stand-pat beats alpha we use it as alpha.
-    int score = EvalPosition(pos, thread->pawnCache);
-    if (score >= beta)
-        return score;
-    if (score + QuiescenceDeltaMargin(pos) < alpha)
+    // Do a static evaluation for pruning considerations
+    int eval = EvalPosition(pos, thread->pawnCache);
+
+    // If eval beats beta we assume some move will also beat it
+    if (eval >= beta)
+        return eval;
+
+    // If eval plus a margin is still below alpha we assume no move will beat it
+    if (eval + QuiescenceDeltaMargin(pos) < alpha)
         return alpha;
-    if (score > alpha)
-        alpha = score;
+
+    // Use eval as a lowerbound if it's above alpha (but below beta)
+    if (eval > alpha)
+        alpha = eval;
 
     InitNoisyMP(&mp, thread);
 
-    int futility = score + 60;
-    int bestScore = score;
+    int futility = eval + 60;
+    int bestScore = eval;
+    int score;
 
     // Move loop
     Move move;
@@ -125,6 +125,7 @@ static int Quiescence(Thread *thread, Stack *ss, int alpha, const int beta) {
         // Skip moves SEE deem bad
         if (mp.stage > NOISY_GOOD) break;
 
+        // Futility pruning
         if (   futility + PieceValue[EG][pieceOn(toSq(move))] <= alpha
             && !(   PieceTypeOf(pieceOn(fromSq(move))) == PAWN
                  && RelativeRank(sideToMove, RankOf(toSq(move))) > 5))
@@ -137,7 +138,6 @@ static int Quiescence(Thread *thread, Stack *ss, int alpha, const int beta) {
 
         // Found a new best move in this position
         if (score > bestScore) {
-
             bestScore = score;
 
             // If score beats alpha we update alpha
@@ -447,7 +447,6 @@ skip_search:
 
         // New best move
         if (score > bestScore) {
-
             bestScore = score;
             bestMove  = move;
 
@@ -536,8 +535,7 @@ static int AspirationWindow(Thread *thread, Stack *ss) {
             depth -= (abs(score) < TBWIN_IN_MAX);
 
         // Score within the bounds is accepted as correct
-        } else
-            return score;
+        } else return score;
 
         delta += delta * 2 / 3;
     }
@@ -604,9 +602,7 @@ static void PrepareSearch(Position *pos, Thread *threads) {
 void SearchPosition(Position *pos, Thread *threads) {
 
     InitTimeManagement();
-
     PrepareSearch(pos, threads);
-
     bool threadsSpawned = false;
 
     // Probe TBs for a move if already in a TB position

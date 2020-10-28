@@ -255,7 +255,6 @@ INLINE int EvalKings(const Position *pos, const Color color) {
 }
 
 INLINE int EvalPieces(const Position *pos, const EvalInfo *ei) {
-
     return  EvalPiece(pos, ei, WHITE, KNIGHT)
           - EvalPiece(pos, ei, BLACK, KNIGHT)
           + EvalPiece(pos, ei, WHITE, BISHOP)

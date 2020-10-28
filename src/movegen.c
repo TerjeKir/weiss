@@ -28,7 +28,6 @@ enum { QUIET, NOISY };
 
 // Constructs and adds a move to the move list
 INLINE void AddMove(const Position *pos, MoveList *list, const Square from, const Square to, const Piece promo, const int flag) {
-
     list->moves[list->count++].move = MOVE(from, to, pieceOn(to), promo, flag);
 }
 
@@ -153,11 +152,8 @@ INLINE void GenPieceType(const Position *pos, MoveList *list, const Color color,
     Bitboard pieces = colorPieceBB(color, pt);
 
     while (pieces) {
-
         Square from = PopLsb(&pieces);
-
         Bitboard moves = targets & AttackBB(pt, from, occupied);
-
         while (moves)
             AddMove(pos, list, from, PopLsb(&moves), EMPTY, FLAG_NONE);
     }
@@ -180,12 +176,10 @@ static void GenMoves(const Position *pos, MoveList *list, const Color color, con
 
 // Generate quiet moves
 void GenQuietMoves(const Position *pos, MoveList *list) {
-
     GenMoves(pos, list, sideToMove, QUIET);
 }
 
 // Generate noisy moves
 void GenNoisyMoves(const Position *pos, MoveList *list) {
-
     GenMoves(pos, list, sideToMove, NOISY);
 }

@@ -46,7 +46,6 @@ Bitboard IsolatedMask[64];
 // Helper function that returns a bitboard with the landing square of
 // the step, or an empty bitboard if the step would go outside the board
 INLINE Bitboard LandingSquareBB(const Square sq, const int step) {
-
     const Square to = sq + step;
     return (Bitboard)(to <= H8 && Distance(sq, to) <= 2) << (to & H8);
 }
@@ -140,9 +139,7 @@ static void InitEvalMasks() {
 CONSTR InitBitMasks() {
 
     InitDistance();
-
     InitEvalMasks();
-
     InitNonSliderAttacks();
 
     const int BSteps[4] = { 7, 9, -7, -9 };
@@ -187,6 +184,5 @@ bool SqAttacked(const Position *pos, const Square sq, const Color color) {
 
 // Checks whether a king is attacked
 bool KingAttacked(const Position *pos, const Color color) {
-
     return SqAttacked(pos, Lsb(colorPieceBB(color, KING)), !color);
 }
