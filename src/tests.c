@@ -24,8 +24,7 @@
 #include "evaluate.h"
 #include "makemove.h"
 #include "move.h"
-#include "movegen.h"
-#include "psqt.h"
+#include "movepicker.h"
 #include "search.h"
 #include "threads.h"
 #include "time.h"
@@ -153,24 +152,20 @@ void Benchmark(int argc, char **argv) {
 
 /* Perft */
 
-// Generate all pseudo legal moves
-void GenAllMoves(const Position *pos, MoveList *list) {
-    list->count = list->next = 0;
-    GenNoisyMoves(pos, list);
-    GenQuietMoves(pos, list);
-}
-
-static uint64_t RecursivePerft(Position *pos, const Depth depth) {
+static uint64_t RecursivePerft(Thread *thread, const Depth depth) {
 
     if (depth == 0) return 1;
 
+    Position *pos = &thread->pos;
     uint64_t leafnodes = 0;
 
-    MoveList list[1];
-    GenAllMoves(pos, list);
-    for (int i = 0; i < list->count; ++i) {
-        if (!MakeMove(pos, list->moves[i].move)) continue;
-        leafnodes += RecursivePerft(pos, depth - 1);
+    MovePicker mp;
+    InitNormalMP(&mp, thread, NOMOVE, NOMOVE, NOMOVE);
+
+    Move move;
+    while ((move = NextMove(&mp))) {
+        if (!MakeMove(pos, move)) continue;
+        leafnodes += RecursivePerft(thread, depth - 1);
         TakeMove(pos);
     }
 
@@ -181,20 +176,20 @@ static uint64_t RecursivePerft(Position *pos, const Depth depth) {
 void Perft(char *str) {
 
     char *default_fen = "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1";
-    Position pos;
+    Thread *thread = InitThreads(1);
 
     strtok(str, " ");
     char *d = strtok(NULL, " ");
     char *fen = strtok(NULL, "\0") ?: default_fen;
 
     Depth depth = d ? atoi(d) : 5;
-    ParseFen(fen, &pos);
+    ParseFen(fen, &thread->pos);
 
     printf("\nPerft starting:\nDepth : %d\nFEN   : %s\n", depth, fen);
     fflush(stdout);
 
     const TimePoint start = Now();
-    uint64_t leafNodes = RecursivePerft(&pos, depth);
+    uint64_t leafNodes = RecursivePerft(thread, depth);
     const TimePoint elapsed = TimeSince(start) + 1;
 
     printf("\nPerft complete:"
@@ -203,6 +198,7 @@ void Perft(char *str) {
            "\nLPS   : %" PRId64 "\n",
            elapsed, leafNodes, leafNodes * 1000 / elapsed);
     fflush(stdout);
+    free(thread);
 }
 
 void PrintEval(Position *pos) {
