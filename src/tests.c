@@ -32,9 +32,6 @@
 #include "transposition.h"
 
 
-#define PERFT_FEN "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1"
-
-
 /* Benchmark heavily inspired by Ethereal*/
 
 static const char *BenchmarkFENs[] = {
@@ -156,8 +153,6 @@ void Benchmark(int argc, char **argv) {
 
 /* Perft */
 
-static uint64_t leafNodes;
-
 // Generate all pseudo legal moves
 void GenAllMoves(const Position *pos, MoveList *list) {
     list->count = list->next = 0;
@@ -165,63 +160,41 @@ void GenAllMoves(const Position *pos, MoveList *list) {
     GenQuietMoves(pos, list);
 }
 
-static void RecursivePerft(Position *pos, const Depth depth) {
+static uint64_t RecursivePerft(Position *pos, const Depth depth) {
 
-    if (depth == 0) {
-        leafNodes++;
-        return;
-    }
+    if (depth == 0) return 1;
+
+    uint64_t leafnodes = 0;
 
     MoveList list[1];
     GenAllMoves(pos, list);
-
     for (int i = 0; i < list->count; ++i) {
-
         if (!MakeMove(pos, list->moves[i].move)) continue;
-        RecursivePerft(pos, depth - 1);
+        leafnodes += RecursivePerft(pos, depth - 1);
         TakeMove(pos);
     }
+
+    return leafnodes;
 }
 
 // Counts number of moves that can be made in a position to some depth
-void Perft(char *line) {
+void Perft(char *str) {
 
-    Position pos[1];
-    Depth depth = 5;
-    sscanf(line, "perft %d", &depth);
+    char *default_fen = "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1";
+    Position pos;
 
-    char *perftFen = line + 8;
-    !*perftFen ? ParseFen(PERFT_FEN, pos)
-               : ParseFen(perftFen,  pos);
+    strtok(str, " ");
+    char *d = strtok(NULL, " ");
+    char *fen = strtok(NULL, "\0") ?: default_fen;
 
-    printf("\nStarting perft to depth %d\n\n", depth);
+    Depth depth = d ? atoi(d) : 5;
+    ParseFen(fen, &pos);
+
+    printf("\nPerft starting:\nDepth : %d\nFEN   : %s\n", depth, fen);
     fflush(stdout);
 
     const TimePoint start = Now();
-    leafNodes = 0;
-
-    MoveList list[1];
-    GenAllMoves(pos, list);
-
-    for (int i = 0; i < list->count; ++i) {
-
-        Move move = list->moves[i].move;
-
-        if (!MakeMove(pos, move)){
-            printf("move %d : %s : Illegal\n", i + 1, MoveToStr(move));
-            fflush(stdout);
-            continue;
-        }
-
-        uint64_t oldCount = leafNodes;
-        RecursivePerft(pos, depth - 1);
-        TakeMove(pos);
-        uint64_t newCount = leafNodes - oldCount;
-
-        printf("move %d : %s : %" PRId64 "\n", i + 1, MoveToStr(move), newCount);
-        fflush(stdout);
-    }
-
+    uint64_t leafNodes = RecursivePerft(&pos, depth);
     const TimePoint elapsed = TimeSince(start) + 1;
 
     printf("\nPerft complete:"
