@@ -24,18 +24,14 @@
 #include "evaluate.h"
 #include "makemove.h"
 #include "move.h"
-#include "movegen.h"
-#include "psqt.h"
+#include "movepicker.h"
 #include "search.h"
 #include "threads.h"
 #include "time.h"
 #include "transposition.h"
 
 
-#define PERFT_FEN "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1"
-
-
-/* Benchmark heavily inspired by Ethereal*/
+/* Benchmark heavily inspired by Ethereal */
 
 static const char *BenchmarkFENs[] = {
     "r3k2r/2pb1ppp/2pp1q2/p7/1nP1B3/1P2P3/P2N1PPP/R2QK2R w KQkq a6 0 14",
@@ -154,74 +150,45 @@ void Benchmark(int argc, char **argv) {
 
 #ifdef DEV
 
-/* Perft */
+// Helper for Perft()
+static uint64_t RecursivePerft(Thread *thread, const Depth depth) {
 
-static uint64_t leafNodes;
+    if (depth == 0) return 1;
 
-// Generate all pseudo legal moves
-void GenAllMoves(const Position *pos, MoveList *list) {
-    list->count = list->next = 0;
-    GenNoisyMoves(pos, list);
-    GenQuietMoves(pos, list);
-}
+    Position *pos = &thread->pos;
+    uint64_t leafnodes = 0;
 
-static void RecursivePerft(Position *pos, const Depth depth) {
+    MovePicker mp;
+    InitNormalMP(&mp, thread, NOMOVE, NOMOVE, NOMOVE);
 
-    if (depth == 0) {
-        leafNodes++;
-        return;
-    }
-
-    MoveList list[1];
-    GenAllMoves(pos, list);
-
-    for (int i = 0; i < list->count; ++i) {
-
-        if (!MakeMove(pos, list->moves[i].move)) continue;
-        RecursivePerft(pos, depth - 1);
+    Move move;
+    while ((move = NextMove(&mp))) {
+        if (!MakeMove(pos, move)) continue;
+        leafnodes += RecursivePerft(thread, depth - 1);
         TakeMove(pos);
     }
+
+    return leafnodes;
 }
 
 // Counts number of moves that can be made in a position to some depth
-void Perft(char *line) {
+void Perft(char *str) {
 
-    Position pos[1];
-    Depth depth = 5;
-    sscanf(line, "perft %d", &depth);
+    char *default_fen = "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1";
+    Thread *thread = InitThreads(1);
 
-    char *perftFen = line + 8;
-    !*perftFen ? ParseFen(PERFT_FEN, pos)
-               : ParseFen(perftFen,  pos);
+    strtok(str, " ");
+    char *d = strtok(NULL, " ");
+    char *fen = strtok(NULL, "\0") ?: default_fen;
 
-    printf("\nStarting perft to depth %d\n\n", depth);
+    Depth depth = d ? atoi(d) : 5;
+    ParseFen(fen, &thread->pos);
+
+    printf("\nPerft starting:\nDepth : %d\nFEN   : %s\n", depth, fen);
     fflush(stdout);
 
     const TimePoint start = Now();
-    leafNodes = 0;
-
-    MoveList list[1];
-    GenAllMoves(pos, list);
-
-    for (int i = 0; i < list->count; ++i) {
-
-        Move move = list->moves[i].move;
-
-        if (!MakeMove(pos, move)){
-            printf("move %d : %s : Illegal\n", i + 1, MoveToStr(move));
-            fflush(stdout);
-            continue;
-        }
-
-        uint64_t oldCount = leafNodes;
-        RecursivePerft(pos, depth - 1);
-        TakeMove(pos);
-        uint64_t newCount = leafNodes - oldCount;
-
-        printf("move %d : %s : %" PRId64 "\n", i + 1, MoveToStr(move), newCount);
-        fflush(stdout);
-    }
-
+    uint64_t leafNodes = RecursivePerft(thread, depth);
     const TimePoint elapsed = TimeSince(start) + 1;
 
     printf("\nPerft complete:"
@@ -230,57 +197,11 @@ void Perft(char *line) {
            "\nLPS   : %" PRId64 "\n",
            elapsed, leafNodes, leafNodes * 1000 / elapsed);
     fflush(stdout);
+    free(thread);
 }
 
 void PrintEval(Position *pos) {
     printf("%d\n", sideToMove == WHITE ? EvalPosition(pos, NULL) : -EvalPosition(pos, NULL));
     fflush(stdout);
-}
-
-// Checks evaluation is symmetric
-void MirrorEvalTest(Position *pos) {
-
-    const char filename[] = "../EPDs/all.epd";
-
-    FILE *file;
-    if ((file = fopen(filename, "r")) == NULL) {
-        printf("MirrorEvalTest: %s not found.\n", filename);
-        fflush(stdout);
-        return;
-    }
-
-    char lineIn[1024];
-    int ev1, ev2;
-    int positions = 0;
-
-    while (fgets(lineIn, 1024, file) != NULL) {
-
-        ParseFen(lineIn, pos);
-        positions++;
-        ev1 = EvalPosition(pos, NULL);
-        MirrorBoard(pos);
-        ev2 = EvalPosition(pos, NULL);
-
-        if (ev1 != ev2) {
-            printf("\n\n\n");
-            ParseFen(lineIn, pos);
-            PrintBoard(pos);
-            MirrorBoard(pos);
-            PrintBoard(pos);
-            printf("\n\nMirrorEvalTest Fail: %d - %d\n%s\n", ev1, ev2, lineIn);
-            fflush(stdout);
-            return;
-        }
-
-        if (positions % 100 == 0) {
-            printf("position %d\n", positions);
-            fflush(stdout);
-        }
-
-        memset(&lineIn[0], 0, sizeof(lineIn));
-    }
-    printf("\n\nMirrorEvalTest Successful\n\n");
-    fflush(stdout);
-    fclose(file);
 }
 #endif

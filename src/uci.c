@@ -209,7 +209,6 @@ int main(int argc, char **argv) {
             case EVAL       : PrintEval(pos);      break;
             case PRINT      : PrintBoard(pos);     break;
             case PERFT      : Perft(str);          break;
-            case MIRRORTEST : MirrorEvalTest(pos); break;
 #endif
         }
     }
