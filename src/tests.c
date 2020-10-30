@@ -31,7 +31,7 @@
 #include "transposition.h"
 
 
-/* Benchmark heavily inspired by Ethereal*/
+/* Benchmark heavily inspired by Ethereal */
 
 static const char *BenchmarkFENs[] = {
     "r3k2r/2pb1ppp/2pp1q2/p7/1nP1B3/1P2P3/P2N1PPP/R2QK2R w KQkq a6 0 14",
@@ -150,8 +150,7 @@ void Benchmark(int argc, char **argv) {
 
 #ifdef DEV
 
-/* Perft */
-
+// Helper for Perft()
 static uint64_t RecursivePerft(Thread *thread, const Depth depth) {
 
     if (depth == 0) return 1;
@@ -204,52 +203,5 @@ void Perft(char *str) {
 void PrintEval(Position *pos) {
     printf("%d\n", sideToMove == WHITE ? EvalPosition(pos, NULL) : -EvalPosition(pos, NULL));
     fflush(stdout);
-}
-
-// Checks evaluation is symmetric
-void MirrorEvalTest(Position *pos) {
-
-    const char filename[] = "../EPDs/all.epd";
-
-    FILE *file;
-    if ((file = fopen(filename, "r")) == NULL) {
-        printf("MirrorEvalTest: %s not found.\n", filename);
-        fflush(stdout);
-        return;
-    }
-
-    char lineIn[1024];
-    int ev1, ev2;
-    int positions = 0;
-
-    while (fgets(lineIn, 1024, file) != NULL) {
-
-        ParseFen(lineIn, pos);
-        positions++;
-        ev1 = EvalPosition(pos, NULL);
-        MirrorBoard(pos);
-        ev2 = EvalPosition(pos, NULL);
-
-        if (ev1 != ev2) {
-            printf("\n\n\n");
-            ParseFen(lineIn, pos);
-            PrintBoard(pos);
-            MirrorBoard(pos);
-            PrintBoard(pos);
-            printf("\n\nMirrorEvalTest Fail: %d - %d\n%s\n", ev1, ev2, lineIn);
-            fflush(stdout);
-            return;
-        }
-
-        if (positions % 100 == 0) {
-            printf("position %d\n", positions);
-            fflush(stdout);
-        }
-
-        memset(&lineIn[0], 0, sizeof(lineIn));
-    }
-    printf("\n\nMirrorEvalTest Successful\n\n");
-    fflush(stdout);
-    fclose(file);
 }
 #endif

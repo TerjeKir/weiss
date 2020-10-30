@@ -49,8 +49,7 @@ enum InputCommands {
     // Non-UCI
     EVAL        = 26,
     PRINT       = 112,
-    PERFT       = 116,
-    MIRRORTEST  = 4
+    PERFT       = 116
 };
 
 
