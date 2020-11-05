@@ -16,6 +16,14 @@
   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+
+/*
+  Gradient Decent Tuning for Chess Engines as described by Andrew Grant
+  in his paper: Evaluation & Tuning in Chess Engines:
+
+  https://github.com/AndyGrant/Ethereal/blob/master/Tuning.pdf
+*/
+
 #pragma once
 
 #include "../types.h"
