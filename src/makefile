@@ -19,7 +19,7 @@
 # General
 EXE    = weiss
 SRC    = *.c pyrrhic/tbprobe.c noobprobe/noobprobe.c tuner/tuner.c
-CC     = gcc
+CC     = gcc # GCC makes much faster binaries than clang for Weiss
 
 # Defines
 POPCNT = -msse3 -mpopcnt
@@ -35,9 +35,15 @@ CFLAGS = $(FLAGS) -march=native
 RFLAGS = $(FLAGS) -static
 
 # PGO
-PGODIR = "../pgo"
-PGOGEN = -fprofile-generate=$(PGODIR)
-PGOUSE = -fprofile-use=$(PGODIR)
+ifeq ($(CC),gcc)
+	PGODIR = "pgo"
+	PGOGEN = -fprofile-generate=$(PGODIR)
+	PGOUSE = -fprofile-use=$(PGODIR)
+else ifeq ($(CC),clang)
+	PGOMERGE = llvm-profdata merge -output=weiss.profdata *.profraw
+	PGOGEN = -fprofile-instr-generate
+	PGOUSE = -fprofile-instr-use=weiss.profdata
+endif
 
 # Use pext if supported and not a ryzen cpu
 PROPS = $(shell echo | $(CC) -march=native -E -dM -)
@@ -50,11 +56,11 @@ endif
 # Try to detect windows environment by seeing
 # whether the shell filters out " or not.
 ifeq ($(shell echo "test"), "test")
-	RUNBENCH = $(EXE) bench 12 > nul 2>&1
-	CLEAN    = rmdir /s /q $(PGODIR)
+	BENCH = $(EXE) bench 12 > nul 2>&1
+	CLEAN = rmdir /s /q $(PGODIR)
 else
-	RUNBENCH = ./$(EXE) bench 12 > /dev/null 2>&1
-	CLEAN    = $(RM) -rf $(PGODIR)
+	BENCH = ./$(EXE) bench 12 > /dev/null 2>&1
+	CLEAN = $(RM) -rf $(PGODIR)
 endif
 
 # Link winsock32 on windows for NoobBook
@@ -69,7 +75,8 @@ RELEASE = $(CC) $(RFLAGS) $(SRC) $(LIBS) -o $(EXE)
 # Targets
 pgo:
 	$(BASIC) $(PGOGEN)
-	$(RUNBENCH)
+	$(BENCH)
+	$(PGOMERGE)
 	$(BASIC) $(PGOUSE)
 	$(CLEAN)
 
