@@ -19,7 +19,7 @@
 # General
 EXE    = weiss
 SRC    = *.c pyrrhic/tbprobe.c noobprobe/noobprobe.c tuner/tuner.c
-CC     = gcc # GCC makes much faster binaries than clang for Weiss
+CC     = gcc
 
 # Defines
 POPCNT = -msse3 -mpopcnt
@@ -35,11 +35,11 @@ CFLAGS = $(FLAGS) -march=native
 RFLAGS = $(FLAGS) -static
 
 # PGO
-ifeq ($(CC),gcc)
+ifneq ($(findstring gcc, $(CC)),)
 	PGODIR = "pgo"
 	PGOGEN = -fprofile-generate=$(PGODIR)
 	PGOUSE = -fprofile-use=$(PGODIR)
-else ifeq ($(CC),clang)
+else ifneq ($(findstring clang, $(CC)),)
 	PGOMERGE = llvm-profdata merge -output=weiss.profdata *.profraw
 	PGOGEN = -fprofile-instr-generate
 	PGOUSE = -fprofile-instr-use=weiss.profdata
