@@ -60,7 +60,7 @@ typedef int32_t PieceType;
 
 
 enum {
-    MAXDEPTH = 100
+    MAX_PLY = 100
 };
 
 enum Score {
@@ -137,5 +137,5 @@ enum CastlingRights {
 
 typedef struct PV {
     int length;
-    Move line[MAXDEPTH];
+    Move line[MAX_PLY];
 } PV;

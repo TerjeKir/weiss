@@ -54,9 +54,7 @@ static void ParseTimeControl(char *str, Color color) {
     SetLimit(str, "mate",      &Limits.mate);
 
     Limits.timelimit = Limits.time || Limits.movetime;
-
-    // If no depth limit is given, use MAXDEPTH
-    Limits.depth = !Limits.depth ? MAXDEPTH : MIN(Limits.depth, MAXDEPTH);
+    Limits.depth = !Limits.depth ? MAX_PLY : MIN(Limits.depth, MAX_PLY);
 }
 
 // Begins a search with the given setup
@@ -244,7 +242,7 @@ void PrintThinking(const Thread *thread, const Stack *ss, int score, int alpha, 
     int hashFull      = HashFull();
     int nps           = (int)(1000 * nodes / (elapsed + 1));
 
-    Depth seldepth = MAXDEPTH;
+    Depth seldepth = MAX_PLY;
     for (; seldepth > 0; --seldepth)
         if (history(seldepth-1).key != 0) break;
 
