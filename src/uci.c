@@ -55,8 +55,8 @@ static void ParseTimeControl(char *str, Color color) {
 
     Limits.timelimit = Limits.time || Limits.movetime;
 
-    // If no depth limit is given, use MAXDEPTH - 1
-    Limits.depth = Limits.depth == 0 ? MAXDEPTH - 1 : Limits.depth;
+    // If no depth limit is given, use MAXDEPTH
+    Limits.depth = !Limits.depth ? MAXDEPTH : MIN(Limits.depth, MAXDEPTH);
 }
 
 // Begins a search with the given setup
