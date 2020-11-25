@@ -59,10 +59,8 @@ typedef int32_t Piece;
 typedef int32_t PieceType;
 
 
-enum Limit {
-    MAXGAMEMOVES     = 256,
-    MAXPOSITIONMOVES = 256,
-    MAXDEPTH         = 100
+enum {
+    MAXDEPTH = 100
 };
 
 enum Score {

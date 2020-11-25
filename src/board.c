@@ -363,7 +363,7 @@ static Key GenPawnKey(const Position *pos) {
 // Check board state makes sense
 bool PositionOk(const Position *pos) {
 
-    assert(0 <= pos->histPly && pos->histPly < MAXGAMEMOVES);
+    assert(0 <= pos->histPly && pos->histPly < 256);
 
     int counts[PIECE_NB] = { 0 };
     int nonPawnCount[2] = { 0, 0 };
