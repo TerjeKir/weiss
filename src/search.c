@@ -94,7 +94,7 @@ static int Quiescence(Thread *thread, Stack *ss, int alpha, const int beta) {
         longjmp(thread->jumpBuffer, true);
 
     // If we are at max depth, return static eval
-    if (ss->ply >= MAXDEPTH)
+    if (ss->ply >= MAX_PLY)
         return EvalPosition(pos, thread->pawnCache);
 
     // Do a static evaluation for pruning considerations
@@ -199,7 +199,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
             return 0;
 
         // Max depth reached
-        if (ss->ply >= MAXDEPTH)
+        if (ss->ply >= MAX_PLY)
             return EvalPosition(pos, thread->pawnCache);
 
         // Mate distance pruning
@@ -211,7 +211,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
 
     // Extend search if in check
     const bool inCheck = pos->checkers;
-    if (inCheck && depth + 1 < MAXDEPTH) depth++;
+    if (inCheck) depth++;
 
     // Quiescence at the end of search
     if (depth <= 0)
@@ -239,7 +239,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
         thread->tbhits++;
 
         if (bound == BOUND_EXACT || (bound == BOUND_LOWER ? tbScore >= beta : tbScore <= alpha)) {
-            StoreTTEntry(tte, key, NOMOVE, ScoreToTT(tbScore, ss->ply), MAXDEPTH-1, bound);
+            StoreTTEntry(tte, key, NOMOVE, ScoreToTT(tbScore, ss->ply), MAX_PLY, bound);
             return tbScore;
         }
 
@@ -546,7 +546,7 @@ static void *IterativeDeepening(void *voidThread) {
 
     Thread *thread = voidThread;
     Position *pos = &thread->pos;
-    Stack *ss = thread->ss;
+    Stack *ss = thread->ss+SS_OFFSET;
     bool mainThread = thread->index == 0;
 
     // Iterative deepening
@@ -576,7 +576,7 @@ static void *IterativeDeepening(void *voidThread) {
             break;
 
         // Clear key history for seldepth calculation
-        for (int i = 1; i < MAXDEPTH; ++i)
+        for (int i = 1; i < MAX_PLY; ++i)
             history(i).key = 0;
     }
 
@@ -590,8 +590,8 @@ static void PrepareSearch(Position *pos, Thread *threads) {
     for (Thread *t = threads; t < threads + threads->count; ++t) {
         memset(t, 0, offsetof(Thread, pos));
         memcpy(&t->pos, pos, sizeof(Position));
-        for (Depth d = 0; d < MAXDEPTH; ++d)
-            (t->ss+d)->ply = d;
+        for (Depth d = 0; d < MAX_PLY; ++d)
+            (t->ss+SS_OFFSET+d)->ply = d;
     }
 
     // Mark TT as used

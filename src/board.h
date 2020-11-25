@@ -56,7 +56,7 @@ typedef struct Position {
 
     uint64_t nodes;
 
-    History gameHistory[MAXGAMEMOVES];
+    History gameHistory[256];
 
 } Position;
 
@@ -137,7 +137,7 @@ INLINE Color ColorOf(const Piece piece) {
 }
 
 INLINE PieceType PieceTypeOf(const Piece piece) {
-    return (piece & 7);
+    return piece & 7;
 }
 
 INLINE Piece MakePiece(const Color color, const PieceType pt) {

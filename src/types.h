@@ -59,10 +59,8 @@ typedef int32_t Piece;
 typedef int32_t PieceType;
 
 
-enum Limit {
-    MAXGAMEMOVES     = 256,
-    MAXPOSITIONMOVES = 256,
-    MAXDEPTH         = 128
+enum {
+    MAX_PLY = 100
 };
 
 enum Score {
@@ -139,5 +137,5 @@ enum CastlingRights {
 
 typedef struct PV {
     int length;
-    Move line[MAXDEPTH];
+    Move line[MAX_PLY];
 } PV;

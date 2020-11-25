@@ -30,7 +30,7 @@ typedef struct {
 typedef struct {
     int count;
     int next;
-    MoveListEntry moves[MAXPOSITIONMOVES];
+    MoveListEntry moves[256];
 } MoveList;
 
 
