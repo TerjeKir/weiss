@@ -23,6 +23,9 @@
 #include "types.h"
 
 
+#define SS_OFFSET 10
+
+
 typedef struct {
     int eval;
     Depth ply;
@@ -44,7 +47,7 @@ typedef struct Thread {
 
     jmp_buf jumpBuffer;
 
-    Stack ss[MAXDEPTH];
+    Stack ss[128];
 
     int history[2][64][64];
 

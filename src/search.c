@@ -546,7 +546,7 @@ static void *IterativeDeepening(void *voidThread) {
 
     Thread *thread = voidThread;
     Position *pos = &thread->pos;
-    Stack *ss = thread->ss;
+    Stack *ss = thread->ss+SS_OFFSET;
     bool mainThread = thread->index == 0;
 
     // Iterative deepening
@@ -591,7 +591,7 @@ static void PrepareSearch(Position *pos, Thread *threads) {
         memset(t, 0, offsetof(Thread, pos));
         memcpy(&t->pos, pos, sizeof(Position));
         for (Depth d = 0; d < MAXDEPTH; ++d)
-            (t->ss+d)->ply = d;
+            (t->ss+SS_OFFSET+d)->ply = d;
     }
 
     // Mark TT as used
