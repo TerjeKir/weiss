@@ -211,7 +211,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
 
     // Extend search if in check
     const bool inCheck = pos->checkers;
-    if (inCheck && depth + 1 < MAXDEPTH) depth++;
+    if (inCheck) depth++;
 
     // Quiescence at the end of search
     if (depth <= 0)
@@ -239,7 +239,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
         thread->tbhits++;
 
         if (bound == BOUND_EXACT || (bound == BOUND_LOWER ? tbScore >= beta : tbScore <= alpha)) {
-            StoreTTEntry(tte, key, NOMOVE, ScoreToTT(tbScore, ss->ply), MAXDEPTH-1, bound);
+            StoreTTEntry(tte, key, NOMOVE, ScoreToTT(tbScore, ss->ply), MAXDEPTH, bound);
             return tbScore;
         }
 

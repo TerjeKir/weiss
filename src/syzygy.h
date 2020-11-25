@@ -108,7 +108,7 @@ bool RootProbe(Position *pos, Thread *thread) {
     // Print thinking info
     printf("info depth %d seldepth %d score cp %d "
            "time 0 nodes 0 nps 0 tbhits 1 pv %s\n",
-           MAXDEPTH-1, MAXDEPTH-1, score, MoveToStr(move));
+           MAXDEPTH, MAXDEPTH, score, MoveToStr(move));
     fflush(stdout);
 
     // Set move to be printed as conclusion
