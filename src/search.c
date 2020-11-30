@@ -231,6 +231,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
         return ttScore;
 
     int bestScore = -INFINITE;
+    int maxScore  =  INFINITE;
 
     // Probe syzygy TBs
     int tbScore, bound;
@@ -243,9 +244,13 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
             return tbScore;
         }
 
-        if (pvNode && bound == BOUND_LOWER)
-            bestScore = tbScore,
-            alpha = MAX(alpha, tbScore);
+        if (pvNode) {
+            if (bound == BOUND_LOWER)
+                bestScore = tbScore,
+                alpha = MAX(alpha, tbScore);
+            else
+                maxScore = tbScore;
+        }
     }
 
     // Do a static evaluation for pruning considerations
@@ -477,6 +482,8 @@ skip_search:
         return ss->excluded ? alpha
              : inCheck      ? -MATE + ss->ply
                             : 0;
+
+    bestScore = MIN(bestScore, maxScore);
 
     // Store in TT
     const int flag = bestScore >= beta ? BOUND_LOWER
