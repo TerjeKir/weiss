@@ -264,7 +264,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
         eval = ttScore;
 
     // Improving if not in check, and current eval is higher than 2 plies ago
-    bool improving = !inCheck && ss->ply >= 2 && eval > (ss-2)->eval;
+    bool improving = !inCheck && eval > (ss-2)->eval;
 
     // Skip pruning in check, at root, during early iterations, and when proving singularity
     if (inCheck || root || !thread->doPruning || ss->excluded)
