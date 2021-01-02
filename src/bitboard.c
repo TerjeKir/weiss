@@ -30,8 +30,8 @@ const Bitboard RankBB[8] = {
 
 Bitboard BetweenBB[64][64];
 
-static Bitboard BishopAttacks[0x1480];
-static Bitboard RookAttacks[0x19000];
+static Bitboard BishopAttacks[5248];
+static Bitboard RookAttacks[102400];
 
 Magic BishopTable[64];
 Magic RookTable[64];
@@ -89,7 +89,7 @@ static void InitNonSliderAttacks() {
 }
 
 // Initializes slider attack lookups
-static void InitSliderAttacks(Magic *m, Bitboard *table, const int *steps) {
+static void InitSliderAttacks(Magic m[], Bitboard table[], const int steps[]) {
 
 #ifndef USE_PEXT
     const uint64_t *magics = steps[0] == 8 ? RookMagics : BishopMagics;
