@@ -127,8 +127,6 @@ static void UCISetOption(Engine *engine, char *str) {
     } else if (OptionName(str, "NoobBook")) {
         noobbook = !strncmp(OptionValue(str), "true", 4);
     }
-
-    fflush(stdout);
 }
 
 // Prints UCI info
@@ -140,7 +138,7 @@ static void UCIInfo() {
     printf("option name SyzygyPath type string default <empty>\n");
     printf("option name NoobBook type check default false\n");
     printf("option name NoobBookLimit type spin default 0 min 0 max 1000\n");
-    printf("uciok\n"); fflush(stdout);
+    printf("uciok\n");
 }
 
 // Stops searching
@@ -153,7 +151,6 @@ static void UCIStop(Engine *engine) {
 static void UCIIsReady(Engine *engine) {
     InitTT(engine->threads);
     printf("readyok\n");
-    fflush(stdout);
 }
 
 // Reset for a new game
@@ -174,6 +171,8 @@ static int HashInput(char *str) {
 
 // Sets up the engine and follows UCI protocol commands
 int main(int argc, char **argv) {
+
+    setlinebuf(stdout);
 
     // Benchmark
     if (argc > 1 && strstr(argv[1], "bench"))
@@ -257,7 +256,6 @@ void PrintThinking(const Thread *thread, const Stack *ss, int score, int alpha, 
         printf(" %s", MoveToStr(ss->pv.line[i]));
 
     printf("\n");
-    fflush(stdout);
 }
 
 // Print conclusion of search - best move and ponder move
@@ -266,5 +264,4 @@ void PrintConclusion(const Thread *thread) {
     if (thread->ponderMove)
         printf(" ponder %s", MoveToStr(thread->ponderMove));
     printf("\n\n");
-    fflush(stdout);
 }

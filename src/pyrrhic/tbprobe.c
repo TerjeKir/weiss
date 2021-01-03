@@ -771,7 +771,6 @@ finished:
 
   printf("info string Found %d WDL, %d DTM and %d DTZ tablebase files. Largest %u-men.\n",
       numWdl, numDtm, numDtz, TB_LARGEST);
-  fflush(stdout);
 
   return true;
 }
