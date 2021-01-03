@@ -152,4 +152,5 @@ void InitTT(Thread *threads) {
     ClearTT(threads);
 
     printf("HashTable init complete with %" PRIu64 " entries, using %" PRIu64 "MB.\n", TT.count, MB);
+    fflush(stdout);
 }

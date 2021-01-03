@@ -185,6 +185,7 @@ void Perft(char *str) {
     ParseFen(fen, &thread->pos);
 
     printf("\nPerft starting:\nDepth : %d\nFEN   : %s\n", depth, fen);
+    fflush(stdout);
 
     const TimePoint start = Now();
     uint64_t leafNodes = RecursivePerft(thread, depth);
@@ -195,11 +196,12 @@ void Perft(char *str) {
            "\nNPS  : %" PRId64
            "\nNodes: %" PRIu64 "\n",
            elapsed, leafNodes * 1000 / elapsed, leafNodes);
-
+    fflush(stdout);
     free(thread);
 }
 
 void PrintEval(Position *pos) {
     printf("%d\n", sideToMove == WHITE ? EvalPosition(pos, NULL) : -EvalPosition(pos, NULL));
+    fflush(stdout);
 }
 #endif
