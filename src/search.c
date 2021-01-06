@@ -154,6 +154,10 @@ static int Quiescence(Thread *thread, Stack *ss, int alpha, const int beta) {
     return bestScore;
 }
 
+INLINE void HistoryBonus(int *cur, int bonus) {
+    *cur += bonus - *cur * abs(bonus) / 29952;
+}
+
 // Updates various history heuristics when a quiet move causes a cutoff
 INLINE void UpdateHistory(Thread *thread, Stack *ss, Move quiets[], Move move, Depth depth, int count) {
 
@@ -165,15 +169,17 @@ INLINE void UpdateHistory(Thread *thread, Stack *ss, Move quiets[], Move move, D
         ss->killers[0] = move;
     }
 
+    int bonus = depth * depth;
+
     // Bonus to the move that caused the beta cutoff
     if (depth > 1)
-        thread->history[sideToMove][fromSq(move)][toSq(move)] += depth * depth;
+        HistoryBonus(&thread->history[sideToMove][fromSq(move)][toSq(move)], bonus);
 
     // Lower history scores of moves that failed to produce a cut
     for (int i = 0; i < count; ++i) {
         Move m = quiets[i];
         if (m == move) continue;
-        thread->history[sideToMove][fromSq(m)][toSq(m)] -= depth * depth;
+        HistoryBonus(&thread->history[sideToMove][fromSq(m)][toSq(m)], -bonus);
     }
 }
 
