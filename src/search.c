@@ -155,7 +155,7 @@ static int Quiescence(Thread *thread, Stack *ss, int alpha, const int beta) {
 }
 
 INLINE void HistoryBonus(int16_t *cur, int bonus) {
-    *cur += bonus - *cur * abs(bonus) / 29952;
+    *cur += 32 * bonus - *cur * abs(bonus) / 512;
 }
 
 // Updates various history heuristics when a quiet move causes a cutoff
