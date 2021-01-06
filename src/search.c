@@ -154,7 +154,7 @@ static int Quiescence(Thread *thread, Stack *ss, int alpha, const int beta) {
     return bestScore;
 }
 
-INLINE void HistoryBonus(int *cur, int bonus) {
+INLINE void HistoryBonus(int16_t *cur, int bonus) {
     *cur += bonus - *cur * abs(bonus) / 29952;
 }
 
