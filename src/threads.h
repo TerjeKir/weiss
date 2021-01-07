@@ -49,7 +49,7 @@ typedef struct Thread {
 
     Stack ss[128];
 
-    int history[2][64][64];
+    int16_t history[2][64][64];
 
     // Anything below here is not zeroed out between searches
     Position pos;
