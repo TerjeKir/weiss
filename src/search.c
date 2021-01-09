@@ -234,7 +234,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
     // Trust TT if not a pvnode and the entry depth is sufficiently high
     if (   !pvNode && ttHit && tte->depth >= depth
         && (ttScore >= beta ? tte->bound & BOUND_LOWER : tte->bound & BOUND_UPPER))
-        return ttScore;
+        return HistoryBonus(&thread->history[sideToMove][fromSq(ttMove)][toSq(ttMove)], depth*depth), ttScore;
 
     int bestScore = -INFINITE;
     int maxScore  =  INFINITE;
