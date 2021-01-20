@@ -98,6 +98,8 @@ static void UCIPosition(Position *pos, char *str) {
         if (pos->rule50 == 0)
             pos->histPly = 0;
     }
+
+    pos->nodes = 0;
 }
 
 // Parses a 'setoption' and updates settings
