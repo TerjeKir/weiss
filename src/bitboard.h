@@ -101,19 +101,19 @@ enum {
     BlackSquaresBB = 0xAA55AA55AA55AA55,
 };
 
-extern const Bitboard FileBB[8];
-extern const Bitboard RankBB[8];
+extern const Bitboard FileBB[FILE_NB];
+extern const Bitboard RankBB[RANK_NB];
 
 extern Bitboard BetweenBB[64][64];
 
 extern Magic BishopTable[64];
 extern Magic RookTable[64];
 
-extern Bitboard PseudoAttacks[8][64];
-extern Bitboard PawnAttacks[2][64];
+extern Bitboard PseudoAttacks[TYPE_NB][64];
+extern Bitboard PawnAttacks[COLOR_NB][64];
 
 // Eval bit masks
-extern Bitboard PassedMask[2][64];
+extern Bitboard PassedMask[COLOR_NB][64];
 extern Bitboard IsolatedMask[64];
 
 

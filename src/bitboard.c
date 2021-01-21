@@ -20,11 +20,11 @@
 #include "board.h"
 
 
-const Bitboard FileBB[8] = {
+const Bitboard FileBB[FILE_NB] = {
     fileABB, fileBBB, fileCBB, fileDBB, fileEBB, fileFBB, fileGBB, fileHBB
 };
 
-const Bitboard RankBB[8] = {
+const Bitboard RankBB[RANK_NB] = {
     rank1BB, rank2BB, rank3BB, rank4BB, rank5BB, rank6BB, rank7BB, rank8BB
 };
 
@@ -37,9 +37,9 @@ Magic BishopTable[64];
 Magic RookTable[64];
 
 Bitboard PseudoAttacks[TYPE_NB][64];
-Bitboard PawnAttacks[2][64];
+Bitboard PawnAttacks[COLOR_NB][64];
 
-Bitboard PassedMask[2][64];
+Bitboard PassedMask[COLOR_NB][64];
 Bitboard IsolatedMask[64];
 
 
@@ -70,7 +70,7 @@ static void InitNonSliderAttacks() {
 
     int KSteps[8] = {  -9, -8, -7, -1,  1,  7,  8,  9 };
     int NSteps[8] = { -17,-15,-10, -6,  6, 10, 15, 17 };
-    int PSteps[2][2] = { { -9, -7 }, { 7, 9 } };
+    int PSteps[COLOR_NB][2] = { { -9, -7 }, { 7, 9 } };
 
     for (Square sq = A1; sq <= H8; ++sq) {
 

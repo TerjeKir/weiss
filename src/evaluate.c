@@ -24,12 +24,10 @@
 
 
 typedef struct EvalInfo {
-    Bitboard mobilityArea[2];
-    
-    Bitboard enemyKingZone[2];
-    int16_t KingAttackPower[2];
-    int16_t KingAttackCount[2];
-
+    Bitboard mobilityArea[COLOR_NB];
+    Bitboard enemyKingZone[COLOR_NB];
+    int16_t KingAttackPower[COLOR_NB];
+    int16_t KingAttackCount[COLOR_NB];
 } EvalInfo;
 
 
@@ -46,7 +44,7 @@ const int PieceTypeValue[7] = { 0,
 };
 
 // Phase piece values, lookup used for futility pruning [phase][piece]
-const int PieceValue[2][PIECE_NB] = {
+const int PieceValue[COLOR_NB][PIECE_NB] = {
     { 0, P_MG, N_MG, B_MG, R_MG, Q_MG, 0, 0,
       0, P_MG, N_MG, B_MG, R_MG, Q_MG, 0, 0 },
     { 0, P_EG, N_EG, B_EG, R_EG, Q_EG, 0, 0,
@@ -70,9 +68,9 @@ const int BishopPair     = S( 20, 98);
 const int KingLineDanger = S( -5, -2);
 
 // Passed pawn [rank]
-const int PawnPassed[8] = {
-    S(  0,  0), S(-10, 19), S(-13, 23), S( -9, 53),
-    S( 21, 75), S( 53,133), S(128,185), S(  0,  0),
+const int PawnPassed[RANK_NB] = {
+    S(  0,  0), S( -8, 19), S(-12, 23), S( -7, 52),
+    S( 24, 74), S( 59,134), S(131,186), S(  0,  0),
 };
 
 // (Semi) open file for rook and queen [pt-4]
@@ -206,7 +204,7 @@ int ProbePawnCache(const Position *pos, PawnCache pc) {
 INLINE Bitboard GetScanning(const Position *pos, const Color color, const PieceType pt) {
     Bitboard occ = pieceBB(ALL);
     switch(pt) {
-        // Bishop scans through Bishops and Queens        
+        // Bishop scans through Bishops and Queens
         case BISHOP: return occ ^ colorPieceBB(color, BISHOP) ^ colorPieceBB(color, QUEEN);
         // Rooks scan through Rooks and Queens
         case ROOK  : return occ ^ colorPieceBB(color, ROOK) ^ colorPieceBB(color, QUEEN);
@@ -321,7 +319,7 @@ INLINE void InitEvalInfo(const Position *pos, EvalInfo *ei, const Color color) {
     ei->mobilityArea[color] = ~(b | PawnBBAttackBB(colorPieceBB(!color, PAWN), !color));
     ei->KingAttackCount[color] = 0;
     ei->KingAttackPower[color] = 0;
-    
+
     Square kingSq = Lsb(colorPieceBB(!color, KING));
     Bitboard kingZone = AttackBB(KING, kingSq, 0);
     ei->enemyKingZone[color] = color == WHITE ? (kingZone | ShiftBB(NORTH, kingZone)) : (kingZone | ShiftBB(SOUTH, kingZone));

@@ -33,11 +33,11 @@ typedef struct {
 typedef struct Position {
 
     uint8_t board[64];
-    Bitboard pieceBB[TYPE_NB];
-    Bitboard colorBB[2];
+    Bitboard pieceBB[7];
+    Bitboard colorBB[COLOR_NB];
     Bitboard checkers;
 
-    int nonPawnCount[2];
+    int nonPawnCount[COLOR_NB];
 
     int material;
     int phaseValue;
@@ -144,6 +144,10 @@ INLINE Piece MakePiece(const Color color, const PieceType pt) {
     return (color << 3) + pt;
 }
 
+INLINE Square MakeSquare(const int rank, const int file) {
+    return (rank * FILE_NB) + file;
+}
+
 INLINE Square StrToSq(const char *str) {
-    return (str[0] - 'a') + 8 * (str[1] - '1');
+    return MakeSquare(str[1] - '1', str[0] - 'a');
 }
