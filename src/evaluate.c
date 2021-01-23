@@ -194,6 +194,19 @@ int ProbePawnCache(const Position *pos, PawnCache pc) {
     return pe->eval;
 }
 
+INLINE Bitboard GetScanning(const Position *pos, const Color color, const PieceType pt){
+    Bitboard occupied = pieceBB(ALL);
+    switch(pt) {
+        // Bishop scans through Bishops and Queens        
+        case BISHOP: return occupied ^ colorPieceBB(color, BISHOP) ^ colorPieceBB(color, QUEEN);
+        // Rooks scan through Rooks and Queens
+        case ROOK  : return occupied ^ colorPieceBB(color, ROOK) ^ colorPieceBB(color, QUEEN);
+        // Queens scan through Queens, Rooks and Bishops
+        case QUEEN : return occupied ^ colorPieceBB(color, ROOK) ^ colorPieceBB(color, QUEEN) ^ colorPieceBB(color, BISHOP);
+        default    : return occupied;
+    }
+}
+
 // Evaluates knights, bishops, rooks, or queens
 INLINE int EvalPiece(const Position *pos, const EvalInfo *ei, const Color color, const PieceType pt) {
 
@@ -216,7 +229,8 @@ INLINE int EvalPiece(const Position *pos, const EvalInfo *ei, const Color color,
         if (TRACE) T.PSQT[pt-1][RelativeSquare(color, sq)][color]++;
 
         // Mobility
-        int mob = PopCount(AttackBB(pt, sq, pieceBB(ALL)) & ei->mobilityArea[color]);
+        Bitboard occupied = GetScanning(pos, color, pt);
+        int mob = PopCount(AttackBB(pt, sq, occupied) & ei->mobilityArea[color]);
         eval += Mobility[pt-2][mob];
         if (TRACE) T.Mobility[pt-2][mob][color]++;
 
