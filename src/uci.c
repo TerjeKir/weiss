@@ -128,6 +128,9 @@ static void UCISetOption(Engine *engine, char *str) {
     // Toggles probing of Chess Cloud Database
     } else if (OptionName(str, "NoobBook")) {
         noobbook = !strncmp(OptionValue(str), "true", 4);
+
+    } else {
+        puts("No such option.");
     }
 
     fflush(stdout);
