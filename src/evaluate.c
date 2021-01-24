@@ -26,8 +26,8 @@
 typedef struct EvalInfo {
     Bitboard mobilityArea[2];
     Bitboard enemyKingZone[2];
-    uint16_t KingAttackPower[2];
-    uint16_t KingAttackCount[2];
+    int16_t KingAttackPower[2];
+    int16_t KingAttackCount[2];
 
 } EvalInfo;
 
@@ -295,6 +295,11 @@ INLINE int EvalPieces(const Position *pos, EvalInfo *ei) {
           - EvalKings(pos, BLACK);
 }
 
+INLINE int EvalSafety(const Color color ,const EvalInfo *ei) {
+    int16_t safetyScore = ei->KingAttackPower[color] * PieceCountModifier[MIN(8, ei->KingAttackCount[color])] / 100;
+    return S(safetyScore, 0);
+}
+
 // Initializes the eval info struct
 INLINE void InitEvalInfo(const Position *pos, EvalInfo *ei, const Color color) {
 
@@ -332,6 +337,9 @@ int EvalPosition(const Position *pos, PawnCache pc) {
 
     // Evaluate pieces
     eval += EvalPieces(pos, &ei);
+
+    // Evaluate KingSafety
+    eval += EvalSafety(WHITE, &ei) - EvalSafety(BLACK, &ei);
 
     if (TRACE) T.eval = eval;
 
