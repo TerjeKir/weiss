@@ -25,6 +25,10 @@
 
 typedef struct EvalInfo {
     Bitboard mobilityArea[2];
+    Bitboard enemyKingZone[2];
+    uint16_t KingAttackPower[2];
+    uint16_t KingAttackCount[2];
+
 } EvalInfo;
 
 
@@ -91,6 +95,10 @@ const int Mobility[4][28] = {
       S( 29, 65), S( 33, 64), S( 31, 71), S( 36, 70), S( 41, 75), S( 58, 66), S( 65, 72), S( 84, 68),
       S(109, 89), S(113, 86), S(104,111), S(108,131) }
 };
+
+// KingSafety [pt-2]
+const uint16_t PieceAttackPower[4] = {35, 20, 40, 80};
+const uint16_t PieceCountModifier[8] = {0, 0, 50, 75, 80, 88, 95, 100};
 
 
 // Check if the board is (likely) drawn, logic from sjeng
@@ -208,7 +216,7 @@ INLINE Bitboard GetScanning(const Position *pos, const Color color, const PieceT
 }
 
 // Evaluates knights, bishops, rooks, or queens
-INLINE int EvalPiece(const Position *pos, const EvalInfo *ei, const Color color, const PieceType pt) {
+INLINE int EvalPiece(const Position *pos, EvalInfo *ei, const Color color, const PieceType pt) {
 
     int eval = 0;
 
@@ -230,8 +238,14 @@ INLINE int EvalPiece(const Position *pos, const EvalInfo *ei, const Color color,
 
         // Mobility
         Bitboard occupied = GetScanning(pos, color, pt);
-        int mob = PopCount(AttackBB(pt, sq, occupied) & ei->mobilityArea[color]);
+        Bitboard MobilityBB = AttackBB(pt, sq, occupied) & ei->mobilityArea[color];
+        int mob = PopCount(MobilityBB);
         eval += Mobility[pt-2][mob];
+        int kingAttack = PopCount(MobilityBB & ei->enemyKingZone[color]);
+        if (kingAttack > 0){
+            ei->KingAttackCount[color]++;
+            ei->KingAttackPower[color] += kingAttack * PieceAttackPower[pt - 2];
+        }
         if (TRACE) T.Mobility[pt-2][mob][color]++;
 
         if (pt == ROOK || pt == QUEEN) {
@@ -268,7 +282,7 @@ INLINE int EvalKings(const Position *pos, const Color color) {
     return eval;
 }
 
-INLINE int EvalPieces(const Position *pos, const EvalInfo *ei) {
+INLINE int EvalPieces(const Position *pos, EvalInfo *ei) {
     return  EvalPiece(pos, ei, WHITE, KNIGHT)
           - EvalPiece(pos, ei, BLACK, KNIGHT)
           + EvalPiece(pos, ei, WHITE, BISHOP)
@@ -293,6 +307,12 @@ INLINE void InitEvalInfo(const Position *pos, EvalInfo *ei, const Color color) {
     // Mobility area is defined as any square not attacked by an enemy pawn,
     // nor occupied by our own pawn on its starting square or blocked from advancing.
     ei->mobilityArea[color] = ~(b | PawnBBAttackBB(colorPieceBB(!color, PAWN), !color));
+    ei->KingAttackCount[color] = 0;
+    ei->KingAttackPower[color] = 0;
+    
+    Square kingSq = Lsb(colorPieceBB(!color, KING));
+    Bitboard kingZone = AttackBB(KING, kingSq, 0);
+    ei->enemyKingZone[color] = color == WHITE ? (kingZone | (kingZone << 8)) : (kingZone | (kingZone >> 8));
 }
 
 // Calculate a static evaluation of a position
