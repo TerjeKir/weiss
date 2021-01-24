@@ -65,7 +65,7 @@ static void *BeginSearch(void *voidEngine) {
 }
 
 // Parses the given limits and creates a new thread to start the search
-INLINE void UCIGo(Engine *engine, char *str) {
+INLINE void Go(Engine *engine, char *str) {
     ABORT_SIGNAL = false;
     InitTT(engine->threads);
     ParseTimeControl(str, engine->pos.stm);
@@ -74,7 +74,7 @@ INLINE void UCIGo(Engine *engine, char *str) {
 }
 
 // Parses a 'position' and sets up the board
-static void UCIPosition(Position *pos, char *str) {
+static void Pos(Position *pos, char *str) {
 
     // Set up original position. This will either be a
     // position given as FEN, or the normal start position
@@ -103,19 +103,18 @@ static void UCIPosition(Position *pos, char *str) {
 }
 
 // Parses a 'setoption' and updates settings
-static void UCISetOption(Engine *engine, char *str) {
+static void SetOption(Engine *engine, char *str) {
 
     // Sets the size of the transposition table
     if (OptionName(str, "Hash")) {
         TT.requestedMB = atoi(OptionValue(str));
-        printf("Hash will use %" PRIu64 "MB after next 'isready'.\n", TT.requestedMB);
+        puts("info string Hash will resize after next 'isready'.");
 
     // Sets number of threads to use for searching
     } else if (OptionName(str, "Threads")) {
         free(engine->threads->pthreads);
         free(engine->threads);
         engine->threads = InitThreads(atoi(OptionValue(str)));
-        printf("Search will use %d threads.\n", engine->threads->count);
 
     // Sets the syzygy tablebase path
     } else if (OptionName(str, "SyzygyPath")) {
@@ -137,7 +136,7 @@ static void UCISetOption(Engine *engine, char *str) {
 }
 
 // Prints UCI info
-static void UCIInfo() {
+static void Info() {
     printf("id name %s\n", NAME);
     printf("id author Terje Kirstihagen\n");
     printf("option name Hash type spin default %d min %d max %d\n", DEFAULTHASH, MINHASH, MAXHASH);
@@ -149,20 +148,20 @@ static void UCIInfo() {
 }
 
 // Stops searching
-static void UCIStop(Engine *engine) {
+static void Stop(Engine *engine) {
     ABORT_SIGNAL = true;
     Wake(engine->threads);
 }
 
 // Signals the engine is ready
-static void UCIIsReady(Engine *engine) {
+static void IsReady(Engine *engine) {
     InitTT(engine->threads);
     printf("readyok\n");
     fflush(stdout);
 }
 
 // Reset for a new game
-static void UCINewGame(Engine *engine) {
+static void NewGame(Engine *engine) {
     ClearTT(engine->threads);
     ResetThreads(engine->threads);
     failedQueries = 0;
@@ -199,14 +198,14 @@ int main(int argc, char **argv) {
     char str[INPUT_SIZE];
     while (GetInput(str)) {
         switch (HashInput(str)) {
-            case GO         : UCIGo(&engine, str);        break;
-            case UCI        : UCIInfo();                  break;
-            case ISREADY    : UCIIsReady(&engine);        break;
-            case POSITION   : UCIPosition(pos, str);      break;
-            case SETOPTION  : UCISetOption(&engine, str); break;
-            case UCINEWGAME : UCINewGame(&engine);        break;
-            case STOP       : UCIStop(&engine);           break;
-            case QUIT       : UCIStop(&engine);           return 0;
+            case GO         : Go(&engine, str);        break;
+            case UCI        : Info();                  break;
+            case ISREADY    : IsReady(&engine);        break;
+            case POSITION   : Pos(pos, str);           break;
+            case SETOPTION  : SetOption(&engine, str); break;
+            case UCINEWGAME : NewGame(&engine);        break;
+            case STOP       : Stop(&engine);           break;
+            case QUIT       : Stop(&engine);           return 0;
 #ifdef DEV
             // Non-UCI commands
             case EVAL       : PrintEval(pos);      break;
