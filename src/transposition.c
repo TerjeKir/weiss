@@ -115,18 +115,15 @@ void ClearTT(Thread *threads) {
 // Allocates memory for the transposition table
 void InitTT(Thread *threads) {
 
-    // Ignore if already correct size
+    // Skip if already correct size
     if (TT.currentMB == TT.requestedMB)
         return;
 
-    uint64_t MB = TT.requestedMB;
-
-    uint64_t size = MB * 1024 * 1024;
-    TT.count = size / sizeof(TTEntry);
-
-    // Free memory if already allocated
+    // Free memory if previously allocated
     if (TT.mem)
         free(TT.mem);
+
+    uint64_t size = TT.requestedMB * 1024 * 1024;
 
 #if defined(__linux__)
     // Align on 2MB boundaries and request Huge Pages
@@ -141,16 +138,14 @@ void InitTT(Thread *threads) {
 
     // Allocation failed
     if (!TT.mem) {
-        printf("Allocating %" PRIu64 "MB for the transposition table failed.\n", MB);
+        printf("Failed to allocate %" PRIu64 "MB for transposition table.\n", TT.requestedMB);
         exit(EXIT_FAILURE);
     }
 
-    TT.currentMB = MB;
+    TT.currentMB = TT.requestedMB;
+    TT.count = size / sizeof(TTEntry);
 
-    // Ensure the memory is 0'ed out
+    // Zero out the memory
     TT.dirty = true;
     ClearTT(threads);
-
-    printf("HashTable init complete with %" PRIu64 " entries, using %" PRIu64 "MB.\n", TT.count, MB);
-    fflush(stdout);
 }
