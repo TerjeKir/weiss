@@ -25,6 +25,7 @@
 
 typedef struct EvalInfo {
     Bitboard mobilityArea[2];
+    
     Bitboard enemyKingZone[2];
     int16_t KingAttackPower[2];
     int16_t KingAttackCount[2];
@@ -238,13 +239,14 @@ INLINE int EvalPiece(const Position *pos, EvalInfo *ei, const Color color, const
 
         // Mobility
         Bitboard occ = GetScanning(pos, color, pt);
-        Bitboard MobilityBB = AttackBB(pt, sq, occ) & ei->mobilityArea[color];
-        int mob = PopCount(MobilityBB);
+        Bitboard mobilityBB = AttackBB(pt, sq, occ) & ei->mobilityArea[color];
+        int mob = PopCount(mobilityBB);
         if (TRACE) T.Mobility[pt-2][mob][color]++;
 
 
         eval += Mobility[pt-2][mob];
-        int kingAttack = PopCount(MobilityBB & ei->enemyKingZone[color]);
+
+        int kingAttack = PopCount(mobilityBB & ei->enemyKingZone[color]);
         if (kingAttack > 0) {
             ei->KingAttackCount[color]++;
             ei->KingAttackPower[color] += kingAttack * PieceAttackPower[pt - 2];
