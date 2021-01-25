@@ -78,6 +78,10 @@ const int PawnPassed[8] = {
 const int OpenFile[2]     = { S( 31, 10), S( -4,  2) };
 const int SemiOpenFile[2] = { S(  9, 16), S(  2,  2) };
 
+// KingSafety [pt-2]
+const uint16_t PieceAttackPower[4] = {35, 20, 40, 80};
+const uint16_t PieceCountModifier[8] = {0, 0, 50, 75, 80, 88, 95, 100};
+
 // Mobility [pt-2][mobility]
 const int Mobility[4][28] = {
     // Knight (0-8)
@@ -95,10 +99,6 @@ const int Mobility[4][28] = {
       S( 29, 65), S( 33, 64), S( 31, 71), S( 36, 70), S( 41, 75), S( 58, 66), S( 65, 72), S( 84, 68),
       S(109, 89), S(113, 86), S(104,111), S(108,131) }
 };
-
-// KingSafety [pt-2]
-const uint16_t PieceAttackPower[4] = {35, 20, 40, 80};
-const uint16_t PieceCountModifier[8] = {0, 0, 50, 75, 80, 88, 95, 100};
 
 
 // Check if the board is (likely) drawn, logic from sjeng
@@ -202,16 +202,16 @@ int ProbePawnCache(const Position *pos, PawnCache pc) {
     return pe->eval;
 }
 
-INLINE Bitboard GetScanning(const Position *pos, const Color color, const PieceType pt){
-    Bitboard occupied = pieceBB(ALL);
+INLINE Bitboard GetScanning(const Position *pos, const Color color, const PieceType pt) {
+    Bitboard occ = pieceBB(ALL);
     switch(pt) {
         // Bishop scans through Bishops and Queens        
-        case BISHOP: return occupied ^ colorPieceBB(color, BISHOP) ^ colorPieceBB(color, QUEEN);
+        case BISHOP: return occ ^ colorPieceBB(color, BISHOP) ^ colorPieceBB(color, QUEEN);
         // Rooks scan through Rooks and Queens
-        case ROOK  : return occupied ^ colorPieceBB(color, ROOK) ^ colorPieceBB(color, QUEEN);
+        case ROOK  : return occ ^ colorPieceBB(color, ROOK) ^ colorPieceBB(color, QUEEN);
         // Queens scan through Queens, Rooks and Bishops
-        case QUEEN : return occupied ^ colorPieceBB(color, ROOK) ^ colorPieceBB(color, QUEEN) ^ colorPieceBB(color, BISHOP);
-        default    : return occupied;
+        case QUEEN : return occ ^ colorPieceBB(color, ROOK) ^ colorPieceBB(color, QUEEN) ^ colorPieceBB(color, BISHOP);
+        default    : return occ;
     }
 }
 
@@ -237,16 +237,18 @@ INLINE int EvalPiece(const Position *pos, EvalInfo *ei, const Color color, const
         if (TRACE) T.PSQT[pt-1][RelativeSquare(color, sq)][color]++;
 
         // Mobility
-        Bitboard occupied = GetScanning(pos, color, pt);
-        Bitboard MobilityBB = AttackBB(pt, sq, occupied) & ei->mobilityArea[color];
+        Bitboard occ = GetScanning(pos, color, pt);
+        Bitboard MobilityBB = AttackBB(pt, sq, occ) & ei->mobilityArea[color];
         int mob = PopCount(MobilityBB);
+        if (TRACE) T.Mobility[pt-2][mob][color]++;
+
+
         eval += Mobility[pt-2][mob];
         int kingAttack = PopCount(MobilityBB & ei->enemyKingZone[color]);
-        if (kingAttack > 0){
+        if (kingAttack > 0) {
             ei->KingAttackCount[color]++;
             ei->KingAttackPower[color] += kingAttack * PieceAttackPower[pt - 2];
         }
-        if (TRACE) T.Mobility[pt-2][mob][color]++;
 
         if (pt == ROOK || pt == QUEEN) {
 
@@ -317,7 +319,7 @@ INLINE void InitEvalInfo(const Position *pos, EvalInfo *ei, const Color color) {
     
     Square kingSq = Lsb(colorPieceBB(!color, KING));
     Bitboard kingZone = AttackBB(KING, kingSq, 0);
-    ei->enemyKingZone[color] = color == WHITE ? (kingZone | (kingZone << 8)) : (kingZone | (kingZone >> 8));
+    ei->enemyKingZone[color] = color == WHITE ? (kingZone | ShiftBB(NORTH, kingZone)) : (kingZone | ShiftBB(SOUTH, kingZone));
 }
 
 // Calculate a static evaluation of a position
