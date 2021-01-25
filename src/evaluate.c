@@ -25,6 +25,11 @@
 
 typedef struct EvalInfo {
     Bitboard mobilityArea[2];
+    
+    Bitboard enemyKingZone[2];
+    int16_t KingAttackPower[2];
+    int16_t KingAttackCount[2];
+
 } EvalInfo;
 
 
@@ -58,38 +63,42 @@ const int PhaseValue[PIECE_NB] = {
 const int Tempo = 15;
 
 // Misc bonuses and maluses
-const int PawnDoubled    = S(-11,-26);
+const int PawnDoubled    = S(-10,-24);
 const int PawnIsolated   = S(-14,-17);
-const int PawnSupport    = S( 13,  6);
-const int BishopPair     = S( 19, 97);
-const int KingLineDanger = S( -4, -2);
+const int PawnSupport    = S( 12,  5);
+const int BishopPair     = S( 20, 98);
+const int KingLineDanger = S( -5, -2);
 
 // Passed pawn [rank]
 const int PawnPassed[8] = {
-    S(  0,  0), S( -8, 19), S(-12, 23), S( -7, 52),
-    S( 24, 74), S( 59,134), S(131,186), S(  0,  0),
+    S(  0,  0), S(-10, 19), S(-13, 23), S( -9, 53),
+    S( 21, 75), S( 53,133), S(128,185), S(  0,  0),
 };
 
 // (Semi) open file for rook and queen [pt-4]
-const int OpenFile[2]     = { S( 39, 12), S(  0,  2) };
-const int SemiOpenFile[2] = { S( 16, 14), S(  3,  3) };
+const int OpenFile[2]     = { S( 31, 10), S( -4,  2) };
+const int SemiOpenFile[2] = { S(  9, 16), S(  2,  2) };
+
+// KingSafety [pt-2]
+const uint16_t PieceAttackPower[4] = {35, 20, 40, 80};
+const uint16_t PieceCountModifier[8] = {0, 0, 50, 75, 80, 88, 95, 100};
 
 // Mobility [pt-2][mobility]
 const int Mobility[4][28] = {
     // Knight (0-8)
-    { S(-68,-53), S(-26,-62), S( -3,-29), S(  6,  7), S( 17, 23), S( 21, 46), S( 29, 51), S( 38, 50),
-      S( 53, 32) },
+    { S(-64,-53), S(-25,-64), S( -5,-28), S(  6,  8), S( 15, 25), S( 19, 47), S( 26, 51), S( 36, 50),
+      S( 52, 32) },
     // Bishop (0-13)
-    { S(-49,-77), S(-16,-78), S( -7,-42), S(  0,-11), S( 10,  6), S( 18, 31), S( 22, 48), S( 23, 57),
-      S( 23, 64), S( 30, 66), S( 42, 61), S( 63, 50), S( 60, 72), S( 47, 54) },
+    { S(-58,-84), S(-24,-85), S( -6,-42), S(  2, -9), S( 11,  8), S( 19, 33), S( 23, 50), S( 23, 58),
+      S( 24, 67), S( 30, 68), S( 39, 63), S( 63, 52), S( 60, 71), S( 48, 53) },
     // Rook (0-14)
-    { S(-59,-69), S(-23,-47), S(-10,-27), S(-11, -5), S( -7, 11), S( -5, 29), S( -3, 44), S(  2, 50),
-      S(  7, 56), S( 13, 61), S( 20, 67), S( 26, 68), S( 35, 68), S( 53, 56), S( 77, 36) },
+    { S(-59,-69), S(-29,-52), S(-15,-32), S(-15,-14), S( -8,  9), S( -5, 27), S( -8, 47), S( -2, 51),
+      S(  4, 57), S( 11, 64), S( 21, 69), S( 30, 70), S( 37, 72), S( 53, 62), S( 85, 40) },
     // Queen (0-27)
-    { S(-62,-48), S(-67,-36), S(-56,-46), S(-44,-47), S(-33,-43), S(-16,-42), S( -8,-36), S( -2,-24),
-      S(  3, -7), S(  9,  6), S( 14, 19), S( 19, 27), S( 23, 32), S( 26, 42), S( 28, 50), S( 28, 59),
-      S( 30, 64), S( 33, 61), S( 32, 70), S( 37, 69), S( 42, 76), S( 61, 68), S( 67, 74), S( 86, 70),
-      S(110, 91), S(114, 87), S(104,111), S(108,131) }
+    { S(-62,-48), S(-68,-36), S(-60,-47), S(-46,-48), S(-33,-44), S(-17,-43), S( -7,-37), S(  0,-24),
+      S(  6, -7), S( 12,  6), S( 16, 19), S( 20, 28), S( 25, 33), S( 26, 43), S( 28, 51), S( 29, 60),
+      S( 29, 65), S( 33, 64), S( 31, 71), S( 36, 70), S( 41, 75), S( 58, 66), S( 65, 72), S( 84, 68),
+      S(109, 89), S(113, 86), S(104,111), S(108,131) }
 };
 
 
@@ -194,8 +203,21 @@ int ProbePawnCache(const Position *pos, PawnCache pc) {
     return pe->eval;
 }
 
+INLINE Bitboard GetScanning(const Position *pos, const Color color, const PieceType pt) {
+    Bitboard occ = pieceBB(ALL);
+    switch(pt) {
+        // Bishop scans through Bishops and Queens        
+        case BISHOP: return occ ^ colorPieceBB(color, BISHOP) ^ colorPieceBB(color, QUEEN);
+        // Rooks scan through Rooks and Queens
+        case ROOK  : return occ ^ colorPieceBB(color, ROOK) ^ colorPieceBB(color, QUEEN);
+        // Queens scan through Queens, Rooks and Bishops
+        case QUEEN : return occ ^ colorPieceBB(color, ROOK) ^ colorPieceBB(color, QUEEN) ^ colorPieceBB(color, BISHOP);
+        default    : return occ;
+    }
+}
+
 // Evaluates knights, bishops, rooks, or queens
-INLINE int EvalPiece(const Position *pos, const EvalInfo *ei, const Color color, const PieceType pt) {
+INLINE int EvalPiece(const Position *pos, EvalInfo *ei, const Color color, const PieceType pt) {
 
     int eval = 0;
 
@@ -216,9 +238,19 @@ INLINE int EvalPiece(const Position *pos, const EvalInfo *ei, const Color color,
         if (TRACE) T.PSQT[pt-1][RelativeSquare(color, sq)][color]++;
 
         // Mobility
-        int mob = PopCount(AttackBB(pt, sq, pieceBB(ALL)) & ei->mobilityArea[color]);
-        eval += Mobility[pt-2][mob];
+        Bitboard occ = GetScanning(pos, color, pt);
+        Bitboard mobilityBB = AttackBB(pt, sq, occ) & ei->mobilityArea[color];
+        int mob = PopCount(mobilityBB);
         if (TRACE) T.Mobility[pt-2][mob][color]++;
+
+
+        eval += Mobility[pt-2][mob];
+
+        int kingAttack = PopCount(mobilityBB & ei->enemyKingZone[color]);
+        if (kingAttack > 0) {
+            ei->KingAttackCount[color]++;
+            ei->KingAttackPower[color] += kingAttack * PieceAttackPower[pt - 2];
+        }
 
         if (pt == ROOK || pt == QUEEN) {
 
@@ -254,7 +286,7 @@ INLINE int EvalKings(const Position *pos, const Color color) {
     return eval;
 }
 
-INLINE int EvalPieces(const Position *pos, const EvalInfo *ei) {
+INLINE int EvalPieces(const Position *pos, EvalInfo *ei) {
     return  EvalPiece(pos, ei, WHITE, KNIGHT)
           - EvalPiece(pos, ei, BLACK, KNIGHT)
           + EvalPiece(pos, ei, WHITE, BISHOP)
@@ -265,6 +297,11 @@ INLINE int EvalPieces(const Position *pos, const EvalInfo *ei) {
           - EvalPiece(pos, ei, BLACK, QUEEN)
           + EvalKings(pos, WHITE)
           - EvalKings(pos, BLACK);
+}
+
+INLINE int EvalSafety(const Color color ,const EvalInfo *ei) {
+    int16_t safetyScore = ei->KingAttackPower[color] * PieceCountModifier[MIN(7, ei->KingAttackCount[color])] / 100;
+    return S(safetyScore, 0);
 }
 
 // Initializes the eval info struct
@@ -279,6 +316,12 @@ INLINE void InitEvalInfo(const Position *pos, EvalInfo *ei, const Color color) {
     // Mobility area is defined as any square not attacked by an enemy pawn,
     // nor occupied by our own pawn on its starting square or blocked from advancing.
     ei->mobilityArea[color] = ~(b | PawnBBAttackBB(colorPieceBB(!color, PAWN), !color));
+    ei->KingAttackCount[color] = 0;
+    ei->KingAttackPower[color] = 0;
+    
+    Square kingSq = Lsb(colorPieceBB(!color, KING));
+    Bitboard kingZone = AttackBB(KING, kingSq, 0);
+    ei->enemyKingZone[color] = color == WHITE ? (kingZone | ShiftBB(NORTH, kingZone)) : (kingZone | ShiftBB(SOUTH, kingZone));
 }
 
 // Calculate a static evaluation of a position
@@ -298,6 +341,9 @@ int EvalPosition(const Position *pos, PawnCache pc) {
 
     // Evaluate pieces
     eval += EvalPieces(pos, &ei);
+
+    // Evaluate KingSafety
+    eval += EvalSafety(WHITE, &ei) - EvalSafety(BLACK, &ei);
 
     if (TRACE) T.eval = eval;
 
