@@ -296,7 +296,7 @@ INLINE int EvalPieces(const Position *pos, EvalInfo *ei) {
 }
 
 INLINE int EvalSafety(const Color color ,const EvalInfo *ei) {
-    int16_t safetyScore = ei->KingAttackPower[color] * PieceCountModifier[MIN(8, ei->KingAttackCount[color])] / 100;
+    int16_t safetyScore = ei->KingAttackPower[color] * PieceCountModifier[MIN(7, ei->KingAttackCount[color])] / 100;
     return S(safetyScore, 0);
 }
 
