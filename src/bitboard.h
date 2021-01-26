@@ -166,16 +166,27 @@ INLINE bool Single(Bitboard bb) {
 }
 
 // Returns the attack bitboard for a piece of piecetype on square sq
-INLINE Bitboard AttackBB(PieceType piecetype, Square sq, Bitboard occupied) {
+INLINE Bitboard AttackBB(PieceType pt, Square sq, Bitboard occupied) {
 
-    assert(piecetype != PAWN);
+    assert(pt != PAWN);
 
-    switch(piecetype) {
+    switch (pt) {
         case BISHOP: return BishopTable[sq].attacks[AttackIndex(sq, occupied, BishopTable)];
         case ROOK  : return   RookTable[sq].attacks[AttackIndex(sq, occupied, RookTable)];
         case QUEEN : return AttackBB(ROOK, sq, occupied) | AttackBB(BISHOP, sq, occupied);
-        default    : return PseudoAttacks[piecetype][sq];
+        default    : return PseudoAttacks[pt][sq];
     }
+}
+
+// Returns an attack bitboard where sliders are allowed to xray other sliders moving the same directions
+INLINE Bitboard XRayAttackBB(const Position *pos, const Color color, const PieceType pt, const Square sq) {
+    Bitboard occ = pieceBB(ALL);
+    switch (pt) {
+        case BISHOP: occ ^= colorPieceBB(color, QUEEN) ^ colorPieceBB(color, BISHOP); break;
+        case ROOK  : occ ^= colorPieceBB(color, QUEEN) ^ colorPieceBB(color, ROOK); break;
+        case QUEEN : occ ^= colorPieceBB(color, QUEEN) ^ colorPieceBB(color, ROOK) ^ colorPieceBB(color, BISHOP); break;
+    }
+    return AttackBB(pt, sq, occ);
 }
 
 // Returns the attack bitboard for a pawn

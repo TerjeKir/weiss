@@ -175,7 +175,6 @@ void ParseFen(const char *fen, Position *pos) {
             case 'Q': pos->castlingRights |= WHITE_OOO; break;
             case 'k': pos->castlingRights |= BLACK_OO;  break;
             case 'q': pos->castlingRights |= BLACK_OOO; break;
-            default: break;
         }
 
     // En passant square

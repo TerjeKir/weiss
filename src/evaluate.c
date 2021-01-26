@@ -201,19 +201,6 @@ int ProbePawnCache(const Position *pos, PawnCache pc) {
     return pe->eval;
 }
 
-INLINE Bitboard GetScanning(const Position *pos, const Color color, const PieceType pt) {
-    Bitboard occ = pieceBB(ALL);
-    switch(pt) {
-        // Bishop scans through Bishops and Queens
-        case BISHOP: return occ ^ colorPieceBB(color, BISHOP) ^ colorPieceBB(color, QUEEN);
-        // Rooks scan through Rooks and Queens
-        case ROOK  : return occ ^ colorPieceBB(color, ROOK) ^ colorPieceBB(color, QUEEN);
-        // Queens scan through Queens, Rooks and Bishops
-        case QUEEN : return occ ^ colorPieceBB(color, ROOK) ^ colorPieceBB(color, QUEEN) ^ colorPieceBB(color, BISHOP);
-        default    : return occ;
-    }
-}
-
 // Evaluates knights, bishops, rooks, or queens
 INLINE int EvalPiece(const Position *pos, EvalInfo *ei, const Color color, const PieceType pt) {
 
@@ -236,14 +223,12 @@ INLINE int EvalPiece(const Position *pos, EvalInfo *ei, const Color color, const
         if (TRACE) T.PSQT[pt-1][RelativeSquare(color, sq)][color]++;
 
         // Mobility
-        Bitboard occ = GetScanning(pos, color, pt);
-        Bitboard mobilityBB = AttackBB(pt, sq, occ) & ei->mobilityArea[color];
+        Bitboard mobilityBB = XRayAttackBB(pos, color, pt, sq) & ei->mobilityArea[color];
         int mob = PopCount(mobilityBB);
+        eval += Mobility[pt-2][mob];
         if (TRACE) T.Mobility[pt-2][mob][color]++;
 
-
-        eval += Mobility[pt-2][mob];
-
+        // Attacks for king safety calculations
         int kingAttack = PopCount(mobilityBB & ei->enemyKingZone[color]);
 
         Bitboard checks = AttackBB(pt,  Lsb(colorPieceBB(!color, KING)), pieceBB(ALL)) & mobilityBB;
@@ -301,28 +286,33 @@ INLINE int EvalPieces(const Position *pos, EvalInfo *ei) {
 }
 
 INLINE int EvalSafety(const Color color ,const EvalInfo *ei) {
-    int16_t safetyScore = ei->KingAttackPower[color] * PieceCountModifier[MIN(7, ei->KingAttackCount[color])] / 100;
+    int16_t safetyScore =  ei->KingAttackPower[color]
+                         * PieceCountModifier[MIN(7, ei->KingAttackCount[color])]
+                         / 100;
+
     return S(safetyScore, 0);
 }
 
 // Initializes the eval info struct
 INLINE void InitEvalInfo(const Position *pos, EvalInfo *ei, const Color color) {
 
+    const Direction up   = (color == WHITE ? NORTH : SOUTH);
     const Direction down = (color == WHITE ? SOUTH : NORTH);
 
+    // Mobility area is defined as any square not attacked by an enemy pawn, nor
+    // occupied by our own pawn either on its starting square or blocked from advancing.
     Bitboard b = RankBB[RelativeRank(color, RANK_2)] | ShiftBB(down, pieceBB(ALL));
-
     b &= colorPieceBB(color, PAWN);
 
-    // Mobility area is defined as any square not attacked by an enemy pawn,
-    // nor occupied by our own pawn on its starting square or blocked from advancing.
     ei->mobilityArea[color] = ~(b | PawnBBAttackBB(colorPieceBB(!color, PAWN), !color));
+
+    // King Safety
     ei->KingAttackCount[color] = 0;
     ei->KingAttackPower[color] = 0;
 
     Square kingSq = Lsb(colorPieceBB(!color, KING));
     Bitboard kingZone = AttackBB(KING, kingSq, 0);
-    ei->enemyKingZone[color] = color == WHITE ? (kingZone | ShiftBB(NORTH, kingZone)) : (kingZone | ShiftBB(SOUTH, kingZone));
+    ei->enemyKingZone[color] = kingZone | ShiftBB(up, kingZone);
 }
 
 // Calculate a static evaluation of a position
