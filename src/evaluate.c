@@ -69,8 +69,8 @@ const int KingLineDanger = S( -5, -2);
 
 // Passed pawn [rank]
 const int PawnPassed[RANK_NB] = {
-    S(  0,  0), S( -8, 19), S(-12, 23), S( -7, 52),
-    S( 24, 74), S( 59,134), S(131,186), S(  0,  0),
+    S(  0,  0), S(-10, 19), S(-13, 23), S( -9, 53),
+    S( 21, 75), S( 53,133), S(128,185), S(  0,  0),
 };
 
 // (Semi) open file for rook and queen [pt-4]
