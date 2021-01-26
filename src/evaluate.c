@@ -333,7 +333,7 @@ int EvalPosition(const Position *pos, PawnCache pc) {
     // Evaluate pieces
     eval += EvalPieces(pos, &ei);
 
-    // Evaluate KingSafety
+    // Evaluate king safety
     eval += EvalSafety(WHITE, &ei) - EvalSafety(BLACK, &ei);
 
     if (TRACE) T.eval = eval;
