@@ -249,16 +249,11 @@ INLINE int EvalPiece(const Position *pos, EvalInfo *ei, const Color color, const
 
         int kingAttack = PopCount(mobilityBB & ei->enemyKingZone[color]);
 
-        int checks = 0;
-        if (pt == KNIGHT) {
-            Bitboard posChecks = AttackBB(KNIGHT,  Lsb(colorPieceBB(!color, KING)), 0);
-            checks = PopCount(posChecks & mobilityBB);
-        }
+        Bitboard posChecks = pt == KNIGHT ? (AttackBB(KNIGHT,  Lsb(colorPieceBB(!color, KING)), 0) & mobilityBB) : 0;
 
-        if (kingAttack > 0 || checks > 0) {
+        if (kingAttack > 0 || posChecks != 0) {
             ei->KingAttackCount[color]++;
             ei->KingAttackPower[color] += kingAttack * PieceAttackPower[pt - 2];
-            ei->KingAttackPower[color] += checks * KnightCheck;
         }
 
         if (pt == ROOK || pt == QUEEN) {
