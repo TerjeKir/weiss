@@ -7,8 +7,6 @@ Weiss is part of the [OpenBench](http://chess.grantnet.us/index/) testing framew
 
 ### UCI settings
 
-Weiss supports the following:
-
 * #### Hash
   The size of the hash table in MB.
 
