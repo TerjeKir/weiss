@@ -82,7 +82,6 @@ const int SemiOpenFile[2] = { S(  9, 16), S(  2,  2) };
 // KingSafety [pt-2]
 const uint16_t PieceAttackPower[4] = {35, 20, 40, 80};
 const uint16_t PieceCountModifier[8] = {0, 0, 50, 75, 80, 88, 95, 100};
-const uint16_t KnightCheck = 50;
 
 // Mobility [pt-2][mobility]
 const int Mobility[4][28] = {
