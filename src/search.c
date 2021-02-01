@@ -371,7 +371,7 @@ move_loop:
         if (  !pvNode
             && thread->doPruning
             && bestScore > -TBWIN_IN_MAX
-            && quietCount > (3 + 2 * depth * depth) / (2 - improving)) {
+            && moveCount > (3 + 2 * depth * depth) / (2 - improving)) {
             mp.onlyNoisy = true;
             continue;
         }
