@@ -65,7 +65,7 @@ typedef struct EvalTrace {
     int BishopPair[COLOR_NB];
     int KingLineDanger[COLOR_NB];
 
-    int PawnPassed[8][COLOR_NB];
+    int PawnPassed[RANK_NB][COLOR_NB];
 
     int OpenFile[2][COLOR_NB];
     int SemiOpenFile[2][COLOR_NB];

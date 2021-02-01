@@ -175,7 +175,6 @@ void ParseFen(const char *fen, Position *pos) {
             case 'Q': pos->castlingRights |= WHITE_OOO; break;
             case 'k': pos->castlingRights |= BLACK_OO;  break;
             case 'q': pos->castlingRights |= BLACK_OOO; break;
-            default: break;
         }
 
     // En passant square
@@ -212,7 +211,7 @@ char *BoardToFen(const Position *pos) {
         int count = 0;
 
         for (int file = FILE_A; file <= FILE_H; ++file) {
-            Square sq = (rank * 8) + file;
+            Square sq = MakeSquare(rank, file);
             Piece piece = pieceOn(sq);
 
             if (piece) {
@@ -331,7 +330,7 @@ void PrintBoard(const Position *pos) {
     printf("\n");
     for (int rank = RANK_8; rank >= RANK_1; --rank) {
         for (int file = FILE_A; file <= FILE_H; ++file) {
-            Square sq = (rank * 8) + file;
+            Square sq = MakeSquare(rank, file);
             printf("%3c", PieceChars[pieceOn(sq)]);
         }
         printf("\n");
@@ -366,7 +365,7 @@ bool PositionOk(const Position *pos) {
     assert(0 <= pos->histPly && pos->histPly < 256);
 
     int counts[PIECE_NB] = { 0 };
-    int nonPawnCount[2] = { 0, 0 };
+    int nonPawnCount[COLOR_NB] = { 0, 0 };
 
     for (Square sq = A1; sq <= H8; ++sq) {
 

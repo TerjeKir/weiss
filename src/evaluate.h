@@ -33,7 +33,7 @@ typedef PawnEntry PawnCache[PAWN_CACHE_SIZE];
 
 
 extern const int Tempo;
-extern const int PieceValue[2][PIECE_NB];
+extern const int PieceValue[COLOR_NB][PIECE_NB];
 
 
 // Tapered Eval
