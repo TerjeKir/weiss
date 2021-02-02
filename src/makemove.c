@@ -64,7 +64,7 @@ static void ClearPiece(Position *pos, const Square sq, const bool hash) {
     pos->material -= PSQT[piece][sq];
 
     // Update phase
-    pos->phaseValue -= PhaseValue[piece];
+    pos->phaseValue -= PhaseValue[pt];
     pos->phase = UpdatePhase(pos->phaseValue);
 
     // Update non-pawn count
@@ -96,7 +96,7 @@ static void AddPiece(Position *pos, const Square sq, const Piece piece, const bo
     pos->material += PSQT[piece][sq];
 
     // Update phase
-    pos->phaseValue += PhaseValue[piece];
+    pos->phaseValue += PhaseValue[pt];
     pos->phase = UpdatePhase(pos->phaseValue);
 
     // Update non-pawn count

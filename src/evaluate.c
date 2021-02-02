@@ -52,8 +52,7 @@ const int PieceValue[COLOR_NB][PIECE_NB] = {
 };
 
 // Phase value for each piece [piece]
-const int PhaseValue[PIECE_NB] = {
-    0, 0, 1, 1, 2, 4, 0, 0,
+const int PhaseValue[TYPE_NB] = {
     0, 0, 1, 1, 2, 4, 0, 0
 };
 

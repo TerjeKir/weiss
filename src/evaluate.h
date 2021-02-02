@@ -50,7 +50,7 @@ extern const int PieceValue[COLOR_NB][PIECE_NB];
 enum Phase { MG, EG };
 
 static const int MidGame = 256;
-extern const int PhaseValue[PIECE_NB];
+extern const int PhaseValue[TYPE_NB];
 
 #define MakeScore(mg, eg) ((int)((unsigned int)(eg) << 16) + (mg))
 #define S(mg, eg) MakeScore((mg), (eg))
