@@ -135,7 +135,7 @@ static void AddPiece(Position *pos, const Square sq, const Piece piece) {
 
     // Update misc
     pos->material += PSQT[piece][sq];
-    pos->phaseValue += PhaseValue[piece];
+    pos->phaseValue += PhaseValue[pt];
     pos->nonPawnCount[color] += NonPawn[piece];
 
     if (PieceTypeOf(piece) == PAWN)
