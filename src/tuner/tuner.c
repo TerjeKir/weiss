@@ -36,7 +36,7 @@
 
 
 // Piece values
-extern const int PieceValue[2][PIECE_NB];
+extern const int PieceValue[COLOR_NB][PIECE_NB];
 
 // PSQT values
 extern const int PieceSqValue[7][64];
