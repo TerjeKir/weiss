@@ -60,42 +60,52 @@ const int PhaseValue[TYPE_NB] = {
 const int Tempo = 15;
 
 // Misc bonuses and maluses
-const int PawnDoubled    = S(-10,-24);
+const int PawnDoubled    = S(-11,-24);
 const int PawnIsolated   = S(-14,-17);
 const int PawnSupport    = S( 12,  5);
-const int BishopPair     = S( 20, 98);
-const int KingLineDanger = S( -5, -2);
+const int BishopPair     = S( 21, 98);
 
 // Passed pawn [rank]
 const int PawnPassed[RANK_NB] = {
-    S(  0,  0), S(-10, 19), S(-13, 23), S( -9, 53),
-    S( 21, 75), S( 53,133), S(128,185), S(  0,  0),
+    S(  0,  0), S(-11, 20), S(-13, 23), S( -8, 53),
+    S( 22, 76), S( 53,134), S(128,185), S(  0,  0),
 };
 
 // (Semi) open file for rook and queen [pt-4]
-const int OpenFile[2]     = { S( 31, 10), S( -4,  2) };
-const int SemiOpenFile[2] = { S(  9, 16), S(  2,  2) };
+const int OpenFile[2]     = { S( 28,  8), S( -6,  2) };
+const int SemiOpenFile[2] = { S(  8, 15), S(  2,  2) };
 
 // KingSafety [pt-2]
 const uint16_t PieceAttackPower[4] = {35, 20, 40, 80};
 const uint16_t PieceCountModifier[8] = {0, 0, 50, 75, 80, 88, 95, 100};
 
+// KingLineDanger
+const int KingLineDanger[28] = {
+    S(  0,  0), S( -5, -2), S(-11, -7), S( -9, -5),
+    S(-23,-11), S(-29,-16), S(-32,-18), S(-35,-18),
+    S(-41,-19), S(-47,-21), S(-47,-21), S(-55,-19),
+    S(-61,-21), S(-64,-21), S(-70,-22), S(-74,-21),
+    S(-79,-24), S(-84,-28), S(-88,-30), S(-95,-36),
+    S(-100,-38), S(-105,-44), S(-110,-48), S(-115,-52),
+    S(-120,-52), S(-126,-55), S(-130,-53), S(-135,-55),
+};
+
 // Mobility [pt-2][mobility]
 const int Mobility[4][28] = {
     // Knight (0-8)
-    { S(-64,-53), S(-25,-64), S( -5,-28), S(  6,  8), S( 15, 25), S( 19, 47), S( 26, 51), S( 36, 50),
-      S( 52, 32) },
+    { S(-63,-53), S(-24,-64), S( -4,-27), S(  6, 10), S( 14, 26), S( 18, 47), S( 26, 51), S( 35, 49),
+      S( 51, 31) },
     // Bishop (0-13)
-    { S(-58,-84), S(-24,-85), S( -6,-42), S(  2, -9), S( 11,  8), S( 19, 33), S( 23, 50), S( 23, 58),
-      S( 24, 67), S( 30, 68), S( 39, 63), S( 63, 52), S( 60, 71), S( 48, 53) },
+    { S(-58,-86), S(-23,-86), S( -4,-41), S(  3, -8), S( 12, 10), S( 19, 34), S( 23, 51), S( 22, 58),
+      S( 22, 66), S( 28, 67), S( 37, 63), S( 62, 52), S( 60, 70), S( 48, 53) },
     // Rook (0-14)
-    { S(-59,-69), S(-29,-52), S(-15,-32), S(-15,-14), S( -8,  9), S( -5, 27), S( -8, 47), S( -2, 51),
-      S(  4, 57), S( 11, 64), S( 21, 69), S( 30, 70), S( 37, 72), S( 53, 62), S( 85, 40) },
+    { S(-59,-69), S(-30,-53), S(-15,-33), S(-15,-15), S( -7, 10), S( -5, 28), S( -6, 49), S( -1, 53),
+      S(  5, 58), S( 12, 64), S( 21, 69), S( 28, 70), S( 34, 71), S( 51, 61), S( 86, 39) },
     // Queen (0-27)
-    { S(-62,-48), S(-68,-36), S(-60,-47), S(-46,-48), S(-33,-44), S(-17,-43), S( -7,-37), S(  0,-24),
-      S(  6, -7), S( 12,  6), S( 16, 19), S( 20, 28), S( 25, 33), S( 26, 43), S( 28, 51), S( 29, 60),
-      S( 29, 65), S( 33, 64), S( 31, 71), S( 36, 70), S( 41, 75), S( 58, 66), S( 65, 72), S( 84, 68),
-      S(109, 89), S(113, 86), S(104,111), S(108,131) }
+    { S(-62,-48), S(-68,-36), S(-61,-47), S(-46,-48), S(-33,-44), S(-16,-43), S( -6,-37), S(  2,-24),
+      S(  8, -7), S( 14,  6), S( 17, 20), S( 21, 29), S( 25, 34), S( 26, 44), S( 28, 51), S( 28, 60),
+      S( 28, 65), S( 31, 64), S( 30, 71), S( 35, 70), S( 40, 75), S( 57, 65), S( 64, 71), S( 83, 68),
+      S(109, 88), S(113, 86), S(104,111), S(108,131) }
 };
 
 
@@ -264,9 +274,10 @@ INLINE int EvalKings(const Position *pos, const Color color) {
     if (TRACE) T.PSQT[KING-1][RelativeSquare(color, kingSq)][color]++;
 
     // Open lines from the king
-    int count = PopCount(AttackBB(QUEEN, kingSq, colorBB(color) | pieceBB(PAWN)));
-    eval += KingLineDanger * count;
-    if (TRACE) T.KingLineDanger[color] += count;
+    Bitboard SafeLine = color == WHITE ? rank1BB : rank8BB;
+    int count = PopCount((~SafeLine) &  AttackBB(QUEEN, kingSq, colorBB(color) | pieceBB(PAWN)));
+    eval += KingLineDanger[count];
+    //if (TRACE) T.KingLineDanger[count][color]++;
 
     return eval;
 }
