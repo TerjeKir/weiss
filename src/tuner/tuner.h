@@ -35,11 +35,11 @@
     #define TRACE (0)
 #endif
 
-#define DATASET      "../../Datasets/Andrew/BIG.book"
-#define NPOSITIONS   (22494809) // Total FENS in the book
-#define BATCHSIZE    (22494809) // FENs per mini-batch
+#define DATASET      "BIG.book"
+#define NPOSITIONS   (42484641) // Total FENS in the book
+#define BATCHSIZE    (42484641) // FENs per mini-batch
 
-#define NTERMS       (     472) // Number of terms being tuned
+#define NTERMS       (     499) // Number of terms being tuned
 #define MAXEPOCHS    (   10000) // Max number of epochs allowed
 #define REPORTING    (      50) // How often to print the new parameters
 #define NPARTITIONS  (      64) // Total thread partitions
@@ -63,12 +63,12 @@ typedef struct EvalTrace {
     int PawnIsolated[COLOR_NB];
     int PawnSupport[COLOR_NB];
     int BishopPair[COLOR_NB];
-    int KingLineDanger[COLOR_NB];
 
     int PawnPassed[RANK_NB][COLOR_NB];
 
     int OpenFile[2][COLOR_NB];
     int SemiOpenFile[2][COLOR_NB];
+    int KingLineDanger[28][COLOR_NB];
 
 } EvalTrace;
 

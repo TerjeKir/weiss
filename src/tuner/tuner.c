@@ -46,7 +46,6 @@ extern const int PawnDoubled;
 extern const int PawnIsolated;
 extern const int PawnSupport;
 extern const int BishopPair;
-extern const int KingLineDanger;
 
 // Passed pawn [rank]
 extern const int PawnPassed[RANK_NB];
@@ -54,6 +53,8 @@ extern const int PawnPassed[RANK_NB];
 // (Semi) open file for rook and queen [pt-4]
 extern const int OpenFile[2];
 extern const int SemiOpenFile[2];
+
+extern const int KingLineDanger[28];
 
 // Mobility
 extern const int Mobility[4][28];
@@ -205,10 +206,6 @@ void InitBaseParams(TVector tparams) {
     tparams[i][EG] = EgScore(BishopPair);
     i++;
 
-    tparams[i][MG] = MgScore(KingLineDanger);
-    tparams[i][EG] = EgScore(KingLineDanger);
-    i++;
-
     // Passed pawns
     for (int j = 0; j < 8; ++j) {
         tparams[i][MG] = MgScore(PawnPassed[j]);
@@ -226,6 +223,12 @@ void InitBaseParams(TVector tparams) {
     for (int j = 0; j < 2; ++j) {
         tparams[i][MG] = MgScore(SemiOpenFile[j]);
         tparams[i][EG] = EgScore(SemiOpenFile[j]);
+        i++;
+    }
+
+    for (int j = 0; j < 28; ++j) {
+        tparams[i][MG] = MgScore(KingLineDanger[j]);
+        tparams[i][EG] = EgScore(KingLineDanger[j]);
         i++;
     }
 
@@ -264,7 +267,6 @@ void PrintParameters(TVector params, TVector current) {
     PrintSingle("PawnIsolated", tparams, i++, "  ");
     PrintSingle("PawnSupport", tparams, i++, "   ");
     PrintSingle("BishopPair", tparams, i++, "    ");
-    PrintSingle("KingLineDanger", tparams, i++, "");
 
     puts("\n// Passed pawn [rank]");
     PrintArray("PawnPassed", tparams, i, 8, "[8]");
@@ -275,6 +277,9 @@ void PrintParameters(TVector params, TVector current) {
     i+=2;
     PrintArray("SemiOpenFile", tparams, i, 2, "[2]");
     i+=2;
+    puts("");
+    PrintArray("KingLineDanger", tparams, i, 28, "[28]");
+    i+=28;
     puts("");
 
     if (i != NTERMS) {
@@ -306,7 +311,6 @@ void InitCoefficients(TCoeffs coeffs) {
     coeffs[i++] = T.PawnIsolated[WHITE]   - T.PawnIsolated[BLACK];
     coeffs[i++] = T.PawnSupport[WHITE]    - T.PawnSupport[BLACK];
     coeffs[i++] = T.BishopPair[WHITE]     - T.BishopPair[BLACK];
-    coeffs[i++] = T.KingLineDanger[WHITE] - T.KingLineDanger[BLACK];
 
     for (int j = 0; j < 8; ++j)
         coeffs[i++] = T.PawnPassed[j][WHITE] - T.PawnPassed[j][BLACK];
@@ -317,6 +321,8 @@ void InitCoefficients(TCoeffs coeffs) {
     for (int j = 0; j < 2; ++j)
         coeffs[i++] = T.SemiOpenFile[j][WHITE] - T.SemiOpenFile[j][BLACK];
 
+    for (int j = 0; j < 28; ++j)
+        coeffs[i++] = T.KingLineDanger[j][WHITE] - T.KingLineDanger[j][BLACK];
 
     if (i != NTERMS){
         printf("Error in InitCoefficients(): i = %d ; NTERMS = %d\n", i, NTERMS);
