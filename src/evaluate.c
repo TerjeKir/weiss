@@ -274,10 +274,10 @@ INLINE int EvalKings(const Position *pos, const Color color) {
     if (TRACE) T.PSQT[KING-1][RelativeSquare(color, kingSq)][color]++;
 
     // Open lines from the king
-    Bitboard SafeLine = color == WHITE ? rank1BB : rank8BB;
-    int count = PopCount((~SafeLine) &  AttackBB(QUEEN, kingSq, colorBB(color) | pieceBB(PAWN)));
+    Bitboard SafeLine = RankBB[RelativeRank(color, RANK_1)];
+    int count = PopCount((~SafeLine) & AttackBB(QUEEN, kingSq, colorBB(color) | pieceBB(PAWN)));
     eval += KingLineDanger[count];
-    //if (TRACE) T.KingLineDanger[count][color]++;
+    if (TRACE) T.KingLineDanger[count][color]++;
 
     return eval;
 }

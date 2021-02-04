@@ -85,7 +85,6 @@ const int PieceSqValue[7][64] = {
       S(  8,-77), S( 56,-72), S( 23,-44), S(-23,-41), S(  9,-80), S(-45,-36), S( 49,-79), S( 37,-143) },
 };
 
-
 // Initialize the piece square tables with piece values included
 CONSTR InitPSQT() {
 
