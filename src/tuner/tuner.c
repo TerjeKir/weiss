@@ -48,7 +48,7 @@ extern const int PawnSupport;
 extern const int BishopPair;
 
 // Passed pawn [rank]
-extern const int PawnPassed[8];
+extern const int PawnPassed[RANK_NB];
 
 // (Semi) open file for rook and queen [pt-4]
 extern const int OpenFile[2];
