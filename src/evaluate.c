@@ -265,7 +265,7 @@ INLINE int EvalPiece(const Position *pos, EvalInfo *ei, const Color color, const
 }
 
 // Evaluates kings
-INLINE int EvalKings(const Position *pos, const Color color) {
+INLINE int EvalKings(const Position *pos, EvalInfo *ei, const Color color) {
 
     int eval = 0;
 
@@ -277,6 +277,7 @@ INLINE int EvalKings(const Position *pos, const Color color) {
     Bitboard SafeLine = RankBB[RelativeRank(color, RANK_1)];
     int count = PopCount((~SafeLine) & AttackBB(QUEEN, kingSq, colorBB(color) | pieceBB(PAWN)));
     eval += KingLineDanger[count];
+    ei->KingAttackPower[!color] += MAX(0, ((count - 3) * 3));
     if (TRACE) T.KingLineDanger[count][color]++;
 
     return eval;
@@ -291,8 +292,8 @@ INLINE int EvalPieces(const Position *pos, EvalInfo *ei) {
           - EvalPiece(pos, ei, BLACK, ROOK)
           + EvalPiece(pos, ei, WHITE, QUEEN)
           - EvalPiece(pos, ei, BLACK, QUEEN)
-          + EvalKings(pos, WHITE)
-          - EvalKings(pos, BLACK);
+          + EvalKings(pos, ei, WHITE)
+          - EvalKings(pos, ei, BLACK);
 }
 
 INLINE int EvalSafety(const Color color ,const EvalInfo *ei) {
