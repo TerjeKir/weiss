@@ -277,7 +277,7 @@ INLINE int EvalKings(const Position *pos, EvalInfo *ei, const Color color) {
     Bitboard SafeLine = RankBB[RelativeRank(color, RANK_1)];
     int count = PopCount((~SafeLine) & AttackBB(QUEEN, kingSq, colorBB(color) | pieceBB(PAWN)));
     eval += KingLineDanger[count];
-    ei->KingAttackPower[!color] += MAX(0, ((count - 3) * 3));
+    ei->KingAttackPower[!color] += MAX(0, ((count - 3) * 8));
     if (TRACE) T.KingLineDanger[count][color]++;
 
     return eval;
