@@ -77,7 +77,7 @@ const int SemiOpenFile[2] = { S(  8, 15), S(  2,  2) };
 
 // KingSafety [pt-2]
 const uint16_t PieceAttackPower[4] = {35, 20, 40, 80};
-const uint16_t PieceCheckPower[4]  = {75, 25, 50, 50};
+const uint16_t PieceCheckPower[4]  = {100, 35, 65, 65};
 const uint16_t PieceCountModifier[8] = {0, 0, 50, 75, 80, 88, 95, 100};
 
 // KingLineDanger
