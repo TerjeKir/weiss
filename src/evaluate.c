@@ -66,7 +66,7 @@ const int PawnSupport    = S( 12,  5);
 const int BishopPair     = S( 22, 98);
 
 // Passed pawn [rank]
-const int PawnPassed[8] = {
+const int PawnPassed[RANK_NB] = {
     S(  0,  0), S(-12, 21), S(-14, 24), S( -8, 53),
     S( 22, 77), S( 53,134), S(128,186), S(  0,  0),
 };
