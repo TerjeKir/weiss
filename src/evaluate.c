@@ -241,12 +241,12 @@ INLINE int EvalPiece(const Position *pos, EvalInfo *ei, const Color color, const
         // Attacks for king safety calculations
         int kingAttack = PopCount(mobilityBB & ei->enemyKingZone[color]);
 
-        int checks = PopCount(AttackBB(pt,  Lsb(colorPieceBB(!color, KING)), pieceBB(ALL)) & mobilityBB);
+        int checks = PopCount(AttackBB(pt, Lsb(colorPieceBB(!color, KING)), pieceBB(ALL)) & mobilityBB);
 
         if (kingAttack > 0 || checks > 0) {
             ei->KingAttackCount[color]++;
-            ei->KingAttackPower[color] += kingAttack * PieceAttackPower[pt - 2];
-            ei->KingAttackPower[color] += checks * PieceCheckPower[pt - 2];
+            ei->KingAttackPower[color] += kingAttack * PieceAttackPower[pt - 2]
+                                        + checks * PieceCheckPower[pt - 2];
         }
 
         if (pt == ROOK || pt == QUEEN) {
