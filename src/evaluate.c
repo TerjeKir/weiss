@@ -77,6 +77,7 @@ const int SemiOpenFile[2] = { S(  8, 15), S(  2,  2) };
 
 // KingSafety [pt-2]
 const uint16_t PieceAttackPower[4] = {35, 20, 40, 80};
+const uint16_t PieceCheckPower[4]  = {75, 25, 50, 50};
 const uint16_t PieceCountModifier[8] = {0, 0, 50, 75, 80, 88, 95, 100};
 
 // KingLineDanger
@@ -240,11 +241,12 @@ INLINE int EvalPiece(const Position *pos, EvalInfo *ei, const Color color, const
         // Attacks for king safety calculations
         int kingAttack = PopCount(mobilityBB & ei->enemyKingZone[color]);
 
-        Bitboard checks = AttackBB(pt,  Lsb(colorPieceBB(!color, KING)), pieceBB(ALL)) & mobilityBB;
+        int checks = PopCount(AttackBB(pt,  Lsb(colorPieceBB(!color, KING)), pieceBB(ALL)) & mobilityBB);
 
-        if (kingAttack > 0 || checks != 0) {
+        if (kingAttack > 0 || checks > 0) {
             ei->KingAttackCount[color]++;
             ei->KingAttackPower[color] += kingAttack * PieceAttackPower[pt - 2];
+            ei->KingAttackPower[color] += checks * PieceCheckPower[pt - 2];
         }
 
         if (pt == ROOK || pt == QUEEN) {
