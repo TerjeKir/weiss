@@ -60,20 +60,22 @@ const int PhaseValue[TYPE_NB] = {
 const int Tempo = 15;
 
 // Misc bonuses and maluses
-const int PawnDoubled    = S(-12,-24);
+const int PawnDoubled    = S(-13,-25);
 const int PawnIsolated   = S(-14,-18);
-const int PawnSupport    = S( 12,  5);
-const int BishopPair     = S( 22, 98);
+const int PawnSupport    = S( 13,  5);
+const int BishopPair     = S( 24, 99);
+const int BishopOutPost  = S(  5, -1);
+const int KnightOutPost  = S( 14,  6);
 
 // Passed pawn [rank]
-const int PawnPassed[RANK_NB] = {
-    S(  0,  0), S(-12, 21), S(-14, 24), S( -8, 53),
-    S( 22, 77), S( 53,134), S(128,186), S(  0,  0),
+const int PawnPassed[8] = {
+    S(  0,  0), S(-14, 20), S(-15, 24), S( -8, 54),
+    S( 25, 79), S( 56,137), S(130,188), S(  0,  0),
 };
 
 // (Semi) open file for rook and queen [pt-4]
-const int OpenFile[2]     = { S( 28,  8), S( -6,  2) };
-const int SemiOpenFile[2] = { S(  8, 15), S(  2,  2) };
+const int OpenFile[2]     = { S( 26,  8), S( -9,  2) };
+const int SemiOpenFile[2] = { S(  8, 15), S(  1,  2) };
 
 // KingSafety [pt-2]
 const uint16_t PieceAttackPower[4] = {35, 20, 40, 80};
@@ -82,30 +84,30 @@ const uint16_t PieceCountModifier[8] = {0, 0, 50, 75, 80, 88, 95, 100};
 
 // KingLineDanger
 const int KingLineDanger[28] = {
-    S(  0,  0), S( -5, -2), S(-12,-12), S(-11, -6),
-    S(-27,-12), S(-32,-21), S(-33,-23), S(-36,-20),
-    S(-41,-19), S(-50,-20), S(-47,-21), S(-55,-17),
-    S(-60,-18), S(-63,-17), S(-69,-18), S(-73,-17),
-    S(-77,-20), S(-82,-24), S(-86,-27), S(-93,-34),
-    S(-99,-36), S(-104,-44), S(-110,-50), S(-115,-58),
-    S(-120,-56), S(-126,-56), S(-130,-53), S(-135,-55),
+    S(  0,  0), S( -5, -2), S(-14,-14), S(-14, -7),
+    S(-31,-13), S(-36,-23), S(-35,-25), S(-36,-21),
+    S(-40,-20), S(-49,-20), S(-46,-21), S(-54,-16),
+    S(-59,-17), S(-62,-16), S(-68,-17), S(-72,-15),
+    S(-76,-18), S(-81,-23), S(-85,-26), S(-92,-33),
+    S(-98,-35), S(-104,-44), S(-110,-50), S(-115,-59),
+    S(-120,-57), S(-126,-56), S(-130,-53), S(-135,-55),
 };
 
 // Mobility [pt-2][mobility]
 const int Mobility[4][28] = {
     // Knight (0-8)
-    { S(-61,-53), S(-23,-65), S( -4,-25), S(  6, 12), S( 14, 27), S( 17, 47), S( 25, 51), S( 35, 48),
-      S( 50, 29) },
+    { S(-61,-53), S(-24,-65), S( -5,-25), S(  6, 12), S( 14, 28), S( 18, 48), S( 25, 51), S( 35, 47),
+      S( 50, 28) },
     // Bishop (0-13)
-    { S(-57,-89), S(-21,-88), S( -4,-39), S(  3, -6), S( 12, 12), S( 19, 35), S( 23, 51), S( 22, 58),
-      S( 22, 66), S( 27, 67), S( 34, 63), S( 60, 51), S( 60, 69), S( 48, 52) },
+    { S(-57,-90), S(-21,-89), S( -3,-38), S(  4, -5), S( 13, 12), S( 20, 36), S( 23, 52), S( 22, 58),
+      S( 21, 66), S( 26, 67), S( 33, 63), S( 59, 51), S( 60, 69), S( 48, 52) },
     // Rook (0-14)
-    { S(-59,-69), S(-30,-55), S(-15,-34), S(-14,-17), S( -7, 11), S( -5, 30), S( -6, 51), S( -1, 54),
-      S(  6, 59), S( 13, 64), S( 21, 69), S( 28, 70), S( 32, 71), S( 48, 60), S( 87, 37) },
+    { S(-59,-69), S(-30,-56), S(-15,-34), S(-14,-17), S( -7, 12), S( -4, 31), S( -5, 52), S(  1, 55),
+      S(  8, 60), S( 15, 65), S( 23, 70), S( 27, 70), S( 30, 71), S( 46, 59), S( 87, 36) },
     // Queen (0-27)
-    { S(-62,-48), S(-69,-36), S(-63,-48), S(-46,-49), S(-31,-45), S(-14,-44), S( -3,-37), S(  4,-24),
-      S( 10, -7), S( 15,  7), S( 18, 21), S( 22, 30), S( 25, 35), S( 26, 45), S( 27, 52), S( 28, 60),
-      S( 27, 66), S( 29, 65), S( 28, 71), S( 33, 70), S( 38, 74), S( 55, 64), S( 63, 70), S( 82, 67),
+    { S(-62,-48), S(-69,-36), S(-63,-48), S(-46,-49), S(-31,-45), S(-13,-44), S( -2,-37), S(  5,-24),
+      S( 11, -7), S( 16,  7), S( 19, 21), S( 23, 31), S( 26, 36), S( 26, 46), S( 27, 52), S( 27, 60),
+      S( 26, 66), S( 28, 65), S( 27, 71), S( 32, 70), S( 37, 74), S( 54, 64), S( 63, 70), S( 82, 67),
       S(108, 87), S(113, 85), S(104,111), S(108,131) }
 };
 
@@ -259,6 +261,20 @@ INLINE int EvalPiece(const Position *pos, EvalInfo *ei, const Color color, const
             } else if (!(colorPieceBB(color, PAWN) & FileBB[FileOf(sq)])) {
                 eval += SemiOpenFile[pt-4];
                 if (TRACE) T.SemiOpenFile[pt-4][color]++;
+            }
+        }
+
+        if (pt == BISHOP || pt == KNIGHT ){
+            Bitboard piece = 1 << sq;
+            Bitboard oPost = color == WHITE ? WhiteOutpost : BlackOutpost;
+            if ((piece & oPost) && ((colorPieceBB(!color, PAWN) & OutpostMasks[color][sq]) == 0) && (piece & PawnBBAttackBB(colorPieceBB(color, PAWN), color))){
+                if (pt == BISHOP) {
+                    eval += BishopOutPost;
+                    if (TRACE) T.BishopOutPost[color]++;
+                } else {
+                    eval += KnightOutPost;
+                    if (TRACE) T.KnightOutPost[color]++;
+                }
             }
         }
     }

@@ -99,6 +99,8 @@ enum {
     rank8BB = 0xFF00000000000000,
 
     BlackSquaresBB = 0xAA55AA55AA55AA55,
+    WhiteOutpost   = rank7BB | rank6BB | rank5BB,
+    BlackOutpost   = rank2BB | rank3BB | rank4BB,
 };
 
 extern const Bitboard FileBB[FILE_NB];
@@ -114,6 +116,7 @@ extern Bitboard PawnAttacks[COLOR_NB][64];
 
 // Eval bit masks
 extern Bitboard PassedMask[COLOR_NB][64];
+extern Bitboard OutpostMasks[COLOR_NB][64];
 extern Bitboard IsolatedMask[64];
 
 
