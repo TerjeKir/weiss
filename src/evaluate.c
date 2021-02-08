@@ -64,7 +64,6 @@ const int PawnDoubled    = S(-14,-25);
 const int PawnIsolated   = S(-15,-18);
 const int PawnSupport    = S( 13,  5);
 const int BishopPair     = S( 26,100);
-const int KnightOutPost  = S( 22, 16);
 
 // Passed pawn [rank]
 const int PawnPassed[8] = {
