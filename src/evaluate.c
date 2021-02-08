@@ -263,20 +263,6 @@ INLINE int EvalPiece(const Position *pos, EvalInfo *ei, const Color color, const
                 if (TRACE) T.SemiOpenFile[pt-4][color]++;
             }
         }
-
-        if (pt == BISHOP || pt == KNIGHT ){
-            Bitboard piece = 1 << sq;
-            Bitboard oPost = color == WHITE ? WhiteOutpost : BlackOutpost;
-            if ((piece & oPost) && ((colorPieceBB(!color, PAWN) & OutpostMasks[color][sq]) == 0) && (piece & PawnBBAttackBB(colorPieceBB(color, PAWN), color))){
-                if (pt == BISHOP) {
-                    eval += BishopOutPost;
-                    if (TRACE) T.BishopOutPost[color]++;
-                } else {
-                    eval += KnightOutPost;
-                    if (TRACE) T.KnightOutPost[color]++;
-                }
-            }
-        }
     }
 
     return eval;
