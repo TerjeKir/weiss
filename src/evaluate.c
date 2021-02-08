@@ -26,8 +26,8 @@
 typedef struct EvalInfo {
     Bitboard mobilityArea[COLOR_NB];
     Bitboard enemyKingZone[COLOR_NB];
-    int16_t KingAttackPower[COLOR_NB];
-    int16_t KingAttackCount[COLOR_NB];
+    int16_t attackPower[COLOR_NB];
+    int16_t attackCount[COLOR_NB];
 } EvalInfo;
 
 
@@ -35,12 +35,8 @@ extern EvalTrace T;
 
 
 // Piecetype values, combines with PSQTs [piecetype]
-const int PieceTypeValue[7] = { 0,
-    S(P_MG, P_EG),
-    S(N_MG, N_EG),
-    S(B_MG, B_EG),
-    S(R_MG, R_EG),
-    S(Q_MG, Q_EG)
+const int PieceTypeValue[7] = {
+    0, S(P_MG, P_EG), S(N_MG, N_EG), S(B_MG, B_EG), S(R_MG, R_EG), S(Q_MG, Q_EG), 0
 };
 
 // Phase piece values, lookup used for futility pruning [phase][piece]
@@ -52,9 +48,7 @@ const int PieceValue[COLOR_NB][PIECE_NB] = {
 };
 
 // Phase value for each piece [piece]
-const int PhaseValue[TYPE_NB] = {
-    0, 0, 1, 1, 2, 4, 0, 0
-};
+const int PhaseValue[TYPE_NB] = { 0, 0, 1, 1, 2, 4, 0, 0 };
 
 // Bonus for being the side to move
 const int Tempo = 15;
@@ -76,9 +70,9 @@ const int OpenFile[2]     = { S( 28, 10), S( -9,  5) };
 const int SemiOpenFile[2] = { S(  9, 15), S(  1,  5) };
 
 // KingSafety [pt-2]
-const uint16_t PieceAttackPower[4] = {35, 20, 40, 80};
-const uint16_t PieceCheckPower[4]  = {100, 35, 65, 65};
-const uint16_t PieceCountModifier[8] = {0, 0, 50, 75, 80, 88, 95, 100};
+const uint16_t AttackPower[4] = { 35, 20, 40, 80 };
+const uint16_t CheckPower[4]  = { 100, 35, 65, 65 };
+const uint16_t CountModifier[8] = { 0, 0, 50, 75, 80, 88, 95, 100 };
 
 // KingLineDanger
 const int KingLineDanger[28] = {
@@ -241,12 +235,12 @@ INLINE int EvalPiece(const Position *pos, EvalInfo *ei, const Color color, const
         // Attacks for king safety calculations
         int kingAttack = PopCount(mobilityBB & ei->enemyKingZone[color]);
 
-        int checks = PopCount(AttackBB(pt, Lsb(colorPieceBB(!color, KING)), pieceBB(ALL)) & mobilityBB);
+        int checks = PopCount(mobilityBB & AttackBB(pt, Lsb(colorPieceBB(!color, KING)), pieceBB(ALL)));
 
         if (kingAttack > 0 || checks > 0) {
-            ei->KingAttackCount[color]++;
-            ei->KingAttackPower[color] += kingAttack * PieceAttackPower[pt - 2]
-                                        + checks * PieceCheckPower[pt - 2];
+            ei->attackCount[color]++;
+            ei->attackPower[color] +=  kingAttack * AttackPower[pt-2]
+                                     +     checks * CheckPower[pt-2];
         }
 
         if (pt == ROOK || pt == QUEEN) {
@@ -277,10 +271,12 @@ INLINE int EvalKings(const Position *pos, EvalInfo *ei, const Color color) {
 
     // Open lines from the king
     Bitboard SafeLine = RankBB[RelativeRank(color, RANK_1)];
-    int count = PopCount((~SafeLine) & AttackBB(QUEEN, kingSq, colorBB(color) | pieceBB(PAWN)));
+    int count = PopCount(~SafeLine & AttackBB(QUEEN, kingSq, colorBB(color) | pieceBB(PAWN)));
     eval += KingLineDanger[count];
-    ei->KingAttackPower[!color] += (count - 3) * 8;
     if (TRACE) T.KingLineDanger[count][color]++;
+
+    // Add to enemy's attack power based on open lines
+    ei->attackPower[!color] += (count - 3) * 8;
 
     return eval;
 }
@@ -299,8 +295,8 @@ INLINE int EvalPieces(const Position *pos, EvalInfo *ei) {
 }
 
 INLINE int EvalSafety(const Color color ,const EvalInfo *ei) {
-    int16_t safetyScore =  ei->KingAttackPower[color]
-                         * PieceCountModifier[MIN(7, ei->KingAttackCount[color])]
+    int16_t safetyScore =  ei->attackPower[color]
+                         * CountModifier[MIN(7, ei->attackCount[color])]
                          / 100;
 
     return S(safetyScore, 0);
@@ -312,20 +308,19 @@ INLINE void InitEvalInfo(const Position *pos, EvalInfo *ei, const Color color) {
     const Direction up   = (color == WHITE ? NORTH : SOUTH);
     const Direction down = (color == WHITE ? SOUTH : NORTH);
 
+    Bitboard b, pawns = colorPieceBB(color, PAWN);
+
     // Mobility area is defined as any square not attacked by an enemy pawn, nor
     // occupied by our own pawn either on its starting square or blocked from advancing.
-    Bitboard b = RankBB[RelativeRank(color, RANK_2)] | ShiftBB(down, pieceBB(ALL));
-    b &= colorPieceBB(color, PAWN);
-
+    b = pawns & (RankBB[RelativeRank(color, RANK_2)] | ShiftBB(down, pieceBB(ALL)));
     ei->mobilityArea[color] = ~(b | PawnBBAttackBB(colorPieceBB(!color, PAWN), !color));
 
     // King Safety
-    ei->KingAttackCount[color] = 0;
-    ei->KingAttackPower[color] = 0;
+    b = AttackBB(KING, Lsb(colorPieceBB(!color, KING)), 0);
+    ei->enemyKingZone[color] = b | ShiftBB(up, b);
 
-    Square kingSq = Lsb(colorPieceBB(!color, KING));
-    Bitboard kingZone = AttackBB(KING, kingSq, 0);
-    ei->enemyKingZone[color] = kingZone | ShiftBB(up, kingZone);
+    ei->attackPower[color] = 0;
+    ei->attackCount[color] = 0;
 }
 
 // Calculate a static evaluation of a position
@@ -347,7 +342,8 @@ int EvalPosition(const Position *pos, PawnCache pc) {
     eval += EvalPieces(pos, &ei);
 
     // Evaluate king safety
-    eval += EvalSafety(WHITE, &ei) - EvalSafety(BLACK, &ei);
+    eval +=  EvalSafety(WHITE, &ei)
+           - EvalSafety(BLACK, &ei);
 
     if (TRACE) T.eval = eval;
 
