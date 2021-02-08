@@ -40,7 +40,6 @@ Bitboard PseudoAttacks[TYPE_NB][64];
 Bitboard PawnAttacks[COLOR_NB][64];
 
 Bitboard PassedMask[COLOR_NB][64];
-Bitboard OutpostMasks[COLOR_NB][64];
 Bitboard IsolatedMask[64];
 
 
@@ -133,8 +132,6 @@ static void InitEvalMasks() {
 
         PassedMask[BLACK][sq] = ShiftBB(SOUTH * RelativeRank(BLACK, RankOf(sq)), ~rank8BB)
                               & (FileBB[FileOf(sq)] | AdjacentFilesBB(sq));
-        OutpostMasks[WHITE][sq] = PassedMask[WHITE][sq] & IsolatedMask[sq];
-        OutpostMasks[BLACK][sq] = PassedMask[BLACK][sq] & IsolatedMask[sq]; 
     }
 }
 
