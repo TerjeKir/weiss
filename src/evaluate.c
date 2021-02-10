@@ -319,7 +319,7 @@ INLINE void InitEvalInfo(const Position *pos, EvalInfo *ei, const Color color) {
     b = AttackBB(KING, Lsb(colorPieceBB(!color, KING)), 0);
     ei->enemyKingZone[color] = b | ShiftBB(up, b);
 
-    ei->attackPower[color] = 0;
+    ei->attackPower[color] = -30;
     ei->attackCount[color] = 0;
 }
 
