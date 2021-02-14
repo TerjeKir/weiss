@@ -25,7 +25,7 @@
 #include "threads.h"
 
 
-#define NAME "Weiss 1.3"
+#define NAME "Weiss 1.3-dev"
 
 #define START_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 #define INPUT_SIZE 4096
