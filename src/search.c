@@ -442,6 +442,9 @@ move_loop:
             R -= pvNode;
             // Reduce less when improving
             R -= improving;
+            // Reduce less for killers
+            R -= (mp.stage == KILLER1 || mp.stage == KILLER2);
+
 
             // Depth after reductions, avoiding going straight to quiescence
             Depth RDepth = CLAMP(newDepth - R, 1, newDepth - 1);
