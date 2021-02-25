@@ -341,11 +341,11 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
         }
     }
 
+move_loop:
+
     // Internal iterative reduction based on Rebel's idea
     if (depth >= 4 && !ttMove)
         depth--;
-
-move_loop:
 
     InitNormalMP(&mp, thread, ttMove, ss->killers[0], ss->killers[1]);
 
