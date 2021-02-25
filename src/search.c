@@ -278,24 +278,21 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
     bool improving = !inCheck && eval > (ss-2)->eval;
 
     // Skip pruning in check, at root, during early iterations, and when proving singularity
-    if (inCheck || root || !thread->doPruning || ss->excluded)
+    if (inCheck || pvNode || !thread->doPruning || ss->excluded)
         goto move_loop;
 
     // Razoring
-    if (  !pvNode
-        && depth < 2
+    if (   depth < 2
         && eval + 640 < alpha)
         return Quiescence(thread, ss, alpha, beta);
 
     // Reverse Futility Pruning
-    if (  !pvNode
-        && depth < 7
+    if (   depth < 7
         && eval - 225 * depth + 100 * improving >= beta)
         return eval;
 
     // Null Move Pruning
-    if (  !pvNode
-        && depth >= 3
+    if (   depth >= 3
         && eval >= beta
         && ss->eval >= beta
         && history(-1).move != NOMOVE
@@ -314,8 +311,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
     }
 
     // ProbCut
-    if (  !pvNode
-        && depth >= 5
+    if (   depth >= 5
         && abs(beta) < TBWIN_IN_MAX
         && !(   ttHit
              && tte->bound & BOUND_UPPER
