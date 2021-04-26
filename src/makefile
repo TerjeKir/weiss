@@ -45,11 +45,13 @@ else ifneq ($(findstring clang, $(CC)),)
 	PGOUSE = -fprofile-instr-use=weiss.profdata
 endif
 
-# Use pext if supported and not a ryzen cpu
+# Use pext if supported and not a ryzen 1/2 cpu
 PROPS = $(shell echo | $(CC) -march=native -E -dM -)
 ifneq ($(findstring __BMI2__, $(PROPS)),)
-	ifeq ($(findstring znver, $(PROPS)),)
-		CFLAGS += -DUSE_PEXT
+	ifeq ($(findstring __znver1, $(PROPS)),)
+		ifeq ($(findstring __znver2, $(PROPS)),)
+			CFLAGS += -DUSE_PEXT
+		endif
 	endif
 endif
 
