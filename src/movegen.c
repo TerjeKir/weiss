@@ -37,6 +37,7 @@ INLINE void AddPromotions(const Position *pos, MoveList *list, const Color color
     while (moves) {
         Square to = PopLsb(&moves);
         Square from = to - dir;
+
         if (type == NOISY)
             AddMove(pos, list, from, to, MakePiece(color, QUEEN), FLAG_NONE);
 
