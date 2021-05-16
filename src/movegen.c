@@ -32,15 +32,19 @@ INLINE void AddMove(const Position *pos, MoveList *list, const Square from, cons
 }
 
 // Adds promotions
-INLINE void AddPromotions(const Position *pos, MoveList *list, const Square from, const Square to, const Color color, const int type) {
+INLINE void AddPromotions(const Position *pos, MoveList *list, const Color color, const int type, Bitboard moves, const Direction dir) {
 
-    if (type == NOISY)
-        AddMove(pos, list, from, to, MakePiece(color, QUEEN), FLAG_NONE);
+    while (moves) {
+        Square to = PopLsb(&moves);
+        Square from = to - dir;
+        if (type == NOISY)
+            AddMove(pos, list, from, to, MakePiece(color, QUEEN), FLAG_NONE);
 
-    if (type == QUIET) {
-        AddMove(pos, list, from, to, MakePiece(color, KNIGHT), FLAG_NONE);
-        AddMove(pos, list, from, to, MakePiece(color, ROOK  ), FLAG_NONE);
-        AddMove(pos, list, from, to, MakePiece(color, BISHOP), FLAG_NONE);
+        if (type == QUIET) {
+            AddMove(pos, list, from, to, MakePiece(color, KNIGHT), FLAG_NONE);
+            AddMove(pos, list, from, to, MakePiece(color, ROOK  ), FLAG_NONE);
+            AddMove(pos, list, from, to, MakePiece(color, BISHOP), FLAG_NONE);
+        }
     }
 }
 
@@ -101,24 +105,9 @@ INLINE void GenPawn(const Position *pos, MoveList *list, const Color color, cons
     }
 
     // Promotions
-    Bitboard promotions = push & promo;
-    Bitboard lPromoCap = lCap & promo;
-    Bitboard rPromoCap = rCap & promo;
-
-    // Promoting captures
-    while (lPromoCap) {
-        Square to = PopLsb(&lPromoCap);
-        AddPromotions(pos, list, to - (up+left), to, color, type);
-    }
-    while (rPromoCap) {
-        Square to = PopLsb(&rPromoCap);
-        AddPromotions(pos, list, to - (up+right), to, color, type);
-    }
-    // Promotions
-    while (promotions) {
-        Square to = PopLsb(&promotions);
-        AddPromotions(pos, list, to - up, to, color, type);
-    }
+    AddPromotions(pos, list, color, type, push & promo, up);
+    AddPromotions(pos, list, color, type, lCap & promo, up+left);
+    AddPromotions(pos, list, color, type, rCap & promo, up+right);
 
     // Captures
     if (type == NOISY) {
