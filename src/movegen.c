@@ -70,14 +70,17 @@ INLINE void GenPawn(const Position *pos, MoveList *list, const Color color, cons
     const Bitboard empty   = ~pieceBB(ALL);
     const Bitboard enemies = pos->checkers ? pos->checkers : colorBB(!color);
     const Bitboard pawns   = colorPieceBB(color, PAWN);
+    const Bitboard promo   = (rank8BB | rank1BB);
+    const Bitboard normal  = ~promo;
 
-    const Bitboard on7th  = pawns & RankBB[RelativeRank(color, RANK_7)];
-    const Bitboard not7th = pawns ^ on7th;
+    const Bitboard push = empty & ShiftBB(up, pawns);
+    const Bitboard lCap = enemies & ShiftBB(up+left, pawns);
+    const Bitboard rCap = enemies & ShiftBB(up+right, pawns);
 
     // Normal moves forward
     if (type == QUIET) {
 
-        Bitboard pawnMoves  = empty & ShiftBB(up, not7th);
+        Bitboard pawnMoves  = push & normal;
         Bitboard pawnStarts = empty & ShiftBB(up, pawnMoves)
                                     & RankBB[RelativeRank(color, RANK_4)];
 
@@ -98,32 +101,30 @@ INLINE void GenPawn(const Position *pos, MoveList *list, const Color color, cons
     }
 
     // Promotions
-    if (on7th) {
+    Bitboard promotions = push & promo;
+    Bitboard lPromoCap = lCap & promo;
+    Bitboard rPromoCap = rCap & promo;
 
-        Bitboard promotions = empty & ShiftBB(up, on7th);
-        Bitboard lPromoCap = enemies & ShiftBB(up+left, on7th);
-        Bitboard rPromoCap = enemies & ShiftBB(up+right, on7th);
-
-        // Promoting captures
-        while (lPromoCap) {
-            Square to = PopLsb(&lPromoCap);
-            AddPromotions(pos, list, to - (up+left), to, color, type);
-        }
-        while (rPromoCap) {
-            Square to = PopLsb(&rPromoCap);
-            AddPromotions(pos, list, to - (up+right), to, color, type);
-        }
-        // Promotions
-        while (promotions) {
-            Square to = PopLsb(&promotions);
-            AddPromotions(pos, list, to - up, to, color, type);
-        }
+    // Promoting captures
+    while (lPromoCap) {
+        Square to = PopLsb(&lPromoCap);
+        AddPromotions(pos, list, to - (up+left), to, color, type);
     }
+    while (rPromoCap) {
+        Square to = PopLsb(&rPromoCap);
+        AddPromotions(pos, list, to - (up+right), to, color, type);
+    }
+    // Promotions
+    while (promotions) {
+        Square to = PopLsb(&promotions);
+        AddPromotions(pos, list, to - up, to, color, type);
+    }
+
     // Captures
     if (type == NOISY) {
 
-        Bitboard lAttacks = enemies & ShiftBB(up+left, not7th);
-        Bitboard rAttacks = enemies & ShiftBB(up+right, not7th);
+        Bitboard lAttacks = lCap & normal;
+        Bitboard rAttacks = rCap & normal;
 
         while (lAttacks) {
             Square to = PopLsb(&lAttacks);
@@ -135,7 +136,7 @@ INLINE void GenPawn(const Position *pos, MoveList *list, const Color color, cons
         }
         // En passant
         if (pos->epSquare) {
-            Bitboard enPassers = not7th & PawnAttackBB(!color, pos->epSquare);
+            Bitboard enPassers = pawns & PawnAttackBB(!color, pos->epSquare);
             while (enPassers)
                 AddMove(pos, list, PopLsb(&enPassers), pos->epSquare, EMPTY, FLAG_ENPAS);
         }
