@@ -104,9 +104,9 @@ INLINE void GenPawn(const Position *pos, MoveList *list, const Color color, cons
     }
 
     // Promotions
-    AddPromotions(pos, list, color, type, push & promo, up);
     AddPromotions(pos, list, color, type, lCap & promo, up+left);
     AddPromotions(pos, list, color, type, rCap & promo, up+right);
+    AddPromotions(pos, list, color, type, push & promo, up);
 
     // Captures
     if (type == NOISY) {
