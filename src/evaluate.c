@@ -156,7 +156,7 @@ INLINE int EvalPawns(const Position *pos, const Color color) {
     Bitboard pawns = colorPieceBB(color, PAWN);
 
     // Doubled pawns (only when one is blocking the other from moving)
-    count = PopCount(pawns & ShiftBB(NORTH, pawns));
+    count = PopCount(pawns & ShiftBB(pawns, NORTH));
     eval += PawnDoubled * count;
     if (TRACE) T.PawnDoubled[color] += count;
 
@@ -312,12 +312,12 @@ INLINE void InitEvalInfo(const Position *pos, EvalInfo *ei, const Color color) {
 
     // Mobility area is defined as any square not attacked by an enemy pawn, nor
     // occupied by our own pawn either on its starting square or blocked from advancing.
-    b = pawns & (RankBB[RelativeRank(color, RANK_2)] | ShiftBB(down, pieceBB(ALL)));
+    b = pawns & (RankBB[RelativeRank(color, RANK_2)] | ShiftBB(pieceBB(ALL), down));
     ei->mobilityArea[color] = ~(b | PawnBBAttackBB(colorPieceBB(!color, PAWN), !color));
 
     // King Safety
     b = AttackBB(KING, Lsb(colorPieceBB(!color, KING)), 0);
-    ei->enemyKingZone[color] = b | ShiftBB(up, b);
+    ei->enemyKingZone[color] = b | ShiftBB(b, up);
 
     ei->attackPower[color] = -30;
     ei->attackCount[color] = 0;

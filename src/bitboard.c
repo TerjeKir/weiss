@@ -127,10 +127,10 @@ static void InitEvalMasks() {
 
         IsolatedMask[sq] = AdjacentFilesBB(sq);
 
-        PassedMask[WHITE][sq] = ShiftBB(NORTH * RelativeRank(WHITE, RankOf(sq)), ~rank1BB)
+        PassedMask[WHITE][sq] = ShiftBB(~rank1BB, NORTH * RelativeRank(WHITE, RankOf(sq)))
                               & (FileBB[FileOf(sq)] | AdjacentFilesBB(sq));
 
-        PassedMask[BLACK][sq] = ShiftBB(SOUTH * RelativeRank(BLACK, RankOf(sq)), ~rank8BB)
+        PassedMask[BLACK][sq] = ShiftBB(~rank8BB, SOUTH * RelativeRank(BLACK, RankOf(sq)))
                               & (FileBB[FileOf(sq)] | AdjacentFilesBB(sq));
     }
 }
@@ -175,9 +175,9 @@ bool SqAttacked(const Position *pos, const Square sq, const Color color) {
     const Bitboard bishops = colorBB(color) & (pieceBB(BISHOP) | pieceBB(QUEEN));
     const Bitboard rooks   = colorBB(color) & (pieceBB(ROOK)   | pieceBB(QUEEN));
 
-    return (   PawnAttackBB(!color, sq)           & colorPieceBB(color, PAWN)
-            || AttackBB(KNIGHT, sq, pieceBB(ALL)) & colorPieceBB(color, KNIGHT)
-            || AttackBB(KING,   sq, pieceBB(ALL)) & colorPieceBB(color, KING)
+    return (   PawnAttackBB(!color, sq) & colorPieceBB(color, PAWN)
+            || AttackBB(KNIGHT, sq, 0)  & colorPieceBB(color, KNIGHT)
+            || AttackBB(KING,   sq, 0)  & colorPieceBB(color, KING)
             || AttackBB(BISHOP, sq, pieceBB(ALL)) & bishops
             || AttackBB(ROOK,   sq, pieceBB(ALL)) & rooks);
 }
