@@ -73,15 +73,15 @@ INLINE void GenPawn(const Position *pos, MoveList *list, const Color color, cons
     const Bitboard promo   = (rank8BB | rank1BB);
     const Bitboard normal  = ~promo;
 
-    const Bitboard push = empty & ShiftBB(up, pawns);
-    const Bitboard lCap = enemies & ShiftBB(up+left, pawns);
-    const Bitboard rCap = enemies & ShiftBB(up+right, pawns);
+    const Bitboard push = empty & ShiftBB(pawns, up);
+    const Bitboard lCap = enemies & ShiftBB(pawns, up+left);
+    const Bitboard rCap = enemies & ShiftBB(pawns, up+right);
 
     // Normal moves forward
     if (type == QUIET) {
 
         Bitboard pawnMoves  = push & normal;
-        Bitboard pawnStarts = empty & ShiftBB(up, pawnMoves)
+        Bitboard pawnStarts = empty & ShiftBB(pawnMoves, up)
                                     & RankBB[RelativeRank(color, RANK_4)];
 
         if (pos->checkers)

@@ -119,7 +119,7 @@ extern Bitboard IsolatedMask[64];
 
 // Shifts a bitboard (protonspring version)
 // Doesn't work for shifting more than one step horizontally
-INLINE Bitboard ShiftBB(const Direction dir, Bitboard bb) {
+INLINE Bitboard ShiftBB(Bitboard bb, const Direction dir) {
 
     // Horizontal shifts should not wrap around
     const int h = dir & 7;
@@ -133,8 +133,8 @@ INLINE Bitboard ShiftBB(const Direction dir, Bitboard bb) {
 }
 
 INLINE Bitboard AdjacentFilesBB(const Square sq) {
-    return ShiftBB(WEST, FileBB[FileOf(sq)])
-         | ShiftBB(EAST, FileBB[FileOf(sq)]);
+    return ShiftBB(FileBB[FileOf(sq)], WEST)
+         | ShiftBB(FileBB[FileOf(sq)], EAST);
 }
 
 // Population count/Hamming weight
@@ -197,7 +197,7 @@ INLINE Bitboard PawnAttackBB(Color color, Square sq) {
 // Returns the combined attack bitboard of all pawns in the given bitboard
 INLINE Bitboard PawnBBAttackBB(Bitboard pawns, Color color) {
     const Direction up = (color == WHITE ? NORTH : SOUTH);
-    return ShiftBB(up+WEST, pawns) | ShiftBB(up+EAST, pawns);
+    return ShiftBB(pawns, up+WEST) | ShiftBB(pawns, up+EAST);
 }
 
 Bitboard Attackers(const Position *pos, const Square sq, const Bitboard occ);

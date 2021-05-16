@@ -127,10 +127,10 @@ static void InitEvalMasks() {
 
         IsolatedMask[sq] = AdjacentFilesBB(sq);
 
-        PassedMask[WHITE][sq] = ShiftBB(NORTH * RelativeRank(WHITE, RankOf(sq)), ~rank1BB)
+        PassedMask[WHITE][sq] = ShiftBB(~rank1BB, NORTH * RelativeRank(WHITE, RankOf(sq)))
                               & (FileBB[FileOf(sq)] | AdjacentFilesBB(sq));
 
-        PassedMask[BLACK][sq] = ShiftBB(SOUTH * RelativeRank(BLACK, RankOf(sq)), ~rank8BB)
+        PassedMask[BLACK][sq] = ShiftBB(~rank8BB, SOUTH * RelativeRank(BLACK, RankOf(sq)))
                               & (FileBB[FileOf(sq)] | AdjacentFilesBB(sq));
     }
 }
