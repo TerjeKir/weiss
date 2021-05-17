@@ -427,12 +427,12 @@ move_loop:
         const Depth newDepth = depth - 1 + extension;
 
         bool doFullDepthSearch;
-        bool doLMR =   depth > 2
-                    && moveCount > (2 + pvNode)
-                    && thread->doPruning;
 
         // Reduced depth zero-window search
-        if (doLMR) {
+        if (   depth > 2
+            && moveCount > (2 + pvNode)
+            && thread->doPruning) {
+
             // Base reduction
             int R = Reductions[quiet][MIN(31, depth)][MIN(31, moveCount)];
             // Reduce less in pv nodes
