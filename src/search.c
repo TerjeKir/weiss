@@ -426,6 +426,7 @@ move_loop:
 
         const Depth newDepth = depth - 1 + extension;
 
+        bool doFullDepthSearch;
         bool doLMR =   depth > 2
                     && moveCount > (2 + pvNode)
                     && thread->doPruning;
@@ -445,9 +446,13 @@ move_loop:
             Depth RDepth = CLAMP(newDepth - R, 1, newDepth);
 
             score = -AlphaBeta(thread, ss+1, -alpha-1, -alpha, RDepth);
-        }
+
+            doFullDepthSearch = score > alpha && RDepth < newDepth;
+        } else
+            doFullDepthSearch = !pvNode || moveCount > 1;
+
         // Full depth zero-window search
-        if (doLMR ? score > alpha : !pvNode || moveCount > 1)
+        if (doFullDepthSearch)
             score = -AlphaBeta(thread, ss+1, -alpha-1, -alpha, newDepth);
 
         // Full depth alpha-beta window search
