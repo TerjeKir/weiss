@@ -564,9 +564,10 @@ static void *IterativeDeepening(void *voidThread) {
     Position *pos = &thread->pos;
     Stack *ss = thread->ss+SS_OFFSET;
     bool mainThread = thread->index == 0;
+    int maxDepth = mainThread ? Limits.depth : MAX_PLY;
 
     // Iterative deepening
-    for (thread->depth = 1; thread->depth <= Limits.depth; ++thread->depth) {
+    for (thread->depth = 1; thread->depth <= maxDepth; ++thread->depth) {
 
         // Jump here and return if we run out of allocated time mid-search
         if (setjmp(thread->jumpBuffer)) break;
