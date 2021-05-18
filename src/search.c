@@ -426,12 +426,13 @@ move_loop:
 
         const Depth newDepth = depth - 1 + extension;
 
-        bool doLMR =   depth > 2
-                    && moveCount > (2 + pvNode)
-                    && thread->doPruning;
+        bool doFullDepthSearch;
 
         // Reduced depth zero-window search
-        if (doLMR) {
+        if (   depth > 2
+            && moveCount > (2 + pvNode)
+            && thread->doPruning) {
+
             // Base reduction
             int R = Reductions[quiet][MIN(31, depth)][MIN(31, moveCount)];
             // Reduce less in pv nodes
@@ -442,12 +443,16 @@ move_loop:
             R -= mp.stage == KILLER1 || mp.stage == KILLER2;
 
             // Depth after reductions, avoiding going straight to quiescence
-            Depth RDepth = CLAMP(newDepth - R, 1, newDepth - 1);
+            Depth RDepth = CLAMP(newDepth - R, 1, newDepth);
 
             score = -AlphaBeta(thread, ss+1, -alpha-1, -alpha, RDepth);
-        }
+
+            doFullDepthSearch = score > alpha && RDepth < newDepth;
+        } else
+            doFullDepthSearch = !pvNode || moveCount > 1;
+
         // Full depth zero-window search
-        if (doLMR ? score > alpha : !pvNode || moveCount > 1)
+        if (doFullDepthSearch)
             score = -AlphaBeta(thread, ss+1, -alpha-1, -alpha, newDepth);
 
         // Full depth alpha-beta window search
