@@ -96,16 +96,16 @@ void ResetThreads() {
 }
 
 // Thread sleeps until it is woken up
-void Wait(Thread *thread, volatile bool *condition) {
-    pthread_mutex_lock(&thread->mutex);
+void Wait(volatile bool *condition) {
+    pthread_mutex_lock(&threads->mutex);
     while (!*condition)
-        pthread_cond_wait(&thread->sleepCondition, &thread->mutex);
-    pthread_mutex_unlock(&thread->mutex);
+        pthread_cond_wait(&threads->sleepCondition, &threads->mutex);
+    pthread_mutex_unlock(&threads->mutex);
 }
 
 // Wakes up a sleeping thread
-void Wake(Thread *thread) {
-    pthread_mutex_lock(&thread->mutex);
-    pthread_cond_signal(&thread->sleepCondition);
-    pthread_mutex_unlock(&thread->mutex);
+void Wake() {
+    pthread_mutex_lock(&threads->mutex);
+    pthread_cond_signal(&threads->sleepCondition);
+    pthread_mutex_unlock(&threads->mutex);
 }

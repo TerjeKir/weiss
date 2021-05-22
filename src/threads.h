@@ -78,5 +78,5 @@ void StartMainThread(void *(*func)(void *), Position *pos);
 void StartHelpers(void *(*func)(void *));
 void WaitForHelpers();
 void ResetThreads();
-void Wait(Thread *thread, volatile bool *condition);
-void Wake(Thread *thread);
+void Wait(volatile bool *condition);
+void Wake();

@@ -621,9 +621,9 @@ void *SearchPosition(void *pos) {
 conclusion:
 
     // Wait for 'stop' in infinite search
-    if (Limits.infinite) Wait(threads, &ABORT_SIGNAL);
+    if (Limits.infinite) Wait(&ABORT_SIGNAL);
 
-    // Signal any extra threads to stop and wait for them
+    // Signal helper threads to stop and wait for them to finish
     ABORT_SIGNAL = true;
     if (threadsSpawned)
         WaitForHelpers();

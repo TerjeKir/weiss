@@ -142,7 +142,7 @@ static void Info() {
 // Stops searching
 static void Stop() {
     ABORT_SIGNAL = true;
-    Wake(threads);
+    Wake();
 }
 
 // Signals the engine is ready
