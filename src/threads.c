@@ -25,6 +25,10 @@
 
 Thread *threads;
 
+// Used for letting the main thread sleep without using cpu
+pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_cond_t sleepCondition = PTHREAD_COND_INITIALIZER;
+
 
 // Allocates memory for thread structs
 Thread *InitThreads(int count) {
@@ -35,10 +39,6 @@ Thread *InitThreads(int count) {
     for (int i = 0; i < count; ++i)
         t[i].index = i,
         t[i].count = count;
-
-    // Used for letting the main thread sleep
-    pthread_mutex_init(&t->mutex, NULL);
-    pthread_cond_init(&t->sleepCondition, NULL);
 
     // Array of pthreads
     t->pthreads = calloc(count, sizeof(pthread_t));
@@ -97,15 +97,15 @@ void ResetThreads() {
 
 // Thread sleeps until it is woken up
 void Wait(volatile bool *condition) {
-    pthread_mutex_lock(&threads->mutex);
+    pthread_mutex_lock(&mutex);
     while (!*condition)
-        pthread_cond_wait(&threads->sleepCondition, &threads->mutex);
-    pthread_mutex_unlock(&threads->mutex);
+        pthread_cond_wait(&sleepCondition, &mutex);
+    pthread_mutex_unlock(&mutex);
 }
 
 // Wakes up a sleeping thread
 void Wake() {
-    pthread_mutex_lock(&threads->mutex);
-    pthread_cond_signal(&threads->sleepCondition);
-    pthread_mutex_unlock(&threads->mutex);
+    pthread_mutex_lock(&mutex);
+    pthread_cond_signal(&sleepCondition);
+    pthread_mutex_unlock(&mutex);
 }

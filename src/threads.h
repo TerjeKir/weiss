@@ -60,8 +60,6 @@ typedef struct Thread {
     int index;
     int count;
 
-    pthread_mutex_t mutex;
-    pthread_cond_t sleepCondition;
     pthread_t *pthreads;
 
 } Thread;
