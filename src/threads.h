@@ -43,7 +43,6 @@ typedef struct Thread {
     bool doPruning;
 
     Move bestMove;
-    Move ponderMove;
 
     jmp_buf jumpBuffer;
 
