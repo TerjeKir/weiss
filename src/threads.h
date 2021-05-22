@@ -18,6 +18,9 @@
 
 #pragma once
 
+#include <pthread.h>
+#include <setjmp.h>
+
 #include "board.h"
 #include "evaluate.h"
 #include "types.h"
