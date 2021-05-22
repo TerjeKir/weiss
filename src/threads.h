@@ -18,6 +18,9 @@
 
 #pragma once
 
+#include <pthread.h>
+#include <setjmp.h>
+
 #include "board.h"
 #include "evaluate.h"
 #include "types.h"
@@ -43,7 +46,6 @@ typedef struct Thread {
     bool doPruning;
 
     Move bestMove;
-    Move ponderMove;
 
     jmp_buf jumpBuffer;
 
@@ -68,6 +70,7 @@ typedef struct Thread {
 Thread *InitThreads(int threadCount);
 uint64_t TotalNodes(const Thread *threads);
 uint64_t TotalTBHits(const Thread *threads);
+void PrepareSearch(Thread *threads, Position *pos);
 void ResetThreads(Thread *threads);
 void Wait(Thread *thread, volatile bool *condition);
 void Wake(Thread *thread);

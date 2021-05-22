@@ -16,6 +16,7 @@
   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -56,6 +57,16 @@ uint64_t TotalTBHits(const Thread *threads) {
     for (int i = 0; i < threads->count; ++i)
         total += threads[i].tbhits;
     return total;
+}
+
+// Setup threads for a new search
+void PrepareSearch(Thread *threads, Position *pos) {
+    for (Thread *t = threads; t < threads + threads->count; ++t) {
+        memset(t, 0, offsetof(Thread, pos));
+        memcpy(&t->pos, pos, sizeof(Position));
+        for (Depth d = 0; d < MAX_PLY; ++d)
+            (t->ss+SS_OFFSET+d)->ply = d;
+    }
 }
 
 // Resets all data that isn't reset each turn

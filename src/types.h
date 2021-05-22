@@ -21,10 +21,7 @@
 #define NDEBUG
 #include <assert.h>
 #include <inttypes.h>
-#include <pthread.h>
-#include <setjmp.h>
 #include <stdbool.h>
-#include <stdint.h>
 
 
 #define MIN(A, B) ((A) < (B) ? (A) : (B))

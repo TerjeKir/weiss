@@ -16,7 +16,6 @@
   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -68,6 +67,7 @@ static void *BeginSearch(void *voidEngine) {
 INLINE void Go(Engine *engine, char *str) {
     ABORT_SIGNAL = false;
     InitTT(engine->threads);
+    TT.dirty = true;
     ParseTimeControl(str, engine->pos.stm);
     pthread_create(&engine->threads->pthreads[0], NULL, &BeginSearch, engine);
     pthread_detach(engine->threads->pthreads[0]);
@@ -266,9 +266,6 @@ void PrintThinking(const Thread *thread, const Stack *ss, int score, int alpha, 
 
 // Print conclusion of search - best move and ponder move
 void PrintConclusion(const Thread *thread) {
-    printf("bestmove %s", MoveToStr(thread->bestMove));
-    if (thread->ponderMove)
-        printf(" ponder %s", MoveToStr(thread->ponderMove));
-    printf("\n\n");
+    printf("bestmove %s\n\n", MoveToStr(thread->bestMove));
     fflush(stdout);
 }

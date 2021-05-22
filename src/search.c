@@ -17,20 +17,15 @@
 */
 
 #include <math.h>
-#include <pthread.h>
-#include <stddef.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "pyrrhic/tbprobe.h"
 #include "noobprobe/noobprobe.h"
 #include "bitboard.h"
 #include "board.h"
 #include "evaluate.h"
 #include "makemove.h"
 #include "move.h"
-#include "movegen.h"
 #include "movepicker.h"
 #include "time.h"
 #include "threads.h"
@@ -93,12 +88,12 @@ static int Quiescence(Thread *thread, Stack *ss, int alpha, const int beta) {
     if (OutOfTime(thread) || ABORT_SIGNAL)
         longjmp(thread->jumpBuffer, true);
 
-    // If we are at max depth, return static eval
-    if (ss->ply >= MAX_PLY)
-        return EvalPosition(pos, thread->pawnCache);
-
     // Do a static evaluation for pruning considerations
     int eval = EvalPosition(pos, thread->pawnCache);
+
+    // If we are at max depth, return static eval
+    if (ss->ply >= MAX_PLY)
+        return eval;
 
     // If eval beats beta we assume some move will also beat it
     if (eval >= beta)
@@ -233,7 +228,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
 
     // Trust TT if not a pvnode and the entry depth is sufficiently high
     if (   !pvNode && ttHit && tte->depth >= depth
-        && (ttScore >= beta ? tte->bound & BOUND_LOWER : tte->bound & BOUND_UPPER)) {
+        && (tte->bound & (ttScore >= beta ? BOUND_LOWER : BOUND_UPPER))) {
 
         if (moveIsQuiet(ttMove))
             HistoryBonus(&thread->history[sideToMove][fromSq(ttMove)][toSq(ttMove)], depth*depth);
@@ -434,20 +429,20 @@ move_loop:
             && thread->doPruning) {
 
             // Base reduction
-            int R = Reductions[quiet][MIN(31, depth)][MIN(31, moveCount)];
+            int r = Reductions[quiet][MIN(31, depth)][MIN(31, moveCount)];
             // Reduce less in pv nodes
-            R -= pvNode;
+            r -= pvNode;
             // Reduce less when improving
-            R -= improving;
+            r -= improving;
             // Reduce less for killers
-            R -= mp.stage == KILLER1 || mp.stage == KILLER2;
+            r -= mp.stage == KILLER1 || mp.stage == KILLER2;
 
             // Depth after reductions, avoiding going straight to quiescence
-            Depth RDepth = CLAMP(newDepth - R, 1, newDepth);
+            Depth lmrDepth = CLAMP(newDepth - r, 1, newDepth);
 
-            score = -AlphaBeta(thread, ss+1, -alpha-1, -alpha, RDepth);
+            score = -AlphaBeta(thread, ss+1, -alpha-1, -alpha, lmrDepth);
 
-            doFullDepthSearch = score > alpha && RDepth < newDepth;
+            doFullDepthSearch = score > alpha && lmrDepth < newDepth;
         } else
             doFullDepthSearch = !pvNode || moveCount > 1;
 
@@ -585,9 +580,8 @@ static void *IterativeDeepening(void *voidThread) {
 
         bool uncertain = ss->pv.line[0] != thread->bestMove;
 
-        // Save bestMove and ponderMove before overwriting the pv next iteration
-        thread->bestMove   = ss->pv.line[0];
-        thread->ponderMove = ss->pv.length > 1 ? ss->pv.line[1] : NOMOVE;
+        // Save bestMove before overwriting the pv next iteration
+        thread->bestMove = ss->pv.line[0];
 
         // Stop searching after finding a short enough mate
         if (MATE - abs(thread->score) <= 2 * abs(Limits.mate)) break;
@@ -605,26 +599,11 @@ static void *IterativeDeepening(void *voidThread) {
     return NULL;
 }
 
-// Get ready to start a search
-static void PrepareSearch(Position *pos, Thread *threads) {
-
-    // Setup threads for a new search
-    for (Thread *t = threads; t < threads + threads->count; ++t) {
-        memset(t, 0, offsetof(Thread, pos));
-        memcpy(&t->pos, pos, sizeof(Position));
-        for (Depth d = 0; d < MAX_PLY; ++d)
-            (t->ss+SS_OFFSET+d)->ply = d;
-    }
-
-    // Mark TT as used
-    TT.dirty = true;
-}
-
 // Root of search
 void SearchPosition(Position *pos, Thread *threads) {
 
     InitTimeManagement();
-    PrepareSearch(pos, threads);
+    PrepareSearch(threads, pos);
     bool threadsSpawned = false;
 
     // Probe TBs for a move if already in a TB position
