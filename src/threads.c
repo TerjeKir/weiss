@@ -72,6 +72,17 @@ void PrepareSearch(Position *pos) {
     }
 }
 
+// Starts helper threads running the provided function
+void StartHelpers(void *(*func)(void *)) {
+    for (int i = 1; i < threads->count; ++i)
+        pthread_create(&threads->pthreads[i], NULL, func, &threads[i]);
+}
+
+void WaitForHelpers() {
+    for (int i = 1; i < threads->count; ++i)
+        pthread_join(threads->pthreads[i], NULL);
+}
+
 // Resets all data that isn't reset each turn
 void ResetThreads() {
     for (int i = 0; i < threads->count; ++i)

@@ -613,10 +613,9 @@ void SearchPosition(Position *pos) {
     if (   (!Limits.timelimit || Limits.maxUsage > 2000)
         && ProbeNoob(pos)) goto conclusion;
 
-    // Make extra threads and begin searching
+    // Start helper threads and begin searching
     threadsSpawned = true;
-    for (int i = 1; i < threads->count; ++i)
-        pthread_create(&threads->pthreads[i], NULL, &IterativeDeepening, &threads[i]);
+    StartHelpers(IterativeDeepening);
     IterativeDeepening(&threads[0]);
 
 conclusion:
@@ -627,8 +626,7 @@ conclusion:
     // Signal any extra threads to stop and wait for them
     ABORT_SIGNAL = true;
     if (threadsSpawned)
-        for (int i = 1; i < threads->count; ++i)
-            pthread_join(threads->pthreads[i], NULL);
+        WaitForHelpers();
 
     // Print conclusion
     PrintConclusion(threads);

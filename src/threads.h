@@ -74,6 +74,8 @@ Thread *InitThreads(int threadCount);
 uint64_t TotalNodes();
 uint64_t TotalTBHits();
 void PrepareSearch(Position *pos);
+void StartHelpers(void *(*func)(void *));
+void WaitForHelpers();
 void ResetThreads();
 void Wait(Thread *thread, volatile bool *condition);
 void Wake(Thread *thread);
