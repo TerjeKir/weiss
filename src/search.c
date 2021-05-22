@@ -602,26 +602,11 @@ static void *IterativeDeepening(void *voidThread) {
     return NULL;
 }
 
-// Get ready to start a search
-static void PrepareSearch(Position *pos, Thread *threads) {
-
-    // Setup threads for a new search
-    for (Thread *t = threads; t < threads + threads->count; ++t) {
-        memset(t, 0, offsetof(Thread, pos));
-        memcpy(&t->pos, pos, sizeof(Position));
-        for (Depth d = 0; d < MAX_PLY; ++d)
-            (t->ss+SS_OFFSET+d)->ply = d;
-    }
-
-    // Mark TT as used
-    TT.dirty = true;
-}
-
 // Root of search
 void SearchPosition(Position *pos, Thread *threads) {
 
     InitTimeManagement();
-    PrepareSearch(pos, threads);
+    PrepareSearch(threads, pos);
     bool threadsSpawned = false;
 
     // Probe TBs for a move if already in a TB position

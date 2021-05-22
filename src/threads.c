@@ -58,6 +58,16 @@ uint64_t TotalTBHits(const Thread *threads) {
     return total;
 }
 
+// Setup threads for a new search
+void PrepareSearch(Thread *threads, Position *pos) {
+    for (Thread *t = threads; t < threads + threads->count; ++t) {
+        memset(t, 0, offsetof(Thread, pos));
+        memcpy(&t->pos, pos, sizeof(Position));
+        for (Depth d = 0; d < MAX_PLY; ++d)
+            (t->ss+SS_OFFSET+d)->ply = d;
+    }
+}
+
 // Resets all data that isn't reset each turn
 void ResetThreads(Thread *threads) {
     for (int i = 0; i < threads->count; ++i)
