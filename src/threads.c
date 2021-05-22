@@ -23,28 +23,31 @@
 #include "threads.h"
 
 
+Thread *threads;
+
+
 // Allocates memory for thread structs
 Thread *InitThreads(int count) {
 
-    Thread *threads = calloc(count, sizeof(Thread));
+    Thread *t = calloc(count, sizeof(Thread));
 
     // Each thread knows its own index and total thread count
     for (int i = 0; i < count; ++i)
-        threads[i].index = i,
-        threads[i].count = count;
+        t[i].index = i,
+        t[i].count = count;
 
     // Used for letting the main thread sleep
-    pthread_mutex_init(&threads->mutex, NULL);
-    pthread_cond_init(&threads->sleepCondition, NULL);
+    pthread_mutex_init(&t->mutex, NULL);
+    pthread_cond_init(&t->sleepCondition, NULL);
 
     // Array of pthreads
-    threads->pthreads = calloc(count, sizeof(pthread_t));
+    t->pthreads = calloc(count, sizeof(pthread_t));
 
-    return threads;
+    return t;
 }
 
 // Tallies the nodes searched by all threads
-uint64_t TotalNodes(const Thread *threads) {
+uint64_t TotalNodes() {
     uint64_t total = 0;
     for (int i = 0; i < threads->count; ++i)
         total += threads[i].pos.nodes;
@@ -52,7 +55,7 @@ uint64_t TotalNodes(const Thread *threads) {
 }
 
 // Tallies the tbhits of all threads
-uint64_t TotalTBHits(const Thread *threads) {
+uint64_t TotalTBHits() {
     uint64_t total = 0;
     for (int i = 0; i < threads->count; ++i)
         total += threads[i].tbhits;
@@ -60,7 +63,7 @@ uint64_t TotalTBHits(const Thread *threads) {
 }
 
 // Setup threads for a new search
-void PrepareSearch(Thread *threads, Position *pos) {
+void PrepareSearch(Position *pos) {
     for (Thread *t = threads; t < threads + threads->count; ++t) {
         memset(t, 0, offsetof(Thread, pos));
         memcpy(&t->pos, pos, sizeof(Position));
@@ -70,7 +73,7 @@ void PrepareSearch(Thread *threads, Position *pos) {
 }
 
 // Resets all data that isn't reset each turn
-void ResetThreads(Thread *threads) {
+void ResetThreads() {
     for (int i = 0; i < threads->count; ++i)
         memset(threads[i].pawnCache, 0, sizeof(PawnCache));
 }

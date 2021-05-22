@@ -27,11 +27,11 @@
 #include "makemove.h"
 #include "move.h"
 #include "movepicker.h"
+#include "search.h"
+#include "syzygy.h"
 #include "time.h"
 #include "threads.h"
 #include "transposition.h"
-#include "search.h"
-#include "syzygy.h"
 #include "uci.h"
 
 
@@ -600,18 +600,18 @@ static void *IterativeDeepening(void *voidThread) {
 }
 
 // Root of search
-void SearchPosition(Position *pos, Thread *threads) {
+void SearchPosition(Position *pos) {
 
     InitTimeManagement();
-    PrepareSearch(threads, pos);
+    PrepareSearch(pos);
     bool threadsSpawned = false;
 
     // Probe TBs for a move if already in a TB position
-    if (RootProbe(pos, threads)) goto conclusion;
+    if (RootProbe(pos)) goto conclusion;
 
     // Probe noobpwnftw's Chess Cloud Database
     if (   (!Limits.timelimit || Limits.maxUsage > 2000)
-        && ProbeNoob(pos, threads)) goto conclusion;
+        && ProbeNoob(pos)) goto conclusion;
 
     // Make extra threads and begin searching
     threadsSpawned = true;

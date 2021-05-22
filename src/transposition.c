@@ -97,7 +97,7 @@ static void *ThreadClearTT(void *voidThread) {
 }
 
 // Clears the transposition table
-void ClearTT(Thread *threads) {
+void ClearTT() {
 
     if (!TT.dirty) return;
 
@@ -113,7 +113,7 @@ void ClearTT(Thread *threads) {
 }
 
 // Allocates memory for the transposition table
-void InitTT(Thread *threads) {
+void InitTT() {
 
     // Skip if already correct size
     if (TT.currentMB == TT.requestedMB)
@@ -147,5 +147,5 @@ void InitTT(Thread *threads) {
 
     // Zero out the memory
     TT.dirty = true;
-    ClearTT(threads);
+    ClearTT();
 }

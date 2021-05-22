@@ -33,7 +33,6 @@
 
 typedef struct {
     Position pos;
-    Thread *threads;
 } Engine;
 
 enum InputCommands {

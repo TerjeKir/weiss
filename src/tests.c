@@ -102,7 +102,7 @@ void Benchmark(int argc, char **argv) {
     TT.requestedMB   = argc > 4 ? atoi(argv[4]) : DEFAULTHASH;
 
     Position pos;
-    Thread *threads = InitThreads(threadCount);
+    threads = InitThreads(threadCount);
     InitTT(threads);
 
     int FENCount = sizeof(BenchmarkFENs) / sizeof(char *);
@@ -118,7 +118,7 @@ void Benchmark(int argc, char **argv) {
         ParseFen(BenchmarkFENs[i], &pos);
         ABORT_SIGNAL = false;
         Limits.start = Now();
-        SearchPosition(&pos, threads);
+        SearchPosition(&pos);
 
         // Collect results
         BenchResult *r = &results[i];

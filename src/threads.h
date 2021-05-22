@@ -67,10 +67,13 @@ typedef struct Thread {
 } Thread;
 
 
+extern Thread *threads;
+
+
 Thread *InitThreads(int threadCount);
-uint64_t TotalNodes(const Thread *threads);
-uint64_t TotalTBHits(const Thread *threads);
-void PrepareSearch(Thread *threads, Position *pos);
-void ResetThreads(Thread *threads);
+uint64_t TotalNodes();
+uint64_t TotalTBHits();
+void PrepareSearch(Position *pos);
+void ResetThreads();
 void Wait(Thread *thread, volatile bool *condition);
 void Wake(Thread *thread);

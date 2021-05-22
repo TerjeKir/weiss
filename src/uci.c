@@ -59,18 +59,18 @@ static void ParseTimeControl(char *str, Color color) {
 // Begins a search with the given setup
 static void *BeginSearch(void *voidEngine) {
     Engine *engine = voidEngine;
-    SearchPosition(&engine->pos, engine->threads);
+    SearchPosition(&engine->pos);
     return NULL;
 }
 
 // Parses the given limits and creates a new thread to start the search
 INLINE void Go(Engine *engine, char *str) {
     ABORT_SIGNAL = false;
-    InitTT(engine->threads);
+    InitTT();
     TT.dirty = true;
     ParseTimeControl(str, engine->pos.stm);
-    pthread_create(&engine->threads->pthreads[0], NULL, &BeginSearch, engine);
-    pthread_detach(engine->threads->pthreads[0]);
+    pthread_create(&threads->pthreads[0], NULL, &BeginSearch, engine);
+    pthread_detach(threads->pthreads[0]);
 }
 
 // Parses a 'position' and sets up the board
@@ -103,7 +103,7 @@ static void Pos(Position *pos, char *str) {
 }
 
 // Parses a 'setoption' and updates settings
-static void SetOption(Engine *engine, char *str) {
+static void SetOption(char *str) {
 
     // Sets the size of the transposition table
     if (OptionName(str, "Hash")) {
@@ -112,9 +112,9 @@ static void SetOption(Engine *engine, char *str) {
 
     // Sets number of threads to use for searching
     } else if (OptionName(str, "Threads")) {
-        free(engine->threads->pthreads);
-        free(engine->threads);
-        engine->threads = InitThreads(atoi(OptionValue(str)));
+        free(threads->pthreads);
+        free(threads);
+        threads = InitThreads(atoi(OptionValue(str)));
 
     // Sets the syzygy tablebase path
     } else if (OptionName(str, "SyzygyPath")) {
@@ -148,22 +148,22 @@ static void Info() {
 }
 
 // Stops searching
-static void Stop(Engine *engine) {
+static void Stop() {
     ABORT_SIGNAL = true;
-    Wake(engine->threads);
+    Wake(threads);
 }
 
 // Signals the engine is ready
-static void IsReady(Engine *engine) {
-    InitTT(engine->threads);
+static void IsReady() {
+    InitTT();
     printf("readyok\n");
     fflush(stdout);
 }
 
 // Reset for a new game
-static void NewGame(Engine *engine) {
-    ClearTT(engine->threads);
-    ResetThreads(engine->threads);
+static void NewGame() {
+    ClearTT();
+    ResetThreads();
     failedQueries = 0;
 }
 
@@ -190,7 +190,8 @@ int main(int argc, char **argv) {
 #endif
 
     // Init engine
-    Engine engine = { .threads = InitThreads(1) };
+    threads = InitThreads(1);
+    Engine engine = {};
     Position *pos = &engine.pos;
     ParseFen(START_FEN, pos);
 
@@ -202,7 +203,7 @@ int main(int argc, char **argv) {
             case UCI        : Info();                  break;
             case ISREADY    : IsReady(&engine);        break;
             case POSITION   : Pos(pos, str);           break;
-            case SETOPTION  : SetOption(&engine, str); break;
+            case SETOPTION  : SetOption(str);          break;
             case UCINEWGAME : NewGame(&engine);        break;
             case STOP       : Stop(&engine);           break;
             case QUIT       : Stop(&engine);           return 0;
