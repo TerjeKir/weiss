@@ -57,19 +57,18 @@ static void ParseTimeControl(char *str, Color color) {
 }
 
 // Begins a search with the given setup
-static void *BeginSearch(void *voidEngine) {
-    Engine *engine = voidEngine;
-    SearchPosition(&engine->pos);
+static void *BeginSearch(void *pos) {
+    SearchPosition((Position *)pos);
     return NULL;
 }
 
 // Parses the given limits and creates a new thread to start the search
-INLINE void Go(Engine *engine, char *str) {
+INLINE void Go(Position *pos, char *str) {
     ABORT_SIGNAL = false;
     InitTT();
     TT.dirty = true;
-    ParseTimeControl(str, engine->pos.stm);
-    pthread_create(&threads->pthreads[0], NULL, &BeginSearch, engine);
+    ParseTimeControl(str, pos->stm);
+    pthread_create(&threads->pthreads[0], NULL, &BeginSearch, pos);
     pthread_detach(threads->pthreads[0]);
 }
 
@@ -191,27 +190,26 @@ int main(int argc, char **argv) {
 
     // Init engine
     threads = InitThreads(1);
-    Engine engine = {};
-    Position *pos = &engine.pos;
-    ParseFen(START_FEN, pos);
+    Position pos;
+    ParseFen(START_FEN, &pos);
 
     // Input loop
     char str[INPUT_SIZE];
     while (GetInput(str)) {
         switch (HashInput(str)) {
-            case GO         : Go(&engine, str);        break;
-            case UCI        : Info();                  break;
-            case ISREADY    : IsReady(&engine);        break;
-            case POSITION   : Pos(pos, str);           break;
-            case SETOPTION  : SetOption(str);          break;
-            case UCINEWGAME : NewGame(&engine);        break;
-            case STOP       : Stop(&engine);           break;
-            case QUIT       : Stop(&engine);           return 0;
+            case GO         : Go(&pos, str);  break;
+            case UCI        : Info();         break;
+            case ISREADY    : IsReady();      break;
+            case POSITION   : Pos(&pos, str); break;
+            case SETOPTION  : SetOption(str); break;
+            case UCINEWGAME : NewGame();      break;
+            case STOP       : Stop();         break;
+            case QUIT       : Stop();         return 0;
 #ifdef DEV
             // Non-UCI commands
-            case EVAL       : PrintEval(pos);      break;
-            case PRINT      : PrintBoard(pos);     break;
-            case PERFT      : Perft(str);          break;
+            case EVAL       : PrintEval(&pos);  break;
+            case PRINT      : PrintBoard(&pos); break;
+            case PERFT      : Perft(str);       break;
 #endif
         }
     }
