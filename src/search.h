@@ -35,4 +35,4 @@ extern SearchLimits Limits;
 extern volatile bool ABORT_SIGNAL;
 
 
-void SearchPosition(Position *pos);
+void *SearchPosition(void *pos);

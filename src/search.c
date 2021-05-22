@@ -600,7 +600,7 @@ static void *IterativeDeepening(void *voidThread) {
 }
 
 // Root of search
-void SearchPosition(Position *pos) {
+void *SearchPosition(void *pos) {
 
     InitTimeManagement();
     PrepareSearch(pos);
@@ -630,4 +630,6 @@ conclusion:
 
     // Print conclusion
     PrintConclusion(threads);
+
+    return NULL;
 }

@@ -56,20 +56,13 @@ static void ParseTimeControl(char *str, Color color) {
     Limits.depth = !Limits.depth ? MAX_PLY : MIN(Limits.depth, MAX_PLY);
 }
 
-// Begins a search with the given setup
-static void *BeginSearch(void *pos) {
-    SearchPosition((Position *)pos);
-    return NULL;
-}
-
 // Parses the given limits and creates a new thread to start the search
 INLINE void Go(Position *pos, char *str) {
     ABORT_SIGNAL = false;
     InitTT();
     TT.dirty = true;
     ParseTimeControl(str, pos->stm);
-    pthread_create(&threads->pthreads[0], NULL, &BeginSearch, pos);
-    pthread_detach(threads->pthreads[0]);
+    StartMainThread(SearchPosition, pos);
 }
 
 // Parses a 'position' and sets up the board

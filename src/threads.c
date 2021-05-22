@@ -72,7 +72,13 @@ void PrepareSearch(Position *pos) {
     }
 }
 
-// Starts helper threads running the provided function
+// Start the main thread running the provided function
+void StartMainThread(void *(*func)(void *), Position *pos) {
+    pthread_create(&threads->pthreads[0], NULL, func, pos);
+    pthread_detach(threads->pthreads[0]);
+}
+
+// Start helper threads running the provided function
 void StartHelpers(void *(*func)(void *)) {
     for (int i = 1; i < threads->count; ++i)
         pthread_create(&threads->pthreads[i], NULL, func, &threads[i]);
