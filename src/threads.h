@@ -18,7 +18,6 @@
 
 #pragma once
 
-#include <pthread.h>
 #include <setjmp.h>
 
 #include "board.h"
@@ -55,8 +54,6 @@ typedef struct Thread {
     int index;
     int count;
 
-    pthread_t *pthreads;
-
 } Thread;
 
 
@@ -71,5 +68,6 @@ void StartMainThread(void *(*func)(void *), Position *pos);
 void StartHelpers(void *(*func)(void *));
 void WaitForHelpers();
 void ResetThreads();
+void RunWithAllThreads(void *(*func)(void *));
 void Wait(volatile bool *condition);
 void Wake();

@@ -104,8 +104,6 @@ static void SetOption(char *str) {
 
     // Sets number of threads to use for searching
     } else if (OptionName(str, "Threads")) {
-        free(threads->pthreads);
-        free(threads);
         threads = InitThreads(atoi(OptionValue(str)));
 
     // Sets the syzygy tablebase path

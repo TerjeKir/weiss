@@ -16,6 +16,7 @@
   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include <pthread.h>
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
@@ -24,6 +25,7 @@
 
 
 Thread *threads;
+static pthread_t *pthreads;
 
 // Used for letting the main thread sleep without using cpu
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -33,6 +35,9 @@ pthread_cond_t sleepCondition = PTHREAD_COND_INITIALIZER;
 // Allocates memory for thread structs
 Thread *InitThreads(int count) {
 
+    if (threads) free(threads);
+    if (pthreads) free(pthreads);
+
     Thread *t = calloc(count, sizeof(Thread));
 
     // Each thread knows its own index and total thread count
@@ -41,7 +46,7 @@ Thread *InitThreads(int count) {
         t[i].count = count;
 
     // Array of pthreads
-    t->pthreads = calloc(count, sizeof(pthread_t));
+    pthreads = calloc(count, sizeof(pthread_t));
 
     return t;
 }
@@ -74,25 +79,33 @@ void PrepareSearch(Position *pos) {
 
 // Start the main thread running the provided function
 void StartMainThread(void *(*func)(void *), Position *pos) {
-    pthread_create(&threads->pthreads[0], NULL, func, pos);
-    pthread_detach(threads->pthreads[0]);
+    pthread_create(&pthreads[0], NULL, func, pos);
+    pthread_detach(pthreads[0]);
 }
 
 // Start helper threads running the provided function
 void StartHelpers(void *(*func)(void *)) {
     for (int i = 1; i < threads->count; ++i)
-        pthread_create(&threads->pthreads[i], NULL, func, &threads[i]);
+        pthread_create(&pthreads[i], NULL, func, &threads[i]);
 }
 
 void WaitForHelpers() {
     for (int i = 1; i < threads->count; ++i)
-        pthread_join(threads->pthreads[i], NULL);
+        pthread_join(pthreads[i], NULL);
 }
 
 // Resets all data that isn't reset each turn
 void ResetThreads() {
     for (int i = 0; i < threads->count; ++i)
         memset(threads[i].pawnCache, 0, sizeof(PawnCache));
+}
+
+// Runs the given function once in each thread
+void RunWithAllThreads(void *(*func)(void *)) {
+    for (int i = 0; i < threads->count; ++i)
+        pthread_create(&pthreads[i], NULL, func, &threads[i]);
+    for (int i = 0; i < threads->count; ++i)
+        pthread_join(pthreads[i], NULL);
 }
 
 // Thread sleeps until it is woken up
