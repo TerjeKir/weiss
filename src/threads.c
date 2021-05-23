@@ -16,6 +16,7 @@
   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include <pthread.h>
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
@@ -23,28 +24,31 @@
 #include "threads.h"
 
 
-// Allocates memory for thread structs
-Thread *InitThreads(int count) {
+Thread *threads;
+static pthread_t *pthreads;
 
-    Thread *threads = calloc(count, sizeof(Thread));
+// Used for letting the main thread sleep without using cpu
+static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+static pthread_cond_t sleepCondition = PTHREAD_COND_INITIALIZER;
+
+
+// Allocates memory for thread structs
+void InitThreads(int count) {
+
+    if (threads)  free(threads);
+    if (pthreads) free(pthreads);
+
+    threads  = calloc(count, sizeof(Thread));
+    pthreads = calloc(count, sizeof(pthread_t));
 
     // Each thread knows its own index and total thread count
     for (int i = 0; i < count; ++i)
         threads[i].index = i,
         threads[i].count = count;
-
-    // Used for letting the main thread sleep
-    pthread_mutex_init(&threads->mutex, NULL);
-    pthread_cond_init(&threads->sleepCondition, NULL);
-
-    // Array of pthreads
-    threads->pthreads = calloc(count, sizeof(pthread_t));
-
-    return threads;
 }
 
 // Tallies the nodes searched by all threads
-uint64_t TotalNodes(const Thread *threads) {
+uint64_t TotalNodes() {
     uint64_t total = 0;
     for (int i = 0; i < threads->count; ++i)
         total += threads[i].pos.nodes;
@@ -52,7 +56,7 @@ uint64_t TotalNodes(const Thread *threads) {
 }
 
 // Tallies the tbhits of all threads
-uint64_t TotalTBHits(const Thread *threads) {
+uint64_t TotalTBHits() {
     uint64_t total = 0;
     for (int i = 0; i < threads->count; ++i)
         total += threads[i].tbhits;
@@ -60,7 +64,7 @@ uint64_t TotalTBHits(const Thread *threads) {
 }
 
 // Setup threads for a new search
-void PrepareSearch(Thread *threads, Position *pos) {
+void PrepareSearch(Position *pos) {
     for (Thread *t = threads; t < threads + threads->count; ++t) {
         memset(t, 0, offsetof(Thread, pos));
         memcpy(&t->pos, pos, sizeof(Position));
@@ -69,23 +73,49 @@ void PrepareSearch(Thread *threads, Position *pos) {
     }
 }
 
-// Resets all data that isn't reset each turn
-void ResetThreads(Thread *threads) {
+// Start the main thread running the provided function
+void StartMainThread(void *(*func)(void *), Position *pos) {
+    pthread_create(&pthreads[0], NULL, func, pos);
+    pthread_detach(pthreads[0]);
+}
+
+// Start helper threads running the provided function
+void StartHelpers(void *(*func)(void *)) {
+    for (int i = 1; i < threads->count; ++i)
+        pthread_create(&pthreads[i], NULL, func, &threads[i]);
+}
+
+// Wait for helper threads to finish
+void WaitForHelpers() {
+    for (int i = 1; i < threads->count; ++i)
+        pthread_join(pthreads[i], NULL);
+}
+
+// Reset all data that isn't reset each turn
+void ResetThreads() {
     for (int i = 0; i < threads->count; ++i)
         memset(threads[i].pawnCache, 0, sizeof(PawnCache));
 }
 
+// Run the given function once in each thread
+void RunWithAllThreads(void *(*func)(void *)) {
+    for (int i = 0; i < threads->count; ++i)
+        pthread_create(&pthreads[i], NULL, func, &threads[i]);
+    for (int i = 0; i < threads->count; ++i)
+        pthread_join(pthreads[i], NULL);
+}
+
 // Thread sleeps until it is woken up
-void Wait(Thread *thread, volatile bool *condition) {
-    pthread_mutex_lock(&thread->mutex);
+void Wait(volatile bool *condition) {
+    pthread_mutex_lock(&mutex);
     while (!*condition)
-        pthread_cond_wait(&thread->sleepCondition, &thread->mutex);
-    pthread_mutex_unlock(&thread->mutex);
+        pthread_cond_wait(&sleepCondition, &mutex);
+    pthread_mutex_unlock(&mutex);
 }
 
 // Wakes up a sleeping thread
-void Wake(Thread *thread) {
-    pthread_mutex_lock(&thread->mutex);
-    pthread_cond_signal(&thread->sleepCondition);
-    pthread_mutex_unlock(&thread->mutex);
+void Wake() {
+    pthread_mutex_lock(&mutex);
+    pthread_cond_signal(&sleepCondition);
+    pthread_mutex_unlock(&mutex);
 }

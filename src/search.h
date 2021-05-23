@@ -19,7 +19,6 @@
 #pragma once
 
 #include "board.h"
-#include "threads.h"
 #include "types.h"
 
 
@@ -36,4 +35,4 @@ extern SearchLimits Limits;
 extern volatile bool ABORT_SIGNAL;
 
 
-void SearchPosition(Position *pos, Thread *threads);
+void *SearchPosition(void *pos);

@@ -16,7 +16,7 @@
   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "../threads.h"
+#include "../board.h"
 #include "../types.h"
 
 
@@ -25,4 +25,4 @@ extern int failedQueries;
 extern int noobLimit;
 
 
-bool ProbeNoob(Position *pos, Thread *threads);
+bool ProbeNoob(Position *pos);

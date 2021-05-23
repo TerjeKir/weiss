@@ -27,11 +27,11 @@
 #include "makemove.h"
 #include "move.h"
 #include "movepicker.h"
+#include "search.h"
+#include "syzygy.h"
 #include "time.h"
 #include "threads.h"
 #include "transposition.h"
-#include "search.h"
-#include "syzygy.h"
 #include "uci.h"
 
 
@@ -600,36 +600,36 @@ static void *IterativeDeepening(void *voidThread) {
 }
 
 // Root of search
-void SearchPosition(Position *pos, Thread *threads) {
+void *SearchPosition(void *pos) {
 
     InitTimeManagement();
-    PrepareSearch(threads, pos);
+    PrepareSearch(pos);
     bool threadsSpawned = false;
 
     // Probe TBs for a move if already in a TB position
-    if (RootProbe(pos, threads)) goto conclusion;
+    if (RootProbe(pos)) goto conclusion;
 
     // Probe noobpwnftw's Chess Cloud Database
     if (   (!Limits.timelimit || Limits.maxUsage > 2000)
-        && ProbeNoob(pos, threads)) goto conclusion;
+        && ProbeNoob(pos)) goto conclusion;
 
-    // Make extra threads and begin searching
+    // Start helper threads and begin searching
     threadsSpawned = true;
-    for (int i = 1; i < threads->count; ++i)
-        pthread_create(&threads->pthreads[i], NULL, &IterativeDeepening, &threads[i]);
+    StartHelpers(IterativeDeepening);
     IterativeDeepening(&threads[0]);
 
 conclusion:
 
     // Wait for 'stop' in infinite search
-    if (Limits.infinite) Wait(threads, &ABORT_SIGNAL);
+    if (Limits.infinite) Wait(&ABORT_SIGNAL);
 
-    // Signal any extra threads to stop and wait for them
+    // Signal helper threads to stop and wait for them to finish
     ABORT_SIGNAL = true;
     if (threadsSpawned)
-        for (int i = 1; i < threads->count; ++i)
-            pthread_join(threads->pthreads[i], NULL);
+        WaitForHelpers();
 
     // Print conclusion
     PrintConclusion(threads);
+
+    return NULL;
 }

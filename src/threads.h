@@ -18,7 +18,6 @@
 
 #pragma once
 
-#include <pthread.h>
 #include <setjmp.h>
 
 #include "board.h"
@@ -39,19 +38,14 @@ typedef struct {
 
 typedef struct Thread {
 
+    int16_t history[COLOR_NB][64][64];
+    Stack ss[128];
+    jmp_buf jumpBuffer;
     uint64_t tbhits;
-
+    Move bestMove;
     int score;
     Depth depth;
     bool doPruning;
-
-    Move bestMove;
-
-    jmp_buf jumpBuffer;
-
-    Stack ss[128];
-
-    int16_t history[COLOR_NB][64][64];
 
     // Anything below here is not zeroed out between searches
     Position pos;
@@ -60,17 +54,20 @@ typedef struct Thread {
     int index;
     int count;
 
-    pthread_mutex_t mutex;
-    pthread_cond_t sleepCondition;
-    pthread_t *pthreads;
-
 } Thread;
 
 
-Thread *InitThreads(int threadCount);
-uint64_t TotalNodes(const Thread *threads);
-uint64_t TotalTBHits(const Thread *threads);
-void PrepareSearch(Thread *threads, Position *pos);
-void ResetThreads(Thread *threads);
-void Wait(Thread *thread, volatile bool *condition);
-void Wake(Thread *thread);
+extern Thread *threads;
+
+
+void InitThreads(int threadCount);
+uint64_t TotalNodes();
+uint64_t TotalTBHits();
+void PrepareSearch(Position *pos);
+void StartMainThread(void *(*func)(void *), Position *pos);
+void StartHelpers(void *(*func)(void *));
+void WaitForHelpers();
+void ResetThreads();
+void RunWithAllThreads(void *(*func)(void *));
+void Wait(volatile bool *condition);
+void Wake();

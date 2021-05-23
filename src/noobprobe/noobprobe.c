@@ -43,6 +43,7 @@
 #include "noobprobe.h"
 #include "../board.h"
 #include "../move.h"
+#include "../threads.h"
 
 
 bool noobbook;
@@ -53,7 +54,7 @@ int noobLimit;
 void error(const char *msg) { perror(msg); exit(0); }
 
 // Probes noobpwnftw's Chess Cloud Database
-bool ProbeNoob(Position *pos, Thread *threads) {
+bool ProbeNoob(Position *pos) {
 
     // Stop querying after 3 failures or at the specified depth
     if (  !noobbook

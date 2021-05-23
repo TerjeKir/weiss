@@ -23,6 +23,7 @@
 #include "pyrrhic/tbprobe.h"
 #include "bitboard.h"
 #include "move.h"
+#include "transposition.h"
 #include "types.h"
 
 
@@ -67,7 +68,7 @@ bool ProbeWDL(const Position *pos, int *score, int *bound, int ply) {
 }
 
 // Calls pyrrhic to get optimal moves in tablebase positions in root
-bool RootProbe(Position *pos, Thread *thread) {
+bool RootProbe(Position *pos) {
 
     // Tablebases contain no positions with castling legal,
     // and if there are too many pieces a probe will fail
@@ -112,7 +113,7 @@ bool RootProbe(Position *pos, Thread *thread) {
     fflush(stdout);
 
     // Set move to be printed as conclusion
-    thread->bestMove = move;
+    threads->bestMove = move;
 
     return true;
 }
