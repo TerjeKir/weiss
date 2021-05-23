@@ -104,7 +104,7 @@ static void SetOption(char *str) {
 
     // Sets number of threads to use for searching
     } else if (OptionName(str, "Threads")) {
-        threads = InitThreads(atoi(OptionValue(str)));
+        InitThreads(atoi(OptionValue(str)));
 
     // Sets the syzygy tablebase path
     } else if (OptionName(str, "SyzygyPath")) {
@@ -180,7 +180,7 @@ int main(int argc, char **argv) {
 #endif
 
     // Init engine
-    threads = InitThreads(1);
+    InitThreads(1);
     Position pos;
     ParseFen(START_FEN, &pos);
 

@@ -28,27 +28,23 @@ Thread *threads;
 static pthread_t *pthreads;
 
 // Used for letting the main thread sleep without using cpu
-pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
-pthread_cond_t sleepCondition = PTHREAD_COND_INITIALIZER;
+static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+static pthread_cond_t sleepCondition = PTHREAD_COND_INITIALIZER;
 
 
 // Allocates memory for thread structs
-Thread *InitThreads(int count) {
+void InitThreads(int count) {
 
-    if (threads) free(threads);
+    if (threads)  free(threads);
     if (pthreads) free(pthreads);
 
-    Thread *t = calloc(count, sizeof(Thread));
+    threads  = calloc(count, sizeof(Thread));
+    pthreads = calloc(count, sizeof(pthread_t));
 
     // Each thread knows its own index and total thread count
     for (int i = 0; i < count; ++i)
-        t[i].index = i,
-        t[i].count = count;
-
-    // Array of pthreads
-    pthreads = calloc(count, sizeof(pthread_t));
-
-    return t;
+        threads[i].index = i,
+        threads[i].count = count;
 }
 
 // Tallies the nodes searched by all threads

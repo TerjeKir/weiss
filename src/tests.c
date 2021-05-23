@@ -102,7 +102,7 @@ void Benchmark(int argc, char **argv) {
     TT.requestedMB   = argc > 4 ? atoi(argv[4]) : DEFAULTHASH;
 
     Position pos;
-    threads = InitThreads(threadCount);
+    InitThreads(threadCount);
     InitTT(threads);
 
     int FENCount = sizeof(BenchmarkFENs) / sizeof(char *);
@@ -175,20 +175,19 @@ static uint64_t RecursivePerft(Thread *thread, const Depth depth) {
 void Perft(char *str) {
 
     char *default_fen = "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1";
-    Thread *thread = InitThreads(1);
 
     strtok(str, " ");
     char *d = strtok(NULL, " ");
     char *fen = strtok(NULL, "\0") ?: default_fen;
 
     Depth depth = d ? atoi(d) : 5;
-    ParseFen(fen, &thread->pos);
+    ParseFen(fen, &threads->pos);
 
     printf("\nPerft starting:\nDepth : %d\nFEN   : %s\n", depth, fen);
     fflush(stdout);
 
     const TimePoint start = Now();
-    uint64_t leafNodes = RecursivePerft(thread, depth);
+    uint64_t leafNodes = RecursivePerft(threads, depth);
     const TimePoint elapsed = TimeSince(start) + 1;
 
     printf("\nPerft complete:"
@@ -197,7 +196,6 @@ void Perft(char *str) {
            "\nNodes: %" PRIu64 "\n",
            elapsed, leafNodes * 1000 / elapsed, leafNodes);
     fflush(stdout);
-    free(thread);
 }
 
 void PrintEval(Position *pos) {

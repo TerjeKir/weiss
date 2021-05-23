@@ -60,7 +60,7 @@ typedef struct Thread {
 extern Thread *threads;
 
 
-Thread *InitThreads(int threadCount);
+void InitThreads(int threadCount);
 uint64_t TotalNodes();
 uint64_t TotalTBHits();
 void PrepareSearch(Position *pos);
