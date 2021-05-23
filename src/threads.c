@@ -85,18 +85,19 @@ void StartHelpers(void *(*func)(void *)) {
         pthread_create(&pthreads[i], NULL, func, &threads[i]);
 }
 
+// Wait for helper threads to finish
 void WaitForHelpers() {
     for (int i = 1; i < threads->count; ++i)
         pthread_join(pthreads[i], NULL);
 }
 
-// Resets all data that isn't reset each turn
+// Reset all data that isn't reset each turn
 void ResetThreads() {
     for (int i = 0; i < threads->count; ++i)
         memset(threads[i].pawnCache, 0, sizeof(PawnCache));
 }
 
-// Runs the given function once in each thread
+// Run the given function once in each thread
 void RunWithAllThreads(void *(*func)(void *)) {
     for (int i = 0; i < threads->count; ++i)
         pthread_create(&pthreads[i], NULL, func, &threads[i]);
