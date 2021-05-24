@@ -277,7 +277,8 @@ void PrintParameters(TVector params, TVector current) {
     i+=2;
     PrintArray("SemiOpenFile", tparams, i, 2, "[2]");
     i+=2;
-    puts("");
+
+    puts("\n// KingLineDanger");
     PrintArray("KingLineDanger", tparams, i, 28, "[28]");
     i+=28;
     puts("");
@@ -423,7 +424,7 @@ double StaticEvaluationErrors(TEntry * entries, double K) {
 
 double ComputeOptimalK(TEntry *entries) {
 
-    const double rate = 100, delta = 1e-5, deviation_goal = 1e-10;
+    const double rate = 100, delta = 1e-4, deviation_goal = 1e-8;
     double K = 2, deviation = 1;
 
     while (fabs(deviation) > deviation_goal) {
