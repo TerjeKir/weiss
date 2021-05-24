@@ -31,9 +31,6 @@ typedef struct EvalInfo {
 } EvalInfo;
 
 
-extern EvalTrace T;
-
-
 // Piecetype values, combines with PSQTs [piecetype]
 const int PieceTypeValue[7] = {
     0, S(P_MG, P_EG), S(N_MG, N_EG), S(B_MG, B_EG), S(R_MG, R_EG), S(Q_MG, Q_EG), 0
@@ -158,31 +155,31 @@ INLINE int EvalPawns(const Position *pos, const Color color) {
     // Doubled pawns (only when one is blocking the other from moving)
     count = PopCount(pawns & ShiftBB(pawns, NORTH));
     eval += PawnDoubled * count;
-    if (TRACE) T.PawnDoubled[color] += count;
+    TraceCount(PawnDoubled);
 
     // Supported pawns
     count = PopCount(pawns & PawnBBAttackBB(pawns, color));
     eval += PawnSupport * count;
-    if (TRACE) T.PawnSupport[color] += count;
+    TraceCount(PawnSupport);
 
     // Evaluate each individual pawn
     while (pawns) {
 
         Square sq = PopLsb(&pawns);
 
-        if (TRACE) T.PieceValue[PAWN-1][color]++;
-        if (TRACE) T.PSQT[PAWN-1][RelativeSquare(color, sq)][color]++;
+        TraceIncr(PieceValue[PAWN-1]);
+        TraceIncr(PSQT[PAWN-1][RelativeSquare(color, sq)]);
 
         // Isolated pawns
         if (!(IsolatedMask[sq] & colorPieceBB(color, PAWN))) {
             eval += PawnIsolated;
-            if (TRACE) T.PawnIsolated[color]++;
+            TraceIncr(PawnIsolated);
         }
 
         // Passed pawns
         if (!((PassedMask[color][sq]) & colorPieceBB(!color, PAWN))) {
             eval += PawnPassed[RelativeRank(color, RankOf(sq))];
-            if (TRACE) T.PawnPassed[RelativeRank(color, RankOf(sq))][color]++;
+            TraceIncr(PawnPassed[RelativeRank(color, RankOf(sq))]);
         }
     }
 
@@ -215,7 +212,7 @@ INLINE int EvalPiece(const Position *pos, EvalInfo *ei, const Color color, const
     // Bishop pair
     if (pt == BISHOP && Multiple(pieces)) {
         eval += BishopPair;
-        if (TRACE) T.BishopPair[color]++;
+        TraceIncr(BishopPair);
     }
 
     // Evaluate each individual piece
@@ -223,14 +220,14 @@ INLINE int EvalPiece(const Position *pos, EvalInfo *ei, const Color color, const
 
         Square sq = PopLsb(&pieces);
 
-        if (TRACE) T.PieceValue[pt-1][color]++;
-        if (TRACE) T.PSQT[pt-1][RelativeSquare(color, sq)][color]++;
+        TraceIncr(PieceValue[pt-1]);
+        TraceIncr(PSQT[pt-1][RelativeSquare(color, sq)]);
 
         // Mobility
         Bitboard mobilityBB = XRayAttackBB(pos, color, pt, sq) & ei->mobilityArea[color];
         int mob = PopCount(mobilityBB);
         eval += Mobility[pt-2][mob];
-        if (TRACE) T.Mobility[pt-2][mob][color]++;
+        TraceIncr(Mobility[pt-2][mob]);
 
         // Attacks for king safety calculations
         int kingAttack = PopCount(mobilityBB & ei->enemyKingZone[color]);
@@ -248,11 +245,11 @@ INLINE int EvalPiece(const Position *pos, EvalInfo *ei, const Color color, const
             // Open file
             if (!(pieceBB(PAWN) & FileBB[FileOf(sq)])) {
                 eval += OpenFile[pt-4];
-                if (TRACE) T.OpenFile[pt-4][color]++;
+                TraceIncr(OpenFile[pt-4]);
             // Semi-open file
             } else if (!(colorPieceBB(color, PAWN) & FileBB[FileOf(sq)])) {
                 eval += SemiOpenFile[pt-4];
-                if (TRACE) T.SemiOpenFile[pt-4][color]++;
+                TraceIncr(SemiOpenFile[pt-4]);
             }
         }
     }
@@ -267,13 +264,13 @@ INLINE int EvalKings(const Position *pos, EvalInfo *ei, const Color color) {
 
     Square kingSq = Lsb(colorPieceBB(color, KING));
 
-    if (TRACE) T.PSQT[KING-1][RelativeSquare(color, kingSq)][color]++;
+    TraceIncr(PSQT[KING-1][RelativeSquare(color, kingSq)]);
 
     // Open lines from the king
     Bitboard SafeLine = RankBB[RelativeRank(color, RANK_1)];
     int count = PopCount(~SafeLine & AttackBB(QUEEN, kingSq, colorBB(color) | pieceBB(PAWN)));
     eval += KingLineDanger[count];
-    if (TRACE) T.KingLineDanger[count][color]++;
+    TraceIncr(KingLineDanger[count]);
 
     // Add to enemy's attack power based on open lines
     ei->attackPower[!color] += (count - 3) * 8;
@@ -345,7 +342,7 @@ int EvalPosition(const Position *pos, PawnCache pc) {
     eval +=  EvalSafety(WHITE, &ei)
            - EvalSafety(BLACK, &ei);
 
-    if (TRACE) T.eval = eval;
+    TraceEval(eval);
 
     // Adjust score by phase
     eval =  ((MgScore(eval) * pos->phase)

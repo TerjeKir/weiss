@@ -26,14 +26,15 @@
 
 #pragma once
 
+#ifdef TUNE
+
 #include "../types.h"
 
 
-#ifdef TUNE
-    #define TRACE (1)
-#else
-    #define TRACE (0)
-#endif
+#define TRACE (1)
+#define TraceCount(term) T.term[color] = count
+#define TraceIncr(term) T.term[color]++
+#define TraceEval(e) T.eval = e
 
 #define DATASET      "BIG.book"
 #define NPOSITIONS   (42484641) // Total FENS in the book
@@ -72,8 +73,6 @@ typedef struct EvalTrace {
 
 } EvalTrace;
 
-#ifdef TUNE
-
 typedef struct TTuple {
     int16_t index, coeff;
 } TTuple;
@@ -88,7 +87,16 @@ typedef struct TEntry {
 typedef double TCoeffs[NTERMS];
 typedef double TVector[NTERMS][2];
 
+
+extern EvalTrace T;
+
+
 // Runs the tuner
 void Tune();
 
+#else
+#define TRACE (0)
+#define TraceCount(term)
+#define TraceIncr(term)
+#define TraceEval(e)
 #endif

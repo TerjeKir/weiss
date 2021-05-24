@@ -24,6 +24,8 @@
   https://github.com/AndyGrant/Ethereal/blob/master/Tuning.pdf
 */
 
+#ifdef TUNE
+
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -61,8 +63,6 @@ extern const int Mobility[4][28];
 
 
 EvalTrace T, EmptyTrace;
-
-#ifdef TUNE
 
 TTuple *TupleStack;
 int TupleStackSize;
