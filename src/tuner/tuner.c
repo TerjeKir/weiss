@@ -423,28 +423,17 @@ double StaticEvaluationErrors(TEntry * entries, double K) {
 
 double ComputeOptimalK(TEntry *entries) {
 
-    double start = 0.0, end = 10, step = 1.0;
-    double curr = start, error;
-    double best = StaticEvaluationErrors(entries, start);
+    const double delta = 0.01, rate = 100, deviation_goal = 1e-10;
+    double K = 2, deviation = 1;
 
-    for (int i = 0; i < KPRECISION; i++) {
-
-        // Find the minimum within [start, end] using the current step
-        curr = start - step;
-        while (curr < end) {
-            curr = curr + step;
-            error = StaticEvaluationErrors(entries, curr);
-            if (error <= best)
-                best = error, start = curr;
-        }
-
-        // Adjust the search space
-        end   = start + step;
-        start = start - step;
-        step  = step  / 10.0;
+    while (fabs(deviation) > deviation_goal) {
+        double up   = StaticEvaluationErrors(entries, K + delta);
+        double down = StaticEvaluationErrors(entries, K - delta);
+        deviation = (up - down) / (2 * delta);
+        K -= deviation * rate;
     }
 
-    return start;
+    return K;
 }
 
 double LinearEvaluation(TEntry *entry, TVector params) {
