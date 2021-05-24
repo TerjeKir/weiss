@@ -38,7 +38,6 @@
 
 #define DATASET      "BIG.book"
 #define NPOSITIONS   (42484641) // Total FENS in the book
-#define BATCHSIZE    (42484641) // FENs per mini-batch
 
 #define NTERMS       (     499) // Number of terms being tuned
 #define MAXEPOCHS    (   10000) // Max number of epochs allowed

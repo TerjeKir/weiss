@@ -482,13 +482,13 @@ void UpdateSingleGradient(TEntry *entry, TVector gradient, TVector params, doubl
     }
 }
 
-void ComputeGradient(TEntry *entries, TVector gradient, TVector params, double K, int batch) {
+void ComputeGradient(TEntry *entries, TVector gradient, TVector params, double K) {
 
     #pragma omp parallel shared(gradient)
     {
         TVector local = {0};
-        #pragma omp for schedule(static, BATCHSIZE / NPARTITIONS)
-        for (int i = batch * BATCHSIZE; i < (batch + 1) * BATCHSIZE; i++)
+        #pragma omp for schedule(static, NPOSITIONS / NPARTITIONS)
+        for (int i = 0; i < NPOSITIONS; i++)
             UpdateSingleGradient(&entries[i], local, params, K);
 
         for (int i = 0; i < NTERMS; i++) {
@@ -533,17 +533,15 @@ void Tune() {
     // PrintParameters(params, currentParams);
 
     for (int epoch = 1; epoch <= MAXEPOCHS; epoch++) {
-        for (int batch = 0; batch < NPOSITIONS / BATCHSIZE; batch++) {
 
-            TVector gradient = {0};
-            ComputeGradient(entries, gradient, params, K, batch);
+        TVector gradient = {0};
+        ComputeGradient(entries, gradient, params, K);
 
-            for (int i = 0; i < NTERMS; i++) {
-                adagrad[i][MG] += pow((K / 200.0) * gradient[i][MG] / BATCHSIZE, 2.0);
-                adagrad[i][EG] += pow((K / 200.0) * gradient[i][EG] / BATCHSIZE, 2.0);
-                params[i][MG] += (K / 200.0) * (gradient[i][MG] / BATCHSIZE) * (rate / sqrt(1e-8 + adagrad[i][MG]));
-                params[i][EG] += (K / 200.0) * (gradient[i][EG] / BATCHSIZE) * (rate / sqrt(1e-8 + adagrad[i][EG]));
-            }
+        for (int i = 0; i < NTERMS; i++) {
+            adagrad[i][MG] += pow((K / 200.0) * gradient[i][MG] / NPOSITIONS, 2.0);
+            adagrad[i][EG] += pow((K / 200.0) * gradient[i][EG] / NPOSITIONS, 2.0);
+            params[i][MG] += (K / 200.0) * (gradient[i][MG] / NPOSITIONS) * (rate / sqrt(1e-8 + adagrad[i][MG]));
+            params[i][EG] += (K / 200.0) * (gradient[i][EG] / NPOSITIONS) * (rate / sqrt(1e-8 + adagrad[i][EG]));
         }
 
         error = TunedEvaluationErrors(entries, params, K);
