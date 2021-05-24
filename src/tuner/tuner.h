@@ -26,24 +26,23 @@
 
 #pragma once
 
+#ifdef TUNE
+
 #include "../types.h"
 
 
-#ifdef TUNE
-    #define TRACE (1)
-#else
-    #define TRACE (0)
-#endif
+#define TRACE (1)
+#define TraceCount(term) T.term[color] = count
+#define TraceIncr(term) T.term[color]++
+#define TraceEval(e) T.eval = e
 
-#define DATASET      "BIG.book"
+#define DATASET      "../../Datasets/Andrew/BIG.book"
 #define NPOSITIONS   (42484641) // Total FENS in the book
-#define BATCHSIZE    (42484641) // FENs per mini-batch
 
 #define NTERMS       (     499) // Number of terms being tuned
 #define MAXEPOCHS    (   10000) // Max number of epochs allowed
 #define REPORTING    (      50) // How often to print the new parameters
 #define NPARTITIONS  (      64) // Total thread partitions
-#define KPRECISION   (      10) // Iterations for computing K
 #define LRRATE       (    1.00) // Global Learning rate
 #define LRDROPRATE   (    1.00) // Cut LR by this each LR-step
 #define LRSTEPRATE   (     250) // Cut LR after this many epochs
@@ -72,8 +71,6 @@ typedef struct EvalTrace {
 
 } EvalTrace;
 
-#ifdef TUNE
-
 typedef struct TTuple {
     int16_t index, coeff;
 } TTuple;
@@ -88,7 +85,16 @@ typedef struct TEntry {
 typedef double TCoeffs[NTERMS];
 typedef double TVector[NTERMS][2];
 
+
+extern EvalTrace T;
+
+
 // Runs the tuner
 void Tune();
 
+#else
+#define TRACE (0)
+#define TraceCount(term)
+#define TraceIncr(term)
+#define TraceEval(e)
 #endif

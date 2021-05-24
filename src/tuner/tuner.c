@@ -24,6 +24,8 @@
   https://github.com/AndyGrant/Ethereal/blob/master/Tuning.pdf
 */
 
+#ifdef TUNE
+
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -61,8 +63,6 @@ extern const int Mobility[4][28];
 
 
 EvalTrace T, EmptyTrace;
-
-#ifdef TUNE
 
 TTuple *TupleStack;
 int TupleStackSize;
@@ -332,6 +332,7 @@ void InitCoefficients(TCoeffs coeffs) {
 
 void InitTunerTuples(TEntry *entry, TCoeffs coeffs) {
 
+    static int allocs = 0;
     int length = 0, tidx = 0;
 
     // Count the needed Coefficients
@@ -343,7 +344,7 @@ void InitTunerTuples(TEntry *entry, TCoeffs coeffs) {
         TupleStackSize = STACKSIZE;
         TupleStack = calloc(STACKSIZE, sizeof(TTuple));
         int ttupleMB = STACKSIZE * sizeof(TTuple) / (1 << 20);
-        printf(" Allocating Tuner Tuples [%dMB]\n", ttupleMB);
+        printf("Allocating [%dMB] x%d\r", ttupleMB, ++allocs);
     }
 
     // Claim part of the Tuple Stack
@@ -420,30 +421,19 @@ double StaticEvaluationErrors(TEntry * entries, double K) {
     return total / (double) NPOSITIONS;
 }
 
-double ComputeOptimalK(TEntry * entries) {
+double ComputeOptimalK(TEntry *entries) {
 
-    double start = 0.0, end = 10, step = 1.0;
-    double curr = start, error;
-    double best = StaticEvaluationErrors(entries, start);
+    const double rate = 100, delta = 1e-5, deviation_goal = 1e-10;
+    double K = 2, deviation = 1;
 
-    for (int i = 0; i < KPRECISION; i++) {
-
-        // Find the minimum within [start, end] using the current step
-        curr = start - step;
-        while (curr < end) {
-            curr = curr + step;
-            error = StaticEvaluationErrors(entries, curr);
-            if (error <= best)
-                best = error, start = curr;
-        }
-
-        // Adjust the search space
-        end   = start + step;
-        start = start - step;
-        step  = step  / 10.0;
+    while (fabs(deviation) > deviation_goal) {
+        double up   = StaticEvaluationErrors(entries, K + delta);
+        double down = StaticEvaluationErrors(entries, K - delta);
+        deviation = (up - down) / (2 * delta);
+        K -= deviation * rate;
     }
 
-    return start;
+    return K;
 }
 
 double LinearEvaluation(TEntry *entry, TVector params) {
@@ -482,13 +472,13 @@ void UpdateSingleGradient(TEntry *entry, TVector gradient, TVector params, doubl
     }
 }
 
-void ComputeGradient(TEntry *entries, TVector gradient, TVector params, double K, int batch) {
+void ComputeGradient(TEntry *entries, TVector gradient, TVector params, double K) {
 
     #pragma omp parallel shared(gradient)
     {
         TVector local = {0};
-        #pragma omp for schedule(static, BATCHSIZE / NPARTITIONS)
-        for (int i = batch * BATCHSIZE; i < (batch + 1) * BATCHSIZE; i++)
+        #pragma omp for schedule(static, NPOSITIONS / NPARTITIONS)
+        for (int i = 0; i < NPOSITIONS; i++)
             UpdateSingleGradient(&entries[i], local, params, K);
 
         for (int i = 0; i < NTERMS; i++) {
@@ -520,30 +510,26 @@ void Tune() {
     TEntry *entries = calloc(NPOSITIONS, sizeof(TEntry));
     TupleStack      = calloc(STACKSIZE,  sizeof(TTuple));
 
-    printf("Running tuner with %d terms.\n", NTERMS);
-    printf("Using %s\n", DATASET);
-    printf("\nInitializing data:\n");
+    printf("Tuning %d terms using %s\n", NTERMS, DATASET);
     InitTunerEntries(entries);
-    printf("Initialization complete.\n");
-    printf("\nCalculating optimal K.\n");
+    printf("Allocated:\n");
+    printf("Optimal K...\r");
     K = ComputeOptimalK(entries);
-    printf("Done, optimal K: %g\n", K);
+    printf("Optimal K: %g\n\n", K);
 
     InitBaseParams(currentParams);
     // PrintParameters(params, currentParams);
 
     for (int epoch = 1; epoch <= MAXEPOCHS; epoch++) {
-        for (int batch = 0; batch < NPOSITIONS / BATCHSIZE; batch++) {
 
-            TVector gradient = {0};
-            ComputeGradient(entries, gradient, params, K, batch);
+        TVector gradient = {0};
+        ComputeGradient(entries, gradient, params, K);
 
-            for (int i = 0; i < NTERMS; i++) {
-                adagrad[i][MG] += pow((K / 200.0) * gradient[i][MG] / BATCHSIZE, 2.0);
-                adagrad[i][EG] += pow((K / 200.0) * gradient[i][EG] / BATCHSIZE, 2.0);
-                params[i][MG] += (K / 200.0) * (gradient[i][MG] / BATCHSIZE) * (rate / sqrt(1e-8 + adagrad[i][MG]));
-                params[i][EG] += (K / 200.0) * (gradient[i][EG] / BATCHSIZE) * (rate / sqrt(1e-8 + adagrad[i][EG]));
-            }
+        for (int i = 0; i < NTERMS; i++) {
+            adagrad[i][MG] += pow((K / 200.0) * gradient[i][MG] / NPOSITIONS, 2.0);
+            adagrad[i][EG] += pow((K / 200.0) * gradient[i][EG] / NPOSITIONS, 2.0);
+            params[i][MG] += (K / 200.0) * (gradient[i][MG] / NPOSITIONS) * (rate / sqrt(1e-8 + adagrad[i][MG]));
+            params[i][EG] += (K / 200.0) * (gradient[i][EG] / NPOSITIONS) * (rate / sqrt(1e-8 + adagrad[i][EG]));
         }
 
         error = TunedEvaluationErrors(entries, params, K);
