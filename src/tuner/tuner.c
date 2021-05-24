@@ -332,6 +332,7 @@ void InitCoefficients(TCoeffs coeffs) {
 
 void InitTunerTuples(TEntry *entry, TCoeffs coeffs) {
 
+    static int allocs = 0;
     int length = 0, tidx = 0;
 
     // Count the needed Coefficients
@@ -343,7 +344,7 @@ void InitTunerTuples(TEntry *entry, TCoeffs coeffs) {
         TupleStackSize = STACKSIZE;
         TupleStack = calloc(STACKSIZE, sizeof(TTuple));
         int ttupleMB = STACKSIZE * sizeof(TTuple) / (1 << 20);
-        printf(" Allocating Tuner Tuples [%dMB]\n", ttupleMB);
+        printf("Allocating [%dMB] x%d\r", ttupleMB, ++allocs);
     }
 
     // Claim part of the Tuple Stack
@@ -420,7 +421,7 @@ double StaticEvaluationErrors(TEntry * entries, double K) {
     return total / (double) NPOSITIONS;
 }
 
-double ComputeOptimalK(TEntry * entries) {
+double ComputeOptimalK(TEntry *entries) {
 
     double start = 0.0, end = 10, step = 1.0;
     double curr = start, error;
@@ -520,14 +521,12 @@ void Tune() {
     TEntry *entries = calloc(NPOSITIONS, sizeof(TEntry));
     TupleStack      = calloc(STACKSIZE,  sizeof(TTuple));
 
-    printf("Running tuner with %d terms.\n", NTERMS);
-    printf("Using %s\n", DATASET);
-    printf("\nInitializing data:\n");
+    printf("Tuning %d terms using %s\n", NTERMS, DATASET);
     InitTunerEntries(entries);
-    printf("Initialization complete.\n");
-    printf("\nCalculating optimal K.\n");
+    printf("Allocated:\n");
+    printf("Optimal K...\r");
     K = ComputeOptimalK(entries);
-    printf("Done, optimal K: %g\n", K);
+    printf("Optimal K: %g\n\n", K);
 
     InitBaseParams(currentParams);
     // PrintParameters(params, currentParams);
