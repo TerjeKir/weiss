@@ -517,10 +517,6 @@ static int AspirationWindow(Thread *thread, Stack *ss) {
     int alpha = -INFINITE;
     int beta  =  INFINITE;
 
-    // Decide how deep to go before starting to prune
-    int pruningLimit = Limits.timelimit ? (Limits.optimalUsage + 250) / 250 : 7;
-    thread->doPruning = depth > MIN(7, pruningLimit);
-
     // Shrink the window at higher depths
     if (depth > 6)
         alpha = MAX(score - initialWindow, -INFINITE),
@@ -531,6 +527,11 @@ static int AspirationWindow(Thread *thread, Stack *ss) {
 
         if (alpha < -3500) alpha = -INFINITE;
         if (beta  >  3500) beta  =  INFINITE;
+
+        thread->doPruning =
+            Limits.infinite ? TimeSince(Limits.start) > 1000
+                            :   TimeSince(Limits.start) >= Limits.optimalUsage / 64
+                             || depth > 2 + Limits.optimalUsage / 256;
 
         score = AlphaBeta(thread, ss, alpha, beta, depth);
 

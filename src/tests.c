@@ -97,7 +97,7 @@ void Benchmark(int argc, char **argv) {
 
     // Default depth 15, 1 thread, and 32MB hash
     Limits.timelimit = false;
-    Limits.depth     = argc > 2 ? atoi(argv[2]) : 14;
+    Limits.depth     = argc > 2 ? atoi(argv[2]) : 16;
     int threadCount  = argc > 3 ? atoi(argv[3]) : 1;
     TT.requestedMB   = argc > 4 ? atoi(argv[4]) : DEFAULTHASH;
 
