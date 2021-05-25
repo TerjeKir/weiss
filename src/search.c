@@ -230,7 +230,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
     if (   !pvNode && ttHit && tte->depth >= depth
         && (tte->bound & (ttScore >= beta ? BOUND_LOWER : BOUND_UPPER))) {
 
-        if (moveIsQuiet(ttMove))
+        if (ttScore >= beta && moveIsQuiet(ttMove))
             HistoryBonus(&thread->history[sideToMove][fromSq(ttMove)][toSq(ttMove)], depth*depth);
 
         return ttScore;
