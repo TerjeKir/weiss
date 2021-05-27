@@ -54,7 +54,6 @@ const int Tempo = 15;
 const int PawnDoubled    = S(-13,-25);
 const int PawnIsolated   = S(-14,-18);
 const int PawnSupport    = S( 13,  5);
-const int PawnThreat     = S( 50, 30);
 const int BishopPair     = S( 25,100);
 
 // Passed pawn [rank]
@@ -161,11 +160,6 @@ INLINE int EvalPawns(const Position *pos, const Color color) {
     count = PopCount(pawns & PawnBBAttackBB(pawns, color));
     eval += PawnSupport * count;
     TraceCount(PawnSupport);
-
-    // Threats
-    count = PopCount(PawnBBAttackBB(pawns, color) & (colorBB(!color) ^ colorPieceBB(!color, PAWN)));
-    eval += PawnThreat * count;
-    TraceCount(PawnThreat);
 
     // Evaluate each individual pawn
     while (pawns) {
