@@ -71,6 +71,7 @@ const uint16_t AttackPower[4] = { 35, 20, 40, 80 };
 const uint16_t CheckPower[4]  = { 100, 35, 65, 65 };
 const uint16_t CountModifier[8] = { 0, 0, 50, 75, 80, 88, 95, 100 };
 
+// KingLineDanger
 const int KingLineDanger[28] = {
     S(  0,  0), S( -5, -2), S(-17,-25), S(-18, -8),
     S(-36,-11), S(-41,-21), S(-40,-24), S(-41,-19),
