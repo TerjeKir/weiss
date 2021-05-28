@@ -424,7 +424,7 @@ double StaticEvaluationErrors(TEntry * entries, double K) {
 
 double ComputeOptimalK(TEntry *entries) {
 
-    const double rate = 100, delta = 1e-4, deviation_goal = 1e-8;
+    const double rate = 100, delta = 1e-5, deviation_goal = 1e-6;
     double K = 2, deviation = 1;
 
     while (fabs(deviation) > deviation_goal) {
