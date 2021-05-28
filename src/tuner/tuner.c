@@ -277,7 +277,8 @@ void PrintParameters(TVector params, TVector current) {
     i+=2;
     PrintArray("SemiOpenFile", tparams, i, 2, "[2]");
     i+=2;
-    puts("");
+
+    puts("\n// KingLineDanger");
     PrintArray("KingLineDanger", tparams, i, 28, "[28]");
     i+=28;
     puts("");
