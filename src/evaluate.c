@@ -285,9 +285,9 @@ INLINE int EvalThreats(const Position *pos, const Color color) {
     int eval = 0;
 
     Bitboard ourPawns = colorPieceBB(color, PAWN);
-    Bitboard theirPawns = colorPieceBB(!color, PAWN);
+    Bitboard theirNonPawns = colorBB(!color) ^ colorPieceBB(!color, PAWN);
 
-    int count = PopCount(PawnBBAttackBB(ourPawns, color) & (colorBB(!color) ^ theirPawns));
+    int count = PopCount(PawnBBAttackBB(ourPawns, color) & theirNonPawns);
     eval += PawnThreat * count;
     TraceCount(PawnThreat);
 
