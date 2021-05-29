@@ -38,7 +38,6 @@ typedef struct {
 
 typedef struct Thread {
 
-    int16_t history[COLOR_NB][64][64];
     Stack ss[128];
     jmp_buf jumpBuffer;
     uint64_t tbhits;
@@ -50,6 +49,7 @@ typedef struct Thread {
     // Anything below here is not zeroed out between searches
     Position pos;
     PawnCache pawnCache;
+    int16_t history[COLOR_NB][64][64];
 
     int index;
     int count;
