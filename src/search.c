@@ -291,7 +291,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
         && eval >= beta
         && ss->eval >= beta
         && history(-1).move != NOMOVE
-        && pos->nonPawnCount[sideToMove] > 1) {
+        && pos->nonPawnCount[sideToMove] > (depth > 8)) {
 
         int R = 3 + depth / 5 + MIN(3, (eval - beta) / 256);
 
