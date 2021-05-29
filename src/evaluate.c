@@ -289,7 +289,7 @@ INLINE int EvalThreats(const Position *pos, const Color color) {
 
     int count = PopCount(PawnBBAttackBB(ourPawns, color) & (colorBB(!color) ^ theirPawns));
     eval += PawnThreat * count;
-    // TraceCount(PawnThreat);
+    TraceCount(PawnThreat);
 
     return eval;
 }

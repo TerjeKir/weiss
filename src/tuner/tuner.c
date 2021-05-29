@@ -47,6 +47,7 @@ extern const int PieceSqValue[7][64];
 extern const int PawnDoubled;
 extern const int PawnIsolated;
 extern const int PawnSupport;
+extern const int PawnThreat;
 extern const int BishopPair;
 
 // Passed pawn [rank]
@@ -202,6 +203,10 @@ void InitBaseParams(TVector tparams) {
     tparams[i][EG] = EgScore(PawnSupport);
     i++;
 
+    tparams[i][MG] = MgScore(PawnThreat);
+    tparams[i][EG] = EgScore(PawnThreat);
+    i++;
+
     tparams[i][MG] = MgScore(BishopPair);
     tparams[i][EG] = EgScore(BishopPair);
     i++;
@@ -226,6 +231,7 @@ void InitBaseParams(TVector tparams) {
         i++;
     }
 
+    // KingLineDanger
     for (int j = 0; j < 28; ++j) {
         tparams[i][MG] = MgScore(KingLineDanger[j]);
         tparams[i][EG] = EgScore(KingLineDanger[j]);
@@ -266,6 +272,7 @@ void PrintParameters(TVector params, TVector current) {
     PrintSingle("PawnDoubled", tparams, i++, "   ");
     PrintSingle("PawnIsolated", tparams, i++, "  ");
     PrintSingle("PawnSupport", tparams, i++, "   ");
+    PrintSingle("PawnThreat", tparams, i++, "    ");
     PrintSingle("BishopPair", tparams, i++, "    ");
 
     puts("\n// Passed pawn [rank]");
@@ -311,6 +318,7 @@ void InitCoefficients(TCoeffs coeffs) {
     coeffs[i++] = T.PawnDoubled[WHITE]    - T.PawnDoubled[BLACK];
     coeffs[i++] = T.PawnIsolated[WHITE]   - T.PawnIsolated[BLACK];
     coeffs[i++] = T.PawnSupport[WHITE]    - T.PawnSupport[BLACK];
+    coeffs[i++] = T.PawnThreat[WHITE]     - T.PawnThreat[BLACK];
     coeffs[i++] = T.BishopPair[WHITE]     - T.BishopPair[BLACK];
 
     for (int j = 0; j < 8; ++j)
