@@ -114,7 +114,7 @@ void PrintPSQT(TVector params, int i) {
     puts("};");
 }
 
-void PrintMob(TVector params, int i) {
+void PrintMobility(TVector params, int i) {
 
     printf("\n// Mobility [pt-2][mobility]\n");
     printf("const int Mobility[4][28] = {\n");
@@ -254,11 +254,9 @@ void PrintParameters(TVector params, TVector current) {
     int i = 0;
     puts("\n");
 
-    // Piece values
     PrintArray("PieceValue", tparams, i, 5, "[5]");
     i+=5;
 
-    // PSQT
     PrintPSQT(tparams, i);
     i+=6*64;
 
@@ -283,9 +281,9 @@ void PrintParameters(TVector params, TVector current) {
     PrintArray("KingLineDanger", tparams, i, 28, "[28]");
     i+=28;
 
-    // Mobility
-    PrintMob(tparams, i);
+    PrintMobility(tparams, i);
     i+=9+14+15+28;
+    puts("");
 
     if (i != NTERMS) {
         printf("Error 2 in printParameters(): i = %d ; NTERMS = %d\n", i, NTERMS);
