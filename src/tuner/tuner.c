@@ -170,25 +170,12 @@ void InitBaseParams(TVector tparams) {
     }
 
     // PSQT
-    for (int pt = PAWN; pt <= KING; ++pt) {
+    for (int pt = PAWN; pt <= KING; ++pt)
         for (int sq = 0; sq < 64; ++sq) {
             tparams[i][MG] = -MgScore(PSQT[pt][MirrorSquare(sq)]) - PieceValue[MG][pt];
             tparams[i][EG] = -EgScore(PSQT[pt][MirrorSquare(sq)]) - PieceValue[EG][pt];
             i++;
         }
-    }
-
-    // Mobility
-    for (int pt = KNIGHT; pt <= QUEEN; ++pt) {
-        for (int mob = 0; mob < 28; ++mob) {
-            if (pt == KNIGHT && mob >  8) break;
-            if (pt == BISHOP && mob > 13) break;
-            if (pt == ROOK   && mob > 14) break;
-            tparams[i][MG] = MgScore(Mobility[pt-2][mob]);
-            tparams[i][EG] = EgScore(Mobility[pt-2][mob]);
-            i++;
-        }
-    }
 
     // Misc
     tparams[i][MG] = MgScore(PawnDoubled);
@@ -238,6 +225,17 @@ void InitBaseParams(TVector tparams) {
         i++;
     }
 
+    // Mobility
+    for (int pt = KNIGHT; pt <= QUEEN; ++pt)
+        for (int mob = 0; mob < 28; ++mob) {
+            if (pt == KNIGHT && mob >  8) break;
+            if (pt == BISHOP && mob > 13) break;
+            if (pt == ROOK   && mob > 14) break;
+            tparams[i][MG] = MgScore(Mobility[pt-2][mob]);
+            tparams[i][EG] = EgScore(Mobility[pt-2][mob]);
+            i++;
+        }
+
     if (i != NTERMS) {
         printf("Error 1 in printParameters(): i = %d ; NTERMS = %d\n", i, NTERMS);
         exit(EXIT_FAILURE);
@@ -264,10 +262,6 @@ void PrintParameters(TVector params, TVector current) {
     PrintPSQT(tparams, i);
     i+=6*64;
 
-    // Mobility
-    PrintMob(tparams, i);
-    i+=9+14+15+28;
-
     puts("\n// Misc bonuses and maluses");
     PrintSingle("PawnDoubled", tparams, i++, " ");
     PrintSingle("PawnIsolated", tparams, i++, "");
@@ -288,7 +282,10 @@ void PrintParameters(TVector params, TVector current) {
     puts("\n// KingLineDanger");
     PrintArray("KingLineDanger", tparams, i, 28, "[28]");
     i+=28;
-    puts("");
+
+    // Mobility
+    PrintMob(tparams, i);
+    i+=9+14+15+28;
 
     if (i != NTERMS) {
         printf("Error 2 in printParameters(): i = %d ; NTERMS = %d\n", i, NTERMS);
@@ -307,14 +304,6 @@ void InitCoefficients(TCoeffs coeffs) {
         for (int sq = 0; sq < 64; ++sq)
             coeffs[i++] = T.PSQT[pt-1][sq][WHITE] - T.PSQT[pt-1][sq][BLACK];
 
-    for (int pt = KNIGHT; pt <= QUEEN; ++pt)
-        for (int mob = 0; mob < 28; ++mob) {
-            if (pt == KNIGHT && mob >  8) break;
-            if (pt == BISHOP && mob > 13) break;
-            if (pt == ROOK   && mob > 14) break;
-            coeffs[i++] = T.Mobility[pt-2][mob][WHITE] - T.Mobility[pt-2][mob][BLACK];
-        }
-
     coeffs[i++] = T.PawnDoubled[WHITE]    - T.PawnDoubled[BLACK];
     coeffs[i++] = T.PawnIsolated[WHITE]   - T.PawnIsolated[BLACK];
     coeffs[i++] = T.PawnSupport[WHITE]    - T.PawnSupport[BLACK];
@@ -332,6 +321,14 @@ void InitCoefficients(TCoeffs coeffs) {
 
     for (int j = 0; j < 28; ++j)
         coeffs[i++] = T.KingLineDanger[j][WHITE] - T.KingLineDanger[j][BLACK];
+
+    for (int pt = KNIGHT; pt <= QUEEN; ++pt)
+        for (int mob = 0; mob < 28; ++mob) {
+            if (pt == KNIGHT && mob >  8) break;
+            if (pt == BISHOP && mob > 13) break;
+            if (pt == ROOK   && mob > 14) break;
+            coeffs[i++] = T.Mobility[pt-2][mob][WHITE] - T.Mobility[pt-2][mob][BLACK];
+        }
 
     if (i != NTERMS){
         printf("Error in InitCoefficients(): i = %d ; NTERMS = %d\n", i, NTERMS);

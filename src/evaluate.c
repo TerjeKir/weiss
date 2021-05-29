@@ -67,11 +67,6 @@ const int PawnPassed[8] = {
 const int OpenFile[2]     = { S( 28, 10), S( -8,  6) };
 const int SemiOpenFile[2] = { S(  9, 16), S(  1,  6) };
 
-// KingSafety [pt-2]
-const uint16_t AttackPower[4] = {  35, 20, 40, 80 };
-const uint16_t CheckPower[4]  = { 100, 35, 65, 65 };
-const uint16_t CountModifier[8] = { 0, 0, 50, 75, 80, 88, 95, 100 };
-
 // KingLineDanger
 const int KingLineDanger[28] = {
     S(  0,  0), S(  0,  0), S(-17,-25), S(-18, -8),
@@ -100,6 +95,11 @@ const int Mobility[4][28] = {
       S( 26, 70), S( 26, 71), S( 24, 75), S( 28, 73), S( 33, 74), S( 50, 63), S( 59, 68), S( 78, 65),
       S(105, 84), S(112, 84), S(104,111), S(108,131) }
 };
+
+// KingSafety [pt-2]
+const uint16_t AttackPower[4] = {  35, 20, 40, 80 };
+const uint16_t CheckPower[4]  = { 100, 35, 65, 65 };
+const uint16_t CountModifier[8] = { 0, 0, 50, 75, 80, 88, 95, 100 };
 
 
 // Check if the board is (likely) drawn, logic from sjeng
