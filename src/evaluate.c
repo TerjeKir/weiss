@@ -51,11 +51,11 @@ const int PhaseValue[TYPE_NB] = { 0, 0, 1, 1, 2, 4, 0, 0 };
 const int Tempo = 15;
 
 // Misc bonuses and maluses
-const int PawnDoubled    = S(-13,-25);
-const int PawnIsolated   = S(-14,-18);
-const int PawnSupport    = S( 13,  5);
-const int PawnThreat     = S( 50, 30);
-const int BishopPair     = S( 25,100);
+const int PawnDoubled  = S(-13,-25);
+const int PawnIsolated = S(-14,-18);
+const int PawnSupport  = S( 13,  5);
+const int PawnThreat   = S( 50, 30);
+const int BishopPair   = S( 25,100);
 
 // Passed pawn [rank]
 const int PawnPassed[8] = {
@@ -68,7 +68,7 @@ const int OpenFile[2]     = { S( 28, 10), S( -8,  6) };
 const int SemiOpenFile[2] = { S(  9, 16), S(  1,  6) };
 
 // KingSafety [pt-2]
-const uint16_t AttackPower[4] = { 35, 20, 40, 80 };
+const uint16_t AttackPower[4] = {  35, 20, 40, 80 };
 const uint16_t CheckPower[4]  = { 100, 35, 65, 65 };
 const uint16_t CountModifier[8] = { 0, 0, 50, 75, 80, 88, 95, 100 };
 

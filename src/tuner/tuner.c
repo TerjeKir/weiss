@@ -269,11 +269,11 @@ void PrintParameters(TVector params, TVector current) {
     i+=9+14+15+28;
 
     puts("\n// Misc bonuses and maluses");
-    PrintSingle("PawnDoubled", tparams, i++, "   ");
-    PrintSingle("PawnIsolated", tparams, i++, "  ");
-    PrintSingle("PawnSupport", tparams, i++, "   ");
-    PrintSingle("PawnThreat", tparams, i++, "    ");
-    PrintSingle("BishopPair", tparams, i++, "    ");
+    PrintSingle("PawnDoubled", tparams, i++, " ");
+    PrintSingle("PawnIsolated", tparams, i++, "");
+    PrintSingle("PawnSupport", tparams, i++, " ");
+    PrintSingle("PawnThreat", tparams, i++, "  ");
+    PrintSingle("BishopPair", tparams, i++, "  ");
 
     puts("\n// Passed pawn [rank]");
     PrintArray("PawnPassed", tparams, i, 8, "[8]");
