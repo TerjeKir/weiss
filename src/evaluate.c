@@ -54,6 +54,7 @@ const int Tempo = 15;
 const int PawnDoubled    = S(-13,-25);
 const int PawnIsolated   = S(-14,-18);
 const int PawnSupport    = S( 13,  5);
+const int PawnThreat     = S( 50, 30);
 const int BishopPair     = S( 25,100);
 
 // Passed pawn [rank]
@@ -278,6 +279,21 @@ INLINE int EvalKings(const Position *pos, EvalInfo *ei, const Color color) {
     return eval;
 }
 
+// Evaluates threads
+INLINE int EvalThreats(const Position *pos, const Color color) {
+
+    int eval = 0;
+
+    Bitboard ourPawns = colorPieceBB(color, PAWN);
+    Bitboard theirPawns = colorPieceBB(!color, PAWN);
+
+    int count = PopCount(PawnBBAttackBB(ourPawns, color) & (colorBB(!color) ^ theirPawns));
+    eval += PawnThreat * count;
+    TraceCount(PawnThreat);
+
+    return eval;
+}
+
 INLINE int EvalPieces(const Position *pos, EvalInfo *ei) {
     return  EvalPiece(pos, ei, WHITE, KNIGHT)
           - EvalPiece(pos, ei, BLACK, KNIGHT)
@@ -341,6 +357,10 @@ int EvalPosition(const Position *pos, PawnCache pc) {
     // Evaluate king safety
     eval +=  EvalSafety(WHITE, &ei)
            - EvalSafety(BLACK, &ei);
+
+    // Evaluate threats
+    eval +=  EvalThreats(pos, WHITE)
+           - EvalThreats(pos, BLACK);
 
     TraceEval(eval);
 
