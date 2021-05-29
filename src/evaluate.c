@@ -51,11 +51,11 @@ const int PhaseValue[TYPE_NB] = { 0, 0, 1, 1, 2, 4, 0, 0 };
 const int Tempo = 15;
 
 // Misc bonuses and maluses
-const int PawnDoubled    = S(-13,-25);
-const int PawnIsolated   = S(-14,-18);
-const int PawnSupport    = S( 13,  5);
-const int PawnThreat     = S( 50, 30);
-const int BishopPair     = S( 25,100);
+const int PawnDoubled  = S(-13,-25);
+const int PawnIsolated = S(-14,-18);
+const int PawnSupport  = S( 13,  5);
+const int PawnThreat   = S( 50, 30);
+const int BishopPair   = S( 25,100);
 
 // Passed pawn [rank]
 const int PawnPassed[8] = {
@@ -67,20 +67,15 @@ const int PawnPassed[8] = {
 const int OpenFile[2]     = { S( 28, 10), S( -8,  6) };
 const int SemiOpenFile[2] = { S(  9, 16), S(  1,  6) };
 
-// KingSafety [pt-2]
-const uint16_t AttackPower[4] = { 35, 20, 40, 80 };
-const uint16_t CheckPower[4]  = { 100, 35, 65, 65 };
-const uint16_t CountModifier[8] = { 0, 0, 50, 75, 80, 88, 95, 100 };
-
 // KingLineDanger
 const int KingLineDanger[28] = {
-    S(  0,  0), S( -5, -2), S(-17,-25), S(-18, -8),
-    S(-36,-11), S(-41,-21), S(-40,-24), S(-41,-19),
-    S(-45,-18), S(-54,-17), S(-47,-20), S(-55,-13),
-    S(-57,-14), S(-60,-13), S(-66,-13), S(-67,-12),
-    S(-71,-15), S(-74,-20), S(-79,-24), S(-86,-32),
-    S(-94,-34), S(-100,-44), S(-108,-53), S(-115,-68),
-    S(-121,-67), S(-126,-61), S(-130,-53), S(-135,-55),
+    S(  0,  0), S(  0,  0), S(  0,  0), S( -1, 17),
+    S(-19, 14), S(-24,  4), S(-23,  1), S(-24,  6),
+    S(-28,  7), S(-37,  8), S(-30,  5), S(-38, 12),
+    S(-40, 11), S(-43, 12), S(-49, 12), S(-50, 13),
+    S(-54, 10), S(-57,  5), S(-62,  1), S(-69, -7),
+    S(-77, -9), S(-83,-19), S(-91,-28), S(-98,-43),
+    S(-104,-42), S(-109,-36), S(-113,-28), S(-118,-30),
 };
 
 // Mobility [pt-2][mobility]
@@ -100,6 +95,11 @@ const int Mobility[4][28] = {
       S( 26, 70), S( 26, 71), S( 24, 75), S( 28, 73), S( 33, 74), S( 50, 63), S( 59, 68), S( 78, 65),
       S(105, 84), S(112, 84), S(104,111), S(108,131) }
 };
+
+// KingSafety [pt-2]
+const uint16_t AttackPower[4] = {  35, 20, 40, 80 };
+const uint16_t CheckPower[4]  = { 100, 35, 65, 65 };
+const uint16_t CountModifier[8] = { 0, 0, 50, 75, 80, 88, 95, 100 };
 
 
 // Check if the board is (likely) drawn, logic from sjeng
@@ -285,9 +285,9 @@ INLINE int EvalThreats(const Position *pos, const Color color) {
     int eval = 0;
 
     Bitboard ourPawns = colorPieceBB(color, PAWN);
-    Bitboard theirPawns = colorPieceBB(!color, PAWN);
+    Bitboard theirNonPawns = colorBB(!color) ^ colorPieceBB(!color, PAWN);
 
-    int count = PopCount(PawnBBAttackBB(ourPawns, color) & (colorBB(!color) ^ theirPawns));
+    int count = PopCount(PawnBBAttackBB(ourPawns, color) & theirNonPawns);
     eval += PawnThreat * count;
     TraceCount(PawnThreat);
 
