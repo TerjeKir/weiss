@@ -102,50 +102,6 @@ const uint16_t CheckPower[4]  = { 100, 35, 65, 65 };
 const uint16_t CountModifier[8] = { 0, 0, 50, 75, 80, 88, 95, 100 };
 
 
-// Check if the board is (likely) drawn, logic from sjeng
-static bool MaterialDraw(const Position *pos) {
-
-    // No draw with pawns or queens
-    if (pieceBB(PAWN) || pieceBB(QUEEN))
-        return false;
-
-    // No rooks
-    if (!pieceBB(ROOK)) {
-
-        // No bishops
-        if (!pieceBB(BISHOP)) {
-            // Draw with 0-2 knights each (both 0 => KvK) (all nonpawns if any are knights)
-            return pos->nonPawnCount[WHITE] <= 2
-                && pos->nonPawnCount[BLACK] <= 2;
-
-        // No knights
-        } else if (!pieceBB(KNIGHT)) {
-            // Draw unless one side has 2 extra bishops (all nonpawns are bishops)
-            return abs(  pos->nonPawnCount[WHITE]
-                       - pos->nonPawnCount[BLACK]) < 2;
-
-        // Draw with 1-2 knights vs 1 bishop (there is at least 1 bishop, and at last 1 knight)
-        } else if (Single(pieceBB(BISHOP))) {
-            Color bishopOwner = colorPieceBB(WHITE, BISHOP) ? WHITE : BLACK;
-            return pos->nonPawnCount[ bishopOwner] == 1
-                && pos->nonPawnCount[!bishopOwner] <= 2;
-        }
-    // Draw with 1 rook + up to 1 minor each
-    } else if (Single(colorPieceBB(WHITE, ROOK)) && Single(colorPieceBB(BLACK, ROOK))) {
-        return pos->nonPawnCount[WHITE] <= 2
-            && pos->nonPawnCount[BLACK] <= 2;
-
-    // Draw with 1 rook vs 1-2 minors
-    } else if (Single(pieceBB(ROOK))) {
-        Color rookOwner = colorPieceBB(WHITE, ROOK) ? WHITE : BLACK;
-        return pos->nonPawnCount[ rookOwner] == 1
-            && pos->nonPawnCount[!rookOwner] >= 1
-            && pos->nonPawnCount[!rookOwner] <= 2;
-    }
-
-    return false;
-}
-
 // Evaluates pawns
 INLINE int EvalPawns(const Position *pos, const Color color) {
 
@@ -338,8 +294,6 @@ INLINE void InitEvalInfo(const Position *pos, EvalInfo *ei, const Color color) {
 
 // Calculate a static evaluation of a position
 int EvalPosition(const Position *pos, PawnCache pc) {
-
-    if (MaterialDraw(pos)) return 0;
 
     EvalInfo ei;
     InitEvalInfo(pos, &ei, WHITE);
