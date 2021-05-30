@@ -44,6 +44,7 @@ typedef struct Thread {
     Move bestMove;
     int score;
     Depth depth;
+    Color nullMover;
     bool doPruning;
 
     // Anything below here is not zeroed out between searches

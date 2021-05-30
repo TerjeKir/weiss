@@ -295,9 +295,14 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
 
         int R = 3 + depth / 5 + MIN(3, (eval - beta) / 256);
 
+        Color nullMoverTemp = thread->nullMover;
+        thread->nullMover = sideToMove;
+
         MakeNullMove(pos);
         int score = -AlphaBeta(thread, ss+1, -beta, -beta+1, depth-R);
         TakeNullMove(pos);
+
+        thread->nullMover = nullMoverTemp;
 
         // Cutoff
         if (score >= beta)
@@ -436,6 +441,8 @@ move_loop:
             r -= improving;
             // Reduce less for killers
             r -= mp.stage == KILLER1 || mp.stage == KILLER2;
+
+            r += sideToMove == thread->nullMover;
 
             // Depth after reductions, avoiding going straight to quiescence
             Depth lmrDepth = CLAMP(newDepth - r, 1, newDepth);
