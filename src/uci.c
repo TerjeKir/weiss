@@ -236,7 +236,7 @@ void PrintThinking(const Thread *thread, const Stack *ss, int score, int alpha, 
     int hashFull      = HashFull();
     int nps           = (int)(1000 * nodes / (elapsed + 1));
 
-    Depth seldepth = MAX_PLY;
+    Depth seldepth = 128;
     for (; seldepth > 0; --seldepth)
         if (history(seldepth-1).key != 0) break;
 
