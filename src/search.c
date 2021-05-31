@@ -197,7 +197,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
 
         // Position is drawn
         if (IsRepetition(pos) || pos->rule50 >= 100)
-            return 0;
+            return 8 - (pos->nodes & 0x7);
 
         // Max depth reached
         if (ss->ply >= MAX_PLY)
