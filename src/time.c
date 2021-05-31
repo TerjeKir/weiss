@@ -24,7 +24,7 @@
 // Decide how much time to spend this turn
 void InitTimeManagement() {
 
-    const int overhead = 5;
+    const int overhead = 6;
 
     // No time to manage
     if (!Limits.timelimit)
@@ -59,7 +59,7 @@ void InitTimeManagement() {
 
 // Check time situation
 bool OutOfTime(Thread *thread) {
-    return (thread->pos.nodes & 4095) == 4095
+    return (thread->pos.nodes & 2047) == 2047
         && thread->index == 0
         && Limits.timelimit
         && TimeSince(Limits.start) >= Limits.maxUsage;
