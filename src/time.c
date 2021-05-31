@@ -24,7 +24,7 @@
 // Decide how much time to spend this turn
 void InitTimeManagement() {
 
-    const int overhead = 5;
+    const int overhead = 6;
 
     // No time to manage
     if (!Limits.timelimit)
