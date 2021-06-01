@@ -216,6 +216,7 @@ INLINE int MateScore(const int score) {
 void PrintThinking(const Thread *thread, const Stack *ss, int score, int alpha, int beta) {
 
     const Position *pos = &thread->pos;
+    const PV *pv = &ss->pv;
 
     // Determine whether we have a centipawn or mate score
     char *type = abs(score) >= MATE_IN_MAX ? "mate" : "cp";
@@ -228,6 +229,8 @@ void PrintThinking(const Thread *thread, const Stack *ss, int score, int alpha, 
     // Translate internal score into printed score
     score = abs(score) >=  MATE_IN_MAX ? MateScore(score)
           : abs(score) >= TBWIN_IN_MAX ? score
+          :    abs(score) <= 8
+            && pv->length <= 2         ? 0
                                        : score * 100 / P_MG;
 
     TimePoint elapsed = TimeSince(Limits.start);
@@ -247,8 +250,8 @@ void PrintThinking(const Thread *thread, const Stack *ss, int score, int alpha, 
             nodes, nps, tbhits, hashFull);
 
     // Principal variation
-    for (int i = 0; i < ss->pv.length; i++)
-        printf(" %s", MoveToStr(ss->pv.line[i]));
+    for (int i = 0; i < pv->length; i++)
+        printf(" %s", MoveToStr(pv->line[i]));
 
     printf("\n");
     fflush(stdout);
