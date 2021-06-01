@@ -70,8 +70,7 @@ static void Pos(Position *pos, char *str) {
 
     // Set up original position. This will either be a
     // position given as FEN, or the normal start position
-    BeginsWith(str, "position fen") ? ParseFen(str + 13, pos)
-                                    : ParseFen(START_FEN, pos);
+    ParseFen(BeginsWith(str, "position fen") ? str + 13 : START_FEN, pos);
 
     // Check if there are moves to be made from the initial position
     if ((str = strstr(str, "moves")) == NULL) return;
