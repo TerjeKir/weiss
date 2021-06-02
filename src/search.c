@@ -266,7 +266,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
 
     // Use ttScore as eval if it is more informative
     if (   ttScore != NOSCORE
-        && (tte->bound & (ttScore > eval ? BOUND_LOWER : BOUND_UPPER)))
+        && tte->bound & (ttScore > eval ? BOUND_LOWER : BOUND_UPPER))
         eval = ttScore;
 
     // Improving if not in check, and current eval is higher than 2 plies ago
