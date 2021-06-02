@@ -227,7 +227,9 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
     int ttScore = ttHit ? ScoreFromTT(tte->score, ss->ply) : NOSCORE;
 
     // Trust TT if not a pvnode and the entry depth is sufficiently high
-    if (   !pvNode && ttHit && tte->depth >= depth
+    if (   !pvNode
+        && ttHit
+        && tte->depth >= depth
         && (tte->bound & (ttScore >= beta ? BOUND_LOWER : BOUND_UPPER))) {
 
         if (ttScore >= beta && moveIsQuiet(ttMove))
