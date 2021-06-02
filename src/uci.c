@@ -53,7 +53,7 @@ static void ParseTimeControl(char *str, Color color) {
     SetLimit(str, "mate",      &Limits.mate);
 
     Limits.timelimit = Limits.time || Limits.movetime;
-    Limits.depth = !Limits.depth ? MAX_PLY : MIN(Limits.depth, MAX_PLY);
+    Limits.depth = Limits.depth ?: 100;
 }
 
 // Parses the given limits and creates a new thread to start the search
