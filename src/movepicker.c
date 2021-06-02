@@ -41,21 +41,27 @@ static Move PickNextMove(MoveList *list, const Move ttMove, const Move kill1, co
     if (list->next == list->count)
         return NOMOVE;
 
-    int bestIdx = list->next;
-    int bestScore = list->moves[bestIdx].score;
-
-    for (int i = list->next + 1; i < list->count; ++i)
-        if (list->moves[i].score > bestScore)
-            bestScore = list->moves[bestIdx = i].score;
-
-    Move bestMove = list->moves[bestIdx].move;
-    list->moves[bestIdx] = list->moves[list->next++];
+    Move bestMove = list->moves[list->next++].move;
 
     // Avoid returning the TT or killer moves again
     if (bestMove == ttMove || bestMove == kill1 || bestMove == kill2)
         return PickNextMove(list, ttMove, kill1, kill2);
 
     return bestMove;
+}
+
+static void SortMoves(MoveList *list) {
+
+    MoveListEntry *begin = &list->moves[list->next];
+    MoveListEntry *end = &list->moves[list->count];
+
+    for (MoveListEntry *sortedEnd = begin, *p = begin + 1; p < end; ++p) {
+        MoveListEntry tmp = *p, *q;
+        *p = *++sortedEnd;
+        for (q = sortedEnd; q != begin && (q-1)->score < tmp.score; --q)
+            *q = *(q - 1);
+        *q = tmp;
+    }
 }
 
 // Gives a score to each move left in the list
@@ -74,6 +80,8 @@ static void ScoreMoves(MoveList *list, const Thread *thread, const int stage) {
         if (stage == GEN_QUIET)
             list->moves[i].score = thread->history[sideToMove][fromSq(move)][toSq(move)];
     }
+
+    SortMoves(list);
 }
 
 // Returns the next move to try in a position
