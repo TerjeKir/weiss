@@ -53,7 +53,7 @@ static void ParseTimeControl(char *str, Color color) {
     SetLimit(str, "mate",      &Limits.mate);
 
     Limits.timelimit = Limits.time || Limits.movetime;
-    Limits.depth = !Limits.depth ? MAX_PLY : MIN(Limits.depth, MAX_PLY);
+    Limits.depth = Limits.depth ?: 100;
 }
 
 // Parses the given limits and creates a new thread to start the search
@@ -70,8 +70,7 @@ static void Pos(Position *pos, char *str) {
 
     // Set up original position. This will either be a
     // position given as FEN, or the normal start position
-    BeginsWith(str, "position fen") ? ParseFen(str + 13, pos)
-                                    : ParseFen(START_FEN, pos);
+    ParseFen(BeginsWith(str, "position fen") ? str + 13 : START_FEN, pos);
 
     // Check if there are moves to be made from the initial position
     if ((str = strstr(str, "moves")) == NULL) return;
@@ -216,6 +215,7 @@ INLINE int MateScore(const int score) {
 void PrintThinking(const Thread *thread, const Stack *ss, int score, int alpha, int beta) {
 
     const Position *pos = &thread->pos;
+    const PV *pv = &ss->pv;
 
     // Determine whether we have a centipawn or mate score
     char *type = abs(score) >= MATE_IN_MAX ? "mate" : "cp";
@@ -228,6 +228,8 @@ void PrintThinking(const Thread *thread, const Stack *ss, int score, int alpha, 
     // Translate internal score into printed score
     score = abs(score) >=  MATE_IN_MAX ? MateScore(score)
           : abs(score) >= TBWIN_IN_MAX ? score
+          :    abs(score) <= 8
+            && pv->length <= 2         ? 0
                                        : score * 100 / P_MG;
 
     TimePoint elapsed = TimeSince(Limits.start);
@@ -247,8 +249,8 @@ void PrintThinking(const Thread *thread, const Stack *ss, int score, int alpha, 
             nodes, nps, tbhits, hashFull);
 
     // Principal variation
-    for (int i = 0; i < ss->pv.length; i++)
-        printf(" %s", MoveToStr(ss->pv.line[i]));
+    for (int i = 0; i < pv->length; i++)
+        printf(" %s", MoveToStr(pv->line[i]));
 
     printf("\n");
     fflush(stdout);

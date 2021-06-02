@@ -227,7 +227,9 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
     int ttScore = ttHit ? ScoreFromTT(tte->score, ss->ply) : NOSCORE;
 
     // Trust TT if not a pvnode and the entry depth is sufficiently high
-    if (   !pvNode && ttHit && tte->depth >= depth
+    if (   !pvNode
+        && ttHit
+        && tte->depth >= depth
         && (tte->bound & (ttScore >= beta ? BOUND_LOWER : BOUND_UPPER))) {
 
         if (ttScore >= beta && moveIsQuiet(ttMove))
@@ -266,7 +268,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
 
     // Use ttScore as eval if it is more informative
     if (   ttScore != NOSCORE
-        && (tte->bound & (ttScore > eval ? BOUND_LOWER : BOUND_UPPER)))
+        && tte->bound & (ttScore > eval ? BOUND_LOWER : BOUND_UPPER))
         eval = ttScore;
 
     // Improving if not in check, and current eval is higher than 2 plies ago
