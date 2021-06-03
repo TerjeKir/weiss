@@ -126,6 +126,12 @@ static int Quiescence(Thread *thread, Stack *ss, int alpha, const int beta) {
                  && RelativeRank(sideToMove, RankOf(toSq(move))) > 5))
             continue;
 
+        if (   futility <= alpha
+            && !SEE(pos, move, 1)) {
+            bestScore = MAX(bestScore, futility);
+            continue;
+        }
+
         // Recursively search the positions after making the moves, skipping illegal ones
         if (!MakeMove(pos, move)) continue;
         score = -Quiescence(thread, ss+1, -beta, -alpha);
