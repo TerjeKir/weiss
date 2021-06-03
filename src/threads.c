@@ -95,8 +95,9 @@ void WaitForHelpers() {
 // Reset all data that isn't reset each turn
 void ResetThreads() {
     for (int i = 0; i < threads->count; ++i)
-        memset(threads[i].pawnCache, 0, sizeof(PawnCache)),
-        memset(threads[i].history, 0, sizeof(threads[i].history));
+        memset(threads[i].pawnCache,      0, sizeof(PawnCache)),
+        memset(threads[i].history,        0, sizeof(threads[i].history)),
+        memset(threads[i].captureHistory, 0, sizeof(threads[i].captureHistory));
 }
 
 // Run the given function once in each thread

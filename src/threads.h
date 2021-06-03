@@ -51,6 +51,7 @@ typedef struct Thread {
     Position pos;
     PawnCache pawnCache;
     int16_t history[COLOR_NB][64][64];
+    int16_t captureHistory[PIECE_NB][64][TYPE_NB];
 
     int index;
     int count;
