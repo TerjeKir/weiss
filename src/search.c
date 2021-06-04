@@ -109,7 +109,7 @@ static int Quiescence(Thread *thread, Stack *ss, int alpha, const int beta) {
 
     InitNoisyMP(&mp, thread);
 
-    int futility = eval + 60;
+    int futility = eval + 40;
     int bestScore = eval;
     int score;
 
