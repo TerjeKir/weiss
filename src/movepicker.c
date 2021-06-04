@@ -21,20 +21,6 @@
 #include "movepicker.h"
 
 
-static int MvvLvaScores[PIECE_NB][PIECE_NB];
-
-
-// Initializes the MostValuableVictim-LeastValuableAttacker scores used for ordering captures
-CONSTR InitMvvLva() {
-
-    const int VictimScore[PIECE_NB]   = {0, 106, 206, 306, 406, 506, 606, 0, 0, 106, 206, 306, 406, 506, 606, 0};
-    const int AttackerScore[PIECE_NB] = {0,   1,   2,   3,   4,   5,   6, 0, 0,   1,   2,   3,   4,   5,   6, 0};
-
-    for (Piece Attacker = EMPTY; Attacker < PIECE_NB; ++Attacker)
-        for (Piece Victim = EMPTY; Victim < PIECE_NB; ++Victim)
-            MvvLvaScores[Victim][Attacker] = VictimScore[Victim] - AttackerScore[Attacker];
-}
-
 // Return the next best move
 static Move PickNextMove(MoveList *list, const Move ttMove, const Move kill1, const Move kill2) {
 
@@ -74,9 +60,8 @@ static void ScoreMoves(MoveList *list, const Thread *thread, const int stage) {
         Move move = list->moves[i].move;
 
         if (stage == GEN_NOISY)
-            list->moves[i].score = thread->captureHistory[pieceOn(fromSq(move))][toSq(move)][PieceTypeOf(capturing(move))]
-                                  + (moveIsEnPas(move) ? 105
-                                  : MvvLvaScores[pieceOn(toSq(move))][pieceOn(fromSq(move))]);
+            list->moves[i].score =  thread->captureHistory[pieceOn(fromSq(move))][toSq(move)][PieceTypeOf(capturing(move))]
+                                  + PieceValue[MG][pieceOn(toSq(move))];
 
         if (stage == GEN_QUIET)
             list->moves[i].score = thread->history[sideToMove][fromSq(move)][toSq(move)];
