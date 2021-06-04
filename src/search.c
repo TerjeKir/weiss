@@ -160,7 +160,7 @@ INLINE void HistoryBonus(int16_t *cur, int bonus) {
 }
 
 // Updates various history heuristics when a quiet move causes a cutoff
-INLINE void UpdateHistory(Thread *thread, Stack *ss, Move quiets[], Move move, Depth depth, int count) {
+INLINE void UpdateHistory(Thread *thread, Stack *ss, Move move, Depth depth, Move quiets[], int quietCount, Move noisys[], int noisyCount) {
 
     const Position *pos = &thread->pos;
 
@@ -173,14 +173,26 @@ INLINE void UpdateHistory(Thread *thread, Stack *ss, Move quiets[], Move move, D
     int bonus = depth * depth;
 
     // Bonus to the move that caused the beta cutoff
-    if (depth > 1)
-        HistoryBonus(&thread->history[sideToMove][fromSq(move)][toSq(move)], bonus);
+    if (depth > 1) {
+        if (moveIsQuiet(move))
+            HistoryBonus(&thread->history[sideToMove][fromSq(move)][toSq(move)], bonus);
+        else
+            HistoryBonus(&thread->captureHistory[pieceOn(fromSq(move))][toSq(move)][PieceTypeOf(capturing(move))], bonus);
+    }
 
-    // Lower history scores of moves that failed to produce a cut
-    for (int i = 0; i < count; ++i) {
-        Move m = quiets[i];
+    // Lower history scores of quiet moves that failed to produce a cut, if another quiet move cause the cut
+    if (moveIsQuiet(move))
+        for (int i = 0; i < quietCount; ++i) {
+            Move m = quiets[i];
+            if (m == move) continue;
+            HistoryBonus(&thread->history[sideToMove][fromSq(m)][toSq(m)], -bonus);
+        }
+
+    // Lower history scores of noisy moves that failed to produce a cut
+    for (int i = 0; i < noisyCount; ++i) {
+        Move m = noisys[i];
         if (m == move) continue;
-        HistoryBonus(&thread->history[sideToMove][fromSq(m)][toSq(m)], -bonus);
+        HistoryBonus(&thread->captureHistory[pieceOn(fromSq(m))][toSq(m)][PieceTypeOf(capturing(m))], -bonus);
     }
 }
 
@@ -358,9 +370,10 @@ move_loop:
     InitNormalMP(&mp, thread, ttMove, ss->killers[0], ss->killers[1]);
 
     Move quiets[32] = { 0 };
+    Move noisys[32] = { 0 };
     Move bestMove = NOMOVE;
     const int oldAlpha = alpha;
-    int moveCount = 0, quietCount = 0;
+    int moveCount = 0, quietCount = 0, noisyCount = 0;
     int score = -INFINITE;
 
     // Move loop
@@ -417,6 +430,8 @@ move_loop:
         moveCount++;
         if (quiet && quietCount < 32)
             quiets[quietCount++] = move;
+        else if (noisyCount < 32)
+            noisys[noisyCount++] = move;
 
         // If alpha > 0 and we take back our last move, opponent can do the same
         // and get a fail high by repetition
@@ -498,8 +513,8 @@ skip_search:
     }
 
     // Update history if a quiet move causes a beta cutoff
-    if (bestScore >= beta && moveIsQuiet(bestMove))
-        UpdateHistory(thread, ss, quiets, bestMove, depth, quietCount);
+    if (bestScore >= beta)
+        UpdateHistory(thread, ss, bestMove, depth, quiets, quietCount, noisys, noisyCount);
 
     // Checkmate or stalemate
     if (!moveCount)
