@@ -388,10 +388,8 @@ move_loop:
         if (  !pvNode
             && thread->doPruning
             && bestScore > -TBWIN_IN_MAX
-            && moveCount > (3 + 2 * depth * depth) / (2 - improving)) {
-            mp.onlyNoisy = true;
-            continue;
-        }
+            && moveCount > (3 + 2 * depth * depth) / (2 - improving))
+            break;
 
         __builtin_prefetch(GetEntry(KeyAfter(pos, move)));
 
