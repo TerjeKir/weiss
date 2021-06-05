@@ -280,13 +280,16 @@ void InitCoefficients(TCoeffs coeffs) {
 
     int i = 0;
 
+    // Piece values
     for (int pt = PAWN-1; pt <= QUEEN-1; ++pt)
         InitCoeffSingle(PieceValue[pt]);
 
+    // PSQT
     for (int pt = PAWN; pt <= KING; ++pt)
         for (int sq = 0; sq < 64; ++sq)
             InitCoeffSingle(PSQT[pt-1][sq]);
 
+    // Misc
     InitCoeffSingle(PawnDoubled);
     InitCoeffSingle(PawnIsolated);
     InitCoeffSingle(PawnSupport);
@@ -294,11 +297,17 @@ void InitCoefficients(TCoeffs coeffs) {
     InitCoeffSingle(BishopPair);
     InitCoeffSingle(KingAtkPawn);
 
+    // Passed pawns
     InitCoeffArray(PawnPassed, RANK_NB);
+
+    // Semi-open and open files
     InitCoeffArray(OpenFile, 2);
     InitCoeffArray(SemiOpenFile, 2);
+
+    // KingLineDanger
     InitCoeffArray(KingLineDanger, 28);
 
+    // Mobility
     InitCoeffArray(Mobility[KNIGHT-2],  9);
     InitCoeffArray(Mobility[BISHOP-2], 14);
     InitCoeffArray(Mobility[  ROOK-2], 15);
