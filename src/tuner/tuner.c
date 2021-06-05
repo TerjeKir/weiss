@@ -208,16 +208,13 @@ void InitBaseParams(TVector tparams) {
     InitBaseArray(KingLineDanger, 28);
 
     // Mobility
-    for (int pt = KNIGHT; pt <= QUEEN; ++pt)
-        for (int mob = 0; mob < 28; ++mob) {
-            if (pt == KNIGHT && mob >  8) break;
-            if (pt == BISHOP && mob > 13) break;
-            if (pt == ROOK   && mob > 14) break;
-            InitBaseSingle(Mobility[pt-2][mob]);
-        }
+    InitBaseArray(Mobility[KNIGHT-2],  9);
+    InitBaseArray(Mobility[BISHOP-2], 14);
+    InitBaseArray(Mobility[  ROOK-2], 15);
+    InitBaseArray(Mobility[ QUEEN-2], 28);
 
     if (i != NTERMS) {
-        printf("Error 1 in printParameters(): i = %d ; NTERMS = %d\n", i, NTERMS);
+        printf("Error 1 in InitBaseParams(): i = %d ; NTERMS = %d\n", i, NTERMS);
         exit(EXIT_FAILURE);
     }
 }
@@ -267,7 +264,7 @@ void PrintParameters(TVector params, TVector current) {
     puts("");
 
     if (i != NTERMS) {
-        printf("Error 2 in printParameters(): i = %d ; NTERMS = %d\n", i, NTERMS);
+        printf("Error 2 in PrintParameters(): i = %d ; NTERMS = %d\n", i, NTERMS);
         exit(EXIT_FAILURE);
     }
 }
@@ -302,13 +299,10 @@ void InitCoefficients(TCoeffs coeffs) {
     InitCoeffArray(SemiOpenFile, 2);
     InitCoeffArray(KingLineDanger, 28);
 
-    for (int pt = KNIGHT; pt <= QUEEN; ++pt)
-        for (int mob = 0; mob < 28; ++mob) {
-            if (pt == KNIGHT && mob >  8) break;
-            if (pt == BISHOP && mob > 13) break;
-            if (pt == ROOK   && mob > 14) break;
-            InitCoeffSingle(Mobility[pt-2][mob]);
-        }
+    InitCoeffArray(Mobility[KNIGHT-2],  9);
+    InitCoeffArray(Mobility[BISHOP-2], 14);
+    InitCoeffArray(Mobility[  ROOK-2], 15);
+    InitCoeffArray(Mobility[ QUEEN-2], 28);
 
     if (i != NTERMS){
         printf("Error in InitCoefficients(): i = %d ; NTERMS = %d\n", i, NTERMS);
