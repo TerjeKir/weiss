@@ -159,6 +159,12 @@ void PrintMobility(TVector params, int i) {
     printf("};\n");
 }
 
+#define InitBaseSingle(term) {      \
+    tparams[i][MG] = MgScore(term); \
+    tparams[i][EG] = EgScore(term); \
+    i++;                            \
+}
+
 void InitBaseParams(TVector tparams) {
 
     int i = 0;
@@ -179,56 +185,27 @@ void InitBaseParams(TVector tparams) {
         }
 
     // Misc
-    tparams[i][MG] = MgScore(PawnDoubled);
-    tparams[i][EG] = EgScore(PawnDoubled);
-    i++;
-
-    tparams[i][MG] = MgScore(PawnIsolated);
-    tparams[i][EG] = EgScore(PawnIsolated);
-    i++;
-
-    tparams[i][MG] = MgScore(PawnSupport);
-    tparams[i][EG] = EgScore(PawnSupport);
-    i++;
-
-    tparams[i][MG] = MgScore(PawnThreat);
-    tparams[i][EG] = EgScore(PawnThreat);
-    i++;
-
-    tparams[i][MG] = MgScore(BishopPair);
-    tparams[i][EG] = EgScore(BishopPair);
-    i++;
-
-    tparams[i][MG] = MgScore(KingAtkPawn);
-    tparams[i][EG] = EgScore(KingAtkPawn);
-    i++;
+    InitBaseSingle(PawnDoubled);
+    InitBaseSingle(PawnIsolated);
+    InitBaseSingle(PawnSupport);
+    InitBaseSingle(PawnThreat);
+    InitBaseSingle(BishopPair);
+    InitBaseSingle(KingAtkPawn);
 
     // Passed pawns
-    for (int j = 0; j < 8; ++j) {
-        tparams[i][MG] = MgScore(PawnPassed[j]);
-        tparams[i][EG] = EgScore(PawnPassed[j]);
-        i++;
-    }
+    for (int j = 0; j < 8; ++j)
+        InitBaseSingle(PawnPassed[j]);
 
     // Semi-open and open files
-    for (int j = 0; j < 2; ++j) {
-        tparams[i][MG] = MgScore(OpenFile[j]);
-        tparams[i][EG] = EgScore(OpenFile[j]);
-        i++;
-    }
+    for (int j = 0; j < 2; ++j)
+        InitBaseSingle(OpenFile[j]);
 
-    for (int j = 0; j < 2; ++j) {
-        tparams[i][MG] = MgScore(SemiOpenFile[j]);
-        tparams[i][EG] = EgScore(SemiOpenFile[j]);
-        i++;
-    }
+    for (int j = 0; j < 2; ++j)
+        InitBaseSingle(SemiOpenFile[j]);
 
     // KingLineDanger
-    for (int j = 0; j < 28; ++j) {
-        tparams[i][MG] = MgScore(KingLineDanger[j]);
-        tparams[i][EG] = EgScore(KingLineDanger[j]);
-        i++;
-    }
+    for (int j = 0; j < 28; ++j)
+        InitBaseSingle(KingLineDanger[j]);
 
     // Mobility
     for (int pt = KNIGHT; pt <= QUEEN; ++pt)
@@ -236,9 +213,7 @@ void InitBaseParams(TVector tparams) {
             if (pt == KNIGHT && mob >  8) break;
             if (pt == BISHOP && mob > 13) break;
             if (pt == ROOK   && mob > 14) break;
-            tparams[i][MG] = MgScore(Mobility[pt-2][mob]);
-            tparams[i][EG] = EgScore(Mobility[pt-2][mob]);
-            i++;
+            InitBaseSingle(Mobility[pt-2][mob]);
         }
 
     if (i != NTERMS) {
@@ -297,42 +272,44 @@ void PrintParameters(TVector params, TVector current) {
     }
 }
 
+#define InitCoeffSingle(term) coeffs[i++] = T.term[WHITE] - T.term[BLACK]
+
 void InitCoefficients(TCoeffs coeffs) {
 
     int i = 0;
 
     for (int pt = PAWN-1; pt <= QUEEN-1; ++pt)
-        coeffs[i++] = T.PieceValue[pt][WHITE] - T.PieceValue[pt][BLACK];
+        InitCoeffSingle(PieceValue[pt]);
 
     for (int pt = PAWN; pt <= KING; ++pt)
         for (int sq = 0; sq < 64; ++sq)
-            coeffs[i++] = T.PSQT[pt-1][sq][WHITE] - T.PSQT[pt-1][sq][BLACK];
+            InitCoeffSingle(PSQT[pt-1][sq]);
 
-    coeffs[i++] = T.PawnDoubled[WHITE]    - T.PawnDoubled[BLACK];
-    coeffs[i++] = T.PawnIsolated[WHITE]   - T.PawnIsolated[BLACK];
-    coeffs[i++] = T.PawnSupport[WHITE]    - T.PawnSupport[BLACK];
-    coeffs[i++] = T.PawnThreat[WHITE]     - T.PawnThreat[BLACK];
-    coeffs[i++] = T.BishopPair[WHITE]     - T.BishopPair[BLACK];
-    coeffs[i++] = T.KingAtkPawn[WHITE]    - T.KingAtkPawn[BLACK];
+    InitCoeffSingle(PawnDoubled);
+    InitCoeffSingle(PawnIsolated);
+    InitCoeffSingle(PawnSupport);
+    InitCoeffSingle(PawnThreat);
+    InitCoeffSingle(BishopPair);
+    InitCoeffSingle(KingAtkPawn);
 
     for (int j = 0; j < 8; ++j)
-        coeffs[i++] = T.PawnPassed[j][WHITE] - T.PawnPassed[j][BLACK];
+        InitCoeffSingle(PawnPassed[j]);
 
     for (int j = 0; j < 2; ++j)
-        coeffs[i++] = T.OpenFile[j][WHITE] - T.OpenFile[j][BLACK];
+        InitCoeffSingle(OpenFile[j]);
 
     for (int j = 0; j < 2; ++j)
-        coeffs[i++] = T.SemiOpenFile[j][WHITE] - T.SemiOpenFile[j][BLACK];
+        InitCoeffSingle(SemiOpenFile[j]);
 
     for (int j = 0; j < 28; ++j)
-        coeffs[i++] = T.KingLineDanger[j][WHITE] - T.KingLineDanger[j][BLACK];
+        InitCoeffSingle(KingLineDanger[j]);
 
     for (int pt = KNIGHT; pt <= QUEEN; ++pt)
         for (int mob = 0; mob < 28; ++mob) {
             if (pt == KNIGHT && mob >  8) break;
             if (pt == BISHOP && mob > 13) break;
             if (pt == ROOK   && mob > 14) break;
-            coeffs[i++] = T.Mobility[pt-2][mob][WHITE] - T.Mobility[pt-2][mob][BLACK];
+            InitCoeffSingle(Mobility[pt-2][mob]);
         }
 
     if (i != NTERMS){
