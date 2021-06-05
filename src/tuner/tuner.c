@@ -159,10 +159,15 @@ void PrintMobility(TVector params, int i) {
     printf("};\n");
 }
 
-#define InitBaseSingle(term) {      \
-    tparams[i][MG] = MgScore(term); \
-    tparams[i][EG] = EgScore(term); \
-    i++;                            \
+#define InitBaseSingle(term) {          \
+    tparams[i][MG] = MgScore(term);     \
+    tparams[i][EG] = EgScore(term);     \
+    i++;                                \
+}
+
+#define InitBaseArray(term, count) {    \
+    for (int j = 0; j < count; ++j)     \
+        InitBaseSingle(term[j]);        \
 }
 
 void InitBaseParams(TVector tparams) {
@@ -193,19 +198,14 @@ void InitBaseParams(TVector tparams) {
     InitBaseSingle(KingAtkPawn);
 
     // Passed pawns
-    for (int j = 0; j < 8; ++j)
-        InitBaseSingle(PawnPassed[j]);
+    InitBaseArray(PawnPassed, RANK_NB);
 
     // Semi-open and open files
-    for (int j = 0; j < 2; ++j)
-        InitBaseSingle(OpenFile[j]);
-
-    for (int j = 0; j < 2; ++j)
-        InitBaseSingle(SemiOpenFile[j]);
+    InitBaseArray(OpenFile, 2);
+    InitBaseArray(SemiOpenFile, 2);
 
     // KingLineDanger
-    for (int j = 0; j < 28; ++j)
-        InitBaseSingle(KingLineDanger[j]);
+    InitBaseArray(KingLineDanger, 28);
 
     // Mobility
     for (int pt = KNIGHT; pt <= QUEEN; ++pt)
@@ -274,6 +274,11 @@ void PrintParameters(TVector params, TVector current) {
 
 #define InitCoeffSingle(term) coeffs[i++] = T.term[WHITE] - T.term[BLACK]
 
+#define InitCoeffArray(term, count) {   \
+    for (int j = 0; j < count; ++j)     \
+        InitCoeffSingle(term[j]);       \
+}
+
 void InitCoefficients(TCoeffs coeffs) {
 
     int i = 0;
@@ -292,17 +297,10 @@ void InitCoefficients(TCoeffs coeffs) {
     InitCoeffSingle(BishopPair);
     InitCoeffSingle(KingAtkPawn);
 
-    for (int j = 0; j < 8; ++j)
-        InitCoeffSingle(PawnPassed[j]);
-
-    for (int j = 0; j < 2; ++j)
-        InitCoeffSingle(OpenFile[j]);
-
-    for (int j = 0; j < 2; ++j)
-        InitCoeffSingle(SemiOpenFile[j]);
-
-    for (int j = 0; j < 28; ++j)
-        InitCoeffSingle(KingLineDanger[j]);
+    InitCoeffArray(PawnPassed, RANK_NB);
+    InitCoeffArray(OpenFile, 2);
+    InitCoeffArray(SemiOpenFile, 2);
+    InitCoeffArray(KingLineDanger, 28);
 
     for (int pt = KNIGHT; pt <= QUEEN; ++pt)
         for (int mob = 0; mob < 28; ++mob) {
