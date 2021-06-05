@@ -56,6 +56,7 @@ const int PawnIsolated = S(-14,-18);
 const int PawnSupport  = S( 13,  5);
 const int PawnThreat   = S( 50, 30);
 const int BishopPair   = S( 25,100);
+const int KingAtkPawn  = S( 23, 71);
 
 // Passed pawn [rank]
 const int PawnPassed[8] = {
@@ -231,6 +232,12 @@ INLINE int EvalKings(const Position *pos, EvalInfo *ei, const Color color) {
 
     // Add to enemy's attack power based on open lines
     ei->attackPower[!color] += (count - 3) * 8;
+
+    // King threatening a pawn
+    if (AttackBB(KING, kingSq, 0) & colorPieceBB(!color, PAWN)) {
+        eval += KingAtkPawn;
+        TraceIncr(KingAtkPawn);
+    }
 
     return eval;
 }
