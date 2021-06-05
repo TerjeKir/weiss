@@ -38,7 +38,7 @@
 
 
 // Piece values
-extern const int PieceValue[COLOR_NB][PIECE_NB];
+extern const int PieceTypeValue[7];
 
 // PSQT values
 extern const int PieceSqValue[7][64];
@@ -175,19 +175,13 @@ void InitBaseParams(TVector tparams) {
     int i = 0;
 
     // Piece values
-    for (int pt = PAWN; pt <= QUEEN; ++pt) {
-        tparams[i][MG] = PieceValue[MG][pt];
-        tparams[i][EG] = PieceValue[EG][pt];
-        i++;
-    }
+    for (int pt = PAWN; pt <= QUEEN; ++pt)
+        InitBaseSingle(PieceTypeValue[pt])
 
     // PSQT
     for (int pt = PAWN; pt <= KING; ++pt)
-        for (int sq = 0; sq < 64; ++sq) {
-            tparams[i][MG] = -MgScore(PSQT[pt][MirrorSquare(sq)]) - PieceValue[MG][pt];
-            tparams[i][EG] = -EgScore(PSQT[pt][MirrorSquare(sq)]) - PieceValue[EG][pt];
-            i++;
-        }
+        for (int sq = 0; sq < 64; ++sq)
+            InitBaseSingle(PSQT[pt][MirrorSquare(sq)] + PieceTypeValue[pt]);
 
     // Misc
     InitBaseSingle(PawnDoubled);
@@ -271,9 +265,14 @@ void PrintParameters(TVector params, TVector current) {
 
 #define InitCoeffSingle(term) coeffs[i++] = T.term[WHITE] - T.term[BLACK]
 
-#define InitCoeffArray(term, count) {   \
-    for (int j = 0; j < count; ++j)     \
-        InitCoeffSingle(term[j]);       \
+#define InitCoeffArray(term, count) {               \
+    for (int j = 0; j < count; ++j)                 \
+        InitCoeffSingle(term[j]);                   \
+}
+
+#define InitCoeff2DArray(term, count1, count2) {    \
+    for (int k = 0; k < count1; ++k)                \
+        InitCoeffArray(term[k], count2);            \
 }
 
 void InitCoefficients(TCoeffs coeffs) {
@@ -281,13 +280,10 @@ void InitCoefficients(TCoeffs coeffs) {
     int i = 0;
 
     // Piece values
-    for (int pt = PAWN-1; pt <= QUEEN-1; ++pt)
-        InitCoeffSingle(PieceValue[pt]);
+    InitCoeffArray(PieceValue, QUEEN);
 
     // PSQT
-    for (int pt = PAWN; pt <= KING; ++pt)
-        for (int sq = 0; sq < 64; ++sq)
-            InitCoeffSingle(PSQT[pt-1][sq]);
+    InitCoeff2DArray(PSQT, KING, 64);
 
     // Misc
     InitCoeffSingle(PawnDoubled);
