@@ -55,6 +55,7 @@ const int PawnDoubled  = S(-13,-25);
 const int PawnIsolated = S(-14,-18);
 const int PawnSupport  = S( 13,  5);
 const int PawnThreat   = S( 50, 30);
+const int PawnOpen     = S(-12, -7);
 const int BishopPair   = S( 25,100);
 const int KingAtkPawn  = S( 23, 71);
 
@@ -106,6 +107,8 @@ const uint16_t CountModifier[8] = { 0, 0, 50, 75, 80, 88, 95, 100 };
 // Evaluates pawns
 INLINE int EvalPawns(const Position *pos, const Color color) {
 
+    const Direction down = color == WHITE ? SOUTH : NORTH;
+
     int eval = 0, count;
 
     Bitboard pawns = colorPieceBB(color, PAWN);
@@ -119,6 +122,12 @@ INLINE int EvalPawns(const Position *pos, const Color color) {
     count = PopCount(pawns & PawnBBAttackBB(pawns, color));
     eval += PawnSupport * count;
     TraceCount(PawnSupport);
+
+    // Open pawns
+    Bitboard open = ~Fill(colorPieceBB(!color, PAWN), down);
+    count = PopCount(pawns & open & ~PawnBBAttackBB(pawns, color));
+    eval += PawnOpen * count;
+    TraceCount(PawnOpen);
 
     // Evaluate each individual pawn
     while (pawns) {

@@ -132,6 +132,15 @@ INLINE Bitboard ShiftBB(Bitboard bb, const Direction dir) {
                    : bb >> -dir;
 }
 
+// Fills a bitboard in either vertical direction
+INLINE Bitboard Fill(Bitboard bb, const Direction dir) {
+    assert(dir & 7 == 0);
+    bb |= ShiftBB(bb, dir);
+    bb |= ShiftBB(bb, 2*dir);
+    bb |= ShiftBB(bb, 4*dir);
+    return bb;
+}
+
 INLINE Bitboard AdjacentFilesBB(const Square sq) {
     return ShiftBB(FileBB[FileOf(sq)], WEST)
          | ShiftBB(FileBB[FileOf(sq)], EAST);
