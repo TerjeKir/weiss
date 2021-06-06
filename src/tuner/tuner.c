@@ -182,7 +182,7 @@ void InitBaseParams(TVector tparams) {
     // PSQT
     for (int pt = PAWN; pt <= KING; ++pt)
         for (int sq = 0; sq < 64; ++sq)
-            InitBaseSingle(PSQT[pt][MirrorSquare(sq)] + PieceTypeValue[pt]);
+            InitBaseSingle(-(PSQT[pt][MirrorSquare(sq)] + PieceTypeValue[pt]));
 
     // Misc
     InitBaseSingle(PawnDoubled);
