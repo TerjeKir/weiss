@@ -207,7 +207,7 @@ INLINE int EvalPiece(const Position *pos, EvalInfo *ei, const Color color, const
                                      +     checks * CheckPower[pt-2];
         }
 
-        if (pt == ROOK || pt == QUEEN) {
+        if (pt == ROOK) {
 
             // Open file
             if (!(pieceBB(PAWN) & FileBB[FileOf(sq)])) {
