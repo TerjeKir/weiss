@@ -387,9 +387,16 @@ move_loop:
         // Late move pruning
         if (  !pvNode
             && thread->doPruning
-            && bestScore > -TBWIN_IN_MAX
-            && moveCount > (3 + 2 * depth * depth) / (2 - improving))
-            break;
+            && bestScore > -TBWIN_IN_MAX) {
+
+            if (moveCount > (3 + 2 * depth * depth) / (2 - improving))
+                break;
+
+            if (quiet && moveCount > (3 + depth * depth) / (2 - improving)) {
+                mp.onlyNoisy = true;
+                continue;
+            }
+        }
 
         __builtin_prefetch(GetEntry(KeyAfter(pos, move)));
 
