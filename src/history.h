@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <math.h>
+#include <stdlib.h>
 
 #include "board.h"
 #include "move.h"
