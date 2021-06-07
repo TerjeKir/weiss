@@ -37,7 +37,7 @@
 #define TraceEval(e) T.eval = e
 
 #define DATASET      "../../Datasets/Andrew/BIG.book"
-#define NPOSITIONS   (100000) // Total FENS in the book
+#define NPOSITIONS   (42484641) // Total FENS in the book
 
 #define NTERMS       (     500) // Number of terms being tuned
 #define MAXEPOCHS    (   10000) // Max number of epochs allowed
