@@ -248,7 +248,20 @@ INLINE int EvalKings(const Position *pos, EvalInfo *ei, const Color color) {
     return eval;
 }
 
-// Evaluates threads
+INLINE int EvalPieces(const Position *pos, EvalInfo *ei) {
+    return  EvalPiece(pos, ei, WHITE, KNIGHT)
+          - EvalPiece(pos, ei, BLACK, KNIGHT)
+          + EvalPiece(pos, ei, WHITE, BISHOP)
+          - EvalPiece(pos, ei, BLACK, BISHOP)
+          + EvalPiece(pos, ei, WHITE, ROOK)
+          - EvalPiece(pos, ei, BLACK, ROOK)
+          + EvalPiece(pos, ei, WHITE, QUEEN)
+          - EvalPiece(pos, ei, BLACK, QUEEN)
+          + EvalKings(pos, ei, WHITE)
+          - EvalKings(pos, ei, BLACK);
+}
+
+// Evaluates threats
 INLINE int EvalThreats(const Position *pos, const Color color) {
 
     int eval = 0;
@@ -263,19 +276,7 @@ INLINE int EvalThreats(const Position *pos, const Color color) {
     return eval;
 }
 
-INLINE int EvalPieces(const Position *pos, EvalInfo *ei) {
-    return  EvalPiece(pos, ei, WHITE, KNIGHT)
-          - EvalPiece(pos, ei, BLACK, KNIGHT)
-          + EvalPiece(pos, ei, WHITE, BISHOP)
-          - EvalPiece(pos, ei, BLACK, BISHOP)
-          + EvalPiece(pos, ei, WHITE, ROOK)
-          - EvalPiece(pos, ei, BLACK, ROOK)
-          + EvalPiece(pos, ei, WHITE, QUEEN)
-          - EvalPiece(pos, ei, BLACK, QUEEN)
-          + EvalKings(pos, ei, WHITE)
-          - EvalKings(pos, ei, BLACK);
-}
-
+// Evaluate safety
 INLINE int EvalSafety(const Color color ,const EvalInfo *ei) {
     int16_t safetyScore =  ei->attackPower[color]
                          * CountModifier[MIN(7, ei->attackCount[color])]
