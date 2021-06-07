@@ -60,15 +60,14 @@ static int QuiescenceDeltaMargin(const Position *pos) {
     // or if we have a pawn on the 7th we can hope to improve by a queen instead
     const int DeltaBase = pawnOn7th ? 1400 : 110;
 
-    // Look for possible captures on the board
+    // Find the most valuable piece we could capture and add to our base
     const Bitboard enemy = colorBB(!sideToMove);
 
-    // Find the most valuable piece we could take and add to our base
-    return DeltaBase + ((enemy & pieceBB(QUEEN )) ? 1400
-                      : (enemy & pieceBB(ROOK  )) ?  670
-                      : (enemy & pieceBB(BISHOP)) ?  460
-                      : (enemy & pieceBB(KNIGHT)) ?  437
-                                                  :  110);
+    return DeltaBase + (  (enemy & pieceBB(QUEEN )) ? 1400
+                        : (enemy & pieceBB(ROOK  )) ?  670
+                        : (enemy & pieceBB(BISHOP)) ?  460
+                        : (enemy & pieceBB(KNIGHT)) ?  437
+                                                    :  110);
 }
 
 // Quiescence
