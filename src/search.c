@@ -24,6 +24,7 @@
 #include "bitboard.h"
 #include "board.h"
 #include "evaluate.h"
+#include "history.h"
 #include "makemove.h"
 #include "move.h"
 #include "movepicker.h"
@@ -155,46 +156,6 @@ static int Quiescence(Thread *thread, Stack *ss, int alpha, const int beta) {
     return bestScore;
 }
 
-INLINE void HistoryBonus(int16_t *cur, int bonus) {
-    *cur += 32 * bonus - *cur * abs(bonus) / 512;
-}
-
-#define QuietEntry(move) &thread->history[sideToMove][fromSq(move)][toSq(move)]
-#define NoisyEntry(move) &thread->captureHistory[pieceOn(fromSq(move))][toSq(move)][PieceTypeOf(capturing(move))]
-
-// Updates various history heuristics when a move causes a beta cutoff
-INLINE void UpdateHistory(Thread *thread, Stack *ss, Move bestMove, Depth depth, Move quiets[], int qCount, Move noisys[], int nCount) {
-
-    const Position *pos = &thread->pos;
-
-    // Update killers
-    if (ss->killers[0] != bestMove) {
-        ss->killers[1] = ss->killers[0];
-        ss->killers[0] = bestMove;
-    }
-
-    int bonus = depth * depth;
-
-    // Bonus to the move that caused the beta cutoff
-    if (depth > 1)
-        HistoryBonus(moveIsQuiet(bestMove) ? QuietEntry(bestMove) : NoisyEntry(bestMove), bonus);
-
-    // If bestMove is quiet, penalize quiet moves that failed to produce a cut
-    if (moveIsQuiet(bestMove))
-        for (int i = 0; i < qCount; ++i) {
-            Move move = quiets[i];
-            if (move == bestMove) continue;
-            HistoryBonus(QuietEntry(move), -bonus);
-        }
-
-    // Penalize noisy moves that failed to produce a cut
-    for (int i = 0; i < nCount; ++i) {
-        Move move = noisys[i];
-        if (move == bestMove) continue;
-        HistoryBonus(NoisyEntry(move), -bonus);
-    }
-}
-
 // Alpha Beta
 static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth) {
 
@@ -250,7 +211,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
         && (tte->bound & (ttScore >= beta ? BOUND_LOWER : BOUND_UPPER))) {
 
         if (ttScore >= beta && moveIsQuiet(ttMove))
-            HistoryBonus(&thread->history[sideToMove][fromSq(ttMove)][toSq(ttMove)], depth*depth);
+            HistoryBonus(QuietEntry(ttMove), depth*depth);
 
         return ttScore;
     }
