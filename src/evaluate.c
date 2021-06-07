@@ -205,14 +205,13 @@ INLINE int EvalPiece(const Position *pos, EvalInfo *ei, const Color color, const
                                      +     checks * CheckPower[pt-2];
         }
 
+        // (Semi) open file for rooks
         if (pt == ROOK) {
-
-            // Open file
-            if (!(pieceBB(PAWN) & FileBB[FileOf(sq)])) {
+            Bitboard file = FileBB[FileOf(sq)];
+            if (!(file & pieceBB(PAWN))) {
                 eval += OpenFile;
                 TraceIncr(OpenFile);
-            // Semi-open file
-            } else if (!(colorPieceBB(color, PAWN) & FileBB[FileOf(sq)])) {
+            } else if (!(file & colorPieceBB(color, PAWN))) {
                 eval += SemiOpenFile;
                 TraceIncr(SemiOpenFile);
             }
