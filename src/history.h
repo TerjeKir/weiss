@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include <math.h>
+
 #include "board.h"
 #include "move.h"
 #include "threads.h"
