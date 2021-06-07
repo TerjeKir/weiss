@@ -231,7 +231,7 @@ bool MakeMove(Position *pos, const Move move) {
     MovePiece(pos, from, to, true);
 
     // Pawn move specifics
-    if (PieceTypeOf(pieceOn(to)) == PAWN) {
+    if (pieceTypeOn(to) == PAWN) {
 
         pos->rule50 = 0;
         Piece promo = promotion(move);

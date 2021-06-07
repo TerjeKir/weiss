@@ -114,7 +114,7 @@ static int Quiescence(Thread *thread, Stack *ss, int alpha, const int beta) {
 
         // Futility pruning
         if (   futility + PieceValue[EG][pieceOn(toSq(move))] <= alpha
-            && !(   PieceTypeOf(pieceOn(fromSq(move))) == PAWN
+            && !(   pieceTypeOn(fromSq(move)) == PAWN
                  && RelativeRank(sideToMove, RankOf(toSq(move))) > 5))
             continue;
 
