@@ -51,14 +51,13 @@ extern const int PawnThreat;
 extern const int PawnOpen;
 extern const int BishopPair;
 extern const int KingAtkPawn;
+extern const int OpenFile;
+extern const int SemiOpenFile;
 
 // Passed pawn [rank]
 extern const int PawnPassed[RANK_NB];
 
-// (Semi) open file for rook and queen [pt-4]
-extern const int OpenFile[2];
-extern const int SemiOpenFile[2];
-
+// KingLineDanger
 extern const int KingLineDanger[28];
 
 // Mobility
@@ -192,13 +191,11 @@ void InitBaseParams(TVector tparams) {
     InitBaseSingle(PawnOpen);
     InitBaseSingle(BishopPair);
     InitBaseSingle(KingAtkPawn);
+    InitBaseSingle(OpenFile);
+    InitBaseSingle(SemiOpenFile);
 
     // Passed pawns
     InitBaseArray(PawnPassed, RANK_NB);
-
-    // Semi-open and open files
-    InitBaseArray(OpenFile, 2);
-    InitBaseArray(SemiOpenFile, 2);
 
     // KingLineDanger
     InitBaseArray(KingLineDanger, 28);
@@ -241,16 +238,12 @@ void PrintParameters(TVector params, TVector current) {
     PrintSingle("PawnOpen", tparams, i++, "    ");
     PrintSingle("BishopPair", tparams, i++, "  ");
     PrintSingle("KingAtkPawn", tparams, i++, " ");
+    PrintSingle("OpenFile", tparams, i++, "    ");
+    PrintSingle("SemiOpenFile", tparams, i++, "");
 
     puts("\n// Passed pawn [rank]");
     PrintArray("PawnPassed", tparams, i, 8, "[8]");
     i+=8;
-
-    puts("\n// (Semi) open file for rook and queen [pt-4]");
-    PrintArray("OpenFile", tparams, i, 2, "[2]    ");
-    i+=2;
-    PrintArray("SemiOpenFile", tparams, i, 2, "[2]");
-    i+=2;
 
     puts("\n// KingLineDanger");
     PrintArray("KingLineDanger", tparams, i, 28, "[28]");
@@ -296,13 +289,11 @@ void InitCoefficients(TCoeffs coeffs) {
     InitCoeffSingle(PawnOpen);
     InitCoeffSingle(BishopPair);
     InitCoeffSingle(KingAtkPawn);
+    InitCoeffSingle(OpenFile);
+    InitCoeffSingle(SemiOpenFile);
 
     // Passed pawns
     InitCoeffArray(PawnPassed, RANK_NB);
-
-    // Semi-open and open files
-    InitCoeffArray(OpenFile, 2);
-    InitCoeffArray(SemiOpenFile, 2);
 
     // KingLineDanger
     InitCoeffArray(KingLineDanger, 28);

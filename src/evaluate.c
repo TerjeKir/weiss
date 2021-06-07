@@ -58,16 +58,14 @@ const int PawnThreat   = S( 50, 30);
 const int PawnOpen     = S(-12, -7);
 const int BishopPair   = S( 25,100);
 const int KingAtkPawn  = S( 23, 71);
+const int OpenFile     = S( 28, 10);
+const int SemiOpenFile = S(  9, 16);
 
 // Passed pawn [rank]
 const int PawnPassed[8] = {
     S(  0,  0), S(-16, 23), S(-16, 25), S( -7, 56),
     S( 25, 81), S( 58,138), S(137,196), S(  0,  0),
 };
-
-// (Semi) open file for rook and queen [pt-4]
-const int OpenFile[2]     = { S( 28, 10), S( -8,  6) };
-const int SemiOpenFile[2] = { S(  9, 16), S(  1,  6) };
 
 // KingLineDanger
 const int KingLineDanger[28] = {
@@ -211,12 +209,12 @@ INLINE int EvalPiece(const Position *pos, EvalInfo *ei, const Color color, const
 
             // Open file
             if (!(pieceBB(PAWN) & FileBB[FileOf(sq)])) {
-                eval += OpenFile[pt-4];
-                TraceIncr(OpenFile[pt-4]);
+                eval += OpenFile;
+                TraceIncr(OpenFile);
             // Semi-open file
             } else if (!(colorPieceBB(color, PAWN) & FileBB[FileOf(sq)])) {
-                eval += SemiOpenFile[pt-4];
-                TraceIncr(SemiOpenFile[pt-4]);
+                eval += SemiOpenFile;
+                TraceIncr(SemiOpenFile);
             }
         }
     }

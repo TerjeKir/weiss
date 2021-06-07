@@ -37,9 +37,9 @@
 #define TraceEval(e) T.eval = e
 
 #define DATASET      "../../Datasets/Andrew/BIG.book"
-#define NPOSITIONS   (42484641) // Total FENS in the book
+#define NPOSITIONS   (100000) // Total FENS in the book
 
-#define NTERMS       (     502) // Number of terms being tuned
+#define NTERMS       (     500) // Number of terms being tuned
 #define MAXEPOCHS    (   10000) // Max number of epochs allowed
 #define REPORTING    (      50) // How often to print the new parameters
 #define NPARTITIONS  (      64) // Total thread partitions
@@ -64,10 +64,10 @@ typedef struct EvalTrace {
     int PawnOpen[COLOR_NB];
     int BishopPair[COLOR_NB];
     int KingAtkPawn[COLOR_NB];
+    int OpenFile[COLOR_NB];
+    int SemiOpenFile[COLOR_NB];
 
     int PawnPassed[RANK_NB][COLOR_NB];
-    int OpenFile[2][COLOR_NB];
-    int SemiOpenFile[2][COLOR_NB];
     int KingLineDanger[28][COLOR_NB];
     int Mobility[4][28][COLOR_NB];
 
