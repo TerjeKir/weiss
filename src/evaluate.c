@@ -37,7 +37,7 @@ const int PieceTypeValue[7] = {
 };
 
 // Phase piece values, lookup used for futility pruning [phase][piece]
-const int PieceValue[COLOR_NB][PIECE_NB] = {
+const int PieceValue[2][PIECE_NB] = {
     { 0, P_MG, N_MG, B_MG, R_MG, Q_MG, 0, 0,
       0, P_MG, N_MG, B_MG, R_MG, Q_MG, 0, 0 },
     { 0, P_EG, N_EG, B_EG, R_EG, Q_EG, 0, 0,
