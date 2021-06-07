@@ -94,12 +94,10 @@ INLINE Square RelativeSquare(const Color color, const Square sq) {
     return color == WHITE ? sq : MirrorSquare(sq);
 }
 
-// Returns the same piece of the opposite color
 INLINE Piece MirrorPiece(Piece piece) {
     return piece == EMPTY ? EMPTY : piece ^ 8;
 }
 
-// Returns the distance between two squares
 INLINE int Distance(const Square sq1, const Square sq2) {
     return SqDistance[sq1][sq2];
 }
@@ -127,7 +125,6 @@ INLINE int RankOf(const Square square) {
     return square >> 3;
 }
 
-// Converts a rank into the rank relative to the given color
 INLINE int RelativeRank(const Color color, const int rank) {
     return color == WHITE ? rank : RANK_8 - rank;
 }
@@ -150,4 +147,11 @@ INLINE Square MakeSquare(const int rank, const int file) {
 
 INLINE Square StrToSq(const char *str) {
     return MakeSquare(str[1] - '1', str[0] - 'a');
+}
+
+INLINE bool IsRepetition(const Position *pos) {
+    for (int i = 4; i <= pos->rule50 && i <= pos->histPly; i += 2)
+        if (pos->key == history(-i).key)
+            return true;
+    return false;
 }

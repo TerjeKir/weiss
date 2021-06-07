@@ -36,10 +36,10 @@
 #include "uci.h"
 
 
-int Reductions[2][32][32];
-
 SearchLimits Limits;
 volatile bool ABORT_SIGNAL;
+
+static int Reductions[2][32][32];
 
 
 // Initializes the late move reduction array
@@ -48,14 +48,6 @@ CONSTR InitReductions() {
         for (int moves = 1; moves < 32; ++moves)
             Reductions[0][depth][moves] = 0.00 + log(depth) * log(moves) / 3.25, // capture
             Reductions[1][depth][moves] = 1.75 + log(depth) * log(moves) / 2.25; // quiet
-}
-
-// Check if current position is a repetition
-static bool IsRepetition(const Position *pos) {
-    for (int i = 4; i <= pos->rule50 && i <= pos->histPly; i += 2)
-        if (pos->key == history(-i).key)
-            return true;
-    return false;
 }
 
 // Dynamic delta pruning margin
