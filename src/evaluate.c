@@ -58,16 +58,14 @@ const int PawnThreat   = S( 50, 30);
 const int PawnOpen     = S(-12, -7);
 const int BishopPair   = S( 25,100);
 const int KingAtkPawn  = S( 23, 71);
+const int OpenFile     = S( 28, 10);
+const int SemiOpenFile = S(  9, 16);
 
 // Passed pawn [rank]
 const int PawnPassed[8] = {
     S(  0,  0), S(-16, 23), S(-16, 25), S( -7, 56),
     S( 25, 81), S( 58,138), S(137,196), S(  0,  0),
 };
-
-// (Semi) open file for rook and queen [pt-4]
-const int OpenFile[2]     = { S( 28, 10), S( -8,  6) };
-const int SemiOpenFile[2] = { S(  9, 16), S(  1,  6) };
 
 // KingLineDanger
 const int KingLineDanger[28] = {
@@ -207,16 +205,15 @@ INLINE int EvalPiece(const Position *pos, EvalInfo *ei, const Color color, const
                                      +     checks * CheckPower[pt-2];
         }
 
-        if (pt == ROOK || pt == QUEEN) {
-
-            // Open file
-            if (!(pieceBB(PAWN) & FileBB[FileOf(sq)])) {
-                eval += OpenFile[pt-4];
-                TraceIncr(OpenFile[pt-4]);
-            // Semi-open file
-            } else if (!(colorPieceBB(color, PAWN) & FileBB[FileOf(sq)])) {
-                eval += SemiOpenFile[pt-4];
-                TraceIncr(SemiOpenFile[pt-4]);
+        // (Semi) open file for rooks
+        if (pt == ROOK) {
+            Bitboard file = FileBB[FileOf(sq)];
+            if (!(file & pieceBB(PAWN))) {
+                eval += OpenFile;
+                TraceIncr(OpenFile);
+            } else if (!(file & colorPieceBB(color, PAWN))) {
+                eval += SemiOpenFile;
+                TraceIncr(SemiOpenFile);
             }
         }
     }
@@ -251,7 +248,20 @@ INLINE int EvalKings(const Position *pos, EvalInfo *ei, const Color color) {
     return eval;
 }
 
-// Evaluates threads
+INLINE int EvalPieces(const Position *pos, EvalInfo *ei) {
+    return  EvalPiece(pos, ei, WHITE, KNIGHT)
+          - EvalPiece(pos, ei, BLACK, KNIGHT)
+          + EvalPiece(pos, ei, WHITE, BISHOP)
+          - EvalPiece(pos, ei, BLACK, BISHOP)
+          + EvalPiece(pos, ei, WHITE, ROOK)
+          - EvalPiece(pos, ei, BLACK, ROOK)
+          + EvalPiece(pos, ei, WHITE, QUEEN)
+          - EvalPiece(pos, ei, BLACK, QUEEN)
+          + EvalKings(pos, ei, WHITE)
+          - EvalKings(pos, ei, BLACK);
+}
+
+// Evaluates threats
 INLINE int EvalThreats(const Position *pos, const Color color) {
 
     int eval = 0;
@@ -266,19 +276,7 @@ INLINE int EvalThreats(const Position *pos, const Color color) {
     return eval;
 }
 
-INLINE int EvalPieces(const Position *pos, EvalInfo *ei) {
-    return  EvalPiece(pos, ei, WHITE, KNIGHT)
-          - EvalPiece(pos, ei, BLACK, KNIGHT)
-          + EvalPiece(pos, ei, WHITE, BISHOP)
-          - EvalPiece(pos, ei, BLACK, BISHOP)
-          + EvalPiece(pos, ei, WHITE, ROOK)
-          - EvalPiece(pos, ei, BLACK, ROOK)
-          + EvalPiece(pos, ei, WHITE, QUEEN)
-          - EvalPiece(pos, ei, BLACK, QUEEN)
-          + EvalKings(pos, ei, WHITE)
-          - EvalKings(pos, ei, BLACK);
-}
-
+// Evaluate safety
 INLINE int EvalSafety(const Color color ,const EvalInfo *ei) {
     int16_t safetyScore =  ei->attackPower[color]
                          * CountModifier[MIN(7, ei->attackCount[color])]
