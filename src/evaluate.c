@@ -31,6 +31,9 @@ typedef struct EvalInfo {
 } EvalInfo;
 
 
+// Phase value for each piece [piece]
+const int PhaseValue[TYPE_NB] = { 0, 0, 1, 1, 2, 4, 0, 0 };
+
 // Piecetype values, combines with PSQTs [piecetype]
 const int PieceTypeValue[7] = {
     0, S(P_MG, P_EG), S(N_MG, N_EG), S(B_MG, B_EG), S(R_MG, R_EG), S(Q_MG, Q_EG), 0
@@ -43,9 +46,6 @@ const int PieceValue[2][PIECE_NB] = {
     { 0, P_EG, N_EG, B_EG, R_EG, Q_EG, 0, 0,
       0, P_EG, N_EG, B_EG, R_EG, Q_EG, 0, 0 }
 };
-
-// Phase value for each piece [piece]
-const int PhaseValue[TYPE_NB] = { 0, 0, 1, 1, 2, 4, 0, 0 };
 
 // Bonus for being the side to move
 const int Tempo = 15;
