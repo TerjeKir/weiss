@@ -159,40 +159,39 @@ INLINE void HistoryBonus(int16_t *cur, int bonus) {
     *cur += 32 * bonus - *cur * abs(bonus) / 512;
 }
 
-// Updates various history heuristics when a quiet move causes a cutoff
-INLINE void UpdateHistory(Thread *thread, Stack *ss, Move move, Depth depth, Move quiets[], int quietCount, Move noisys[], int noisyCount) {
+#define QuietEntry(move) &thread->history[sideToMove][fromSq(move)][toSq(move)]
+#define NoisyEntry(move) &thread->captureHistory[pieceOn(fromSq(move))][toSq(move)][PieceTypeOf(capturing(move))]
+
+// Updates various history heuristics when a move causes a beta cutoff
+INLINE void UpdateHistory(Thread *thread, Stack *ss, Move bestMove, Depth depth, Move quiets[], int qCount, Move noisys[], int nCount) {
 
     const Position *pos = &thread->pos;
 
     // Update killers
-    if (ss->killers[0] != move) {
+    if (ss->killers[0] != bestMove) {
         ss->killers[1] = ss->killers[0];
-        ss->killers[0] = move;
+        ss->killers[0] = bestMove;
     }
 
     int bonus = depth * depth;
 
     // Bonus to the move that caused the beta cutoff
-    if (depth > 1) {
-        if (moveIsQuiet(move))
-            HistoryBonus(&thread->history[sideToMove][fromSq(move)][toSq(move)], bonus);
-        else
-            HistoryBonus(&thread->captureHistory[pieceOn(fromSq(move))][toSq(move)][PieceTypeOf(capturing(move))], bonus);
-    }
+    if (depth > 1)
+        HistoryBonus(moveIsQuiet(bestMove) ? QuietEntry(bestMove) : NoisyEntry(bestMove), bonus);
 
-    // Lower history scores of quiet moves that failed to produce a cut, if another quiet move cause the cut
-    if (moveIsQuiet(move))
-        for (int i = 0; i < quietCount; ++i) {
-            Move m = quiets[i];
-            if (m == move) continue;
-            HistoryBonus(&thread->history[sideToMove][fromSq(m)][toSq(m)], -bonus);
+    // If bestMove is quiet, penalize quiet moves that failed to produce a cut
+    if (moveIsQuiet(bestMove))
+        for (int i = 0; i < qCount; ++i) {
+            Move move = quiets[i];
+            if (move == bestMove) continue;
+            HistoryBonus(QuietEntry(move), -bonus);
         }
 
-    // Lower history scores of noisy moves that failed to produce a cut
-    for (int i = 0; i < noisyCount; ++i) {
-        Move m = noisys[i];
-        if (m == move) continue;
-        HistoryBonus(&thread->captureHistory[pieceOn(fromSq(m))][toSq(m)][PieceTypeOf(capturing(m))], -bonus);
+    // Penalize noisy moves that failed to produce a cut
+    for (int i = 0; i < nCount; ++i) {
+        Move move = noisys[i];
+        if (move == bestMove) continue;
+        HistoryBonus(NoisyEntry(move), -bonus);
     }
 }
 
