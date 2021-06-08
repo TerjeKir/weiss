@@ -396,6 +396,9 @@ move_loop:
                 mp.onlyNoisy = true;
                 continue;
             }
+
+            if (depth < 7 && !SEE(pos, move, -300 * depth))
+                continue;
         }
 
         __builtin_prefetch(GetEntry(KeyAfter(pos, move)));
