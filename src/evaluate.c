@@ -31,21 +31,21 @@ typedef struct EvalInfo {
 } EvalInfo;
 
 
+// Phase value for each piece [piece]
+const int PhaseValue[TYPE_NB] = { 0, 0, 1, 1, 2, 4, 0, 0 };
+
 // Piecetype values, combines with PSQTs [piecetype]
 const int PieceTypeValue[7] = {
     0, S(P_MG, P_EG), S(N_MG, N_EG), S(B_MG, B_EG), S(R_MG, R_EG), S(Q_MG, Q_EG), 0
 };
 
 // Phase piece values, lookup used for futility pruning [phase][piece]
-const int PieceValue[COLOR_NB][PIECE_NB] = {
+const int PieceValue[2][PIECE_NB] = {
     { 0, P_MG, N_MG, B_MG, R_MG, Q_MG, 0, 0,
       0, P_MG, N_MG, B_MG, R_MG, Q_MG, 0, 0 },
     { 0, P_EG, N_EG, B_EG, R_EG, Q_EG, 0, 0,
       0, P_EG, N_EG, B_EG, R_EG, Q_EG, 0, 0 }
 };
-
-// Phase value for each piece [piece]
-const int PhaseValue[TYPE_NB] = { 0, 0, 1, 1, 2, 4, 0, 0 };
 
 // Bonus for being the side to move
 const int Tempo = 15;
@@ -197,7 +197,7 @@ INLINE int EvalPiece(const Position *pos, EvalInfo *ei, const Color color, const
         // Attacks for king safety calculations
         int kingAttack = PopCount(mobilityBB & ei->enemyKingZone[color]);
 
-        int checks = PopCount(mobilityBB & AttackBB(pt, Lsb(colorPieceBB(!color, KING)), pieceBB(ALL)));
+        int checks = PopCount(mobilityBB & AttackBB(pt, kingSq(!color), pieceBB(ALL)));
 
         if (kingAttack > 0 || checks > 0) {
             ei->attackCount[color]++;
@@ -226,7 +226,7 @@ INLINE int EvalKings(const Position *pos, EvalInfo *ei, const Color color) {
 
     int eval = 0;
 
-    Square kingSq = Lsb(colorPieceBB(color, KING));
+    Square kingSq = kingSq(color);
 
     TraceIncr(PSQT[KING-1][RelativeSquare(color, kingSq)]);
 
@@ -299,7 +299,7 @@ INLINE void InitEvalInfo(const Position *pos, EvalInfo *ei, const Color color) {
     ei->mobilityArea[color] = ~(b | PawnBBAttackBB(colorPieceBB(!color, PAWN), !color));
 
     // King Safety
-    b = AttackBB(KING, Lsb(colorPieceBB(!color, KING)), 0);
+    b = AttackBB(KING, kingSq(!color), 0);
     ei->enemyKingZone[color] = b | ShiftBB(b, up);
 
     ei->attackPower[color] = -30;

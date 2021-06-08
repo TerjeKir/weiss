@@ -184,5 +184,5 @@ bool SqAttacked(const Position *pos, const Square sq, const Color color) {
 
 // Checks whether a king is attacked
 bool KingAttacked(const Position *pos, const Color color) {
-    return SqAttacked(pos, Lsb(colorPieceBB(color, KING)), !color);
+    return SqAttacked(pos, kingSq(color), !color);
 }

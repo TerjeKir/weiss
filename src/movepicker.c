@@ -17,6 +17,7 @@
 */
 
 #include "board.h"
+#include "history.h"
 #include "move.h"
 #include "movepicker.h"
 
@@ -59,12 +60,9 @@ static void ScoreMoves(MoveList *list, const Thread *thread, const int stage) {
 
         Move move = list->moves[i].move;
 
-        if (stage == GEN_NOISY)
-            list->moves[i].score =  thread->captureHistory[pieceOn(fromSq(move))][toSq(move)][PieceTypeOf(capturing(move))]
-                                  + PieceValue[MG][pieceOn(toSq(move))];
-
-        if (stage == GEN_QUIET)
-            list->moves[i].score = thread->history[sideToMove][fromSq(move)][toSq(move)];
+        list->moves[i].score = stage == GEN_QUIET ? *QuietEntry(move)
+                                                  : *NoisyEntry(move)
+                                                   + PieceValue[MG][pieceOn(toSq(move))];
     }
 
     SortMoves(list);

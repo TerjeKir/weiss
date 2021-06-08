@@ -52,11 +52,11 @@ bool MoveIsPseudoLegal(const Position *pos, const Move move) {
         }
 
     // All non-pawn, non-castling moves
-    if (PieceTypeOf(pieceOn(from)) != PAWN) {
+    if (pieceTypeOn(from) != PAWN) {
 
         // No flags or promotion, and the piece currently attacks it
         return !moveIsSpecial(move)
-            && BB(to) & AttackBB(PieceTypeOf(pieceOn(from)), from, pieceBB(ALL));
+            && BB(to) & AttackBB(pieceTypeOn(from), from, pieceBB(ALL));
 
     // Pawn moves
     } else {
@@ -119,7 +119,7 @@ Move ParseMove(const char *str, const Position *pos) {
                 : str[4] == 'b' ? MakePiece(sideToMove, BISHOP)
                                 : 0;
 
-    PieceType pt = PieceTypeOf(pieceOn(from));
+    PieceType pt = pieceTypeOn(from);
 
     int flag = pt == KING && Distance(from, to) > 1           ? FLAG_CASTLE
              : pt == PAWN && Distance(from, to) > 1           ? FLAG_PAWNSTART

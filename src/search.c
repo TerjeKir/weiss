@@ -24,6 +24,7 @@
 #include "bitboard.h"
 #include "board.h"
 #include "evaluate.h"
+#include "history.h"
 #include "makemove.h"
 #include "move.h"
 #include "movepicker.h"
@@ -35,10 +36,10 @@
 #include "uci.h"
 
 
-int Reductions[2][32][32];
-
 SearchLimits Limits;
 volatile bool ABORT_SIGNAL;
+
+static int Reductions[2][32][32];
 
 
 // Initializes the late move reduction array
@@ -47,14 +48,6 @@ CONSTR InitReductions() {
         for (int moves = 1; moves < 32; ++moves)
             Reductions[0][depth][moves] = 0.00 + log(depth) * log(moves) / 3.25, // capture
             Reductions[1][depth][moves] = 1.75 + log(depth) * log(moves) / 2.25; // quiet
-}
-
-// Check if current position is a repetition
-static bool IsRepetition(const Position *pos) {
-    for (int i = 4; i <= pos->rule50 && i <= pos->histPly; i += 2)
-        if (pos->key == history(-i).key)
-            return true;
-    return false;
 }
 
 // Dynamic delta pruning margin
@@ -67,15 +60,14 @@ static int QuiescenceDeltaMargin(const Position *pos) {
     // or if we have a pawn on the 7th we can hope to improve by a queen instead
     const int DeltaBase = pawnOn7th ? 1400 : 110;
 
-    // Look for possible captures on the board
+    // Find the most valuable piece we could capture and add to our base
     const Bitboard enemy = colorBB(!sideToMove);
 
-    // Find the most valuable piece we could take and add to our base
-    return DeltaBase + ((enemy & pieceBB(QUEEN )) ? 1400
-                      : (enemy & pieceBB(ROOK  )) ?  670
-                      : (enemy & pieceBB(BISHOP)) ?  460
-                      : (enemy & pieceBB(KNIGHT)) ?  437
-                                                  :  110);
+    return DeltaBase + (  (enemy & pieceBB(QUEEN )) ? 1400
+                        : (enemy & pieceBB(ROOK  )) ?  670
+                        : (enemy & pieceBB(BISHOP)) ?  460
+                        : (enemy & pieceBB(KNIGHT)) ?  437
+                                                    :  110);
 }
 
 // Quiescence
@@ -122,7 +114,7 @@ static int Quiescence(Thread *thread, Stack *ss, int alpha, const int beta) {
 
         // Futility pruning
         if (   futility + PieceValue[EG][pieceOn(toSq(move))] <= alpha
-            && !(   PieceTypeOf(pieceOn(fromSq(move))) == PAWN
+            && !(   pieceTypeOn(fromSq(move)) == PAWN
                  && RelativeRank(sideToMove, RankOf(toSq(move))) > 5))
             continue;
 
@@ -153,47 +145,6 @@ static int Quiescence(Thread *thread, Stack *ss, int alpha, const int beta) {
     }
 
     return bestScore;
-}
-
-INLINE void HistoryBonus(int16_t *cur, int bonus) {
-    *cur += 32 * bonus - *cur * abs(bonus) / 512;
-}
-
-// Updates various history heuristics when a quiet move causes a cutoff
-INLINE void UpdateHistory(Thread *thread, Stack *ss, Move move, Depth depth, Move quiets[], int quietCount, Move noisys[], int noisyCount) {
-
-    const Position *pos = &thread->pos;
-
-    // Update killers
-    if (ss->killers[0] != move) {
-        ss->killers[1] = ss->killers[0];
-        ss->killers[0] = move;
-    }
-
-    int bonus = depth * depth;
-
-    // Bonus to the move that caused the beta cutoff
-    if (depth > 1) {
-        if (moveIsQuiet(move))
-            HistoryBonus(&thread->history[sideToMove][fromSq(move)][toSq(move)], bonus);
-        else
-            HistoryBonus(&thread->captureHistory[pieceOn(fromSq(move))][toSq(move)][PieceTypeOf(capturing(move))], bonus);
-    }
-
-    // Lower history scores of quiet moves that failed to produce a cut, if another quiet move cause the cut
-    if (moveIsQuiet(move))
-        for (int i = 0; i < quietCount; ++i) {
-            Move m = quiets[i];
-            if (m == move) continue;
-            HistoryBonus(&thread->history[sideToMove][fromSq(m)][toSq(m)], -bonus);
-        }
-
-    // Lower history scores of noisy moves that failed to produce a cut
-    for (int i = 0; i < noisyCount; ++i) {
-        Move m = noisys[i];
-        if (m == move) continue;
-        HistoryBonus(&thread->captureHistory[pieceOn(fromSq(m))][toSq(m)][PieceTypeOf(capturing(m))], -bonus);
-    }
 }
 
 // Alpha Beta
@@ -251,7 +202,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
         && (tte->bound & (ttScore >= beta ? BOUND_LOWER : BOUND_UPPER))) {
 
         if (ttScore >= beta && moveIsQuiet(ttMove))
-            HistoryBonus(&thread->history[sideToMove][fromSq(ttMove)][toSq(ttMove)], depth*depth);
+            HistoryBonus(QuietEntry(ttMove), depth*depth);
 
         return ttScore;
     }
@@ -349,7 +300,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
             // See if a quiescence search beats pbBeta
             int pbScore = -Quiescence(thread, ss+1, -threshold, -threshold+1);
 
-            // If it did do a proper search with reduced depth
+            // If it did, do a proper search with reduced depth
             if (pbScore >= threshold)
                 pbScore = -AlphaBeta(thread, ss+1, -threshold, -threshold+1, depth-4);
 
