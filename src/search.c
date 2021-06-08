@@ -335,18 +335,24 @@ move_loop:
 
         bool quiet = moveIsQuiet(move);
 
-        // Late move pruning
+        // Misc pruning
         if (  !pvNode
             && thread->doPruning
             && bestScore > -TBWIN_IN_MAX) {
 
+            // Late move pruning
             if (moveCount > (3 + 2 * depth * depth) / (2 - improving))
                 break;
 
+            // Quiet late move pruning
             if (quiet && moveCount > (3 + depth * depth) / (2 - improving)) {
                 mp.onlyNoisy = true;
                 continue;
             }
+
+            // SEE pruning
+            if (depth < 7 && !SEE(pos, move, -300 * depth))
+                continue;
         }
 
         __builtin_prefetch(GetEntry(KeyAfter(pos, move)));
