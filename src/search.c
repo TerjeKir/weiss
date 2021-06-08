@@ -351,7 +351,7 @@ move_loop:
             }
 
             // SEE pruning
-            if (depth < 7 && !SEE(pos, move, -200 * depth))
+            if (depth < 7 && !SEE(pos, move, -100 * depth))
                 continue;
         }
 
