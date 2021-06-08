@@ -96,8 +96,8 @@ INLINE void GenPawn(const Position *pos, MoveList *list, const Color color, cons
         Bitboard doubles = ShiftBB(moves, up) & empty & RankBB[RelativeRank(color, RANK_4)];
 
         if (pos->checkers)
-            moves   &= BetweenBB[Lsb(colorPieceBB(color, KING))][Lsb(pos->checkers)],
-            doubles &= BetweenBB[Lsb(colorPieceBB(color, KING))][Lsb(pos->checkers)];
+            moves   &= BetweenBB[kingSq(color)][Lsb(pos->checkers)],
+            doubles &= BetweenBB[kingSq(color)][Lsb(pos->checkers)];
 
         AddPawnMoves(pos, list, moves, up, FLAG_NONE);
         AddPawnMoves(pos, list, doubles, up * 2, FLAG_PAWNSTART);

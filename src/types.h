@@ -41,6 +41,7 @@
 #define sideToMove (pos->stm)
 #define pieceOn(sq) (pos->board[sq])
 #define pieceTypeOn(sq) (PieceTypeOf(pieceOn(sq)))
+#define kingSq(color) (Lsb(colorPieceBB(color, KING)))
 
 
 typedef uint64_t Bitboard;

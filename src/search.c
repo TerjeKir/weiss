@@ -300,7 +300,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
             // See if a quiescence search beats pbBeta
             int pbScore = -Quiescence(thread, ss+1, -threshold, -threshold+1);
 
-            // If it did do a proper search with reduced depth
+            // If it did, do a proper search with reduced depth
             if (pbScore >= threshold)
                 pbScore = -AlphaBeta(thread, ss+1, -threshold, -threshold+1, depth-4);
 

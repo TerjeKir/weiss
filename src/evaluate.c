@@ -197,7 +197,7 @@ INLINE int EvalPiece(const Position *pos, EvalInfo *ei, const Color color, const
         // Attacks for king safety calculations
         int kingAttack = PopCount(mobilityBB & ei->enemyKingZone[color]);
 
-        int checks = PopCount(mobilityBB & AttackBB(pt, Lsb(colorPieceBB(!color, KING)), pieceBB(ALL)));
+        int checks = PopCount(mobilityBB & AttackBB(pt, kingSq(!color), pieceBB(ALL)));
 
         if (kingAttack > 0 || checks > 0) {
             ei->attackCount[color]++;
@@ -226,7 +226,7 @@ INLINE int EvalKings(const Position *pos, EvalInfo *ei, const Color color) {
 
     int eval = 0;
 
-    Square kingSq = Lsb(colorPieceBB(color, KING));
+    Square kingSq = kingSq(color);
 
     TraceIncr(PSQT[KING-1][RelativeSquare(color, kingSq)]);
 
@@ -299,7 +299,7 @@ INLINE void InitEvalInfo(const Position *pos, EvalInfo *ei, const Color color) {
     ei->mobilityArea[color] = ~(b | PawnBBAttackBB(colorPieceBB(!color, PAWN), !color));
 
     // King Safety
-    b = AttackBB(KING, Lsb(colorPieceBB(!color, KING)), 0);
+    b = AttackBB(KING, kingSq(!color), 0);
     ei->enemyKingZone[color] = b | ShiftBB(b, up);
 
     ei->attackPower[color] = -30;

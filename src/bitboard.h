@@ -215,5 +215,5 @@ bool KingAttacked(const Position *pos, Color color);
 
 INLINE Bitboard Checkers(const Position *pos) {
     return colorBB(!sideToMove)
-         & Attackers(pos, Lsb(colorPieceBB(sideToMove, KING)), pieceBB(ALL));
+         & Attackers(pos, kingSq(sideToMove), pieceBB(ALL));
 }
