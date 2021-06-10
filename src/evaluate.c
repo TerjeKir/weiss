@@ -99,7 +99,7 @@ const int Mobility[4][28] = {
 // KingSafety [pt-2]
 const uint16_t AttackPower[4] = {  35, 20, 40, 80 };
 const uint16_t CheckPower[4]  = { 100, 35, 65, 65 };
-const uint16_t CountModifier[8] = { 0, 0, 50, 75, 80, 88, 95, 100 };
+const uint16_t CountModifier[8] = { 0, 0, 64, 96, 113, 120, 124, 128 };
 
 
 // Evaluates pawns
@@ -280,7 +280,7 @@ INLINE int EvalThreats(const Position *pos, const Color color) {
 INLINE int EvalSafety(const Color color ,const EvalInfo *ei) {
     int16_t safetyScore =  ei->attackPower[color]
                          * CountModifier[MIN(7, ei->attackCount[color])]
-                         / 100;
+                         / 128;
 
     return S(safetyScore, 0);
 }
