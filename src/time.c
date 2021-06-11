@@ -39,9 +39,9 @@ void InitTimeManagement() {
     // Plan as if there are at most 50 moves left to play with current time
     int mtg = Limits.movestogo ? MIN(Limits.movestogo, 50) : 50;
 
-    int timeLeft = MAX(0, Limits.time
-                        + Limits.inc * (mtg - 1)
-                        - overhead * (2 + mtg));
+    int timeLeft = MAX(0,  Limits.time
+                         + mtg * Limits.inc
+                         - mtg * overhead);
 
     // Basetime for the whole game
     if (!Limits.movestogo) {
