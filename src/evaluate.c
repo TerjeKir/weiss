@@ -236,14 +236,19 @@ INLINE int EvalKings(const Position *pos, EvalInfo *ei, const Color color) {
     eval += KingLineDanger[count];
     TraceIncr(KingLineDanger[count]);
 
-    // Add to enemy's attack power based on open lines
-    ei->attackPower[!color] += (count - 3) * 8;
-
     // King threatening a pawn
     if (AttackBB(KING, kingSq, 0) & colorPieceBB(!color, PAWN)) {
         eval += KingAtkPawn;
         TraceIncr(KingAtkPawn);
     }
+
+    // King safety
+    ei->attackPower[!color] += (count - 3) * 8;
+
+    int danger =  ei->attackPower[!color]
+                * CountModifier[MIN(7, ei->attackCount[!color])];
+
+    eval -= S(danger / 128, 0);
 
     return eval;
 }
@@ -274,14 +279,6 @@ INLINE int EvalThreats(const Position *pos, const Color color) {
     TraceCount(PawnThreat);
 
     return eval;
-}
-
-// Evaluate safety
-INLINE int EvalSafety(const EvalInfo *ei, const Color color) {
-    int safetyScore =  ei->attackPower[color]
-                     * CountModifier[MIN(7, ei->attackCount[color])];
-
-    return S(safetyScore / 128, 0);
 }
 
 // Initializes the eval info struct
@@ -320,10 +317,6 @@ int EvalPosition(const Position *pos, PawnCache pc) {
 
     // Evaluate pieces
     eval += EvalPieces(pos, &ei);
-
-    // Evaluate king safety
-    eval +=  EvalSafety(&ei, WHITE)
-           - EvalSafety(&ei, BLACK);
 
     // Evaluate threats
     eval +=  EvalThreats(pos, WHITE)
