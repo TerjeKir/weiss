@@ -136,8 +136,8 @@ INLINE Bitboard ShiftBB(Bitboard bb, const Direction dir) {
 INLINE Bitboard Fill(Bitboard bb, const Direction dir) {
     assert(dir & 7 == 0);
     bb |= ShiftBB(bb, dir);
-    bb |= ShiftBB(bb, 2*dir);
-    bb |= ShiftBB(bb, 4*dir);
+    bb |= ShiftBB(bb, dir * 2);
+    bb |= ShiftBB(bb, dir * 4);
     return bb;
 }
 
