@@ -155,12 +155,6 @@ void InitNormalMP(MovePicker *mp, Thread *thread, Move ttMove, Move kill1, Move 
 
 // Init noisy movepicker
 void InitNoisyMP(MovePicker *mp, Thread *thread) {
-    mp->list.count = mp->list.next = 0;
-    mp->thread    = thread;
-    mp->ttMove    = NOMOVE;
-    mp->kill1     = NOMOVE;
-    mp->kill2     = NOMOVE;
-    mp->stage     = GEN_NOISY;
-    mp->bads      = 0;
+    InitNormalMP(mp, thread, NOMOVE, NOMOVE, NOMOVE);
     mp->onlyNoisy = true;
 }
