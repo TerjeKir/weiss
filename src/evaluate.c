@@ -97,9 +97,9 @@ const int Mobility[4][28] = {
 };
 
 // KingSafety [pt-2]
-const uint16_t AttackPower[4] = {  35, 20, 40, 80 };
-const uint16_t CheckPower[4]  = { 100, 35, 65, 65 };
-const uint16_t CountModifier[8] = { 0, 0, 64, 96, 113, 120, 124, 128 };
+const int AttackPower[4] = {  35, 20, 40, 80 };
+const int CheckPower[4]  = { 100, 35, 65, 65 };
+const int CountModifier[8] = { 0, 0, 64, 96, 113, 120, 124, 128 };
 
 
 // Evaluates pawns
@@ -236,14 +236,19 @@ INLINE int EvalKings(const Position *pos, EvalInfo *ei, const Color color) {
     eval += KingLineDanger[count];
     TraceIncr(KingLineDanger[count]);
 
-    // Add to enemy's attack power based on open lines
-    ei->attackPower[!color] += (count - 3) * 8;
-
     // King threatening a pawn
     if (AttackBB(KING, kingSq, 0) & colorPieceBB(!color, PAWN)) {
         eval += KingAtkPawn;
         TraceIncr(KingAtkPawn);
     }
+
+    // King safety
+    ei->attackPower[!color] += (count - 3) * 8;
+
+    int danger =  ei->attackPower[!color]
+                * CountModifier[MIN(7, ei->attackCount[!color])];
+
+    eval -= S(danger / 128, 0);
 
     return eval;
 }
@@ -274,15 +279,6 @@ INLINE int EvalThreats(const Position *pos, const Color color) {
     TraceCount(PawnThreat);
 
     return eval;
-}
-
-// Evaluate safety
-INLINE int EvalSafety(const Color color ,const EvalInfo *ei) {
-    int16_t safetyScore =  ei->attackPower[color]
-                         * CountModifier[MIN(7, ei->attackCount[color])]
-                         / 128;
-
-    return S(safetyScore, 0);
 }
 
 // Initializes the eval info struct
@@ -321,10 +317,6 @@ int EvalPosition(const Position *pos, PawnCache pc) {
 
     // Evaluate pieces
     eval += EvalPieces(pos, &ei);
-
-    // Evaluate king safety
-    eval +=  EvalSafety(WHITE, &ei)
-           - EvalSafety(BLACK, &ei);
 
     // Evaluate threats
     eval +=  EvalThreats(pos, WHITE)

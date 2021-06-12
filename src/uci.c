@@ -207,8 +207,8 @@ int main(int argc, char **argv) {
 
 // Translates an internal mate score into distance to mate
 INLINE int MateScore(const int score) {
-    return score > 0 ?  ((MATE - score) / 2) + 1
-                     : -((MATE + score) / 2);
+    int d = (MATE - abs(score) + 1) / 2;
+    return score > 0 ? d : -d;
 }
 
 // Print thinking
