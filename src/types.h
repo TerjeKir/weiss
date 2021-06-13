@@ -89,11 +89,11 @@ enum Piece {
 };
 
 enum PieceValue {
-    P_MG =  100, P_EG =  159,
-    N_MG =  403, N_EG =  489,
-    B_MG =  410, B_EG =  501,
-    R_MG =  569, R_EG =  877,
-    Q_MG = 1389, Q_EG = 1600
+    P_MG =  108, P_EG =  166,
+    N_MG =  413, N_EG =  488,
+    B_MG =  419, B_EG =  499,
+    R_MG =  585, R_EG =  877,
+    Q_MG = 1395, Q_EG = 1621
 };
 
 enum File {
