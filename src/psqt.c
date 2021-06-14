@@ -27,8 +27,7 @@ extern const int PieceTypeValue[7];
 int PSQT[PIECE_NB][64];
 
 // Black's point of view - easier to read as it's not upside down
-const int PieceSqValue[7][64] = {
-    { 0 },
+const int PieceSqValue[6][64] = {
 
     { S(  0,  0), S(  0,  0), S(  0,  0), S(  0,  0), S(  0,  0), S(  0,  0), S(  0,  0), S(  0,  0),
       S( 62, 58), S( 46, 59), S( 52, 35), S( 50,  3), S( 50,  2), S( 32, 20), S(-17, 49), S(-21, 54),
@@ -92,7 +91,7 @@ CONSTR InitPSQT() {
     for (PieceType pt = PAWN; pt <= KING; ++pt)
         for (Square sq = A1; sq <= H8; ++sq) {
             // Base piece value + the piece square value
-            PSQT[MakePiece(BLACK, pt)][sq] = -(PieceTypeValue[pt] + PieceSqValue[pt][sq]);
+            PSQT[MakePiece(BLACK, pt)][sq] = -(PieceTypeValue[pt] + PieceSqValue[pt-1][sq]);
             // Same score inverted used for white on the square mirrored horizontally
             PSQT[MakePiece(WHITE, pt)][MirrorSquare(sq)] = -PSQT[pt][sq];
         }

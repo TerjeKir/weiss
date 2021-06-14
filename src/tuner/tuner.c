@@ -98,7 +98,7 @@ void PrintArray(char *name, TVector params, int i, int A, char *S) {
 void PrintPSQT(TVector params, int i) {
 
     puts("\n// Black's point of view - easier to read as it's not upside down");
-    puts("const int PieceSqValue[7][64] = {\n    { 0 },");
+    puts("const int PieceSqValue[7][64] = {");
 
     for (int pt = 0; pt < 6; pt++) {
 
