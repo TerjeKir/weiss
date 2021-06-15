@@ -350,6 +350,12 @@ move_loop:
                 continue;
             }
 
+            int histScore = mp.list.moves[mp.list.next-1].score;
+
+            // History pruning
+            if (depth < 3 && histScore < -2024 * depth)
+                continue;
+
             // SEE pruning
             if (depth < 7 && !SEE(pos, move, -50 * depth))
                 continue;
