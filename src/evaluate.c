@@ -58,8 +58,8 @@ const int PawnThreat   = S( 45, 66);
 const int PawnOpen     = S(-13, -8);
 const int BishopPair   = S( 26,102);
 const int KingAtkPawn  = S( 56, 81);
-const int OpenFile     = S( 27, 11);
-const int SemiOpenFile = S(  7, 16);
+const int OpenForward  = S( 27, 11);
+const int SemiForward  = S(  7, 16);
 const int NBBehindPawn = S( 13, 31);
 
 // Passed pawn [rank]
@@ -212,15 +212,15 @@ INLINE int EvalPiece(const Position *pos, EvalInfo *ei, const Color color, const
                                      +     checks * CheckPower[pt-2];
         }
 
-        // (Semi) open file for rooks
+        // Forward mobility for rooks
         if (pt == ROOK) {
             Bitboard forward = Fill(BB(sq), color == WHITE ? NORTH : SOUTH);
             if (!(forward & pieceBB(PAWN))) {
-                eval += OpenFile;
-                TraceIncr(OpenFile);
+                eval += OpenForward;
+                TraceIncr(OpenForward);
             } else if (!(forward & colorPieceBB(color, PAWN))) {
-                eval += SemiOpenFile;
-                TraceIncr(SemiOpenFile);
+                eval += SemiForward;
+                TraceIncr(SemiForward);
             }
         }
     }
