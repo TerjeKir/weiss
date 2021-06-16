@@ -181,6 +181,7 @@ INLINE int EvalPiece(const Position *pos, EvalInfo *ei, const Color color, const
         TraceIncr(BishopPair);
     }
 
+    // Minor behind pawn
     if (pt == KNIGHT || pt == BISHOP) {
         int count = PopCount(pieces & ShiftBB(pieceBB(PAWN), color == WHITE ? SOUTH : NORTH));
         eval += count * NBBehindPawn;
