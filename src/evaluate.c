@@ -52,49 +52,49 @@ const int Tempo = 15;
 
 // Misc bonuses and maluses
 const int PawnDoubled  = S(-18,-31);
-const int PawnIsolated = S(-15,-17);
-const int PawnSupport  = S( 11,  3);
-const int PawnThreat   = S( 45, 63);
+const int PawnIsolated = S(-14,-17);
+const int PawnSupport  = S( 12,  4);
+const int PawnThreat   = S( 45, 66);
 const int PawnOpen     = S(-13, -8);
-const int BishopPair   = S( 24,103);
-const int KingAtkPawn  = S( 53, 80);
-const int OpenFile     = S( 27, 12);
-const int SemiOpenFile = S(  7, 18);
-const int NBBehindPawn = S( 14, 25);
+const int BishopPair   = S( 26,102);
+const int KingAtkPawn  = S( 56, 81);
+const int OpenFile     = S( 27, 11);
+const int SemiOpenFile = S(  7, 16);
+const int NBBehindPawn = S( 13, 31);
 
 // Passed pawn [rank]
 const int PawnPassed[8] = {
-    S(  0,  0), S(-14, 23), S(-18, 27), S(-11, 61),
-    S( 23, 90), S( 46,157), S(151,213), S(  0,  0),
+    S(  0,  0), S(-15, 23), S(-18, 27), S(-11, 61),
+    S( 23, 91), S( 48,159), S(154,216), S(  0,  0),
 };
 
 // KingLineDanger
 const int KingLineDanger[28] = {
-    S(  0,  0), S(  0,  0), S( -6,-16), S(-16, 29),
-    S(-34, 24), S(-39, 13), S(-39, 10), S(-40, 14),
-    S(-44, 14), S(-55, 16), S(-48, 11), S(-59, 18),
-    S(-59, 14), S(-61, 14), S(-63, 13), S(-55,  9),
-    S(-47,  5), S(-38, -3), S(-38, -7), S(-44,-12),
-    S(-51,-14), S(-58,-23), S(-68,-29), S(-81,-41),
-    S(-99,-52), S(-112,-56), S(-113,-28), S(-118,-30),
+    S(  0,  0), S(  0,  0), S( -6,-17), S(-16, 27),
+    S(-34, 25), S(-40, 14), S(-39, 11), S(-41, 15),
+    S(-45, 15), S(-56, 18), S(-50, 12), S(-61, 19),
+    S(-61, 15), S(-63, 15), S(-64, 14), S(-56, 10),
+    S(-48,  5), S(-38, -3), S(-36, -8), S(-41,-13),
+    S(-48,-15), S(-55,-23), S(-65,-30), S(-79,-42),
+    S(-98,-52), S(-112,-58), S(-113,-28), S(-118,-30),
 };
 
 // Mobility [pt-2][mobility]
 const int Mobility[4][28] = {
     // Knight (0-8)
-    { S(-43,-71), S(-24,-71), S( -6,-14), S(  6, 21), S( 15, 34), S( 20, 53), S( 28, 56), S( 40, 51),
-      S( 57, 28) },
+    { S(-42,-73), S(-24,-71), S( -5,-13), S(  6, 22), S( 16, 35), S( 19, 54), S( 28, 55), S( 38, 50),
+      S( 55, 27) },
     // Bishop (0-13)
-    { S(-50,-126), S(-18,-101), S( -2,-29), S(  5,  5), S( 14, 23), S( 22, 47), S( 26, 63), S( 24, 70),
-      S( 23, 79), S( 28, 79), S( 29, 78), S( 54, 63), S( 61, 68), S( 68, 44) },
+    { S(-53,-130), S(-18,-102), S( -3,-30), S(  5,  5), S( 14, 23), S( 22, 47), S( 26, 63), S( 24, 70),
+      S( 23, 79), S( 28, 79), S( 29, 78), S( 54, 62), S( 61, 68), S( 70, 44) },
     // Rook (0-14)
-    { S(-66,-76), S(-22,-82), S( -9,-37), S( -9,-13), S( -2, 22), S(  0, 43), S(  0, 62), S(  5, 63),
-      S( 13, 68), S( 21, 72), S( 30, 77), S( 33, 77), S( 35, 77), S( 49, 66), S(104, 34) },
+    { S(-67,-77), S(-23,-85), S( -6,-37), S( -8,-14), S( -1, 21), S(  1, 42), S(  1, 61), S(  6, 63),
+      S( 13, 68), S( 21, 72), S( 29, 77), S( 33, 78), S( 36, 80), S( 50, 69), S(106, 36) },
     // Queen (0-27)
-    { S(-62,-48), S(-82,-42), S(-73,-65), S(-30,-67), S( -9,-66), S(  8,-61), S( 15,-37), S( 20, -8),
-      S( 24, 11), S( 28, 30), S( 30, 46), S( 33, 56), S( 36, 61), S( 36, 69), S( 37, 74), S( 36, 80),
-      S( 33, 86), S( 29, 91), S( 25, 95), S( 24, 94), S( 27, 92), S( 34, 79), S( 44, 71), S( 61, 56),
-      S( 84, 63), S( 98, 67), S( 98,104), S(105,127) }
+    { S(-62,-48), S(-83,-42), S(-73,-67), S(-29,-69), S( -8,-68), S( 10,-62), S( 16,-36), S( 21, -6),
+      S( 25, 14), S( 29, 33), S( 31, 49), S( 34, 59), S( 37, 64), S( 37, 72), S( 37, 77), S( 37, 83),
+      S( 34, 89), S( 30, 94), S( 26, 98), S( 25, 97), S( 28, 94), S( 34, 82), S( 44, 73), S( 61, 57),
+      S( 82, 61), S( 97, 65), S( 98,103), S(105,127) }
 };
 
 // KingSafety [pt-2]
@@ -214,11 +214,11 @@ INLINE int EvalPiece(const Position *pos, EvalInfo *ei, const Color color, const
 
         // (Semi) open file for rooks
         if (pt == ROOK) {
-            Bitboard file = FileBB[FileOf(sq)];
-            if (!(file & pieceBB(PAWN))) {
+            Bitboard forward = Fill(BB(sq), color == WHITE ? NORTH : SOUTH);
+            if (!(forward & pieceBB(PAWN))) {
                 eval += OpenFile;
                 TraceIncr(OpenFile);
-            } else if (!(file & colorPieceBB(color, PAWN))) {
+            } else if (!(forward & colorPieceBB(color, PAWN))) {
                 eval += SemiOpenFile;
                 TraceIncr(SemiOpenFile);
             }
