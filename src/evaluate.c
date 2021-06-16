@@ -60,6 +60,7 @@ const int BishopPair   = S( 24,103);
 const int KingAtkPawn  = S( 53, 80);
 const int OpenFile     = S( 27, 12);
 const int SemiOpenFile = S(  7, 18);
+const int NBBehindPawn = S( 14, 25);
 
 // Passed pawn [rank]
 const int PawnPassed[8] = {
@@ -178,6 +179,12 @@ INLINE int EvalPiece(const Position *pos, EvalInfo *ei, const Color color, const
     if (pt == BISHOP && Multiple(pieces)) {
         eval += BishopPair;
         TraceIncr(BishopPair);
+    }
+
+    if (pt == KNIGHT || pt == BISHOP) {
+        int count = PopCount(pieces & ShiftBB(pieceBB(PAWN), color == WHITE ? SOUTH : NORTH));
+        eval += count * NBBehindPawn;
+        TraceCount(NBBehindPawn);
     }
 
     // Evaluate each individual piece
