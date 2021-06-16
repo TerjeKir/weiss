@@ -51,8 +51,8 @@ extern const int PawnThreat;
 extern const int PawnOpen;
 extern const int BishopPair;
 extern const int KingAtkPawn;
-extern const int OpenFile;
-extern const int SemiOpenFile;
+extern const int OpenForward;
+extern const int SemiForward;
 extern const int NBBehindPawn;
 
 // Passed pawn [rank]
@@ -98,7 +98,7 @@ void PrintArray(char *name, TVector params, int i, int A, char *S) {
 void PrintPSQT(TVector params, int i) {
 
     puts("\n// Black's point of view - easier to read as it's not upside down");
-    puts("const int PieceSqValue[7][64] = {\n    { 0 },");
+    puts("const int PieceSqValue[7][64] = {");
 
     for (int pt = 0; pt < 6; pt++) {
 
@@ -192,8 +192,8 @@ void InitBaseParams(TVector tparams) {
     InitBaseSingle(PawnOpen);
     InitBaseSingle(BishopPair);
     InitBaseSingle(KingAtkPawn);
-    InitBaseSingle(OpenFile);
-    InitBaseSingle(SemiOpenFile);
+    InitBaseSingle(OpenForward);
+    InitBaseSingle(SemiForward);
     InitBaseSingle(NBBehindPawn);
 
     // Passed pawns
@@ -240,8 +240,8 @@ void PrintParameters(TVector params, TVector current) {
     PrintSingle("PawnOpen", tparams, i++, "    ");
     PrintSingle("BishopPair", tparams, i++, "  ");
     PrintSingle("KingAtkPawn", tparams, i++, " ");
-    PrintSingle("OpenFile", tparams, i++, "    ");
-    PrintSingle("SemiOpenFile", tparams, i++, "");
+    PrintSingle("OpenForward", tparams, i++, " ");
+    PrintSingle("SemiForward", tparams, i++, " ");
     PrintSingle("NBBehindPawn", tparams, i++, "");
 
     puts("\n// Passed pawn [rank]");
@@ -292,8 +292,8 @@ void InitCoefficients(TCoeffs coeffs) {
     InitCoeffSingle(PawnOpen);
     InitCoeffSingle(BishopPair);
     InitCoeffSingle(KingAtkPawn);
-    InitCoeffSingle(OpenFile);
-    InitCoeffSingle(SemiOpenFile);
+    InitCoeffSingle(OpenForward);
+    InitCoeffSingle(SemiForward);
     InitCoeffSingle(NBBehindPawn);
 
     // Passed pawns

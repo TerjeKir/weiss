@@ -58,8 +58,8 @@ const int PawnThreat   = S( 45, 66);
 const int PawnOpen     = S(-13, -8);
 const int BishopPair   = S( 26,102);
 const int KingAtkPawn  = S( 56, 81);
-const int OpenFile     = S( 27, 11);
-const int SemiOpenFile = S(  7, 16);
+const int OpenForward  = S( 27, 11);
+const int SemiForward  = S(  7, 16);
 const int NBBehindPawn = S( 13, 31);
 
 // Passed pawn [rank]
@@ -70,13 +70,13 @@ const int PawnPassed[8] = {
 
 // KingLineDanger
 const int KingLineDanger[28] = {
-    S(  0,  0), S(  0,  0), S( -6,-17), S(-16, 27),
-    S(-34, 25), S(-40, 14), S(-39, 11), S(-41, 15),
-    S(-45, 15), S(-56, 18), S(-50, 12), S(-61, 19),
-    S(-61, 15), S(-63, 15), S(-64, 14), S(-56, 10),
-    S(-48,  5), S(-38, -3), S(-36, -8), S(-41,-13),
-    S(-48,-15), S(-55,-23), S(-65,-30), S(-79,-42),
-    S(-98,-52), S(-112,-58), S(-113,-28), S(-118,-30),
+    S(  0,  0), S(  0,  0), S(  0,  0), S(-10, 44),
+    S(-28, 42), S(-34, 31), S(-33, 28), S(-35, 32),
+    S(-39, 32), S(-50, 35), S(-44, 29), S(-55, 36),
+    S(-55, 32), S(-57, 32), S(-58, 31), S(-50, 27),
+    S(-42, 22), S(-32, 14), S(-30,  9), S(-35,  4),
+    S(-42,  2), S(-49, -6), S(-59,-13), S(-73,-25),
+    S(-92,-35), S(-106,-41), S(-107,-43), S(-112,-45),
 };
 
 // Mobility [pt-2][mobility]
@@ -181,6 +181,7 @@ INLINE int EvalPiece(const Position *pos, EvalInfo *ei, const Color color, const
         TraceIncr(BishopPair);
     }
 
+    // Minor behind pawn
     if (pt == KNIGHT || pt == BISHOP) {
         int count = PopCount(pieces & ShiftBB(pieceBB(PAWN), color == WHITE ? SOUTH : NORTH));
         eval += count * NBBehindPawn;
@@ -202,25 +203,24 @@ INLINE int EvalPiece(const Position *pos, EvalInfo *ei, const Color color, const
         TraceIncr(Mobility[pt-2][mob]);
 
         // Attacks for king safety calculations
-        int kingAttack = PopCount(mobilityBB & ei->enemyKingZone[color]);
+        int attacks = PopCount(mobilityBB & ei->enemyKingZone[color]);
+        int checks  = PopCount(mobilityBB & AttackBB(pt, kingSq(!color), pieceBB(ALL)));
 
-        int checks = PopCount(mobilityBB & AttackBB(pt, kingSq(!color), pieceBB(ALL)));
-
-        if (kingAttack > 0 || checks > 0) {
+        if (attacks > 0 || checks > 0) {
             ei->attackCount[color]++;
-            ei->attackPower[color] +=  kingAttack * AttackPower[pt-2]
-                                     +     checks * CheckPower[pt-2];
+            ei->attackPower[color] +=  attacks * AttackPower[pt-2]
+                                     +  checks *  CheckPower[pt-2];
         }
 
-        // (Semi) open file for rooks
+        // Forward mobility for rooks
         if (pt == ROOK) {
             Bitboard forward = Fill(BB(sq), color == WHITE ? NORTH : SOUTH);
             if (!(forward & pieceBB(PAWN))) {
-                eval += OpenFile;
-                TraceIncr(OpenFile);
+                eval += OpenForward;
+                TraceIncr(OpenForward);
             } else if (!(forward & colorPieceBB(color, PAWN))) {
-                eval += SemiOpenFile;
-                TraceIncr(SemiOpenFile);
+                eval += SemiForward;
+                TraceIncr(SemiForward);
             }
         }
     }
