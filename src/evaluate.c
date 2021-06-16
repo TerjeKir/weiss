@@ -203,14 +203,13 @@ INLINE int EvalPiece(const Position *pos, EvalInfo *ei, const Color color, const
         TraceIncr(Mobility[pt-2][mob]);
 
         // Attacks for king safety calculations
-        int kingAttack = PopCount(mobilityBB & ei->enemyKingZone[color]);
+        int attacks = PopCount(mobilityBB & ei->enemyKingZone[color]);
+        int checks  = PopCount(mobilityBB & AttackBB(pt, kingSq(!color), pieceBB(ALL)));
 
-        int checks = PopCount(mobilityBB & AttackBB(pt, kingSq(!color), pieceBB(ALL)));
-
-        if (kingAttack > 0 || checks > 0) {
+        if (attacks > 0 || checks > 0) {
             ei->attackCount[color]++;
-            ei->attackPower[color] +=  kingAttack * AttackPower[pt-2]
-                                     +     checks * CheckPower[pt-2];
+            ei->attackPower[color] +=  attacks * AttackPower[pt-2]
+                                     +  checks *  CheckPower[pt-2];
         }
 
         // Forward mobility for rooks
