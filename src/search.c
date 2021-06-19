@@ -435,7 +435,7 @@ move_loop:
             // Reduce more for the side that last null moved
             r += sideToMove == thread->nullMover;
 
-            r -= histScore / 8000;
+            r -= histScore / 7000;
 
             // Depth after reductions, avoiding going straight to quiescence
             Depth lmrDepth = CLAMP(newDepth - r, 1, newDepth);
