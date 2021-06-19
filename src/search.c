@@ -243,6 +243,10 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
     // Improving if not in check, and current eval is higher than 2 plies ago
     bool improving = !inCheck && eval > (ss-2)->eval;
 
+    // Internal iterative reduction based on Rebel's idea
+    if (depth >= 4 && !ttMove)
+        depth--;
+
     // Skip pruning in check, at root, during early iterations, and when proving singularity
     if (inCheck || pvNode || !thread->doPruning || ss->excluded)
         goto move_loop;
@@ -313,10 +317,6 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
     }
 
 move_loop:
-
-    // Internal iterative reduction based on Rebel's idea
-    if (depth >= 4 && !ttMove)
-        depth--;
 
     InitNormalMP(&mp, thread, ttMove, ss->killers[0], ss->killers[1]);
 
