@@ -335,6 +335,8 @@ move_loop:
 
         bool quiet = moveIsQuiet(move);
 
+        int histScore = mp.list.moves[mp.list.next-1].score;
+
         // Misc pruning
         if (  !pvNode
             && thread->doPruning
@@ -349,8 +351,6 @@ move_loop:
                 mp.onlyNoisy = true;
                 continue;
             }
-
-            int histScore = mp.list.moves[mp.list.next-1].score;
 
             // History pruning
             if (depth < 3 && histScore < -2024 * depth)
@@ -434,6 +434,8 @@ move_loop:
             r -= mp.stage == KILLER1 || mp.stage == KILLER2;
             // Reduce more for the side that last null moved
             r += sideToMove == thread->nullMover;
+
+            r -= histScore / 8000;
 
             // Depth after reductions, avoiding going straight to quiescence
             Depth lmrDepth = CLAMP(newDepth - r, 1, newDepth);
