@@ -338,7 +338,7 @@ move_loop:
         int histScore = mp.list.moves[mp.list.next-1].score;
 
         // Misc pruning
-        if (  !pvNode
+        if (  !root
             && thread->doPruning
             && bestScore > -TBWIN_IN_MAX) {
 
