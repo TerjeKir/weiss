@@ -59,8 +59,15 @@ void InitTimeManagement() {
 
 // Check time situation
 bool OutOfTime(Thread *thread) {
-    return (thread->pos.nodes & 2047) == 2047
-        && thread->index == 0
-        && Limits.timelimit
+    if (   thread->index != 0
+        || (thread->pos.nodes & 2047) != 2047)
+        return false;
+
+    if (  !thread->doPruning
+        && Limits.infinite ? TimeSince(Limits.start) > 5000
+                           : TimeSince(Limits.start) >= Limits.optimalUsage / 32)
+        thread->doPruning = true;
+
+    return Limits.timelimit
         && TimeSince(Limits.start) >= Limits.maxUsage;
 }

@@ -434,7 +434,7 @@ move_loop:
             r -= mp.stage == KILLER1 || mp.stage == KILLER2;
             // Reduce more for the side that last null moved
             r += sideToMove == thread->nullMover;
-
+            // Adjust reduction by move history (-2 to +2)
             r -= histScore / 6000;
 
             // Depth after reductions, avoiding going straight to quiescence
