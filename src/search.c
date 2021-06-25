@@ -50,26 +50,6 @@ CONSTR InitReductions() {
             Reductions[1][depth][moves] = 1.75 + log(depth) * log(moves) / 2.25; // quiet
 }
 
-// Dynamic delta pruning margin
-static int QuiescenceDeltaMargin(const Position *pos) {
-
-    bool pawnOn7th =  colorPieceBB(sideToMove, PAWN)
-                    & RankBB[RelativeRank(sideToMove, RANK_7)];
-
-    // Optimistic we can improve our position by a pawn without capturing anything,
-    // or if we have a pawn on the 7th we can hope to improve by a queen instead
-    const int DeltaBase = pawnOn7th ? 1400 : 110;
-
-    // Find the most valuable piece we could capture and add to our base
-    const Bitboard enemy = colorBB(!sideToMove);
-
-    return DeltaBase + (  (enemy & pieceBB(QUEEN )) ? 1400
-                        : (enemy & pieceBB(ROOK  )) ?  670
-                        : (enemy & pieceBB(BISHOP)) ?  460
-                        : (enemy & pieceBB(KNIGHT)) ?  437
-                                                    :  110);
-}
-
 // Quiescence
 static int Quiescence(Thread *thread, Stack *ss, int alpha, const int beta) {
 
@@ -90,10 +70,6 @@ static int Quiescence(Thread *thread, Stack *ss, int alpha, const int beta) {
     // If eval beats beta we assume some move will also beat it
     if (eval >= beta)
         return eval;
-
-    // If eval plus a margin is still below alpha we assume no move will beat it
-    if (eval + QuiescenceDeltaMargin(pos) < alpha)
-        return alpha;
 
     // Use eval as a lowerbound if it's above alpha (but below beta)
     if (eval > alpha)
