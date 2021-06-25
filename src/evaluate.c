@@ -343,6 +343,11 @@ int EvalPosition(const Position *pos, PawnCache pc) {
         && (Single(pieceBB(BISHOP) & BlackSquaresBB)))
         eval /= 2;
 
+    Color strong = eval > 0 ? WHITE : BLACK;
+    int strongPawnCount = PopCount(colorPieceBB(strong, PAWN));
+    int x = 8 - strongPawnCount;
+    eval = eval * (128 - x * x) / 128;
+
     // Return the evaluation, negated if we are black
     return (sideToMove == WHITE ? eval : -eval) + Tempo;
 }
