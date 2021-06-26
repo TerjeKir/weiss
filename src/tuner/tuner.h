@@ -39,7 +39,7 @@
 #define DATASET      "../../Datasets/Andrew/BIG.book"
 #define NPOSITIONS   (42484641) // Total FENS in the book
 
-#define NTERMS       (     501) // Number of terms being tuned
+#define NTERMS       (     509) // Number of terms being tuned
 #define MAXEPOCHS    (   10000) // Max number of epochs allowed
 #define REPORTING    (      50) // How often to print the new parameters
 #define NPARTITIONS  (      64) // Total thread partitions
@@ -71,6 +71,7 @@ typedef struct EvalTrace {
     int NBBehindPawn[COLOR_NB];
 
     int PawnPassed[RANK_NB][COLOR_NB];
+    int PawnPhalanx[RANK_NB][COLOR_NB];
     int KingLineDanger[28][COLOR_NB];
     int Mobility[4][28][COLOR_NB];
 
