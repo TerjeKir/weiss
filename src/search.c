@@ -407,7 +407,7 @@ move_loop:
             // Reduce less when improving
             r -= improving;
             // Reduce less for killers
-            r -= mp.stage == KILLER1 || mp.stage == KILLER2;
+            r -= move == mp.kill1 || move == mp.kill2;
             // Reduce more for the side that last null moved
             r += sideToMove == thread->nullMover;
             // Adjust reduction by move history (-2 to +2)
