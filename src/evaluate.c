@@ -62,14 +62,14 @@ const int OpenForward  = S( 27, 11);
 const int SemiForward  = S(  7, 15);
 const int NBBehindPawn = S( 11, 38);
 
-// Passed pawn [rank]
-const int PawnPassed[8] = {
+// Passed pawn
+const int PawnPassed[RANK_NB] = {
     S(  0,  0), S(-14, 23), S(-17, 27), S(-10, 60),
     S( 23, 90), S( 46,158), S(154,212), S(  0,  0),
 };
 
-// Pawn phalanx [rank]
-const int PawnPhalanx[8] = {
+// Pawn phalanx
+const int PawnPhalanx[RANK_NB] = {
     S(  0,  0), S(  7, -2), S( 17,  8), S( 23, 28),
     S( 53, 96), S( 71,161), S(162,237), S(  0,  0),
 };
@@ -357,6 +357,7 @@ int EvalPosition(const Position *pos, PawnCache pc) {
         && (Single(pieceBB(BISHOP) & BlackSquaresBB)))
         eval /= 2;
 
+    // Scale down eval the fewer pawns the stronger side has
     Color strong = eval > 0 ? WHITE : BLACK;
     int strongPawnCount = PopCount(colorPieceBB(strong, PAWN));
     int x = 8 - strongPawnCount;

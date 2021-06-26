@@ -27,7 +27,7 @@ extern const int PieceTypeValue[7];
 int PSQT[PIECE_NB][64];
 
 // Black's point of view - easier to read as it's not upside down
-const int PieceSqValue[7][64] = {
+const int PieceSqValue[6][64] = {
 
     { S(  0,  0), S(  0,  0), S(  0,  0), S(  0,  0), S(  0,  0), S(  0,  0), S(  0,  0), S(  0,  0),
       S( 64, 54), S( 48, 57), S( 55, 33), S( 54,  1), S( 54,  0), S( 39, 18), S(-26, 55), S(-30, 56),

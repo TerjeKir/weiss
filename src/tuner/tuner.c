@@ -55,8 +55,11 @@ extern const int OpenForward;
 extern const int SemiForward;
 extern const int NBBehindPawn;
 
-// Passed pawn [rank]
+// Passed pawn
 extern const int PawnPassed[RANK_NB];
+
+// Pawn phalanx
+extern const int PawnPhalanx[RANK_NB];
 
 // KingLineDanger
 extern const int KingLineDanger[28];
@@ -199,6 +202,9 @@ void InitBaseParams(TVector tparams) {
     // Passed pawns
     InitBaseArray(PawnPassed, RANK_NB);
 
+    // Pawn phalanx
+    InitBaseArray(PawnPhalanx, RANK_NB);
+
     // KingLineDanger
     InitBaseArray(KingLineDanger, 28);
 
@@ -244,8 +250,12 @@ void PrintParameters(TVector params, TVector current) {
     PrintSingle("SemiForward", tparams, i++, " ");
     PrintSingle("NBBehindPawn", tparams, i++, "");
 
-    puts("\n// Passed pawn [rank]");
-    PrintArray("PawnPassed", tparams, i, 8, "[8]");
+    puts("\n// Passed pawn");
+    PrintArray("PawnPassed", tparams, i, 8, "[RANK_NB]");
+    i+=8;
+
+    puts("\n// Pawn phalanx");
+    PrintArray("PawnPhalanx", tparams, i, 8, "[RANK_NB]");
     i+=8;
 
     puts("\n// KingLineDanger");
@@ -298,6 +308,9 @@ void InitCoefficients(TCoeffs coeffs) {
 
     // Passed pawns
     InitCoeffArray(PawnPassed, RANK_NB);
+
+    // Pawn phalanx
+    InitCoeffArray(PawnPhalanx, RANK_NB);
 
     // KingLineDanger
     InitCoeffArray(KingLineDanger, 28);
