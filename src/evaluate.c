@@ -68,6 +68,12 @@ const int PawnPassed[8] = {
     S( 23, 90), S( 46,158), S(154,212), S(  0,  0),
 };
 
+// Pawn phalanx [rank]
+const int PawnPhalanx[8] = {
+    S(  0,  0), S(  7, -2), S( 17,  8), S( 23, 28),
+    S( 53, 96), S( 71,161), S(162,237), S(  0,  0),
+};
+
 // KingLineDanger
 const int KingLineDanger[28] = {
     S(  0,  0), S(  0,  0), S( -2,  0), S(-13, 45),
@@ -127,6 +133,14 @@ INLINE int EvalPawns(const Position *pos, const Color color) {
     count = PopCount(pawns & open & ~PawnBBAttackBB(pawns, color));
     eval += PawnOpen * count;
     TraceCount(PawnOpen);
+
+    // Phalanx
+    Bitboard phalanx = pawns & ShiftBB(pawns, WEST);
+    while (phalanx) {
+        Square rank = RelativeRank(color, RankOf(PopLsb(&phalanx)));
+        eval += PawnPhalanx[rank];
+        TraceIncr(PawnPhalanx[rank]);
+    }
 
     // Evaluate each individual pawn
     while (pawns) {
