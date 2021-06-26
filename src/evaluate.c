@@ -323,6 +323,23 @@ INLINE void InitEvalInfo(const Position *pos, EvalInfo *ei, const Color color) {
     ei->attackCount[color] = 0;
 }
 
+// Calculate scale factor to lower overall eval based on various features
+int ScaleFactor(const Position *pos, const int eval) {
+
+    // Scale down eval for opposite-colored bishops endgames
+    if (  !pieceBB(QUEEN) && !pieceBB(ROOK) && !pieceBB(KNIGHT)
+        && pos->nonPawnCount[WHITE] == 1
+        && pos->nonPawnCount[BLACK] == 1
+        && (Single(pieceBB(BISHOP) & BlackSquaresBB)))
+        return 64;
+
+    // Scale down eval the fewer pawns the stronger side has
+    Color strong = eval > 0 ? WHITE : BLACK;
+    int strongPawnCount = PopCount(colorPieceBB(strong, PAWN));
+    int x = 8 - strongPawnCount;
+    return 128 - x * x;
+}
+
 // Calculate a static evaluation of a position
 int EvalPosition(const Position *pos, PawnCache pc) {
 
@@ -350,18 +367,10 @@ int EvalPosition(const Position *pos, PawnCache pc) {
           +  (EgScore(eval) * (MidGame - pos->phase)))
           / MidGame;
 
-    // Scale down eval for opposite-colored bishops endgames
-    if (  !pieceBB(QUEEN) && !pieceBB(ROOK) && !pieceBB(KNIGHT)
-        && pos->nonPawnCount[WHITE] == 1
-        && pos->nonPawnCount[BLACK] == 1
-        && (Single(pieceBB(BISHOP) & BlackSquaresBB)))
-        eval /= 2;
+    // Adjust eval by scale factor
+    int scale = ScaleFactor(pos, eval);
 
-    // Scale down eval the fewer pawns the stronger side has
-    Color strong = eval > 0 ? WHITE : BLACK;
-    int strongPawnCount = PopCount(colorPieceBB(strong, PAWN));
-    int x = 8 - strongPawnCount;
-    eval = eval * (128 - x * x) / 128;
+    eval = eval * scale / 128;
 
     // Return the evaluation, negated if we are black
     return (sideToMove == WHITE ? eval : -eval) + Tempo;
