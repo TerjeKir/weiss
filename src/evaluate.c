@@ -51,50 +51,50 @@ const int PieceValue[2][PIECE_NB] = {
 const int Tempo = 15;
 
 // Misc bonuses and maluses
-const int PawnDoubled  = S(-18,-31);
-const int PawnIsolated = S(-14,-17);
+const int PawnDoubled  = S(-17,-30);
+const int PawnIsolated = S(-14,-16);
 const int PawnSupport  = S( 12,  4);
-const int PawnThreat   = S( 45, 66);
+const int PawnThreat   = S( 43, 70);
 const int PawnOpen     = S(-13, -8);
-const int BishopPair   = S( 26,102);
-const int KingAtkPawn  = S( 56, 81);
+const int BishopPair   = S( 25,101);
+const int KingAtkPawn  = S( 59, 78);
 const int OpenForward  = S( 27, 11);
-const int SemiForward  = S(  7, 16);
-const int NBBehindPawn = S( 13, 31);
+const int SemiForward  = S(  7, 15);
+const int NBBehindPawn = S( 11, 38);
 
 // Passed pawn [rank]
 const int PawnPassed[8] = {
-    S(  0,  0), S(-15, 23), S(-18, 27), S(-11, 61),
-    S( 23, 91), S( 48,159), S(154,216), S(  0,  0),
+    S(  0,  0), S(-14, 23), S(-17, 27), S(-10, 60),
+    S( 23, 90), S( 46,158), S(154,212), S(  0,  0),
 };
 
 // KingLineDanger
 const int KingLineDanger[28] = {
-    S(  0,  0), S(  0,  0), S(  0,  0), S(-10, 44),
-    S(-28, 42), S(-34, 31), S(-33, 28), S(-35, 32),
-    S(-39, 32), S(-50, 35), S(-44, 29), S(-55, 36),
-    S(-55, 32), S(-57, 32), S(-58, 31), S(-50, 27),
-    S(-42, 22), S(-32, 14), S(-30,  9), S(-35,  4),
-    S(-42,  2), S(-49, -6), S(-59,-13), S(-73,-25),
-    S(-92,-35), S(-106,-41), S(-107,-43), S(-112,-45),
+    S(  0,  0), S(  0,  0), S( -2,  0), S(-13, 45),
+    S(-31, 43), S(-37, 32), S(-36, 29), S(-38, 33),
+    S(-42, 33), S(-53, 35), S(-48, 30), S(-59, 37),
+    S(-60, 33), S(-63, 33), S(-64, 32), S(-56, 28),
+    S(-49, 23), S(-35, 14), S(-27,  8), S(-28,  3),
+    S(-32,  0), S(-38, -8), S(-48,-15), S(-66,-26),
+    S(-88,-36), S(-105,-45), S(-107,-43), S(-112,-45),
 };
 
 // Mobility [pt-2][mobility]
 const int Mobility[4][28] = {
     // Knight (0-8)
-    { S(-42,-73), S(-24,-71), S( -5,-13), S(  6, 22), S( 16, 35), S( 19, 54), S( 28, 55), S( 38, 50),
-      S( 55, 27) },
+    { S(-36,-82), S(-22,-67), S( -3,-10), S(  7, 24), S( 16, 35), S( 19, 52), S( 27, 53), S( 38, 47),
+      S( 54, 24) },
     // Bishop (0-13)
-    { S(-53,-130), S(-18,-102), S( -3,-30), S(  5,  5), S( 14, 23), S( 22, 47), S( 26, 63), S( 24, 70),
-      S( 23, 79), S( 28, 79), S( 29, 78), S( 54, 62), S( 61, 68), S( 70, 44) },
+    { S(-49,-142), S(-18,-99), S( -3,-27), S(  5,  8), S( 13, 25), S( 21, 48), S( 25, 64), S( 23, 70),
+      S( 22, 79), S( 27, 79), S( 28, 78), S( 52, 62), S( 61, 68), S( 79, 41) },
     // Rook (0-14)
-    { S(-67,-77), S(-23,-85), S( -6,-37), S( -8,-14), S( -1, 21), S(  1, 42), S(  1, 61), S(  6, 63),
-      S( 13, 68), S( 21, 72), S( 29, 77), S( 33, 78), S( 36, 80), S( 50, 69), S(106, 36) },
+    { S(-71,-81), S(-20,-95), S( -4,-38), S( -6,-15), S(  0, 20), S(  3, 41), S(  2, 60), S(  7, 63),
+      S( 13, 67), S( 21, 72), S( 29, 77), S( 32, 78), S( 35, 80), S( 48, 71), S(104, 38) },
     // Queen (0-27)
-    { S(-62,-48), S(-83,-42), S(-73,-67), S(-29,-69), S( -8,-68), S( 10,-62), S( 16,-36), S( 21, -6),
-      S( 25, 14), S( 29, 33), S( 31, 49), S( 34, 59), S( 37, 64), S( 37, 72), S( 37, 77), S( 37, 83),
-      S( 34, 89), S( 30, 94), S( 26, 98), S( 25, 97), S( 28, 94), S( 34, 82), S( 44, 73), S( 61, 57),
-      S( 82, 61), S( 97, 65), S( 98,103), S(105,127) }
+    { S(-62,-48), S(-85,-44), S(-69,-75), S(-26,-78), S( -4,-78), S( 12,-66), S( 17,-29), S( 21,  3),
+      S( 25, 23), S( 28, 42), S( 31, 57), S( 33, 66), S( 36, 70), S( 36, 78), S( 37, 82), S( 37, 87),
+      S( 34, 92), S( 30, 96), S( 26,100), S( 24,100), S( 27, 97), S( 29, 89), S( 39, 79), S( 57, 61),
+      S( 74, 54), S( 90, 58), S( 96, 99), S(103,125) }
 };
 
 // KingSafety [pt-2]
@@ -342,6 +342,11 @@ int EvalPosition(const Position *pos, PawnCache pc) {
         && pos->nonPawnCount[BLACK] == 1
         && (Single(pieceBB(BISHOP) & BlackSquaresBB)))
         eval /= 2;
+
+    Color strong = eval > 0 ? WHITE : BLACK;
+    int strongPawnCount = PopCount(colorPieceBB(strong, PAWN));
+    int x = 8 - strongPawnCount;
+    eval = eval * (128 - x * x) / 128;
 
     // Return the evaluation, negated if we are black
     return (sideToMove == WHITE ? eval : -eval) + Tempo;

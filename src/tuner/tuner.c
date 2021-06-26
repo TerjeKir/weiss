@@ -41,7 +41,7 @@
 extern const int PieceTypeValue[7];
 
 // PSQT values
-extern const int PieceSqValue[7][64];
+extern const int PieceSqValue[6][64];
 
 // Misc
 extern const int PawnDoubled;
@@ -98,7 +98,7 @@ void PrintArray(char *name, TVector params, int i, int A, char *S) {
 void PrintPSQT(TVector params, int i) {
 
     puts("\n// Black's point of view - easier to read as it's not upside down");
-    puts("const int PieceSqValue[7][64] = {");
+    puts("const int PieceSqValue[6][64] = {");
 
     for (int pt = 0; pt < 6; pt++) {
 
