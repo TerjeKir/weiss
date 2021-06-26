@@ -357,6 +357,7 @@ int EvalPosition(const Position *pos, PawnCache pc) {
         && (Single(pieceBB(BISHOP) & BlackSquaresBB)))
         eval /= 2;
 
+    // Scale down eval the fewer pawns the stronger side has
     Color strong = eval > 0 ? WHITE : BLACK;
     int strongPawnCount = PopCount(colorPieceBB(strong, PAWN));
     int x = 8 - strongPawnCount;
