@@ -98,6 +98,16 @@ void PrintArray(char *name, TVector params, int i, int A, char *S) {
     }
 }
 
+void PrintPieceValues(TVector params, int i) {
+    puts("enum PieceValue {");
+    printf("    P_MG = %4d, P_EG = %4d,\n", (int) params[i+0][MG], (int) params[i+0][EG]);
+    printf("    N_MG = %4d, N_EG = %4d,\n", (int) params[i+1][MG], (int) params[i+1][EG]);
+    printf("    B_MG = %4d, B_EG = %4d,\n", (int) params[i+2][MG], (int) params[i+2][EG]);
+    printf("    R_MG = %4d, R_EG = %4d,\n", (int) params[i+3][MG], (int) params[i+3][EG]);
+    printf("    Q_MG = %4d, Q_EG = %4d\n", (int) params[i+4][MG], (int) params[i+4][EG]);
+    puts("};");
+}
+
 void PrintPSQT(TVector params, int i) {
 
     puts("\n// Black's point of view - easier to read as it's not upside down");
@@ -232,7 +242,7 @@ void PrintParameters(TVector params, TVector current) {
     int i = 0;
     puts("\n");
 
-    PrintArray("PieceValue", tparams, i, 5, "[5]");
+    PrintPieceValues(tparams, i);
     i+=5;
 
     PrintPSQT(tparams, i);
