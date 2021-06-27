@@ -124,7 +124,7 @@ INLINE int EvalPawns(const Position *pos, const Color color) {
     TraceCount(PawnDoubled);
 
     // Supported pawns
-    count = PopCount(pawns & PawnBBAttackBB(pawns, color));
+    count = PopCount(pawns & PawnBBAttackBB(pawns, !color));
     eval += PawnSupport * count;
     TraceCount(PawnSupport);
 
