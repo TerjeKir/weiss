@@ -371,6 +371,7 @@ int EvalPosition(const Position *pos, PawnCache pc) {
     int scale = ScaleFactor(pos, eval);
 
     eval = eval * scale / 128;
+    TraceScale(scale);
 
     // Return the evaluation, negated if we are black
     return (sideToMove == WHITE ? eval : -eval) + Tempo;

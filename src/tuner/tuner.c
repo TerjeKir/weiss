@@ -374,6 +374,7 @@ void InitTunerEntry(TEntry *entry, Position *pos) {
 
     // Save some of the evaluation modifiers
     entry->eval = T.eval;
+    entry->scale = T.scale / 128.0;
     entry->turn = pos->stm;
 }
 
@@ -448,6 +449,8 @@ double LinearEvaluation(TEntry *entry, TVector params) {
                   +  endgame * (256 - entry->phase))
                   / 256;
 
+    mixed *= entry->scale;
+
     return mixed + (entry->turn == WHITE ? Tempo : -Tempo);
 }
 
@@ -464,8 +467,8 @@ void UpdateSingleGradient(TEntry *entry, TVector gradient, TVector params, doubl
         int index = entry->tuples[i].index;
         int coeff = entry->tuples[i].coeff;
 
-        gradient[index][MG] += mgBase * coeff;
-        gradient[index][EG] += egBase * coeff;
+        gradient[index][MG] += mgBase * coeff * entry->scale;
+        gradient[index][EG] += egBase * coeff * entry->scale;
     }
 }
 

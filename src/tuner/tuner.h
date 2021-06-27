@@ -34,6 +34,7 @@
 #define TRACE (1)
 #define TraceCount(term) T.term[color] = count
 #define TraceIncr(term) T.term[color]++
+#define TraceScale(s) T.scale = s
 #define TraceEval(e) T.eval = e
 
 #define DATASET      "../../Datasets/Andrew/BIG.book"
@@ -55,6 +56,7 @@
 typedef struct EvalTrace {
 
     int eval;
+    int scale;
 
     int PieceValue[5][COLOR_NB];
     int PSQT[6][64][COLOR_NB];
@@ -84,7 +86,7 @@ typedef struct TTuple {
 typedef struct TEntry {
     int16_t seval, phase, turn, ntuples;
     int eval;
-    double result, pfactors[2];
+    double result, scale, pfactors[2];
     TTuple *tuples;
 } TEntry;
 
@@ -102,5 +104,6 @@ void Tune();
 #define TRACE (0)
 #define TraceCount(term)
 #define TraceIncr(term)
+#define TraceScale(s)
 #define TraceEval(e)
 #endif
