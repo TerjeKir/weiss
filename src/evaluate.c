@@ -24,6 +24,7 @@
 
 
 typedef struct EvalInfo {
+    Bitboard passedPawns;
     Bitboard mobilityArea[COLOR_NB];
     Bitboard kingZone[COLOR_NB];
     int16_t attackPower[COLOR_NB];
@@ -111,7 +112,7 @@ const int CountModifier[8] = { 0, 0, 64, 96, 113, 120, 124, 128 };
 
 
 // Evaluates pawns
-INLINE int EvalPawns(const Position *pos, const Color color) {
+INLINE int EvalPawns(const Position *pos, EvalInfo *ei, const Color color) {
 
     const Direction down = color == WHITE ? SOUTH : NORTH;
 
@@ -161,6 +162,8 @@ INLINE int EvalPawns(const Position *pos, const Color color) {
         if (!((PassedMask[color][sq]) & colorPieceBB(!color, PAWN))) {
             eval += PawnPassed[RelativeRank(color, RankOf(sq))];
             TraceIncr(PawnPassed[RelativeRank(color, RankOf(sq))]);
+
+            ei->passedPawns |= BB(sq);
         }
     }
 
@@ -168,19 +171,21 @@ INLINE int EvalPawns(const Position *pos, const Color color) {
 }
 
 // Tries to get pawn eval from cache, otherwise evaluates and saves
-int ProbePawnCache(const Position *pos, PawnCache pc) {
+int ProbePawnCache(const Position *pos, EvalInfo *ei, PawnCache pc) {
 
     // Can't cache when tuning as full trace is needed
-    if (TRACE) return EvalPawns(pos, WHITE) - EvalPawns(pos, BLACK);
+    if (TRACE) return EvalPawns(pos, ei, WHITE) - EvalPawns(pos, ei, BLACK);
 
     Key key = pos->pawnKey;
     PawnEntry *pe = &pc[key % PAWN_CACHE_SIZE];
 
-    if (pe->key != key)
-        pe->key  = key,
-        pe->eval = EvalPawns(pos, WHITE) - EvalPawns(pos, BLACK);
+    if (pe->key != key) {
+        pe->key  = key;
+        pe->eval = EvalPawns(pos, ei, WHITE) - EvalPawns(pos, ei, BLACK);
+        pe->passedPawns = ei->passedPawns;
+    }
 
-    return pe->eval;
+    return ei->passedPawns = pe->passedPawns, pe->eval;
 }
 
 // Evaluates knights, bishops, rooks, or queens
@@ -292,6 +297,22 @@ INLINE int EvalPieces(const Position *pos, EvalInfo *ei) {
           - EvalKings(pos, ei, BLACK);
 }
 
+INLINE int EvalPassedPawns(const Position *pos, const EvalInfo *ei, const Color color) {
+
+    int eval = 0;
+
+    Bitboard passers = colorBB(color) & ei->passedPawns;
+
+    while (passers) {
+
+        Square sq = PopLsb(&passers);
+
+
+    }
+
+    return eval;
+}
+
 // Evaluates threats
 INLINE int EvalThreats(const Position *pos, const Color color) {
 
@@ -334,6 +355,9 @@ INLINE void InitEvalInfo(const Position *pos, EvalInfo *ei, const Color color) {
 
     ei->attackPower[color] = -30;
     ei->attackCount[color] = 0;
+
+    // Clear passed pawns, filled in during pawn eval
+    ei->passedPawns = 0;
 }
 
 // Calculate scale factor to lower overall eval based on various features
@@ -364,10 +388,14 @@ int EvalPosition(const Position *pos, PawnCache pc) {
     int eval = pos->material + pos->trend;
 
     // Evaluate pawns
-    eval += ProbePawnCache(pos, pc);
+    eval += ProbePawnCache(pos, &ei, pc);
 
     // Evaluate pieces
     eval += EvalPieces(pos, &ei);
+
+    // Evaluate passed pawns
+    eval +=  EvalPassedPawns(pos, &ei, WHITE)
+           - EvalPassedPawns(pos, &ei, BLACK);
 
     // Evaluate threats
     eval +=  EvalThreats(pos, WHITE)
