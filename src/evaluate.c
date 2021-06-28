@@ -51,56 +51,56 @@ const int PieceValue[2][PIECE_NB] = {
 const int Tempo = 15;
 
 // Misc bonuses and maluses
-const int PawnDoubled  = S(-14,-31);
+const int PawnDoubled  = S(-14,-37);
 const int PawnIsolated = S(-10,-12);
-const int PawnSupport  = S( 19,  8);
-const int PawnThreat   = S( 42, 65);
-const int PawnOpen     = S(-12,-10);
-const int BishopPair   = S( 25, 97);
-const int KingAtkPawn  = S( 54, 73);
-const int OpenForward  = S( 26,  9);
-const int SemiForward  = S(  7, 13);
-const int NBBehindPawn = S(  9, 35);
+const int PawnSupport  = S( 17,  9);
+const int PawnThreat   = S( 41, 70);
+const int PawnOpen     = S(-14, -9);
+const int BishopPair   = S( 21,108);
+const int KingAtkPawn  = S( 61, 76);
+const int OpenForward  = S( 21, 25);
+const int SemiForward  = S(  5, 24);
+const int NBBehindPawn = S(  9, 37);
 
 // Passed pawn
 const int PawnPassed[RANK_NB] = {
-    S(  0,  0), S(-13, 23), S(-13, 28), S( -6, 58),
-    S( 24, 86), S( 45,150), S(151,205), S(  0,  0),
+    S(  0,  0), S(-11, 22), S(-14, 29), S( -9, 65),
+    S( 21, 97), S( 42,167), S(151,224), S(  0,  0),
 };
 
 // Pawn phalanx
 const int PawnPhalanx[RANK_NB] = {
-    S(  0,  0), S(  7,  1), S( 15,  8), S( 21, 25),
-    S( 53, 94), S( 79,172), S(162,241), S(  0,  0),
+    S(  0,  0), S(  9,  0), S( 15,  7), S( 20, 26),
+    S( 53,101), S( 88,183), S(163,245), S(  0,  0),
 };
 
 // KingLineDanger
 const int KingLineDanger[28] = {
-    S(  0,  0), S(  0,  0), S( -7,  2), S(-17, 44),
-    S(-31, 41), S(-37, 32), S(-37, 29), S(-39, 32),
-    S(-43, 32), S(-54, 35), S(-48, 29), S(-59, 36),
-    S(-59, 33), S(-62, 32), S(-63, 31), S(-56, 28),
-    S(-50, 24), S(-35, 14), S(-26,  8), S(-25,  3),
-    S(-26,  0), S(-31, -8), S(-41,-14), S(-61,-24),
-    S(-85,-34), S(-103,-45), S(-107,-43), S(-112,-45),
+    S(  0,  0), S(  0,  0), S( -6, -2), S(-17, 44),
+    S(-31, 39), S(-37, 30), S(-36, 27), S(-38, 31),
+    S(-41, 31), S(-53, 34), S(-49, 30), S(-59, 37),
+    S(-60, 34), S(-62, 34), S(-62, 32), S(-55, 30),
+    S(-51, 26), S(-38, 17), S(-31, 11), S(-29,  4),
+    S(-26, -1), S(-32, -8), S(-37,-15), S(-59,-27),
+    S(-84,-39), S(-103,-49), S(-107,-43), S(-112,-45),
 };
 
 // Mobility [pt-2][mobility]
 const int Mobility[4][28] = {
     // Knight (0-8)
-    { S(-34,-87), S(-20,-63), S( -2, -9), S(  7, 22), S( 16, 32), S( 19, 48), S( 26, 49), S( 36, 43),
-      S( 51, 21) },
+    { S(-32,-93), S(-19,-59), S( -3, -1), S(  6, 33), S( 14, 44), S( 17, 60), S( 24, 61), S( 33, 55),
+      S( 46, 32) },
     // Bishop (0-13)
-    { S(-48,-143), S(-18,-94), S( -4,-26), S(  4,  7), S( 12, 24), S( 20, 45), S( 24, 61), S( 23, 67),
-      S( 21, 75), S( 26, 75), S( 26, 74), S( 49, 59), S( 58, 65), S( 83, 37) },
+    { S(-46,-147), S(-18,-95), S( -4,-23), S(  4, 12), S( 11, 30), S( 19, 53), S( 23, 70), S( 21, 78),
+      S( 19, 87), S( 23, 88), S( 24, 87), S( 46, 71), S( 58, 73), S( 87, 40) },
     // Rook (0-14)
-    { S(-74,-84), S(-21,-97), S( -7,-39), S( -7,-17), S(  0, 16), S(  2, 36), S(  1, 55), S(  6, 57),
-      S( 12, 62), S( 19, 66), S( 27, 71), S( 30, 72), S( 32, 74), S( 45, 65), S(100, 33) },
+    { S(-78,-88), S(-18,-95), S( -5,-30), S( -6, -7), S(  0, 31), S(  2, 52), S(  1, 73), S(  6, 76),
+      S( 12, 81), S( 19, 85), S( 26, 90), S( 29, 91), S( 31, 92), S( 44, 81), S( 96, 47) },
     // Queen (0-27)
-    { S(-62,-48), S(-85,-46), S(-67,-81), S(-25,-86), S( -4,-85), S( 11,-67), S( 15,-25), S( 18,  6),
-      S( 22, 23), S( 26, 40), S( 27, 53), S( 30, 62), S( 32, 66), S( 32, 72), S( 33, 76), S( 33, 80),
-      S( 31, 84), S( 28, 88), S( 23, 91), S( 21, 92), S( 24, 90), S( 23, 84), S( 32, 76), S( 52, 58),
-      S( 68, 49), S( 85, 53), S( 94, 96), S(101,123) }
+    { S(-62,-48), S(-83,-48), S(-64,-88), S(-22,-94), S( -1,-93), S( 15,-67), S( 18,-19), S( 22, 11),
+      S( 25, 30), S( 29, 48), S( 30, 62), S( 32, 72), S( 35, 76), S( 35, 83), S( 35, 87), S( 35, 91),
+      S( 33, 95), S( 30, 99), S( 27,102), S( 26,103), S( 29, 99), S( 28, 94), S( 34, 84), S( 51, 64),
+      S( 64, 49), S( 81, 51), S( 92, 94), S( 99,121) }
 };
 
 // KingSafety [pt-2]
@@ -362,16 +362,14 @@ int EvalPosition(const Position *pos, PawnCache pc) {
 
     TraceEval(eval);
 
-    // Adjust score by phase
-    eval =  ((MgScore(eval) * pos->phase)
-          +  (EgScore(eval) * (MidGame - pos->phase)))
-          / MidGame;
-
     // Adjust eval by scale factor
     int scale = ScaleFactor(pos, eval);
-
-    eval = eval * scale / 128;
     TraceScale(scale);
+
+    // Adjust score by phase
+    eval =  ((MgScore(eval) * pos->phase)
+          +  (EgScore(eval) * (MidGame - pos->phase)) * scale / 128)
+          / MidGame;
 
     // Return the evaluation, negated if we are black
     return (sideToMove == WHITE ? eval : -eval) + Tempo;
