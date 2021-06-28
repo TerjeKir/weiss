@@ -362,16 +362,14 @@ int EvalPosition(const Position *pos, PawnCache pc) {
 
     TraceEval(eval);
 
-    // Adjust score by phase
-    eval =  ((MgScore(eval) * pos->phase)
-          +  (EgScore(eval) * (MidGame - pos->phase)))
-          / MidGame;
-
     // Adjust eval by scale factor
     int scale = ScaleFactor(pos, eval);
-
-    eval = eval * scale / 128;
     TraceScale(scale);
+
+    // Adjust score by phase
+    eval =  ((MgScore(eval) * pos->phase)
+          +  (EgScore(eval) * (MidGame - pos->phase)) * scale / 128)
+          / MidGame;
 
     // Return the evaluation, negated if we are black
     return (sideToMove == WHITE ? eval : -eval) + Tempo;
