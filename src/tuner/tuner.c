@@ -456,10 +456,8 @@ double LinearEvaluation(TEntry *entry, TVector params) {
     }
 
     double mixed =  (midgame * entry->phase
-                  +  endgame * (256 - entry->phase))
+                  +  endgame * (256 - entry->phase) * entry->scale)
                   / 256;
-
-    mixed *= entry->scale;
 
     return mixed + (entry->turn == WHITE ? Tempo : -Tempo);
 }
@@ -477,7 +475,7 @@ void UpdateSingleGradient(TEntry *entry, TVector gradient, TVector params, doubl
         int index = entry->tuples[i].index;
         int coeff = entry->tuples[i].coeff;
 
-        gradient[index][MG] += mgBase * coeff * entry->scale;
+        gradient[index][MG] += mgBase * coeff;
         gradient[index][EG] += egBase * coeff * entry->scale;
     }
 }
