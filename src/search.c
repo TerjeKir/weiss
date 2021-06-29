@@ -318,6 +318,8 @@ move_loop:
             && thread->doPruning
             && bestScore > -TBWIN_IN_MAX) {
 
+            Depth lmrDepth = MAX(0, depth - Reductions[quiet][MIN(31, depth)][MIN(31, moveCount)]);
+
             // Late move pruning
             if (moveCount > (3 + 2 * depth * depth) / (2 - improving))
                 break;
@@ -329,11 +331,11 @@ move_loop:
             }
 
             // History pruning
-            if (depth < 3 && histScore < -2024 * depth)
+            if (lmrDepth < 3 && histScore < -2024 * depth)
                 continue;
 
             // SEE pruning
-            if (depth < 7 && !SEE(pos, move, -50 * depth))
+            if (lmrDepth < 7 && !SEE(pos, move, -50 * depth))
                 continue;
         }
 
