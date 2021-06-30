@@ -185,6 +185,9 @@ int ProbePawnCache(const Position *pos, PawnCache pc) {
 // Evaluates knights, bishops, rooks, or queens
 INLINE int EvalPiece(const Position *pos, EvalInfo *ei, const Color color, const PieceType pt) {
 
+    const Direction up   = color == WHITE ? NORTH : SOUTH;
+    const Direction down = color == WHITE ? SOUTH : NORTH;
+
     int eval = 0;
 
     Bitboard pieces = colorPieceBB(color, pt);
@@ -197,7 +200,7 @@ INLINE int EvalPiece(const Position *pos, EvalInfo *ei, const Color color, const
 
     // Minor behind pawn
     if (pt == KNIGHT || pt == BISHOP) {
-        int count = PopCount(pieces & ShiftBB(pieceBB(PAWN), color == WHITE ? SOUTH : NORTH));
+        int count = PopCount(pieces & ShiftBB(pieceBB(PAWN), down));
         eval += count * NBBehindPawn;
         TraceCount(NBBehindPawn);
     }
@@ -228,7 +231,7 @@ INLINE int EvalPiece(const Position *pos, EvalInfo *ei, const Color color, const
 
         // Forward mobility for rooks
         if (pt == ROOK) {
-            Bitboard forward = Fill(BB(sq), color == WHITE ? NORTH : SOUTH);
+            Bitboard forward = Fill(BB(sq), up);
             if (!(forward & pieceBB(PAWN))) {
                 eval += OpenForward;
                 TraceIncr(OpenForward);
