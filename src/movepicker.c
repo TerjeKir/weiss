@@ -23,7 +23,9 @@
 
 
 // Return the next best move
-static Move PickNextMove(MoveList *list, const Move ttMove, const Move kill1, const Move kill2) {
+static Move PickNextMove(MovePicker *mp) {
+
+    MoveList *list = &mp->list;
 
     if (list->next == list->count)
         return NOMOVE;
@@ -31,8 +33,8 @@ static Move PickNextMove(MoveList *list, const Move ttMove, const Move kill1, co
     Move bestMove = list->moves[list->next++].move;
 
     // Avoid returning the TT or killer moves again
-    if (bestMove == ttMove || bestMove == kill1 || bestMove == kill2)
-        return PickNextMove(list, ttMove, kill1, kill2);
+    if (bestMove == mp->ttMove || bestMove == mp->kill1 || bestMove == mp->kill2)
+        return PickNextMove(mp);
 
     return bestMove;
 }
@@ -91,7 +93,7 @@ Move NextMove(MovePicker *mp) {
             // fall through
         case NOISY_GOOD:
             // Save seemingly bad noisy moves for later
-            while ((move = PickNextMove(&mp->list, mp->ttMove, NOMOVE, NOMOVE)))
+            while ((move = PickNextMove(mp)))
                 if (    mp->list.moves[mp->list.next-1].score > 16000
                     || (mp->list.moves[mp->list.next-1].score > -8000 && SEE(pos, move, 0)))
                     return move;
@@ -125,7 +127,7 @@ Move NextMove(MovePicker *mp) {
             // fall through
         case QUIET:
             if (!mp->onlyNoisy)
-                if ((move = PickNextMove(&mp->list, mp->ttMove, mp->kill1, mp->kill2)))
+                if ((move = PickNextMove(mp)))
                     return move;
 
             mp->stage++;
