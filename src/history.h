@@ -40,7 +40,7 @@ INLINE void UpdateHistory(Thread *thread, Stack *ss, Move bestMove, Depth depth,
     const Position *pos = &thread->pos;
 
     // Update killers
-    if (ss->killers[0] != bestMove) {
+    if (moveIsQuiet(bestMove) && ss->killers[0] != bestMove) {
         ss->killers[1] = ss->killers[0];
         ss->killers[0] = bestMove;
     }
