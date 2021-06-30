@@ -76,13 +76,13 @@ const int PawnPhalanx[RANK_NB] = {
 
 // KingLineDanger
 const int KingLineDanger[28] = {
-    S(  0,  0), S(  0,  0), S( -6, -2), S(-17, 44),
-    S(-31, 39), S(-37, 30), S(-36, 27), S(-38, 31),
-    S(-41, 31), S(-53, 34), S(-49, 30), S(-59, 37),
-    S(-60, 34), S(-62, 34), S(-62, 32), S(-55, 30),
-    S(-51, 26), S(-38, 17), S(-31, 11), S(-29,  4),
-    S(-26, -1), S(-32, -8), S(-37,-15), S(-59,-27),
-    S(-84,-39), S(-103,-49), S(-107,-43), S(-112,-45),
+    S(  0,  0), S(  0,  0), S(  0,  0), S(-11, 46),
+    S(-25, 41), S(-31, 32), S(-30, 29), S(-32, 33),
+    S(-35, 33), S(-47, 36), S(-43, 32), S(-53, 39),
+    S(-54, 36), S(-56, 36), S(-56, 34), S(-49, 32),
+    S(-45, 28), S(-32, 19), S(-25, 13), S(-23,  6),
+    S(-20,  1), S(-26, -6), S(-31,-13), S(-53,-25),
+    S(-78,-37), S(-97,-47), S(-101,-41), S(-106,-43),
 };
 
 // Mobility [pt-2][mobility]
@@ -170,7 +170,7 @@ INLINE int EvalPawns(const Position *pos, const Color color) {
 int ProbePawnCache(const Position *pos, PawnCache pc) {
 
     // Can't cache when tuning as full trace is needed
-    if (TRACE || !pc) return EvalPawns(pos, WHITE) - EvalPawns(pos, BLACK);
+    if (TRACE) return EvalPawns(pos, WHITE) - EvalPawns(pos, BLACK);
 
     Key key = pos->pawnKey;
     PawnEntry *pe = &pc[key % PAWN_CACHE_SIZE];
