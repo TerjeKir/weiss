@@ -92,7 +92,7 @@ Move NextMove(MovePicker *mp) {
         case NOISY_GOOD:
             // Save seemingly bad noisy moves for later
             while ((move = PickNextMove(&mp->list, mp->ttMove, NOMOVE, NOMOVE)))
-                if (mp->list.moves[mp->list.next-1].score > 16000 || SEE(pos, move, 0))
+                if (mp->list.moves[mp->list.next-1].score > 16000 || (mp->list.moves[mp->list.next-1].score > -8000 && SEE(pos, move, 0)))
                     return move;
                 else
                     mp->list.moves[mp->bads++].move = move;
