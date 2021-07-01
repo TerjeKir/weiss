@@ -37,8 +37,8 @@
 #define TraceScale(s) T.scale = s
 #define TraceEval(e) T.eval = e
 
-#define DATASET      "../../Datasets/Andrew/BIG.book"
-#define NPOSITIONS   (42484641) // Total FENS in the book
+#define DATASET      "../../Datasets/lichess-big3-resolved.book"
+#define NPOSITIONS   ( 7153652) // Total FENS in the book
 
 #define NTERMS       (     510) // Number of terms being tuned
 #define MAXEPOCHS    (   10000) // Max number of epochs allowed
