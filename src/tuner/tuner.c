@@ -48,6 +48,7 @@ extern const int PawnDoubled;
 extern const int PawnIsolated;
 extern const int PawnSupport;
 extern const int PawnThreat;
+extern const int PushThreat;
 extern const int PawnOpen;
 extern const int BishopPair;
 extern const int KingAtkPawn;
@@ -202,6 +203,7 @@ void InitBaseParams(TVector tparams) {
     InitBaseSingle(PawnIsolated);
     InitBaseSingle(PawnSupport);
     InitBaseSingle(PawnThreat);
+    InitBaseSingle(PushThreat);
     InitBaseSingle(PawnOpen);
     InitBaseSingle(BishopPair);
     InitBaseSingle(KingAtkPawn);
@@ -253,6 +255,7 @@ void PrintParameters(TVector params, TVector current) {
     PrintSingle("PawnIsolated", tparams, i++, "");
     PrintSingle("PawnSupport", tparams, i++, " ");
     PrintSingle("PawnThreat", tparams, i++, "  ");
+    PrintSingle("PushThreat", tparams, i++, "  ");
     PrintSingle("PawnOpen", tparams, i++, "    ");
     PrintSingle("BishopPair", tparams, i++, "  ");
     PrintSingle("KingAtkPawn", tparams, i++, " ");
@@ -309,6 +312,7 @@ void InitCoefficients(TCoeffs coeffs) {
     InitCoeffSingle(PawnIsolated);
     InitCoeffSingle(PawnSupport);
     InitCoeffSingle(PawnThreat);
+    InitCoeffSingle(PushThreat);
     InitCoeffSingle(PawnOpen);
     InitCoeffSingle(BishopPair);
     InitCoeffSingle(KingAtkPawn);

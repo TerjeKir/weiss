@@ -55,6 +55,7 @@ const int PawnDoubled  = S(-14,-37);
 const int PawnIsolated = S(-10,-12);
 const int PawnSupport  = S( 17,  9);
 const int PawnThreat   = S( 41, 70);
+const int PushThreat   = S( 14,  4);
 const int PawnOpen     = S(-14, -9);
 const int BishopPair   = S( 21,108);
 const int KingAtkPawn  = S( 61, 76);
@@ -114,7 +115,7 @@ INLINE int EvalPawns(const Position *pos, const Color color) {
 
     const Direction down = color == WHITE ? SOUTH : NORTH;
 
-    int eval = 0, count;
+    int count, eval = 0;
 
     Bitboard pawns = colorPieceBB(color, PAWN);
 
@@ -293,14 +294,22 @@ INLINE int EvalPieces(const Position *pos, EvalInfo *ei) {
 // Evaluates threats
 INLINE int EvalThreats(const Position *pos, const Color color) {
 
-    int eval = 0;
+    const Direction up = color == WHITE ? NORTH : SOUTH;
+
+    int count, eval = 0;
 
     Bitboard ourPawns = colorPieceBB(color, PAWN);
     Bitboard theirNonPawns = colorBB(!color) ^ colorPieceBB(!color, PAWN);
 
-    int count = PopCount(PawnBBAttackBB(ourPawns, color) & theirNonPawns);
+    count = PopCount(PawnBBAttackBB(ourPawns, color) & theirNonPawns);
     eval += PawnThreat * count;
     TraceCount(PawnThreat);
+
+    Bitboard pawnPushes = ShiftBB(ourPawns, up) & ~pieceBB(ALL);
+
+    count = PopCount(PawnBBAttackBB(pawnPushes, color) & theirNonPawns);
+    eval += PushThreat * count;
+    TraceCount(PushThreat);
 
     return eval;
 }
