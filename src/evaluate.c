@@ -115,7 +115,7 @@ INLINE int EvalPawns(const Position *pos, const Color color) {
 
     const Direction down = color == WHITE ? SOUTH : NORTH;
 
-    int eval = 0, count;
+    int count, eval = 0;
 
     Bitboard pawns = colorPieceBB(color, PAWN);
 
@@ -296,16 +296,17 @@ INLINE int EvalThreats(const Position *pos, const Color color) {
 
     const Direction up = color == WHITE ? NORTH : SOUTH;
 
-    int eval = 0;
+    int count, eval = 0;
 
     Bitboard ourPawns = colorPieceBB(color, PAWN);
     Bitboard theirNonPawns = colorBB(!color) ^ colorPieceBB(!color, PAWN);
 
-    int count = PopCount(PawnBBAttackBB(ourPawns, color) & theirNonPawns);
+    count = PopCount(PawnBBAttackBB(ourPawns, color) & theirNonPawns);
     eval += PawnThreat * count;
     TraceCount(PawnThreat);
 
     Bitboard pawnPushes = ShiftBB(ourPawns, up) & ~pieceBB(ALL);
+
     count = PopCount(PawnBBAttackBB(pawnPushes, color) & theirNonPawns);
     eval += PushThreat * count;
     TraceCount(PushThreat);
