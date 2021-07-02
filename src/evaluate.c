@@ -138,7 +138,7 @@ INLINE int EvalPawns(const Position *pos, const Color color) {
     // Phalanx
     Bitboard phalanx = pawns & ShiftBB(pawns, WEST);
     while (phalanx) {
-        Square rank = RelativeRank(color, RankOf(PopLsb(&phalanx)));
+        int rank = RelativeRank(color, RankOf(PopLsb(&phalanx)));
         eval += PawnPhalanx[rank];
         TraceIncr(PawnPhalanx[rank]);
     }
