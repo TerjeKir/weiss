@@ -521,7 +521,7 @@ static int AspirationWindow(Thread *thread, Stack *ss) {
         // Failed low, relax lower bound and search again
         if (score <= alpha) {
             alpha = MAX(alpha - delta, -INFINITE);
-            beta  = (alpha + beta) / 2;
+            beta  = (alpha + 3 * beta) / 4;
             depth = thread->depth;
 
         // Failed high, relax upper bound and search again
