@@ -325,7 +325,7 @@ move_loop:
                 break;
 
             // Quiet late move pruning
-            if (quiet && moveCount > (3 + depth * depth) / (2 - improving)) {
+            if (quiet && moveCount > (1 + depth * depth) / (2 - improving)) {
                 mp.onlyNoisy = true;
                 continue;
             }
