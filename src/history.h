@@ -28,7 +28,7 @@
 
 #define QuietEntry(move) &thread->history[sideToMove][fromSq(move)][toSq(move)]
 #define NoisyEntry(move) &thread->captureHistory[pieceOn(fromSq(move))][toSq(move)][PieceTypeOf(capturing(move))]
-#define ContEntry(move) &thread->continuation[prevPiece][prevTo][pieceOn(fromSq(move))][toSq(move)]
+#define ContEntry(prev, move) &thread->continuation[pieceOn(toSq(prev))][toSq(prev)][pieceOn(fromSq(move))][toSq(move)]
 
 
 INLINE void HistoryBonus(int16_t *cur, int bonus) {
@@ -41,8 +41,6 @@ INLINE void UpdateHistory(Thread *thread, Stack *ss, Move bestMove, Depth depth,
     const Position *pos = &thread->pos;
 
     Move prevMove = pos->histPly > 0 ? history(-1).move : NOMOVE;
-    Square prevTo = toSq(prevMove);
-    Piece prevPiece = pieceOn(prevTo);
 
     // Update killers
     if (moveIsQuiet(bestMove) && ss->killers[0] != bestMove) {
@@ -56,7 +54,7 @@ INLINE void UpdateHistory(Thread *thread, Stack *ss, Move bestMove, Depth depth,
     if (depth > 1) {
         HistoryBonus(moveIsQuiet(bestMove) ? QuietEntry(bestMove) : NoisyEntry(bestMove), bonus);
         if (prevMove && moveIsQuiet(bestMove))
-            HistoryBonus(ContEntry(bestMove), bonus);
+            HistoryBonus(ContEntry(prevMove, bestMove), bonus);
     }
 
     // If bestMove is quiet, penalize quiet moves that failed to produce a cut
@@ -66,7 +64,7 @@ INLINE void UpdateHistory(Thread *thread, Stack *ss, Move bestMove, Depth depth,
             if (move == bestMove) continue;
             HistoryBonus(QuietEntry(move), -bonus);
             if (prevMove)
-                HistoryBonus(ContEntry(move), -bonus);
+                HistoryBonus(ContEntry(prevMove, move), -bonus);
         }
 
     // Penalize noisy moves that failed to produce a cut
