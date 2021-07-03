@@ -227,10 +227,9 @@ void PrintThinking(const Thread *thread, const Stack *ss, int score, int alpha, 
 
     // Translate internal score into printed score
     score = abs(score) >=  MATE_IN_MAX ? MateScore(score)
-          : abs(score) >= TBWIN_IN_MAX ? score
           :    abs(score) <= 8
             && pv->length <= 2         ? 0
-                                       : score * 100 / P_MG;
+                                       : score;
 
     TimePoint elapsed = TimeSince(Limits.start);
     uint64_t nodes    = TotalNodes(thread);

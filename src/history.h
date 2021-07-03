@@ -28,7 +28,7 @@
 
 #define QuietEntry(move) &thread->history[sideToMove][fromSq(move)][toSq(move)]
 #define NoisyEntry(move) &thread->captureHistory[pieceOn(fromSq(move))][toSq(move)][PieceTypeOf(capturing(move))]
-#define ContEntry(move) &thread->continuation[prevPiece][prevTo][pieceOn(fromSq(move))][toSq(move)]
+#define ContEntry(prev, move) &thread->continuation[pieceOn(toSq(prev))][toSq(prev)][pieceOn(fromSq(move))][toSq(move)]
 
 
 INLINE void HistoryBonus(int16_t *cur, int bonus) {
@@ -36,16 +36,14 @@ INLINE void HistoryBonus(int16_t *cur, int bonus) {
 }
 
 // Updates various history heuristics when a move causes a beta cutoff
-INLINE void UpdateHistory(Thread *thread, Stack *ss, Move bestMove, Depth depth, Move quiets[], int qCount, Move noisys[], int nCount) {
+INLINE void UpdateQuietHistory(Thread *thread, Stack *ss, Move bestMove, Depth depth, Move quiets[], int qCount) {
 
     const Position *pos = &thread->pos;
 
     Move prevMove = pos->histPly > 0 ? history(-1).move : NOMOVE;
-    Square prevTo = toSq(prevMove);
-    Piece prevPiece = pieceOn(prevTo);
 
     // Update killers
-    if (moveIsQuiet(bestMove) && ss->killers[0] != bestMove) {
+    if (ss->killers[0] != bestMove) {
         ss->killers[1] = ss->killers[0];
         ss->killers[0] = bestMove;
     }
@@ -54,20 +52,35 @@ INLINE void UpdateHistory(Thread *thread, Stack *ss, Move bestMove, Depth depth,
 
     // Bonus to the move that caused the beta cutoff
     if (depth > 1) {
-        HistoryBonus(moveIsQuiet(bestMove) ? QuietEntry(bestMove) : NoisyEntry(bestMove), bonus);
-        if (prevMove && moveIsQuiet(bestMove))
-            HistoryBonus(ContEntry(bestMove), bonus);
+        HistoryBonus(QuietEntry(bestMove), bonus);
+        if (prevMove)
+            HistoryBonus(ContEntry(prevMove, bestMove), bonus);
     }
 
     // If bestMove is quiet, penalize quiet moves that failed to produce a cut
+    for (int i = 0; i < qCount; ++i) {
+        Move move = quiets[i];
+        if (move == bestMove) continue;
+        HistoryBonus(QuietEntry(move), -bonus);
+        if (prevMove)
+            HistoryBonus(ContEntry(prevMove, move), -bonus);
+    }
+}
+
+// Updates various history heuristics when a move causes a beta cutoff
+INLINE void UpdateHistory(Thread *thread, Stack *ss, Move bestMove, Depth depth, Move quiets[], int qCount, Move noisys[], int nCount) {
+
+    const Position *pos = &thread->pos;
+
+    int bonus = depth * depth;
+
+    // If bestMove is quiet, penalize quiet moves that failed to produce a cut
     if (moveIsQuiet(bestMove))
-        for (int i = 0; i < qCount; ++i) {
-            Move move = quiets[i];
-            if (move == bestMove) continue;
-            HistoryBonus(QuietEntry(move), -bonus);
-            if (prevMove)
-                HistoryBonus(ContEntry(move), -bonus);
-        }
+        UpdateQuietHistory(thread, ss, bestMove, depth, quiets, qCount);
+
+    // Bonus to the move that caused the beta cutoff
+    if (depth > 1 && !moveIsQuiet(bestMove))
+        HistoryBonus(NoisyEntry(bestMove), bonus);
 
     // Penalize noisy moves that failed to produce a cut
     for (int i = 0; i < nCount; ++i) {
