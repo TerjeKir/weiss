@@ -66,11 +66,9 @@ static void ScoreMoves(MoveList *list, const Thread *thread, const int stage) {
 
         Move move = list->moves[i].move;
 
-        list->moves[i].score = stage == GEN_QUIET ? *QuietEntry(move)
+        list->moves[i].score = stage == GEN_QUIET ? *QuietEntry(move) + *ContEntry(move)
                                                   : *NoisyEntry(move)
                                                    + PieceValue[MG][pieceOn(toSq(move))];
-
-        list->moves[i].score += *ContEntry(move);
     }
 
     SortMoves(list);
