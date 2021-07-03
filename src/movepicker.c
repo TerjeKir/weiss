@@ -58,11 +58,15 @@ static void ScoreMoves(MoveList *list, const Thread *thread, const int stage) {
 
     const Position *pos = &thread->pos;
 
+    Move prevMove = pos->histPly > 0 ? history(-1).move : NOMOVE;
+    Square prevTo = toSq(prevMove);
+    Piece prevPiece = pieceOn(prevTo);
+
     for (int i = list->next; i < list->count; ++i) {
 
         Move move = list->moves[i].move;
 
-        list->moves[i].score = stage == GEN_QUIET ? *QuietEntry(move)
+        list->moves[i].score = stage == GEN_QUIET ? *QuietEntry(move) + *ContEntry(move)
                                                   : *NoisyEntry(move)
                                                    + PieceValue[MG][pieceOn(toSq(move))];
     }
