@@ -223,7 +223,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
     if (depth >= 4 && !ttMove)
         depth--;
 
-    // Skip pruning in check, at root, during early iterations, and when proving singularity
+    // Skip pruning in check, in pv nodes, during early iterations, and when proving singularity
     if (inCheck || pvNode || !thread->doPruning || ss->excluded)
         goto move_loop;
 
@@ -374,10 +374,6 @@ move_loop:
 
         // Increment counts
         moveCount++;
-        if (quiet && quietCount < 32)
-            quiets[quietCount++] = move;
-        else if (noisyCount < 32)
-            noisys[noisyCount++] = move;
 
         // If alpha > 0 and we take back our last move, opponent can do the same
         // and get a fail high by repetition
@@ -454,15 +450,19 @@ skip_search:
                 alpha = score;
 
                 // If score beats beta we have a cutoff
-                if (score >= beta)
+                if (score >= beta) {
+                    UpdateHistory(thread, ss, bestMove, depth, quiets, quietCount, noisys, noisyCount);
                     break;
+                }
             }
         }
-    }
 
-    // Update history if a quiet move causes a beta cutoff
-    if (bestScore >= beta)
-        UpdateHistory(thread, ss, bestMove, depth, quiets, quietCount, noisys, noisyCount);
+        // Remember attempted moves to adjust their history scores
+        if (quiet && quietCount < 32)
+            quiets[quietCount++] = move;
+        else if (noisyCount < 32)
+            noisys[noisyCount++] = move;
+    }
 
     // Checkmate or stalemate
     if (!moveCount)
