@@ -31,7 +31,7 @@ typedef struct EvalInfo {
 } EvalInfo;
 
 
-// Phase value for each piece [piece]
+// Phase value for each piece [piecetype]
 const int PhaseValue[TYPE_NB] = { 0, 0, 1, 1, 2, 4, 0, 0 };
 
 // Piecetype values, combines with PSQTs [piecetype]
@@ -77,13 +77,13 @@ const int PawnPhalanx[RANK_NB] = {
 
 // KingLineDanger
 const int KingLineDanger[28] = {
-    S(  0,  0), S(  0,  0), S( 17, -7), S(  5, 33),
-    S(-15, 37), S(-22, 30), S(-21, 27), S(-25, 34),
-    S(-33, 36), S(-49, 41), S(-48, 38), S(-58, 45),
-    S(-61, 42), S(-67, 43), S(-70, 41), S(-61, 37),
-    S(-58, 33), S(-48, 24), S(-41, 18), S(-39, 10),
-    S(-37,  5), S(-44, -3), S(-50,-10), S(-68,-25),
-    S(-84,-34), S(-98,-47), S(-101,-41), S(-106,-43),
+    S(  0,  0), S(  0,  0), S(  0,  0), S(-12, 40),
+    S(-32, 44), S(-39, 37), S(-38, 34), S(-42, 41),
+    S(-50, 43), S(-66, 48), S(-65, 45), S(-75, 52),
+    S(-78, 49), S(-84, 50), S(-87, 48), S(-78, 44),
+    S(-75, 40), S(-65, 31), S(-58, 25), S(-56, 17),
+    S(-54, 12), S(-61,  4), S(-67, -3), S(-85,-18),
+    S(-101,-27), S(-115,-40), S(-118,-34), S(-123,-36),
 };
 
 // Mobility [pt-2][mobility]
