@@ -331,7 +331,7 @@ move_loop:
             }
 
             // History pruning
-            if (lmrDepth < 3 && histScore < -2024 * depth)
+            if (lmrDepth < 3 && histScore < -2048 * depth)
                 continue;
 
             // SEE pruning
@@ -408,7 +408,7 @@ move_loop:
             // Reduce more for the side that last null moved
             r += sideToMove == thread->nullMover;
             // Adjust reduction by move history
-            r -= histScore / 6000;
+            r -= histScore / 8192;
 
             // Depth after reductions, avoiding going straight to quiescence
             Depth lmrDepth = CLAMP(newDepth - r, 1, newDepth);
