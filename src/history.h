@@ -40,7 +40,7 @@ INLINE void UpdateQuietHistory(Thread *thread, Stack *ss, Move bestMove, Depth d
 
     const Position *pos = &thread->pos;
 
-    Move prevMove = pos->histPly >= 1 ? history(-1).move : NOMOVE;
+    Move prevMove  = pos->histPly >= 1 ? history(-1).move : NOMOVE;
     Move prevMove2 = pos->histPly >= 2 ? history(-2).move : NOMOVE;
 
     // Update killers
