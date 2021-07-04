@@ -344,6 +344,8 @@ move_loop:
         // Make the move, skipping to the next if illegal
         if (!MakeMove(pos, move)) continue;
 
+        moveCount++;
+
         Depth extension = 0;
 
         // Singular extension
@@ -371,9 +373,6 @@ move_loop:
             // Replay ttMove
             MakeMove(pos, move);
         }
-
-        // Increment counts
-        moveCount++;
 
         // If alpha > 0 and we take back our last move, opponent can do the same
         // and get a fail high by repetition
