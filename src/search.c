@@ -223,7 +223,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
     if (depth >= 4 && !ttMove)
         depth--;
 
-    // Skip pruning in check, at root, during early iterations, and when proving singularity
+    // Skip pruning in check, in pv nodes, during early iterations, and when proving singularity
     if (inCheck || pvNode || !thread->doPruning || ss->excluded)
         goto move_loop;
 
@@ -344,6 +344,8 @@ move_loop:
         // Make the move, skipping to the next if illegal
         if (!MakeMove(pos, move)) continue;
 
+        moveCount++;
+
         Depth extension = 0;
 
         // Singular extension
@@ -371,13 +373,6 @@ move_loop:
             // Replay ttMove
             MakeMove(pos, move);
         }
-
-        // Increment counts
-        moveCount++;
-        if (quiet && quietCount < 32)
-            quiets[quietCount++] = move;
-        else if (noisyCount < 32)
-            noisys[noisyCount++] = move;
 
         // If alpha > 0 and we take back our last move, opponent can do the same
         // and get a fail high by repetition
@@ -412,7 +407,7 @@ move_loop:
             r -= move == mp.kill1 || move == mp.kill2;
             // Reduce more for the side that last null moved
             r += sideToMove == thread->nullMover;
-            // Adjust reduction by move history (-2 to +2)
+            // Adjust reduction by move history
             r -= histScore / 6000;
 
             // Depth after reductions, avoiding going straight to quiescence
@@ -454,15 +449,19 @@ skip_search:
                 alpha = score;
 
                 // If score beats beta we have a cutoff
-                if (score >= beta)
+                if (score >= beta) {
+                    UpdateHistory(thread, ss, bestMove, depth, quiets, quietCount, noisys, noisyCount);
                     break;
+                }
             }
         }
-    }
 
-    // Update history if a quiet move causes a beta cutoff
-    if (bestScore >= beta)
-        UpdateHistory(thread, ss, bestMove, depth, quiets, quietCount, noisys, noisyCount);
+        // Remember attempted moves to adjust their history scores
+        if (quiet && quietCount < 32)
+            quiets[quietCount++] = move;
+        else if (noisyCount < 32)
+            noisys[noisyCount++] = move;
+    }
 
     // Checkmate or stalemate
     if (!moveCount)

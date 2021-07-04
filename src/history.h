@@ -40,7 +40,7 @@ INLINE void UpdateQuietHistory(Thread *thread, Stack *ss, Move bestMove, Depth d
 
     const Position *pos = &thread->pos;
 
-    Move prevMove = pos->histPly >= 1 ? history(-1).move : NOMOVE;
+    Move prevMove  = pos->histPly >= 1 ? history(-1).move : NOMOVE;
     Move prevMove2 = pos->histPly >= 2 ? history(-2).move : NOMOVE;
 
     // Update killers
@@ -63,7 +63,6 @@ INLINE void UpdateQuietHistory(Thread *thread, Stack *ss, Move bestMove, Depth d
     // If bestMove is quiet, penalize quiet moves that failed to produce a cut
     for (int i = 0; i < qCount; ++i) {
         Move move = quiets[i];
-        if (move == bestMove) continue;
         HistoryBonus(QuietEntry(move), -bonus);
         if (prevMove)
             HistoryBonus(ContEntry(prevMove, move), -bonus);
@@ -88,9 +87,6 @@ INLINE void UpdateHistory(Thread *thread, Stack *ss, Move bestMove, Depth depth,
         HistoryBonus(NoisyEntry(bestMove), bonus);
 
     // Penalize noisy moves that failed to produce a cut
-    for (int i = 0; i < nCount; ++i) {
-        Move move = noisys[i];
-        if (move == bestMove) continue;
-        HistoryBonus(NoisyEntry(move), -bonus);
-    }
+    for (int i = 0; i < nCount; ++i)
+        HistoryBonus(NoisyEntry(noisys[i]), -bonus);
 }
