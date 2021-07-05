@@ -331,7 +331,7 @@ move_loop:
             }
 
             // History pruning
-            if (lmrDepth < 3 && histScore < -2048 * depth)
+            if (lmrDepth < 3 && histScore < -1024 * depth)
                 continue;
 
             // SEE pruning
