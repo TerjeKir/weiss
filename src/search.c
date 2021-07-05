@@ -275,6 +275,8 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
         Move move;
         while ((move = NextMove(&mp))) {
 
+            if (mp.stage > NOISY_GOOD) break;
+
             if (!MakeMove(pos, move)) continue;
 
             // See if a quiescence search beats pbBeta
