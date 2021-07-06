@@ -39,22 +39,24 @@ static Move PickNextMove(MovePicker *mp) {
     return bestMove;
 }
 
-static void SortMoves(MoveList *list) {
+static void SortMoves(MoveList *list, int threshold) {
 
     MoveListEntry *begin = &list->moves[list->next];
     MoveListEntry *end = &list->moves[list->count];
 
     for (MoveListEntry *sortedEnd = begin, *p = begin + 1; p < end; ++p) {
-        MoveListEntry tmp = *p, *q;
-        *p = *++sortedEnd;
-        for (q = sortedEnd; q != begin && (q-1)->score < tmp.score; --q)
-            *q = *(q - 1);
-        *q = tmp;
+        if (p->score > threshold) {
+            MoveListEntry tmp = *p, *q;
+            *p = *++sortedEnd;
+            for (q = sortedEnd; q != begin && (q-1)->score < tmp.score; --q)
+                *q = *(q - 1);
+            *q = tmp;
+        }
     }
 }
 
 // Gives a score to each move left in the list
-static void ScoreMoves(MoveList *list, const Thread *thread, const int stage) {
+static void ScoreMoves(MoveList *list, const Thread *thread, const int stage, Depth depth) {
 
     const Position *pos = &thread->pos;
 
@@ -72,7 +74,7 @@ static void ScoreMoves(MoveList *list, const Thread *thread, const int stage) {
                                                    + PieceValue[MG][pieceOn(toSq(move))];
     }
 
-    SortMoves(list);
+    SortMoves(list, -1000 * depth);
 }
 
 // Returns the next move to try in a position
@@ -92,7 +94,7 @@ Move NextMove(MovePicker *mp) {
             // fall through
         case GEN_NOISY:
             GenNoisyMoves(pos, &mp->list);
-            ScoreMoves(&mp->list, mp->thread, GEN_NOISY);
+            ScoreMoves(&mp->list, mp->thread, GEN_NOISY, mp->depth);
             mp->stage++;
 
             // fall through
@@ -125,7 +127,7 @@ Move NextMove(MovePicker *mp) {
         case GEN_QUIET:
             if (!mp->onlyNoisy)
                 GenQuietMoves(pos, &mp->list),
-                ScoreMoves(&mp->list, mp->thread, GEN_QUIET);
+                ScoreMoves(&mp->list, mp->thread, GEN_QUIET, mp->depth);
 
             mp->stage++;
 
@@ -150,11 +152,12 @@ Move NextMove(MovePicker *mp) {
 }
 
 // Init normal movepicker
-void InitNormalMP(MovePicker *mp, Thread *thread, Move ttMove, Move kill1, Move kill2) {
+void InitNormalMP(MovePicker *mp, Thread *thread, Depth depth, Move ttMove, Move kill1, Move kill2) {
     mp->list.count = mp->list.next = 0;
     mp->thread    = thread;
     mp->ttMove    = MoveIsPseudoLegal(&thread->pos, ttMove) ? ttMove : NOMOVE;
     mp->stage     = mp->ttMove ? TTMOVE : GEN_NOISY;
+    mp->depth     = depth;
     mp->kill1     = kill1;
     mp->kill2     = kill2;
     mp->bads      = 0;
@@ -163,6 +166,6 @@ void InitNormalMP(MovePicker *mp, Thread *thread, Move ttMove, Move kill1, Move 
 
 // Init noisy movepicker
 void InitNoisyMP(MovePicker *mp, Thread *thread) {
-    InitNormalMP(mp, thread, NOMOVE, NOMOVE, NOMOVE);
+    InitNormalMP(mp, thread, 0, NOMOVE, NOMOVE, NOMOVE);
     mp->onlyNoisy = true;
 }
