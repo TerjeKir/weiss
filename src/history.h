@@ -60,7 +60,7 @@ INLINE void UpdateQuietHistory(Thread *thread, Stack *ss, Move bestMove, Depth d
             HistoryBonus(ContEntry(prevMove2, bestMove), bonus);
     }
 
-    // If bestMove is quiet, penalize quiet moves that failed to produce a cut
+    // Penalize quiet moves that failed to produce a cut
     for (int i = 0; i < qCount; ++i) {
         Move move = quiets[i];
         HistoryBonus(QuietEntry(move), -bonus);
@@ -78,7 +78,7 @@ INLINE void UpdateHistory(Thread *thread, Stack *ss, Move bestMove, Depth depth,
 
     int bonus = depth * depth;
 
-    // If bestMove is quiet, penalize quiet moves that failed to produce a cut
+    // Update quiet history if bestMove is quiet
     if (moveIsQuiet(bestMove))
         UpdateQuietHistory(thread, ss, bestMove, depth, quiets, qCount);
 
