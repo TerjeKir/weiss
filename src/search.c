@@ -370,7 +370,7 @@ move_loop:
 
             // Extend as this move seems forced
             if (score < threshold)
-                extension = 1 + (score + 200 < beta);
+                extension = 1 + (!pvNode && score + 200 < beta);
 
             // Replay ttMove
             MakeMove(pos, move);
