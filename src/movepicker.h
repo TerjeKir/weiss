@@ -29,6 +29,7 @@ typedef struct MovePicker {
     Thread *thread;
     MoveList list;
     MPStage stage;
+    Depth depth;
     Move ttMove, kill1, kill2;
     int bads;
     bool onlyNoisy;
@@ -36,5 +37,5 @@ typedef struct MovePicker {
 
 
 Move NextMove(MovePicker *mp);
-void InitNormalMP(MovePicker *mp, Thread *thread, Move ttMove, Move kill1, Move kill2);
+void InitNormalMP(MovePicker *mp, Thread *thread, Depth depth, Move ttMove, Move kill1, Move kill2);
 void InitNoisyMP(MovePicker *mp, Thread *thread);

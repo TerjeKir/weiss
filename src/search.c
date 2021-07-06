@@ -296,7 +296,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
 
 move_loop:
 
-    InitNormalMP(&mp, thread, ttMove, ss->killers[0], ss->killers[1]);
+    InitNormalMP(&mp, thread, depth, ttMove, ss->killers[0], ss->killers[1]);
 
     Move quiets[32] = { 0 };
     Move noisys[32] = { 0 };
