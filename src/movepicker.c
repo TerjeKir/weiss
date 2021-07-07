@@ -60,18 +60,11 @@ static void ScoreMoves(MoveList *list, const Thread *thread, const int stage, De
 
     const Position *pos = &thread->pos;
 
-    Move prevMove  = pos->histPly >= 1 ? history(-1).move : NOMOVE;
-    Move prevMove2 = pos->histPly >= 2 ? history(-2).move : NOMOVE;
-
     for (int i = list->next; i < list->count; ++i) {
-
         Move move = list->moves[i].move;
-
-        list->moves[i].score = stage == GEN_QUIET ?  *QuietEntry(move)
-                                                   + *ContEntry(prevMove, move)
-                                                   + *ContEntry(prevMove2, move)
-                                                  :  *NoisyEntry(move)
-                                                   + PieceValue[MG][pieceOn(toSq(move))];
+        list->moves[i].score =
+            stage == GEN_QUIET ? GetQuietHistory(thread, move)
+                               : GetCaptureHistory(thread, move) + PieceValue[MG][pieceOn(toSq(move))];
     }
 
     SortMoves(list, -1000 * depth);
