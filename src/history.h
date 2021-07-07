@@ -90,3 +90,24 @@ INLINE void UpdateHistory(Thread *thread, Stack *ss, Move bestMove, Depth depth,
     for (int i = 0; i < nCount; ++i)
         HistoryBonus(NoisyEntry(noisys[i]), -bonus);
 }
+
+INLINE int GetQuietHistory(const Thread *thread, Move move) {
+
+    const Position *pos = &thread->pos;
+
+    Move prevMove  = pos->histPly >= 1 ? history(-1).move : NOMOVE;
+    Move prevMove2 = pos->histPly >= 2 ? history(-2).move : NOMOVE;
+
+    return *QuietEntry(move)+ *ContEntry(prevMove, move)+ *ContEntry(prevMove2, move);
+}
+
+INLINE int GetCaptureHistory(const Thread *thread, Move move) {
+
+    const Position *pos = &thread->pos;
+
+    return *NoisyEntry(move);
+}
+
+INLINE int GetHistory(const Thread *thread, Move move) {
+    return moveIsQuiet(move) ? GetQuietHistory(thread, move) : GetCaptureHistory(thread, move);
+}

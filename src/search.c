@@ -313,7 +313,7 @@ move_loop:
 
         bool quiet = moveIsQuiet(move);
 
-        int histScore = mp.list.moves[mp.list.next-1].score;
+        int histScore = GetHistory(thread, move);
 
         // Misc pruning
         if (  !root
