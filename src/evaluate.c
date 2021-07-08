@@ -63,6 +63,7 @@ const int KingAtkPawn  = S( 48, 77);
 const int OpenForward  = S( 30, 28);
 const int SemiForward  = S(  9, 22);
 const int NBBehindPawn = S(  9, 36);
+const int RookBehindPasser = S( 14, 11);
 
 // Passed pawn
 const int PawnPassed[RANK_NB] = {
@@ -298,6 +299,8 @@ INLINE int EvalPieces(const Position *pos, EvalInfo *ei) {
 
 INLINE int EvalPassedPawns(const Position *pos, const EvalInfo *ei, const Color color) {
 
+    const Direction down = color == WHITE ? SOUTH : NORTH;
+
     int eval = 0;
 
     Bitboard passers = colorBB(color) & ei->passedPawns;
@@ -305,8 +308,13 @@ INLINE int EvalPassedPawns(const Position *pos, const EvalInfo *ei, const Color 
     while (passers) {
 
         Square sq = PopLsb(&passers);
+        int rank = RelativeRank(color, RankOf(sq));
 
-
+        if (rank > RANK_4)
+            if (colorPieceBB(color, ROOK) & Fill(BB(sq), down)) {
+                eval += RookBehindPasser;
+                TraceIncr(RookBehindPasser);
+            }
     }
 
     return eval;
