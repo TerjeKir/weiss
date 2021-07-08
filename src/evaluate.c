@@ -57,6 +57,7 @@ const int PawnSupport  = S( 18, 11);
 const int PawnThreat   = S( 60, 44);
 const int PushThreat   = S( 18, -2);
 const int PawnOpen     = S(-13, -9);
+const int PassedEdgeDist  = S( -4, -8);
 const int BishopPair   = S( 26,102);
 const int KingAtkPawn  = S( 48, 77);
 const int OpenForward  = S( 30, 28);
@@ -159,8 +160,15 @@ INLINE int EvalPawns(const Position *pos, const Color color) {
 
         // Passed pawns
         if (!((PassedMask[color][sq]) & colorPieceBB(!color, PAWN))) {
-            eval += PawnPassed[RelativeRank(color, RankOf(sq))];
-            TraceIncr(PawnPassed[RelativeRank(color, RankOf(sq))]);
+            int rank = RankOf(sq);
+            eval += PawnPassed[RelativeRank(color, rank)];
+            TraceIncr(PawnPassed[RelativeRank(color, rank)]);
+
+            // Edge distance
+            int file = FileOf(sq);
+            count = file <= FILE_D ? file : FILE_H - file;
+            eval += count * PassedEdgeDist;
+            TraceCount(PassedEdgeDist);
         }
     }
 
