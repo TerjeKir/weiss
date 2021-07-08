@@ -55,6 +55,7 @@ extern const int KingAtkPawn;
 extern const int OpenForward;
 extern const int SemiForward;
 extern const int NBBehindPawn;
+extern const int RookBehindPasser;
 
 // Passed pawn
 extern const int PawnPassed[RANK_NB];
@@ -210,6 +211,7 @@ void InitBaseParams(TVector tparams) {
     InitBaseSingle(OpenForward);
     InitBaseSingle(SemiForward);
     InitBaseSingle(NBBehindPawn);
+    InitBaseSingle(RookBehindPasser);
 
     // Passed pawns
     InitBaseArray(PawnPassed, RANK_NB);
@@ -262,6 +264,7 @@ void PrintParameters(TVector params, TVector current) {
     PrintSingle("OpenForward", tparams, i++, " ");
     PrintSingle("SemiForward", tparams, i++, " ");
     PrintSingle("NBBehindPawn", tparams, i++, "");
+    PrintSingle("RookBehindPasser", tparams, i++, "");
 
     puts("\n// Passed pawn");
     PrintArray("PawnPassed", tparams, i, 8, "[RANK_NB]");
@@ -319,6 +322,7 @@ void InitCoefficients(TCoeffs coeffs) {
     InitCoeffSingle(OpenForward);
     InitCoeffSingle(SemiForward);
     InitCoeffSingle(NBBehindPawn);
+    InitCoeffSingle(RookBehindPasser);
 
     // Passed pawns
     InitCoeffArray(PawnPassed, RANK_NB);
