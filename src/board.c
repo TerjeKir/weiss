@@ -368,7 +368,6 @@ bool PositionOk(const Position *pos) {
     int nonPawnCount[COLOR_NB] = { 0, 0 };
 
     for (Square sq = A1; sq <= H8; ++sq) {
-
         Piece piece = pieceOn(sq);
         counts[piece]++;
         Color color = ColorOf(piece);
@@ -376,7 +375,6 @@ bool PositionOk(const Position *pos) {
     }
 
     for (Color c = BLACK; c <= WHITE; ++c) {
-
         assert(PopCount(colorPieceBB(c, PAWN))   == counts[MakePiece(c, PAWN)]);
         assert(PopCount(colorPieceBB(c, KNIGHT)) == counts[MakePiece(c, KNIGHT)]);
         assert(PopCount(colorPieceBB(c, BISHOP)) == counts[MakePiece(c, BISHOP)]);
@@ -384,7 +382,6 @@ bool PositionOk(const Position *pos) {
         assert(PopCount(colorPieceBB(c, QUEEN))  == counts[MakePiece(c, QUEEN)]);
         assert(PopCount(colorPieceBB(c, KING))   == 1);
         assert(counts[MakePiece(c, KING)] == 1);
-
         assert(nonPawnCount[c] == pos->nonPawnCount[c]);
     }
 
@@ -392,11 +389,9 @@ bool PositionOk(const Position *pos) {
 
     assert(sideToMove == WHITE || sideToMove == BLACK);
 
-    assert(!pos->epSquare
-       || (RelativeRank(sideToMove, RankOf(pos->epSquare)) == RANK_6));
+    assert(!pos->epSquare || (RelativeRank(sideToMove, RankOf(pos->epSquare)) == RANK_6));
 
-    assert(pos->castlingRights >= 0
-        && pos->castlingRights <= 15);
+    assert(pos->castlingRights >= 0 && pos->castlingRights <= 15);
 
     assert(GenPosKey(pos) == pos->key);
     assert(GenPawnKey(pos) == pos->pawnKey);
@@ -404,39 +399,5 @@ bool PositionOk(const Position *pos) {
     assert(!KingAttacked(pos, !sideToMove));
 
     return true;
-}
-#endif
-
-#ifdef DEV
-// Reverse the colors
-void MirrorBoard(Position *pos) {
-
-    // Save the necessary position info mirrored
-    uint8_t board[64];
-    for (Square sq = A1; sq <= H8; ++sq)
-        board[sq] = MirrorPiece(pieceOn(MirrorSquare(sq)));
-
-    Color stm = !sideToMove;
-    Square ep = pos->epSquare == 0 ? 0 : MirrorSquare(pos->epSquare);
-    uint8_t cr = (pos->castlingRights & WHITE_CASTLE) << 2
-               | (pos->castlingRights & BLACK_CASTLE) >> 2;
-
-    // Clear the position
-    memset(pos, 0, sizeof(Position));
-
-    // Fill in the mirrored position info
-    for (Square sq = A1; sq <= H8; ++sq)
-        if (board[sq]) AddPiece(pos, sq, board[sq]);
-
-    sideToMove = stm;
-    pos->epSquare = ep;
-    pos->castlingRights = cr;
-
-    // Final initializations
-    pos->checkers = Checkers(pos);
-    pos->key = GenPosKey(pos);
-    pos->phase = UpdatePhase(pos->phaseValue);
-
-    assert(PositionOk(pos));
 }
 #endif
