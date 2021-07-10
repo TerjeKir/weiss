@@ -82,7 +82,6 @@ bool PositionOk(const Position *pos);
 #endif
 #ifdef DEV
 void PrintBoard(const Position *pos);
-void MirrorBoard(Position *pos);
 #endif
 
 // Mirrors a square horizontally

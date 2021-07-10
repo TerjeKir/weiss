@@ -406,37 +406,3 @@ bool PositionOk(const Position *pos) {
     return true;
 }
 #endif
-
-#ifdef DEV
-// Reverse the colors
-void MirrorBoard(Position *pos) {
-
-    // Save the necessary position info mirrored
-    uint8_t board[64];
-    for (Square sq = A1; sq <= H8; ++sq)
-        board[sq] = MirrorPiece(pieceOn(MirrorSquare(sq)));
-
-    Color stm = !sideToMove;
-    Square ep = pos->epSquare == 0 ? 0 : MirrorSquare(pos->epSquare);
-    uint8_t cr = (pos->castlingRights & WHITE_CASTLE) << 2
-               | (pos->castlingRights & BLACK_CASTLE) >> 2;
-
-    // Clear the position
-    memset(pos, 0, sizeof(Position));
-
-    // Fill in the mirrored position info
-    for (Square sq = A1; sq <= H8; ++sq)
-        if (board[sq]) AddPiece(pos, sq, board[sq]);
-
-    sideToMove = stm;
-    pos->epSquare = ep;
-    pos->castlingRights = cr;
-
-    // Final initializations
-    pos->checkers = Checkers(pos);
-    pos->key = GenPosKey(pos);
-    pos->phase = UpdatePhase(pos->phaseValue);
-
-    assert(PositionOk(pos));
-}
-#endif
