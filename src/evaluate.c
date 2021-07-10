@@ -327,8 +327,7 @@ INLINE void InitEvalInfo(const Position *pos, EvalInfo *ei, const Color color) {
     ei->mobilityArea[color] = ~(b | PawnBBAttackBB(colorPieceBB(!color, PAWN), !color));
 
     // King Safety
-    b = AttackBB(KING, kingSq(color), 0);
-    ei->kingZone[color] = b | ShiftBB(b, down);
+    ei->kingZone[color] = AttackBB(KING, kingSq(color), 0);
 
     ei->attackPower[color] = -30;
     ei->attackCount[color] = 0;
