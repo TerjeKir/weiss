@@ -105,8 +105,8 @@ const int Mobility[4][28] = {
 };
 
 // KingSafety [pt-2]
-const int AttackPower[4] = {  35, 20, 40, 80 };
-const int CheckPower[4]  = { 100, 35, 65, 65 };
+int AttackPower[4] = {  35, 20, 40, 80 };
+int CheckPower[4]  = { 100, 35, 65, 65 };
 const int CountModifier[8] = { 0, 0, 64, 96, 113, 120, 124, 128 };
 
 

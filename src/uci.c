@@ -93,6 +93,9 @@ static void Pos(Position *pos, char *str) {
     pos->nodes = 0;
 }
 
+extern int AttackPower[4];
+extern int CheckPower[4];
+
 // Parses a 'setoption' and updates settings
 static void SetOption(char *str) {
 
@@ -116,6 +119,24 @@ static void SetOption(char *str) {
     // Toggles probing of Chess Cloud Database
     } else if (OptionName(str, "NoobBook")) {
         noobbook = !strncmp(OptionValue(str), "true", 4);
+
+    // King Safety Tuning
+    } else if (OptionName(str, "AttackPower1")) {
+        AttackPower[0] = atoi(OptionValue(str));
+    } else if (OptionName(str, "AttackPower2")) {
+        AttackPower[1] = atoi(OptionValue(str));
+    } else if (OptionName(str, "AttackPower3")) {
+        AttackPower[2] = atoi(OptionValue(str));
+    } else if (OptionName(str, "AttackPower4")) {
+        AttackPower[3] = atoi(OptionValue(str));
+    } else if (OptionName(str, "CheckPower1")) {
+        CheckPower[0] = atoi(OptionValue(str));
+    } else if (OptionName(str, "CheckPower2")) {
+        CheckPower[1] = atoi(OptionValue(str));
+    } else if (OptionName(str, "CheckPower3")) {
+        CheckPower[2] = atoi(OptionValue(str));
+    } else if (OptionName(str, "CheckPower4")) {
+        CheckPower[3] = atoi(OptionValue(str));
 
     } else {
         puts("No such option.");
