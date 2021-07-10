@@ -25,7 +25,7 @@
 
 typedef struct EvalInfo {
     Bitboard mobilityArea[COLOR_NB];
-    Bitboard enemyKingZone[COLOR_NB];
+    Bitboard kingZone[COLOR_NB];
     int16_t attackPower[COLOR_NB];
     int16_t attackCount[COLOR_NB];
 } EvalInfo;
@@ -221,7 +221,7 @@ INLINE int EvalPiece(const Position *pos, EvalInfo *ei, const Color color, const
         TraceIncr(Mobility[pt-2][mob]);
 
         // Attacks for king safety calculations
-        int attacks = PopCount(mobilityBB & ei->enemyKingZone[color]);
+        int attacks = PopCount(mobilityBB & ei->kingZone[!color]);
         int checks  = PopCount(mobilityBB & AttackBB(pt, kingSq(!color), pieceBB(ALL)));
 
         if (attacks > 0 || checks > 0) {
@@ -317,7 +317,6 @@ INLINE int EvalThreats(const Position *pos, const Color color) {
 // Initializes the eval info struct
 INLINE void InitEvalInfo(const Position *pos, EvalInfo *ei, const Color color) {
 
-    const Direction up   = (color == WHITE ? NORTH : SOUTH);
     const Direction down = (color == WHITE ? SOUTH : NORTH);
 
     Bitboard b, pawns = colorPieceBB(color, PAWN);
@@ -328,8 +327,8 @@ INLINE void InitEvalInfo(const Position *pos, EvalInfo *ei, const Color color) {
     ei->mobilityArea[color] = ~(b | PawnBBAttackBB(colorPieceBB(!color, PAWN), !color));
 
     // King Safety
-    b = AttackBB(KING, kingSq(!color), 0);
-    ei->enemyKingZone[color] = b | ShiftBB(b, up);
+    b = AttackBB(KING, kingSq(color), 0);
+    ei->kingZone[color] = b | ShiftBB(b, down);
 
     ei->attackPower[color] = -30;
     ei->attackCount[color] = 0;
