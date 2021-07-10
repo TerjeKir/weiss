@@ -134,7 +134,7 @@ INLINE Bitboard ShiftBB(Bitboard bb, const Direction dir) {
 
 // Fills a bitboard in either vertical direction
 INLINE Bitboard Fill(Bitboard bb, const Direction dir) {
-    assert(dir & 7 == 0);
+    assert((dir & 7) == 0);
     bb |= ShiftBB(bb, dir);
     bb |= ShiftBB(bb, dir * 2);
     bb |= ShiftBB(bb, dir * 4);
@@ -214,6 +214,5 @@ bool SqAttacked(const Position *pos, Square sq, Color color);
 bool KingAttacked(const Position *pos, Color color);
 
 INLINE Bitboard Checkers(const Position *pos) {
-    return colorBB(!sideToMove)
-         & Attackers(pos, kingSq(sideToMove), pieceBB(ALL));
+    return colorBB(!sideToMove) & Attackers(pos, kingSq(sideToMove), pieceBB(ALL));
 }
