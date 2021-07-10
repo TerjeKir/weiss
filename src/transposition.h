@@ -32,7 +32,7 @@
 
 #define ValidBound(bound) (bound >= BOUND_UPPER && bound <= BOUND_EXACT)
 #define ValidScore(score) (score >= -MATE && score <= MATE)
-#define ValidDepth(depth) (depth >= 1 && depth <= MAXDEPTH)
+#define ValidDepth(depth) (depth >= 1 && depth <= MAX_PLY)
 
 
 enum { BOUND_NONE, BOUND_UPPER, BOUND_LOWER, BOUND_EXACT };
