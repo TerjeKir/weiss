@@ -368,7 +368,6 @@ bool PositionOk(const Position *pos) {
     int nonPawnCount[COLOR_NB] = { 0, 0 };
 
     for (Square sq = A1; sq <= H8; ++sq) {
-
         Piece piece = pieceOn(sq);
         counts[piece]++;
         Color color = ColorOf(piece);
@@ -376,7 +375,6 @@ bool PositionOk(const Position *pos) {
     }
 
     for (Color c = BLACK; c <= WHITE; ++c) {
-
         assert(PopCount(colorPieceBB(c, PAWN))   == counts[MakePiece(c, PAWN)]);
         assert(PopCount(colorPieceBB(c, KNIGHT)) == counts[MakePiece(c, KNIGHT)]);
         assert(PopCount(colorPieceBB(c, BISHOP)) == counts[MakePiece(c, BISHOP)]);
@@ -384,7 +382,6 @@ bool PositionOk(const Position *pos) {
         assert(PopCount(colorPieceBB(c, QUEEN))  == counts[MakePiece(c, QUEEN)]);
         assert(PopCount(colorPieceBB(c, KING))   == 1);
         assert(counts[MakePiece(c, KING)] == 1);
-
         assert(nonPawnCount[c] == pos->nonPawnCount[c]);
     }
 
@@ -392,11 +389,9 @@ bool PositionOk(const Position *pos) {
 
     assert(sideToMove == WHITE || sideToMove == BLACK);
 
-    assert(!pos->epSquare
-       || (RelativeRank(sideToMove, RankOf(pos->epSquare)) == RANK_6));
+    assert(!pos->epSquare || (RelativeRank(sideToMove, RankOf(pos->epSquare)) == RANK_6));
 
-    assert(pos->castlingRights >= 0
-        && pos->castlingRights <= 15);
+    assert(pos->castlingRights >= 0 && pos->castlingRights <= 15);
 
     assert(GenPosKey(pos) == pos->key);
     assert(GenPawnKey(pos) == pos->pawnKey);
