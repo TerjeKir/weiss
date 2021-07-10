@@ -35,8 +35,8 @@ typedef struct EvalInfo {
 const int PhaseValue[TYPE_NB] = { 0, 0, 1, 1, 2, 4, 0, 0 };
 
 // Piecetype values, combines with PSQTs [piecetype]
-const int PieceTypeValue[7] = {
-    0, S(P_MG, P_EG), S(N_MG, N_EG), S(B_MG, B_EG), S(R_MG, R_EG), S(Q_MG, Q_EG), 0
+const int PieceTypeValue[TYPE_NB] = {
+    0, S(P_MG, P_EG), S(N_MG, N_EG), S(B_MG, B_EG), S(R_MG, R_EG), S(Q_MG, Q_EG), 0, 0
 };
 
 // Phase piece values, lookup used for futility pruning [phase][piece]
