@@ -21,6 +21,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "move.h"
 #include "threads.h"
 
 
@@ -65,12 +66,18 @@ uint64_t TotalTBHits() {
 
 // Setup threads for a new search
 void PrepareSearch(Position *pos) {
+
+    Move prevMove  = pos->histPly >= 1 ? history(-1).move : NOMOVE;
+    Move prevMove2 = pos->histPly >= 2 ? history(-2).move : NOMOVE;
+
     for (Thread *t = threads; t < threads + threads->count; ++t) {
         memset(t, 0, offsetof(Thread, pos));
         memcpy(&t->pos, pos, sizeof(Position));
         t->nullMover = -1;
         for (Depth d = 0; d <= MAX_PLY; ++d)
             (t->ss+SS_OFFSET+d)->ply = d;
+        (t->ss+SS_OFFSET-0)->contHistory = prevMove  ? &t->contHistory[pieceOn(toSq(prevMove ))][toSq(prevMove )] : NULL;
+        (t->ss+SS_OFFSET-1)->contHistory = prevMove2 ? &t->contHistory[pieceOn(toSq(prevMove2))][toSq(prevMove2)] : NULL;
     }
 }
 

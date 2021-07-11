@@ -91,17 +91,14 @@ INLINE void UpdateHistory(Thread *thread, Stack *ss, Move bestMove, Depth depth,
         HistoryBonus(NoisyEntry(noisys[i]), -bonus);
 }
 
-INLINE int GetQuietHistory(const Thread *thread, Move move) {
+INLINE int GetQuietHistory(const Thread *thread, Move move, PieceToHistory *cmh, PieceToHistory *fmh) {
 
     const Position *pos = &thread->pos;
 
-    Move prevMove  = pos->histPly >= 1 ? history(-1).move : NOMOVE;
-    Move prevMove2 = pos->histPly >= 2 ? history(-2).move : NOMOVE;
+    int x = cmh ? *cmh[pieceOn(fromSq(move))][toSq(move)] : 0;
+    int y = fmh ? *fmh[pieceOn(fromSq(move))][toSq(move)] : 0;
 
-    int cmh = prevMove  ? *ContEntry(prevMove,  move) : 0;
-    int fmh = prevMove2 ? *ContEntry(prevMove2, move) : 0;
-
-    return *QuietEntry(move) + cmh + fmh;
+    return *QuietEntry(move) + x + y;
 }
 
 INLINE int GetCaptureHistory(const Thread *thread, Move move) {
@@ -111,6 +108,6 @@ INLINE int GetCaptureHistory(const Thread *thread, Move move) {
     return *NoisyEntry(move);
 }
 
-INLINE int GetHistory(const Thread *thread, Move move) {
-    return moveIsQuiet(move) ? GetQuietHistory(thread, move) : GetCaptureHistory(thread, move);
+INLINE int GetHistory(const Thread *thread, Move move, Stack *ss) {
+    return moveIsQuiet(move) ? GetQuietHistory(thread, move, (ss-1)->contHistory, (ss-2)->contHistory) : GetCaptureHistory(thread, move);
 }

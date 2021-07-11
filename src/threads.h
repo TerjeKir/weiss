@@ -34,6 +34,7 @@ typedef int16_t PieceToHistory[PIECE_NB][64];
 typedef PieceToHistory ContinuationHistory[PIECE_NB][64];
 
 typedef struct {
+    PieceToHistory *contHistory;
     int eval;
     Depth ply;
     Move excluded;
