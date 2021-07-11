@@ -87,7 +87,7 @@ Move NextMove(MovePicker *mp) {
             // fall through
         case GEN_NOISY:
             GenNoisyMoves(pos, &mp->list);
-            ScoreMoves(&mp->list, mp->thread, GEN_NOISY, mp->depth, mp->cmh, mp->fmh);
+            ScoreMoves(&mp->list, mp->thread, GEN_NOISY, mp->depth, NULL, NULL);
             mp->stage++;
 
             // fall through
