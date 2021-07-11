@@ -52,7 +52,7 @@ INLINE void UpdateQuietHistory(Thread *thread, Stack *ss, Move bestMove, Depth d
     int bonus = depth * depth;
 
     // Bonus to the move that caused the beta cutoff
-    if (depth > 1) {
+    if (depth > 2) {
         HistoryBonus(QuietEntry(bestMove), bonus);
         if (prevMove)
             HistoryBonus(ContEntry(prevMove, bestMove), bonus);
