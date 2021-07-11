@@ -98,7 +98,10 @@ INLINE int GetQuietHistory(const Thread *thread, Move move) {
     Move prevMove  = pos->histPly >= 1 ? history(-1).move : NOMOVE;
     Move prevMove2 = pos->histPly >= 2 ? history(-2).move : NOMOVE;
 
-    return *QuietEntry(move)+ *ContEntry(prevMove, move)+ *ContEntry(prevMove2, move);
+    int cmh = prevMove  ? *ContEntry(prevMove,  move) : 0;
+    int fmh = prevMove2 ? *ContEntry(prevMove2, move) : 0;
+
+    return *QuietEntry(move) + cmh + fmh;
 }
 
 INLINE int GetCaptureHistory(const Thread *thread, Move move) {
