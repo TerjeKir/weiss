@@ -28,7 +28,7 @@
 
 #define QuietEntry(move) &thread->history[sideToMove][fromSq(move)][toSq(move)]
 #define NoisyEntry(move) &thread->captureHistory[pieceOn(fromSq(move))][toSq(move)][PieceTypeOf(capturing(move))]
-#define ContEntry(prev, move) &thread->continuation[pieceOn(toSq(prev))][toSq(prev)][pieceOn(fromSq(move))][toSq(move)]
+#define ContEntry(prev, move) &thread->contHistory[pieceOn(toSq(prev))][toSq(prev)][pieceOn(fromSq(move))][toSq(move)]
 
 
 INLINE void HistoryBonus(int16_t *cur, int bonus) {

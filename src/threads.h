@@ -28,6 +28,11 @@
 #define SS_OFFSET 10
 
 
+typedef int16_t ButterflyHistory[COLOR_NB][64][64];
+typedef int16_t CaptureHistory[PIECE_NB][64][TYPE_NB];
+typedef int16_t PieceToHistory[PIECE_NB][64];
+typedef PieceToHistory ContinuationHistory[PIECE_NB][64];
+
 typedef struct {
     int eval;
     Depth ply;
@@ -50,9 +55,9 @@ typedef struct Thread {
     // Anything below here is not zeroed out between searches
     Position pos;
     PawnCache pawnCache;
-    int16_t history[COLOR_NB][64][64];
-    int16_t captureHistory[PIECE_NB][64][TYPE_NB];
-    int16_t continuation[PIECE_NB][64][PIECE_NB][64];
+    ButterflyHistory history;
+    CaptureHistory captureHistory;
+    ContinuationHistory contHistory;
 
     int index;
     int count;
