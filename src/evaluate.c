@@ -107,7 +107,8 @@ const int Mobility[4][28] = {
 // KingSafety [pt-2]
 int AttackPower[4] = {  35, 20, 40, 80 };
 int CheckPower[4]  = { 100, 35, 65, 65 };
-const int CountModifier[8] = { 0, 0, 64, 96, 113, 120, 124, 128 };
+int CountModifier[8] = { 0, 0, 64, 96, 113, 120, 124, 128 };
+int BasePower = -30;
 
 
 // Evaluates pawns
@@ -329,7 +330,7 @@ INLINE void InitEvalInfo(const Position *pos, EvalInfo *ei, const Color color) {
     // King Safety
     ei->kingZone[color] = AttackBB(KING, kingSq(color), 0);
 
-    ei->attackPower[color] = -30;
+    ei->attackPower[color] = BasePower;
     ei->attackCount[color] = 0;
 }
 

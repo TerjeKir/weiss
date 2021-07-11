@@ -95,6 +95,8 @@ static void Pos(Position *pos, char *str) {
 
 extern int AttackPower[4];
 extern int CheckPower[4];
+extern int CountModifier[8];
+extern int BasePower;
 
 // Parses a 'setoption' and updates settings
 static void SetOption(char *str) {
@@ -129,6 +131,7 @@ static void SetOption(char *str) {
         AttackPower[2] = atoi(OptionValue(str));
     } else if (OptionName(str, "AttackPower4")) {
         AttackPower[3] = atoi(OptionValue(str));
+
     } else if (OptionName(str, "CheckPower1")) {
         CheckPower[0] = atoi(OptionValue(str));
     } else if (OptionName(str, "CheckPower2")) {
@@ -137,6 +140,22 @@ static void SetOption(char *str) {
         CheckPower[2] = atoi(OptionValue(str));
     } else if (OptionName(str, "CheckPower4")) {
         CheckPower[3] = atoi(OptionValue(str));
+
+    } else if (OptionName(str, "CountModifier3")) {
+        CountModifier[2] = atoi(OptionValue(str));
+    } else if (OptionName(str, "CountModifier4")) {
+        CountModifier[3] = atoi(OptionValue(str));
+    } else if (OptionName(str, "CountModifier5")) {
+        CountModifier[4] = atoi(OptionValue(str));
+    } else if (OptionName(str, "CountModifier6")) {
+        CountModifier[5] = atoi(OptionValue(str));
+    } else if (OptionName(str, "CountModifier7")) {
+        CountModifier[6] = atoi(OptionValue(str));
+    } else if (OptionName(str, "CountModifier8")) {
+        CountModifier[7] = atoi(OptionValue(str));
+
+    } else if (OptionName(str, "BasePower")) {
+        BasePower = atoi(OptionValue(str));
 
     } else {
         puts("No such option.");
