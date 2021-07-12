@@ -163,6 +163,27 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
     if (depth <= 0)
         return Quiescence(thread, ss, alpha, beta);
 
+    int bestScore = -INFINITE;
+    int maxScore  =  INFINITE;
+
+    // Probe syzygy TBs
+    int tbScore, bound;
+    if (ProbeWDL(pos, &tbScore, &bound, ss->ply)) {
+
+        thread->tbhits++;
+
+        if (bound == BOUND_EXACT || (bound == BOUND_LOWER ? tbScore >= beta : tbScore <= alpha))
+            return tbScore;
+
+        if (pvNode) {
+            if (bound == BOUND_LOWER)
+                bestScore = tbScore,
+                alpha = MAX(alpha, tbScore);
+            else
+                maxScore = tbScore;
+        }
+    }
+
     // Probe transposition table
     bool ttHit;
     Key key = pos->key ^ (((Key)ss->excluded) << 32);
@@ -181,29 +202,6 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
             HistoryBonus(QuietEntry(ttMove), depth*depth);
 
         return ttScore;
-    }
-
-    int bestScore = -INFINITE;
-    int maxScore  =  INFINITE;
-
-    // Probe syzygy TBs
-    int tbScore, bound;
-    if (ProbeWDL(pos, &tbScore, &bound, ss->ply)) {
-
-        thread->tbhits++;
-
-        if (bound == BOUND_EXACT || (bound == BOUND_LOWER ? tbScore >= beta : tbScore <= alpha)) {
-            StoreTTEntry(tte, key, NOMOVE, ScoreToTT(tbScore, ss->ply), MAX_PLY, bound);
-            return tbScore;
-        }
-
-        if (pvNode) {
-            if (bound == BOUND_LOWER)
-                bestScore = tbScore,
-                alpha = MAX(alpha, tbScore);
-            else
-                maxScore = tbScore;
-        }
     }
 
     // Do a static evaluation for pruning considerations
