@@ -83,7 +83,7 @@ INLINE void UpdateHistory(Thread *thread, Stack *ss, Move bestMove, Depth depth,
         UpdateQuietHistory(thread, ss, bestMove, depth, quiets, qCount);
 
     // Bonus to the move that caused the beta cutoff
-    if (depth > 1 && !moveIsQuiet(bestMove))
+    if (depth > 2 && !moveIsQuiet(bestMove))
         HistoryBonus(NoisyEntry(bestMove), bonus);
 
     // Penalize noisy moves that failed to produce a cut
