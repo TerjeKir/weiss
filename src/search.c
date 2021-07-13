@@ -229,7 +229,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
 
     // Razoring
     if (   depth < 2
-        && eval + 640 < alpha)
+        && eval + 500 < alpha)
         return Quiescence(thread, ss, alpha, beta);
 
     // Reverse Futility Pruning
