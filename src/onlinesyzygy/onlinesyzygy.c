@@ -40,27 +40,18 @@
 #define WSACleanup()
 #endif
 
-#include "noobprobe.h"
 #include "../board.h"
 #include "../move.h"
 #include "../threads.h"
 
 
-bool noobbook;
-int failedQueries;
-int noobLimit;
+bool onlineSyzygy = false;
 
 
 static void error(const char *msg) { perror(msg); exit(0); }
 
-// Probes noobpwnftw's Chess Cloud Database
-bool ProbeNoob(Position *pos) {
-
-    // Stop querying after 3 failures or at the specified depth
-    if (  !noobbook
-        || failedQueries >= 3
-        || (noobLimit && pos->gameMoves > noobLimit))
-        return false;
+// Probes lichess syzygy
+bool SyzygyProbe(Position *pos, unsigned *wdl, unsigned *dtz, Move *move) {
 
     // Setup sockets on windows, does nothing on linux
     WSADATA wsaData;
@@ -68,10 +59,14 @@ bool ProbeNoob(Position *pos) {
         error("WSAStartup failed.");
 
     // Make the message
-    char *message_fmt = "GET http://www.chessdb.cn/cdb.php?action=querybest&board=%s\r\n\r\n";
-    char message[256], response[32];
+    char *message_fmt = "GET http://tablebase.lichess.ovh/standard?fen=%s\n";
+    char message[256], response[16384];
 
     sprintf(message, message_fmt, BoardToFen(pos));
+
+    char *current_pos = strchr(message + 4, ' ');
+    while ((current_pos = strchr(message + 4, ' ')) != NULL)
+        *current_pos = '_';
 
     // Create socket
     SOCKET sockfd;
@@ -80,7 +75,7 @@ bool ProbeNoob(Position *pos) {
 
     // Lookup IP address
     HOSTENT *hostent;
-    if ((hostent = gethostbyname("www.chessdb.cn")) == NULL)
+    if ((hostent = gethostbyname("tablebase.lichess.ovh")) == NULL)
         error("ERROR no such host");
 
     // Fill in server struct
@@ -106,11 +101,12 @@ bool ProbeNoob(Position *pos) {
     close(sockfd);
     WSACleanup();
 
-    // On success the response will be "move:[MOVE]"
-    if (strstr(response, "move") != response)
-        return failedQueries++, false;
+    if (strstr(response, "uci") == NULL)
+        return false;
 
-    threads->bestMove = ParseMove(&response[5], pos);
+    *move = ParseMove(strstr(response, "uci") + 6, pos);
+    *wdl = 2 + atoi(strstr(response, "wdl") + 5);
+    *dtz =     atoi(strstr(response, "dtz") + 5);
 
-    return failedQueries = 0, true;
+    return true;
 }

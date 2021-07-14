@@ -21,6 +21,7 @@
 
 #include "pyrrhic/tbprobe.h"
 #include "noobprobe/noobprobe.h"
+#include "onlinesyzygy/onlinesyzygy.h"
 #include "tuner/tuner.h"
 #include "board.h"
 #include "makemove.h"
@@ -117,6 +118,10 @@ static void SetOption(char *str) {
     } else if (OptionName(str, "NoobBook")) {
         noobbook = !strncmp(OptionValue(str), "true", 4);
 
+    // Toggles probing of Chess Cloud Database
+    } else if (OptionName(str, "OnlineSyzygy")) {
+        onlineSyzygy = !strncmp(OptionValue(str), "true", 4);
+
     } else {
         puts("No such option.");
     }
@@ -133,6 +138,7 @@ static void Info() {
     printf("option name SyzygyPath type string default <empty>\n");
     printf("option name NoobBook type check default false\n");
     printf("option name NoobBookLimit type spin default 0 min 0 max 1000\n");
+    printf("option name OnlineSyzygy type check default false\n");
     printf("uciok\n"); fflush(stdout);
 }
 

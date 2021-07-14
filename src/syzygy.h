@@ -20,6 +20,7 @@
 
 #include <stdio.h>
 
+#include "onlinesyzygy/onlinesyzygy.h"
 #include "pyrrhic/tbprobe.h"
 #include "bitboard.h"
 #include "move.h"
@@ -70,11 +71,21 @@ bool ProbeWDL(const Position *pos, int *score, int *bound, int ply) {
 // Calls pyrrhic to get optimal moves in tablebase positions in root
 bool RootProbe(Position *pos) {
 
-    // Tablebases contain no positions with castling legal,
-    // and if there are too many pieces a probe will fail
-    if (   pos->castlingRights
-        || PopCount(pieceBB(ALL)) > TB_LARGEST)
+    unsigned wdl, dtz, from, to, promo;
+    Move move;
+
+    // Tablebases contain no positions with castling legal
+    if (pos->castlingRights)
         return false;
+
+    int pieceCount = PopCount(pieceBB(ALL));
+
+    // Probe online syzygy if allowed
+    if (onlineSyzygy && pieceCount > TB_LARGEST && pieceCount <= 7) {
+        if (SyzygyProbe(pos, &wdl, &dtz, &move))
+            goto done;
+        return false;
+    }
 
     // Call pyrrhic
     unsigned result = tb_probe_root(
@@ -90,8 +101,6 @@ bool RootProbe(Position *pos) {
         || result == TB_RESULT_STALEMATE)
         return false;
 
-    unsigned wdl, dtz, from, to, promo;
-
     // Extract information
     wdl   = TB_GET_WDL(result);
     dtz   = TB_GET_DTZ(result);
@@ -99,17 +108,16 @@ bool RootProbe(Position *pos) {
     to    = TB_GET_TO(result);
     promo = TB_GET_PROMOTES(result);
 
-    // Calculate score to print
-    int score = TBScore(wdl, dtz);
-
     // Construct the move to print, ignoring capture and
     // flag fields as they aren't needed for printing
-    Move move = MOVE(from, to, 0, promo ? 6 - promo : 0, 0);
+    move = MOVE(from, to, 0, promo ? 6 - promo : 0, 0);
+
+done:
 
     // Print thinking info
     printf("info depth %d seldepth %d score cp %d "
            "time 0 nodes 0 nps 0 tbhits 1 pv %s\n",
-           MAX_PLY, MAX_PLY, score, MoveToStr(move));
+           MAX_PLY, MAX_PLY, TBScore(wdl, dtz), MoveToStr(move));
     fflush(stdout);
 
     // Set move to be printed as conclusion
