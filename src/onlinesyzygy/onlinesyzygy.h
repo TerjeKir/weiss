@@ -23,4 +23,4 @@
 extern bool onlineSyzygy;
 
 
-bool SyzygyProbe(Position *pos);
+bool SyzygyProbe(Position *pos, unsigned *wdl, unsigned *dtz, Move *move);

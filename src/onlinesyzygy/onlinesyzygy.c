@@ -47,19 +47,11 @@
 
 bool onlineSyzygy = false;
 
-// Converts a tbresult into a score
-static int TBScore(const unsigned result, const int distance) {
-    return result == 4 ?  TBWIN - distance
-         : result == 0 ? -TBWIN + distance
-                       :  0;
-}
-
-
 
 static void error(const char *msg) { perror(msg); exit(0); }
 
 // Probes lichess syzygy
-bool SyzygyProbe(Position *pos) {
+bool SyzygyProbe(Position *pos, unsigned *wdl, unsigned *dtz, Move *move) {
 
     // Setup sockets on windows, does nothing on linux
     WSADATA wsaData;
@@ -72,8 +64,8 @@ bool SyzygyProbe(Position *pos) {
 
     sprintf(message, message_fmt, BoardToFen(pos));
 
-    char *current_pos = strchr(message+4, ' ');
-    while ((current_pos = strchr(message+4, ' ')) != NULL)
+    char *current_pos = strchr(message + 4, ' ');
+    while ((current_pos = strchr(message + 4, ' ')) != NULL)
         *current_pos = '_';
 
     // Create socket
@@ -112,19 +104,9 @@ bool SyzygyProbe(Position *pos) {
     if (strstr(response, "uci") == NULL)
         return false;
 
-    Move move = ParseMove(strstr(response, "uci") + 6, pos);
-
-    int wdl = 2 + atoi(strstr(response, "wdl") + 5);
-    int dtz = atoi(strstr(response, "dtz") + 5);
-
-    int score = TBScore(wdl, dtz);
-
-    threads->bestMove = move;
-
-    printf("info depth %d seldepth %d score cp %d "
-        "time 0 nodes 0 nps 0 tbhits 1 pv %s\n",
-        MAX_PLY, MAX_PLY, score, MoveToStr(move));
-    fflush(stdout);
+    *move = ParseMove(strstr(response, "uci") + 6, pos);
+    *wdl = 2 + atoi(strstr(response, "wdl") + 5);
+    *dtz =     atoi(strstr(response, "dtz") + 5);
 
     return true;
 }
