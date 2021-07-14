@@ -20,6 +20,7 @@
 
 #include <stdio.h>
 
+#include "onlinesyzygy/onlinesyzygy.h"
 #include "pyrrhic/tbprobe.h"
 #include "bitboard.h"
 #include "move.h"
@@ -72,8 +73,15 @@ bool RootProbe(Position *pos) {
 
     // Tablebases contain no positions with castling legal,
     // and if there are too many pieces a probe will fail
-    if (   pos->castlingRights
-        || PopCount(pieceBB(ALL)) > TB_LARGEST)
+    if (pos->castlingRights)
+        return false;
+
+    int pieceCount = PopCount(pieceBB(ALL));
+
+    if (onlineSyzygy && pieceCount <= 7 && pieceCount > TB_LARGEST)
+        return SyzygyProbe(pos);
+
+    if (pieceCount > TB_LARGEST)
         return false;
 
     // Call pyrrhic
