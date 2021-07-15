@@ -191,9 +191,9 @@ INLINE Bitboard AttackBB(PieceType pt, Square sq, Bitboard occupied) {
 INLINE Bitboard XRayAttackBB(const Position *pos, const Color color, const PieceType pt, const Square sq) {
     Bitboard occ = pieceBB(ALL);
     switch (pt) {
-        case BISHOP: occ ^= colorPieceBB(color, QUEEN) ^ colorPieceBB(color, BISHOP); break;
-        case ROOK  : occ ^= colorPieceBB(color, QUEEN) ^ colorPieceBB(color, ROOK); break;
-        case QUEEN : occ ^= colorPieceBB(color, QUEEN) ^ colorPieceBB(color, ROOK) ^ colorPieceBB(color, BISHOP); break;
+        case BISHOP: occ ^= pieceBB(QUEEN) ^ colorPieceBB(color, BISHOP); break;
+        case ROOK  : occ ^= pieceBB(QUEEN) ^ colorPieceBB(color, ROOK); break;
+        case QUEEN : occ ^= pieceBB(QUEEN) ^ colorPieceBB(color, ROOK) ^ colorPieceBB(color, BISHOP); break;
     }
     return AttackBB(pt, sq, occ);
 }
