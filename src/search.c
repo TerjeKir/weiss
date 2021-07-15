@@ -472,6 +472,10 @@ skip_search:
              : inCheck      ? -MATE + ss->ply
                             : 0;
 
+    // Limit time spent on forced moves
+    if (root && moveCount == 1 && Limits.timelimit)
+        Limits.optimalUsage = MIN(500, Limits.optimalUsage);
+
     bestScore = MIN(bestScore, maxScore);
 
     // Store in TT
