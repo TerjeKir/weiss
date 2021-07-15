@@ -18,7 +18,7 @@
 
 #pragma once
 
-#define NDEBUG
+// #define NDEBUG
 #include <assert.h>
 #include <inttypes.h>
 #include <stdbool.h>

@@ -134,7 +134,7 @@ static void AddPiece(Position *pos, const Square sq, const Piece piece) {
     pieceOn(sq) = piece;
 
     // Update misc
-    pos->material += PSQT[piece][sq];
+    pos->material += PSQT[pos->kingsOpposite][piece][sq];
     pos->phaseValue += PhaseValue[pt];
     pos->nonPawnCount[color] += NonPawn[piece];
 
@@ -145,6 +145,15 @@ static void AddPiece(Position *pos, const Square sq, const Piece piece) {
     pieceBB(ALL)   |= BB(sq);
     pieceBB(pt)    |= BB(sq);
     colorBB(color) |= BB(sq);
+}
+
+int RecalculatePSQT(const Position *pos) {
+    int psqt = 0;
+    for (Square sq = A1; sq <= H8; ++sq)
+        if (pieceOn(sq))
+            psqt += PSQT[pos->kingsOpposite][pieceOn(sq)][sq];
+
+    return psqt;
 }
 
 // Parse FEN and set up the position as described
@@ -190,9 +199,13 @@ void ParseFen(const char *fen, Position *pos) {
     pos->gameMoves = atoi(strtok(NULL, " "));
 
     // Final initializations
+    pos->kingsOpposite = (FileOf(kingSq(WHITE)) < FILE_E) != (FileOf(kingSq(BLACK)) < FILE_E);
     pos->checkers = Checkers(pos);
     pos->key = GenPosKey(pos);
     pos->phase = UpdatePhase(pos->phaseValue);
+
+    if (pos->kingsOpposite)
+        pos->material = RecalculatePSQT(pos);
 
     free(copy);
 
@@ -395,6 +408,8 @@ bool PositionOk(const Position *pos) {
 
     assert(GenPosKey(pos) == pos->key);
     assert(GenPawnKey(pos) == pos->pawnKey);
+
+    assert(pos->material == RecalculatePSQT(pos));
 
     assert(!KingAttacked(pos, !sideToMove));
 
