@@ -49,7 +49,7 @@
 #endif
 
 
-#define NTERMS       (     510) // Number of terms being tuned
+#define NTERMS       (     894) // Number of terms being tuned
 #define MAXEPOCHS    (   10000) // Max number of epochs allowed
 #define REPORTING    (      50) // How often to print the new parameters
 #define NPARTITIONS  (      64) // Total thread partitions
@@ -68,7 +68,7 @@ typedef struct EvalTrace {
     int scale;
 
     int PieceValue[5][COLOR_NB];
-    int PSQT[6][64][COLOR_NB];
+    int PSQT[2][6][64][COLOR_NB];
 
     int PawnDoubled[COLOR_NB];
     int PawnIsolated[COLOR_NB];

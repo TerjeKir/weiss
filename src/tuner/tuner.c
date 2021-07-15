@@ -41,7 +41,7 @@
 extern const int PieceTypeValue[TYPE_NB];
 
 // PSQT values
-extern const int PieceSqValue[6][64];
+extern const int PieceSqValue[2][6][64];
 
 // Misc
 extern const int PawnDoubled;
@@ -196,7 +196,11 @@ void InitBaseParams(TVector tparams) {
     // PSQT
     for (int pt = PAWN; pt <= KING; ++pt)
         for (int sq = 0; sq < 64; ++sq)
-            InitBaseSingle(-(PSQT[pt][MirrorSquare(sq)] + PieceTypeValue[pt]));
+            InitBaseSingle(-(PSQT[0][pt][MirrorSquare(sq)] + PieceTypeValue[pt]));
+
+    for (int pt = PAWN; pt <= KING; ++pt)
+        for (int sq = 0; sq < 64; ++sq)
+            InitBaseSingle(-(PSQT[1][pt][MirrorSquare(sq)] + PieceTypeValue[pt]));
 
     // Misc
     InitBaseSingle(PawnDoubled);
@@ -246,6 +250,9 @@ void PrintParameters(TVector params, TVector current) {
 
     PrintPieceValues(tparams, i);
     i+=5;
+
+    PrintPSQT(tparams, i);
+    i+=6*64;
 
     PrintPSQT(tparams, i);
     i+=6*64;
@@ -305,7 +312,8 @@ void InitCoefficients(TCoeffs coeffs) {
     InitCoeffArray(PieceValue, QUEEN);
 
     // PSQT
-    InitCoeff2DArray(PSQT, KING, 64);
+    InitCoeff2DArray(PSQT[0], KING, 64);
+    InitCoeff2DArray(PSQT[1], KING, 64);
 
     // Misc
     InitCoeffSingle(PawnDoubled);
