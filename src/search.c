@@ -472,6 +472,9 @@ skip_search:
              : inCheck      ? -MATE + ss->ply
                             : 0;
 
+    // Limit time spent on forced moves
+    if (root) thread->rootMoveCount = moveCount;
+
     bestScore = MIN(bestScore, maxScore);
 
     // Store in TT
@@ -565,6 +568,10 @@ static void *IterativeDeepening(void *voidThread) {
 
         // Stop searching after finding a short enough mate
         if (MATE - abs(thread->score) <= 2 * abs(Limits.mate)) break;
+
+        // Limit time spent on forced moves
+        if (thread->rootMoveCount == 1 && Limits.timelimit && !Limits.movetime)
+            Limits.optimalUsage = MIN(500, Limits.optimalUsage);
 
         // If an iteration finishes after optimal time usage, stop the search
         if (   Limits.timelimit
