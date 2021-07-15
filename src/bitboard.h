@@ -189,11 +189,11 @@ INLINE Bitboard AttackBB(PieceType pt, Square sq, Bitboard occupied) {
 
 // Returns an attack bitboard where sliders are allowed to xray other sliders moving the same directions
 INLINE Bitboard XRayAttackBB(const Position *pos, const Color color, const PieceType pt, const Square sq) {
-    Bitboard occ = pieceBB(ALL);
+    Bitboard occ = pieceBB(ALL) ^ pieceBB(QUEEN);
     switch (pt) {
-        case BISHOP: occ ^= pieceBB(QUEEN) ^ colorPieceBB(color, BISHOP); break;
-        case ROOK  : occ ^= pieceBB(QUEEN) ^ colorPieceBB(color, ROOK); break;
-        case QUEEN : occ ^= pieceBB(QUEEN) ^ colorPieceBB(color, ROOK) ^ colorPieceBB(color, BISHOP); break;
+        case BISHOP: occ ^= colorPieceBB(color, BISHOP); break;
+        case ROOK  : occ ^= colorPieceBB(color, ROOK); break;
+        case QUEEN : occ ^= colorPieceBB(color, ROOK) ^ colorPieceBB(color, BISHOP); break;
     }
     return AttackBB(pt, sq, occ);
 }
