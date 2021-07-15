@@ -61,7 +61,7 @@ static void ClearPiece(Position *pos, const Square sq, const bool hash) {
     pieceOn(sq) = EMPTY;
 
     // Update material
-    pos->material -= PSQT[piece][sq];
+    pos->material -= PSQT[pos->kingsOpposite][piece][sq];
 
     // Update phase
     pos->phaseValue -= PhaseValue[pt];
@@ -93,7 +93,7 @@ static void AddPiece(Position *pos, const Square sq, const Piece piece, const bo
     pieceOn(sq) = piece;
 
     // Update material
-    pos->material += PSQT[piece][sq];
+    pos->material += PSQT[pos->kingsOpposite][piece][sq];
 
     // Update phase
     pos->phaseValue += PhaseValue[pt];
@@ -131,7 +131,7 @@ static void MovePiece(Position *pos, const Square from, const Square to, const b
     pieceOn(to)   = piece;
 
     // Update material
-    pos->material += PSQT[piece][to] - PSQT[piece][from];
+    pos->material += PSQT[pos->kingsOpposite][piece][to] - PSQT[pos->kingsOpposite][piece][from];
 
     // Update bitboards
     pieceBB(ALL)   ^= BB(from) ^ BB(to);
@@ -182,6 +182,13 @@ void TakeMove(Position *pos) {
         AddPiece(pos, from, MakePiece(sideToMove, PAWN), false);
     }
 
+    if (pieceTypeOn(from) == KING) {
+        if ((FileOf(from) < FILE_E) != (FileOf(to) < FILE_E)) {
+            pos->kingsOpposite = !pos->kingsOpposite;
+            pos->material = RecalculatePSQT(pos);
+        }
+    }
+
     // Get various info from history
     pos->key            = history(0).key;
     pos->checkers       = history(0).checkers;
@@ -191,7 +198,7 @@ void TakeMove(Position *pos) {
 
     assert(PositionOk(pos));
 }
-
+#include <stdio.h>
 // Make a move - take it back and return false if move was illegal
 bool MakeMove(Position *pos, const Move move) {
 
@@ -268,6 +275,13 @@ bool MakeMove(Position *pos, const Move move) {
     // Change turn to play
     sideToMove ^= 1;
     HASH_SIDE;
+
+    if (pieceTypeOn(to) == KING) {
+        if ((FileOf(from) < FILE_E) != (FileOf(to) < FILE_E)) {
+            pos->kingsOpposite = !pos->kingsOpposite;
+            pos->material = RecalculatePSQT(pos);
+        }
+    }
 
     // If own king is attacked after the move, take it back immediately
     if (KingAttacked(pos, sideToMove^1))

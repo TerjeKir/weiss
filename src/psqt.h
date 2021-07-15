@@ -21,4 +21,4 @@
 #include "types.h"
 
 
-extern int PSQT[PIECE_NB][64];
+extern int PSQT[2][PIECE_NB][64];

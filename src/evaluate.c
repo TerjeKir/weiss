@@ -162,7 +162,7 @@ INLINE int EvalPawns(const Position *pos, EvalInfo *ei, const Color color) {
         Square sq = PopLsb(&pawns);
 
         TraceIncr(PieceValue[PAWN-1]);
-        TraceIncr(PSQT[PAWN-1][RelativeSquare(color, sq)]);
+        TraceIncr(PSQT[pos->kingsOpposite][PAWN-1][RelativeSquare(color, sq)]);
 
         // Isolated pawns
         if (!(IsolatedMask[sq] & colorPieceBB(color, PAWN))) {
@@ -237,7 +237,7 @@ INLINE int EvalPiece(const Position *pos, EvalInfo *ei, const Color color, const
         Square sq = PopLsb(&pieces);
 
         TraceIncr(PieceValue[pt-1]);
-        TraceIncr(PSQT[pt-1][RelativeSquare(color, sq)]);
+        TraceIncr(PSQT[pos->kingsOpposite][pt-1][RelativeSquare(color, sq)]);
 
         // Mobility
         Bitboard mobilityBB = XRayAttackBB(pos, color, pt, sq) & ei->mobilityArea[color];
@@ -278,7 +278,7 @@ INLINE int EvalKings(const Position *pos, EvalInfo *ei, const Color color) {
 
     Square kingSq = kingSq(color);
 
-    TraceIncr(PSQT[KING-1][RelativeSquare(color, kingSq)]);
+    TraceIncr(PSQT[pos->kingsOpposite][KING-1][RelativeSquare(color, kingSq)]);
 
     // Open lines from the king
     Bitboard SafeLine = RankBB[RelativeRank(color, RANK_1)];

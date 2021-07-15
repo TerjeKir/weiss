@@ -48,6 +48,8 @@ typedef struct Position {
     int rule50;
     int castlingRights;
 
+    bool kingsOpposite;
+
     uint16_t histPly;
     uint16_t gameMoves;
 
@@ -73,6 +75,7 @@ extern uint64_t SideKey;
 
 
 void InitDistance();
+int RecalculatePSQT(const Position *pos);
 void ParseFen(const char *fen, Position *pos);
 Key KeyAfter(const Position *pos, Move move);
 bool SEE(const Position *pos, const Move move, const int threshold);
