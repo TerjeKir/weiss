@@ -47,6 +47,14 @@ void InitThreads(int count) {
         threads[i].count = count;
 }
 
+// Checks whether a move was already searched in multi-pv mode
+bool AlreadySearchedMultiPV(Thread *thread, Move move) {
+    for (int i = 0; i < thread->multiPV; ++i)
+        if (thread->bestMove[i] == move)
+            return true;
+    return false;
+}
+
 // Tallies the nodes searched by all threads
 uint64_t TotalNodes() {
     uint64_t total = 0;

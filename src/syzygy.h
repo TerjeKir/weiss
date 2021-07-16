@@ -121,7 +121,7 @@ done:
     fflush(stdout);
 
     // Set move to be printed as conclusion
-    threads->bestMove = move;
+    threads->bestMove[0] = move;
 
     return true;
 }

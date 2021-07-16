@@ -124,8 +124,8 @@ void Benchmark(int argc, char **argv) {
         BenchResult *r = &results[i];
         r->elapsed = TimeSince(Limits.start);
         r->nodes   = TotalNodes(threads);
-        r->score   = threads->score;
-        r->best    = threads->bestMove;
+        r->score   = threads->score[0];
+        r->best    = threads->bestMove[0];
 
         totalElapsed += r->elapsed;
         totalNodes   += r->nodes;

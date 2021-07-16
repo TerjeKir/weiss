@@ -36,7 +36,7 @@
 #include "uci.h"
 
 
-SearchLimits Limits;
+SearchLimits Limits = { .multiPV = 1 };
 volatile bool ABORT_SIGNAL;
 
 static int Reductions[2][32][32];
@@ -311,6 +311,7 @@ move_loop:
     while ((move = NextMove(&mp))) {
 
         if (move == ss->excluded) continue;
+        if (root && AlreadySearchedMultiPV(thread, move)) continue;
 
         bool quiet = moveIsQuiet(move);
 
@@ -481,17 +482,17 @@ skip_search:
     const int flag = bestScore >= beta ? BOUND_LOWER
                    : alpha != oldAlpha ? BOUND_EXACT
                                        : BOUND_UPPER;
-    if (!ss->excluded)
+    if (!ss->excluded && (!root || !thread->multiPV))
         StoreTTEntry(tte, key, bestMove, ScoreToTT(bestScore, ss->ply), depth, flag);
 
     return bestScore;
 }
 
 // Aspiration window
-static int AspirationWindow(Thread *thread, Stack *ss) {
+static void AspirationWindow(Thread *thread, Stack *ss) {
 
     bool mainThread = thread->index == 0;
-    int score = thread->score;
+    int score = thread->score[0];
     int depth = thread->depth;
 
     const int initialWindow = 12;
@@ -520,7 +521,7 @@ static int AspirationWindow(Thread *thread, Stack *ss) {
 
         // Give an update when done, or after each iteration in long searches
         if (mainThread && (   (score > alpha && score < beta)
-                           || TimeSince(Limits.start) > 3000))
+                           || (TimeSince(Limits.start) > 3000 && Limits.multiPV == 1)))
             PrintThinking(thread, ss, score, alpha, beta);
 
         // Failed low, relax lower bound and search again
@@ -535,7 +536,11 @@ static int AspirationWindow(Thread *thread, Stack *ss) {
             depth -= (abs(score) < TBWIN_IN_MAX);
 
         // Score within the bounds is accepted as correct
-        } else return score;
+        } else {
+            thread->score[thread->multiPV]    = score;
+            thread->bestMove[thread->multiPV] = ss->pv.line[0];
+            return;
+        }
 
         delta += delta * 2 / 3;
     }
@@ -556,18 +561,16 @@ static void *IterativeDeepening(void *voidThread) {
         if (setjmp(thread->jumpBuffer)) break;
 
         // Search position, using aspiration windows for higher depths
-        thread->score = AspirationWindow(thread, ss);
+        for (thread->multiPV = 0; thread->multiPV < Limits.multiPV; ++thread->multiPV)
+            AspirationWindow(thread, ss);
 
         // Only the main thread concerns itself with the rest
         if (!mainThread) continue;
 
-        bool uncertain = ss->pv.line[0] != thread->bestMove;
-
-        // Save bestMove before overwriting the pv next iteration
-        thread->bestMove = ss->pv.line[0];
+        bool uncertain = false; // ss->pv.line[0] != thread->bestMove[0];
 
         // Stop searching after finding a short enough mate
-        if (MATE - abs(thread->score) <= 2 * abs(Limits.mate)) break;
+        if (MATE - abs(thread->score[0]) <= 2 * abs(Limits.mate)) break;
 
         // Limit time spent on forced moves
         if (thread->rootMoveCount == 1 && Limits.timelimit && !Limits.movetime)
@@ -589,6 +592,7 @@ static void *IterativeDeepening(void *voidThread) {
 // Root of search
 void *SearchPosition(void *pos) {
 
+    printf("MultiPV = %d\n", Limits.multiPV);
     InitTimeManagement();
     PrepareSearch(pos);
     bool threadsSpawned = false;

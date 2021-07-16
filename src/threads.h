@@ -26,6 +26,7 @@
 
 
 #define SS_OFFSET 10
+#define MULTI_PV_MAX 64
 
 
 typedef struct {
@@ -41,12 +42,13 @@ typedef struct Thread {
     Stack ss[128];
     jmp_buf jumpBuffer;
     uint64_t tbhits;
-    Move bestMove;
-    int score;
+    Move bestMove[MULTI_PV_MAX];
+    int score[MULTI_PV_MAX];
     Depth depth;
     Color nullMover;
     int rootMoveCount;
     bool doPruning;
+    int multiPV;
 
     // Anything below here is not zeroed out between searches
     Position pos;
@@ -65,6 +67,7 @@ extern Thread *threads;
 
 
 void InitThreads(int threadCount);
+bool AlreadySearchedMultiPV(Thread *thread, Move move);
 uint64_t TotalNodes();
 uint64_t TotalTBHits();
 void PrepareSearch(Position *pos);

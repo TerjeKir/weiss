@@ -37,7 +37,7 @@
 // Parses the time controls
 static void ParseTimeControl(char *str, Color color) {
 
-    memset(&Limits, 0, sizeof(SearchLimits));
+    memset(&Limits, 0, offsetof(SearchLimits, multiPV));
     Limits.start = Now();
 
     // Read in relevant search constraints
@@ -122,6 +122,10 @@ static void SetOption(char *str) {
     } else if (OptionName(str, "OnlineSyzygy")) {
         onlineSyzygy = !strncmp(OptionValue(str), "true", 4);
 
+    // Sets multi-pv
+    } else if (OptionName(str, "MultiPV")) {
+        Limits.multiPV = atoi(OptionValue(str));
+
     } else {
         puts("No such option.");
     }
@@ -139,6 +143,7 @@ static void Info() {
     printf("option name NoobBook type check default false\n");
     printf("option name NoobBookLimit type spin default 0 min 0 max 1000\n");
     printf("option name OnlineSyzygy type check default false\n");
+    printf("option name MultiPV type spin default 1 min 1 max %d\n", MULTI_PV_MAX);
     printf("uciok\n"); fflush(stdout);
 }
 
@@ -263,6 +268,6 @@ void PrintThinking(const Thread *thread, const Stack *ss, int score, int alpha, 
 
 // Print conclusion of search - best move and ponder move
 void PrintConclusion(const Thread *thread) {
-    printf("bestmove %s\n\n", MoveToStr(thread->bestMove));
+    printf("bestmove %s\n\n", MoveToStr(thread->bestMove[0]));
     fflush(stdout);
 }
