@@ -538,8 +538,8 @@ static void AspirationWindow(Thread *thread, Stack *ss) {
         // Score within the bounds is accepted as correct
         } else {
             if (thread->multiPV == 0) thread->uncertain = ss->pv.line[0] != thread->bestMove[0];
-            thread->score[thread->multiPV]    = score;
             thread->bestMove[thread->multiPV] = ss->pv.line[0];
+            thread->score[thread->multiPV] = score;
             return;
         }
 
@@ -591,7 +591,6 @@ static void *IterativeDeepening(void *voidThread) {
 // Root of search
 void *SearchPosition(void *pos) {
 
-    printf("MultiPV = %d\n", Limits.multiPV);
     InitTimeManagement();
     PrepareSearch(pos);
     bool threadsSpawned = false;
