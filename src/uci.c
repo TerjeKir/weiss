@@ -111,6 +111,10 @@ static void SetOption(char *str) {
     } else if (OptionName(str, "SyzygyPath")) {
         tb_init(OptionValue(str));
 
+    // Sets multi-pv
+    } else if (OptionName(str, "MultiPV")) {
+        Limits.multiPV = atoi(OptionValue(str));
+
     // Sets max depth for using NoobBook
     } else if (OptionName(str, "NoobBookLimit")) {
         noobLimit = atoi(OptionValue(str));
@@ -123,12 +127,8 @@ static void SetOption(char *str) {
     } else if (OptionName(str, "OnlineSyzygy")) {
         onlineSyzygy = !strncmp(OptionValue(str), "true", 4);
 
-    // Sets multi-pv
-    } else if (OptionName(str, "MultiPV")) {
-        Limits.multiPV = atoi(OptionValue(str));
-
     } else {
-        puts("No such option.");
+        puts("info No such option.");
     }
 
     fflush(stdout);
@@ -141,10 +141,10 @@ static void Info() {
     printf("option name Hash type spin default %d min %d max %d\n", DEFAULTHASH, MINHASH, MAXHASH);
     printf("option name Threads type spin default %d min %d max %d\n", 1, 1, 2048);
     printf("option name SyzygyPath type string default <empty>\n");
+    printf("option name MultiPV type spin default 1 min 1 max %d\n", MULTI_PV_MAX);
     printf("option name NoobBook type check default false\n");
     printf("option name NoobBookLimit type spin default 0 min 0 max 1000\n");
     printf("option name OnlineSyzygy type check default false\n");
-    printf("option name MultiPV type spin default 1 min 1 max %d\n", MULTI_PV_MAX);
     printf("uciok\n"); fflush(stdout);
 }
 
