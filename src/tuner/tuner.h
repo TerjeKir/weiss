@@ -53,13 +53,13 @@
 #define MAXEPOCHS    (   10000) // Max number of epochs allowed
 #define REPORTING    (      50) // How often to print the new parameters
 #define NPARTITIONS  (      64) // Total thread partitions
-#define LRRATE       (    0.01) // Learning rate
-#define LRDROPRATE   (    1.00) // Cut LR by this each LR-step
-#define LRSTEPRATE   (     250) // Cut LR after this many epochs
+#define LRRATE       (    5.00) // Learning rate
+#define LRDROPRATE   (    2.00) // Cut LR by this each LR-step
+#define LRSTEPRATE   (     200) // Cut LR after this many epochs
 #define BETA_1       (     0.9) // ADAM Momemtum Coefficient
 #define BETA_2       (   0.999) // ADAM Velocity Coefficient
 
-#define STACKSIZE ((int)((double) NPOSITIONS * NTERMS / 64))
+#define STACKSIZE ((int)((double) NPOSITIONS * NTERMS / 128))
 
 
 typedef struct EvalTrace {
