@@ -48,6 +48,7 @@ typedef struct Thread {
     Color nullMover;
     int rootMoveCount;
     bool doPruning;
+    bool uncertain;
     int multiPV;
 
     // Anything below here is not zeroed out between searches

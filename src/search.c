@@ -537,6 +537,7 @@ static void AspirationWindow(Thread *thread, Stack *ss) {
 
         // Score within the bounds is accepted as correct
         } else {
+            if (thread->multiPV == 0) thread->uncertain = ss->pv.line[0] != thread->bestMove[0];
             thread->score[thread->multiPV]    = score;
             thread->bestMove[thread->multiPV] = ss->pv.line[0];
             return;
@@ -567,8 +568,6 @@ static void *IterativeDeepening(void *voidThread) {
         // Only the main thread concerns itself with the rest
         if (!mainThread) continue;
 
-        bool uncertain = false; // ss->pv.line[0] != thread->bestMove[0];
-
         // Stop searching after finding a short enough mate
         if (MATE - abs(thread->score[0]) <= 2 * abs(Limits.mate)) break;
 
@@ -578,7 +577,7 @@ static void *IterativeDeepening(void *voidThread) {
 
         // If an iteration finishes after optimal time usage, stop the search
         if (   Limits.timelimit
-            && TimeSince(Limits.start) > Limits.optimalUsage * (1 + uncertain))
+            && TimeSince(Limits.start) > Limits.optimalUsage * (1 + thread->uncertain))
             break;
 
         // Clear key history for seldepth calculation
