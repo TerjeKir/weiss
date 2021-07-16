@@ -492,7 +492,7 @@ skip_search:
 static void AspirationWindow(Thread *thread, Stack *ss) {
 
     bool mainThread = thread->index == 0;
-    int score = thread->score[0];
+    int score = thread->score[thread->multiPV];
     int depth = thread->depth;
 
     const int initialWindow = 12;
