@@ -246,6 +246,7 @@ void PrintThinking(const Thread *thread, const Stack *ss, int score, int alpha, 
     TimePoint elapsed = TimeSince(Limits.start);
     uint64_t nodes    = TotalNodes(thread);
     uint64_t tbhits   = TotalTBHits(thread);
+    int multiPV       = thread->multiPV + 1;
     int hashFull      = HashFull();
     int nps           = (int)(1000 * nodes / (elapsed + 1));
 
@@ -254,9 +255,9 @@ void PrintThinking(const Thread *thread, const Stack *ss, int score, int alpha, 
         if (history(seldepth-1).key != 0) break;
 
     // Basic info
-    printf("info depth %d seldepth %d score %s %d%s time %" PRId64
+    printf("info depth %d seldepth %d multipv %d score %s %d%s time %" PRId64
            " nodes %" PRIu64 " nps %d tbhits %" PRIu64 " hashfull %d pv",
-            thread->depth, seldepth, type, score, bound, elapsed,
+            thread->depth, seldepth, multiPV, type, score, bound, elapsed,
             nodes, nps, tbhits, hashFull);
 
     // Principal variation
