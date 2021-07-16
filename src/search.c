@@ -537,7 +537,8 @@ static void AspirationWindow(Thread *thread, Stack *ss) {
 
         // Score within the bounds is accepted as correct
         } else {
-            if (thread->multiPV == 0) thread->uncertain = ss->pv.line[0] != thread->bestMove[0];
+            if (thread->multiPV == 0)
+                thread->uncertain = ss->pv.line[0] != thread->bestMove[0] ? thread->uncertain + 1 : 0;
             thread->bestMove[thread->multiPV] = ss->pv.line[0];
             thread->score[thread->multiPV] = score;
             return;
