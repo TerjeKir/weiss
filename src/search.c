@@ -577,7 +577,8 @@ static void *IterativeDeepening(void *voidThread) {
 
         // If an iteration finishes after optimal time usage, stop the search
         if (   Limits.timelimit
-            && TimeSince(Limits.start) > Limits.optimalUsage * (1 + thread->uncertain))
+            && !thread->uncertain
+            && TimeSince(Limits.start) > Limits.optimalUsage)
             break;
 
         // Clear key history for seldepth calculation
