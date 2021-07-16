@@ -52,22 +52,22 @@ const int PieceValue[2][PIECE_NB] = {
 const int Tempo = 15;
 
 // Misc bonuses and maluses
-const int PawnDoubled  = S(-13,-42);
-const int PawnIsolated = S( -8,-19);
-const int PawnSupport  = S( 20, 11);
-const int PawnThreat   = S( 52, 73);
-const int PushThreat   = S( 18,  7);
-const int PawnOpen     = S(-14,-17);
-const int BishopPair   = S( 25,124);
-const int KingAtkPawn  = S(  3, 54);
-const int OpenForward  = S( 29, 20);
-const int SemiForward  = S( 10, 18);
-const int NBBehindPawn = S(  7, 42);
+const int PawnDoubled  = S(-12,-40);
+const int PawnIsolated = S( -8,-16);
+const int PawnSupport  = S( 18, 10);
+const int PawnThreat   = S( 43, 75);
+const int PushThreat   = S( 14,  5);
+const int PawnOpen     = S(-13,-12);
+const int BishopPair   = S( 18,118);
+const int KingAtkPawn  = S( 50, 88);
+const int OpenForward  = S( 24, 15);
+const int SemiForward  = S(  6, 18);
+const int NBBehindPawn = S(  8, 39);
 
 // Passed pawn
 const int PawnPassed[RANK_NB] = {
-    S(  0,  0), S(-15, 36), S(-13, 43), S(-70,128),
-    S(-13,161), S(107,200), S(278,233), S(  0,  0),
+    S(  0,  0), S(-13, 27), S(-16, 33), S(-12, 73),
+    S( 16,110), S( 27,195), S(138,266), S(  0,  0),
 };
 const int PassedDefended[RANK_NB] = {
     S(  0,  0), S(  0,  0), S(  5,-14), S( -2,-14),
