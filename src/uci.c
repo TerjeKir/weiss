@@ -224,29 +224,14 @@ INLINE int MateScore(const int score) {
 }
 
 // Print thinking
-void PrintThinking(const Thread *thread, const Stack *ss, int score, int alpha, int beta) {
+void PrintThinking(const Thread *thread, int alpha, int beta) {
 
     const Position *pos = &thread->pos;
-    const PV *pv = &ss->pv;
-
-    // Determine whether we have a centipawn or mate score
-    char *type = abs(score) >= MATE_IN_MAX ? "mate" : "cp";
-
-    // Determine if score is an upper or lower bound
-    char *bound = score >= beta  ? " lowerbound"
-                : score <= alpha ? " upperbound"
-                                 : "";
-
-    // Translate internal score into printed score
-    score = abs(score) >=  MATE_IN_MAX ? MateScore(score)
-          :    abs(score) <= 8
-            && pv->length <= 2         ? 0
-                                       : score;
+    const int multiPV = Limits.multiPV;
 
     TimePoint elapsed = TimeSince(Limits.start);
     uint64_t nodes    = TotalNodes(thread);
     uint64_t tbhits   = TotalTBHits(thread);
-    int multiPV       = thread->multiPV + 1;
     int hashFull      = HashFull();
     int nps           = (int)(1000 * nodes / (elapsed + 1));
 
@@ -254,17 +239,37 @@ void PrintThinking(const Thread *thread, const Stack *ss, int score, int alpha, 
     for (; seldepth > 0; --seldepth)
         if (history(seldepth-1).key != 0) break;
 
-    // Basic info
-    printf("info depth %d seldepth %d multipv %d score %s %d%s time %" PRId64
-           " nodes %" PRIu64 " nps %d tbhits %" PRIu64 " hashfull %d pv",
-            thread->depth, seldepth, multiPV, type, score, bound, elapsed,
-            nodes, nps, tbhits, hashFull);
+    for (int i = 0; i < multiPV; ++i) {
 
-    // Principal variation
-    for (int i = 0; i < pv->length; i++)
-        printf(" %s", MoveToStr(pv->line[i]));
+        const PV *pv = &thread->pvs[i];
+        int score = thread->score[i];
 
-    printf("\n");
+        // Determine whether we have a centipawn or mate score
+        char *type = abs(score) >= MATE_IN_MAX ? "mate" : "cp";
+
+        // Determine if score is an upper or lower bound
+        char *bound = score >= beta  ? " lowerbound"
+                    : score <= alpha ? " upperbound"
+                                    : "";
+
+        // Translate internal score into printed score
+        score = abs(score) >=  MATE_IN_MAX ? MateScore(score)
+              :    abs(score) <= 8
+                && pv->length <= 2         ? 0
+                                           : score;
+
+        // Basic info
+        printf("info depth %d seldepth %d multipv %d score %s %d%s time %" PRId64
+            " nodes %" PRIu64 " nps %d tbhits %" PRIu64 " hashfull %d pv",
+                thread->depth, seldepth, i+1, type, score, bound, elapsed,
+                nodes, nps, tbhits, hashFull);
+
+        // Principal variation
+        for (int j = 0; j < pv->length; j++)
+            printf(" %s", MoveToStr(pv->line[j]));
+
+        printf("\n");
+    }
     fflush(stdout);
 }
 
