@@ -491,6 +491,8 @@ skip_search:
 // Aspiration window
 static void AspirationWindow(Thread *thread, Stack *ss) {
 
+    Position *pos = &thread->pos;
+
     bool mainThread = thread->index == 0;
     int score = thread->score[thread->multiPV];
     int depth = thread->depth;
@@ -502,9 +504,13 @@ static void AspirationWindow(Thread *thread, Stack *ss) {
     int beta  =  INFINITE;
 
     // Shrink the window at higher depths
-    if (depth > 6)
-        alpha = MAX(score - initialWindow, -INFINITE),
+    if (depth > 6) {
+        alpha = MAX(score - initialWindow, -INFINITE);
         beta  = MIN(score + initialWindow,  INFINITE);
+
+        int x = CLAMP(score / 2, -35, 35);
+        pos->trend = sideToMove == WHITE ? S(x, x/2) : -S(x, x/2);
+    }
 
     // Search with aspiration window until the result is inside the window
     while (true) {

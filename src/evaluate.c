@@ -358,7 +358,7 @@ int EvalPosition(const Position *pos, PawnCache pc) {
     InitEvalInfo(pos, &ei, BLACK);
 
     // Material (includes PSQT)
-    int eval = pos->material;
+    int eval = pos->material + pos->trend;
 
     // Evaluate pawns
     eval += ProbePawnCache(pos, pc);
