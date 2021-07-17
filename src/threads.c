@@ -55,6 +55,15 @@ bool AlreadySearchedMultiPV(Thread *thread, Move move) {
     return false;
 }
 
+int cmpfunc (const void *a, const void *b) {
+   return ((RootMove*)b)->score - ((RootMove*)a)->score;
+}
+
+// Sorts all rootmoves searched by multiPV
+void SortRootMoves(Thread *thread, int multiPV) {
+    qsort(thread->rootMoves, multiPV, sizeof(RootMove), cmpfunc);
+}
+
 // Tallies the nodes searched by all threads
 uint64_t TotalNodes() {
     uint64_t total = 0;

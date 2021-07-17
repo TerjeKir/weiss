@@ -577,6 +577,8 @@ static void *IterativeDeepening(void *voidThread) {
         for (thread->multiPV = 0; thread->multiPV < Limits.multiPV; ++thread->multiPV)
             AspirationWindow(thread, ss);
 
+        SortRootMoves(thread, Limits.multiPV);
+
         // Only the main thread concerns itself with the rest
         if (!mainThread) continue;
 

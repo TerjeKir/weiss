@@ -37,18 +37,18 @@ typedef struct {
     PV pv;
 } Stack;
 
-typedef struct RootMoves {
+typedef struct RootMove {
     Move move;
     int score;
     PV pv;
-} RootMoves;
+} RootMove;
 
 typedef struct Thread {
 
     Stack ss[128];
     jmp_buf jumpBuffer;
     uint64_t tbhits;
-    RootMoves rootMoves[MULTI_PV_MAX];
+    RootMove rootMoves[MULTI_PV_MAX];
     Depth depth;
     Color nullMover;
     int rootMoveCount;
@@ -74,6 +74,7 @@ extern Thread *threads;
 
 void InitThreads(int threadCount);
 bool AlreadySearchedMultiPV(Thread *thread, Move move);
+void SortRootMoves(Thread *thread, int multiPV);
 uint64_t TotalNodes();
 uint64_t TotalTBHits();
 void PrepareSearch(Position *pos);
