@@ -504,7 +504,7 @@ static void AspirationWindow(Thread *thread, Stack *ss) {
     int alpha = -INFINITE;
     int beta  =  INFINITE;
 
-    // Shrink the window at higher depths
+    // Shrink the window after the first few iterations
     if (depth > 6) {
         alpha = MAX(score - initialWindow, -INFINITE);
         beta  = MIN(score + initialWindow,  INFINITE);
@@ -513,7 +513,7 @@ static void AspirationWindow(Thread *thread, Stack *ss) {
         pos->trend = sideToMove == WHITE ? S(x, x/2) : -S(x, x/2);
     }
 
-    // Search with aspiration window until the result is inside the window
+    // Repeatedly search and adjust the window until the score is inside the window
     while (true) {
 
         if (alpha < -3500) alpha = -INFINITE;
@@ -529,7 +529,7 @@ static void AspirationWindow(Thread *thread, Stack *ss) {
         thread->rootMoves[multiPV].score = score;
         memcpy(&thread->rootMoves[multiPV].pv, &ss->pv, sizeof(PV));
 
-        // Give an update when failing high/low
+        // Give an update when failing high/low in longer searches
         if (   mainThread
             && Limits.multiPV == 1
             && (score <= alpha || score >= beta)
@@ -547,7 +547,7 @@ static void AspirationWindow(Thread *thread, Stack *ss) {
             beta = MIN(beta + delta, INFINITE);
             depth -= (abs(score) < TBWIN_IN_MAX);
 
-        // Score within the bounds is accepted as correct
+        // Score inside the window
         } else {
             if (thread->multiPV == 0)
                 thread->uncertain = ss->pv.line[0] != thread->rootMoves[multiPV].move;
@@ -580,7 +580,7 @@ static void *IterativeDeepening(void *voidThread) {
         // Only the main thread concerns itself with the rest
         if (!mainThread) continue;
 
-        // Print thinking info when iteration is finished
+        // Print thinking info
         PrintThinking(thread, -INFINITE, INFINITE);
 
         // Stop searching after finding a short enough mate
