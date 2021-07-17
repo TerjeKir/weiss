@@ -525,9 +525,7 @@ static void AspirationWindow(Thread *thread, Stack *ss) {
 
         score = AlphaBeta(thread, ss, alpha, beta, depth);
 
-        if (thread->multiPV == 0) thread->uncertain = ss->pv.line[0] != thread->bestMove[0];
         thread->score[thread->multiPV] = score;
-        thread->bestMove[thread->multiPV] = ss->pv.line[0];
         memcpy(&thread->pvs[thread->multiPV], &ss->pv, sizeof(PV));
 
         // Give an update when failing high/low
@@ -549,8 +547,11 @@ static void AspirationWindow(Thread *thread, Stack *ss) {
             depth -= (abs(score) < TBWIN_IN_MAX);
 
         // Score within the bounds is accepted as correct
-        } else
+        } else {
+            if (thread->multiPV == 0) thread->uncertain = ss->pv.line[0] != thread->bestMove[0];
+            thread->bestMove[thread->multiPV] = ss->pv.line[0];
             return;
+        }
 
         delta += delta * 2 / 3;
     }
