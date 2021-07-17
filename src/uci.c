@@ -241,8 +241,8 @@ void PrintThinking(const Thread *thread, int alpha, int beta) {
 
     for (int i = 0; i < multiPV; ++i) {
 
-        const PV *pv = &thread->pvs[i];
-        int score = thread->score[i];
+        const PV *pv = &thread->rootMoves[i].pv;
+        int score = thread->rootMoves[i].score;
 
         // Determine whether we have a centipawn or mate score
         char *type = abs(score) >= MATE_IN_MAX ? "mate" : "cp";
@@ -275,6 +275,6 @@ void PrintThinking(const Thread *thread, int alpha, int beta) {
 
 // Print conclusion of search - best move and ponder move
 void PrintConclusion(const Thread *thread) {
-    printf("bestmove %s\n\n", MoveToStr(thread->bestMove[0]));
+    printf("bestmove %s\n\n", MoveToStr(thread->rootMoves[0].move));
     fflush(stdout);
 }

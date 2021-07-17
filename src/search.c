@@ -493,8 +493,9 @@ static void AspirationWindow(Thread *thread, Stack *ss) {
 
     Position *pos = &thread->pos;
 
-    bool mainThread = thread->index == 0;
-    int score = thread->score[thread->multiPV];
+    const bool mainThread = thread->index == 0;
+    const int multiPV = thread->multiPV;
+    int score = thread->rootMoves[multiPV].score;
     int depth = thread->depth;
 
     const int initialWindow = 12;
@@ -525,8 +526,8 @@ static void AspirationWindow(Thread *thread, Stack *ss) {
 
         score = AlphaBeta(thread, ss, alpha, beta, depth);
 
-        thread->score[thread->multiPV] = score;
-        memcpy(&thread->pvs[thread->multiPV], &ss->pv, sizeof(PV));
+        thread->rootMoves[multiPV].score = score;
+        memcpy(&thread->rootMoves[multiPV].pv, &ss->pv, sizeof(PV));
 
         // Give an update when failing high/low
         if (   mainThread
@@ -548,8 +549,9 @@ static void AspirationWindow(Thread *thread, Stack *ss) {
 
         // Score within the bounds is accepted as correct
         } else {
-            if (thread->multiPV == 0) thread->uncertain = ss->pv.line[0] != thread->bestMove[0];
-            thread->bestMove[thread->multiPV] = ss->pv.line[0];
+            if (thread->multiPV == 0)
+                thread->uncertain = ss->pv.line[0] != thread->rootMoves[multiPV].move;
+            thread->rootMoves[multiPV].move = ss->pv.line[0];
             return;
         }
 
@@ -582,7 +584,7 @@ static void *IterativeDeepening(void *voidThread) {
         PrintThinking(thread, -INFINITE, INFINITE);
 
         // Stop searching after finding a short enough mate
-        if (MATE - abs(thread->score[0]) <= 2 * abs(Limits.mate)) break;
+        if (MATE - abs(thread->rootMoves[0].score) <= 2 * abs(Limits.mate)) break;
 
         // Limit time spent on forced moves
         if (thread->rootMoveCount == 1 && Limits.timelimit && !Limits.movetime)

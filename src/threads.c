@@ -50,7 +50,7 @@ void InitThreads(int count) {
 // Checks whether a move was already searched in multi-pv mode
 bool AlreadySearchedMultiPV(Thread *thread, Move move) {
     for (int i = 0; i < thread->multiPV; ++i)
-        if (thread->bestMove[i] == move)
+        if (thread->rootMoves[i].move == move)
             return true;
     return false;
 }
