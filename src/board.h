@@ -55,6 +55,7 @@ typedef struct Position {
     Key pawnKey;
 
     uint64_t nodes;
+    int trend;
 
     History gameHistory[256];
 
