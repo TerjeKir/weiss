@@ -508,7 +508,7 @@ static void AspirationWindow(Thread *thread, Stack *ss) {
         alpha = MAX(score - initialWindow, -INFINITE);
         beta  = MIN(score + initialWindow,  INFINITE);
 
-        int x = CLAMP(score / 2, -50, +50);
+        int x = CLAMP(score / 2, -35, 35);
         pos->trend = sideToMove == WHITE ? S(x, x/2) : -S(x, x/2);
     }
 
