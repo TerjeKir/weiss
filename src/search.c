@@ -550,7 +550,7 @@ static void AspirationWindow(Thread *thread, Stack *ss) {
         // Score inside the window
         } else {
             if (thread->multiPV == 0)
-                thread->uncertain = ss->pv.line[0] != thread->rootMoves[multiPV].move;
+                thread->uncertain = ss->pv.line[0] != thread->rootMoves[0].move;
             thread->rootMoves[multiPV].move = ss->pv.line[0];
             return;
         }
