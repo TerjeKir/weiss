@@ -44,6 +44,7 @@ typedef struct Thread {
     uint64_t tbhits;
     Move bestMove[MULTI_PV_MAX];
     int score[MULTI_PV_MAX];
+    PV pvs[MULTI_PV_MAX];
     Depth depth;
     Color nullMover;
     int rootMoveCount;

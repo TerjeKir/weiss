@@ -525,10 +525,17 @@ static void AspirationWindow(Thread *thread, Stack *ss) {
 
         score = AlphaBeta(thread, ss, alpha, beta, depth);
 
-        // Give an update when done, or after each iteration in long searches
-        if (mainThread && (   (score > alpha && score < beta)
-                           || (TimeSince(Limits.start) > 3000 && Limits.multiPV == 1)))
-            PrintThinking(thread, ss, score, alpha, beta);
+        if (thread->multiPV == 0) thread->uncertain = ss->pv.line[0] != thread->bestMove[0];
+        thread->score[thread->multiPV] = score;
+        thread->bestMove[thread->multiPV] = ss->pv.line[0];
+        memcpy(&thread->pvs[thread->multiPV], &ss->pv, sizeof(PV));
+
+        // Give an update when failing high/low
+        if (   mainThread
+            && Limits.multiPV == 1
+            && (score <= alpha || score >= beta)
+            && TimeSince(Limits.start) > 3000)
+            PrintThinking(thread, alpha, beta);
 
         // Failed low, relax lower bound and search again
         if (score <= alpha) {
@@ -542,12 +549,8 @@ static void AspirationWindow(Thread *thread, Stack *ss) {
             depth -= (abs(score) < TBWIN_IN_MAX);
 
         // Score within the bounds is accepted as correct
-        } else {
-            if (thread->multiPV == 0) thread->uncertain = ss->pv.line[0] != thread->bestMove[0];
-            thread->bestMove[thread->multiPV] = ss->pv.line[0];
-            thread->score[thread->multiPV] = score;
+        } else
             return;
-        }
 
         delta += delta * 2 / 3;
     }
@@ -573,6 +576,9 @@ static void *IterativeDeepening(void *voidThread) {
 
         // Only the main thread concerns itself with the rest
         if (!mainThread) continue;
+
+        // Print thinking info when iteration is finished
+        PrintThinking(thread, -INFINITE, INFINITE);
 
         // Stop searching after finding a short enough mate
         if (MATE - abs(thread->score[0]) <= 2 * abs(Limits.mate)) break;

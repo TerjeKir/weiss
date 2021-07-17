@@ -82,5 +82,5 @@ INLINE void SetLimit(const char *str, const char *token, int *limit) {
         *limit = atoi(ptr + strlen(token));
 }
 
-void PrintThinking(const Thread *thread, const Stack *ss, int score, int alpha, int beta);
+void PrintThinking(const Thread *thread, int alpha, int beta);
 void PrintConclusion(const Thread *thread);
