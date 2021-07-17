@@ -37,14 +37,18 @@ typedef struct {
     PV pv;
 } Stack;
 
+typedef struct RootMoves {
+    Move move;
+    int score;
+    PV pv;
+} RootMoves;
+
 typedef struct Thread {
 
     Stack ss[128];
     jmp_buf jumpBuffer;
     uint64_t tbhits;
-    Move bestMove[MULTI_PV_MAX];
-    int score[MULTI_PV_MAX];
-    PV pvs[MULTI_PV_MAX];
+    RootMoves rootMoves[MULTI_PV_MAX];
     Depth depth;
     Color nullMover;
     int rootMoveCount;
