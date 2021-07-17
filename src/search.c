@@ -234,7 +234,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
 
     // Reverse Futility Pruning
     if (   depth < 7
-        && eval - 175 * depth + 100 * improving >= beta
+        && eval - 175 * depth / (1 + improving) >= beta
         && abs(beta) < TBWIN_IN_MAX)
         return eval;
 
