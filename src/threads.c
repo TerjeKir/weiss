@@ -55,6 +55,23 @@ bool AlreadySearchedMultiPV(Thread *thread, Move move) {
     return false;
 }
 
+// Sorts all rootmoves searched by multiPV
+void SortRootMoves(Thread *thread, int multiPV) {
+    for (int i = 0; i < multiPV; ++i) {
+
+        int bestIdx = i;
+        int bestScore = thread->rootMoves[i].score;
+
+        for (int k = i + 1; k < multiPV; ++k)
+            if (thread->rootMoves[k].score > bestScore)
+                bestScore = thread->rootMoves[bestIdx = k].score;
+
+        RootMove best = thread->rootMoves[bestIdx];
+        thread->rootMoves[bestIdx] = thread->rootMoves[i];
+        thread->rootMoves[i] = best;
+    }
+}
+
 // Tallies the nodes searched by all threads
 uint64_t TotalNodes() {
     uint64_t total = 0;
