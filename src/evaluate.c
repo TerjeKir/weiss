@@ -298,6 +298,7 @@ INLINE int EvalThreats(const Position *pos, const Color color) {
 
     int count, eval = 0;
 
+    // Our pawns threatening their non-pawns
     Bitboard ourPawns = colorPieceBB(color, PAWN);
     Bitboard theirNonPawns = colorBB(!color) ^ colorPieceBB(!color, PAWN);
 
@@ -305,6 +306,7 @@ INLINE int EvalThreats(const Position *pos, const Color color) {
     eval += PawnThreat * count;
     TraceCount(PawnThreat);
 
+    // Our pawns that can step forward to threaten their non-pawns
     Bitboard pawnPushes = ShiftBB(ourPawns, up) & ~pieceBB(ALL);
 
     count = PopCount(PawnBBAttackBB(pawnPushes, color) & theirNonPawns);
