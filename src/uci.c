@@ -36,14 +36,14 @@
 
 
 // Parses the time controls
-static void ParseTimeControl(char *str, Color color) {
+static void ParseTimeControl(const char *str, const Position *pos) {
 
     memset(&Limits, 0, offsetof(SearchLimits, multiPV));
     Limits.start = Now();
 
-    // Read in relevant search constraints
+    // Parse relevant search constraints
     Limits.infinite = strstr(str, "infinite");
-    if (color == WHITE)
+    if (sideToMove == WHITE)
         SetLimit(str, "wtime", &Limits.time),
         SetLimit(str, "winc",  &Limits.inc);
     else
@@ -54,6 +54,16 @@ static void ParseTimeControl(char *str, Color color) {
     SetLimit(str, "depth",     &Limits.depth);
     SetLimit(str, "mate",      &Limits.mate);
 
+    // Parse searchmoves, assumes they are at the end of the string
+    char *searchmoves = strstr(str, "searchmoves ");
+    if (searchmoves) {
+        char *move = strtok(searchmoves, " ");
+        int i = 0;
+        while ((move = strtok(NULL, " "))) {
+            Limits.searchmoves[i++] = ParseMove(move, pos);
+        }
+    }
+
     Limits.timelimit = Limits.time || Limits.movetime;
     Limits.depth = Limits.depth ?: 100;
 }
@@ -63,7 +73,7 @@ INLINE void Go(Position *pos, char *str) {
     ABORT_SIGNAL = false;
     InitTT();
     TT.dirty = true;
-    ParseTimeControl(str, pos->stm);
+    ParseTimeControl(str, pos);
     StartMainThread(SearchPosition, pos);
 }
 
