@@ -254,6 +254,9 @@ void PrintThinking(const Thread *thread, int alpha, int beta) {
         const PV *pv = &thread->rootMoves[i].pv;
         int score = thread->rootMoves[i].score;
 
+        // Skip empty pvs that occur when MultiPV > legal moves in root
+        if (pv->length == 0) break;
+
         // Determine whether we have a centipawn or mate score
         char *type = abs(score) >= MATE_IN_MAX ? "mate" : "cp";
 
