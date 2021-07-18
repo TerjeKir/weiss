@@ -227,11 +227,6 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
     if (inCheck || pvNode || !thread->doPruning || ss->excluded)
         goto move_loop;
 
-    // Razoring
-    if (   depth < 2
-        && eval + 350 < alpha)
-        return Quiescence(thread, ss, alpha, beta);
-
     // Reverse Futility Pruning
     if (   depth < 7
         && eval - 175 * depth / (1 + improving) >= beta
