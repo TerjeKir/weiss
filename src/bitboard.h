@@ -112,7 +112,6 @@ extern Magic RookTable[64];
 extern Bitboard PseudoAttacks[TYPE_NB][64];
 extern Bitboard PawnAttacks[COLOR_NB][64];
 
-// Eval bit masks
 extern Bitboard PassedMask[COLOR_NB][64];
 extern Bitboard IsolatedMask[64];
 
@@ -141,6 +140,7 @@ INLINE Bitboard Fill(Bitboard bb, const Direction dir) {
     return bb;
 }
 
+// Returns a bitboard of adjacent files
 INLINE Bitboard AdjacentFilesBB(const Square sq) {
     return ShiftBB(FileBB[FileOf(sq)], WEST)
          | ShiftBB(FileBB[FileOf(sq)], EAST);
@@ -174,7 +174,7 @@ INLINE bool Single(Bitboard bb) {
     return bb && !Multiple(bb);
 }
 
-// Returns the attack bitboard for a piece of piecetype on square sq
+// Returns the attack bitboard for the piecetype on the given square
 INLINE Bitboard AttackBB(PieceType pt, Square sq, Bitboard occupied) {
 
     assert(pt != PAWN);
@@ -187,13 +187,14 @@ INLINE Bitboard AttackBB(PieceType pt, Square sq, Bitboard occupied) {
     }
 }
 
-// Returns an attack bitboard where sliders are allowed to xray other sliders moving the same directions
+// Returns the attack bitboard where sliders are allowed to xray
+// allied sliders moving the same directions and enemy queens
 INLINE Bitboard XRayAttackBB(const Position *pos, const Color color, const PieceType pt, const Square sq) {
-    Bitboard occ = pieceBB(ALL);
+    Bitboard occ = pieceBB(ALL) ^ pieceBB(QUEEN);
     switch (pt) {
-        case BISHOP: occ ^= pieceBB(QUEEN) ^ colorPieceBB(color, BISHOP); break;
-        case ROOK  : occ ^= pieceBB(QUEEN) ^ colorPieceBB(color, ROOK); break;
-        case QUEEN : occ ^= pieceBB(QUEEN) ^ colorPieceBB(color, ROOK) ^ colorPieceBB(color, BISHOP); break;
+        case BISHOP: occ ^= colorPieceBB(color, BISHOP); break;
+        case ROOK  : occ ^= colorPieceBB(color, ROOK); break;
+        case QUEEN : occ ^= colorPieceBB(color, ROOK) ^ colorPieceBB(color, BISHOP); break;
     }
     return AttackBB(pt, sq, occ);
 }
@@ -213,6 +214,7 @@ Bitboard Attackers(const Position *pos, const Square sq, const Bitboard occ);
 bool SqAttacked(const Position *pos, Square sq, Color color);
 bool KingAttacked(const Position *pos, Color color);
 
+// Returns a bitboard with all pieces checking the king of the current side to move
 INLINE Bitboard Checkers(const Position *pos) {
     return colorBB(!sideToMove) & Attackers(pos, kingSq(sideToMove), pieceBB(ALL));
 }

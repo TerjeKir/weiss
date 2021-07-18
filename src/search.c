@@ -71,7 +71,7 @@ static int Quiescence(Thread *thread, Stack *ss, int alpha, const int beta) {
     if (eval >= beta)
         return eval;
 
-    // Use eval as a lowerbound if it's above alpha (but below beta)
+    // Use eval as a lowerbound if it's above alpha
     if (eval > alpha)
         alpha = eval;
 
@@ -94,6 +94,7 @@ static int Quiescence(Thread *thread, Stack *ss, int alpha, const int beta) {
                  && RelativeRank(sideToMove, RankOf(toSq(move))) > 5))
             continue;
 
+        // SEE pruning
         if (   futility <= alpha
             && !SEE(pos, move, 1)) {
             bestScore = MAX(bestScore, futility);
@@ -177,6 +178,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
         && tte->depth >= depth
         && (tte->bound & (ttScore >= beta ? BOUND_LOWER : BOUND_UPPER))) {
 
+        // Give a history bonus to quiet tt moves that causes a cutoff
         if (ttScore >= beta && moveIsQuiet(ttMove))
             HistoryBonus(QuietEntry(ttMove), depth*depth);
 
@@ -192,11 +194,13 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
 
         thread->tbhits++;
 
+        // Draw scores are exact, while wins are lower bounds and losses upper bounds (mate scores are better/worse)
         if (bound == BOUND_EXACT || (bound == BOUND_LOWER ? tbScore >= beta : tbScore <= alpha)) {
             StoreTTEntry(tte, key, NOMOVE, ScoreToTT(tbScore, ss->ply), MAX_PLY, bound);
             return tbScore;
         }
 
+        // Limit the score of this node based on the tb result
         if (pvNode) {
             if (bound == BOUND_LOWER)
                 bestScore = tbScore,
@@ -240,13 +244,14 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
         && history(-1).move != NOMOVE
         && pos->nonPawnCount[sideToMove] > (depth > 8)) {
 
-        int R = 3 + depth / 5 + MIN(3, (eval - beta) / 256);
+        Depth nullDepth = depth - (3 + depth / 5 + MIN(3, (eval - beta) / 256));
 
+        // Remember who last null-moved
         Color nullMoverTemp = thread->nullMover;
         thread->nullMover = sideToMove;
 
         MakeNullMove(pos);
-        int score = -AlphaBeta(thread, ss+1, -beta, -beta+1, depth-R);
+        int score = -AlphaBeta(thread, ss+1, -beta, -beta+1, nullDepth);
         TakeNullMove(pos);
 
         thread->nullMover = nullMoverTemp;
@@ -275,7 +280,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
 
             if (!MakeMove(pos, move)) continue;
 
-            // See if a quiescence search beats pbBeta
+            // See if a quiescence search beats the threshold
             int pbScore = -Quiescence(thread, ss+1, -threshold, -threshold+1);
 
             // If it did, do a proper search with reduced depth
@@ -284,7 +289,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
 
             TakeMove(pos);
 
-            // Cut if the reduced depth search beats pbBeta
+            // Cut if the reduced depth search beats the threshold
             if (pbScore >= threshold)
                 return pbScore;
         }
@@ -471,6 +476,7 @@ skip_search:
     // Limit time spent on forced moves
     if (root) thread->rootMoveCount = moveCount;
 
+    // Make sure score isn't above the max score given by TBs
     bestScore = MIN(bestScore, maxScore);
 
     // Store in TT
