@@ -50,6 +50,15 @@ CONSTR InitReductions() {
             Reductions[1][depth][moves] = 1.75 + log(depth) * log(moves) / 1.75; // quiet
 }
 
+// Checks if the move is in the list of searchmoves if any were given
+static bool NotInSearchMoves(Move move) {
+    if (Limits.searchmoves[0] == NOMOVE) return false;
+    for (Move *m = Limits.searchmoves; *m != NOMOVE; ++m)
+        if (*m == move)
+            return false;
+    return true;
+}
+
 // Quiescence
 static int Quiescence(Thread *thread, Stack *ss, int alpha, const int beta) {
 
@@ -312,6 +321,7 @@ move_loop:
 
         if (move == ss->excluded) continue;
         if (root && AlreadySearchedMultiPV(thread, move)) continue;
+        if (root && NotInSearchMoves(move)) continue;
 
         bool quiet = moveIsQuiet(move);
 

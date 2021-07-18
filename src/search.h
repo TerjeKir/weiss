@@ -28,6 +28,7 @@ typedef struct {
     int optimalUsage, maxUsage;
     int mate;
     bool timelimit, infinite;
+    Move searchmoves[64];
     int multiPV;
 } SearchLimits;
 
