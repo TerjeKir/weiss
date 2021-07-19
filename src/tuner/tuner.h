@@ -38,15 +38,17 @@
 #define TraceEval(e) T.eval = e
 
 
-// #define ANDY_FULL
+// #define DATASET      "../../Datasets/Andrew/BIG.book"
+// #define NPOSITIONS   ( 42484641) // Total FENS in the book
 
-#ifdef ANDY_FULL
-#define DATASET      "../../Datasets/Andrew/BIG.book"
-#define NPOSITIONS   ( 42484641) // Total FENS in the book
-#else
-#define DATASET      "../../Datasets/lichess-big3-resolved.book"
-#define NPOSITIONS   ( 7153652) // Total FENS in the book
-#endif
+// #define DATASET      "../../Datasets/lichess-big3-resolved.book"
+// #define NPOSITIONS   ( 7153652) // Total FENS in the book
+
+#define DATASET      "../../Datasets/Andrew/COMBO.book"
+#define NPOSITIONS   (14669229) // Total FENS in the book
+
+// #define DATASET      "../../Datasets/Andrew/COMBO2.book"
+// #define NPOSITIONS   (17746609) // Total FENS in the book
 
 
 #define NTERMS       (     510) // Number of terms being tuned
@@ -60,6 +62,28 @@
 #define BETA_2       (   0.999) // ADAM Velocity Coefficient
 
 #define STACKSIZE ((int)((double) NPOSITIONS * NTERMS / 64))
+
+
+/*
+Term indices
+0-4: Piece values
+5-388: Psqt
+389: PawnDoubled
+390: PawnIsolated
+391: PawnSupport
+392: PawnThreat
+393: PushThreat
+394: PawnOpen
+395: BishopPair
+396: KingAtkPawn
+397: OpenForward
+398: SemiForward
+399: NBBehindPawn
+400-407: Passed
+408-415: Phalanx
+416-443: KLD
+444-509: Mobility
+*/
 
 
 typedef struct EvalTrace {
