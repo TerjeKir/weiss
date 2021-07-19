@@ -32,10 +32,11 @@
 
 
 #define TRACE (1)
-#define TraceCount(term) T.term[color] = count
+#define TraceCount(term) T.term[color] += count
 #define TraceIncr(term) T.term[color]++
 #define TraceScale(s) T.scale = s
 #define TraceEval(e) T.eval = e
+#define TraceDanger(d) T.danger[color] = d
 
 
 // #define DATASET      "../../Datasets/Andrew/BIG.book"
@@ -67,7 +68,12 @@
 /*
 Term indices
 0-4: Piece values
-5-388: Psqt
+5-68: Pawn PSQT
+69-132: Knight PSQT
+133-196: Bishop PSQT
+197-260: Rook PSQT
+261-324: Queen PSQT
+325-388: King PSQT
 389: PawnDoubled
 390: PawnIsolated
 391: PawnSupport
@@ -82,7 +88,10 @@ Term indices
 400-407: Passed
 408-415: Phalanx
 416-443: KLD
-444-509: Mobility
+444-452: Knight mobility
+453-466: Bishop mobility
+467-481: Rook mobility
+482-509: Queen mobility
 */
 
 
@@ -90,6 +99,7 @@ typedef struct EvalTrace {
 
     int eval;
     int scale;
+    int danger[COLOR_NB];
 
     int PieceValue[5][COLOR_NB];
     int PSQT[6][64][COLOR_NB];
@@ -140,4 +150,5 @@ void Tune();
 #define TraceIncr(term)
 #define TraceScale(s)
 #define TraceEval(e)
+#define TraceDanger(d)
 #endif

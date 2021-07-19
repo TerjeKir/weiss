@@ -274,6 +274,7 @@ INLINE int EvalKings(const Position *pos, EvalInfo *ei, const Color color) {
                 * CountModifier[MIN(7, ei->attackCount[!color])];
 
     eval -= S(danger / 128, 0);
+    TraceDanger(danger / 128);
 
     return eval;
 }

@@ -370,7 +370,25 @@ void InitTunerTuples(TEntry *entry, TCoeffs coeffs) {
             entry->tuples[tidx++] = (TTuple) { i, coeffs[i] };
 }
 
-void InitTunerEntry(TEntry *entry, Position *pos) {
+double CoeffEvaluation(TEntry *entry, TVector params, int danger) {
+
+    double midgame = -danger;
+    double endgame = 0;
+
+    for (int i = 0; i < entry->ntuples; i++) {
+        int termIndex = entry->tuples[i].index;
+        midgame += (double) entry->tuples[i].coeff * params[termIndex][MG];
+        endgame += (double) entry->tuples[i].coeff * params[termIndex][EG];
+    }
+
+    double eval = (  (midgame * entry->phase)
+                   + (endgame * (MidGame - entry->phase)) * entry->scale)
+                  / MidGame;
+
+    return eval + (entry->turn == WHITE ? Tempo : -Tempo);
+}
+
+void InitTunerEntry(TEntry *entry, Position *pos, int *danger) {
 
     // Save time by computing phase scalars now
     entry->pfactors[MG] = 0 + pos->phaseValue / 24.0;
@@ -390,9 +408,10 @@ void InitTunerEntry(TEntry *entry, Position *pos) {
     entry->eval = T.eval;
     entry->scale = T.scale / 128.0;
     entry->turn = pos->stm;
+    *danger = T.danger[WHITE] - T.danger[BLACK];
 }
 
-void InitTunerEntries(TEntry *entries) {
+void InitTunerEntries(TEntry *entries, TVector currentParams) {
 
     Position pos;
     char line[128];
@@ -408,9 +427,20 @@ void InitTunerEntries(TEntry *entries) {
         else if (strstr(line, "[0.0]")) entries[i].result = 0.0;
         else    {printf("Cannot Parse %s\n", line); exit(EXIT_FAILURE);}
 
+        TEntry *entry = &entries[i];
+        int danger;
+
         // Set the board with the current FEN and initialize
         ParseFen(line, &pos);
-        InitTunerEntry(&entries[i], &pos);
+        InitTunerEntry(entry, &pos, &danger);
+
+        int coeffEval = CoeffEvaluation(entry, currentParams, danger);
+        int deviation = abs(entry->seval - coeffEval);
+
+        if (deviation > 1) {
+            printf("\nDeviation %d between real eval and coeff eval too big: %s", deviation, line);
+            exit(0);
+        }
     }
 }
 
@@ -524,7 +554,7 @@ void Tune() {
 
     printf("Tuning %d terms using %d positions from %s\n", NTERMS, NPOSITIONS, DATASET);
     InitBaseParams(currentParams);
-    InitTunerEntries(entries);
+    InitTunerEntries(entries, currentParams);
     printf("Allocated:\n");
     printf("Optimal K...\r");
     K = ComputeOptimalK(entries);
