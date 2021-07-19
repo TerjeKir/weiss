@@ -33,7 +33,6 @@
 
 #include "../board.h"
 #include "../evaluate.h"
-#include "../psqt.h"
 #include "tuner.h"
 
 
@@ -196,7 +195,7 @@ void InitBaseParams(TVector tparams) {
     // PSQT
     for (int pt = PAWN; pt <= KING; ++pt)
         for (int sq = 0; sq < 64; ++sq)
-            InitBaseSingle(-(PSQT[pt][MirrorSquare(sq)] + PieceTypeValue[pt]));
+            InitBaseSingle(PieceSqValue[pt-1][MirrorSquare(sq)]);
 
     // Misc
     InitBaseSingle(PawnDoubled);
