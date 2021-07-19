@@ -64,6 +64,28 @@
 #define STACKSIZE ((int)((double) NPOSITIONS * NTERMS / 64))
 
 
+/*
+Term indices
+0-4: Piece values
+5-388: Psqt
+389: PawnDoubled
+390: PawnIsolated
+391: PawnSupport
+392: PawnThreat
+393: PushThreat
+394: PawnOpen
+395: BishopPair
+396: KingAtkPawn
+397: OpenForward
+398: SemiForward
+399: NBBehindPawn
+400-407: Passed
+408-415: Phalanx
+416-443: KLD
+444-509: Mobility
+*/
+
+
 typedef struct EvalTrace {
 
     int eval;
