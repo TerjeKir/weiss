@@ -553,6 +553,7 @@ void Tune() {
 
         error = TunedEvaluationErrors(entries, params, K);
         printf("\rEpoch [%d] Error = [%.8f], Rate = [%g]", epoch, error, rate);
+        if (epoch % 10 == 0) puts("");
 
         // Pre-scheduled Learning Rate drops
         if (epoch % LRSTEPRATE == 0) rate = rate / LRDROPRATE;
