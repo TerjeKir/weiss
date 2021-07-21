@@ -101,6 +101,7 @@ void PrepareSearch(Position *pos) {
         ++rootMoveCount;
         TakeMove(pos);
     }
+    pos->nodes = 0;
 
     for (Thread *t = threads; t < threads + threads->count; ++t) {
         memset(t, 0, offsetof(Thread, pos));
