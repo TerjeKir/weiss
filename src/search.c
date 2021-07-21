@@ -483,9 +483,6 @@ skip_search:
              : inCheck      ? -MATE + ss->ply
                             : 0;
 
-    // Limit time spent on forced moves
-    if (root) thread->rootMoveCount = moveCount;
-
     // Make sure score isn't above the max score given by TBs
     bestScore = MIN(bestScore, maxScore);
 
