@@ -557,7 +557,7 @@ static void AspirationWindow(Thread *thread, Stack *ss) {
 
         // Score inside the window
         } else {
-            if (thread->multiPV == 0)
+            if (multiPV == 0)
                 thread->uncertain = ss->pv.line[0] != thread->rootMoves[0].move;
             thread->rootMoves[multiPV].move = ss->pv.line[0];
             return;
@@ -585,6 +585,7 @@ static void *IterativeDeepening(void *voidThread) {
         for (thread->multiPV = 0; thread->multiPV < Limits.multiPV; ++thread->multiPV)
             AspirationWindow(thread, ss);
 
+        // Sort root moves so they are printed in the right order in multi-pv mode
         SortRootMoves(thread, Limits.multiPV);
 
         // Only the main thread concerns itself with the rest
