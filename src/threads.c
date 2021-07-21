@@ -21,6 +21,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "makemove.h"
+#include "movegen.h"
 #include "threads.h"
 
 
@@ -90,10 +92,21 @@ uint64_t TotalTBHits() {
 
 // Setup threads for a new search
 void PrepareSearch(Position *pos) {
+    int rootMoveCount = 0;
+    MoveList list = { 0 };
+    GenNoisyMoves(pos, &list);
+    GenQuietMoves(pos, &list);
+    for (int i = 0; i < list.count; ++i) {
+        if (!MakeMove(pos, list.moves[list.next++].move)) continue;
+        ++rootMoveCount;
+        TakeMove(pos);
+    }
+
     for (Thread *t = threads; t < threads + threads->count; ++t) {
         memset(t, 0, offsetof(Thread, pos));
         memcpy(&t->pos, pos, sizeof(Position));
         t->nullMover = -1;
+        t->rootMoveCount = rootMoveCount;
         for (Depth d = 0; d <= MAX_PLY; ++d)
             (t->ss+SS_OFFSET+d)->ply = d;
     }
