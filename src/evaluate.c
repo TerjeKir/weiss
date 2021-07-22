@@ -320,18 +320,18 @@ INLINE int EvalPassedPawns(const Position *pos, const EvalInfo *ei, const Color 
     while (passers) {
 
         Square sq = PopLsb(&passers);
+        Square forward = sq + up;
         int rank = RelativeRank(color, RankOf(sq));
         if (rank < RANK_5) continue;
 
-        count = Distance(sq, kingSq( color));
+        count = Distance(forward, kingSq( color));
         eval += count * PassedDistUs[rank];
         TraceCount(PassedDistUs[rank]);
 
-        count = Distance(sq, kingSq(!color));
+        count = Distance(forward, kingSq(!color));
         eval += count * PassedDistThem[rank];
         TraceCount(PassedDistThem[rank]);
 
-        Square forward = sq + up;
         if (pieceOn(forward)) {
             eval += PassedBlocked[rank];
             TraceIncr(PassedBlocked[rank]);
