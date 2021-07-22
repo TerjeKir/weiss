@@ -70,13 +70,11 @@ const int PawnPassed[RANK_NB] = {
     S( 17, 99), S( 46,176), S(137,253), S(  0,  0),
 };
 
-// Passed pawn
 const int PassedDistUs[RANK_NB] = {
     S(  0,  0), S(  0,  0), S(  0,  0), S(  0,  0),
     S( -9,-11), S(-11, -9), S(-11, -6), S(  0,  0),
 };
 
-// Passed pawn
 const int PassedDistThem[RANK_NB] = {
     S(  0,  0), S(  0,  0), S(  0,  0), S(  0,  0),
     S( 11, 16), S( 12, 20), S( 12, 23), S(  0,  0),

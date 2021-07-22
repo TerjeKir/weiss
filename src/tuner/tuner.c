@@ -270,11 +270,9 @@ void PrintParameters(TVector params, TVector current) {
     PrintArray("PawnPassed", tparams, i, 8, "[RANK_NB]");
     i+=8;
 
-    puts("\n// Passed pawn");
     PrintArray("PassedDistUs", tparams, i, 8, "[RANK_NB]");
     i+=8;
 
-    puts("\n// Passed pawn");
     PrintArray("PassedDistThem", tparams, i, 8, "[RANK_NB]");
     i+=8;
 
