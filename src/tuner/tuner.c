@@ -57,6 +57,8 @@ extern const int NBBehindPawn;
 
 // Passed pawn
 extern const int PawnPassed[RANK_NB];
+extern const int PassedDistUs[RANK_NB];
+extern const int PassedDistThem[RANK_NB];
 
 // Pawn phalanx
 extern const int PawnPhalanx[RANK_NB];
@@ -212,6 +214,8 @@ void InitBaseParams(TVector tparams) {
 
     // Passed pawns
     InitBaseArray(PawnPassed, RANK_NB);
+    InitBaseArray(PassedDistUs, RANK_NB);
+    InitBaseArray(PassedDistThem, RANK_NB);
 
     // Pawn phalanx
     InitBaseArray(PawnPhalanx, RANK_NB);
@@ -264,6 +268,12 @@ void PrintParameters(TVector params, TVector current) {
 
     puts("\n// Passed pawn");
     PrintArray("PawnPassed", tparams, i, 8, "[RANK_NB]");
+    i+=8;
+
+    PrintArray("PassedDistUs", tparams, i, 8, "[RANK_NB]");
+    i+=8;
+
+    PrintArray("PassedDistThem", tparams, i, 8, "[RANK_NB]");
     i+=8;
 
     puts("\n// Pawn phalanx");
@@ -321,6 +331,8 @@ void InitCoefficients(TCoeffs coeffs) {
 
     // Passed pawns
     InitCoeffArray(PawnPassed, RANK_NB);
+    InitCoeffArray(PassedDistUs, RANK_NB);
+    InitCoeffArray(PassedDistThem, RANK_NB);
 
     // Pawn phalanx
     InitCoeffArray(PawnPhalanx, RANK_NB);

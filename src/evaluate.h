@@ -26,6 +26,7 @@
 
 typedef struct PawnEntry {
     Key key;
+    Bitboard passedPawns;
     int eval;
 } PawnEntry;
 

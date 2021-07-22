@@ -24,6 +24,7 @@
 
 
 typedef struct EvalInfo {
+    Bitboard passedPawns;
     Bitboard mobilityArea[COLOR_NB];
     Bitboard kingZone[COLOR_NB];
     int16_t attackPower[COLOR_NB];
@@ -51,57 +52,67 @@ const int PieceValue[2][PIECE_NB] = {
 const int Tempo = 15;
 
 // Misc bonuses and maluses
-const int PawnDoubled  = S(-11,-39);
-const int PawnIsolated = S( -9,-12);
-const int PawnSupport  = S( 18, 11);
-const int PawnThreat   = S( 60, 44);
-const int PushThreat   = S( 18, -2);
-const int PawnOpen     = S(-13, -9);
-const int BishopPair   = S( 26,102);
-const int KingAtkPawn  = S( 48, 77);
-const int OpenForward  = S( 30, 28);
-const int SemiForward  = S(  9, 22);
-const int NBBehindPawn = S(  9, 36);
+const int PawnDoubled  = S(-13,-42);
+const int PawnIsolated = S( -8,-16);
+const int PawnSupport  = S( 19, 10);
+const int PawnThreat   = S( 51, 70);
+const int PushThreat   = S( 18,  2);
+const int PawnOpen     = S(-14,-15);
+const int BishopPair   = S( 25,117);
+const int KingAtkPawn  = S( 38, 74);
+const int OpenForward  = S( 25, 22);
+const int SemiForward  = S(  8, 21);
+const int NBBehindPawn = S(  6, 44);
 
 // Passed pawn
 const int PawnPassed[RANK_NB] = {
-    S(  0,  0), S(-10, 20), S(-12, 29), S( -8, 66),
-    S( 18,102), S( 26,182), S(132,245), S(  0,  0),
+    S(  0,  0), S(-14, 30), S(-13, 37), S( -9, 75),
+    S( 17, 99), S( 46,176), S(137,253), S(  0,  0),
+};
+
+const int PassedDistUs[RANK_NB] = {
+    S(  0,  0), S(  0,  0), S(  0,  0), S(  0,  0),
+    S( -9,-11), S(-11, -9), S(-11, -6), S(  0,  0),
+};
+
+const int PassedDistThem[RANK_NB] = {
+    S(  0,  0), S(  0,  0), S(  0,  0), S(  0,  0),
+    S( 11, 16), S( 12, 20), S( 12, 23), S(  0,  0),
 };
 
 // Pawn phalanx
 const int PawnPhalanx[RANK_NB] = {
-    S(  0,  0), S(  6,  6), S( 18,  9), S( 24, 25),
-    S( 62, 95), S(106,204), S(164,255), S(  0,  0),
+    S(  0,  0), S(  8, -1), S( 18,  6), S( 24, 30),
+    S( 59,114), S(160,259), S(176,323), S(  0,  0),
 };
 
 // KingLineDanger
 const int KingLineDanger[28] = {
-    S(  0,  0), S(  0,  0), S(  0,  0), S(-12, 40),
-    S(-32, 44), S(-39, 37), S(-38, 34), S(-42, 41),
-    S(-50, 43), S(-66, 48), S(-65, 45), S(-75, 52),
-    S(-78, 49), S(-84, 50), S(-87, 48), S(-78, 44),
-    S(-75, 40), S(-65, 31), S(-58, 25), S(-56, 17),
-    S(-54, 12), S(-61,  4), S(-67, -3), S(-85,-18),
-    S(-101,-27), S(-115,-40), S(-118,-34), S(-123,-36),
+    S(  0,  0), S(  0,  0), S( -4, 14), S(-13, 50),
+    S(-28, 50), S(-32, 37), S(-30, 32), S(-37, 41),
+    S(-41, 41), S(-52, 44), S(-47, 37), S(-61, 46),
+    S(-63, 43), S(-72, 43), S(-77, 44), S(-73, 41),
+    S(-79, 39), S(-75, 29), S(-77, 24), S(-81, 19),
+    S(-85, 14), S(-101,  7), S(-101, -3), S(-128,-16),
+    S(-118,-34), S(-119,-51), S(-118,-34), S(-123,-36),
 };
 
 // Mobility [pt-2][mobility]
 const int Mobility[4][28] = {
     // Knight (0-8)
-    { S(-45,-100), S(-25,-44), S( -5, 11), S(  9, 27), S( 19, 37), S( 22, 55), S( 29, 55), S( 38, 51),
-      S( 50, 29) },
+    { S(-35,-139), S(-27,-29), S( -6, 33), S(  3, 66), S( 13, 76), S( 16, 94), S( 23, 94), S( 32, 88),
+      S( 45, 62) },
     // Bishop (0-13)
-    { S(-48,-129), S(-23,-76), S( -6,-13), S(  5, 12), S( 14, 25), S( 23, 48), S( 28, 63), S( 28, 69),
-      S( 28, 77), S( 33, 77), S( 37, 75), S( 54, 65), S( 53, 66), S( 81, 39) },
+    { S(-39,-100), S(-20,-61), S( -9, -3), S( -2, 34), S(  8, 50), S( 17, 76), S( 21, 94), S( 21,100),
+      S( 20,111), S( 26,111), S( 30,109), S( 53, 93), S( 50,101), S(101, 55) },
     // Rook (0-14)
-    { S(-79,-92), S(-16,-73), S( -3,-11), S( -1,  6), S(  2, 37), S(  6, 48), S(  4, 68), S( 11, 68),
-      S( 17, 74), S( 24, 77), S( 31, 81), S( 31, 85), S( 29, 89), S( 36, 82), S( 70, 60) },
+    { S(-102,-132), S(-22,-21), S( -5, 44), S( -4, 49), S( -3, 85), S(  2,101), S(  0,121), S(  7,122),
+      S( 12,129), S( 20,134), S( 28,139), S( 30,142), S( 32,145), S( 44,136), S( 80,110) },
     // Queen (0-27)
-    { S(-62,-48), S(-84,-49), S(-68,-91), S(-24,-100), S( -5,-92), S(  7,-59), S( 12,-14), S( 16, 18),
-      S( 20, 42), S( 24, 55), S( 27, 67), S( 30, 76), S( 33, 79), S( 33, 88), S( 34, 95), S( 35, 98),
-      S( 33,107), S( 30,112), S( 25,119), S( 25,119), S( 32,115), S( 38,111), S( 49,102), S( 66, 82),
-      S( 77, 65), S( 89, 61), S( 95, 96), S( 98,120) }
+    { S(-63,-48), S(-91,-52), S(-89,-103), S(-28,-127), S(  0,-88), S(  0, 12), S(  2, 70), S(  5,104),
+      S(  9,128), S( 13,147), S( 15,162), S( 17,176), S( 20,180), S( 21,188), S( 22,193), S( 23,199),
+      S( 22,206), S( 20,210), S( 17,216), S( 15,222), S( 22,217), S( 17,223), S( 34,209), S( 42,194),
+      S( 96,148), S(107,130), S(118,130), S(104,134) }
 };
 
 // KingSafety [pt-2]
@@ -111,7 +122,7 @@ const int CountModifier[8] = { 0, 0, 64, 96, 113, 120, 124, 128 };
 
 
 // Evaluates pawns
-INLINE int EvalPawns(const Position *pos, const Color color) {
+INLINE int EvalPawns(const Position *pos, EvalInfo *ei, const Color color) {
 
     const Direction down = color == WHITE ? SOUTH : NORTH;
 
@@ -161,6 +172,8 @@ INLINE int EvalPawns(const Position *pos, const Color color) {
         if (!((PassedMask[color][sq]) & colorPieceBB(!color, PAWN))) {
             eval += PawnPassed[RelativeRank(color, RankOf(sq))];
             TraceIncr(PawnPassed[RelativeRank(color, RankOf(sq))]);
+
+            ei->passedPawns |= BB(sq);
         }
     }
 
@@ -168,19 +181,21 @@ INLINE int EvalPawns(const Position *pos, const Color color) {
 }
 
 // Tries to get pawn eval from cache, otherwise evaluates and saves
-int ProbePawnCache(const Position *pos, PawnCache pc) {
+int ProbePawnCache(const Position *pos, EvalInfo *ei, PawnCache pc) {
 
     // Can't cache when tuning as full trace is needed
-    if (TRACE) return EvalPawns(pos, WHITE) - EvalPawns(pos, BLACK);
+    if (TRACE) return EvalPawns(pos, ei, WHITE) - EvalPawns(pos, ei, BLACK);
 
     Key key = pos->pawnKey;
     PawnEntry *pe = &pc[key % PAWN_CACHE_SIZE];
 
-    if (pe->key != key)
-        pe->key  = key,
-        pe->eval = EvalPawns(pos, WHITE) - EvalPawns(pos, BLACK);
+    if (pe->key != key) {
+        pe->key  = key;
+        pe->eval = EvalPawns(pos, ei, WHITE) - EvalPawns(pos, ei, BLACK);
+        pe->passedPawns = ei->passedPawns;
+    }
 
-    return pe->eval;
+    return ei->passedPawns = pe->passedPawns, pe->eval;
 }
 
 // Evaluates knights, bishops, rooks, or queens
@@ -292,6 +307,30 @@ INLINE int EvalPieces(const Position *pos, EvalInfo *ei) {
           - EvalKings(pos, ei, BLACK);
 }
 
+INLINE int EvalPassedPawns(const Position *pos, const EvalInfo *ei, const Color color) {
+
+    int eval = 0, count;
+
+    Bitboard passers = colorBB(color) & ei->passedPawns;
+
+    while (passers) {
+
+        Square sq = PopLsb(&passers);
+        int rank = RelativeRank(color, RankOf(sq));
+        if (rank < RANK_5) continue;
+
+        count = Distance(sq, kingSq( color));
+        eval += count * PassedDistUs[rank];
+        TraceCount(PassedDistUs[rank]);
+
+        count = Distance(sq, kingSq(!color));
+        eval += count * PassedDistThem[rank];
+        TraceCount(PassedDistThem[rank]);
+    }
+
+    return eval;
+}
+
 // Evaluates threats
 INLINE int EvalThreats(const Position *pos, const Color color) {
 
@@ -334,6 +373,9 @@ INLINE void InitEvalInfo(const Position *pos, EvalInfo *ei, const Color color) {
 
     ei->attackPower[color] = -30;
     ei->attackCount[color] = 0;
+
+    // Clear passed pawns, filled in during pawn eval
+    ei->passedPawns = 0;
 }
 
 // Calculate scale factor to lower overall eval based on various features
@@ -364,10 +406,14 @@ int EvalPosition(const Position *pos, PawnCache pc) {
     int eval = pos->material + pos->trend;
 
     // Evaluate pawns
-    eval += ProbePawnCache(pos, pc);
+    eval += ProbePawnCache(pos, &ei, pc);
 
     // Evaluate pieces
     eval += EvalPieces(pos, &ei);
+
+    // Evaluate passed pawns
+    eval +=  EvalPassedPawns(pos, &ei, WHITE)
+           - EvalPassedPawns(pos, &ei, BLACK);
 
     // Evaluate threats
     eval +=  EvalThreats(pos, WHITE)
