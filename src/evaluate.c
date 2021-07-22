@@ -69,18 +69,15 @@ const int PawnPassed[RANK_NB] = {
     S(  0,  0), S(-13, 30), S(-12, 37), S( -9, 75),
     S(  0,103), S( 56,178), S(151,263), S(  0,  0),
 };
-const int
-PassedDistUs[RANK_NB] = {
+const int PassedDistUs[RANK_NB] = {
     S(  0,  0), S(  0,  0), S(  0,  0), S(  0,  0),
     S(  9,-29), S(-10,-28), S(-11,-21), S(  0,  0),
 };
-const int
-PassedDistThem[RANK_NB] = {
+const int PassedDistThem[RANK_NB] = {
     S(  0,  0), S(  0,  0), S(  0,  0), S(  0,  0),
     S( -4, 37), S(  8, 48), S( 18, 50), S(  0,  0),
 };
-const int
-PassedBlocked[RANK_NB] = {
+const int PassedBlocked[RANK_NB] = {
     S(  0,  0), S(  0,  0), S(  0,  0), S(  0,  0),
     S(  5,-33), S( 20,-103), S( -3,-135), S(  0,  0),
 };
