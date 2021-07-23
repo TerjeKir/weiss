@@ -66,20 +66,24 @@ const int NBBehindPawn = S(  7, 41);
 
 // Passed pawn
 const int PawnPassed[RANK_NB] = {
-    S(  0,  0), S(-13, 30), S(-12, 37), S( -9, 75),
-    S(  0,103), S( 56,178), S(151,263), S(  0,  0),
+    S(  0,  0), S(-13, 29), S(-12, 37), S( -7, 75),
+    S(  4,108), S( 59,181), S(154,264), S(  0,  0),
 };
 const int PassedDistUs[RANK_NB] = {
     S(  0,  0), S(  0,  0), S(  0,  0), S(  0,  0),
-    S(  9,-29), S(-10,-28), S(-11,-21), S(  0,  0),
+    S(  9,-27), S( -8,-27), S( -7,-23), S(  0,  0),
 };
 const int PassedDistThem[RANK_NB] = {
     S(  0,  0), S(  0,  0), S(  0,  0), S(  0,  0),
-    S( -4, 37), S(  8, 48), S( 18, 50), S(  0,  0),
+    S( -7, 38), S(  5, 50), S( 14, 53), S(  0,  0),
 };
 const int PassedBlocked[RANK_NB] = {
     S(  0,  0), S(  0,  0), S(  0,  0), S(  0,  0),
-    S(  5,-33), S( 20,-103), S( -3,-135), S(  0,  0),
+    S(  5,-29), S( 23,-99), S(  0,-132), S(  0,  0),
+};
+const int PassedDefended[RANK_NB] = {
+    S(  0,  0), S(  0,  0), S(  5,-13), S( -3,-16),
+    S(  2, 19), S( 45, 69), S( 98, 91), S(  0,  0),
 };
 
 // Pawn phalanx
@@ -172,8 +176,16 @@ INLINE int EvalPawns(const Position *pos, EvalInfo *ei, const Color color) {
 
         // Passed pawns
         if (!((PassedMask[color][sq]) & colorPieceBB(!color, PAWN))) {
-            eval += PawnPassed[RelativeRank(color, RankOf(sq))];
-            TraceIncr(PawnPassed[RelativeRank(color, RankOf(sq))]);
+
+            int rank = RelativeRank(color, RankOf(sq));
+
+            eval += PawnPassed[rank];
+            TraceIncr(PawnPassed[rank]);
+
+            if (BB(sq) & PawnBBAttackBB(pawns, color)) {
+                eval += PassedDefended[rank];
+                TraceIncr(PassedDefended[rank]);
+            }
 
             ei->passedPawns |= BB(sq);
         }
