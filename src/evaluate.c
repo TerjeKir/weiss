@@ -82,10 +82,7 @@ const int PassedDefended[RANK_NB] = {
     S(  0,  0), S(  0,  0), S(  5,-14), S( -2,-14),
     S(  3, 13), S( 47, 66), S(151, 74), S(  0,  0),
 };
-const int PassedRookBack[RANK_NB] = {
-    S(  0,  0), S(  0,  0), S(  0,  0), S( 12, 12),
-    S(  7, 24), S( 24, 17), S( 15, 44), S(  0,  0),
-};
+const int PassedRookBack = S( 10, 24);
 
 // Pawn phalanx
 const int PawnPhalanx[RANK_NB] = {
@@ -352,8 +349,8 @@ INLINE int EvalPassedPawns(const Position *pos, const EvalInfo *ei, const Color 
         }
 
         if (colorPieceBB(color, ROOK) & Fill(BB(sq), down)) {
-            eval += PassedRookBack[rank];
-            TraceIncr(PassedRookBack[rank]);
+            eval += PassedRookBack;
+            TraceIncr(PassedRookBack);
         }
     }
 

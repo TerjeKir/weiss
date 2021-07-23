@@ -52,11 +52,11 @@
 // #define NPOSITIONS   (17746609) // Total FENS in the book
 
 
-#define NTERMS       (     543) // Number of terms being tuned
+#define NTERMS       (     536) // Number of terms being tuned
 #define MAXEPOCHS    (   10000) // Max number of epochs allowed
 #define REPORTING    (      50) // How often to print the new parameters
 #define NPARTITIONS  (      64) // Total thread partitions
-#define LRRATE       (    0.01) // Learning rate
+#define LRRATE       (    0.1) // Learning rate
 #define LRDROPRATE   (    1.00) // Cut LR by this each LR-step
 #define LRSTEPRATE   (     250) // Cut LR after this many epochs
 #define BETA_1       (     0.9) // ADAM Momemtum Coefficient
@@ -121,7 +121,7 @@ typedef struct EvalTrace {
     int PassedDistThem[COLOR_NB];
     int PassedBlocked[RANK_NB][COLOR_NB];
     int PassedDefended[RANK_NB][COLOR_NB];
-    int PassedRookBack[RANK_NB][COLOR_NB];
+    int PassedRookBack[COLOR_NB];
     int PawnPhalanx[RANK_NB][COLOR_NB];
     int KingLineDanger[28][COLOR_NB];
     int Mobility[4][28][COLOR_NB];
