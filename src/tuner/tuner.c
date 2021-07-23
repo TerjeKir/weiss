@@ -58,7 +58,7 @@ extern const int NBBehindPawn;
 // Passed pawn
 extern const int PawnPassed[RANK_NB];
 extern const int PassedDistUs[RANK_NB];
-extern const int PassedDistThem[RANK_NB];
+extern const int PassedDistThem;
 extern const int PassedBlocked[RANK_NB];
 extern const int PassedDefended[RANK_NB];
 extern const int PassedRookBack[RANK_NB];
@@ -218,7 +218,7 @@ void InitBaseParams(TVector tparams) {
     // Passed pawns
     InitBaseArray(PawnPassed, RANK_NB);
     InitBaseArray(PassedDistUs, RANK_NB);
-    InitBaseArray(PassedDistThem, RANK_NB);
+    InitBaseSingle(PassedDistThem);
     InitBaseArray(PassedBlocked, RANK_NB);
     InitBaseArray(PassedDefended, RANK_NB);
     InitBaseArray(PassedRookBack, RANK_NB);
@@ -279,8 +279,7 @@ void PrintParameters(TVector params, TVector current) {
     PrintArray("PassedDistUs", tparams, i, 8, "[RANK_NB]");
     i+=8;
 
-    PrintArray("PassedDistThem", tparams, i, 8, "[RANK_NB]");
-    i+=8;
+    PrintSingle("PassedDistThem", tparams, i++, "");
 
     PrintArray("PassedBlocked", tparams, i, 8, "[RANK_NB]");
     i+=8;
@@ -347,7 +346,7 @@ void InitCoefficients(TCoeffs coeffs) {
     // Passed pawns
     InitCoeffArray(PawnPassed, RANK_NB);
     InitCoeffArray(PassedDistUs, RANK_NB);
-    InitCoeffArray(PassedDistThem, RANK_NB);
+    InitCoeffSingle(PassedDistThem);
     InitCoeffArray(PassedBlocked, RANK_NB);
     InitCoeffArray(PassedDefended, RANK_NB);
     InitCoeffArray(PassedRookBack, RANK_NB);

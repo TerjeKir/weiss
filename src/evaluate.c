@@ -73,10 +73,7 @@ const int PassedDistUs[RANK_NB] = {
     S(  0,  0), S(  0,  0), S(  0,  0), S( 17,-28),
     S( 11,-35), S( -6,-35), S(-13,-27), S(  0,  0),
 };
-const int PassedDistThem[RANK_NB] = {
-    S(  0,  0), S(  0,  0), S(  0,  0), S( -4, 18),
-    S( -6, 36), S( -7, 61), S(  1, 66), S(  0,  0),
-};
+const int PassedDistThem = S( -2, 19);
 const int PassedBlocked[RANK_NB] = {
     S(  0,  0), S(  0,  0), S(  0,  0), S( -1,-22),
     S(  4,-34), S(  7,-86), S(-20,-131), S(  0,  0),
@@ -345,9 +342,9 @@ INLINE int EvalPassedPawns(const Position *pos, const EvalInfo *ei, const Color 
         eval += count * PassedDistUs[rank];
         TraceCount(PassedDistUs[rank]);
 
-        count = Distance(forward, kingSq(!color));
-        eval += count * PassedDistThem[rank];
-        TraceCount(PassedDistThem[rank]);
+        count = (rank - RANK_3) * Distance(forward, kingSq(!color));
+        eval += count * PassedDistThem;
+        TraceCount(PassedDistThem);
 
         if (pieceOn(forward)) {
             eval += PassedBlocked[rank];
