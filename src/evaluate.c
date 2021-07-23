@@ -52,73 +52,77 @@ const int PieceValue[2][PIECE_NB] = {
 const int Tempo = 15;
 
 // Misc bonuses and maluses
-const int PawnDoubled  = S(-12,-42);
-const int PawnIsolated = S( -8,-17);
-const int PawnSupport  = S( 19, 10);
-const int PawnThreat   = S( 51, 70);
-const int PushThreat   = S( 17,  6);
+const int PawnDoubled  = S(-13,-41);
+const int PawnIsolated = S( -8,-18);
+const int PawnSupport  = S( 20, 10);
+const int PawnThreat   = S( 52, 71);
+const int PushThreat   = S( 18,  6);
 const int PawnOpen     = S(-14,-16);
-const int BishopPair   = S( 25,120);
-const int KingAtkPawn  = S(  4, 48);
-const int OpenForward  = S( 28, 14);
-const int SemiForward  = S( 10, 12);
+const int BishopPair   = S( 25,121);
+const int KingAtkPawn  = S(  2, 51);
+const int OpenForward  = S( 29, 20);
+const int SemiForward  = S( 11, 17);
 const int NBBehindPawn = S(  7, 41);
 
 // Passed pawn
 const int PawnPassed[RANK_NB] = {
-    S(  0,  0), S(-13, 31), S(-12, 38), S(-15, 85),
-    S( 13,120), S( 66,187), S(159,264), S(  0,  0),
+    S(  0,  0), S(-15, 35), S(-13, 41), S(-68,124),
+    S(-10,159), S( 89,189), S(243,253), S(  0,  0),
 };
 const int PassedDistUs[RANK_NB] = {
-    S(  0,  0), S(  0,  0), S(  0,  0), S( -4,-12),
-    S(  8,-29), S( -3,-33), S( -4,-27), S(  0,  0),
+    S(  0,  0), S(  0,  0), S(  0,  0), S( 17,-28),
+    S( 11,-35), S( -6,-35), S(-13,-27), S(  0,  0),
 };
 const int PassedDistThem[RANK_NB] = {
-    S(  0,  0), S(  0,  0), S(  0,  0), S(  8, 10),
-    S( -7, 37), S( -4, 57), S(  6, 61), S(  0,  0),
+    S(  0,  0), S(  0,  0), S(  0,  0), S( -4, 18),
+    S( -6, 36), S( -7, 61), S(  1, 66), S(  0,  0),
 };
 const int PassedBlocked[RANK_NB] = {
-    S(  0,  0), S(  0,  0), S(  0,  0), S( -8,-11),
-    S(  2,-26), S( 18,-91), S(  0,-127), S(  0,  0),
+    S(  0,  0), S(  0,  0), S(  0,  0), S( -1,-22),
+    S(  4,-34), S(  7,-86), S(-20,-131), S(  0,  0),
 };
 const int PassedDefended[RANK_NB] = {
-    S(  0,  0), S(  0,  0), S(  5,-13), S( -4,-13),
-    S(  0, 18), S( 45, 67), S(100, 89), S(  0,  0),
+    S(  0,  0), S(  0,  0), S(  5,-14), S( -2,-14),
+    S(  3, 13), S( 47, 66), S(151, 74), S(  0,  0),
+};
+const int PassedRookBack[RANK_NB] = {
+    S(  0,  0), S(  0,  0), S(  0,  0), S( 12, 12),
+    S(  7, 24), S( 24, 17), S( 15, 44), S(  0,  0),
 };
 
 // Pawn phalanx
 const int PawnPhalanx[RANK_NB] = {
-    S(  0,  0), S(  8, -3), S( 19,  6), S( 24, 31),
-    S( 60,118), S(155,241), S(174,321), S(  0,  0),
+    S(  0,  0), S(  8, -3), S( 19,  7), S( 24, 32),
+    S( 61,120), S(156,241), S(174,321), S(  0,  0),
 };
 
 // KingLineDanger
 const int KingLineDanger[28] = {
-    S(  0,  0), S(  0,  0), S(  2,  6), S( -8, 44),
-    S(-24, 44), S(-28, 32), S(-26, 28), S(-33, 37),
-    S(-37, 36), S(-50, 40), S(-45, 35), S(-59, 44),
-    S(-62, 42), S(-71, 42), S(-77, 44), S(-75, 42),
-    S(-83, 41), S(-81, 34), S(-84, 29), S(-88, 24),
-    S(-92, 20), S(-106, 11), S(-104,  1), S(-132,-14),
-    S(-120,-30), S(-119,-46), S(-118,-34), S(-123,-36),
+    S(  0,  0), S(  0,  0), S(  3,  5), S( -7, 44),
+    S(-23, 44), S(-28, 32), S(-26, 28), S(-33, 37),
+    S(-37, 36), S(-50, 41), S(-45, 36), S(-58, 44),
+    S(-61, 42), S(-70, 42), S(-77, 44), S(-74, 41),
+    S(-83, 41), S(-82, 33), S(-86, 28), S(-89, 23),
+    S(-94, 20), S(-107, 10), S(-105,  1), S(-132,-12),
+    S(-120,-28), S(-119,-45), S(-118,-34), S(-123,-36),
 };
 
 // Mobility [pt-2][mobility]
 const int Mobility[4][28] = {
     // Knight (0-8)
-    { S(-35,-140), S(-27,-24), S( -6, 38), S(  3, 72), S( 13, 83), S( 16,102), S( 23,101), S( 32, 96),
-      S( 45, 68) },
+    { S(-35,-140), S(-27,-24), S( -6, 39), S(  4, 74), S( 14, 85), S( 17,104), S( 23,103), S( 32, 98),
+      S( 46, 70) },
     // Bishop (0-13)
-    { S(-39,-95), S(-20,-56), S( -9,  2), S( -2, 39), S(  8, 55), S( 17, 81), S( 21, 99), S( 21,106),
-      S( 20,117), S( 26,117), S( 30,116), S( 53, 99), S( 52,108), S(102, 62) },
+    { S(-40,-95), S(-20,-56), S( -9,  2), S( -2, 40), S(  8, 56), S( 17, 83), S( 22,101), S( 22,108),
+      S( 21,120), S( 26,119), S( 31,118), S( 54,101), S( 52,110), S(102, 64) },
     // Rook (0-14)
-    { S(-103,-136), S(-21,-11), S( -4, 55), S( -3, 62), S( -2, 98), S(  2,116), S(  0,134), S(  7,139),
-      S( 12,147), S( 19,152), S( 27,159), S( 30,163), S( 31,167), S( 44,157), S( 82,127) },
+    { S(-103,-137), S(-21, -9), S( -4, 58), S( -3, 65), S( -2,102), S(  2,119), S(  0,138), S(  7,142),
+      S( 12,150), S( 20,155), S( 28,161), S( 30,165), S( 31,169), S( 44,159), S( 83,129) },
     // Queen (0-27)
-    { S(-63,-48), S(-92,-52), S(-90,-104), S(-26,-128), S(  5,-82), S(  4, 24), S(  6, 84), S(  9,122),
-      S( 12,148), S( 16,168), S( 18,184), S( 20,199), S( 23,203), S( 24,212), S( 25,218), S( 26,225),
-      S( 24,232), S( 22,237), S( 18,243), S( 16,249), S( 25,243), S( 20,248), S( 41,230), S( 49,215),
-      S(104,165), S(113,144), S(123,137), S(108,139) }
+    { S(-63,-48), S(-92,-52), S(-90,-104), S(-26,-128), S(  5,-81), S(  5, 26), S(  7, 87), S( 10,126),
+      S( 13,152), S( 17,173), S( 19,189), S( 21,204), S( 24,208), S( 25,217), S( 26,224), S( 27,231),
+      S( 25,238), S( 23,243), S( 20,249), S( 18,255), S( 26,249), S( 22,254), S( 43,235), S( 50,219),
+      S(106,169), S(114,147), S(124,138), S(109,140) }
 };
 
 // KingSafety [pt-2]
@@ -323,7 +327,8 @@ INLINE int EvalPieces(const Position *pos, EvalInfo *ei) {
 
 INLINE int EvalPassedPawns(const Position *pos, const EvalInfo *ei, const Color color) {
 
-    const Direction up = color == WHITE ? NORTH : SOUTH;
+    const Direction up   = color == WHITE ? NORTH : SOUTH;
+    const Direction down = color == WHITE ? SOUTH : NORTH;
 
     int eval = 0, count;
 
@@ -347,6 +352,11 @@ INLINE int EvalPassedPawns(const Position *pos, const EvalInfo *ei, const Color 
         if (pieceOn(forward)) {
             eval += PassedBlocked[rank];
             TraceIncr(PassedBlocked[rank]);
+        }
+
+        if (colorPieceBB(color, ROOK) & Fill(BB(sq), down)) {
+            eval += PassedRookBack[rank];
+            TraceIncr(PassedRookBack[rank]);
         }
     }
 
