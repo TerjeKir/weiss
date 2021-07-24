@@ -171,24 +171,22 @@ void PrintMobility(TVector params, int i) {
     printf("};\n");
 }
 
-#define InitBaseSingle(term) {          \
-    tparams[i][MG] = MgScore(term);     \
-    tparams[i][EG] = EgScore(term);     \
-    i++;                                \
-}
-
-#define InitBaseArray(term, count) {    \
-    for (int j = 0; j < count; ++j)     \
-        InitBaseSingle(term[j]);        \
-}
-
 void InitBaseParams(TVector tparams) {
+
+    #define InitBaseSingle(term)        \
+        tparams[i][MG] = MgScore(term), \
+        tparams[i][EG] = EgScore(term), \
+        i++
+
+    #define InitBaseArray(term, count)  \
+        for (int j = 0; j < count; ++j) \
+            InitBaseSingle(term[j])
 
     int i = 0;
 
     // Piece values
     for (int pt = PAWN; pt <= QUEEN; ++pt)
-        InitBaseSingle(PieceTypeValue[pt])
+        InitBaseSingle(PieceTypeValue[pt]);
 
     // PSQT
     for (int pt = PAWN; pt <= KING; ++pt)
@@ -234,16 +232,13 @@ void InitBaseParams(TVector tparams) {
     }
 }
 
-#define PrintSingle(term, spaces) {             \
-    PrintSingle_(#term, updated, i++, spaces);  \
-}
-
-#define PrintArray(term, length) {                          \
-    PrintArray_(#term, updated, i, length, "["#length"]");  \
-    i+=length;                                              \
-}
-
 void PrintParameters(TVector updates, TVector base) {
+
+    #define PrintSingle(term, spaces) \
+        PrintSingle_(#term, updated, i++, spaces)
+
+    #define PrintArray(term, length) \
+        PrintArray_(#term, updated, i, length, "["#length"]"), i+=length
 
     TVector updated;
 
@@ -298,19 +293,18 @@ void PrintParameters(TVector updates, TVector base) {
     }
 }
 
-#define InitCoeffSingle(term) coeffs[i++] = T.term[WHITE] - T.term[BLACK]
-
-#define InitCoeffArray(term, count) {               \
-    for (int j = 0; j < count; ++j)                 \
-        InitCoeffSingle(term[j]);                   \
-}
-
-#define InitCoeff2DArray(term, count1, count2) {    \
-    for (int k = 0; k < count1; ++k)                \
-        InitCoeffArray(term[k], count2);            \
-}
-
 void InitCoefficients(TCoeffs coeffs) {
+
+    #define InitCoeffSingle(term) \
+        coeffs[i++] = T.term[WHITE] - T.term[BLACK]
+
+    #define InitCoeffArray(term, count) \
+        for (int j = 0; j < count; ++j) \
+            InitCoeffSingle(term[j])
+
+    #define InitCoeff2DArray(term, count1, count2) \
+        for (int k = 0; k < count1; ++k)           \
+            InitCoeffArray(term[k], count2)
 
     int i = 0;
 
