@@ -234,6 +234,10 @@ void InitBaseParams(TVector tparams) {
     }
 }
 
+#define PrintSingleM(term, spaces) {                \
+    PrintSingle(#term, tparams, i++, spaces);  \
+}
+
 #define Print1DArray(term, length) {                        \
     PrintArray(#term, tparams, i, length, "["#length"]");   \
     i+=length;                                              \
@@ -258,25 +262,25 @@ void PrintParameters(TVector updates, TVector base) {
     i+=6*64;
 
     puts("\n// Misc bonuses and maluses");
-    PrintSingle("PawnDoubled", tparams, i++, " ");
-    PrintSingle("PawnIsolated", tparams, i++, "");
-    PrintSingle("PawnSupport", tparams, i++, " ");
-    PrintSingle("PawnThreat", tparams, i++, "  ");
-    PrintSingle("PushThreat", tparams, i++, "  ");
-    PrintSingle("PawnOpen", tparams, i++, "    ");
-    PrintSingle("BishopPair", tparams, i++, "  ");
-    PrintSingle("KingAtkPawn", tparams, i++, " ");
-    PrintSingle("OpenForward", tparams, i++, " ");
-    PrintSingle("SemiForward", tparams, i++, " ");
-    PrintSingle("NBBehindPawn", tparams, i++, "");
+    PrintSingleM(PawnDoubled, " ");
+    PrintSingleM(PawnIsolated, "");
+    PrintSingleM(PawnSupport, " ");
+    PrintSingleM(PawnThreat, "  ");
+    PrintSingleM(PushThreat, "  ");
+    PrintSingleM(PawnOpen, "    ");
+    PrintSingleM(BishopPair, "  ");
+    PrintSingleM(KingAtkPawn, " ");
+    PrintSingleM(OpenForward, " ");
+    PrintSingleM(SemiForward, " ");
+    PrintSingleM(NBBehindPawn, "");
 
     puts("\n// Passed pawn");
     Print1DArray(PawnPassed, RANK_NB);
     Print1DArray(PassedDefended, RANK_NB);
     Print1DArray(PassedBlocked, 4);
     Print1DArray(PassedDistUs, 4);
-    PrintSingle("PassedDistThem", tparams, i++, "");
-    PrintSingle("PassedRookBack", tparams, i++, "");
+    PrintSingleM(PassedDistThem, "");
+    PrintSingleM(PassedRookBack, "");
 
     puts("\n// Pawn phalanx");
     Print1DArray(PawnPhalanx, RANK_NB);
