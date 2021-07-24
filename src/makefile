@@ -18,7 +18,7 @@
 
 # General
 EXE    = weiss
-SRC    = *.c pyrrhic/tbprobe.c noobprobe/noobprobe.c tuner/tuner.c onlinesyzygy/onlinesyzygy.c
+SRC    = *.c pyrrhic/tbprobe.c tuner/*.c query/*.c noobprobe/*.c onlinesyzygy/*.c
 CC     = gcc
 
 # Defines

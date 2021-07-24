@@ -19,10 +19,6 @@
 #pragma once
 
 #include "../board.h"
-#include "../types.h"
 
 
-extern bool onlineSyzygy;
-
-
-bool SyzygyProbe(Position *pos, unsigned *wdl, unsigned *dtz, Move *move);
+char *Query(Position *pos, char* msg_fmt, char *hostname);
