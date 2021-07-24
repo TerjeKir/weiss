@@ -32,9 +32,9 @@ bool onlineSyzygy = false;
 bool SyzygyProbe(Position *pos, unsigned *wdl, unsigned *dtz, Move *move) {
 
     // Query lichess syzygy api
-    char *message_fmt = "GET http://tablebase.lichess.ovh/standard?fen=%s\n";
+    char *msg_fmt = "GET http://tablebase.lichess.ovh/standard?fen=%s\n";
     char *hostname = "tablebase.lichess.ovh";
-    char *response = Query(pos, message_fmt, hostname);
+    char *response = Query(hostname, msg_fmt, pos);
 
     // On success the response includes "uci": "[MOVE]"
     if (strstr(response, "uci") == NULL)

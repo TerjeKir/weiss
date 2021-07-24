@@ -39,9 +39,9 @@ bool ProbeNoob(Position *pos) {
         return false;
 
     // Query dbcn
-    char *message_fmt = "GET http://www.chessdb.cn/cdb.php?action=querybest&board=%s\r\n\r\n";
+    char *msg_fmt = "GET http://www.chessdb.cn/cdb.php?action=querybest&board=%s\r\n\r\n";
     char *hostname = "www.chessdb.cn";
-    char *response = Query(pos, message_fmt, hostname);
+    char *response = Query(hostname, msg_fmt, pos);
 
     // On success the response will be "move:[MOVE]"
     if (strstr(response, "move") != response)

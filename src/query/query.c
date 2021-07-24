@@ -45,7 +45,7 @@
 
 static void error(const char *msg) { perror(msg); exit(0); }
 
-char *Query(Position *pos, char *msg_fmt, char *hostname) {
+char *Query(char *hostname, char *msg_fmt, const Position *pos) {
 
     // Setup sockets on windows, does nothing on linux
     WSADATA wsaData;
@@ -53,11 +53,10 @@ char *Query(Position *pos, char *msg_fmt, char *hostname) {
         error("WSAStartup failed.");
 
     // Make the message
-    char *message_fmt = msg_fmt;
     char message[256];
     static char response[16384];
 
-    sprintf(message, message_fmt, BoardToFen(pos));
+    sprintf(message, msg_fmt, BoardToFen(pos));
 
     char *current_pos = strchr(message + 4, ' ');
     while ((current_pos = strchr(message + 4, ' ')) != NULL)
