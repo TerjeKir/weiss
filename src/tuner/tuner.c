@@ -79,11 +79,11 @@ TTuple *TupleStack;
 int TupleStackSize;
 
 
-void PrintSingle(char *name, TVector params, int i, char *S) {
+void PrintSingle_(char *name, TVector params, int i, char *S) {
     printf("const int %s%s = S(%3d,%3d);\n", name, S, (int) params[i][MG], (int) params[i][EG]);
 }
 
-void PrintArray(char *name, TVector params, int i, int A, char *S) {
+void PrintArray_(char *name, TVector params, int i, int A, char *S) {
 
     printf("const int %s%s = { ", name, S);
 
@@ -234,61 +234,61 @@ void InitBaseParams(TVector tparams) {
     }
 }
 
-#define PrintSingleM(term, spaces) {                \
-    PrintSingle(#term, tparams, i++, spaces);  \
+#define PrintSingle(term, spaces) {             \
+    PrintSingle_(#term, updated, i++, spaces);  \
 }
 
-#define Print1DArray(term, length) {                        \
-    PrintArray(#term, tparams, i, length, "["#length"]");   \
+#define PrintArray(term, length) {                          \
+    PrintArray_(#term, updated, i, length, "["#length"]");  \
     i+=length;                                              \
 }
 
 void PrintParameters(TVector updates, TVector base) {
 
-    TVector tparams;
+    TVector updated;
 
     for (int i = 0; i < NTERMS; ++i) {
-        tparams[i][MG] = round(base[i][MG] + updates[i][MG]);
-        tparams[i][EG] = round(base[i][EG] + updates[i][EG]);
+        updated[i][MG] = round(base[i][MG] + updates[i][MG]);
+        updated[i][EG] = round(base[i][EG] + updates[i][EG]);
     }
 
     int i = 0;
     puts("\n");
 
-    PrintPieceValues(tparams, i);
+    PrintPieceValues(updated, i);
     i+=5;
 
-    PrintPSQT(tparams, i);
+    PrintPSQT(updated, i);
     i+=6*64;
 
     puts("\n// Misc bonuses and maluses");
-    PrintSingleM(PawnDoubled, " ");
-    PrintSingleM(PawnIsolated, "");
-    PrintSingleM(PawnSupport, " ");
-    PrintSingleM(PawnThreat, "  ");
-    PrintSingleM(PushThreat, "  ");
-    PrintSingleM(PawnOpen, "    ");
-    PrintSingleM(BishopPair, "  ");
-    PrintSingleM(KingAtkPawn, " ");
-    PrintSingleM(OpenForward, " ");
-    PrintSingleM(SemiForward, " ");
-    PrintSingleM(NBBehindPawn, "");
+    PrintSingle(PawnDoubled, " ");
+    PrintSingle(PawnIsolated, "");
+    PrintSingle(PawnSupport, " ");
+    PrintSingle(PawnThreat, "  ");
+    PrintSingle(PushThreat, "  ");
+    PrintSingle(PawnOpen, "    ");
+    PrintSingle(BishopPair, "  ");
+    PrintSingle(KingAtkPawn, " ");
+    PrintSingle(OpenForward, " ");
+    PrintSingle(SemiForward, " ");
+    PrintSingle(NBBehindPawn, "");
 
     puts("\n// Passed pawn");
-    Print1DArray(PawnPassed, RANK_NB);
-    Print1DArray(PassedDefended, RANK_NB);
-    Print1DArray(PassedBlocked, 4);
-    Print1DArray(PassedDistUs, 4);
-    PrintSingleM(PassedDistThem, "");
-    PrintSingleM(PassedRookBack, "");
+    PrintArray(PawnPassed, RANK_NB);
+    PrintArray(PassedDefended, RANK_NB);
+    PrintArray(PassedBlocked, 4);
+    PrintArray(PassedDistUs, 4);
+    PrintSingle(PassedDistThem, "");
+    PrintSingle(PassedRookBack, "");
 
     puts("\n// Pawn phalanx");
-    Print1DArray(PawnPhalanx, RANK_NB);
+    PrintArray(PawnPhalanx, RANK_NB);
 
     puts("\n// KingLineDanger");
-    Print1DArray(KingLineDanger, 28);
+    PrintArray(KingLineDanger, 28);
 
-    PrintMobility(tparams, i);
+    PrintMobility(updated, i);
     i+=9+14+15+28;
     puts("");
 
