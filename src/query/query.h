@@ -16,33 +16,9 @@
   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include <stdlib.h>
-#include <string.h>
+#pragma once
 
 #include "../board.h"
-#include "../move.h"
-#include "../threads.h"
-#include "../query/query.h"
 
 
-bool onlineSyzygy = false;
-
-
-// Probes lichess syzygy
-bool SyzygyProbe(Position *pos, unsigned *wdl, unsigned *dtz, Move *move) {
-
-    // Query lichess syzygy api
-    char *msg_fmt = "GET http://tablebase.lichess.ovh/standard?fen=%s\n";
-    char *hostname = "tablebase.lichess.ovh";
-    char *response = Query(hostname, msg_fmt, pos);
-
-    // On success the response includes "uci": "[MOVE]"
-    if (strstr(response, "uci") == NULL)
-        return false;
-
-    *move = ParseMove(strstr(response, "uci") + 6, pos);
-    *wdl = 2 + atoi(strstr(response, "wdl") + 5);
-    *dtz =     atoi(strstr(response, "dtz") + 5);
-
-    return true;
-}
+char *Query(char *hostname, char *msg_fmt, const Position *pos);
