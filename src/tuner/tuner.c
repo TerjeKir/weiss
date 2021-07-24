@@ -234,13 +234,18 @@ void InitBaseParams(TVector tparams) {
     }
 }
 
-void PrintParameters(TVector params, TVector current) {
+#define Print1DArray(term, length) {                        \
+    PrintArray(#term, tparams, i, length, "["#length"]");   \
+    i+=length;                                              \
+}
+
+void PrintParameters(TVector updates, TVector base) {
 
     TVector tparams;
 
     for (int i = 0; i < NTERMS; ++i) {
-        tparams[i][MG] = round(params[i][MG] + current[i][MG]);
-        tparams[i][EG] = round(params[i][EG] + current[i][EG]);
+        tparams[i][MG] = round(base[i][MG] + updates[i][MG]);
+        tparams[i][EG] = round(base[i][EG] + updates[i][EG]);
     }
 
     int i = 0;
@@ -266,29 +271,18 @@ void PrintParameters(TVector params, TVector current) {
     PrintSingle("NBBehindPawn", tparams, i++, "");
 
     puts("\n// Passed pawn");
-    PrintArray("PawnPassed", tparams, i, 8, "[RANK_NB]");
-    i+=8;
-
-    PrintArray("PassedDefended", tparams, i, 8, "[RANK_NB]");
-    i+=8;
-
-    PrintArray("PassedBlocked", tparams, i, 4, "[4]");
-    i+=4;
-
-    PrintArray("PassedDistUs", tparams, i, 4, "[4]");
-    i+=4;
-
+    Print1DArray(PawnPassed, RANK_NB);
+    Print1DArray(PassedDefended, RANK_NB);
+    Print1DArray(PassedBlocked, 4);
+    Print1DArray(PassedDistUs, 4);
     PrintSingle("PassedDistThem", tparams, i++, "");
-
     PrintSingle("PassedRookBack", tparams, i++, "");
 
     puts("\n// Pawn phalanx");
-    PrintArray("PawnPhalanx", tparams, i, 8, "[RANK_NB]");
-    i+=8;
+    Print1DArray(PawnPhalanx, RANK_NB);
 
     puts("\n// KingLineDanger");
-    PrintArray("KingLineDanger", tparams, i, 28, "[28]");
-    i+=28;
+    Print1DArray(KingLineDanger, 28);
 
     PrintMobility(tparams, i);
     i+=9+14+15+28;
