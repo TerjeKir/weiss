@@ -19,7 +19,6 @@
 #include <string.h>
 
 #include "noobprobe.h"
-#include "../board.h"
 #include "../move.h"
 #include "../threads.h"
 #include "../query/query.h"
@@ -42,7 +41,6 @@ bool ProbeNoob(Position *pos) {
     // Query dbcn
     char *message_fmt = "GET http://www.chessdb.cn/cdb.php?action=querybest&board=%s\r\n\r\n";
     char *hostname = "www.chessdb.cn";
-
     char *response = Query(pos, message_fmt, hostname);
 
     // On success the response will be "move:[MOVE]"
