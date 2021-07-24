@@ -79,11 +79,11 @@ TTuple *TupleStack;
 int TupleStackSize;
 
 
-void PrintSingle(char *name, TVector params, int i, char *S) {
+void PrintSingle_(char *name, TVector params, int i, char *S) {
     printf("const int %s%s = S(%3d,%3d);\n", name, S, (int) params[i][MG], (int) params[i][EG]);
 }
 
-void PrintArray(char *name, TVector params, int i, int A, char *S) {
+void PrintArray_(char *name, TVector params, int i, int A, char *S) {
 
     printf("const int %s%s = { ", name, S);
 
@@ -171,24 +171,22 @@ void PrintMobility(TVector params, int i) {
     printf("};\n");
 }
 
-#define InitBaseSingle(term) {          \
-    tparams[i][MG] = MgScore(term);     \
-    tparams[i][EG] = EgScore(term);     \
-    i++;                                \
-}
-
-#define InitBaseArray(term, count) {    \
-    for (int j = 0; j < count; ++j)     \
-        InitBaseSingle(term[j]);        \
-}
-
 void InitBaseParams(TVector tparams) {
+
+    #define InitBaseSingle(term)        \
+        tparams[i][MG] = MgScore(term), \
+        tparams[i][EG] = EgScore(term), \
+        i++
+
+    #define InitBaseArray(term, count)  \
+        for (int j = 0; j < count; ++j) \
+            InitBaseSingle(term[j])
 
     int i = 0;
 
     // Piece values
     for (int pt = PAWN; pt <= QUEEN; ++pt)
-        InitBaseSingle(PieceTypeValue[pt])
+        InitBaseSingle(PieceTypeValue[pt]);
 
     // PSQT
     for (int pt = PAWN; pt <= KING; ++pt)
@@ -234,63 +232,58 @@ void InitBaseParams(TVector tparams) {
     }
 }
 
-void PrintParameters(TVector params, TVector current) {
+void PrintParameters(TVector updates, TVector base) {
 
-    TVector tparams;
+    #define PrintSingle(term, spaces) \
+        PrintSingle_(#term, updated, i++, spaces)
+
+    #define PrintArray(term, length) \
+        PrintArray_(#term, updated, i, length, "["#length"]"), i+=length
+
+    TVector updated;
 
     for (int i = 0; i < NTERMS; ++i) {
-        tparams[i][MG] = round(params[i][MG] + current[i][MG]);
-        tparams[i][EG] = round(params[i][EG] + current[i][EG]);
+        updated[i][MG] = round(base[i][MG] + updates[i][MG]);
+        updated[i][EG] = round(base[i][EG] + updates[i][EG]);
     }
 
     int i = 0;
     puts("\n");
 
-    PrintPieceValues(tparams, i);
+    PrintPieceValues(updated, i);
     i+=5;
 
-    PrintPSQT(tparams, i);
+    PrintPSQT(updated, i);
     i+=6*64;
 
     puts("\n// Misc bonuses and maluses");
-    PrintSingle("PawnDoubled", tparams, i++, " ");
-    PrintSingle("PawnIsolated", tparams, i++, "");
-    PrintSingle("PawnSupport", tparams, i++, " ");
-    PrintSingle("PawnThreat", tparams, i++, "  ");
-    PrintSingle("PushThreat", tparams, i++, "  ");
-    PrintSingle("PawnOpen", tparams, i++, "    ");
-    PrintSingle("BishopPair", tparams, i++, "  ");
-    PrintSingle("KingAtkPawn", tparams, i++, " ");
-    PrintSingle("OpenForward", tparams, i++, " ");
-    PrintSingle("SemiForward", tparams, i++, " ");
-    PrintSingle("NBBehindPawn", tparams, i++, "");
+    PrintSingle(PawnDoubled, " ");
+    PrintSingle(PawnIsolated, "");
+    PrintSingle(PawnSupport, " ");
+    PrintSingle(PawnThreat, "  ");
+    PrintSingle(PushThreat, "  ");
+    PrintSingle(PawnOpen, "    ");
+    PrintSingle(BishopPair, "  ");
+    PrintSingle(KingAtkPawn, " ");
+    PrintSingle(OpenForward, " ");
+    PrintSingle(SemiForward, " ");
+    PrintSingle(NBBehindPawn, "");
 
     puts("\n// Passed pawn");
-    PrintArray("PawnPassed", tparams, i, 8, "[RANK_NB]");
-    i+=8;
-
-    PrintArray("PassedDefended", tparams, i, 8, "[RANK_NB]");
-    i+=8;
-
-    PrintArray("PassedBlocked", tparams, i, 4, "[4]");
-    i+=4;
-
-    PrintArray("PassedDistUs", tparams, i, 4, "[4]");
-    i+=4;
-
-    PrintSingle("PassedDistThem", tparams, i++, "");
-
-    PrintSingle("PassedRookBack", tparams, i++, "");
+    PrintArray(PawnPassed, RANK_NB);
+    PrintArray(PassedDefended, RANK_NB);
+    PrintArray(PassedBlocked, 4);
+    PrintArray(PassedDistUs, 4);
+    PrintSingle(PassedDistThem, "");
+    PrintSingle(PassedRookBack, "");
 
     puts("\n// Pawn phalanx");
-    PrintArray("PawnPhalanx", tparams, i, 8, "[RANK_NB]");
-    i+=8;
+    PrintArray(PawnPhalanx, RANK_NB);
 
     puts("\n// KingLineDanger");
-    PrintArray("KingLineDanger", tparams, i, 28, "[28]");
-    i+=28;
+    PrintArray(KingLineDanger, 28);
 
-    PrintMobility(tparams, i);
+    PrintMobility(updated, i);
     i+=9+14+15+28;
     puts("");
 
@@ -300,19 +293,18 @@ void PrintParameters(TVector params, TVector current) {
     }
 }
 
-#define InitCoeffSingle(term) coeffs[i++] = T.term[WHITE] - T.term[BLACK]
-
-#define InitCoeffArray(term, count) {               \
-    for (int j = 0; j < count; ++j)                 \
-        InitCoeffSingle(term[j]);                   \
-}
-
-#define InitCoeff2DArray(term, count1, count2) {    \
-    for (int k = 0; k < count1; ++k)                \
-        InitCoeffArray(term[k], count2);            \
-}
-
 void InitCoefficients(TCoeffs coeffs) {
+
+    #define InitCoeffSingle(term) \
+        coeffs[i++] = T.term[WHITE] - T.term[BLACK]
+
+    #define InitCoeffArray(term, count) \
+        for (int j = 0; j < count; ++j) \
+            InitCoeffSingle(term[j])
+
+    #define InitCoeff2DArray(term, count1, count2) \
+        for (int k = 0; k < count1; ++k)           \
+            InitCoeffArray(term[k], count2)
 
     int i = 0;
 

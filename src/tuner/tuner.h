@@ -48,9 +48,6 @@
 #define DATASET      "../../Datasets/Andrew/COMBO.book"
 #define NPOSITIONS   (14669229) // Total FENS in the book
 
-// #define DATASET      "../../Datasets/Andrew/COMBO2.book"
-// #define NPOSITIONS   (17746609) // Total FENS in the book
-
 
 #define NTERMS       (     528) // Number of terms being tuned
 #define MAXEPOCHS    (   10000) // Max number of epochs allowed
@@ -63,36 +60,6 @@
 #define BETA_2       (   0.999) // ADAM Velocity Coefficient
 
 #define STACKSIZE ((int)((double) NPOSITIONS * NTERMS / 64))
-
-
-/*
-Term indices
-0-4: Piece values
-5-68: Pawn PSQT
-69-132: Knight PSQT
-133-196: Bishop PSQT
-197-260: Rook PSQT
-261-324: Queen PSQT
-325-388: King PSQT
-389: PawnDoubled
-390: PawnIsolated
-391: PawnSupport
-392: PawnThreat
-393: PushThreat
-394: PawnOpen
-395: BishopPair
-396: KingAtkPawn
-397: OpenForward
-398: SemiForward
-399: NBBehindPawn
-400-407: Passed
-408-415: Phalanx
-416-443: KLD
-444-452: Knight mobility
-453-466: Bishop mobility
-467-481: Rook mobility
-482-509: Queen mobility
-*/
 
 
 typedef struct EvalTrace {
