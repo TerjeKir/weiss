@@ -57,10 +57,10 @@ extern const int NBBehindPawn;
 
 // Passed pawn
 extern const int PawnPassed[RANK_NB];
-extern const int PassedDistUs[RANK_NB];
-extern const int PassedDistThem;
-extern const int PassedBlocked[RANK_NB];
 extern const int PassedDefended[RANK_NB];
+extern const int PassedBlocked[4];
+extern const int PassedDistUs[4];
+extern const int PassedDistThem;
 extern const int PassedRookBack;
 
 // Pawn phalanx
@@ -87,20 +87,13 @@ void PrintArray(char *name, TVector params, int i, int A, char *S) {
 
     printf("const int %s%s = { ", name, S);
 
-    if (A >= 8) {
-        for (int a = 0; a < A; a++, i++) {
-            if (a % 4 == 0) printf("\n    ");
-            printf("S(%3d,%3d), ", (int) params[i][MG], (int) params[i][EG]);
-        }
-        printf("\n};\n");
-    }
+    int perLine = A >= 8 ? 4 : 7;
 
-    else {
-        for (int a = 0; a < A; a++, i++) {
-            printf("S(%3d,%3d)", (int) params[i][MG], (int) params[i][EG]);
-            if (a != A - 1) printf(", "); else printf(" };\n");
-        }
+    for (int a = 0; a < A; a++, i++) {
+        if (a % perLine == 0) printf("\n    ");
+        printf("S(%3d,%3d), ", (int) params[i][MG], (int) params[i][EG]);
     }
+    printf("\n};\n");
 }
 
 void PrintPieceValues(TVector params, int i) {
@@ -217,10 +210,10 @@ void InitBaseParams(TVector tparams) {
 
     // Passed pawns
     InitBaseArray(PawnPassed, RANK_NB);
-    InitBaseArray(PassedDistUs, RANK_NB);
-    InitBaseSingle(PassedDistThem);
-    InitBaseArray(PassedBlocked, RANK_NB);
     InitBaseArray(PassedDefended, RANK_NB);
+    InitBaseArray(PassedBlocked, 4);
+    InitBaseArray(PassedDistUs, 4);
+    InitBaseSingle(PassedDistThem);
     InitBaseSingle(PassedRookBack);
 
     // Pawn phalanx
@@ -276,16 +269,16 @@ void PrintParameters(TVector params, TVector current) {
     PrintArray("PawnPassed", tparams, i, 8, "[RANK_NB]");
     i+=8;
 
-    PrintArray("PassedDistUs", tparams, i, 8, "[RANK_NB]");
-    i+=8;
-
-    PrintSingle("PassedDistThem", tparams, i++, "");
-
-    PrintArray("PassedBlocked", tparams, i, 8, "[RANK_NB]");
-    i+=8;
-
     PrintArray("PassedDefended", tparams, i, 8, "[RANK_NB]");
     i+=8;
+
+    PrintArray("PassedBlocked", tparams, i, 4, "[4]");
+    i+=4;
+
+    PrintArray("PassedDistUs", tparams, i, 4, "[4]");
+    i+=4;
+
+    PrintSingle("PassedDistThem", tparams, i++, "");
 
     PrintSingle("PassedRookBack", tparams, i++, "");
 
@@ -344,10 +337,10 @@ void InitCoefficients(TCoeffs coeffs) {
 
     // Passed pawns
     InitCoeffArray(PawnPassed, RANK_NB);
-    InitCoeffArray(PassedDistUs, RANK_NB);
-    InitCoeffSingle(PassedDistThem);
-    InitCoeffArray(PassedBlocked, RANK_NB);
     InitCoeffArray(PassedDefended, RANK_NB);
+    InitCoeffArray(PassedBlocked, 4);
+    InitCoeffArray(PassedDistUs, 4);
+    InitCoeffSingle(PassedDistThem);
     InitCoeffSingle(PassedRookBack);
 
     // Pawn phalanx

@@ -69,19 +69,17 @@ const int PawnPassed[RANK_NB] = {
     S(  0,  0), S(-15, 36), S(-13, 43), S(-70,128),
     S(-13,161), S(107,200), S(278,233), S(  0,  0),
 };
-const int PassedDistUs[RANK_NB] = {
-    S(  0,  0), S(  0,  0), S(  0,  0), S( 16,-29),
-    S( 10,-37), S( -8,-35), S(-13,-27), S(  0,  0),
-};
-const int PassedDistThem = S( -3, 19);
-const int PassedBlocked[RANK_NB] = {
-    S(  0,  0), S(  0,  0), S(  0,  0), S( -1,-23),
-    S(  4,-34), S(  9,-93), S(-28,-121), S(  0,  0),
-};
 const int PassedDefended[RANK_NB] = {
     S(  0,  0), S(  0,  0), S(  5,-14), S( -2,-14),
     S(  4, 15), S( 49, 64), S(161, 68), S(  0,  0),
 };
+const int PassedBlocked[4] = {
+    S( -1,-23), S(  4,-34), S(  9,-93), S(-28,-121),
+};
+const int PassedDistUs[4] = {
+    S( 16,-29), S( 10,-37), S( -8,-35), S(-13,-27),
+};
+const int PassedDistThem = S( -3, 19);
 const int PassedRookBack = S( 11, 23);
 
 // Pawn phalanx
@@ -92,13 +90,13 @@ const int PawnPhalanx[RANK_NB] = {
 
 // KingLineDanger
 const int KingLineDanger[28] = {
-    S(  0,  0), S(  0,  0), S( 12, -2), S(  1, 39),
-    S(-15, 39), S(-19, 27), S(-18, 23), S(-25, 32),
-    S(-29, 31), S(-42, 37), S(-38, 32), S(-53, 41),
-    S(-56, 40), S(-67, 41), S(-76, 43), S(-74, 41),
-    S(-86, 42), S(-88, 35), S(-95, 31), S(-100, 27),
-    S(-107, 25), S(-121, 16), S(-119,  7), S(-145, -5),
-    S(-128,-20), S(-120,-35), S(-118,-34), S(-123,-36),
+    S(  0,  0), S(  0,  0), S(  0,  0), S(-11, 41),
+    S(-27, 41), S(-31, 29), S(-30, 25), S(-37, 34),
+    S(-41, 33), S(-54, 39), S(-50, 34), S(-65, 43),
+    S(-68, 42), S(-79, 43), S(-88, 45), S(-86, 43),
+    S(-98, 44), S(-100, 37), S(-107, 33), S(-112, 29),
+    S(-119, 27), S(-133, 18), S(-131,  9), S(-157, -3),
+    S(-140,-18), S(-132,-33), S(-130,-32), S(-135,-34),
 };
 
 // Mobility [pt-2][mobility]
@@ -333,19 +331,21 @@ INLINE int EvalPassedPawns(const Position *pos, const EvalInfo *ei, const Color 
         Square sq = PopLsb(&passers);
         Square forward = sq + up;
         int rank = RelativeRank(color, RankOf(sq));
+        int r = rank - RANK_4;
+
         if (rank < RANK_4) continue;
 
         count = Distance(forward, kingSq( color));
-        eval += count * PassedDistUs[rank];
-        TraceCount(PassedDistUs[rank]);
+        eval += count * PassedDistUs[r];
+        TraceCount(PassedDistUs[r]);
 
         count = (rank - RANK_3) * Distance(forward, kingSq(!color));
         eval += count * PassedDistThem;
         TraceCount(PassedDistThem);
 
         if (pieceOn(forward)) {
-            eval += PassedBlocked[rank];
-            TraceIncr(PassedBlocked[rank]);
+            eval += PassedBlocked[r];
+            TraceIncr(PassedBlocked[r]);
         }
 
         if (colorPieceBB(color, ROOK) & Fill(BB(sq), down)) {

@@ -52,7 +52,7 @@
 // #define NPOSITIONS   (17746609) // Total FENS in the book
 
 
-#define NTERMS       (     536) // Number of terms being tuned
+#define NTERMS       (     528) // Number of terms being tuned
 #define MAXEPOCHS    (   10000) // Max number of epochs allowed
 #define REPORTING    (      50) // How often to print the new parameters
 #define NPARTITIONS  (      64) // Total thread partitions
@@ -117,10 +117,10 @@ typedef struct EvalTrace {
     int NBBehindPawn[COLOR_NB];
 
     int PawnPassed[RANK_NB][COLOR_NB];
+    int PassedDefended[RANK_NB][COLOR_NB];
+    int PassedBlocked[RANK_NB][COLOR_NB];
     int PassedDistUs[RANK_NB][COLOR_NB];
     int PassedDistThem[COLOR_NB];
-    int PassedBlocked[RANK_NB][COLOR_NB];
-    int PassedDefended[RANK_NB][COLOR_NB];
     int PassedRookBack[COLOR_NB];
     int PawnPhalanx[RANK_NB][COLOR_NB];
     int KingLineDanger[28][COLOR_NB];
