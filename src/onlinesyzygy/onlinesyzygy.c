@@ -29,7 +29,7 @@ bool onlineSyzygy = false;
 
 
 // Probes lichess syzygy
-bool SyzygyProbe(Position *pos, unsigned *wdl, unsigned *dtz, Move *move) {
+bool QueryRoot(Position *pos, Move *move, unsigned *wdl, unsigned *dtz) {
 
     // Query lichess syzygy api
     char *msg_fmt = "GET http://tablebase.lichess.ovh/standard?fen=%s\n";

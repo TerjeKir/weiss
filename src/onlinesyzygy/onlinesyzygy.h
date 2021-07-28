@@ -25,4 +25,4 @@
 extern bool onlineSyzygy;
 
 
-bool SyzygyProbe(Position *pos, unsigned *wdl, unsigned *dtz, Move *move);
+bool QueryRoot(Position *pos, unsigned *wdl, unsigned *dtz, Move *move);
