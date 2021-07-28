@@ -35,7 +35,7 @@ static int TBScore(const unsigned result, const int distance) {
                              :  0;
 }
 
-// Calls pyrrhic to probe syzygy tablebases
+// Probe local Syzygy files using Pyrrhic to get score
 bool ProbeWDL(const Position *pos, int *score, int *bound, int ply) {
 
     // Don't probe at root, when castling is possible, or when 50 move rule
@@ -47,7 +47,7 @@ bool ProbeWDL(const Position *pos, int *score, int *bound, int ply) {
         || PopCount(pieceBB(ALL)) > TB_LARGEST)
         return false;
 
-    // Call pyrrhic
+    // Call Pyrrhic
     unsigned result = tb_probe_wdl(
         colorBB(WHITE),  colorBB(BLACK),
         pieceBB(KING),   pieceBB(QUEEN),
@@ -68,26 +68,10 @@ bool ProbeWDL(const Position *pos, int *score, int *bound, int ply) {
     return true;
 }
 
-// Calls pyrrhic to get optimal moves in tablebase positions in root
-bool RootProbe(Position *pos) {
+// Probe local Syzygy files using Pyrrhic to get an optimal move
+bool ProbeRoot(Position *pos, Move *move, unsigned *wdl, unsigned *dtz) {
 
-    unsigned wdl, dtz, from, to, promo;
-    Move move;
-
-    // Tablebases contain no positions with castling legal
-    if (pos->castlingRights)
-        return false;
-
-    int pieceCount = PopCount(pieceBB(ALL));
-
-    // Probe online syzygy if allowed
-    if (onlineSyzygy && pieceCount > TB_LARGEST && pieceCount <= 7) {
-        if (SyzygyProbe(pos, &wdl, &dtz, &move))
-            goto done;
-        return false;
-    }
-
-    // Call pyrrhic
+    // Call Pyrrhic
     unsigned result = tb_probe_root(
         colorBB(WHITE),  colorBB(BLACK),
         pieceBB(KING),   pieceBB(QUEEN),
@@ -102,17 +86,32 @@ bool RootProbe(Position *pos) {
         return false;
 
     // Extract information
-    wdl   = TB_GET_WDL(result);
-    dtz   = TB_GET_DTZ(result);
-    from  = TB_GET_FROM(result);
-    to    = TB_GET_TO(result);
-    promo = TB_GET_PROMOTES(result);
+    unsigned from  = TB_GET_FROM(result),
+             to    = TB_GET_TO(result),
+             promo = TB_GET_PROMOTES(result);
 
-    // Construct the move to print, ignoring capture and
-    // flag fields as they aren't needed for printing
-    move = MOVE(from, to, 0, promo ? 6 - promo : 0, 0);
+    *move = MOVE(from, to, 0, promo ? 6 - promo : 0, 0);
+    *wdl = TB_GET_WDL(result);
+    *dtz = TB_GET_DTZ(result);
 
-done:
+    return true;
+}
+
+// Get optimal move from Syzygy tablebases
+bool SyzygyMove(Position *pos) {
+
+    Move move;
+    unsigned wdl, dtz;
+    int pieces = PopCount(pieceBB(ALL));
+
+    // Probe local or online Syzygy if possible
+    bool success =
+          pos->castlingRights         ? false
+        : pieces <= TB_LARGEST        ? ProbeRoot(pos, &move, &wdl, &dtz)
+        : onlineSyzygy && pieces <= 7 ? QueryRoot(pos, &move, &wdl, &dtz)
+                                      : false;
+
+    if (!success) return false;
 
     // Print thinking info
     printf("info depth %d seldepth %d score cp %d "
