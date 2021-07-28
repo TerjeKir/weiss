@@ -35,7 +35,7 @@ static int TBScore(const unsigned result, const int distance) {
                              :  0;
 }
 
-// Calls pyrrhic to probe syzygy tablebases
+// Probe local Syzygy files using Pyrrhic to get score
 bool ProbeWDL(const Position *pos, int *score, int *bound, int ply) {
 
     // Don't probe at root, when castling is possible, or when 50 move rule
@@ -47,7 +47,7 @@ bool ProbeWDL(const Position *pos, int *score, int *bound, int ply) {
         || PopCount(pieceBB(ALL)) > TB_LARGEST)
         return false;
 
-    // Call pyrrhic
+    // Call Pyrrhic
     unsigned result = tb_probe_wdl(
         colorBB(WHITE),  colorBB(BLACK),
         pieceBB(KING),   pieceBB(QUEEN),
@@ -68,7 +68,7 @@ bool ProbeWDL(const Position *pos, int *score, int *bound, int ply) {
     return true;
 }
 
-// Probe local syzygy files using Pyrrhic
+// Probe local Syzygy files using Pyrrhic to get an optimal move
 bool ProbeRoot(Position *pos, Move *move, unsigned *wdl, unsigned *dtz) {
 
     // Call Pyrrhic
@@ -97,19 +97,19 @@ bool ProbeRoot(Position *pos, Move *move, unsigned *wdl, unsigned *dtz) {
     return true;
 }
 
-// Probe syzygy tablebases to get optimal moves in positions with few pieces left
-bool RootProbe(Position *pos) {
+// Get optimal move from Syzygy tablebases
+bool SyzygyMove(Position *pos) {
 
     Move move;
     unsigned wdl, dtz;
-    int pieceCount = PopCount(pieceBB(ALL));
+    int pieces = PopCount(pieceBB(ALL));
 
-    // Probe local or online syzygy if possible
+    // Probe local or online Syzygy if possible
     bool success =
-          pos->castlingRights             ? false
-        : pieceCount <= TB_LARGEST        ? ProbeRoot(pos, &move, &wdl, &dtz)
-        : onlineSyzygy && pieceCount <= 7 ? QueryRoot(pos, &move, &wdl, &dtz)
-                                          : false;
+          pos->castlingRights         ? false
+        : pieces <= TB_LARGEST        ? ProbeRoot(pos, &move, &wdl, &dtz)
+        : onlineSyzygy && pieces <= 7 ? QueryRoot(pos, &move, &wdl, &dtz)
+                                      : false;
 
     if (!success) return false;
 

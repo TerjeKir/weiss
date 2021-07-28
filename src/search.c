@@ -623,7 +623,7 @@ void *SearchPosition(void *pos) {
     bool threadsSpawned = false;
 
     // Probe TBs for a move if already in a TB position
-    if (RootProbe(pos)) goto conclusion;
+    if (SyzygyMove(pos)) goto conclusion;
 
     // Probe noobpwnftw's Chess Cloud Database
     if (   (!Limits.timelimit || Limits.maxUsage > 2000)
