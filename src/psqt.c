@@ -86,13 +86,10 @@ const int PieceSqValue[6][64] = {
 
 // Initialize the piece square tables with piece values included
 CONSTR InitPSQT() {
-
-    // Black scores are negative (white double negated -> positive)
     for (PieceType pt = PAWN; pt <= KING; ++pt)
         for (Square sq = A1; sq <= H8; ++sq) {
-            // Base piece value + the piece square value
-            PSQT[MakePiece(BLACK, pt)][sq] = -(PieceTypeValue[pt] + PieceSqValue[pt-1][sq]);
-            // Same score inverted used for white on the square mirrored horizontally
-            PSQT[MakePiece(WHITE, pt)][MirrorSquare(sq)] = -PSQT[pt][sq];
+            int value = PieceTypeValue[pt] + PieceSqValue[pt-1][sq];
+            PSQT[MakePiece(WHITE, pt)][MirrorSquare(sq)] =  value;
+            PSQT[MakePiece(BLACK, pt)][             sq ] = -value;
         }
 }
