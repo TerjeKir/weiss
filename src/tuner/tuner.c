@@ -116,14 +116,8 @@ void PrintPSQT(TIntVector params, int i) {
 
     for (int pt = 0; pt < 6; pt++) {
         printf("\n    { ");
-        for (int sq = 0; sq < 64; sq++) {
-            if (sq && sq % 8 == 0) printf("\n      ");
-            printf("S(%3d,%3d)", params[i+MirrorSquare(sq)][MG],
-                                 params[i+MirrorSquare(sq)][EG]);
-            printf("%s", sq == 64 - 1 ? "" : ", ");
-        }
+        PrintElements(64, 8, "  ")
         printf(" },\n");
-        i += 64;
     }
     puts("};");
 }
@@ -164,8 +158,7 @@ void InitBaseParams(TVector tparams) {
 
     // PSQT
     for (int pt = PAWN; pt <= KING; ++pt)
-        for (int sq = 0; sq < 64; ++sq)
-            InitBaseSingle(PieceSqValue[pt-1][MirrorSquare(sq)]);
+        InitBaseArray(PieceSqValue[pt-1], 64);
 
     // Misc
     InitBaseSingle(PawnDoubled);
