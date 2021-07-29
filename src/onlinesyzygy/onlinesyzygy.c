@@ -21,7 +21,6 @@
 
 #include "../board.h"
 #include "../move.h"
-#include "../threads.h"
 #include "../query/query.h"
 
 
