@@ -130,14 +130,14 @@ void PrintPSQT(TIntVector params, int i) {
 
 void PrintMobility(TIntVector params, int i) {
 
-    #define PrintSingleMob(piece, max)                                       \
-        printf("    // "#piece" (0-"#max")\n");                              \
-        printf("    {");                                                     \
-        for (int mob = 0; mob <= max; ++mob, ++i) {                          \
-            if (mob && mob % 8 == 0) printf("\n     ");                      \
+    #define PrintSingleMob(piece, max)                           \
+        printf("    // "#piece" (0-"#max")\n");                  \
+        printf("    {");                                         \
+        for (int mob = 0; mob <= max; ++mob, ++i) {              \
+            if (mob && mob % 8 == 0) printf("\n     ");          \
             printf(" S(%3d,%3d)", params[i][MG], params[i][EG]); \
-            printf("%s", mob == max ? "" : ",");                             \
-        }                                                                    \
+            printf("%s", mob == max ? "" : ",");                 \
+        }                                                        \
         printf(#piece[0] == 'Q' ? " }\n" : " },\n")
 
     printf("\n// Mobility [pt-2][mobility]\n");
