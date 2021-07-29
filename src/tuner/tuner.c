@@ -79,21 +79,23 @@ TTuple *TupleStack;
 int TupleStackSize;
 
 
-void PrintSingle_(char *name, TIntVector params, int i, char *S) {
-    printf("const int %s%s = S(%3d,%3d);\n", name, S, params[i][MG], params[i][EG]);
+void PrintSingle_(char *name, TIntVector params, int i, char *filler) {
+    printf("const int %s%s = S(%3d,%3d);\n", name, filler, params[i][MG], params[i][EG]);
 }
 
-void PrintArray_(char *name, TIntVector params, int i, int A, char *S) {
+#define PrintElements(elements, perLine, space)             \
+    for (int a = 0; a < elements; ++a, ++i) {               \
+        if (a && a % perLine == 0) printf("\n    " space);  \
+        printf("S(%3d,%3d)", params[i][MG], params[i][EG]); \
+        printf("%s", a == (elements - 1) ? "" : ", ");      \
+    }
 
-    printf("const int %s%s = { ", name, S);
+void PrintArray_(char *name, TIntVector params, int i, int A, char *filler) {
 
     int perLine = A >= 8 ? 4 : 7;
 
-    for (int a = 0; a < A; a++, i++) {
-        if (a % perLine == 0) printf("\n    ");
-        printf("S(%3d,%3d)", params[i][MG], params[i][EG]);
-        printf("%s", a == (A - 1) ? "" : ", ");
-    }
+    printf("const int %s%s = {\n    ", name, filler);
+    PrintElements(A, perLine, "");
     printf("\n};\n");
 }
 
@@ -113,9 +115,7 @@ void PrintPSQT(TIntVector params, int i) {
     puts("const int PieceSqValue[6][64] = {");
 
     for (int pt = 0; pt < 6; pt++) {
-
         printf("\n    { ");
-
         for (int sq = 0; sq < 64; sq++) {
             if (sq && sq % 8 == 0) printf("\n      ");
             printf("S(%3d,%3d)", params[i+MirrorSquare(sq)][MG],
@@ -130,14 +130,10 @@ void PrintPSQT(TIntVector params, int i) {
 
 void PrintMobility(TIntVector params, int i) {
 
-    #define PrintSingleMob(piece, max)                           \
-        printf("    // "#piece" (0-"#max")\n");                  \
-        printf("    { ");                                        \
-        for (int mob = 0; mob <= max; ++mob, ++i) {              \
-            if (mob && mob % 8 == 0) printf("\n      ");         \
-            printf("S(%3d,%3d)", params[i][MG], params[i][EG]);  \
-            printf("%s", mob == max ? "" : ", ");                \
-        }                                                        \
+    #define PrintSingleMob(piece, max)              \
+        printf("    // "#piece" (0-"#max")\n");     \
+        printf("    { ");                           \
+        PrintElements((max+1), 8, "  ");            \
         printf(#piece[0] == 'Q' ? " }\n" : " },\n")
 
     printf("\n// Mobility [pt-2][mobility]\n");
