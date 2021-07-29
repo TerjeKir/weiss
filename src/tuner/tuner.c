@@ -529,10 +529,6 @@ void Tune() {
 
     printf("Tuning %d terms using %d positions from %s\n", NTERMS, NPOSITIONS, DATASET);
     InitBaseParams(baseParams);
-
-    PrintParameters(params, baseParams);
-    exit(0);
-
     InitTunerEntries(entries, baseParams);
     printf("Allocated:\n");
     printf("Optimal K...\r");
