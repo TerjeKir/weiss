@@ -79,11 +79,11 @@ TTuple *TupleStack;
 int TupleStackSize;
 
 
-void PrintSingle_(char *name, TVector params, int i, char *S) {
-    printf("const int %s%s = S(%3d,%3d);\n", name, S, (int) params[i][MG], (int) params[i][EG]);
+void PrintSingle_(char *name, TIntVector params, int i, char *S) {
+    printf("const int %s%s = S(%3d,%3d);\n", name, S, params[i][MG], params[i][EG]);
 }
 
-void PrintArray_(char *name, TVector params, int i, int A, char *S) {
+void PrintArray_(char *name, TIntVector params, int i, int A, char *S) {
 
     printf("const int %s%s = { ", name, S);
 
@@ -91,23 +91,23 @@ void PrintArray_(char *name, TVector params, int i, int A, char *S) {
 
     for (int a = 0; a < A; a++, i++) {
         if (a % perLine == 0) printf("\n    ");
-        printf("S(%3d,%3d)", (int) params[i][MG], (int) params[i][EG]);
+        printf("S(%3d,%3d)", params[i][MG], params[i][EG]);
         printf("%s", a == (A - 1) ? "" : ", ");
     }
     printf("\n};\n");
 }
 
-void PrintPieceValues(TVector params, int i) {
+void PrintPieceValues(TIntVector params, int i) {
     puts("enum PieceValue {");
-    printf("    P_MG = %4d, P_EG = %4d,\n", (int) params[i+0][MG], (int) params[i+0][EG]);
-    printf("    N_MG = %4d, N_EG = %4d,\n", (int) params[i+1][MG], (int) params[i+1][EG]);
-    printf("    B_MG = %4d, B_EG = %4d,\n", (int) params[i+2][MG], (int) params[i+2][EG]);
-    printf("    R_MG = %4d, R_EG = %4d,\n", (int) params[i+3][MG], (int) params[i+3][EG]);
-    printf("    Q_MG = %4d, Q_EG = %4d\n",  (int) params[i+4][MG], (int) params[i+4][EG]);
+    printf("    P_MG = %4d, P_EG = %4d,\n", params[i+0][MG], params[i+0][EG]);
+    printf("    N_MG = %4d, N_EG = %4d,\n", params[i+1][MG], params[i+1][EG]);
+    printf("    B_MG = %4d, B_EG = %4d,\n", params[i+2][MG], params[i+2][EG]);
+    printf("    R_MG = %4d, R_EG = %4d,\n", params[i+3][MG], params[i+3][EG]);
+    printf("    Q_MG = %4d, Q_EG = %4d\n",  params[i+4][MG], params[i+4][EG]);
     puts("};");
 }
 
-void PrintPSQT(TVector params, int i) {
+void PrintPSQT(TIntVector params, int i) {
 
     puts("\n// Black's point of view - easier to read as it's not upside down");
     puts("const int PieceSqValue[6][64] = {");
@@ -118,8 +118,8 @@ void PrintPSQT(TVector params, int i) {
 
         for (int sq = 0; sq < 64; sq++) {
             if (sq && sq % 8 == 0) printf("\n     ");
-            printf(" S(%3d,%3d)", (int) params[i+MirrorSquare(sq)][MG],
-                                  (int) params[i+MirrorSquare(sq)][EG]);
+            printf(" S(%3d,%3d)", params[i+MirrorSquare(sq)][MG],
+                                  params[i+MirrorSquare(sq)][EG]);
             printf("%s", sq == 64 - 1 ? "" : ",");
         }
         printf(" },\n");
@@ -128,17 +128,17 @@ void PrintPSQT(TVector params, int i) {
     puts("};");
 }
 
-void PrintMobility(TVector params, int i) {
+void PrintMobility(TIntVector params, int i) {
 
     #define PrintSingleMob(piece, max)                                       \
         printf("    // "#piece" (0-"#max")\n");                              \
         printf("    {");                                                     \
         for (int mob = 0; mob <= max; ++mob, ++i) {                          \
             if (mob && mob % 8 == 0) printf("\n     ");                      \
-            printf(" S(%3d,%3d)", (int) params[i][MG], (int) params[i][EG]); \
+            printf(" S(%3d,%3d)", params[i][MG], params[i][EG]); \
             printf("%s", mob == max ? "" : ",");                             \
         }                                                                    \
-        printf(" },\n")
+        printf(#piece[0] == 'Q' ? " }\n" : " },\n")
 
     printf("\n// Mobility [pt-2][mobility]\n");
     printf("const int Mobility[4][28] = {\n");
@@ -218,7 +218,7 @@ void PrintParameters(TVector updates, TVector base) {
     #define PrintArray(term, length) \
         PrintArray_(#term, updated, i, length, "["#length"]"), i+=length
 
-    TVector updated;
+    TIntVector updated;
 
     for (int i = 0; i < NTERMS; ++i) {
         updated[i][MG] = round(base[i][MG] + updates[i][MG]);
