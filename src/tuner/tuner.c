@@ -129,45 +129,22 @@ void PrintPSQT(TVector params, int i) {
 
 void PrintMobility(TVector params, int i) {
 
+    #define PrintSingleMob(piece, max)                                       \
+        printf("    // "#piece" (0-"#max")\n");                              \
+        printf("    {");                                                     \
+        for (int mob = 0; mob <= max; ++mob, ++i) {                          \
+            if (mob && mob % 8 == 0) printf("\n     ");                      \
+            printf(" S(%3d,%3d)", (int) params[i][MG], (int) params[i][EG]); \
+            printf("%s", mob == max ? "" : ",");                             \
+        }                                                                    \
+        printf(" },\n")
+
     printf("\n// Mobility [pt-2][mobility]\n");
     printf("const int Mobility[4][28] = {\n");
-
-    printf("    // Knight (0-8)\n");
-    printf("    {");
-    for (int mob = 0; mob <= 8; ++mob, ++i) {
-        if (mob && mob % 8 == 0) printf("\n     ");
-        printf(" S(%3d,%3d)", (int) params[i][MG], (int) params[i][EG]);
-        printf("%s", mob == 8 ? "" : ",");
-    }
-    printf(" },\n");
-
-    printf("    // Bishop (0-13)\n");
-    printf("    {");
-    for (int mob = 0; mob <= 13; ++mob, ++i) {
-        if (mob && mob % 8 == 0) printf("\n     ");
-        printf(" S(%3d,%3d)", (int) params[i][MG], (int) params[i][EG]);
-        printf("%s", mob == 13 ? "" : ",");
-    }
-    printf(" },\n");
-
-    printf("    // Rook (0-14)\n");
-    printf("    {");
-    for (int mob = 0; mob <= 14; ++mob, ++i) {
-        if (mob && mob % 8 == 0) printf("\n     ");
-        printf(" S(%3d,%3d)", (int) params[i][MG], (int) params[i][EG]);
-        printf("%s", mob == 14 ? "" : ",");
-    }
-    printf(" },\n");
-
-    printf("    // Queen (0-27)\n");
-    printf("    {");
-    for (int mob = 0; mob <= 27; ++mob, ++i) {
-        if (mob && mob % 8 == 0) printf("\n     ");
-        printf(" S(%3d,%3d)", (int) params[i][MG], (int) params[i][EG]);
-        printf("%s", mob == 27 ? "" : ",");
-    }
-    printf(" }\n");
-
+    PrintSingleMob(Knight,  8);
+    PrintSingleMob(Bishop, 13);
+    PrintSingleMob(Rook,   14);
+    PrintSingleMob(Queen,  27);
     printf("};\n");
 }
 
@@ -562,6 +539,10 @@ void Tune() {
 
     printf("Tuning %d terms using %d positions from %s\n", NTERMS, NPOSITIONS, DATASET);
     InitBaseParams(baseParams);
+
+    PrintParameters(params, baseParams);
+    exit(0);
+
     InitTunerEntries(entries, baseParams);
     printf("Allocated:\n");
     printf("Optimal K...\r");
