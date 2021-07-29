@@ -423,7 +423,7 @@ void InitTunerEntry(TEntry *entry, Position *pos, int *danger) {
     *danger = T.danger[WHITE] - T.danger[BLACK];
 }
 
-void InitTunerEntries(TEntry *entries, TVector currentParams) {
+void InitTunerEntries(TEntry *entries, TVector baseParams) {
 
     Position pos;
     char line[128];
@@ -446,7 +446,7 @@ void InitTunerEntries(TEntry *entries, TVector currentParams) {
         ParseFen(line, &pos);
         InitTunerEntry(entry, &pos, &danger);
 
-        int coeffEval = CoeffEvaluation(entry, currentParams, danger);
+        int coeffEval = CoeffEvaluation(entry, baseParams, danger);
         int deviation = abs(entry->seval - coeffEval);
 
         if (deviation > 1) {
@@ -462,8 +462,6 @@ double Sigmoid(double K, double E) {
 
 double StaticEvaluationErrors(TEntry * entries, double K) {
 
-    // Compute the error of the dataset using the Static Evaluation.
-    // We provide simple speedups that make use of the OpenMP Library.
     double total = 0.0;
     #pragma omp parallel shared(total)
     {
@@ -495,7 +493,6 @@ double LinearEvaluation(TEntry *entry, TVector params) {
     double midgame = MgScore(entry->eval);
     double endgame = EgScore(entry->eval);
 
-    // Save any modifications for MG or EG for each evaluation type
     for (int i = 0; i < entry->ntuples; i++) {
         midgame += (double) entry->tuples[i].coeff * params[entry->tuples[i].index][MG];
         endgame += (double) entry->tuples[i].coeff * params[entry->tuples[i].index][EG];
@@ -558,15 +555,14 @@ double TunedEvaluationErrors(TEntry *entries, TVector params, double K) {
 
 void Tune() {
 
-    TVector currentParams = {0};
-    TVector params = {0}, momentum = {0}, velocity = {0};
+    TVector baseParams = {0}, params = {0}, momentum = {0}, velocity = {0};
     double K, error, rate = LRRATE;
     TEntry *entries = calloc(NPOSITIONS, sizeof(TEntry));
     TupleStack      = calloc(STACKSIZE,  sizeof(TTuple));
 
     printf("Tuning %d terms using %d positions from %s\n", NTERMS, NPOSITIONS, DATASET);
-    InitBaseParams(currentParams);
-    InitTunerEntries(entries, currentParams);
+    InitBaseParams(baseParams);
+    InitTunerEntries(entries, baseParams);
     printf("Allocated:\n");
     printf("Optimal K...\r");
     K = ComputeOptimalK(entries);
@@ -597,7 +593,7 @@ void Tune() {
 
         // Pre-scheduled Learning Rate drops
         if (epoch % LRSTEPRATE == 0) rate = rate / LRDROPRATE;
-        if (epoch % REPORTING == 0) PrintParameters(params, currentParams);
+        if (epoch % REPORTING == 0) PrintParameters(params, baseParams);
     }
 }
 
