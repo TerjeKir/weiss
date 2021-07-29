@@ -79,95 +79,63 @@ TTuple *TupleStack;
 int TupleStackSize;
 
 
-void PrintSingle_(char *name, TVector params, int i, char *S) {
-    printf("const int %s%s = S(%3d,%3d);\n", name, S, (int) params[i][MG], (int) params[i][EG]);
+void PrintSingle_(char *name, TIntVector params, int i, char *filler) {
+    printf("const int %s%s = S(%3d,%3d);\n", name, filler, params[i][MG], params[i][EG]);
 }
 
-void PrintArray_(char *name, TVector params, int i, int A, char *S) {
+#define PrintElements(elements, perLine, space)             \
+    for (int a = 0; a < elements; ++a, ++i) {               \
+        if (a && a % perLine == 0) printf("\n    " space);  \
+        printf("S(%3d,%3d)", params[i][MG], params[i][EG]); \
+        printf("%s", a == (elements - 1) ? "" : ", ");      \
+    }
 
-    printf("const int %s%s = { ", name, S);
+void PrintArray_(char *name, TIntVector params, int i, int A, char *filler) {
 
     int perLine = A >= 8 ? 4 : 7;
 
-    for (int a = 0; a < A; a++, i++) {
-        if (a % perLine == 0) printf("\n    ");
-        printf("S(%3d,%3d), ", (int) params[i][MG], (int) params[i][EG]);
-    }
+    printf("const int %s%s = {\n    ", name, filler);
+    PrintElements(A, perLine, "");
     printf("\n};\n");
 }
 
-void PrintPieceValues(TVector params, int i) {
+void PrintPieceValues(TIntVector params, int i) {
     puts("enum PieceValue {");
-    printf("    P_MG = %4d, P_EG = %4d,\n", (int) params[i+0][MG], (int) params[i+0][EG]);
-    printf("    N_MG = %4d, N_EG = %4d,\n", (int) params[i+1][MG], (int) params[i+1][EG]);
-    printf("    B_MG = %4d, B_EG = %4d,\n", (int) params[i+2][MG], (int) params[i+2][EG]);
-    printf("    R_MG = %4d, R_EG = %4d,\n", (int) params[i+3][MG], (int) params[i+3][EG]);
-    printf("    Q_MG = %4d, Q_EG = %4d\n",  (int) params[i+4][MG], (int) params[i+4][EG]);
+    printf("    P_MG = %4d, P_EG = %4d,\n", params[i+0][MG], params[i+0][EG]);
+    printf("    N_MG = %4d, N_EG = %4d,\n", params[i+1][MG], params[i+1][EG]);
+    printf("    B_MG = %4d, B_EG = %4d,\n", params[i+2][MG], params[i+2][EG]);
+    printf("    R_MG = %4d, R_EG = %4d,\n", params[i+3][MG], params[i+3][EG]);
+    printf("    Q_MG = %4d, Q_EG = %4d\n",  params[i+4][MG], params[i+4][EG]);
     puts("};");
 }
 
-void PrintPSQT(TVector params, int i) {
+void PrintPSQT(TIntVector params, int i) {
 
     puts("\n// Black's point of view - easier to read as it's not upside down");
     puts("const int PieceSqValue[6][64] = {");
 
     for (int pt = 0; pt < 6; pt++) {
-
-        printf("\n    {");
-
-        for (int sq = 0; sq < 64; sq++) {
-            if (sq && sq % 8 == 0) printf("\n     ");
-            printf(" S(%3d,%3d)", (int) params[i+MirrorSquare(sq)][MG],
-                                  (int) params[i+MirrorSquare(sq)][EG]);
-            printf("%s", sq == 64 - 1 ? "" : ",");
-        }
+        printf("\n    { ");
+        PrintElements(64, 8, "  ")
         printf(" },\n");
-        i += 64;
     }
     puts("};");
 }
 
-void PrintMobility(TVector params, int i) {
+void PrintMobility(TIntVector params, int i) {
+
+    #define PrintSingleMob(piece, max)              \
+        printf("    // "#piece" (0-"#max")\n");     \
+        printf("    { ");                           \
+        PrintElements((max+1), 8, "  ");            \
+        printf(#piece[0] == 'Q' ? " }\n" : " },\n")
 
     printf("\n// Mobility [pt-2][mobility]\n");
     printf("const int Mobility[4][28] = {\n");
-
-    printf("    // Knight (0-8)\n");
-    printf("    {");
-    for (int mob = 0; mob <= 8; ++mob, ++i) {
-        if (mob && mob % 8 == 0) printf("\n     ");
-        printf(" S(%3d,%3d)", (int) params[i][MG], (int) params[i][EG]);
-        printf("%s", mob == 8 ? "" : ",");
-    }
-    printf(" },\n");
-
-    printf("    // Bishop (0-13)\n");
-    printf("    {");
-    for (int mob = 0; mob <= 13; ++mob, ++i) {
-        if (mob && mob % 8 == 0) printf("\n     ");
-        printf(" S(%3d,%3d)", (int) params[i][MG], (int) params[i][EG]);
-        printf("%s", mob == 13 ? "" : ",");
-    }
-    printf(" },\n");
-
-    printf("    // Rook (0-14)\n");
-    printf("    {");
-    for (int mob = 0; mob <= 14; ++mob, ++i) {
-        if (mob && mob % 8 == 0) printf("\n     ");
-        printf(" S(%3d,%3d)", (int) params[i][MG], (int) params[i][EG]);
-        printf("%s", mob == 14 ? "" : ",");
-    }
-    printf(" },\n");
-
-    printf("    // Queen (0-27)\n");
-    printf("    {");
-    for (int mob = 0; mob <= 27; ++mob, ++i) {
-        if (mob && mob % 8 == 0) printf("\n     ");
-        printf(" S(%3d,%3d)", (int) params[i][MG], (int) params[i][EG]);
-        printf("%s", mob == 27 ? "" : ",");
-    }
-    printf(" }\n");
-
+    PrintSingleMob(Knight,  8);
+    PrintSingleMob(Bishop, 13);
+    PrintSingleMob(Rook,   14);
+    PrintSingleMob(Queen,  27);
     printf("};\n");
 }
 
@@ -190,8 +158,7 @@ void InitBaseParams(TVector tparams) {
 
     // PSQT
     for (int pt = PAWN; pt <= KING; ++pt)
-        for (int sq = 0; sq < 64; ++sq)
-            InitBaseSingle(PieceSqValue[pt-1][MirrorSquare(sq)]);
+        InitBaseArray(PieceSqValue[pt-1], 64);
 
     // Misc
     InitBaseSingle(PawnDoubled);
@@ -240,7 +207,7 @@ void PrintParameters(TVector updates, TVector base) {
     #define PrintArray(term, length) \
         PrintArray_(#term, updated, i, length, "["#length"]"), i+=length
 
-    TVector updated;
+    TIntVector updated;
 
     for (int i = 0; i < NTERMS; ++i) {
         updated[i][MG] = round(base[i][MG] + updates[i][MG]);
@@ -423,7 +390,7 @@ void InitTunerEntry(TEntry *entry, Position *pos, int *danger) {
     *danger = T.danger[WHITE] - T.danger[BLACK];
 }
 
-void InitTunerEntries(TEntry *entries, TVector currentParams) {
+void InitTunerEntries(TEntry *entries, TVector baseParams) {
 
     Position pos;
     char line[128];
@@ -446,7 +413,7 @@ void InitTunerEntries(TEntry *entries, TVector currentParams) {
         ParseFen(line, &pos);
         InitTunerEntry(entry, &pos, &danger);
 
-        int coeffEval = CoeffEvaluation(entry, currentParams, danger);
+        int coeffEval = CoeffEvaluation(entry, baseParams, danger);
         int deviation = abs(entry->seval - coeffEval);
 
         if (deviation > 1) {
@@ -462,8 +429,6 @@ double Sigmoid(double K, double E) {
 
 double StaticEvaluationErrors(TEntry * entries, double K) {
 
-    // Compute the error of the dataset using the Static Evaluation.
-    // We provide simple speedups that make use of the OpenMP Library.
     double total = 0.0;
     #pragma omp parallel shared(total)
     {
@@ -495,7 +460,6 @@ double LinearEvaluation(TEntry *entry, TVector params) {
     double midgame = MgScore(entry->eval);
     double endgame = EgScore(entry->eval);
 
-    // Save any modifications for MG or EG for each evaluation type
     for (int i = 0; i < entry->ntuples; i++) {
         midgame += (double) entry->tuples[i].coeff * params[entry->tuples[i].index][MG];
         endgame += (double) entry->tuples[i].coeff * params[entry->tuples[i].index][EG];
@@ -558,15 +522,14 @@ double TunedEvaluationErrors(TEntry *entries, TVector params, double K) {
 
 void Tune() {
 
-    TVector currentParams = {0};
-    TVector params = {0}, momentum = {0}, velocity = {0};
+    TVector baseParams = {0}, params = {0}, momentum = {0}, velocity = {0};
     double K, error, rate = LRRATE;
     TEntry *entries = calloc(NPOSITIONS, sizeof(TEntry));
     TupleStack      = calloc(STACKSIZE,  sizeof(TTuple));
 
     printf("Tuning %d terms using %d positions from %s\n", NTERMS, NPOSITIONS, DATASET);
-    InitBaseParams(currentParams);
-    InitTunerEntries(entries, currentParams);
+    InitBaseParams(baseParams);
+    InitTunerEntries(entries, baseParams);
     printf("Allocated:\n");
     printf("Optimal K...\r");
     K = ComputeOptimalK(entries);
@@ -597,7 +560,7 @@ void Tune() {
 
         // Pre-scheduled Learning Rate drops
         if (epoch % LRSTEPRATE == 0) rate = rate / LRDROPRATE;
-        if (epoch % REPORTING == 0) PrintParameters(params, currentParams);
+        if (epoch % REPORTING == 0) PrintParameters(params, baseParams);
     }
 }
 

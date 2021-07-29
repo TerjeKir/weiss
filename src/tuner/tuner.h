@@ -108,6 +108,7 @@ typedef struct TEntry {
 
 typedef double TCoeffs[NTERMS];
 typedef double TVector[NTERMS][2];
+typedef int TIntVector[NTERMS][2];
 
 
 extern EvalTrace T;
