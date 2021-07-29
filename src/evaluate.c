@@ -67,17 +67,17 @@ const int NBBehindPawn = S(  7, 42);
 // Passed pawn
 const int PawnPassed[RANK_NB] = {
     S(  0,  0), S(-15, 36), S(-13, 43), S(-70,128),
-    S(-13,161), S(107,200), S(278,233), S(  0,  0),
+    S(-13,161), S(107,200), S(278,233), S(  0,  0)
 };
 const int PassedDefended[RANK_NB] = {
     S(  0,  0), S(  0,  0), S(  5,-14), S( -2,-14),
-    S(  4, 15), S( 49, 64), S(161, 68), S(  0,  0),
+    S(  4, 15), S( 49, 64), S(161, 68), S(  0,  0)
 };
 const int PassedBlocked[4] = {
-    S( -1,-23), S(  4,-34), S(  9,-93), S(-28,-121),
+    S( -1,-23), S(  4,-34), S(  9,-93), S(-28,-121)
 };
 const int PassedDistUs[4] = {
-    S( 16,-29), S( 10,-37), S( -8,-35), S(-13,-27),
+    S( 16,-29), S( 10,-37), S( -8,-35), S(-13,-27)
 };
 const int PassedDistThem = S( -3, 19);
 const int PassedRookBack = S( 11, 23);
@@ -85,7 +85,7 @@ const int PassedRookBack = S( 11, 23);
 // Pawn phalanx
 const int PawnPhalanx[RANK_NB] = {
     S(  0,  0), S(  8, -3), S( 19,  7), S( 24, 33),
-    S( 60,126), S(171,248), S(169,318), S(  0,  0),
+    S( 60,126), S(171,248), S(169,318), S(  0,  0)
 };
 
 // KingLineDanger
@@ -96,7 +96,7 @@ const int KingLineDanger[28] = {
     S(-68, 42), S(-79, 43), S(-88, 45), S(-86, 43),
     S(-98, 44), S(-100, 37), S(-107, 33), S(-112, 29),
     S(-119, 27), S(-133, 18), S(-131,  9), S(-157, -3),
-    S(-140,-18), S(-132,-33), S(-130,-32), S(-135,-34),
+    S(-140,-18), S(-132,-33), S(-130,-32), S(-135,-34)
 };
 
 // Mobility [pt-2][mobility]

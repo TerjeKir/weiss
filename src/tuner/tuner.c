@@ -91,7 +91,8 @@ void PrintArray_(char *name, TVector params, int i, int A, char *S) {
 
     for (int a = 0; a < A; a++, i++) {
         if (a % perLine == 0) printf("\n    ");
-        printf("S(%3d,%3d), ", (int) params[i][MG], (int) params[i][EG]);
+        printf("S(%3d,%3d)", (int) params[i][MG], (int) params[i][EG]);
+        printf("%s", a == (A - 1) ? "" : ", ");
     }
     printf("\n};\n");
 }
