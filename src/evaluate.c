@@ -299,7 +299,7 @@ INLINE int EvalKings(const Position *pos, EvalInfo *ei, const Color color) {
                 * CountModifier[MIN(7, ei->attackCount[!color])];
 
     eval -= S(danger / 128, 0);
-    TraceDanger(danger / 128);
+    TraceDanger(S(danger / 128, 0));
 
     return eval;
 }
@@ -452,8 +452,8 @@ int EvalPosition(const Position *pos, PawnCache pc) {
     TraceScale(scale);
 
     // Adjust score by phase
-    eval =  ((MgScore(eval) * pos->phase)
-          +  (EgScore(eval) * (MidGame - pos->phase)) * scale / 128)
+    eval =  (MgScore(eval) * pos->phase
+          +  EgScore(eval) * (MidGame - pos->phase) * scale / 128)
           / MidGame;
 
     // Return the evaluation, negated if we are black

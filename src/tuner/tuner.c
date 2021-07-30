@@ -349,10 +349,10 @@ void InitTunerTuples(TEntry *entry, TCoeffs coeffs) {
             entry->tuples[tidx++] = (TTuple) { i, coeffs[i] };
 }
 
-double CoeffEvaluation(TEntry *entry, TVector params, int danger) {
+double LinearEvaluation(TEntry *entry, TVector params, int base) {
 
-    double midgame = -danger;
-    double endgame = 0;
+    double midgame = MgScore(base);
+    double endgame = EgScore(base);
 
     for (int i = 0; i < entry->ntuples; i++) {
         int termIndex = entry->tuples[i].index;
@@ -360,8 +360,8 @@ double CoeffEvaluation(TEntry *entry, TVector params, int danger) {
         endgame += (double) entry->tuples[i].coeff * params[termIndex][EG];
     }
 
-    double eval = (  (midgame * entry->phase)
-                   + (endgame * (MidGame - entry->phase)) * entry->scale)
+    double eval = (  midgame * entry->phase
+                   + endgame * (MidGame - entry->phase) * entry->scale)
                   / MidGame;
 
     return eval + (entry->turn == WHITE ? Tempo : -Tempo);
@@ -413,7 +413,7 @@ void InitTunerEntries(TEntry *entries, TVector baseParams) {
         ParseFen(line, &pos);
         InitTunerEntry(entry, &pos, &danger);
 
-        int coeffEval = CoeffEvaluation(entry, baseParams, danger);
+        int coeffEval = LinearEvaluation(entry, baseParams, -danger);
         int deviation = abs(entry->seval - coeffEval);
 
         if (deviation > 1) {
@@ -455,26 +455,9 @@ double ComputeOptimalK(TEntry *entries) {
     return K;
 }
 
-double LinearEvaluation(TEntry *entry, TVector params) {
-
-    double midgame = MgScore(entry->eval);
-    double endgame = EgScore(entry->eval);
-
-    for (int i = 0; i < entry->ntuples; i++) {
-        midgame += (double) entry->tuples[i].coeff * params[entry->tuples[i].index][MG];
-        endgame += (double) entry->tuples[i].coeff * params[entry->tuples[i].index][EG];
-    }
-
-    double mixed =  (midgame * entry->phase
-                  +  endgame * (256 - entry->phase) * entry->scale)
-                  / 256;
-
-    return mixed + (entry->turn == WHITE ? Tempo : -Tempo);
-}
-
 void UpdateSingleGradient(TEntry *entry, TVector gradient, TVector params, double K) {
 
-    double E = LinearEvaluation(entry, params);
+    double E = LinearEvaluation(entry, params, entry->eval);
     double S = Sigmoid(K, E);
     double X = (entry->result - S) * S * (1 - S);
 
@@ -514,7 +497,7 @@ double TunedEvaluationErrors(TEntry *entries, TVector params, double K) {
     {
         #pragma omp for schedule(static, NPOSITIONS / NPARTITIONS) reduction(+:total)
         for (int i = 0; i < NPOSITIONS; i++)
-            total += pow(entries[i].result - Sigmoid(K, LinearEvaluation(&entries[i], params)), 2);
+            total += pow(entries[i].result - Sigmoid(K, LinearEvaluation(&entries[i], params, entries[i].eval)), 2);
     }
 
     return total / (double) NPOSITIONS;
