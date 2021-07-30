@@ -320,6 +320,24 @@ void InitCoefficients(TCoeffs coeffs) {
     }
 }
 
+double LinearEvaluation(TEntry *entry, TVector params, int base) {
+
+    double midgame = MgScore(base);
+    double endgame = EgScore(base);
+
+    for (int i = 0; i < entry->ntuples; i++) {
+        int termIndex = entry->tuples[i].index;
+        midgame += (double) entry->tuples[i].coeff * params[termIndex][MG];
+        endgame += (double) entry->tuples[i].coeff * params[termIndex][EG];
+    }
+
+    double eval = (  midgame * entry->phase
+                   + endgame * (MidGame - entry->phase) * entry->scale)
+                  / MidGame;
+
+    return eval + (entry->turn == WHITE ? Tempo : -Tempo);
+}
+
 void InitTunerTuples(TEntry *entry, TCoeffs coeffs) {
 
     static int allocs = 0;
@@ -347,24 +365,6 @@ void InitTunerTuples(TEntry *entry, TCoeffs coeffs) {
     for (int i = 0; i < NTERMS; i++)
         if (coeffs[i] != 0.0)
             entry->tuples[tidx++] = (TTuple) { i, coeffs[i] };
-}
-
-double LinearEvaluation(TEntry *entry, TVector params, int base) {
-
-    double midgame = MgScore(base);
-    double endgame = EgScore(base);
-
-    for (int i = 0; i < entry->ntuples; i++) {
-        int termIndex = entry->tuples[i].index;
-        midgame += (double) entry->tuples[i].coeff * params[termIndex][MG];
-        endgame += (double) entry->tuples[i].coeff * params[termIndex][EG];
-    }
-
-    double eval = (  midgame * entry->phase
-                   + endgame * (MidGame - entry->phase) * entry->scale)
-                  / MidGame;
-
-    return eval + (entry->turn == WHITE ? Tempo : -Tempo);
 }
 
 void InitTunerEntry(TEntry *entry, Position *pos, int *danger) {
