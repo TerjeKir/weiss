@@ -194,7 +194,7 @@ void InitBaseParams(TVector tparams) {
     InitBaseArray(Mobility[ QUEEN-2], 28);
 
     if (i != NTERMS) {
-        printf("Error 1 in InitBaseParams(): i = %d ; NTERMS = %d\n", i, NTERMS);
+        printf("Error in InitBaseParams(): i = %d ; NTERMS = %d\n", i, NTERMS);
         exit(EXIT_FAILURE);
     }
 }
@@ -255,7 +255,7 @@ void PrintParameters(TVector updates, TVector base) {
     puts("");
 
     if (i != NTERMS) {
-        printf("Error 2 in PrintParameters(): i = %d ; NTERMS = %d\n", i, NTERMS);
+        printf("Error in PrintParameters(): i = %d ; NTERMS = %d\n", i, NTERMS);
         exit(EXIT_FAILURE);
     }
 }
