@@ -154,20 +154,21 @@ static void AddPiece(Position *pos, const Square sq, const Piece piece) {
 }
 
 void InitCastlingRight(Position *pos, Color color, int file) {
+
     Square kFrom = kingSq(color);
     Square rFrom = MakeSquare(RelativeRank(color, RANK_1), file);
 
     int side = file > FileOf(kFrom) ? OO : OOO;
     int cr = side & (color == WHITE ? WHITE_CASTLE : BLACK_CASTLE);
 
-    Square rTo = MakeSquare(RelativeRank(color, RANK_1), side == OO ? FILE_F : FILE_D);
-    Square kTo = MakeSquare(RelativeRank(color, RANK_1), side == OO ? FILE_G : FILE_C);
+    Square rTo = RelativeSquare(color, side == OO ? F1 : D1);
+    Square kTo = RelativeSquare(color, side == OO ? G1 : C1);
 
-    RookSquare[cr] = rFrom;
     pos->castlingRights |= cr;
     CastlePerm[rFrom] ^= cr;
     CastlePerm[kFrom] ^= cr;
     CastlePath[cr] = (BetweenBB[rFrom][rTo] | BetweenBB[kFrom][kTo] | BB(kTo) | BB(rTo)) & ~(BB(kFrom) | BB(rFrom));
+    RookSquare[cr] = rFrom;
 }
 
 // Parse FEN and set up the position as described
