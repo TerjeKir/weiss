@@ -155,8 +155,8 @@ static void AddPiece(Position *pos, const Square sq, const Piece piece) {
 
 void InitCastlingRight(Position *pos, Color color, int file) {
 
-    if (file != FILE_A && file != FILE_H) chess960 = true;
-    if (FileOf(kingSq(color)) != FILE_E)  chess960 = true;
+    if (   FileOf(kingSq(color)) != FILE_E
+        || (file != FILE_A && file != FILE_H)) chess960 = true;
 
     Square kFrom = kingSq(color);
     Square rFrom = MakeSquare(RelativeRank(color, RANK_1), file);

@@ -97,7 +97,7 @@ char *MoveToStr(const Move move) {
 
     if (chess960 && moveIsCastle(move)) {
         Color color = RankOf(fromSq(move)) == RANK_1 ? WHITE : BLACK;
-        int side = ft > ff ? OO : OOO;
+        int side = ft == FILE_G ? OO : OOO;
         int cr = side & (color == WHITE ? WHITE_CASTLE : BLACK_CASTLE);
         ft = FileOf(RookSquare[cr]);
         rt = RankOf(RookSquare[cr]);
