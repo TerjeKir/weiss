@@ -155,6 +155,8 @@ static void AddPiece(Position *pos, const Square sq, const Piece piece) {
 
 void InitCastlingRight(Position *pos, Color color, int file) {
 
+    if (file != FILE_A && file != FILE_H) chess960 = true;
+
     Square kFrom = kingSq(color);
     Square rFrom = MakeSquare(RelativeRank(color, RANK_1), file);
 
@@ -196,15 +198,18 @@ void ParseFen(const char *fen, Position *pos) {
         CastlePerm[sq] = ALL_CASTLE;
 
     token = strtok(NULL, " ");
-    while ((c = *token++))
+    while ((c = *token++)) {
+        Square rsq;
+        Color color = islower(c) ? BLACK : WHITE;
+        c = toupper(c);
         switch (c) {
-            case 'K': InitCastlingRight(pos, WHITE, FILE_H); break;
-            case 'Q': InitCastlingRight(pos, WHITE, FILE_A); break;
-            case 'k': InitCastlingRight(pos, BLACK, FILE_H); break;
-            case 'q': InitCastlingRight(pos, BLACK, FILE_A); break;
-            case 'a' ... 'h': chess960 = true; InitCastlingRight(pos, BLACK, c - 'a'); break;
-            case 'A' ... 'H': chess960 = true; InitCastlingRight(pos, WHITE, c - 'A'); break;
+            case 'K': for (rsq = RelativeSquare(color, H1); pieceTypeOn(rsq) != ROOK; --rsq); break;
+            case 'Q': for (rsq = RelativeSquare(color, A1); pieceTypeOn(rsq) != ROOK; ++rsq); break;
+            case 'A' ... 'H': rsq = RelativeSquare(color, MakeSquare(RANK_1, c - 'A')); break;
+            default: continue;
         }
+        InitCastlingRight(pos, color, FileOf(rsq));
+    }
 
     // En passant square
     token = strtok(NULL, " ");
