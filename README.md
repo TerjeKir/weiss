@@ -15,9 +15,12 @@ Weiss is part of the [OpenBench](http://chess.grantnet.us/index/) testing framew
 
 * #### SyzygyPath
   Path to syzygy tablebase files.
-  
+
 * #### MultiPV
   Output the N best lines when searching. Leave at 1 for best performance.
+
+* #### UCI_Chess960
+  An option handled by your GUI. If true, Weiss will play Chess960.
 
 * #### NoobBook
   Allow Weiss to query and play moves suggested by [noobpwnftw's online opening database](https://www.chessdb.cn/queryc_en/).
