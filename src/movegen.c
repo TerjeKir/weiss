@@ -61,15 +61,15 @@ INLINE void GenCastling(const Position *pos, MoveList *list, const Color color, 
 
     if (type != QUIET) return;
 
-    const Square from = color == WHITE ? E1 : E8;
+    const Square from = kingSq(color);
 
     // King side castle
     if (CastlePseudoLegal(pos, color, OO))
-        AddMove(pos, list, from, from+2, EMPTY, FLAG_CASTLE);
+        AddMove(pos, list, from, RelativeSquare(color, G1), EMPTY, FLAG_CASTLE);
 
     // Queen side castle
     if (CastlePseudoLegal(pos, color, OOO))
-        AddMove(pos, list, from, from-2, EMPTY, FLAG_CASTLE);
+        AddMove(pos, list, from, RelativeSquare(color, C1), EMPTY, FLAG_CASTLE);
 }
 
 // Pawns are a mess

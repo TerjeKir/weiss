@@ -71,20 +71,18 @@ INLINE bool CastlePseudoLegal(const Position *pos, Color color, int side) {
     uint8_t castle = color == WHITE ? side & WHITE_CASTLE
                                     : side & BLACK_CASTLE;
 
-    Square kingSq = color == WHITE ? E1 : E8;
+    if (   !(pos->castlingRights & castle)
+        || pos->checkers
+        || (pieceBB(ALL) & CastlePath[castle]))
+        return false;
 
-    Square rookSq = side == OO ? kingSq + 3 * EAST
-                               : kingSq + 4 * WEST;
+    Bitboard intercept = BetweenBB[kingSq(color)][RelativeSquare(color, side == OO ? G1 : C1)];
 
-    Square midway = side == OO ? kingSq + EAST
-                               : kingSq + WEST;
+    while (intercept)
+        if (SqAttacked(pos, PopLsb(&intercept), !color))
+            return false;
 
-    Bitboard blocking = BetweenBB[kingSq][rookSq];
-
-    return (pos->castlingRights & castle)
-        && !(pieceBB(ALL) & blocking)
-        && !SqAttacked(pos, kingSq, !color)
-        && !SqAttacked(pos, midway, !color);
+    return true;
 }
 
 bool MoveIsPseudoLegal(const Position *pos, Move move);

@@ -35,10 +35,8 @@ bool MoveIsPseudoLegal(const Position *pos, const Move move) {
     const Square from = fromSq(move);
     const Square to = toSq(move);
 
-    // Must move our own piece to a square not occupied by our own pieces
-    if (  !(colorBB(color) & BB(from))
-        || (colorBB(color) & BB(to))
-        || capturing(move) != pieceOn(to))
+    // Must move our own piece
+    if (!(colorBB(color) & BB(from)))
         return false;
 
     // Castling
@@ -50,6 +48,11 @@ bool MoveIsPseudoLegal(const Position *pos, const Move move) {
             case G8: return CastlePseudoLegal(pos, BLACK, OO);
             default: assert(0); return false;
         }
+
+    // Must move to a square not occupied by our own pieces, and capture the piece specified
+    if (   (colorBB(color) & BB(to))
+        || capturing(move) != pieceOn(to))
+        return false;
 
     // All non-pawn, non-castling moves
     if (pieceTypeOn(from) != PAWN) {
@@ -92,6 +95,14 @@ char *MoveToStr(const Move move) {
     int ft = FileOf(toSq(move));
     int rt = RankOf(toSq(move));
 
+    if (chess960 && moveIsCastle(move)) {
+        Color color = RankOf(fromSq(move)) == RANK_1 ? WHITE : BLACK;
+        int side = ft == FILE_G ? OO : OOO;
+        int cr = side & (color == WHITE ? WHITE_CASTLE : BLACK_CASTLE);
+        ft = FileOf(RookSquare[cr]);
+        rt = RankOf(RookSquare[cr]);
+    }
+
     PieceType promo = PieceTypeOf(promotion(move));
 
     char pchar = promo == QUEEN  ? 'q'
@@ -125,6 +136,11 @@ Move ParseMove(const char *str, const Position *pos) {
              : pt == PAWN && Distance(from, to) > 1           ? FLAG_PAWNSTART
              : pt == PAWN && str[0] != str[2] && !pieceOn(to) ? FLAG_ENPAS
                                                               : 0;
+
+    if (chess960 && pt == KING && pieceOn(to) && ColorOf(pieceOn(to)) == sideToMove) {
+        to = RelativeSquare(sideToMove, to > from ? G1 : C1);
+        flag = FLAG_CASTLE;
+    }
 
     return MOVE(from, to, pieceOn(to), promo, flag);
 }

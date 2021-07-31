@@ -29,18 +29,6 @@
 #define HASH_EP             (pos->key ^= PieceKeys[EMPTY][pos->epSquare])
 
 
-static const uint8_t CastlePerm[64] = {
-    13, 15, 15, 15, 12, 15, 15, 14,
-    15, 15, 15, 15, 15, 15, 15, 15,
-    15, 15, 15, 15, 15, 15, 15, 15,
-    15, 15, 15, 15, 15, 15, 15, 15,
-    15, 15, 15, 15, 15, 15, 15, 15,
-    15, 15, 15, 15, 15, 15, 15, 15,
-    15, 15, 15, 15, 15, 15, 15, 15,
-     7, 15, 15, 15,  3, 15, 15, 11
-};
-
-
 // Remove a piece from a square sq
 static void ClearPiece(Position *pos, const Square sq, const bool hash) {
 
@@ -116,7 +104,7 @@ static void MovePiece(Position *pos, const Square from, const Square to, const b
     const PieceType pt = PieceTypeOf(piece);
 
     assert(ValidPiece(piece));
-    assert(pieceOn(to) == EMPTY);
+    assert(pieceOn(to) == EMPTY || (chess960 && pt == ROOK));
 
     // Hash out piece on old square, in on new square
     if (hash)
@@ -156,13 +144,17 @@ void TakeMove(Position *pos) {
         AddPiece(pos, to ^ 8, MakePiece(!sideToMove, PAWN), false);
 
     // Move rook back if castling
-    else if (moveIsCastle(move))
+    else if (moveIsCastle(move)) {
+        ClearPiece(pos, to, false);
         switch (to) {
-            case C1: MovePiece(pos, D1, A1, false); break;
-            case C8: MovePiece(pos, D8, A8, false); break;
-            case G1: MovePiece(pos, F1, H1, false); break;
-            default: MovePiece(pos, F8, H8, false); break;
+            case C1: MovePiece(pos, D1, RookSquare[WHITE_OOO], false); break;
+            case C8: MovePiece(pos, D8, RookSquare[BLACK_OOO], false); break;
+            case G1: MovePiece(pos, F1, RookSquare[WHITE_OO ], false); break;
+            default: MovePiece(pos, F8, RookSquare[BLACK_OO ], false); break;
         }
+        AddPiece(pos, from, MakePiece(sideToMove, KING), false);
+        goto done;
+    }
 
     // Make reverse move (from <-> to)
     MovePiece(pos, to, from, false);
@@ -181,6 +173,8 @@ void TakeMove(Position *pos) {
         ClearPiece(pos, from, false);
         AddPiece(pos, from, MakePiece(sideToMove, PAWN), false);
     }
+
+done:
 
     // Get various info from history
     pos->key            = history(0).key;
@@ -219,6 +213,18 @@ bool MakeMove(Position *pos, const Move move) {
     pos->castlingRights &= CastlePerm[from] & CastlePerm[to];
     HASH_CA;
 
+    if (moveIsCastle(move)) {
+        ClearPiece(pos, from, true);
+        switch (to) {
+            case C1: MovePiece(pos, RookSquare[WHITE_OOO], D1, true); break;
+            case C8: MovePiece(pos, RookSquare[BLACK_OOO], D8, true); break;
+            case G1: MovePiece(pos, RookSquare[WHITE_OO ], F1, true); break;
+            default: MovePiece(pos, RookSquare[BLACK_OO ], F8, true); break;
+        }
+        AddPiece(pos, to, MakePiece(sideToMove, KING), true);
+        goto done;
+    }
+
     // Remove captured piece if any
     Piece capt = capturing(move);
     if (capt != EMPTY) {
@@ -255,15 +261,9 @@ bool MakeMove(Position *pos, const Move move) {
             ClearPiece(pos, to, true);
             AddPiece(pos, to, promo, true);
         }
+    }
 
-    // Move the rook during castling
-    } else if (moveIsCastle(move))
-        switch (to) {
-            case C1: MovePiece(pos, A1, D1, true); break;
-            case C8: MovePiece(pos, A8, D8, true); break;
-            case G1: MovePiece(pos, H1, F1, true); break;
-            default: MovePiece(pos, H8, F8, true); break;
-        }
+done:
 
     // Change turn to play
     sideToMove ^= 1;

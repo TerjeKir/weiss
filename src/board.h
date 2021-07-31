@@ -62,6 +62,8 @@ typedef struct Position {
 } Position;
 
 
+extern bool chess960;
+
 extern uint8_t SqDistance[64][64];
 
 extern const int NonPawn[PIECE_NB];
@@ -70,6 +72,10 @@ extern const int NonPawn[PIECE_NB];
 extern uint64_t PieceKeys[PIECE_NB][64];
 extern uint64_t CastleKeys[16];
 extern uint64_t SideKey;
+
+extern uint8_t CastlePerm[64];
+extern Bitboard CastlePath[16];
+extern Square RookSquare[16];
 
 
 void InitDistance();
@@ -88,6 +94,10 @@ void PrintBoard(const Position *pos);
 // Mirrors a square horizontally
 INLINE Square MirrorSquare(const Square sq) {
     return sq ^ 56;
+}
+
+INLINE Square RelativeSquare(const Color color, const Square sq) {
+    return color == WHITE ? sq : MirrorSquare(sq);
 }
 
 INLINE Square BlackRelativeSquare(const Color color, const Square sq) {

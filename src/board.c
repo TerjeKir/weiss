@@ -28,6 +28,8 @@
 #include "psqt.h"
 
 
+bool chess960 = false;
+
 uint8_t SqDistance[64][64];
 
 const int NonPawn[PIECE_NB] = {
@@ -41,6 +43,10 @@ uint64_t CastleKeys[16];
 uint64_t SideKey;
 
 static const char PieceChars[] = ".pnbrqk..PNBRQK";
+
+uint8_t CastlePerm[64];
+Bitboard CastlePath[16];
+Square RookSquare[16];
 
 
 // Initialize distance lookup table
@@ -147,6 +153,27 @@ static void AddPiece(Position *pos, const Square sq, const Piece piece) {
     colorBB(color) |= BB(sq);
 }
 
+void InitCastlingRight(Position *pos, Color color, int file) {
+
+    if (   FileOf(kingSq(color)) != FILE_E
+        || (file != FILE_A && file != FILE_H)) chess960 = true;
+
+    Square kFrom = kingSq(color);
+    Square rFrom = MakeSquare(RelativeRank(color, RANK_1), file);
+
+    int side = file > FileOf(kFrom) ? OO : OOO;
+    int cr = side & (color == WHITE ? WHITE_CASTLE : BLACK_CASTLE);
+
+    Square rTo = RelativeSquare(color, side == OO ? F1 : D1);
+    Square kTo = RelativeSquare(color, side == OO ? G1 : C1);
+
+    pos->castlingRights |= cr;
+    CastlePerm[rFrom] ^= cr;
+    CastlePerm[kFrom] ^= cr;
+    CastlePath[cr] = (BetweenBB[rFrom][rTo] | BetweenBB[kFrom][kTo] | BB(kTo) | BB(rTo)) & ~(BB(kFrom) | BB(rFrom));
+    RookSquare[cr] = rFrom;
+}
+
 // Parse FEN and set up the position as described
 void ParseFen(const char *fen, Position *pos) {
 
@@ -168,14 +195,22 @@ void ParseFen(const char *fen, Position *pos) {
     sideToMove = *strtok(NULL, " ") == 'w' ? WHITE : BLACK;
 
     // Castling rights
+    for (sq = A1; sq <= H8; ++sq)
+        CastlePerm[sq] = ALL_CASTLE;
+
     token = strtok(NULL, " ");
-    while ((c = *token++))
+    while ((c = *token++)) {
+        Square rsq;
+        Color color = islower(c) ? BLACK : WHITE;
+        c = toupper(c);
         switch (c) {
-            case 'K': pos->castlingRights |= WHITE_OO;  break;
-            case 'Q': pos->castlingRights |= WHITE_OOO; break;
-            case 'k': pos->castlingRights |= BLACK_OO;  break;
-            case 'q': pos->castlingRights |= BLACK_OOO; break;
+            case 'K': for (rsq = RelativeSquare(color, H1); pieceTypeOn(rsq) != ROOK; --rsq); break;
+            case 'Q': for (rsq = RelativeSquare(color, A1); pieceTypeOn(rsq) != ROOK; ++rsq); break;
+            case 'A' ... 'H': rsq = RelativeSquare(color, MakeSquare(RANK_1, c - 'A')); break;
+            default: continue;
         }
+        InitCastlingRight(pos, color, FileOf(rsq));
+    }
 
     // En passant square
     token = strtok(NULL, " ");
