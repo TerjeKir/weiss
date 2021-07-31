@@ -75,7 +75,7 @@ extern uint64_t SideKey;
 
 extern uint8_t CastlePerm[64];
 extern Bitboard CastlePath[16];
-extern Bitboard RookSquare[16];
+extern Square RookSquare[16];
 
 
 void InitDistance();

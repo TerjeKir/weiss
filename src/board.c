@@ -46,7 +46,7 @@ static const char PieceChars[] = ".pnbrqk..PNBRQK";
 
 uint8_t CastlePerm[64];
 Bitboard CastlePath[16];
-Bitboard RookSquare[16];
+Square RookSquare[16];
 
 
 // Initialize distance lookup table

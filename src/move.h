@@ -76,7 +76,7 @@ INLINE bool CastlePseudoLegal(const Position *pos, Color color, int side) {
         || (pieceBB(ALL) & CastlePath[castle]))
         return false;
 
-    Bitboard intercept = BetweenBB[kingSq(color)][MakeSquare(RelativeRank(color, RANK_1), side == OO ? FILE_G : FILE_C)];
+    Bitboard intercept = BetweenBB[kingSq(color)][RelativeSquare(color, side == OO ? G1 : C1)];
 
     while (intercept)
         if (SqAttacked(pos, PopLsb(&intercept), !color))

@@ -104,7 +104,7 @@ static void MovePiece(Position *pos, const Square from, const Square to, const b
     const PieceType pt = PieceTypeOf(piece);
 
     assert(ValidPiece(piece));
-    assert(pieceOn(to) == EMPTY);
+    assert(pieceOn(to) == EMPTY || (chess960 && pt == ROOK));
 
     // Hash out piece on old square, in on new square
     if (hash)
