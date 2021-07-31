@@ -137,5 +137,10 @@ Move ParseMove(const char *str, const Position *pos) {
              : pt == PAWN && str[0] != str[2] && !pieceOn(to) ? FLAG_ENPAS
                                                               : 0;
 
+    if (chess960 && pt == KING && pieceOn(to) && ColorOf(pieceOn(to)) == sideToMove) {
+        to = RelativeSquare(sideToMove, to > from ? G1 : C1);
+        flag = FLAG_CASTLE;
+    }
+
     return MOVE(from, to, pieceOn(to), promo, flag);
 }
