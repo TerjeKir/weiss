@@ -35,10 +35,8 @@ bool MoveIsPseudoLegal(const Position *pos, const Move move) {
     const Square from = fromSq(move);
     const Square to = toSq(move);
 
-    // Must move our own piece to a square not occupied by our own pieces
-    if (  !(colorBB(color) & BB(from))
-        || (colorBB(color) & BB(to))
-        || capturing(move) != pieceOn(to))
+    // Must move our own piece
+    if (!(colorBB(color) & BB(from)))
         return false;
 
     // Castling
@@ -50,6 +48,11 @@ bool MoveIsPseudoLegal(const Position *pos, const Move move) {
             case G8: return CastlePseudoLegal(pos, BLACK, OO);
             default: assert(0); return false;
         }
+
+    // Must move to a square not occupied by our own pieces, and capture the piece specified
+    if (   (colorBB(color) & BB(to))
+        || capturing(move) != pieceOn(to))
+        return false;
 
     // All non-pawn, non-castling moves
     if (pieceTypeOn(from) != PAWN) {
