@@ -424,7 +424,7 @@ move_loop:
             // Adjust reduction by move history
             r -= histScore / 8192;
 
-            r += moveIsCapture(ttMove);
+            r -= !moveIsCapture(ttMove);
 
             // Depth after reductions, avoiding going straight to quiescence
             Depth lmrDepth = CLAMP(newDepth - r, 1, newDepth);
