@@ -92,6 +92,14 @@ char *MoveToStr(const Move move) {
     int ft = FileOf(toSq(move));
     int rt = RankOf(toSq(move));
 
+    if (chess960 && moveIsCastle(move)) {
+        Color color = RankOf(fromSq(move)) == RANK_1 ? WHITE : BLACK;
+        int side = ft > ff ? OO : OOO;
+        int cr = side & (color == WHITE ? WHITE_CASTLE : BLACK_CASTLE);
+        ft = FileOf(RookSquare[cr]);
+        rt = RankOf(RookSquare[cr]);
+    }
+
     PieceType promo = PieceTypeOf(promotion(move));
 
     char pchar = promo == QUEEN  ? 'q'

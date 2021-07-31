@@ -125,6 +125,10 @@ static void SetOption(char *str) {
     } else if (OptionName(str, "MultiPV")) {
         Limits.multiPV = atoi(OptionValue(str));
 
+    // Toggles probing of Chess Cloud Database
+    } else if (OptionName(str, "UCI_Chess960")) {
+        chess960 = !strncmp(OptionValue(str), "true", 4);
+
     // Sets max depth for using NoobBook
     } else if (OptionName(str, "NoobBookLimit")) {
         noobLimit = atoi(OptionValue(str));
@@ -152,6 +156,7 @@ static void Info() {
     printf("option name Threads type spin default %d min %d max %d\n", 1, 1, 2048);
     printf("option name SyzygyPath type string default <empty>\n");
     printf("option name MultiPV type spin default 1 min 1 max %d\n", MULTI_PV_MAX);
+    printf("option name UCI_Chess960 type check default false\n");
     printf("option name NoobBook type check default false\n");
     printf("option name NoobBookLimit type spin default 0 min 0 max 1000\n");
     printf("option name OnlineSyzygy type check default false\n");

@@ -28,6 +28,8 @@
 #include "psqt.h"
 
 
+bool chess960 = false;
+
 uint8_t SqDistance[64][64];
 
 const int NonPawn[PIECE_NB] = {
@@ -41,6 +43,10 @@ uint64_t CastleKeys[16];
 uint64_t SideKey;
 
 static const char PieceChars[] = ".pnbrqk..PNBRQK";
+
+uint8_t CastlePerm[64];
+Bitboard CastlePath[16];
+Bitboard RookSquare[16];
 
 
 // Initialize distance lookup table
@@ -147,6 +153,23 @@ static void AddPiece(Position *pos, const Square sq, const Piece piece) {
     colorBB(color) |= BB(sq);
 }
 
+void InitCastlingRight(Position *pos, Color color, int file) {
+    Square kFrom = kingSq(color);
+    Square rFrom = MakeSquare(RelativeRank(color, RANK_1), file);
+
+    int side = file > FileOf(kFrom) ? OO : OOO;
+    int cr = side & (color == WHITE ? WHITE_CASTLE : BLACK_CASTLE);
+
+    Square rTo = MakeSquare(RelativeRank(color, RANK_1), side == OO ? FILE_F : FILE_D);
+    Square kTo = MakeSquare(RelativeRank(color, RANK_1), side == OO ? FILE_G : FILE_C);
+
+    RookSquare[cr] = rFrom;
+    pos->castlingRights |= cr;
+    CastlePerm[rFrom] ^= cr;
+    CastlePerm[kFrom] ^= cr;
+    CastlePath[cr] = (BetweenBB[rFrom][rTo] | BetweenBB[kFrom][kTo] | BB(kTo) | BB(rTo)) & ~(BB(kFrom) | BB(rFrom));
+}
+
 // Parse FEN and set up the position as described
 void ParseFen(const char *fen, Position *pos) {
 
@@ -168,13 +191,18 @@ void ParseFen(const char *fen, Position *pos) {
     sideToMove = *strtok(NULL, " ") == 'w' ? WHITE : BLACK;
 
     // Castling rights
+    for (sq = A1; sq <= H8; ++sq)
+        CastlePerm[sq] = ALL_CASTLE;
+
     token = strtok(NULL, " ");
     while ((c = *token++))
         switch (c) {
-            case 'K': pos->castlingRights |= WHITE_OO;  break;
-            case 'Q': pos->castlingRights |= WHITE_OOO; break;
-            case 'k': pos->castlingRights |= BLACK_OO;  break;
-            case 'q': pos->castlingRights |= BLACK_OOO; break;
+            case 'K': InitCastlingRight(pos, WHITE, FILE_H); break;
+            case 'Q': InitCastlingRight(pos, WHITE, FILE_A); break;
+            case 'k': InitCastlingRight(pos, BLACK, FILE_H); break;
+            case 'q': InitCastlingRight(pos, BLACK, FILE_A); break;
+            case 'a' ... 'h': chess960 = true; InitCastlingRight(pos, BLACK, c - 'a'); break;
+            case 'A' ... 'H': chess960 = true; InitCastlingRight(pos, WHITE, c - 'A'); break;
         }
 
     // En passant square
