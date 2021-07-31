@@ -145,14 +145,14 @@ void TakeMove(Position *pos) {
 
     // Move rook back if castling
     else if (moveIsCastle(move)) {
-        ClearPiece(pos, to, true);
+        ClearPiece(pos, to, false);
         switch (to) {
             case C1: MovePiece(pos, D1, RookSquare[WHITE_OOO], false); break;
             case C8: MovePiece(pos, D8, RookSquare[BLACK_OOO], false); break;
             case G1: MovePiece(pos, F1, RookSquare[WHITE_OO ], false); break;
             default: MovePiece(pos, F8, RookSquare[BLACK_OO ], false); break;
         }
-        AddPiece(pos, from, MakePiece(sideToMove, KING), true);
+        AddPiece(pos, from, MakePiece(sideToMove, KING), false);
         goto done;
     }
 
