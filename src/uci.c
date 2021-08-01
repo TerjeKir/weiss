@@ -42,12 +42,8 @@ static void ParseTimeControl(const char *str, const Position *pos) {
 
     // Parse relevant search constraints
     Limits.infinite = strstr(str, "infinite");
-    if (sideToMove == WHITE)
-        SetLimit(str, "wtime", &Limits.time),
-        SetLimit(str, "winc",  &Limits.inc);
-    else
-        SetLimit(str, "btime", &Limits.time),
-        SetLimit(str, "binc",  &Limits.inc);
+    SetLimit(str, sideToMove == WHITE ? "wtime" : "btime", &Limits.time),
+    SetLimit(str, sideToMove == WHITE ? "winc"  : "binc" , &Limits.inc);
     SetLimit(str, "movestogo", &Limits.movestogo);
     SetLimit(str, "movetime",  &Limits.movetime);
     SetLimit(str, "depth",     &Limits.depth);
@@ -58,9 +54,8 @@ static void ParseTimeControl(const char *str, const Position *pos) {
     if (searchmoves) {
         char *move = strtok(searchmoves, " ");
         int i = 0;
-        while ((move = strtok(NULL, " "))) {
+        while ((move = strtok(NULL, " ")))
             Limits.searchmoves[i++] = ParseMove(move, pos);
-        }
     }
 
     Limits.timelimit = Limits.time || Limits.movetime;
