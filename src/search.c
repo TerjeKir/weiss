@@ -47,7 +47,7 @@ CONSTR InitReductions() {
     for (int depth = 1; depth < 32; ++depth)
         for (int moves = 1; moves < 32; ++moves)
             Reductions[0][depth][moves] = 0.00 + log(depth) * log(moves) / 3.25, // capture
-            Reductions[1][depth][moves] = 1.75 + log(depth) * log(moves) / 1.75; // quiet
+            Reductions[1][depth][moves] = 1.50 + log(depth) * log(moves) / 1.75; // quiet
 }
 
 // Checks if the move is in the list of searchmoves if any were given
@@ -423,6 +423,8 @@ move_loop:
             r += sideToMove == thread->nullMover;
             // Adjust reduction by move history
             r -= histScore / 8192;
+            // Reduce quiets more if ttMove is a capture
+            r += quiet && moveIsCapture(ttMove);
 
             // Depth after reductions, avoiding going straight to quiescence
             Depth lmrDepth = CLAMP(newDepth - r, 1, newDepth);
