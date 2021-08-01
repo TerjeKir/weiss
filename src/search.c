@@ -423,7 +423,7 @@ move_loop:
             r += sideToMove == thread->nullMover;
             // Adjust reduction by move history
             r -= histScore / 8192;
-
+            // Reduce quiets more if ttMove is a capture
             r += quiet && moveIsCapture(ttMove);
 
             // Depth after reductions, avoiding going straight to quiescence
