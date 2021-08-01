@@ -17,7 +17,6 @@
 */
 
 #include <stddef.h>
-#include <stdio.h>
 #include <stdlib.h>
 
 #include "pyrrhic/tbprobe.h"
@@ -43,12 +42,8 @@ static void ParseTimeControl(const char *str, const Position *pos) {
 
     // Parse relevant search constraints
     Limits.infinite = strstr(str, "infinite");
-    if (sideToMove == WHITE)
-        SetLimit(str, "wtime", &Limits.time),
-        SetLimit(str, "winc",  &Limits.inc);
-    else
-        SetLimit(str, "btime", &Limits.time),
-        SetLimit(str, "binc",  &Limits.inc);
+    SetLimit(str, sideToMove == WHITE ? "wtime" : "btime", &Limits.time);
+    SetLimit(str, sideToMove == WHITE ? "winc"  : "binc" , &Limits.inc);
     SetLimit(str, "movestogo", &Limits.movestogo);
     SetLimit(str, "movetime",  &Limits.movetime);
     SetLimit(str, "depth",     &Limits.depth);
@@ -59,9 +54,8 @@ static void ParseTimeControl(const char *str, const Position *pos) {
     if (searchmoves) {
         char *move = strtok(searchmoves, " ");
         int i = 0;
-        while ((move = strtok(NULL, " "))) {
+        while ((move = strtok(NULL, " ")))
             Limits.searchmoves[i++] = ParseMove(move, pos);
-        }
     }
 
     Limits.timelimit = Limits.time || Limits.movetime;
@@ -109,41 +103,40 @@ static void Pos(Position *pos, char *str) {
 static void SetOption(char *str) {
 
     // Sets the size of the transposition table
-    if (OptionName(str, "Hash")) {
-        TT.requestedMB = atoi(OptionValue(str));
+    if (OptionName(str, "Hash"))
+        TT.requestedMB = atoi(OptionValue(str)),
         puts("info string Hash will resize after next 'isready'.");
 
     // Sets number of threads to use for searching
-    } else if (OptionName(str, "Threads")) {
+    else if (OptionName(str, "Threads"))
         InitThreads(atoi(OptionValue(str)));
 
     // Sets the syzygy tablebase path
-    } else if (OptionName(str, "SyzygyPath")) {
+    else if (OptionName(str, "SyzygyPath"))
         tb_init(OptionValue(str));
 
     // Sets multi-pv
-    } else if (OptionName(str, "MultiPV")) {
+    else if (OptionName(str, "MultiPV"))
         Limits.multiPV = atoi(OptionValue(str));
 
     // Toggles probing of Chess Cloud Database
-    } else if (OptionName(str, "UCI_Chess960")) {
+    else if (OptionName(str, "UCI_Chess960"))
         chess960 = !strncmp(OptionValue(str), "true", 4);
 
+    // Toggles probing of Chess Cloud Database
+    else if (OptionName(str, "NoobBook"))
+        noobbook = !strncmp(OptionValue(str), "true", 4);
+
     // Sets max depth for using NoobBook
-    } else if (OptionName(str, "NoobBookLimit")) {
+    else if (OptionName(str, "NoobBookLimit"))
         noobLimit = atoi(OptionValue(str));
 
     // Toggles probing of Chess Cloud Database
-    } else if (OptionName(str, "NoobBook")) {
-        noobbook = !strncmp(OptionValue(str), "true", 4);
-
-    // Toggles probing of Chess Cloud Database
-    } else if (OptionName(str, "OnlineSyzygy")) {
+    else if (OptionName(str, "OnlineSyzygy"))
         onlineSyzygy = !strncmp(OptionValue(str), "true", 4);
 
-    } else {
+    else
         puts("info No such option.");
-    }
 
     fflush(stdout);
 }

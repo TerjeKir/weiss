@@ -16,8 +16,6 @@
   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include <stdio.h>
-
 #include "bitboard.h"
 #include "makemove.h"
 #include "move.h"

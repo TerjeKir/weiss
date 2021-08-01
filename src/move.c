@@ -16,7 +16,6 @@
   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include <stdio.h>
 #include <stdlib.h>
 
 #include "bitboard.h"
@@ -104,20 +103,14 @@ char *MoveToStr(const Move move) {
     }
 
     PieceType promo = PieceTypeOf(promotion(move));
-
-    char pchar = promo == QUEEN  ? 'q'
-               : promo == KNIGHT ? 'n'
-               : promo == ROOK   ? 'r'
-               : promo == BISHOP ? 'b'
-                                 : '\0';
+    char pchar = "\0.nbrq"[promo];
 
     sprintf(moveStr, "%c%c%c%c%c", ('a' + ff), ('1' + rf), ('a' + ft), ('1' + rt), pchar);
 
     return moveStr;
 }
 
-// Translates a string to a move (assumes correct input)
-// a2a4 b7b8q g7f8n
+// Translates a string to a move
 Move ParseMove(const char *str, const Position *pos) {
 
     // Translate coordinates into square numbers

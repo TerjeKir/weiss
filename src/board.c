@@ -17,7 +17,6 @@
 */
 
 #include <ctype.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -184,12 +183,11 @@ void ParseFen(const char *fen, Position *pos) {
     // Piece locations
     Square sq = A8;
     while ((c = *token++))
-        if (isdigit(c))
-            sq += c - '0';
-        else if (c == '/')
-            sq -= 16;
-        else
-            AddPiece(pos, sq++, strchr(PieceChars, c) - PieceChars);
+        switch (c) {
+            case '/': sq -= 16; break;
+            case '1' ... '8': sq += c - '0'; break;
+            default: AddPiece(pos, sq++, strchr(PieceChars, c) - PieceChars);
+        }
 
     // Side to move
     sideToMove = *strtok(NULL, " ") == 'w' ? WHITE : BLACK;

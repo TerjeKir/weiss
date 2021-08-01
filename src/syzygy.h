@@ -18,8 +18,6 @@
 
 #pragma once
 
-#include <stdio.h>
-
 #include "onlinesyzygy/onlinesyzygy.h"
 #include "pyrrhic/tbprobe.h"
 #include "bitboard.h"
