@@ -42,7 +42,7 @@ static void ParseTimeControl(const char *str, const Position *pos) {
 
     // Parse relevant search constraints
     Limits.infinite = strstr(str, "infinite");
-    SetLimit(str, sideToMove == WHITE ? "wtime" : "btime", &Limits.time),
+    SetLimit(str, sideToMove == WHITE ? "wtime" : "btime", &Limits.time);
     SetLimit(str, sideToMove == WHITE ? "winc"  : "binc" , &Limits.inc);
     SetLimit(str, "movestogo", &Limits.movestogo);
     SetLimit(str, "movetime",  &Limits.movetime);
