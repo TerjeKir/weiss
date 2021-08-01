@@ -22,6 +22,7 @@
 #include <assert.h>
 #include <inttypes.h>
 #include <stdbool.h>
+#include <stdio.h>
 
 
 #define MIN(A, B) ((A) < (B) ? (A) : (B))
