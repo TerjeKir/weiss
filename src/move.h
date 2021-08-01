@@ -68,8 +68,7 @@
 // Checks legality of a specific castle move given the current position
 INLINE bool CastlePseudoLegal(const Position *pos, Color color, int side) {
 
-    uint8_t castle = color == WHITE ? side & WHITE_CASTLE
-                                    : side & BLACK_CASTLE;
+    uint8_t castle = side & (color == WHITE ? WHITE_CASTLE : BLACK_CASTLE);
 
     if (   !(pos->castlingRights & castle)
         || pos->checkers
