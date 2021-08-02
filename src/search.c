@@ -408,7 +408,7 @@ move_loop:
 
         // Reduced depth zero-window search
         if (   depth > 2
-            && moveCount > 1 + pvNode + !ttMove
+            && moveCount > 1 + pvNode + !ttMove + root
             && thread->doPruning) {
 
             // Base reduction
