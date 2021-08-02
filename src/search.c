@@ -588,7 +588,7 @@ static void *IterativeDeepening(void *voidThread) {
             AspirationWindow(thread, ss);
 
         // Sort root moves so they are printed in the right order in multi-pv mode
-        SortRootMoves(thread, Limits.multiPV);
+        SortRootMoves(thread, MIN(Limits.multiPV, thread->rootMoveCount));
 
         // Only the main thread concerns itself with the rest
         if (!mainThread) continue;
@@ -621,7 +621,7 @@ static void *IterativeDeepening(void *voidThread) {
 void *SearchPosition(void *pos) {
 
     InitTimeManagement();
-    PrepareSearch(pos);
+    PrepareSearch(pos, Limits.searchmoves);
     bool threadsSpawned = false;
 
     // Probe TBs for a move if already in a TB position

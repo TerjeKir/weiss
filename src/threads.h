@@ -77,7 +77,7 @@ bool AlreadySearchedMultiPV(Thread *thread, Move move);
 void SortRootMoves(Thread *thread, int multiPV);
 uint64_t TotalNodes();
 uint64_t TotalTBHits();
-void PrepareSearch(Position *pos);
+void PrepareSearch(Position *pos, Move searchmoves[]);
 void StartMainThread(void *(*func)(void *), Position *pos);
 void StartHelpers(void *(*func)(void *));
 void WaitForHelpers();
