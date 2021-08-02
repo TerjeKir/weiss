@@ -576,6 +576,7 @@ static void *IterativeDeepening(void *voidThread) {
     Position *pos = &thread->pos;
     Stack *ss = thread->ss+SS_OFFSET;
     bool mainThread = thread->index == 0;
+    int multiPV = MIN(Limits.multiPV, thread->rootMoveCount);
 
     // Iterative deepening
     while (++thread->depth <= (mainThread ? Limits.depth : MAX_PLY)) {
@@ -584,11 +585,11 @@ static void *IterativeDeepening(void *voidThread) {
         if (setjmp(thread->jumpBuffer)) break;
 
         // Search position, using aspiration windows for higher depths
-        for (thread->multiPV = 0; thread->multiPV < Limits.multiPV; ++thread->multiPV)
+        for (thread->multiPV = 0; thread->multiPV < multiPV; ++thread->multiPV)
             AspirationWindow(thread, ss);
 
         // Sort root moves so they are printed in the right order in multi-pv mode
-        SortRootMoves(thread, MIN(Limits.multiPV, thread->rootMoveCount));
+        SortRootMoves(thread, multiPV);
 
         // Only the main thread concerns itself with the rest
         if (!mainThread) continue;
