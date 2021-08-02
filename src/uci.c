@@ -235,7 +235,6 @@ INLINE int MateScore(const int score) {
 void PrintThinking(const Thread *thread, int alpha, int beta) {
 
     const Position *pos = &thread->pos;
-    const int multiPV = Limits.multiPV;
 
     TimePoint elapsed = TimeSince(Limits.start);
     uint64_t nodes    = TotalNodes(thread);
@@ -247,7 +246,7 @@ void PrintThinking(const Thread *thread, int alpha, int beta) {
     for (; seldepth > 0; --seldepth)
         if (history(seldepth-1).key != 0) break;
 
-    for (int i = 0; i < multiPV; ++i) {
+    for (int i = 0; i < Limits.multiPV; ++i) {
 
         const PV *pv = &thread->rootMoves[i].pv;
         int score = thread->rootMoves[i].score;
@@ -261,7 +260,7 @@ void PrintThinking(const Thread *thread, int alpha, int beta) {
         // Determine if score is an upper or lower bound
         char *bound = score >= beta  ? " lowerbound"
                     : score <= alpha ? " upperbound"
-                                    : "";
+                                     : "";
 
         // Translate internal score into printed score
         score = abs(score) >=  MATE_IN_MAX ? MateScore(score)
@@ -271,7 +270,7 @@ void PrintThinking(const Thread *thread, int alpha, int beta) {
 
         // Basic info
         printf("info depth %d seldepth %d multipv %d score %s %d%s time %" PRId64
-            " nodes %" PRIu64 " nps %d tbhits %" PRIu64 " hashfull %d pv",
+               " nodes %" PRIu64 " nps %d tbhits %" PRIu64 " hashfull %d pv",
                 thread->depth, seldepth, i+1, type, score, bound, elapsed,
                 nodes, nps, tbhits, hashFull);
 
