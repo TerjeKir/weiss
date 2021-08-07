@@ -135,5 +135,5 @@ Move ParseMove(const char *str, const Position *pos) {
         flag = FLAG_CASTLE;
     }
 
-    return MOVE(from, to, pieceOn(to), promo, flag);
+    return MOVE(from, to, pieceOn(to), promo, flag, pieceOn(from));
 }
