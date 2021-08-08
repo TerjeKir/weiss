@@ -88,7 +88,7 @@ bool ProbeRoot(Position *pos, Move *move, unsigned *wdl, unsigned *dtz) {
              to    = TB_GET_TO(result),
              promo = TB_GET_PROMOTES(result);
 
-    *move = MOVE(from, to, 0, promo ? 6 - promo : 0, 0);
+    *move = MOVE(from, to, 0, promo ? 6 - promo : 0, 0, 0);
     *wdl = TB_GET_WDL(result);
     *dtz = TB_GET_DTZ(result);
 
