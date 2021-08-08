@@ -407,18 +407,21 @@ INLINE void InitEvalInfo(const Position *pos, EvalInfo *ei, const Color color) {
 // Calculate scale factor to lower overall eval based on various features
 int ScaleFactor(const Position *pos, const int eval) {
 
-    // Scale down eval for opposite-colored bishops endgames
-    if (  !pieceBB(QUEEN) && !pieceBB(ROOK) && !pieceBB(KNIGHT)
-        && pos->nonPawnCount[WHITE] == 1
-        && pos->nonPawnCount[BLACK] == 1
-        && (Single(pieceBB(BISHOP) & BlackSquaresBB)))
-        return 64;
-
     // Scale down eval the fewer pawns the stronger side has
     Color strong = eval > 0 ? WHITE : BLACK;
     int strongPawnCount = PopCount(colorPieceBB(strong, PAWN));
     int x = 8 - strongPawnCount;
-    return 128 - x * x;
+    int pawnScale = 128 - x * x;
+
+    if (   pos->nonPawnCount[WHITE] <= 2
+        && pos->nonPawnCount[BLACK] <= 2
+        && pos->nonPawnCount[WHITE] == pos->nonPawnCount[BLACK]
+        && Single(colorPieceBB(WHITE, BISHOP))
+        && Single(colorPieceBB(BLACK, BISHOP))
+        && Single(pieceBB(BISHOP) & BlackSquaresBB))
+        return pos->nonPawnCount[WHITE] == 1 ? 64 : MIN(96, pawnScale);
+
+    return pawnScale;
 }
 
 // Calculate a static evaluation of a position
