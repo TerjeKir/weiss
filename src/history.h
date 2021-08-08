@@ -27,8 +27,8 @@
 
 
 #define QuietEntry(move) &thread->history[sideToMove][fromSq(move)][toSq(move)]
-#define NoisyEntry(move) &thread->captureHistory[pieceOn(fromSq(move))][toSq(move)][PieceTypeOf(capturing(move))]
-#define ContEntry(prev, move) &thread->continuation[pieceOn(toSq(prev))][toSq(prev)][pieceOn(fromSq(move))][toSq(move)]
+#define NoisyEntry(move) &thread->captureHistory[piece(move)][toSq(move)][PieceTypeOf(capturing(move))]
+#define ContEntry(prev, move) &thread->continuation[piece(prev)][toSq(prev)][piece(move)][toSq(move)]
 
 
 INLINE void HistoryBonus(int16_t *cur, int bonus) {
@@ -74,8 +74,6 @@ INLINE void UpdateQuietHistory(Thread *thread, Stack *ss, Move bestMove, Depth d
 // Updates various history heuristics when a move causes a beta cutoff
 INLINE void UpdateHistory(Thread *thread, Stack *ss, Move bestMove, Depth depth, Move quiets[], int qCount, Move noisys[], int nCount) {
 
-    const Position *pos = &thread->pos;
-
     int bonus = depth * depth;
 
     // Update quiet history if bestMove is quiet
@@ -105,9 +103,6 @@ INLINE int GetQuietHistory(const Thread *thread, Move move) {
 }
 
 INLINE int GetCaptureHistory(const Thread *thread, Move move) {
-
-    const Position *pos = &thread->pos;
-
     return *NoisyEntry(move);
 }
 
