@@ -391,7 +391,7 @@ move_loop:
         // If alpha > 0 and we take back our last move, opponent can do the same
         // and get a fail high by repetition
         if (   pos->rule50 >= 3
-            && pos->histPly >= 2
+            && pos->histPly >= 3
             && alpha > 0
             // The current move has been made and is -1, 2 back is then -3
             && fromSq(move) == toSq(history(-3).move)
