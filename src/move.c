@@ -48,7 +48,7 @@ bool MoveIsPseudoLegal(const Position *pos, const Move move) {
             default: assert(0); return false;
         }
 
-    // Must move the specified piece and capture the piece specified (or not capture)
+    // Must move the specified piece and capture the specified piece (or not capture)
     if (   piece(move) != pieceOn(from)
         || capturing(move) != pieceOn(to))
         return false;
