@@ -52,14 +52,14 @@ bool MoveIsPseudoLegal(const Position *pos, const Move move) {
     if (piece(move) != pieceOn(from) || capturing(move) != pieceOn(to))
         return false;
 
-    // Non-pawn, non-castling moves
-    if (pieceTypeOn(from) != PAWN)
-        return BB(to) & AttackBB(pieceTypeOn(from), from, pieceBB(ALL));
-
     // Pawn moves
-    return  moveIsEnPas(move)  ? to == pos->epSquare
-          : moveIsPStart(move) ? pieceOn(to ^ 8) == EMPTY
-                               : true;
+    if (pieceTypeOn(from) == PAWN)
+        return  moveIsEnPas(move)  ? to == pos->epSquare
+              : moveIsPStart(move) ? pieceOn(to ^ 8) == EMPTY
+                                   : true;
+
+    // All other moves
+    return BB(to) & AttackBB(pieceTypeOn(from), from, pieceBB(ALL));
 }
 
 // Translates a move to a string
