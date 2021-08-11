@@ -35,7 +35,7 @@ bool MoveIsPseudoLegal(const Position *pos, const Move move) {
     const Square to = toSq(move);
 
     // Must move our own piece
-    if (!(colorBB(color) & BB(from)))
+    if (ColorOf(piece(move)) != color)
         return false;
 
     // Castling
@@ -49,40 +49,25 @@ bool MoveIsPseudoLegal(const Position *pos, const Move move) {
         }
 
     // Must move to a square not occupied by our own pieces, and capture the piece specified
-    if (   (colorBB(color) & BB(to))
+    if (   colorBB(color) & BB(to)
         || piece(move) != pieceOn(from)
         || capturing(move) != pieceOn(to))
         return false;
 
     // All non-pawn, non-castling moves
-    if (pieceTypeOn(from) != PAWN) {
+    if (pieceTypeOn(from) != PAWN)
+        return BB(to) & AttackBB(pieceTypeOn(from), from, pieceBB(ALL));
 
-        // No flags or promotion, and the piece currently attacks it
-        return !moveIsSpecial(move)
-            && BB(to) & AttackBB(pieceTypeOn(from), from, pieceBB(ALL));
+    // En passant
+    if (moveIsEnPas(move))
+        return to == pos->epSquare;
 
-    // Pawn moves
-    } else {
+    // Pawn start
+    if (moveIsPStart(move))
+        return pieceOn(to ^ 8) == EMPTY;
 
-        // En passant
-        if (moveIsEnPas(move))
-            return to == pos->epSquare
-                && BB(to) & PawnAttackBB(color, from);
-
-        // Pawn start
-        if (moveIsPStart(move))
-            return pieceOn(to ^ 8) == EMPTY
-                && (to + 16 - 32 * color) == from;
-
-        // Pawn moves to the last rank must promote
-        if (   RelativeRank(color, RankOf(to)) == RANK_8
-            && !promotion(move))
-            return false;
-
-        // Normal moves and promotions
-        return (moveIsCapture(move)) ? BB(to) & PawnAttackBB(color, from)
-                                     : (to + 8 - 16 * color) == from;
-    }
+    // Normal pawn moves and promotions
+    return true;
 }
 
 // Translates a move to a string
