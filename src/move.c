@@ -49,8 +49,7 @@ bool MoveIsPseudoLegal(const Position *pos, const Move move) {
         }
 
     // Must move the specified piece and capture the specified piece (or not capture)
-    if (   piece(move) != pieceOn(from)
-        || capturing(move) != pieceOn(to))
+    if (piece(move) != pieceOn(from) || capturing(move) != pieceOn(to))
         return false;
 
     // All non-pawn, non-castling moves
