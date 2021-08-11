@@ -52,7 +52,7 @@ bool MoveIsPseudoLegal(const Position *pos, const Move move) {
     if (piece(move) != pieceOn(from) || capturing(move) != pieceOn(to))
         return false;
 
-    // All non-pawn, non-castling moves
+    // Non-pawn, non-castling moves
     if (pieceTypeOn(from) != PAWN)
         return BB(to) & AttackBB(pieceTypeOn(from), from, pieceBB(ALL));
 
