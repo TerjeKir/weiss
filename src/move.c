@@ -48,9 +48,8 @@ bool MoveIsPseudoLegal(const Position *pos, const Move move) {
             default: assert(0); return false;
         }
 
-    // Must move to a square not occupied by our own pieces, and capture the piece specified
-    if (   colorBB(color) & BB(to)
-        || piece(move) != pieceOn(from)
+    // Must move the specified piece and capture the piece specified (or not capture)
+    if (   piece(move) != pieceOn(from)
         || capturing(move) != pieceOn(to))
         return false;
 
