@@ -58,16 +58,10 @@ bool MoveIsPseudoLegal(const Position *pos, const Move move) {
     if (pieceTypeOn(from) != PAWN)
         return BB(to) & AttackBB(pieceTypeOn(from), from, pieceBB(ALL));
 
-    // En passant
-    if (moveIsEnPas(move))
-        return to == pos->epSquare;
-
-    // Pawn start
-    if (moveIsPStart(move))
-        return pieceOn(to ^ 8) == EMPTY;
-
-    // Normal pawn moves and promotions
-    return true;
+    // Pawn moves
+    return  moveIsEnPas(move)  ? to == pos->epSquare
+          : moveIsPStart(move) ? pieceOn(to ^ 8) == EMPTY
+                               : true;
 }
 
 // Translates a move to a string
