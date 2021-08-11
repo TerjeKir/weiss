@@ -50,7 +50,6 @@ void StoreTTEntry(TTEntry *tte, const Key key,
                                 const int bound) {
 
     assert(ValidBound(bound));
-    assert(ValidDepth(depth));
     assert(ValidScore(score));
 
     // Store new data unless it would overwrite data about the same
