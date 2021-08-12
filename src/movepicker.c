@@ -148,8 +148,8 @@ Move NextMove(MovePicker *mp) {
 void InitNormalMP(MovePicker *mp, Thread *thread, Depth depth, Move ttMove, Move kill1, Move kill2) {
     mp->list.count = mp->list.next = 0;
     mp->thread    = thread;
-    mp->ttMove    = MoveIsPseudoLegal(&thread->pos, ttMove) ? ttMove : NOMOVE;
-    mp->stage     = mp->ttMove ? TTMOVE : GEN_NOISY;
+    mp->ttMove    = ttMove;
+    mp->stage     = ttMove ? TTMOVE : GEN_NOISY;
     mp->depth     = depth;
     mp->kill1     = kill1;
     mp->kill2     = kill2;
