@@ -180,12 +180,14 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
 
     Move ttMove = ttHit ? tte->move : NOMOVE;
     int ttScore = ttHit ? ScoreFromTT(tte->score, ss->ply) : NOSCORE;
+    Depth ttDepth = tte->depth;
+    int ttBound = tte->bound;
 
     // Trust TT if not a pvnode and the entry depth is sufficiently high
     if (   !pvNode
         && ttHit
-        && tte->depth >= depth
-        && (tte->bound & (ttScore >= beta ? BOUND_LOWER : BOUND_UPPER))) {
+        && ttDepth >= depth
+        && (ttBound & (ttScore >= beta ? BOUND_LOWER : BOUND_UPPER))) {
 
         // Give a history bonus to quiet tt moves that causes a cutoff
         if (ttScore >= beta && moveIsQuiet(ttMove))
@@ -226,7 +228,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
 
     // Use ttScore as eval if it is more informative
     if (   ttScore != NOSCORE
-        && tte->bound & (ttScore > eval ? BOUND_LOWER : BOUND_UPPER))
+        && ttBound & (ttScore > eval ? BOUND_LOWER : BOUND_UPPER))
         eval = ttScore;
 
     // Improving if not in check, and current eval is higher than 2 plies ago
@@ -275,7 +277,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
     if (   depth >= 5
         && abs(beta) < TBWIN_IN_MAX
         && !(   ttHit
-             && tte->bound & BOUND_UPPER
+             && ttBound & BOUND_UPPER
              && ttScore < beta)) {
 
         int threshold = beta + 200;
@@ -366,8 +368,8 @@ move_loop:
         if (   depth > 8
             && move == ttMove
             && !ss->excluded
-            && tte->depth > depth - 3
-            && tte->bound != BOUND_UPPER
+            && ttDepth > depth - 3
+            && ttBound != BOUND_UPPER
             && abs(ttScore) < TBWIN_IN_MAX / 4
             && !root) {
 
