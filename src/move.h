@@ -79,7 +79,7 @@ INLINE bool CastlePseudoLegal(const Position *pos, Square to) {
 
     if (   !(pos->castlingRights & castle)
         || pos->checkers
-        || (pieceBB(ALL) & CastlePath[castle]))
+        || pieceBB(ALL) & CastlePath[castle])
         return false;
 
     Bitboard intercept = BetweenBB[kingSq(color)][to];
