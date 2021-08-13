@@ -71,6 +71,8 @@
 // Checks legality of a specific castle move given the current position
 INLINE bool CastlePseudoLegal(const Position *pos, Square to) {
 
+    assert(to == C1 || to == G1 || to == C8 || to == G8);
+
     Color color = RankOf(to) == RANK_1 ? WHITE : BLACK;
     int side = FileOf(to) == FILE_G ? OO : OOO;
     uint8_t castle = side & (color == WHITE ? WHITE_CASTLE : BLACK_CASTLE);
