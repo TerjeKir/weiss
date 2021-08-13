@@ -40,13 +40,7 @@ bool MoveIsPseudoLegal(const Position *pos, const Move move) {
 
     // Castling
     if (moveIsCastle(move))
-        switch (to) {
-            case C1: return CastlePseudoLegal(pos, WHITE, OOO);
-            case G1: return CastlePseudoLegal(pos, WHITE, OO);
-            case C8: return CastlePseudoLegal(pos, BLACK, OOO);
-            case G8: return CastlePseudoLegal(pos, BLACK, OO);
-            default: assert(0); return false;
-        }
+        return CastlePseudoLegal(pos, to);
 
     // Must move the specified piece and capture the specified piece (or not capture)
     if (piece(move) != pieceOn(from) || capturing(move) != pieceOn(to))

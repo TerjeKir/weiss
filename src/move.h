@@ -69,8 +69,10 @@
 
 
 // Checks legality of a specific castle move given the current position
-INLINE bool CastlePseudoLegal(const Position *pos, Color color, int side) {
+INLINE bool CastlePseudoLegal(const Position *pos, Square to) {
 
+    Color color = RankOf(to) == RANK_1 ? WHITE : BLACK;
+    int side = FileOf(to) == FILE_G ? OO : OOO;
     uint8_t castle = side & (color == WHITE ? WHITE_CASTLE : BLACK_CASTLE);
 
     if (   !(pos->castlingRights & castle)
@@ -78,7 +80,7 @@ INLINE bool CastlePseudoLegal(const Position *pos, Color color, int side) {
         || (pieceBB(ALL) & CastlePath[castle]))
         return false;
 
-    Bitboard intercept = BetweenBB[kingSq(color)][RelativeSquare(color, side == OO ? G1 : C1)];
+    Bitboard intercept = BetweenBB[kingSq(color)][to];
 
     while (intercept)
         if (SqAttacked(pos, PopLsb(&intercept), !color))
