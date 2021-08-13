@@ -26,7 +26,7 @@ enum { QUIET, NOISY };
 
 // Constructs and adds a move to the move list
 INLINE void AddMove(const Position *pos, MoveList *list, const Square from, const Square to, const Piece promo, const int flag) {
-    list->moves[list->count++].move = MOVE(from, to, pieceOn(to), promo, flag, pieceOn(from));
+    list->moves[list->count++].move = MOVE(from, to, pieceOn(from), pieceOn(to), promo, flag);
 }
 
 // Adds promotions
