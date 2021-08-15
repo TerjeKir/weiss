@@ -409,9 +409,14 @@ int ScaleFactor(const Position *pos, const int eval) {
 
     // Scale down eval the fewer pawns the stronger side has
     Color strong = eval > 0 ? WHITE : BLACK;
-    int strongPawnCount = PopCount(colorPieceBB(strong, PAWN));
+    Bitboard strongPawns = colorPieceBB(strong, PAWN);
+
+    int strongPawnCount = PopCount(strongPawns);
     int x = 8 - strongPawnCount;
     int pawnScale = 128 - x * x;
+
+    if (!(strongPawns & QueenSideBB) || !(strongPawns & KingSideBB))
+        pawnScale -= 10;
 
     if (   pos->nonPawnCount[WHITE] <= 2
         && pos->nonPawnCount[BLACK] <= 2
@@ -419,7 +424,7 @@ int ScaleFactor(const Position *pos, const int eval) {
         && Single(colorPieceBB(WHITE, BISHOP))
         && Single(colorPieceBB(BLACK, BISHOP))
         && Single(pieceBB(BISHOP) & BlackSquaresBB))
-        return pos->nonPawnCount[WHITE] == 1 ? 64 : MIN(96, pawnScale);
+        return MIN((pos->nonPawnCount[WHITE] == 1 ? 64 : 96), pawnScale);
 
     return pawnScale;
 }
