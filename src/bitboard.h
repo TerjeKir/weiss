@@ -99,6 +99,9 @@ enum {
     rank8BB = 0xFF00000000000000,
 
     BlackSquaresBB = 0xAA55AA55AA55AA55,
+
+    QueenSideBB = fileABB | fileBBB | fileCBB | fileDBB,
+    KingSideBB  = fileEBB | fileFBB | fileGBB | fileHBB,
 };
 
 extern const Bitboard FileBB[FILE_NB];
