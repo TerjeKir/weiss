@@ -416,7 +416,7 @@ int ScaleFactor(const Position *pos, const int eval) {
     int pawnScale = 128 - x * x;
 
     if (!(strongPawns & QueenSideBB) || !(strongPawns & KingSideBB))
-        pawnScale -= 10;
+        pawnScale -= 20;
 
     if (   pos->nonPawnCount[WHITE] <= 2
         && pos->nonPawnCount[BLACK] <= 2
