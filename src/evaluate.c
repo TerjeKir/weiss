@@ -385,7 +385,7 @@ INLINE int EvalThreats(const Position *pos, const Color color) {
 // Initializes the eval info struct
 INLINE void InitEvalInfo(const Position *pos, EvalInfo *ei, const Color color) {
 
-    const Direction down = (color == WHITE ? SOUTH : NORTH);
+    const Direction down = color == WHITE ? SOUTH : NORTH;
 
     Bitboard b, pawns = colorPieceBB(color, PAWN);
 

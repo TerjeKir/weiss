@@ -308,7 +308,8 @@ bool SEE(const Position *pos, const Move move, const int threshold) {
     value -= PieceValue[MG][pieceOn(from)];
     if (value >= 0) return true;
 
-    Bitboard occupied = (pieceBB(ALL) ^ BB(from)) | BB(to);
+    // It doesn't matter if the to square is occupied or not
+    Bitboard occupied = pieceBB(ALL) ^ BB(from);
     Bitboard attackers = Attackers(pos, to, occupied);
 
     Bitboard bishops = pieceBB(BISHOP) | pieceBB(QUEEN);
@@ -418,11 +419,11 @@ bool PositionOk(const Position *pos) {
         assert(nonPawnCount[c] == pos->nonPawnCount[c]);
     }
 
-    assert(pieceBB(ALL) == (colorBB(WHITE) | colorBB(BLACK)));
+    assert(pieceBB(ALL) == colorBB(WHITE) | colorBB(BLACK));
 
     assert(sideToMove == WHITE || sideToMove == BLACK);
 
-    assert(!pos->epSquare || (RelativeRank(sideToMove, RankOf(pos->epSquare)) == RANK_6));
+    assert(!pos->epSquare || RelativeRank(sideToMove, RankOf(pos->epSquare)) == RANK_6);
 
     assert(pos->castlingRights >= 0 && pos->castlingRights <= 15);
 

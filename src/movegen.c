@@ -82,7 +82,7 @@ INLINE void GenPawn(const Position *pos, MoveList *list, const Color color, cons
     const Bitboard empty   = ~pieceBB(ALL);
     const Bitboard enemies = pos->checkers ?: colorBB(!color);
     const Bitboard pawns   = colorPieceBB(color, PAWN);
-    const Bitboard promo   = (rank8BB | rank1BB);
+    const Bitboard promo   = rank8BB | rank1BB;
     const Bitboard normal  = ~promo;
 
     const Bitboard push = empty & ShiftBB(pawns, up);

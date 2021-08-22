@@ -163,7 +163,7 @@ INLINE int Lsb(const Bitboard bb) {
 // Returns the index of the least significant bit and unsets it
 INLINE int PopLsb(Bitboard *bb) {
     int lsb = Lsb(*bb);
-    *bb &= (*bb - 1);
+    *bb &= *bb - 1;
     return lsb;
 }
 
