@@ -183,7 +183,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
     Depth ttDepth = tte->depth;
     int ttBound = tte->bound;
 
-    if (ttHit && !MoveIsPseudoLegal(pos, ttMove))
+    if (ttMove && !MoveIsPseudoLegal(pos, ttMove))
         ttHit = false, ttMove = NOMOVE, ttScore = NOSCORE;
 
     // Trust TT if not a pvnode and the entry depth is sufficiently high
