@@ -52,11 +52,13 @@ void StoreTTEntry(TTEntry *tte, const Key key,
     assert(ValidBound(bound));
     assert(ValidScore(score));
 
+    if (move || key != tte->key)
+        tte->move = move;
+
     // Store new data unless it would overwrite data about the same
     // position searched to a higher depth.
     if (key != tte->key || depth * 2 >= tte->depth || bound == BOUND_EXACT)
         tte->key   = key,
-        tte->move  = move ?: tte->move,
         tte->score = score,
         tte->depth = depth,
         tte->bound = bound;
