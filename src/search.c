@@ -456,7 +456,6 @@ skip_search:
         // New best move
         if (score > bestScore) {
             bestScore = score;
-            bestMove  = move;
 
             // Update PV
             if ((score > alpha && pvNode) || (root && moveCount == 1)) {
@@ -468,6 +467,7 @@ skip_search:
             // If score beats alpha we update alpha
             if (score > alpha) {
                 alpha = score;
+                bestMove  = move;
 
                 // If score beats beta we have a cutoff
                 if (score >= beta) {

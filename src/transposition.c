@@ -56,7 +56,7 @@ void StoreTTEntry(TTEntry *tte, const Key key,
     // position searched to a higher depth.
     if (key != tte->key || depth * 2 >= tte->depth || bound == BOUND_EXACT)
         tte->key   = key,
-        tte->move  = move,
+        tte->move  = move ?: tte->move,
         tte->score = score,
         tte->depth = depth,
         tte->bound = bound;
