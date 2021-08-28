@@ -57,7 +57,7 @@ void StoreTTEntry(TTEntry *tte, const Key key,
 
     // Store new data unless it would overwrite data about the same
     // position searched to a higher depth.
-    if (key != tte->key || depth * 2 >= tte->depth || bound == BOUND_EXACT)
+    if (key != tte->key || depth + 4 >= tte->depth || bound == BOUND_EXACT)
         tte->key   = key,
         tte->score = score,
         tte->depth = depth,
