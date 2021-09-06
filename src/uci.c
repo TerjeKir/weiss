@@ -160,6 +160,7 @@ static void Info() {
 static void Stop() {
     ABORT_SIGNAL = true;
     Wake();
+    Wait(&SEARCH_STOPPED);
 }
 
 // Signals the engine is ready
