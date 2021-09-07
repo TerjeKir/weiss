@@ -38,6 +38,7 @@
 
 SearchLimits Limits = { .multiPV = 1 };
 volatile bool ABORT_SIGNAL;
+volatile bool SEARCH_STOPPED = true;
 
 static int Reductions[2][32][32];
 
@@ -626,6 +627,8 @@ static void *IterativeDeepening(void *voidThread) {
 // Root of search
 void *SearchPosition(void *pos) {
 
+    SEARCH_STOPPED = false;
+
     InitTimeManagement();
     PrepareSearch(pos, Limits.searchmoves);
     bool threadsSpawned = false;
@@ -654,6 +657,9 @@ conclusion:
 
     // Print conclusion
     PrintConclusion(threads);
+
+    SEARCH_STOPPED = true;
+    Wake();
 
     return NULL;
 }
