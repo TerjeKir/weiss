@@ -22,6 +22,7 @@
 #include "../board.h"
 #include "../move.h"
 #include "../query/query.h"
+#include "../pyrrhic/tbprobe.h"
 
 
 bool onlineSyzygy = false;
@@ -39,9 +40,13 @@ bool QueryRoot(Position *pos, Move *move, unsigned *wdl, unsigned *dtz) {
     if (strstr(response, "uci") == NULL)
         return false;
 
-    *move = ParseMove(strstr(response, "uci") + 6, pos);
-    *wdl = 2 + atoi(strstr(response, "wdl") + 5);
-    *dtz =     atoi(strstr(response, "dtz") + 5);
+    char *moveInfo = strstr(response, "uci");
+
+    *move = ParseMove(moveInfo + 6, pos);
+    *dtz = atoi(strstr(moveInfo, "dtz") + 5);
+    *wdl = strstr(response, "category")[11] == 'w' ? TB_WIN
+         : strstr(response, "category")[11] == 'l' ? TB_LOSS
+                                                   : TB_DRAW;
 
     return true;
 }
