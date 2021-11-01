@@ -244,8 +244,8 @@ bool MakeMove(Position *pos, const Move move) {
 
         // Set en passant square if applicable
         if (moveIsPStart(move)) {
-            if ((  PawnAttackBB(sideToMove, to ^ 8)
-                 & colorPieceBB(!sideToMove, PAWN))) {
+            if (  PawnAttackBB(sideToMove, to ^ 8)
+                & colorPieceBB(!sideToMove, PAWN)) {
 
                 pos->epSquare = to ^ 8;
                 HASH_EP;

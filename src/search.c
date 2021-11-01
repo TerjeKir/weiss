@@ -561,7 +561,7 @@ static void AspirationWindow(Thread *thread, Stack *ss) {
         // Failed high, relax upper bound and search again
         } else if (score >= beta) {
             beta = MIN(beta + delta, INFINITE);
-            depth -= (abs(score) < TBWIN_IN_MAX);
+            depth -= abs(score) < TBWIN_IN_MAX;
 
         // Score inside the window
         } else {
