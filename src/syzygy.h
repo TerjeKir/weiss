@@ -90,7 +90,7 @@ bool ProbeRoot(Position *pos, Move *move, unsigned *wdl, unsigned *dtz) {
 
     *move = MOVE(from, to, 0, 0, promo ? 6 - promo : 0, 0);
     *wdl = TB_GET_WDL(result);
-    *dtz = TB_GET_DTZ(result);
+    *dtz = TB_GET_DTZ(result) - 1;
 
     return true;
 }
