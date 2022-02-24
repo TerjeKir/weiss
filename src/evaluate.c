@@ -1,6 +1,6 @@
 /*
   Weiss is a UCI compliant chess engine.
-  Copyright (C) 2020  Terje Kirstihagen
+  Copyright (C) 2022 Terje Kirstihagen
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -178,7 +178,7 @@ INLINE int EvalPawns(const Position *pos, EvalInfo *ei, const Color color) {
             eval += PawnPassed[rank];
             TraceIncr(PawnPassed[rank]);
 
-            if (BB(sq) & PawnBBAttackBB(pawns, color)) {
+            if (BB(sq) & PawnBBAttackBB(colorPieceBB(color, PAWN), color)) {
                 eval += PassedDefended[rank];
                 TraceIncr(PassedDefended[rank]);
             }
