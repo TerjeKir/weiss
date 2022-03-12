@@ -55,7 +55,7 @@ char *Query(char *hostname, char *msg_fmt, const Position *pos) {
     char message[256];
     static char response[16384];
 
-    sprintf(message, msg_fmt, BoardToFen(pos));
+    snprintf(message, 256, msg_fmt, BoardToFen(pos));
 
     char *current_pos = strchr(message + 4, ' ');
     while ((current_pos = strchr(message + 4, ' ')) != NULL)
