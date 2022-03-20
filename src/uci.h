@@ -59,21 +59,6 @@ INLINE bool GetInput(char *str) {
     return true;
 }
 
-// Checks if a string begins with another string
-INLINE bool BeginsWith(const char *str, const char *token) {
-    return strstr(str, token) == str;
-}
-
-// Tests whether the name in the setoption string matches
-INLINE bool OptionName(const char *str, const char *name) {
-    return BeginsWith(strstr(str, "name") + 5, name);
-}
-
-// Returns the (string) value of a setoption string
-INLINE char *OptionValue(const char *str) {
-    return strstr(str, "value") + 6;
-}
-
 // Sets a limit to the corresponding value in line, if any
 INLINE void SetLimit(const char *str, const char *token, int *limit) {
     char *ptr = NULL;
