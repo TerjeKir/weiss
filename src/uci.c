@@ -111,25 +111,15 @@ static void SetOption(char *str) {
     #define BooleanValue       (!strncmp(optionValue, "true", 4))
     #define IntValue           (atoi(optionValue))
 
-    if (OptionNameIs("Hash"))
-        TT.requestedMB = IntValue,
-        puts("info string Hash will resize after next 'isready'.");
-    else if (OptionNameIs("Threads"))
-        InitThreads(IntValue);
-    else if (OptionNameIs("SyzygyPath"))
-        tb_init(optionValue);
-    else if (OptionNameIs("MultiPV"))
-        Limits.multiPV = IntValue;
-    else if (OptionNameIs("UCI_Chess960"))
-        chess960 = BooleanValue;
-    else if (OptionNameIs("NoobBookLimit"))
-        noobLimit = IntValue;
-    else if (OptionNameIs("NoobBook"))
-        noobbook = BooleanValue;
-    else if (OptionNameIs("OnlineSyzygy"))
-        onlineSyzygy = BooleanValue;
-    else
-        puts("info No such option.");
+    if      (OptionNameIs("Hash"         )) RequestTTSize(IntValue);
+    else if (OptionNameIs("Threads"      )) InitThreads(IntValue);
+    else if (OptionNameIs("SyzygyPath"   )) tb_init(optionValue);
+    else if (OptionNameIs("MultiPV"      )) Limits.multiPV = IntValue;
+    else if (OptionNameIs("NoobBookLimit")) noobLimit      = IntValue;
+    else if (OptionNameIs("NoobBook"     )) noobbook       = BooleanValue;
+    else if (OptionNameIs("UCI_Chess960" )) chess960       = BooleanValue;
+    else if (OptionNameIs("OnlineSyzygy" )) onlineSyzygy   = BooleanValue;
+    else puts("info string No such option.");
 
     fflush(stdout);
 }

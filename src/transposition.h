@@ -76,6 +76,11 @@ INLINE TTEntry *GetEntry(Key key) {
     return &TT.table[((uint32_t)key * (uint64_t)TT.count) >> 32];
 }
 
+INLINE void RequestTTSize(int megabytes) {
+    TT.requestedMB = megabytes;
+    puts("info string Hash will resize after next 'isready'.");
+}
+
 TTEntry* ProbeTT(Key key, bool *ttHit);
 void StoreTTEntry(TTEntry *tte, Key key, Move move, int score, Depth depth, int bound);
 int HashFull();
