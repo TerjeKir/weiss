@@ -74,9 +74,11 @@ INLINE void Go(Position *pos, char *str) {
 // Parses a 'position' and sets up the board
 static void Pos(Position *pos, char *str) {
 
+    #define IsFen (!strncmp(str, "position fen", 12))
+
     // Set up original position. This will either be a
     // position given as FEN, or the normal start position
-    ParseFen(BeginsWith(str, "position fen") ? str + 13 : START_FEN, pos);
+    ParseFen(IsFen ? str + 13 : START_FEN, pos);
 
     // Check if there are moves to be made from the initial position
     if ((str = strstr(str, "moves")) == NULL) return;
@@ -102,39 +104,30 @@ static void Pos(Position *pos, char *str) {
 // Parses a 'setoption' and updates settings
 static void SetOption(char *str) {
 
-    // Sets the size of the transposition table
-    if (OptionName(str, "Hash"))
-        TT.requestedMB = atoi(OptionValue(str)),
+    char *optionName  = (strstr(str, "name") + 5);
+    char *optionValue = (strstr(str, "value") + 6);
+
+    #define OptionNameIs(name) (!strncmp(optionName, name, strlen(name)))
+    #define BooleanValue       (!strncmp(optionValue, "true", 4))
+    #define IntValue           (atoi(optionValue))
+
+    if (OptionNameIs("Hash"))
+        TT.requestedMB = IntValue,
         puts("info string Hash will resize after next 'isready'.");
-
-    // Sets number of threads to use for searching
-    else if (OptionName(str, "Threads"))
-        InitThreads(atoi(OptionValue(str)));
-
-    // Sets the syzygy tablebase path
-    else if (OptionName(str, "SyzygyPath"))
-        tb_init(OptionValue(str));
-
-    // Sets multi-pv
-    else if (OptionName(str, "MultiPV"))
-        Limits.multiPV = atoi(OptionValue(str));
-
-    // Toggles probing of Chess Cloud Database
-    else if (OptionName(str, "UCI_Chess960"))
-        chess960 = !strncmp(OptionValue(str), "true", 4);
-
-    // Toggles probing of Chess Cloud Database
-    else if (OptionName(str, "NoobBook"))
-        noobbook = !strncmp(OptionValue(str), "true", 4);
-
-    // Sets max depth for using NoobBook
-    else if (OptionName(str, "NoobBookLimit"))
-        noobLimit = atoi(OptionValue(str));
-
-    // Toggles probing of Chess Cloud Database
-    else if (OptionName(str, "OnlineSyzygy"))
-        onlineSyzygy = !strncmp(OptionValue(str), "true", 4);
-
+    else if (OptionNameIs("Threads"))
+        InitThreads(IntValue);
+    else if (OptionNameIs("SyzygyPath"))
+        tb_init(optionValue);
+    else if (OptionNameIs("MultiPV"))
+        Limits.multiPV = IntValue;
+    else if (OptionNameIs("UCI_Chess960"))
+        chess960 = BooleanValue;
+    else if (OptionNameIs("NoobBookLimit"))
+        noobLimit = IntValue;
+    else if (OptionNameIs("NoobBook"))
+        noobbook = BooleanValue;
+    else if (OptionNameIs("OnlineSyzygy"))
+        onlineSyzygy = BooleanValue;
     else
         puts("info No such option.");
 
@@ -258,16 +251,16 @@ void PrintThinking(const Thread *thread, int alpha, int beta) {
         // Determine whether we have a centipawn or mate score
         char *type = abs(score) >= MATE_IN_MAX ? "mate" : "cp";
 
-        // Determine if score is an upper or lower bound
+        // Determine if score is a lower bound, upper bound or exact
         char *bound = score >= beta  ? " lowerbound"
                     : score <= alpha ? " upperbound"
                                      : "";
 
         // Translate internal score into printed score
-        score = abs(score) >=  MATE_IN_MAX ? MateScore(score)
+        score = abs(score) >= MATE_IN_MAX ? MateScore(score)
               :    abs(score) <= 8
-                && pv->length <= 2         ? 0
-                                           : score;
+                && pv->length <= 2        ? 0
+                                          : score;
 
         // Basic info
         printf("info depth %d seldepth %d multipv %d score %s %d%s time %" PRId64
@@ -284,7 +277,7 @@ void PrintThinking(const Thread *thread, int alpha, int beta) {
     fflush(stdout);
 }
 
-// Print conclusion of search - best move and ponder move
+// Print conclusion of search
 void PrintConclusion(const Thread *thread) {
     printf("bestmove %s\n\n", MoveToStr(thread->rootMoves[0].move));
     fflush(stdout);
