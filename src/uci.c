@@ -119,7 +119,7 @@ static void SetOption(char *str) {
     else if (OptionNameIs("NoobBook"     )) noobbook       = BooleanValue;
     else if (OptionNameIs("UCI_Chess960" )) chess960       = BooleanValue;
     else if (OptionNameIs("OnlineSyzygy" )) onlineSyzygy   = BooleanValue;
-    else puts("info No such option.");
+    else puts("info string No such option.");
 
     fflush(stdout);
 }
