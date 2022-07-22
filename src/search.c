@@ -277,14 +277,14 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
             return score >= TBWIN_IN_MAX ? beta : score;
     }
 
+    int pbThreshold = beta + 200;
+
     // ProbCut
     if (   depth >= 5
         && abs(beta) < TBWIN_IN_MAX
         && !(   ttHit
              && ttBound & BOUND_UPPER
-             && ttScore < beta)) {
-
-        int threshold = beta + 200;
+             && ttScore < pbThreshold)) {
 
         InitNoisyMP(&mp, thread);
 
@@ -296,16 +296,16 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
             if (!MakeMove(pos, move)) continue;
 
             // See if a quiescence search beats the threshold
-            int pbScore = -Quiescence(thread, ss+1, -threshold, -threshold+1);
+            int pbScore = -Quiescence(thread, ss+1, -pbThreshold, -pbThreshold+1);
 
             // If it did, do a proper search with reduced depth
-            if (pbScore >= threshold)
-                pbScore = -AlphaBeta(thread, ss+1, -threshold, -threshold+1, depth-4);
+            if (pbScore >= pbThreshold)
+                pbScore = -AlphaBeta(thread, ss+1, -pbThreshold, -pbThreshold+1, depth-4);
 
             TakeMove(pos);
 
             // Cut if the reduced depth search beats the threshold
-            if (pbScore >= threshold)
+            if (pbScore >= pbThreshold)
                 return pbScore;
         }
     }
