@@ -481,7 +481,7 @@ skip_search:
         // Remember attempted moves to adjust their history scores
         if (quiet && quietCount < 32)
             quiets[quietCount++] = move;
-        else if (noisyCount < 32)
+        else if (!quiet && noisyCount < 32)
             noisys[noisyCount++] = move;
     }
 
