@@ -40,7 +40,7 @@ INLINE void UpdateQuietHistory(Thread *thread, Stack *ss, Move bestMove, Depth d
 
     const Position *pos = &thread->pos;
 
-    Move prevMove  = pos->histPly >= 1 ? history(-1).move : NOMOVE;
+    Move prevMove1 = pos->histPly >= 1 ? history(-1).move : NOMOVE;
     Move prevMove2 = pos->histPly >= 2 ? history(-2).move : NOMOVE;
 
     // Update killers
@@ -54,20 +54,15 @@ INLINE void UpdateQuietHistory(Thread *thread, Stack *ss, Move bestMove, Depth d
     // Bonus to the move that caused the beta cutoff
     if (depth > 2) {
         HistoryBonus(QuietEntry(bestMove), bonus);
-        if (prevMove)
-            HistoryBonus(ContEntry(prevMove, bestMove), bonus);
-        if (prevMove2)
-            HistoryBonus(ContEntry(prevMove2, bestMove), bonus);
+        if (prevMove1) HistoryBonus(ContEntry(prevMove1, bestMove), bonus);
+        if (prevMove2) HistoryBonus(ContEntry(prevMove2, bestMove), bonus);
     }
 
     // Penalize quiet moves that failed to produce a cut
-    for (int i = 0; i < qCount; ++i) {
-        Move move = quiets[i];
-        HistoryBonus(QuietEntry(move), -bonus);
-        if (prevMove)
-            HistoryBonus(ContEntry(prevMove, move), -bonus);
-        if (prevMove2)
-            HistoryBonus(ContEntry(prevMove2, move), -bonus);
+    for (Move *move = quiets; move < quiets + qCount; ++move) {
+        HistoryBonus(QuietEntry(*move), -bonus);
+        if (prevMove1) HistoryBonus(ContEntry(prevMove1, *move), -bonus);
+        if (prevMove2) HistoryBonus(ContEntry(prevMove2, *move), -bonus);
     }
 }
 
@@ -85,18 +80,18 @@ INLINE void UpdateHistory(Thread *thread, Stack *ss, Move bestMove, Depth depth,
         HistoryBonus(NoisyEntry(bestMove), bonus);
 
     // Penalize noisy moves that failed to produce a cut
-    for (int i = 0; i < nCount; ++i)
-        HistoryBonus(NoisyEntry(noisys[i]), -bonus);
+    for (Move *move = noisys; move < noisys + nCount; ++move)
+        HistoryBonus(NoisyEntry(*move), -bonus);
 }
 
 INLINE int GetQuietHistory(const Thread *thread, Move move) {
 
     const Position *pos = &thread->pos;
 
-    Move prevMove  = pos->histPly >= 1 ? history(-1).move : NOMOVE;
+    Move prevMove1 = pos->histPly >= 1 ? history(-1).move : NOMOVE;
     Move prevMove2 = pos->histPly >= 2 ? history(-2).move : NOMOVE;
 
-    int cmh = prevMove  ? *ContEntry(prevMove,  move) : 0;
+    int cmh = prevMove1 ? *ContEntry(prevMove1, move) : 0;
     int fmh = prevMove2 ? *ContEntry(prevMove2, move) : 0;
 
     return *QuietEntry(move) + cmh + fmh;
