@@ -240,7 +240,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
 
     // Internal iterative reduction based on Rebel's idea
     if (depth >= 4 && !ttMove)
-        depth--;
+        depth -= 2;
 
     // Skip pruning in check, in pv nodes, during early iterations, and when proving singularity
     if (inCheck || pvNode || !thread->doPruning || ss->excluded)
