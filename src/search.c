@@ -239,7 +239,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
     bool improving = !inCheck && eval > (ss-2)->eval;
 
     // Internal iterative reduction based on Rebel's idea
-    if (depth >= 4 && !ttMove)
+    if (pvNode && depth >= 4 && !ttMove)
         depth -= 2;
 
     // Skip pruning in check, in pv nodes, during early iterations, and when proving singularity
