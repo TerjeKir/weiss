@@ -389,6 +389,8 @@ move_loop:
             // Extend as this move seems forced
             if (score < threshold)
                 extension = 1;
+            else if (threshold >= beta)
+                return threshold;
 
             // Replay ttMove
             MakeMove(pos, move);
