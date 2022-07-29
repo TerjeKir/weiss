@@ -256,7 +256,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
     if (   depth >= 3
         && eval >= beta
         && ss->eval >= beta + 120 - 20 * depth
-        && (ss-1)->histScore < 25000
+        && (ss-1)->histScore < 15000
         && history(-1).move != NOMOVE
         && pos->nonPawnCount[sideToMove] > (depth > 8)) {
 
