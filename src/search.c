@@ -42,6 +42,15 @@ volatile bool SEARCH_STOPPED = true;
 
 static int Reductions[2][32][32];
 
+int RFP = 175;
+int NMPFlat = 120;
+int NMPDepth = 15;
+int NMPHist = 35000;
+int ProbCut = 200;
+int HistPrune = 1024;
+int SEEPrune = 50;
+int LMRHist = 8192;
+
 
 // Initializes the late move reduction array
 CONSTR InitReductions() {
@@ -265,7 +274,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
 
     // Reverse Futility Pruning
     if (   depth < 7
-        && eval - 175 * depth / (1 + improving) >= beta
+        && eval - RFP * depth / (1 + improving) >= beta
         && (!ttMove || GetHistory(thread, ttMove) > 10000)
         && abs(beta) < TBWIN_IN_MAX)
         return eval;
@@ -273,8 +282,8 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
     // Null Move Pruning
     if (   depth >= 3
         && eval >= beta
-        && ss->eval >= beta + 120 - 15 * depth
-        && (ss-1)->histScore < 35000
+        && ss->eval >= beta + NMPFlat - NMPDepth * depth
+        && (ss-1)->histScore < NMPHist
         && history(-1).move != NOMOVE
         && pos->nonPawnCount[sideToMove] > (depth > 8)) {
 
@@ -296,7 +305,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
             return score >= TBWIN_IN_MAX ? beta : score;
     }
 
-    int pbThreshold = beta + 200;
+    int pbThreshold = beta + ProbCut;
 
     // ProbCut
     if (   depth >= 5
@@ -370,11 +379,11 @@ move_loop:
             }
 
             // History pruning
-            if (lmrDepth < 3 && ss->histScore < -1024 * depth)
+            if (lmrDepth < 3 && ss->histScore < -HistPrune * depth)
                 continue;
 
             // SEE pruning
-            if (lmrDepth < 7 && !SEE(pos, move, quiet ? -50 * depth : -90 * depth))
+            if (lmrDepth < 7 && !SEE(pos, move, quiet ? -SEEPrune * depth : -90 * depth))
                 continue;
         }
 
@@ -452,7 +461,7 @@ move_loop:
             // Reduce more for the side that last null moved
             r += sideToMove == thread->nullMover;
             // Adjust reduction by move history
-            r -= ss->histScore / 8192;
+            r -= ss->histScore / LMRHist;
             // Reduce quiets more if ttMove is a capture
             r += quiet && moveIsCapture(ttMove);
 

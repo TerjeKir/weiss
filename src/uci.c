@@ -119,6 +119,16 @@ static void SetOption(char *str) {
     else if (OptionNameIs("NoobBook"     )) noobbook       = BooleanValue;
     else if (OptionNameIs("UCI_Chess960" )) chess960       = BooleanValue;
     else if (OptionNameIs("OnlineSyzygy" )) onlineSyzygy   = BooleanValue;
+
+    else if (OptionNameIs("RFP"          )) RFP       = IntValue;
+    else if (OptionNameIs("NMPFlat"      )) NMPFlat   = IntValue;
+    else if (OptionNameIs("NMPDepth"     )) NMPDepth  = IntValue;
+    else if (OptionNameIs("NMPHist"      )) NMPHist   = IntValue;
+    else if (OptionNameIs("ProbCut"      )) ProbCut   = IntValue;
+    else if (OptionNameIs("HistPrune"    )) HistPrune = IntValue;
+    else if (OptionNameIs("SEEPrune"     )) SEEPrune  = IntValue;
+    else if (OptionNameIs("LMRHist"      )) LMRHist   = IntValue;
+
     else puts("info string No such option.");
 
     fflush(stdout);
@@ -136,6 +146,16 @@ static void Info() {
     printf("option name NoobBook type check default false\n");
     printf("option name NoobBookLimit type spin default 0 min 0 max 1000\n");
     printf("option name OnlineSyzygy type check default false\n");
+
+    printf("option name RFP type spin default 175 min 0 max 100000\n");
+    printf("option name NMPFlat type spin default 120 min 0 max 100000\n");
+    printf("option name NMPDepth type spin default 15 min 0 max 100000\n");
+    printf("option name NMPHist type spin default 35000 min 0 max 100000\n");
+    printf("option name ProbCut type spin default 200 min 0 max 100000\n");
+    printf("option name HistPrune type spin default 1024 min 0 max 100000\n");
+    printf("option name SEEPrune type spin default 50 min 0 max 100000\n");
+    printf("option name LMRHist type spin default 8192 min 0 max 100000\n");
+
     printf("uciok\n"); fflush(stdout);
 }
 

@@ -37,5 +37,14 @@ extern SearchLimits Limits;
 extern volatile bool ABORT_SIGNAL;
 extern volatile bool SEARCH_STOPPED;
 
+extern int RFP;
+extern int NMPFlat;
+extern int NMPDepth;
+extern int NMPHist;
+extern int ProbCut;
+extern int HistPrune;
+extern int SEEPrune;
+extern int LMRHist;
+
 
 void *SearchPosition(void *pos);
