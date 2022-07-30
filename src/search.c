@@ -256,6 +256,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
     if (   depth >= 3
         && eval >= beta
         && ss->eval >= beta + 120 - 20 * depth
+        && (ss-1)->histScore < 35000
         && history(-1).move != NOMOVE
         && pos->nonPawnCount[sideToMove] > (depth > 8)) {
 
@@ -331,7 +332,7 @@ move_loop:
 
         bool quiet = moveIsQuiet(move);
 
-        int histScore = GetHistory(thread, move);
+        ss->histScore = GetHistory(thread, move);
 
         // Misc pruning
         if (  !root
@@ -351,7 +352,7 @@ move_loop:
             }
 
             // History pruning
-            if (lmrDepth < 3 && histScore < -1024 * depth)
+            if (lmrDepth < 3 && ss->histScore < -1024 * depth)
                 continue;
 
             // SEE pruning
@@ -430,7 +431,7 @@ move_loop:
             // Reduce more for the side that last null moved
             r += sideToMove == thread->nullMover;
             // Adjust reduction by move history
-            r -= histScore / 8192;
+            r -= ss->histScore / 8192;
             // Reduce quiets more if ttMove is a capture
             r += quiet && moveIsCapture(ttMove);
 

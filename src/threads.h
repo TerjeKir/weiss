@@ -31,6 +31,7 @@
 
 typedef struct {
     int eval;
+    int histScore;
     Depth ply;
     Move excluded;
     Move killers[2];
