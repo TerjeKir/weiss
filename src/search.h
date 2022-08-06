@@ -46,5 +46,14 @@ extern int HistPrune;
 extern int SEEPrune;
 extern int LMRHist;
 
+extern float LMRNoisyBase;
+extern float LMRNoisyDiv;
+extern float LMRQuietBase;
+extern float LMRQuietDiv;
+
+extern int QSFutility;
+
+extern int Trend;
+
 
 void *SearchPosition(void *pos);

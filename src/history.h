@@ -31,6 +31,11 @@
 #define ContEntry(prev, move) &thread->continuation[piece(prev)][toSq(prev)][piece(move)][toSq(move)]
 
 
+extern int HistBonusMax;
+extern int HistBonusBase;
+extern int HistBonusDepth;
+
+
 INLINE void HistoryBonus(int16_t *cur, int bonus) {
     *cur += bonus - *cur * abs(bonus) / 16384;
 }

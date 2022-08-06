@@ -24,6 +24,7 @@
 #include "onlinesyzygy/onlinesyzygy.h"
 #include "tuner/tuner.h"
 #include "board.h"
+#include "history.h"
 #include "makemove.h"
 #include "move.h"
 #include "search.h"
@@ -128,6 +129,19 @@ static void SetOption(char *str) {
     else if (OptionNameIs("HistPrune"    )) HistPrune = IntValue;
     else if (OptionNameIs("SEEPrune"     )) SEEPrune  = IntValue;
     else if (OptionNameIs("LMRHist"      )) LMRHist   = IntValue;
+
+    else if (OptionNameIs("LMRNoisyBase" )) LMRNoisyBase = IntValue / 100.0;
+    else if (OptionNameIs("LMRNoisyDiv"  )) LMRNoisyDiv  = IntValue / 100.0;
+    else if (OptionNameIs("LMRQuietBase" )) LMRQuietBase = IntValue / 100.0;
+    else if (OptionNameIs("LMRQuietDiv"  )) LMRQuietDiv  = IntValue / 100.0;
+
+    else if (OptionNameIs("HistBonusMax"  )) HistBonusMax = IntValue;
+    else if (OptionNameIs("HistBonusBase" )) HistBonusBase = IntValue;
+    else if (OptionNameIs("HistBonusDepth")) HistBonusDepth = IntValue;
+
+    else if (OptionNameIs("QSFutility")) QSFutility = IntValue;
+
+    else if (OptionNameIs("Trend")) Trend = IntValue;
 
     else puts("info string No such option.");
 

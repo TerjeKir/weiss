@@ -51,13 +51,25 @@ int HistPrune = 1024;
 int SEEPrune = 50;
 int LMRHist = 8192;
 
+float LMRNoisyBase = 0.0;
+float LMRNoisyDiv = 3.25;
+float LMRQuietBase = 1.50;
+float LMRQuietDiv = 1.75;
+
+int HistBonusMax = 2100;
+int HistBonusBase = 350;
+int HistBonusDepth = 350;
+
+int QSFutility = 40;
+
+int Trend = 35;
 
 // Initializes the late move reduction array
 CONSTR InitReductions() {
     for (int depth = 1; depth < 32; ++depth)
         for (int moves = 1; moves < 32; ++moves)
-            Reductions[0][depth][moves] = 0.00 + log(depth) * log(moves) / 3.25, // capture
-            Reductions[1][depth][moves] = 1.50 + log(depth) * log(moves) / 1.75; // quiet
+            Reductions[0][depth][moves] = LMRNoisyBase + log(depth) * log(moves) / LMRNoisyDiv, // capture
+            Reductions[1][depth][moves] = LMRQuietBase + log(depth) * log(moves) / LMRQuietDiv; // quiet
 }
 
 // Checks if the move is in the list of searchmoves if any were given
@@ -103,7 +115,7 @@ static int Quiescence(Thread *thread, Stack *ss, int alpha, const int beta) {
     if (eval > alpha)
         alpha = eval;
 
-    futility = eval + 60;
+    futility = eval + QSFutility;
     bestScore = eval;
 
 moveloop:
@@ -559,7 +571,7 @@ static void AspirationWindow(Thread *thread, Stack *ss) {
         alpha = MAX(prevScore - initialWindow, -INFINITE);
         beta  = MIN(prevScore + initialWindow,  INFINITE);
 
-        int x = CLAMP(prevScore / 2, -35, 35);
+        int x = CLAMP(prevScore / 2, -Trend, Trend);
         pos->trend = sideToMove == WHITE ? S(x, x/2) : -S(x, x/2);
     }
 
@@ -666,6 +678,8 @@ void *SearchPosition(void *pos) {
     InitTimeManagement();
     PrepareSearch(pos, Limits.searchmoves);
     bool threadsSpawned = false;
+
+    InitReductions();
 
     // Probe TBs for a move if already in a TB position
     if (SyzygyMove(pos)) goto conclusion;
