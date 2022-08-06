@@ -170,6 +170,19 @@ static void Info() {
     printf("option name SEEPrune type spin default 50 min 0 max 100000\n");
     printf("option name LMRHist type spin default 8192 min 0 max 100000\n");
 
+    printf("option name LMRNoisyBase type spin default 0 min -1000 max 100000\n");
+    printf("option name LMRNoisyDiv type spin default 325 min 0 max 100000\n");
+    printf("option name LMRQuietBase type spin default 150 min 0 max 100000\n");
+    printf("option name LMRQuietDiv type spin default 175 min 0 max 100000\n");
+
+    printf("option name HistBonusMax type spin default 2100 min 0 max 100000\n");
+    printf("option name HistBonusBase type spin default 350 min 0 max 100000\n");
+    printf("option name HistBonusDepth type spin default 350 min 0 max 100000\n");
+
+    printf("option name QSFutility type spin default 40 min 0 max 100000\n");
+
+    printf("option name Trend type spin default 35 min 1 max 100000\n");
+
     printf("uciok\n"); fflush(stdout);
 }
 
