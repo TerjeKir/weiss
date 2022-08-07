@@ -228,7 +228,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
     // Do a static evaluation for pruning considerations
     int eval = ss->eval = inCheck          ? NOSCORE
                         : lastMoveNullMove ? -(ss-1)->eval + 2 * Tempo
-                                           : EvalPosition(pos, thread->pawnCache);
+                                                 : EvalPosition(pos, thread->pawnCache);
 
     // Use ttScore as eval if it is more informative
     if (   ttScore != NOSCORE
@@ -514,7 +514,6 @@ static void AspirationWindow(Thread *thread, Stack *ss) {
 
     const bool mainThread = thread->index == 0;
     const int multiPV = thread->multiPV;
-    int score = thread->rootMoves[multiPV].score;
     int depth = thread->depth;
 
     const int initialWindow = 12;
@@ -525,10 +524,12 @@ static void AspirationWindow(Thread *thread, Stack *ss) {
 
     // Shrink the window after the first few iterations
     if (depth > 6) {
-        alpha = MAX(score - initialWindow, -INFINITE);
-        beta  = MIN(score + initialWindow,  INFINITE);
+        int prevScore = thread->rootMoves[multiPV].score;
 
-        int x = CLAMP(score / 2, -35, 35);
+        alpha = MAX(prevScore - initialWindow, -INFINITE);
+        beta  = MIN(prevScore + initialWindow,  INFINITE);
+
+        int x = CLAMP(prevScore / 2, -35, 35);
         pos->trend = sideToMove == WHITE ? S(x, x/2) : -S(x, x/2);
     }
 
@@ -543,7 +544,7 @@ static void AspirationWindow(Thread *thread, Stack *ss) {
                             :   TimeSince(Limits.start) >= Limits.optimalUsage / 64
                              || depth > 2 + Limits.optimalUsage / 256;
 
-        score = AlphaBeta(thread, ss, alpha, beta, depth);
+        int score = AlphaBeta(thread, ss, alpha, beta, depth);
 
         thread->rootMoves[multiPV].score = score;
         memcpy(&thread->rootMoves[multiPV].pv, &ss->pv, sizeof(PV));

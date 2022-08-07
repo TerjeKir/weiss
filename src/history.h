@@ -36,7 +36,7 @@ INLINE void HistoryBonus(int16_t *cur, int bonus) {
 }
 
 // Updates various history heuristics when a move causes a beta cutoff
-INLINE void UpdateQuietHistory(Thread *thread, Stack *ss, Move bestMove, Depth depth, Move quiets[], int qCount) {
+INLINE void UpdateQuietHistory(Thread *thread, Stack *ss, Move bestMove, int bonus, Depth depth, Move quiets[], int qCount) {
 
     const Position *pos = &thread->pos;
 
@@ -48,8 +48,6 @@ INLINE void UpdateQuietHistory(Thread *thread, Stack *ss, Move bestMove, Depth d
         ss->killers[1] = ss->killers[0];
         ss->killers[0] = bestMove;
     }
-
-    int bonus = MIN(2100, 350 * depth - 350);
 
     // Bonus to the move that caused the beta cutoff
     if (depth > 2) {
@@ -73,7 +71,7 @@ INLINE void UpdateHistory(Thread *thread, Stack *ss, Move bestMove, Depth depth,
 
     // Update quiet history if bestMove is quiet
     if (moveIsQuiet(bestMove))
-        UpdateQuietHistory(thread, ss, bestMove, depth, quiets, qCount);
+        UpdateQuietHistory(thread, ss, bestMove, bonus, depth, quiets, qCount);
 
     // Bonus to the move that caused the beta cutoff
     if (depth > 2 && !moveIsQuiet(bestMove))
