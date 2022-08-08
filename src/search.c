@@ -228,7 +228,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
     // Do a static evaluation for pruning considerations
     int eval = ss->eval = inCheck          ? NOSCORE
                         : lastMoveNullMove ? -(ss-1)->eval + 2 * Tempo
-                                                 : EvalPosition(pos, thread->pawnCache);
+                                           : EvalPosition(pos, thread->pawnCache);
 
     // Use ttScore as eval if it is more informative
     if (   ttScore != NOSCORE
