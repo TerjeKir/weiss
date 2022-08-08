@@ -56,10 +56,9 @@ static Bitboard MakeSliderAttackBB(const Square sq, const Bitboard occupied, con
     Bitboard attacks = 0;
 
     for (int dir = 0; dir < 4; ++dir) {
-
         Square s = sq;
         while(!(occupied & BB(s)) && LandingSquareBB(s, steps[dir]))
-            attacks |= BB((s += steps[dir]));
+            attacks |= BB(s += steps[dir]);
     }
 
     return attacks;
