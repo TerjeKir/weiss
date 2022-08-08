@@ -39,6 +39,7 @@ static Move PickNextMove(MovePicker *mp) {
     return bestMove;
 }
 
+// Partial insertion sort
 static void SortMoves(MoveList *list, int threshold) {
 
     MoveListEntry *begin = &list->moves[list->next];
@@ -56,9 +57,11 @@ static void SortMoves(MoveList *list, int threshold) {
 }
 
 // Gives a score to each move left in the list
-static void ScoreMoves(MoveList *list, const Thread *thread, const int stage, Depth depth) {
+static void ScoreMoves(MovePicker *mp, const int stage) {
 
+    const Thread *thread = mp->thread;
     const Position *pos = &thread->pos;
+    MoveList *list = &mp->list;
 
     for (int i = list->next; i < list->count; ++i) {
         Move move = list->moves[i].move;
@@ -67,7 +70,7 @@ static void ScoreMoves(MoveList *list, const Thread *thread, const int stage, De
                                : GetCaptureHistory(thread, move) + PieceValue[MG][pieceOn(toSq(move))];
     }
 
-    SortMoves(list, -1000 * depth);
+    SortMoves(list, -1000 * mp->depth);
 }
 
 // Returns the next move to try in a position
@@ -87,7 +90,7 @@ Move NextMove(MovePicker *mp) {
             // fall through
         case GEN_NOISY:
             GenNoisyMoves(pos, &mp->list);
-            ScoreMoves(&mp->list, mp->thread, GEN_NOISY, mp->depth);
+            ScoreMoves(mp, GEN_NOISY);
             mp->stage++;
 
             // fall through
@@ -120,7 +123,7 @@ Move NextMove(MovePicker *mp) {
         case GEN_QUIET:
             if (!mp->onlyNoisy)
                 GenQuietMoves(pos, &mp->list),
-                ScoreMoves(&mp->list, mp->thread, GEN_QUIET, mp->depth);
+                ScoreMoves(mp, GEN_QUIET);
 
             mp->stage++;
 
