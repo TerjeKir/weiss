@@ -39,11 +39,11 @@
 #define TraceDanger(d) T.danger[color] = d
 
 
-#define DATASET      "../../Datasets/Andrew/BIG.book"
-#define NPOSITIONS   ( 42484641) // Total FENS in the book
+// #define DATASET      "../../Datasets/Andrew/BIG.book"
+// #define NPOSITIONS   ( 42484641) // Total FENS in the book
 
-// #define DATASET      "../../Datasets/lichess-big3-resolved.book"
-// #define NPOSITIONS   ( 7153652) // Total FENS in the book
+#define DATASET      "../../Datasets/lichess-big3-resolved.book"
+#define NPOSITIONS   ( 7153652) // Total FENS in the book
 
 // #define DATASET      "../../Datasets/Andrew/COMBO.book"
 // #define NPOSITIONS   (14669229) // Total FENS in the book
