@@ -337,7 +337,7 @@ INLINE int EvalPassedPawns(const Position *pos, const EvalInfo *ei, const Color 
         if (rank < RANK_4) continue;
 
         Square promoSq = RelativeSquare(color, MakeSquare(RANK_8, file));
-        if (Distance(sq, promoSq) < Distance(kingSq(!color), promoSq) - ((!color) == sideToMove)) {
+        if (pos->nonPawnCount[!color] == 0 && Distance(sq, promoSq) < Distance(kingSq(!color), promoSq) - ((!color) == sideToMove)) {
             eval += S(0, 150);
         }
 
