@@ -81,6 +81,7 @@ const int PassedDistUs[4] = {
 };
 const int PassedDistThem = S( -3, 19);
 const int PassedRookBack = S( 11, 23);
+const int PassedSquare   = S(  0,150);
 
 // Pawn phalanx
 const int PawnPhalanx[RANK_NB] = {
@@ -338,7 +339,8 @@ INLINE int EvalPassedPawns(const Position *pos, const EvalInfo *ei, const Color 
 
         Square promoSq = RelativeSquare(color, MakeSquare(RANK_8, file));
         if (pos->nonPawnCount[!color] == 0 && Distance(sq, promoSq) < Distance(kingSq(!color), promoSq) - ((!color) == sideToMove)) {
-            eval += S(0, 150);
+            eval += PassedSquare;
+            TraceIncr(PassedSquare);
         }
 
         count = Distance(forward, kingSq( color));
