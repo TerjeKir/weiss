@@ -52,52 +52,52 @@ const int PieceValue[2][PIECE_NB] = {
 const int Tempo = 15;
 
 // Misc bonuses and maluses
-const int PawnDoubled  = S(-13,-42);
-const int PawnIsolated = S( -8,-19);
-const int PawnSupport  = S( 20, 11);
-const int PawnThreat   = S( 52, 73);
-const int PushThreat   = S( 18,  7);
-const int PawnOpen     = S(-14,-17);
-const int BishopPair   = S( 25,124);
-const int KingAtkPawn  = S(  3, 54);
-const int OpenForward  = S( 29, 20);
-const int SemiForward  = S( 10, 18);
-const int NBBehindPawn = S(  7, 42);
+const int PawnDoubled  = S(-11,-49);
+const int PawnIsolated = S( -8,-16);
+const int PawnSupport  = S( 22, 17);
+const int PawnThreat   = S( 80, 34);
+const int PushThreat   = S( 26,  2);
+const int PawnOpen     = S(-14,-19);
+const int BishopPair   = S( 36,115);
+const int KingAtkPawn  = S(-29, 49);
+const int OpenForward  = S( 32, 26);
+const int SemiForward  = S( 16, 17);
+const int NBBehindPawn = S( 10, 35);
 
 // Passed pawn
 const int PawnPassed[RANK_NB] = {
-    S(  0,  0), S(-15, 36), S(-13, 43), S(-70,128),
-    S(-13,161), S(107,200), S(278,233), S(  0,  0)
+    S(  0,  0), S(-14, 24), S(-18, 38), S(-73,117),
+    S(-35,159), S( 97,225), S(290,261), S(  0,  0)
 };
 const int PassedDefended[RANK_NB] = {
-    S(  0,  0), S(  0,  0), S(  5,-14), S( -2,-14),
-    S(  4, 15), S( 49, 64), S(161, 68), S(  0,  0)
+    S(  0,  0), S(  0,  0), S(  3,-14), S(  5,-11),
+    S(  2, 31), S( 41, 83), S(161, 73), S(  0,  0)
 };
 const int PassedBlocked[4] = {
-    S( -1,-23), S(  4,-34), S(  9,-93), S(-28,-121)
+    S(  6,-19), S(  3,-24), S(  6,-100), S(-42,-135)
 };
 const int PassedDistUs[4] = {
-    S( 16,-29), S( 10,-37), S( -8,-35), S(-13,-27)
+    S( 18,-32), S( 16,-43), S( -7,-45), S(-18,-36)
 };
-const int PassedDistThem = S( -3, 19);
-const int PassedRookBack = S( 11, 23);
-const int PassedSquare   = S(  0,150);
+const int PassedDistThem = S( -5, 23);
+const int PassedRookBack = S( 25, 34);
+const int PassedSquare   = S(  0,206);
 
 // Pawn phalanx
 const int PawnPhalanx[RANK_NB] = {
-    S(  0,  0), S(  8, -3), S( 19,  7), S( 24, 33),
-    S( 60,126), S(171,248), S(169,318), S(  0,  0)
+    S(  0,  0), S( 11, -4), S( 20, 14), S( 35, 38),
+    S( 72,118), S(193,278), S(169,330), S(  0,  0)
 };
 
 // KingLineDanger
 const int KingLineDanger[28] = {
-    S(  0,  0), S(  0,  0), S(  0,  0), S(-11, 41),
-    S(-27, 41), S(-31, 29), S(-30, 25), S(-37, 34),
-    S(-41, 33), S(-54, 39), S(-50, 34), S(-65, 43),
-    S(-68, 42), S(-79, 43), S(-88, 45), S(-86, 43),
-    S(-98, 44), S(-100, 37), S(-107, 33), S(-112, 29),
-    S(-119, 27), S(-133, 18), S(-131,  9), S(-157, -3),
-    S(-140,-18), S(-132,-33), S(-130,-32), S(-135,-34)
+    S(  0,  0), S(  0,  0), S(  0,  0), S(  3, 29),
+    S(-21, 38), S(-28, 33), S(-32, 31), S(-40, 39),
+    S(-51, 42), S(-66, 42), S(-63, 38), S(-76, 41),
+    S(-80, 40), S(-90, 41), S(-100, 43), S(-97, 37),
+    S(-108, 38), S(-112, 33), S(-117, 31), S(-122, 26),
+    S(-129, 25), S(-144, 21), S(-139, 18), S(-164,  4),
+    S(-143,-12), S(-133,-29), S(-130,-32), S(-135,-34)
 };
 
 // Mobility [pt-2][mobility]
