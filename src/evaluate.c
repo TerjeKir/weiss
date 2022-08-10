@@ -55,38 +55,38 @@ const int Tempo = 15;
 const int PawnDoubled  = S(-11,-49);
 const int PawnIsolated = S( -8,-16);
 const int PawnSupport  = S( 22, 17);
-const int PawnThreat   = S( 80, 34);
-const int PushThreat   = S( 26,  2);
-const int PawnOpen     = S(-14,-19);
-const int BishopPair   = S( 36,115);
-const int KingAtkPawn  = S(-29, 49);
-const int OpenForward  = S( 32, 26);
-const int SemiForward  = S( 16, 17);
+const int PawnThreat   = S( 82, 32);
+const int PushThreat   = S( 27,  2);
+const int PawnOpen     = S(-14,-18);
+const int BishopPair   = S( 36,116);
+const int KingAtkPawn  = S(-35, 53);
+const int OpenForward  = S( 33, 29);
+const int SemiForward  = S( 16, 19);
 const int NBBehindPawn = S( 10, 35);
 
 // Passed pawn
 const int PawnPassed[RANK_NB] = {
-    S(  0,  0), S(-14, 24), S(-18, 38), S(-73,117),
-    S(-35,159), S( 97,225), S(290,261), S(  0,  0)
+    S(  0,  0), S(-15, 25), S(-19, 40), S(-74,121),
+    S(-49,166), S( 76,237), S(319,276), S(  0,  0)
 };
 const int PassedDefended[RANK_NB] = {
-    S(  0,  0), S(  0,  0), S(  3,-14), S(  5,-11),
-    S(  2, 31), S( 41, 83), S(161, 73), S(  0,  0)
+    S(  0,  0), S(  0,  0), S(  3,-14), S(  4,-11),
+    S(  2, 32), S( 39, 88), S(161, 77), S(  0,  0)
 };
 const int PassedBlocked[4] = {
-    S(  6,-19), S(  3,-24), S(  6,-100), S(-42,-135)
+    S(  6,-19), S(  3,-24), S(  5,-99), S(-46,-136)
 };
 const int PassedDistUs[4] = {
-    S( 18,-32), S( 16,-43), S( -7,-45), S(-18,-36)
+    S( 18,-32), S( 18,-45), S( -4,-47), S(-22,-37)
 };
 const int PassedDistThem = S( -5, 23);
-const int PassedRookBack = S( 25, 34);
-const int PassedSquare   = S(  0,206);
+const int PassedRookBack = S( 24, 38);
+const int PassedSquare   = S( -8,343);
 
 // Pawn phalanx
 const int PawnPhalanx[RANK_NB] = {
-    S(  0,  0), S( 11, -4), S( 20, 14), S( 35, 38),
-    S( 72,118), S(193,278), S(169,330), S(  0,  0)
+    S(  0,  0), S( 11, -3), S( 19, 14), S( 35, 38),
+    S( 74,119), S(225,327), S(169,361), S(  0,  0)
 };
 
 // KingLineDanger
