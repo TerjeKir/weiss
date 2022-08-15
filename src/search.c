@@ -71,7 +71,8 @@ static int Quiescence(Thread *thread, Stack *ss, int alpha, const int beta) {
         longjmp(thread->jumpBuffer, true);
 
     // Do a static evaluation for pruning considerations
-    int eval = EvalPosition(pos, thread->pawnCache);
+    int eval = history(-1).move == NOMOVE ? -(ss-1)->eval + 2 * Tempo
+                                          : EvalPosition(pos, thread->pawnCache);
 
     // If we are at max depth, return static eval
     if (ss->ply >= MAX_PLY)
@@ -99,8 +100,8 @@ static int Quiescence(Thread *thread, Stack *ss, int alpha, const int beta) {
         if (mp.stage > NOISY_GOOD) break;
 
         // Futility pruning
-        if (   futility + PieceValue[EG][pieceOn(toSq(move))] <= alpha
-            && !(   pieceTypeOn(fromSq(move)) == PAWN
+        if (   futility + PieceValue[EG][capturing(move)] <= alpha
+            && !(   PieceTypeOf(piece(move)) == PAWN
                  && RelativeRank(sideToMove, RankOf(toSq(move))) > 5))
             continue;
 
@@ -471,7 +472,7 @@ skip_search:
             // If score beats alpha we update alpha
             if (score > alpha) {
                 alpha = score;
-                bestMove  = move;
+                bestMove = move;
 
                 // If score beats beta we have a cutoff
                 if (score >= beta) {

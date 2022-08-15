@@ -60,14 +60,13 @@ static void SortMoves(MoveList *list, int threshold) {
 static void ScoreMoves(MovePicker *mp, const int stage) {
 
     const Thread *thread = mp->thread;
-    const Position *pos = &thread->pos;
     MoveList *list = &mp->list;
 
     for (int i = list->next; i < list->count; ++i) {
         Move move = list->moves[i].move;
         list->moves[i].score =
             stage == GEN_QUIET ? GetQuietHistory(thread, move)
-                               : GetCaptureHistory(thread, move) + PieceValue[MG][pieceOn(toSq(move))];
+                               : GetCaptureHistory(thread, move) + PieceValue[MG][capturing(move)];
     }
 
     SortMoves(list, -1000 * mp->depth);
