@@ -343,7 +343,7 @@ INLINE int EvalPassedPawns(const Position *pos, const EvalInfo *ei, const Color 
             TraceIncr(PassedSquare);
         }
 
-        count = Distance(forward, kingSq( color));
+        count = Distance(forward, kingSq(color));
         eval += count * PassedDistUs[r];
         TraceCount(PassedDistUs[r]);
 
@@ -468,8 +468,8 @@ int EvalPosition(const Position *pos, PawnCache pc) {
     TraceScale(scale);
 
     // Adjust score by phase
-    eval =  (MgScore(eval) * pos->phase
-          +  EgScore(eval) * (MidGame - pos->phase) * scale / 128)
+    eval = (  MgScore(eval) * pos->phase
+            + EgScore(eval) * (MidGame - pos->phase) * scale / 128)
           / MidGame;
 
     // Return the evaluation, negated if we are black
