@@ -35,6 +35,10 @@ INLINE void HistoryBonus(int16_t *cur, int bonus) {
     *cur += bonus - *cur * abs(bonus) / 16384;
 }
 
+INLINE int Bonus(Depth depth) {
+    return MIN(2100, 350 * depth - 350);
+}
+
 // Updates various history heuristics when a move causes a beta cutoff
 INLINE void UpdateQuietHistory(Thread *thread, Stack *ss, Move bestMove, int bonus, Depth depth, Move quiets[], int qCount) {
 
@@ -67,7 +71,7 @@ INLINE void UpdateQuietHistory(Thread *thread, Stack *ss, Move bestMove, int bon
 // Updates various history heuristics when a move causes a beta cutoff
 INLINE void UpdateHistory(Thread *thread, Stack *ss, Move bestMove, Depth depth, Move quiets[], int qCount, Move noisys[], int nCount) {
 
-    int bonus = MIN(2100, 350 * depth - 350);
+    int bonus = Bonus(depth);
 
     // Update quiet history if bestMove is quiet
     if (moveIsQuiet(bestMove))
