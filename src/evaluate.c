@@ -92,12 +92,12 @@ const int PawnPhalanx[RANK_NB] = {
 
 // Threats
 const int ThreatsByMinor[8] = {
-    S(  0,  0), S(  0,  0), S( 23, 48), S( 34, 44),
-    S( 66,  9), S( 54,-23), S(421,612), S(  0,  0)
+    S(  0,  0), S(  0,  0), S( 30, 39), S( 38, 47),
+    S( 72, 13), S( 56,-15), S(391,694), S(  0,  0)
 };
 const int ThreatsByRook[8] = {
-    S(  0,  0), S(  0,  0), S( 21, 42), S( 30, 43),
-    S(-17, 46), S( 82,-80), S(496,850), S(  0,  0)
+    S(  0,  0), S(  0,  0), S(  9, 21), S( 24, 15),
+    S(-32, 28), S( 85,-81), S(436,949), S(  0,  0)
 };
 
 // KingLineDanger
@@ -254,7 +254,8 @@ INLINE int EvalPiece(const Position *pos, EvalInfo *ei, const Color color, const
         TraceIncr(PSQT[pt-1][BlackRelativeSquare(color, sq)]);
 
         // Mobility
-        Bitboard mobilityBB = XRayAttackBB(pos, color, pt, sq) & ei->mobilityArea[color];
+        Bitboard attackBB = XRayAttackBB(pos, color, pt, sq);
+        Bitboard mobilityBB = attackBB & ei->mobilityArea[color];
         int mob = PopCount(mobilityBB);
         eval += Mobility[pt-2][mob];
         TraceIncr(Mobility[pt-2][mob]);
@@ -269,8 +270,8 @@ INLINE int EvalPiece(const Position *pos, EvalInfo *ei, const Color color, const
                                      +  checks *  CheckPower[pt-2];
         }
 
-        ei->attackedBy[color][pt] |= mobilityBB;
-        ei->attackedBy[color][ALL] |= mobilityBB;
+        ei->attackedBy[color][pt] |= attackBB;
+        ei->attackedBy[color][ALL] |= attackBB;
 
         // Forward mobility for rooks
         if (pt == ROOK) {
