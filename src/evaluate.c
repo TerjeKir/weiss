@@ -24,6 +24,7 @@
 
 
 typedef struct EvalInfo {
+    Bitboard attackedBy[COLOR_NB][TYPE_NB];
     Bitboard passedPawns;
     Bitboard mobilityArea[COLOR_NB];
     Bitboard kingZone[COLOR_NB];
@@ -87,6 +88,20 @@ const int PassedSquare   = S( -8,343);
 const int PawnPhalanx[RANK_NB] = {
     S(  0,  0), S( 11, -3), S( 19, 14), S( 35, 38),
     S( 74,119), S(225,327), S(169,361), S(  0,  0)
+};
+
+// Threats
+const int ThreatsByKnight[8] = {
+    S(  0,  0), S(  0,  0), S( -7,  6), S( 42, 49),
+    S( 91,  1), S( 61,-73), S(  0,  0), S(  0,  0)
+};
+const int ThreatsByBishop[8] = {
+    S(  0,  0), S(  0,  0), S( 30, 51), S(  1, 29),
+    S( 60, 16), S( 45, 52), S(452,442), S(  0,  0)
+};
+const int ThreatsByRook[8] = {
+    S(  0,  0), S(  0,  0), S( 24, 46), S( 35, 47),
+    S(-11, 50), S( 84,-76), S(554,719), S(  0,  0)
 };
 
 // KingLineDanger
@@ -232,6 +247,8 @@ INLINE int EvalPiece(const Position *pos, EvalInfo *ei, const Color color, const
         TraceCount(NBBehindPawn);
     }
 
+    ei->attackedBy[color][pt] = 0;
+
     // Evaluate each individual piece
     while (pieces) {
 
@@ -255,6 +272,9 @@ INLINE int EvalPiece(const Position *pos, EvalInfo *ei, const Color color, const
             ei->attackPower[color] +=  attacks * AttackPower[pt-2]
                                      +  checks *  CheckPower[pt-2];
         }
+
+        ei->attackedBy[color][pt] |= mobilityBB;
+        ei->attackedBy[color][ALL] |= mobilityBB;
 
         // Forward mobility for rooks
         if (pt == ROOK) {
@@ -366,11 +386,12 @@ INLINE int EvalPassedPawns(const Position *pos, const EvalInfo *ei, const Color 
 }
 
 // Evaluates threats
-INLINE int EvalThreats(const Position *pos, const Color color) {
+INLINE int EvalThreats(const Position *pos, const EvalInfo *ei, const Color color) {
 
     const Direction up = color == WHITE ? NORTH : SOUTH;
 
     int count, eval = 0;
+    Bitboard threats;
 
     // Our pawns threatening their non-pawns
     Bitboard ourPawns = colorPieceBB(color, PAWN);
@@ -386,6 +407,27 @@ INLINE int EvalThreats(const Position *pos, const Color color) {
     count = PopCount(PawnBBAttackBB(pawnPushes, color) & theirNonPawns);
     eval += PushThreat * count;
     TraceCount(PushThreat);
+
+    threats = theirNonPawns & ei->attackedBy[color][KNIGHT];
+    while (threats) {
+        Square sq = PopLsb(&threats);
+        eval += ThreatsByKnight[pieceTypeOn(sq)];
+        TraceIncr(ThreatsByKnight[pieceTypeOn(sq)]);
+    }
+
+    threats = theirNonPawns & ei->attackedBy[color][BISHOP];
+    while (threats) {
+        Square sq = PopLsb(&threats);
+        eval += ThreatsByBishop[pieceTypeOn(sq)];
+        TraceIncr(ThreatsByBishop[pieceTypeOn(sq)]);
+    }
+
+    threats = theirNonPawns & ei->attackedBy[color][ROOK];
+    while (threats) {
+        Square sq = PopLsb(&threats);
+        eval += ThreatsByRook[pieceTypeOn(sq)];
+        TraceIncr(ThreatsByRook[pieceTypeOn(sq)]);
+    }
 
     return eval;
 }
@@ -410,6 +452,10 @@ INLINE void InitEvalInfo(const Position *pos, EvalInfo *ei, const Color color) {
 
     // Clear passed pawns, filled in during pawn eval
     ei->passedPawns = 0;
+
+    ei->attackedBy[color][KING] = AttackBB(KING, kingSq(color), 0);
+    ei->attackedBy[color][PAWN] = PawnBBAttackBB(pawns, color);
+    ei->attackedBy[color][ALL] = ei->attackedBy[color][KING] | ei->attackedBy[color][PAWN];
 }
 
 // Calculate scale factor to lower overall eval based on various features
@@ -458,8 +504,8 @@ int EvalPosition(const Position *pos, PawnCache pc) {
            - EvalPassedPawns(pos, &ei, BLACK);
 
     // Evaluate threats
-    eval +=  EvalThreats(pos, WHITE)
-           - EvalThreats(pos, BLACK);
+    eval +=  EvalThreats(pos, &ei, WHITE)
+           - EvalThreats(pos, &ei, BLACK);
 
     TraceEval(eval);
 

@@ -66,6 +66,11 @@ extern const int PassedSquare;
 // Pawn phalanx
 extern const int PawnPhalanx[RANK_NB];
 
+
+extern const int ThreatsByKnight[8];
+extern const int ThreatsByBishop[8];
+extern const int ThreatsByRook[8];
+
 // KingLineDanger
 extern const int KingLineDanger[28];
 
@@ -185,6 +190,11 @@ void InitBaseParams(TVector tparams) {
     // Pawn phalanx
     InitBaseArray(PawnPhalanx, RANK_NB);
 
+
+    InitBaseArray(ThreatsByKnight, 8);
+    InitBaseArray(ThreatsByBishop, 8);
+    InitBaseArray(ThreatsByRook, 8);
+
     // KingLineDanger
     InitBaseArray(KingLineDanger, 28);
 
@@ -249,6 +259,11 @@ void PrintParameters(TVector updates, TVector base) {
     puts("\n// Pawn phalanx");
     PrintArray(PawnPhalanx, RANK_NB);
 
+
+    PrintArray(ThreatsByKnight, 8);
+    PrintArray(ThreatsByBishop, 8);
+    PrintArray(ThreatsByRook, 8);
+
     puts("\n// KingLineDanger");
     PrintArray(KingLineDanger, 28);
 
@@ -307,6 +322,11 @@ void InitCoefficients(TCoeffs coeffs) {
 
     // Pawn phalanx
     InitCoeffArray(PawnPhalanx, RANK_NB);
+
+
+    InitCoeffArray(ThreatsByKnight, 8);
+    InitCoeffArray(ThreatsByBishop, 8);
+    InitCoeffArray(ThreatsByRook, 8);
 
     // KingLineDanger
     InitCoeffArray(KingLineDanger, 28);
@@ -518,7 +538,7 @@ void Tune() {
     InitTunerEntries(entries, baseParams);
     printf("Allocated:\n");
     printf("Optimal K...\r");
-    K = ComputeOptimalK(entries);
+    K = 2.22941;
     printf("Optimal K: %g\n\n", K);
 
     for (int epoch = 1; epoch <= MAXEPOCHS; epoch++) {
