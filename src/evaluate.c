@@ -92,12 +92,12 @@ const int PawnPhalanx[RANK_NB] = {
 
 // Threats
 const int ThreatsByMinor[8] = {
-    S(  0,  0), S(  0,  0), S( 30, 39), S( 38, 47),
-    S( 72, 13), S( 56,-15), S(391,694), S(  0,  0)
+    S(  0,  0), S(  0,  0), S( 23, 48), S( 34, 44),
+    S( 66,  9), S( 54,-23), S(421,612), S(  0,  0)
 };
 const int ThreatsByRook[8] = {
-    S(  0,  0), S(  0,  0), S(  9, 21), S( 24, 15),
-    S(-32, 28), S( 85,-81), S(436,949), S(  0,  0)
+    S(  0,  0), S(  0,  0), S( 26, 46), S( 35, 48),
+    S(-11, 50), S( 85,-80), S(437,972), S(  0,  0)
 };
 
 // KingLineDanger
@@ -412,7 +412,9 @@ INLINE int EvalThreats(const Position *pos, const EvalInfo *ei, const Color colo
         TraceIncr(ThreatsByMinor[pieceTypeOn(sq)]);
     }
 
-    threats = theirNonPawns & ei->attackedBy[color][ROOK];
+    Bitboard targets = theirNonPawns & ~ei->attackedBy[!color][PAWN];
+
+    threats = targets & ei->attackedBy[color][ROOK];
     while (threats) {
         Square sq = PopLsb(&threats);
         eval += ThreatsByRook[pieceTypeOn(sq)];
