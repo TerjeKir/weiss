@@ -67,8 +67,7 @@ extern const int PassedSquare;
 extern const int PawnPhalanx[RANK_NB];
 
 
-extern const int ThreatsByKnight[8];
-extern const int ThreatsByBishop[8];
+extern const int ThreatsByMinor[8];
 extern const int ThreatsByRook[8];
 
 // KingLineDanger
@@ -191,8 +190,7 @@ void InitBaseParams(TVector tparams) {
     InitBaseArray(PawnPhalanx, RANK_NB);
 
 
-    InitBaseArray(ThreatsByKnight, 8);
-    InitBaseArray(ThreatsByBishop, 8);
+    InitBaseArray(ThreatsByMinor, 8);
     InitBaseArray(ThreatsByRook, 8);
 
     // KingLineDanger
@@ -260,8 +258,7 @@ void PrintParameters(TVector updates, TVector base) {
     PrintArray(PawnPhalanx, RANK_NB);
 
 
-    PrintArray(ThreatsByKnight, 8);
-    PrintArray(ThreatsByBishop, 8);
+    PrintArray(ThreatsByMinor, 8);
     PrintArray(ThreatsByRook, 8);
 
     puts("\n// KingLineDanger");
@@ -324,8 +321,7 @@ void InitCoefficients(TCoeffs coeffs) {
     InitCoeffArray(PawnPhalanx, RANK_NB);
 
 
-    InitCoeffArray(ThreatsByKnight, 8);
-    InitCoeffArray(ThreatsByBishop, 8);
+    InitCoeffArray(ThreatsByMinor, 8);
     InitCoeffArray(ThreatsByRook, 8);
 
     // KingLineDanger
