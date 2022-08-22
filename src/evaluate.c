@@ -93,11 +93,11 @@ const int PawnPhalanx[RANK_NB] = {
 // Threats
 const int ThreatsByMinor[8] = {
     S(  0,  0), S(  0,  0), S( 23, 48), S( 34, 44),
-    S( 66,  9), S( 54,-23), S(421,612), S(  0,  0)
+    S( 66,  9), S( 54,-23), S(  0,  0), S(  0,  0)
 };
 const int ThreatsByRook[8] = {
     S(  0,  0), S(  0,  0), S( 26, 46), S( 35, 48),
-    S(-11, 50), S( 85,-80), S(437,972), S(  0,  0)
+    S(-11, 50), S( 85,-80), S(  0,  0), S(  0,  0)
 };
 
 // KingLineDanger
