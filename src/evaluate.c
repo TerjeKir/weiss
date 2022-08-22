@@ -91,11 +91,11 @@ const int PawnPhalanx[RANK_NB] = {
 };
 
 // Threats
-const int ThreatsByMinor[8] = {
+const int ThreatByMinor[8] = {
     S(  0,  0), S(  0,  0), S( 23, 48), S( 34, 44),
     S( 66,  9), S( 54,-23), S(  0,  0), S(  0,  0)
 };
-const int ThreatsByRook[8] = {
+const int ThreatByRook[8] = {
     S(  0,  0), S(  0,  0), S( 26, 46), S( 35, 48),
     S(-11, 50), S( 85,-80), S(  0,  0), S(  0,  0)
 };
@@ -405,20 +405,22 @@ INLINE int EvalThreats(const Position *pos, const EvalInfo *ei, const Color colo
     eval += PushThreat * count;
     TraceCount(PushThreat);
 
-    threats = theirNonPawns & (ei->attackedBy[color][KNIGHT] | ei->attackedBy[color][BISHOP]);
+    Bitboard targets = theirNonPawns & ~pieceBB(KING);
+
+    threats = targets & (ei->attackedBy[color][KNIGHT] | ei->attackedBy[color][BISHOP]);
     while (threats) {
         Square sq = PopLsb(&threats);
-        eval += ThreatsByMinor[pieceTypeOn(sq)];
-        TraceIncr(ThreatsByMinor[pieceTypeOn(sq)]);
+        eval += ThreatByMinor[pieceTypeOn(sq)];
+        TraceIncr(ThreatByMinor[pieceTypeOn(sq)]);
     }
 
-    Bitboard targets = theirNonPawns & ~ei->attackedBy[!color][PAWN];
+    targets &= ~ei->attackedBy[!color][PAWN];
 
     threats = targets & ei->attackedBy[color][ROOK];
     while (threats) {
         Square sq = PopLsb(&threats);
-        eval += ThreatsByRook[pieceTypeOn(sq)];
-        TraceIncr(ThreatsByRook[pieceTypeOn(sq)]);
+        eval += ThreatByRook[pieceTypeOn(sq)];
+        TraceIncr(ThreatByRook[pieceTypeOn(sq)]);
     }
 
     return eval;

@@ -91,8 +91,8 @@ typedef struct EvalTrace {
     int PassedRookBack[COLOR_NB];
     int PassedSquare[COLOR_NB];
     int PawnPhalanx[RANK_NB][COLOR_NB];
-    int ThreatsByMinor[8][COLOR_NB];
-    int ThreatsByRook[8][COLOR_NB];
+    int ThreatByMinor[8][COLOR_NB];
+    int ThreatByRook[8][COLOR_NB];
     int KingLineDanger[28][COLOR_NB];
     int Mobility[4][28][COLOR_NB];
 
