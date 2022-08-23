@@ -534,7 +534,7 @@ void Tune() {
     InitTunerEntries(entries, baseParams);
     printf("Allocated:\n");
     printf("Optimal K...\r");
-    K = 2.22941;
+    K = ComputeOptimalK(entries);
     printf("Optimal K: %g\n\n", K);
 
     for (int epoch = 1; epoch <= MAXEPOCHS; epoch++) {
