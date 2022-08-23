@@ -58,6 +58,7 @@ extern const int NBBehindPawn;
 extern const int PawnPassed[RANK_NB];
 extern const int PassedDefended[RANK_NB];
 extern const int PassedBlocked[4];
+extern const int PassedFreeAdv[4];
 extern const int PassedDistUs[4];
 extern const int PassedDistThem;
 extern const int PassedRookBack;
@@ -181,6 +182,7 @@ void InitBaseParams(TVector tparams) {
     InitBaseArray(PawnPassed, RANK_NB);
     InitBaseArray(PassedDefended, RANK_NB);
     InitBaseArray(PassedBlocked, 4);
+    InitBaseArray(PassedFreeAdv, 4);
     InitBaseArray(PassedDistUs, 4);
     InitBaseSingle(PassedDistThem);
     InitBaseSingle(PassedRookBack);
@@ -249,6 +251,7 @@ void PrintParameters(TVector updates, TVector base) {
     PrintArray(PawnPassed, RANK_NB);
     PrintArray(PassedDefended, RANK_NB);
     PrintArray(PassedBlocked, 4);
+    PrintArray(PassedFreeAdv, 4);
     PrintArray(PassedDistUs, 4);
     PrintSingle(PassedDistThem, "");
     PrintSingle(PassedRookBack, "");
@@ -312,6 +315,7 @@ void InitCoefficients(TCoeffs coeffs) {
     InitCoeffArray(PawnPassed, RANK_NB);
     InitCoeffArray(PassedDefended, RANK_NB);
     InitCoeffArray(PassedBlocked, 4);
+    InitCoeffArray(PassedFreeAdv, 4);
     InitCoeffArray(PassedDistUs, 4);
     InitCoeffSingle(PassedDistThem);
     InitCoeffSingle(PassedRookBack);
