@@ -53,41 +53,44 @@ const int PieceValue[2][PIECE_NB] = {
 const int Tempo = 15;
 
 // Misc bonuses and maluses
-const int PawnDoubled  = S(-10,-49);
+const int PawnDoubled  = S(-11,-48);
 const int PawnIsolated = S( -8,-16);
 const int PawnSupport  = S( 22, 17);
-const int PawnThreat   = S( 80, 31);
-const int PushThreat   = S( 26,  2);
-const int PawnOpen     = S(-13,-19);
+const int PawnThreat   = S( 80, 34);
+const int PushThreat   = S( 25,  6);
+const int PawnOpen     = S(-14,-19);
 const int BishopPair   = S( 33,110);
-const int KingAtkPawn  = S(-37, 53);
-const int OpenForward  = S( 27, 24);
-const int SemiForward  = S( 16, 16);
-const int NBBehindPawn = S(  9, 33);
+const int KingAtkPawn  = S(-16, 45);
+const int OpenForward  = S( 28, 31);
+const int SemiForward  = S( 17, 15);
+const int NBBehindPawn = S(  9, 32);
 
 // Passed pawn
 const int PawnPassed[RANK_NB] = {
-    S(  0,  0), S(-14, 24), S(-19, 39), S(-75,121),
-    S(-50,167), S( 73,238), S(319,276), S(  0,  0)
+    S(  0,  0), S(-14, 25), S(-19, 40), S(-72,115),
+    S(-38,146), S( 60,175), S(311,218), S(  0,  0)
 };
 const int PassedDefended[RANK_NB] = {
-    S(  0,  0), S(  0,  0), S(  3,-14), S(  5,-12),
-    S(  1, 32), S( 37, 87), S(160, 76), S(  0,  0)
+    S(  0,  0), S(  0,  0), S(  3,-14), S(  3,-10),
+    S(  0, 33), S( 32,103), S(158, 96), S(  0,  0)
 };
 const int PassedBlocked[4] = {
-    S(  4,-18), S(  0,-23), S(  4,-98), S(-46,-137)
+    S(  1, -4), S( -6,  6), S(-11,-11), S(-54,-52)
+};
+const int PassedFreeAdv[4] = {
+    S( -4, 25), S(-12, 58), S(-23,181), S(-70,277)
 };
 const int PassedDistUs[4] = {
-    S( 18,-32), S( 19,-45), S( -3,-47), S(-22,-37)
+    S( 18,-32), S( 17,-44), S(  2,-49), S(-19,-37)
 };
-const int PassedDistThem = S( -5, 22);
-const int PassedRookBack = S( 24, 35);
-const int PassedSquare   = S( -9,357);
+const int PassedDistThem = S( -4, 19);
+const int PassedRookBack = S( 21, 46);
+const int PassedSquare   = S(-26,422);
 
 // Pawn phalanx
 const int PawnPhalanx[RANK_NB] = {
-    S(  0,  0), S( 11, -2), S( 19, 14), S( 34, 38),
-    S( 72,119), S(226,329), S(169,364), S(  0,  0)
+    S(  0,  0), S( 10, -2), S( 20, 14), S( 35, 37),
+    S( 72,121), S(231,367), S(168,394), S(  0,  0)
 };
 
 // Threats
@@ -371,6 +374,9 @@ INLINE int EvalPassedPawns(const Position *pos, const EvalInfo *ei, const Color 
         if (pieceOn(forward)) {
             eval += PassedBlocked[r];
             TraceIncr(PassedBlocked[r]);
+        } else if (!(BB(forward) & ei->attackedBy[!color][ALL])) {
+            eval += PassedFreeAdv[r];
+            TraceIncr(PassedFreeAdv[r]);
         }
 
         if (colorPieceBB(color, ROOK) & Fill(BB(sq), down)) {
