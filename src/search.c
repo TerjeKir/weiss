@@ -105,25 +105,23 @@ moveloop:
     Move move;
     while ((move = NextMove(&mp))) {
 
-        if (inCheck) goto skip_futility;
-
         // Skip moves SEE deem bad
-        if (mp.stage > NOISY_GOOD) break;
+        if (bestScore > -TBWIN_IN_MAX && mp.stage > NOISY_GOOD) break;
 
         // Futility pruning
-        if (   futility + PieceValue[EG][capturing(move)] <= alpha
+        if (   !inCheck
+            &&  futility + PieceValue[EG][capturing(move)] <= alpha
             && !(   PieceTypeOf(piece(move)) == PAWN
                  && RelativeRank(sideToMove, RankOf(toSq(move))) > 5))
             continue;
 
         // SEE pruning
-        if (   futility <= alpha
+        if (   !inCheck
+            &&  futility <= alpha
             && !SEE(pos, move, 1)) {
             bestScore = MAX(bestScore, futility);
             continue;
         }
-
-skip_futility:
 
         // Recursively search the positions after making the moves, skipping illegal ones
         if (!MakeMove(pos, move)) continue;
@@ -145,7 +143,7 @@ skip_futility:
         }
     }
 
-    // Checkmate or stalemate
+    // Checkmate
     if (inCheck && bestScore == -INFINITE)
         return -MATE + ss->ply;
 
