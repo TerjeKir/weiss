@@ -70,9 +70,17 @@ static int Quiescence(Thread *thread, Stack *ss, int alpha, const int beta) {
     if (OutOfTime(thread) || ABORT_SIGNAL)
         longjmp(thread->jumpBuffer, true);
 
+    bool inCheck = pos->checkers;
+
+    int eval = NOSCORE;
+    int futility = -INFINITE;
+    int bestScore = -INFINITE;
+
+    if (inCheck) goto moveloop;
+
     // Do a static evaluation for pruning considerations
-    int eval = history(-1).move == NOMOVE ? -(ss-1)->eval + 2 * Tempo
-                                          : EvalPosition(pos, thread->pawnCache);
+    eval = history(-1).move == NOMOVE ? -(ss-1)->eval + 2 * Tempo
+                                      : EvalPosition(pos, thread->pawnCache);
 
     // If we are at max depth, return static eval
     if (ss->ply >= MAX_PLY)
@@ -86,15 +94,18 @@ static int Quiescence(Thread *thread, Stack *ss, int alpha, const int beta) {
     if (eval > alpha)
         alpha = eval;
 
-    InitNoisyMP(&mp, thread);
+    futility = eval + 40;
+    bestScore = eval;
 
-    int futility = eval + 40;
-    int bestScore = eval;
-    int score;
+moveloop:
+
+    if (!inCheck) InitNoisyMP(&mp, thread); else InitNormalMP(&mp, thread, 0, NOMOVE, NOMOVE, NOMOVE);
 
     // Move loop
     Move move;
     while ((move = NextMove(&mp))) {
+
+        if (inCheck) goto skip_futility;
 
         // Skip moves SEE deem bad
         if (mp.stage > NOISY_GOOD) break;
@@ -112,9 +123,11 @@ static int Quiescence(Thread *thread, Stack *ss, int alpha, const int beta) {
             continue;
         }
 
+skip_futility:
+
         // Recursively search the positions after making the moves, skipping illegal ones
         if (!MakeMove(pos, move)) continue;
-        score = -Quiescence(thread, ss+1, -beta, -alpha);
+        int score = -Quiescence(thread, ss+1, -beta, -alpha);
         TakeMove(pos);
 
         // Found a new best move in this position
@@ -131,6 +144,10 @@ static int Quiescence(Thread *thread, Stack *ss, int alpha, const int beta) {
             }
         }
     }
+
+    // Checkmate or stalemate
+    if (inCheck && bestScore == -INFINITE)
+        return -MATE + ss->ply;
 
     return bestScore;
 }
