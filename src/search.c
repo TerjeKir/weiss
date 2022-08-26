@@ -109,14 +109,16 @@ moveloop:
         if (bestScore > -TBWIN_IN_MAX && mp.stage > NOISY_GOOD) break;
 
         // Futility pruning
-        if (   !inCheck
+        if (    bestScore > -TBWIN_IN_MAX
             &&  futility + PieceValue[EG][capturing(move)] <= alpha
             && !(   PieceTypeOf(piece(move)) == PAWN
-                 && RelativeRank(sideToMove, RankOf(toSq(move))) > 5))
+                 && RelativeRank(sideToMove, RankOf(toSq(move))) > 5)) {\
+            bestScore = MAX(bestScore, futility + PieceValue[EG][capturing(move)]);
             continue;
+        }
 
         // SEE pruning
-        if (   !inCheck
+        if (    bestScore > -TBWIN_IN_MAX
             &&  futility <= alpha
             && !SEE(pos, move, 1)) {
             bestScore = MAX(bestScore, futility);
