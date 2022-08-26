@@ -94,7 +94,7 @@ static int Quiescence(Thread *thread, Stack *ss, int alpha, const int beta) {
     if (eval > alpha)
         alpha = eval;
 
-    futility = eval + 40;
+    futility = eval + 80;
     bestScore = eval;
 
 moveloop:
@@ -112,7 +112,7 @@ moveloop:
         if (    bestScore > -TBWIN_IN_MAX
             &&  futility + PieceValue[EG][capturing(move)] <= alpha
             && !(   PieceTypeOf(piece(move)) == PAWN
-                 && RelativeRank(sideToMove, RankOf(toSq(move))) > 5)) {\
+                 && RelativeRank(sideToMove, RankOf(toSq(move))) > 5)) {
             bestScore = MAX(bestScore, futility + PieceValue[EG][capturing(move)]);
             continue;
         }
