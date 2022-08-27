@@ -415,6 +415,9 @@ move_loop:
             MakeMove(pos, move);
         }
 
+        if (inCheck)
+            extension = 1;
+
         // If alpha > 0 and we take back our last move, opponent can do the same
         // and get a fail high by repetition
         if (   pos->rule50 >= 3
@@ -452,8 +455,6 @@ move_loop:
             r -= ss->histScore / 8192;
             // Reduce quiets more if ttMove is a capture
             r += quiet && moveIsCapture(ttMove);
-
-            r -= inCheck;
 
             // Depth after reductions, avoiding going straight to quiescence
             Depth lmrDepth = CLAMP(newDepth - r, 1, newDepth);
