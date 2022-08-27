@@ -186,7 +186,6 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
 
     // Extend search if in check
     const bool inCheck = pos->checkers;
-    if (inCheck) depth++;
 
     // Quiescence at the end of search
     if (depth <= 0)
@@ -453,6 +452,8 @@ move_loop:
             r -= ss->histScore / 8192;
             // Reduce quiets more if ttMove is a capture
             r += quiet && moveIsCapture(ttMove);
+
+            r -= inCheck;
 
             // Depth after reductions, avoiding going straight to quiescence
             Depth lmrDepth = CLAMP(newDepth - r, 1, newDepth);
