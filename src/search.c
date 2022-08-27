@@ -94,7 +94,7 @@ static int Quiescence(Thread *thread, Stack *ss, int alpha, const int beta) {
     if (eval > alpha)
         alpha = eval;
 
-    futility = eval + 80;
+    futility = eval + 60;
     bestScore = eval;
 
 moveloop:
