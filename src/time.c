@@ -59,7 +59,8 @@ void InitTimeManagement() {
 
 // Check time situation
 bool OutOfTime(Thread *thread) {
-    if (   thread->index != 0
+    if (    thread->index != 0
+        ||  thread->depth == 1
         || (thread->pos.nodes & 2047) != 2047)
         return false;
 
