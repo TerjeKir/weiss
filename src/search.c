@@ -415,7 +415,7 @@ move_loop:
             MakeMove(pos, move);
         }
 
-        if (inCheck)
+        if (inCheck && !root)
             extension = 1;
 
         // If alpha > 0 and we take back our last move, opponent can do the same
