@@ -289,6 +289,10 @@ char *BoardToFen(const Position *pos) {
     return fen;
 }
 
+static int SEEValues[TYPE_NB] = {
+    0, 100, 450, 450, 650, 1250
+};
+
 // Static Exchange Evaluation
 bool SEE(const Position *pos, const Move move, const int threshold) {
 
@@ -301,11 +305,11 @@ bool SEE(const Position *pos, const Move move, const int threshold) {
     Square from = fromSq(move);
 
     // Making the move and not losing it must beat the threshold
-    int value = PieceValue[MG][pieceOn(to)] - threshold;
+    int value = SEEValues[PieceTypeOf(pieceOn(to))] - threshold;
     if (value < 0) return false;
 
     // Trivial if we still beat the threshold after losing the piece
-    value -= PieceValue[MG][pieceOn(from)];
+    value -= SEEValues[PieceTypeOf(pieceOn(from))];
     if (value >= 0) return true;
 
     // It doesn't matter if the to square is occupied or not
@@ -335,7 +339,7 @@ bool SEE(const Position *pos, const Move move, const int threshold) {
         side = !side;
 
         // Value beats threshold, or can't beat threshold (negamaxed)
-        if ((value = -value - 1 - PieceValue[MG][pt]) >= 0) {
+        if ((value = -value - 1 - SEEValues[pt]) >= 0) {
 
             if (pt == KING && (attackers & colorBB(side)))
                 side = !side;
