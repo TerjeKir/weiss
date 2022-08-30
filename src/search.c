@@ -374,7 +374,7 @@ move_loop:
                 continue;
 
             // SEE pruning
-            if (lmrDepth < 7 && !SEE(pos, move, -50 * depth))
+            if (lmrDepth < 7 && !SEE(pos, move, quiet ? -50 * depth : -90 * depth))
                 continue;
         }
 
