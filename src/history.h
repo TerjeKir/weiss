@@ -31,6 +31,10 @@
 #define ContEntry(prev, move) &thread->continuation[piece(prev)][toSq(prev)][piece(move)][toSq(move)]
 
 
+INLINE void QuietHistoryBonus(int16_t *cur, int bonus) {
+    *cur += bonus - *cur * abs(bonus) / 8192;
+}
+
 INLINE void HistoryBonus(int16_t *cur, int bonus) {
     *cur += bonus - *cur * abs(bonus) / 16384;
 }
@@ -55,14 +59,14 @@ INLINE void UpdateQuietHistory(Thread *thread, Stack *ss, Move bestMove, int bon
 
     // Bonus to the move that caused the beta cutoff
     if (depth > 2) {
-        HistoryBonus(QuietEntry(bestMove), bonus);
+        QuietHistoryBonus(QuietEntry(bestMove), bonus);
         if (prevMove1) HistoryBonus(ContEntry(prevMove1, bestMove), bonus);
         if (prevMove2) HistoryBonus(ContEntry(prevMove2, bestMove), bonus);
     }
 
     // Penalize quiet moves that failed to produce a cut
     for (Move *move = quiets; move < quiets + qCount; ++move) {
-        HistoryBonus(QuietEntry(*move), -bonus);
+        QuietHistoryBonus(QuietEntry(*move), -bonus);
         if (prevMove1) HistoryBonus(ContEntry(prevMove1, *move), -bonus);
         if (prevMove2) HistoryBonus(ContEntry(prevMove2, *move), -bonus);
     }
