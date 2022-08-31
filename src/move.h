@@ -59,13 +59,13 @@
 #define promotion(move) (((move) & MOVE_PROMO) >> 20)
 
 // Move types
-#define moveIsEnPas(move)   (move & FLAG_ENPAS)
-#define moveIsPStart(move)  (move & FLAG_PAWNSTART)
-#define moveIsCastle(move)  (move & FLAG_CASTLE)
-#define moveIsSpecial(move) (move & (MOVE_FLAGS | MOVE_PROMO))
-#define moveIsCapture(move) (move & MOVE_CAPT)
-#define moveIsNoisy(move)   (move & (MOVE_CAPT | MOVE_PROMO | FLAG_ENPAS))
-#define moveIsQuiet(move)   (!moveIsNoisy(move))
+#define moveIsEnPas(move)   ((bool)(move & FLAG_ENPAS))
+#define moveIsPStart(move)  ((bool)(move & FLAG_PAWNSTART))
+#define moveIsCastle(move)  ((bool)(move & FLAG_CASTLE))
+#define moveIsSpecial(move) ((bool)(move & (MOVE_FLAGS | MOVE_PROMO)))
+#define moveIsCapture(move) ((bool)(move & MOVE_CAPT))
+#define moveIsNoisy(move)   ((bool)(move & (MOVE_CAPT | MOVE_PROMO | FLAG_ENPAS)))
+#define moveIsQuiet(move)   ((bool)(!moveIsNoisy(move)))
 
 
 // Checks legality of a specific castle move given the current position

@@ -423,7 +423,7 @@ bool PositionOk(const Position *pos) {
         assert(nonPawnCount[c] == pos->nonPawnCount[c]);
     }
 
-    assert(pieceBB(ALL) == colorBB(WHITE) | colorBB(BLACK));
+    assert(pieceBB(ALL) == (colorBB(WHITE) | colorBB(BLACK)));
 
     assert(sideToMove == WHITE || sideToMove == BLACK);
 
