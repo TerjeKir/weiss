@@ -26,17 +26,17 @@
 #include "types.h"
 
 
-#define QuietEntry(move) &thread->history[sideToMove][fromSq(move)][toSq(move)]
-#define NoisyEntry(move) &thread->captureHistory[piece(move)][toSq(move)][PieceTypeOf(capturing(move))]
-#define ContEntry(prev, move) &thread->continuation[piece(prev)][toSq(prev)][piece(move)][toSq(move)]
+#define QuietEntry(move)      (&thread->history[sideToMove][fromSq(move)][toSq(move)])
+#define NoisyEntry(move)      (&thread->captureHistory[piece(move)][toSq(move)][PieceTypeOf(capturing(move))])
+#define ContEntry(prev, move) (&thread->continuation[piece(prev)][toSq(prev)][piece(move)][toSq(move)])
+
+#define QuietHistoryUpdate(move, bonus)      (HistoryBonus(QuietEntry(move),      bonus,  8192))
+#define NoisyHistoryUpdate(move, bonus)      (HistoryBonus(NoisyEntry(move),      bonus, 16384))
+#define ContHistoryUpdate(prev, move, bonus) (HistoryBonus(ContEntry(prev, move), bonus, 16384))
 
 
-INLINE void QuietHistoryBonus(int16_t *cur, int bonus) {
-    *cur += bonus - *cur * abs(bonus) / 8192;
-}
-
-INLINE void HistoryBonus(int16_t *cur, int bonus) {
-    *cur += bonus - *cur * abs(bonus) / 16384;
+INLINE void HistoryBonus(int16_t *cur, int bonus, int div) {
+    *cur += bonus - *cur * abs(bonus) / div;
 }
 
 INLINE int Bonus(Depth depth) {
@@ -59,16 +59,16 @@ INLINE void UpdateQuietHistory(Thread *thread, Stack *ss, Move bestMove, int bon
 
     // Bonus to the move that caused the beta cutoff
     if (depth > 2) {
-        QuietHistoryBonus(QuietEntry(bestMove), bonus);
-        if (prevMove1) HistoryBonus(ContEntry(prevMove1, bestMove), bonus);
-        if (prevMove2) HistoryBonus(ContEntry(prevMove2, bestMove), bonus);
+        QuietHistoryUpdate(bestMove, bonus);
+        if (prevMove1) ContHistoryUpdate(prevMove1, bestMove, bonus);
+        if (prevMove2) ContHistoryUpdate(prevMove2, bestMove, bonus);
     }
 
     // Penalize quiet moves that failed to produce a cut
     for (Move *move = quiets; move < quiets + qCount; ++move) {
-        QuietHistoryBonus(QuietEntry(*move), -bonus);
-        if (prevMove1) HistoryBonus(ContEntry(prevMove1, *move), -bonus);
-        if (prevMove2) HistoryBonus(ContEntry(prevMove2, *move), -bonus);
+        QuietHistoryUpdate(*move, -bonus);
+        if (prevMove1) ContHistoryUpdate(prevMove1, *move, -bonus);
+        if (prevMove2) ContHistoryUpdate(prevMove2, *move, -bonus);
     }
 }
 
@@ -83,11 +83,11 @@ INLINE void UpdateHistory(Thread *thread, Stack *ss, Move bestMove, Depth depth,
 
     // Bonus to the move that caused the beta cutoff
     if (depth > 2 && !moveIsQuiet(bestMove))
-        HistoryBonus(NoisyEntry(bestMove), bonus);
+        NoisyHistoryUpdate(bestMove, bonus);
 
     // Penalize noisy moves that failed to produce a cut
     for (Move *move = noisys; move < noisys + nCount; ++move)
-        HistoryBonus(NoisyEntry(*move), -bonus);
+        NoisyHistoryUpdate(*move, -bonus);
 }
 
 INLINE int GetQuietHistory(const Thread *thread, Move move) {

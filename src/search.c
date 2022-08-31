@@ -212,7 +212,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
 
         // Give a history bonus to quiet tt moves that causes a cutoff
         if (ttScore >= beta && moveIsQuiet(ttMove))
-            HistoryBonus(QuietEntry(ttMove), Bonus(depth));
+            QuietHistoryUpdate(ttMove, Bonus(depth));
 
         return ttScore;
     }
