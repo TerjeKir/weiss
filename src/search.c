@@ -285,7 +285,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
         thread->nullMover = sideToMove;
 
         MakeNullMove(pos);
-        int score = -AlphaBeta(thread, ss+1, -beta, -beta+1, nullDepth);
+        int score = -AlphaBeta(thread, ss+1, -beta, -alpha, nullDepth);
         TakeNullMove(pos);
 
         thread->nullMover = nullMoverTemp;
