@@ -262,14 +262,13 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
         depth--;
 
     // Skip pruning in check, in pv nodes, during early iterations, and when proving singularity
-    if (inCheck || pvNode || !thread->doPruning || ss->excluded)
+    if (inCheck || pvNode || !thread->doPruning || ss->excluded || abs(beta) >= TBWIN_IN_MAX)
         goto move_loop;
 
     // Reverse Futility Pruning
     if (   depth < 7
         && eval - 175 * depth / (1 + improving) >= beta
-        && (!ttMove || GetHistory(thread, ss, ttMove) > 10000)
-        && abs(beta) < TBWIN_IN_MAX)
+        && (!ttMove || GetHistory(thread, ss, ttMove) > 10000))
         return eval;
 
     // Null Move Pruning
@@ -304,7 +303,6 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
 
     // ProbCut
     if (   depth >= 5
-        && abs(beta) < TBWIN_IN_MAX
         && !(   ttHit
              && ttBound & BOUND_UPPER
              && ttScore < pbThreshold)) {
