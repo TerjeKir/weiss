@@ -59,6 +59,7 @@ INLINE void UpdateQuietHistory(Thread *thread, Stack *ss, Move bestMove, int bon
         QuietHistoryUpdate(bestMove, bonus);
         ContHistoryUpdate(1, bestMove, bonus);
         ContHistoryUpdate(2, bestMove, bonus);
+        ContHistoryUpdate(4, bestMove, bonus);
     }
 
     // Penalize quiet moves that failed to produce a cut
@@ -66,6 +67,7 @@ INLINE void UpdateQuietHistory(Thread *thread, Stack *ss, Move bestMove, int bon
         QuietHistoryUpdate(*move, -bonus);
         ContHistoryUpdate(1, *move, -bonus);
         ContHistoryUpdate(2, *move, -bonus);
+        ContHistoryUpdate(4, *move, -bonus);
     }
 }
 
@@ -93,8 +95,9 @@ INLINE int GetQuietHistory(const Thread *thread, Stack *ss, Move move) {
 
     int cmh = *ContEntry(1, move);
     int fmh = *ContEntry(2, move);
+    int amh = *ContEntry(4, move);
 
-    return *QuietEntry(move) + cmh + fmh;
+    return *QuietEntry(move) + cmh + fmh + amh;
 }
 
 INLINE int GetCaptureHistory(const Thread *thread, Move move) {
