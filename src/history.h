@@ -26,7 +26,7 @@
 #include "types.h"
 
 
-#define QuietEntry(move)        (&thread->history[sideToMove][fromSq(move)][toSq(move)])
+#define QuietEntry(move)        (&thread->history[thread->pos.stm][fromSq(move)][toSq(move)])
 #define NoisyEntry(move)        (&thread->captureHistory[piece(move)][toSq(move)][PieceTypeOf(capturing(move))])
 #define ContEntry(offset, move) (&(*(ss-offset)->continuation)[piece(move)][toSq(move)])
 
@@ -45,8 +45,6 @@ INLINE int Bonus(Depth depth) {
 
 // Updates various history heuristics when a move causes a beta cutoff
 INLINE void UpdateQuietHistory(Thread *thread, Stack *ss, Move bestMove, int bonus, Depth depth, Move quiets[], int qCount) {
-
-    const Position *pos = &thread->pos;
 
     // Update killers
     if (ss->killers[0] != bestMove) {
@@ -91,13 +89,10 @@ INLINE void UpdateHistory(Thread *thread, Stack *ss, Move bestMove, Depth depth,
 
 INLINE int GetQuietHistory(const Thread *thread, Stack *ss, Move move) {
 
-    const Position *pos = &thread->pos;
-
-    int cmh = *ContEntry(1, move);
-    int fmh = *ContEntry(2, move);
-    int amh = *ContEntry(4, move);
-
-    return *QuietEntry(move) + cmh + fmh + amh;
+    return  *QuietEntry(move)
+          + *ContEntry(1, move)
+          + *ContEntry(2, move)
+          + *ContEntry(4, move);
 }
 
 INLINE int GetCaptureHistory(const Thread *thread, Move move) {
