@@ -32,6 +32,7 @@
 typedef int16_t ButterflyHistory[COLOR_NB][64][64];
 typedef int16_t CaptureToHistory[PIECE_NB][64][TYPE_NB];
 typedef int16_t PieceToHistory[PIECE_NB][64];
+typedef PieceToHistory ContinuationHistory[PIECE_NB][64];
 
 
 typedef struct {
@@ -68,7 +69,7 @@ typedef struct Thread {
     PawnCache pawnCache;
     ButterflyHistory history;
     CaptureToHistory captureHistory;
-    PieceToHistory continuation[PIECE_NB][64];
+    ContinuationHistory continuation;
 
     int index;
     int count;
