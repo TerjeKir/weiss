@@ -186,9 +186,6 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
             return alpha;
     }
 
-    // Extend search if in check
-    const bool inCheck = pos->checkers;
-
     // Quiescence at the end of search
     if (depth <= 0)
         return Quiescence(thread, ss, alpha, beta);
@@ -244,6 +241,8 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
         }
     }
 
+    const bool inCheck = pos->checkers;
+
     // Do a static evaluation for pruning considerations
     int eval = ss->eval = inCheck          ? NOSCORE
                         : lastMoveNullMove ? -(ss-1)->eval + 2 * Tempo
@@ -261,7 +260,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
     if (pvNode && depth >= 4 && !ttMove)
         depth--;
 
-    // Skip pruning in check, in pv nodes, during early iterations, and when proving singularity
+    // Skip pruning in check, in pv nodes, during early iterations, when proving singularity, or when looking for terminal scores
     if (inCheck || pvNode || !thread->doPruning || ss->excluded || abs(beta) >= TBWIN_IN_MAX)
         goto move_loop;
 
@@ -419,6 +418,7 @@ move_loop:
             MakeMove(pos, move);
         }
 
+        // Extend when in check
         if (inCheck && !root)
             extension = 1;
 
@@ -462,7 +462,7 @@ move_loop:
             // Reduce quiets more if ttMove is a capture
             r += quiet && moveIsCapture(ttMove);
 
-            // Depth after reductions, avoiding going straight to quiescence
+            // Depth after reductions, avoiding going straight to quiescence as well as extending
             Depth lmrDepth = CLAMP(newDepth - r, 1, newDepth);
 
             score = -AlphaBeta(thread, ss+1, -alpha-1, -alpha, lmrDepth);

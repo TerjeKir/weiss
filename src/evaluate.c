@@ -146,6 +146,7 @@ INLINE int EvalPawns(const Position *pos, EvalInfo *ei, const Color color) {
     int count, eval = 0;
 
     Bitboard pawns = colorPieceBB(color, PAWN);
+    Bitboard pawnAttacks = PawnBBAttackBB(pawns, color);
 
     // Doubled pawns (only when one is blocking the other from moving)
     count = PopCount(pawns & ShiftBB(pawns, NORTH));
@@ -159,7 +160,7 @@ INLINE int EvalPawns(const Position *pos, EvalInfo *ei, const Color color) {
 
     // Open pawns
     Bitboard open = ~Fill(colorPieceBB(!color, PAWN), down);
-    count = PopCount(pawns & open & ~PawnBBAttackBB(pawns, color));
+    count = PopCount(pawns & open & ~pawnAttacks);
     eval += PawnOpen * count;
     TraceCount(PawnOpen);
 
@@ -193,7 +194,7 @@ INLINE int EvalPawns(const Position *pos, EvalInfo *ei, const Color color) {
             eval += PawnPassed[rank];
             TraceIncr(PawnPassed[rank]);
 
-            if (BB(sq) & PawnBBAttackBB(colorPieceBB(color, PAWN), color)) {
+            if (BB(sq) & pawnAttacks) {
                 eval += PassedDefended[rank];
                 TraceIncr(PassedDefended[rank]);
             }
@@ -354,31 +355,38 @@ INLINE int EvalPassedPawns(const Position *pos, const EvalInfo *ei, const Color 
         int rank = RelativeRank(color, RankOf(sq));
         int file = FileOf(sq);
         int r = rank - RANK_4;
+        Square promoSq = RelativeSquare(color, MakeSquare(RANK_8, file));
 
         if (rank < RANK_4) continue;
 
-        Square promoSq = RelativeSquare(color, MakeSquare(RANK_8, file));
+        // Square rule
         if (pos->nonPawnCount[!color] == 0 && Distance(sq, promoSq) < Distance(kingSq(!color), promoSq) - ((!color) == sideToMove)) {
             eval += PassedSquare;
             TraceIncr(PassedSquare);
         }
 
+        // Distance to own king
         count = Distance(forward, kingSq(color));
         eval += count * PassedDistUs[r];
         TraceCount(PassedDistUs[r]);
 
+        // Distance to enemy king
         count = (rank - RANK_3) * Distance(forward, kingSq(!color));
         eval += count * PassedDistThem;
         TraceCount(PassedDistThem);
 
+        // Blocked from advancing
         if (pieceOn(forward)) {
             eval += PassedBlocked[r];
             TraceIncr(PassedBlocked[r]);
+
+        // Free to advance
         } else if (!(BB(forward) & ei->attackedBy[!color][ALL])) {
             eval += PassedFreeAdv[r];
             TraceIncr(PassedFreeAdv[r]);
         }
 
+        // Rook supporting from behind
         if (colorPieceBB(color, ROOK) & Fill(BB(sq), down)) {
             eval += PassedRookBack;
             TraceIncr(PassedRookBack);
@@ -411,8 +419,8 @@ INLINE int EvalThreats(const Position *pos, const EvalInfo *ei, const Color colo
     eval += PushThreat * count;
     TraceCount(PushThreat);
 
+    // Threats by minor pieces
     Bitboard targets = theirNonPawns & ~pieceBB(KING);
-
     threats = targets & (ei->attackedBy[color][KNIGHT] | ei->attackedBy[color][BISHOP]);
     while (threats) {
         Square sq = PopLsb(&threats);
@@ -420,8 +428,8 @@ INLINE int EvalThreats(const Position *pos, const EvalInfo *ei, const Color colo
         TraceIncr(ThreatByMinor[pieceTypeOn(sq)]);
     }
 
+    // Threats by rooks
     targets &= ~ei->attackedBy[!color][PAWN];
-
     threats = targets & ei->attackedBy[color][ROOK];
     while (threats) {
         Square sq = PopLsb(&threats);
@@ -472,6 +480,7 @@ int ScaleFactor(const Position *pos, const int eval) {
     if (!(strongPawns & QueenSideBB) || !(strongPawns & KingSideBB))
         pawnScale -= 20;
 
+    // Opposite-colored bishop
     if (   pos->nonPawnCount[WHITE] <= 2
         && pos->nonPawnCount[BLACK] <= 2
         && pos->nonPawnCount[WHITE] == pos->nonPawnCount[BLACK]
@@ -518,6 +527,6 @@ int EvalPosition(const Position *pos, PawnCache pc) {
             + EgScore(eval) * (MidGame - pos->phase) * scale / 128)
           / MidGame;
 
-    // Return the evaluation, negated if we are black
+    // Return the evaluation, negated if we are black + tempo bonus
     return (sideToMove == WHITE ? eval : -eval) + Tempo;
 }
