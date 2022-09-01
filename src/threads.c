@@ -121,6 +121,8 @@ void PrepareSearch(Position *pos, Move searchmoves[]) {
         t->rootMoveCount = rootMoveCount;
         for (Depth d = 0; d <= MAX_PLY; ++d)
             (t->ss+SS_OFFSET+d)->ply = d;
+        for (Depth d = -2; d < 0; ++d)
+            (t->ss+SS_OFFSET+d)->continuation = &t->continuation[EMPTY][0];
     }
 }
 

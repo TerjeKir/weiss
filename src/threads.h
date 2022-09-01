@@ -29,7 +29,13 @@
 #define MULTI_PV_MAX 64
 
 
+typedef int16_t ButterflyHistory[COLOR_NB][64][64];
+typedef int16_t CaptureToHistory[PIECE_NB][64][TYPE_NB];
+typedef int16_t PieceToHistory[PIECE_NB][64];
+
+
 typedef struct {
+    PieceToHistory *continuation;
     int eval;
     int histScore;
     Depth ply;
@@ -60,9 +66,9 @@ typedef struct Thread {
     // Anything below here is not zeroed out between searches
     Position pos;
     PawnCache pawnCache;
-    int16_t history[COLOR_NB][64][64];
-    int16_t captureHistory[PIECE_NB][64][TYPE_NB];
-    int16_t continuation[PIECE_NB][64][PIECE_NB][64];
+    ButterflyHistory history;
+    CaptureToHistory captureHistory;
+    PieceToHistory continuation[PIECE_NB][64];
 
     int index;
     int count;

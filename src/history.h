@@ -26,13 +26,13 @@
 #include "types.h"
 
 
-#define QuietEntry(move)      (&thread->history[sideToMove][fromSq(move)][toSq(move)])
-#define NoisyEntry(move)      (&thread->captureHistory[piece(move)][toSq(move)][PieceTypeOf(capturing(move))])
-#define ContEntry(prev, move) (&thread->continuation[piece(prev)][toSq(prev)][piece(move)][toSq(move)])
+#define QuietEntry(move)        (&thread->history[sideToMove][fromSq(move)][toSq(move)])
+#define NoisyEntry(move)        (&thread->captureHistory[piece(move)][toSq(move)][PieceTypeOf(capturing(move))])
+#define ContEntry(offset, move) (&(*(ss-offset)->continuation)[piece(move)][toSq(move)])
 
-#define QuietHistoryUpdate(move, bonus)      (HistoryBonus(QuietEntry(move),      bonus,  8192))
-#define NoisyHistoryUpdate(move, bonus)      (HistoryBonus(NoisyEntry(move),      bonus, 16384))
-#define ContHistoryUpdate(prev, move, bonus) (HistoryBonus(ContEntry(prev, move), bonus, 16384))
+#define QuietHistoryUpdate(move, bonus)        (HistoryBonus(QuietEntry(move),        bonus,  8192))
+#define NoisyHistoryUpdate(move, bonus)        (HistoryBonus(NoisyEntry(move),        bonus, 16384))
+#define ContHistoryUpdate(offset, move, bonus) (HistoryBonus(ContEntry(offset, move), bonus, 16384))
 
 
 INLINE void HistoryBonus(int16_t *cur, int bonus, int div) {
@@ -48,9 +48,6 @@ INLINE void UpdateQuietHistory(Thread *thread, Stack *ss, Move bestMove, int bon
 
     const Position *pos = &thread->pos;
 
-    Move prevMove1 = pos->histPly >= 1 ? history(-1).move : NOMOVE;
-    Move prevMove2 = pos->histPly >= 2 ? history(-2).move : NOMOVE;
-
     // Update killers
     if (ss->killers[0] != bestMove) {
         ss->killers[1] = ss->killers[0];
@@ -60,15 +57,15 @@ INLINE void UpdateQuietHistory(Thread *thread, Stack *ss, Move bestMove, int bon
     // Bonus to the move that caused the beta cutoff
     if (depth > 2) {
         QuietHistoryUpdate(bestMove, bonus);
-        ContHistoryUpdate(prevMove1, bestMove, bonus);
-        ContHistoryUpdate(prevMove2, bestMove, bonus);
+        ContHistoryUpdate(1, bestMove, bonus);
+        ContHistoryUpdate(2, bestMove, bonus);
     }
 
     // Penalize quiet moves that failed to produce a cut
     for (Move *move = quiets; move < quiets + qCount; ++move) {
         QuietHistoryUpdate(*move, -bonus);
-        ContHistoryUpdate(prevMove1, *move, -bonus);
-        ContHistoryUpdate(prevMove2, *move, -bonus);
+        ContHistoryUpdate(1, *move, -bonus);
+        ContHistoryUpdate(2, *move, -bonus);
     }
 }
 
@@ -90,15 +87,12 @@ INLINE void UpdateHistory(Thread *thread, Stack *ss, Move bestMove, Depth depth,
         NoisyHistoryUpdate(*move, -bonus);
 }
 
-INLINE int GetQuietHistory(const Thread *thread, Move move) {
+INLINE int GetQuietHistory(const Thread *thread, Stack *ss, Move move) {
 
     const Position *pos = &thread->pos;
 
-    Move prevMove1 = pos->histPly >= 1 ? history(-1).move : NOMOVE;
-    Move prevMove2 = pos->histPly >= 2 ? history(-2).move : NOMOVE;
-
-    int cmh = *ContEntry(prevMove1, move);
-    int fmh = *ContEntry(prevMove2, move);
+    int cmh = *ContEntry(1, move);
+    int fmh = *ContEntry(2, move);
 
     return *QuietEntry(move) + cmh + fmh;
 }
@@ -107,6 +101,6 @@ INLINE int GetCaptureHistory(const Thread *thread, Move move) {
     return *NoisyEntry(move);
 }
 
-INLINE int GetHistory(const Thread *thread, Move move) {
-    return moveIsQuiet(move) ? GetQuietHistory(thread, move) : GetCaptureHistory(thread, move);
+INLINE int GetHistory(const Thread *thread, Stack *ss, Move move) {
+    return moveIsQuiet(move) ? GetQuietHistory(thread, ss, move) : GetCaptureHistory(thread, move);
 }

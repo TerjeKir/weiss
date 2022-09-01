@@ -99,7 +99,7 @@ static int Quiescence(Thread *thread, Stack *ss, int alpha, const int beta) {
 
 moveloop:
 
-    if (!inCheck) InitNoisyMP(&mp, thread); else InitNormalMP(&mp, thread, 0, NOMOVE, NOMOVE, NOMOVE);
+    if (!inCheck) InitNoisyMP(&mp, thread, ss); else InitNormalMP(&mp, thread, ss, 0, NOMOVE, NOMOVE, NOMOVE);
 
     // Move loop
     Move move;
@@ -124,6 +124,8 @@ moveloop:
             bestScore = MAX(bestScore, futility);
             continue;
         }
+
+        ss->continuation = &thread->continuation[piece(move)][toSq(move)];
 
         // Recursively search the positions after making the moves, skipping illegal ones
         if (!MakeMove(pos, move)) continue;
@@ -266,7 +268,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
     // Reverse Futility Pruning
     if (   depth < 7
         && eval - 175 * depth / (1 + improving) >= beta
-        && (!ttMove || GetHistory(thread, ttMove) > 10000)
+        && (!ttMove || GetHistory(thread, ss, ttMove) > 10000)
         && abs(beta) < TBWIN_IN_MAX)
         return eval;
 
@@ -283,6 +285,8 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
         // Remember who last null-moved
         Color nullMoverTemp = thread->nullMover;
         thread->nullMover = sideToMove;
+
+        ss->continuation = &thread->continuation[EMPTY][0];
 
         MakeNullMove(pos);
         int score = -AlphaBeta(thread, ss+1, -beta, -alpha, nullDepth);
@@ -305,7 +309,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
              && ttBound & BOUND_UPPER
              && ttScore < pbThreshold)) {
 
-        InitNoisyMP(&mp, thread);
+        InitNoisyMP(&mp, thread, ss);
 
         Move move;
         while ((move = NextMove(&mp))) {
@@ -313,6 +317,8 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
             if (mp.stage > NOISY_GOOD) break;
 
             if (!MakeMove(pos, move)) continue;
+
+            ss->continuation = &thread->continuation[piece(move)][toSq(move)];
 
             // See if a quiescence search beats the threshold
             int pbScore = -Quiescence(thread, ss+1, -pbThreshold, -pbThreshold+1);
@@ -331,7 +337,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
 
 move_loop:
 
-    InitNormalMP(&mp, thread, depth, ttMove, ss->killers[0], ss->killers[1]);
+    InitNormalMP(&mp, thread, ss, depth, ttMove, ss->killers[0], ss->killers[1]);
 
     Move quiets[32] = { 0 };
     Move noisys[32] = { 0 };
@@ -350,7 +356,7 @@ move_loop:
 
         bool quiet = moveIsQuiet(move);
 
-        ss->histScore = GetHistory(thread, move);
+        ss->histScore = GetHistory(thread, ss, move);
 
         // Misc pruning
         if (  !root
@@ -431,6 +437,8 @@ move_loop:
             (ss+1)->pv.length = 0;
             goto skip_search;
         }
+
+        ss->continuation = &thread->continuation[piece(move)][toSq(move)];
 
         const Depth newDepth = depth - 1 + extension;
 
