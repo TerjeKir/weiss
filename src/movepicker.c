@@ -65,7 +65,7 @@ static void ScoreMoves(MovePicker *mp, const int stage) {
     for (int i = list->next; i < list->count; ++i) {
         Move move = list->moves[i].move;
         list->moves[i].score =
-            stage == GEN_QUIET ? GetQuietHistory(thread, move)
+            stage == GEN_QUIET ? GetQuietHistory(thread, mp->ss, move)
                                : GetCaptureHistory(thread, move) + PieceValue[MG][capturing(move)];
     }
 
@@ -147,9 +147,10 @@ Move NextMove(MovePicker *mp) {
 }
 
 // Init normal movepicker
-void InitNormalMP(MovePicker *mp, Thread *thread, Depth depth, Move ttMove, Move kill1, Move kill2) {
+void InitNormalMP(MovePicker *mp, Thread *thread, Stack *ss, Depth depth, Move ttMove, Move kill1, Move kill2) {
     mp->list.count = mp->list.next = 0;
     mp->thread    = thread;
+    mp->ss        = ss;
     mp->ttMove    = ttMove;
     mp->stage     = ttMove ? TTMOVE : GEN_NOISY;
     mp->depth     = depth;
@@ -160,7 +161,7 @@ void InitNormalMP(MovePicker *mp, Thread *thread, Depth depth, Move ttMove, Move
 }
 
 // Init noisy movepicker
-void InitNoisyMP(MovePicker *mp, Thread *thread) {
-    InitNormalMP(mp, thread, 0, NOMOVE, NOMOVE, NOMOVE);
+void InitNoisyMP(MovePicker *mp, Thread *thread, Stack *ss) {
+    InitNormalMP(mp, thread, ss, 0, NOMOVE, NOMOVE, NOMOVE);
     mp->onlyNoisy = true;
 }
