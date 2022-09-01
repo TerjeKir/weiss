@@ -88,7 +88,6 @@ INLINE void UpdateHistory(Thread *thread, Stack *ss, Move bestMove, Depth depth,
 }
 
 INLINE int GetQuietHistory(const Thread *thread, Stack *ss, Move move) {
-
     return  *QuietEntry(move)
           + *ContEntry(1, move)
           + *ContEntry(2, move)
