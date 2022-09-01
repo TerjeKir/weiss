@@ -60,15 +60,15 @@ INLINE void UpdateQuietHistory(Thread *thread, Stack *ss, Move bestMove, int bon
     // Bonus to the move that caused the beta cutoff
     if (depth > 2) {
         QuietHistoryUpdate(bestMove, bonus);
-        if (prevMove1) ContHistoryUpdate(prevMove1, bestMove, bonus);
-        if (prevMove2) ContHistoryUpdate(prevMove2, bestMove, bonus);
+        ContHistoryUpdate(prevMove1, bestMove, bonus);
+        ContHistoryUpdate(prevMove2, bestMove, bonus);
     }
 
     // Penalize quiet moves that failed to produce a cut
     for (Move *move = quiets; move < quiets + qCount; ++move) {
         QuietHistoryUpdate(*move, -bonus);
-        if (prevMove1) ContHistoryUpdate(prevMove1, *move, -bonus);
-        if (prevMove2) ContHistoryUpdate(prevMove2, *move, -bonus);
+        ContHistoryUpdate(prevMove1, *move, -bonus);
+        ContHistoryUpdate(prevMove2, *move, -bonus);
     }
 }
 
@@ -97,8 +97,8 @@ INLINE int GetQuietHistory(const Thread *thread, Move move) {
     Move prevMove1 = pos->histPly >= 1 ? history(-1).move : NOMOVE;
     Move prevMove2 = pos->histPly >= 2 ? history(-2).move : NOMOVE;
 
-    int cmh = prevMove1 ? *ContEntry(prevMove1, move) : 0;
-    int fmh = prevMove2 ? *ContEntry(prevMove2, move) : 0;
+    int cmh = *ContEntry(prevMove1, move);
+    int fmh = *ContEntry(prevMove2, move);
 
     return *QuietEntry(move) + cmh + fmh;
 }
