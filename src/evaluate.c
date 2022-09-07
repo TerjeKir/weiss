@@ -149,7 +149,7 @@ INLINE int EvalPawns(const Position *pos, EvalInfo *ei, const Color color) {
     Bitboard pawnAttacks = PawnBBAttackBB(pawns, color);
 
     // Doubled pawns (only when one is blocking the other from moving)
-    count = PopCount(pawns & ShiftBB(pawns, NORTH));
+    count = PopCount(pawns & (ShiftBB(pawns, NORTH) | ShiftBB(pawns, 2 * NORTH)));
     eval += PawnDoubled * count;
     TraceCount(PawnDoubled);
 
