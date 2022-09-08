@@ -54,6 +54,7 @@ const int Tempo = 15;
 
 // Misc bonuses and maluses
 const int PawnDoubled  = S(-11,-48);
+const int PawnDoubled2 = S(-10,-25);
 const int PawnIsolated = S( -8,-16);
 const int PawnSupport  = S( 22, 17);
 const int PawnThreat   = S( 80, 34);
@@ -148,10 +149,15 @@ INLINE int EvalPawns(const Position *pos, EvalInfo *ei, const Color color) {
     Bitboard pawns = colorPieceBB(color, PAWN);
     Bitboard pawnAttacks = PawnBBAttackBB(pawns, color);
 
-    // Doubled pawns (only when one is blocking the other from moving)
+    // Doubled pawns (one directly in front of the other)
     count = PopCount(pawns & ShiftBB(pawns, NORTH));
     eval += PawnDoubled * count;
     TraceCount(PawnDoubled);
+
+    // Doubled pawns (one square between them)
+    count = PopCount(pawns & ShiftBB(pawns, 2 * NORTH));
+    eval += PawnDoubled2 * count;
+    TraceCount(PawnDoubled2);
 
     // Pawns defending pawns
     count = PopCount(pawns & PawnBBAttackBB(pawns, !color));

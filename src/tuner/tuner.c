@@ -43,6 +43,7 @@ extern const int PieceSqValue[6][64];
 
 // Misc
 extern const int PawnDoubled;
+extern const int PawnDoubled2;
 extern const int PawnIsolated;
 extern const int PawnSupport;
 extern const int PawnThreat;
@@ -167,6 +168,7 @@ void InitBaseParams(TVector tparams) {
 
     // Misc
     InitBaseSingle(PawnDoubled);
+    InitBaseSingle(PawnDoubled2);
     InitBaseSingle(PawnIsolated);
     InitBaseSingle(PawnSupport);
     InitBaseSingle(PawnThreat);
@@ -236,6 +238,7 @@ void PrintParameters(TVector updates, TVector base) {
 
     puts("\n// Misc bonuses and maluses");
     PrintSingle(PawnDoubled, " ");
+    PrintSingle(PawnDoubled2, "");
     PrintSingle(PawnIsolated, "");
     PrintSingle(PawnSupport, " ");
     PrintSingle(PawnThreat, "  ");
@@ -300,6 +303,7 @@ void InitCoefficients(TCoeffs coeffs) {
 
     // Misc
     InitCoeffSingle(PawnDoubled);
+    InitCoeffSingle(PawnDoubled2);
     InitCoeffSingle(PawnIsolated);
     InitCoeffSingle(PawnSupport);
     InitCoeffSingle(PawnThreat);
