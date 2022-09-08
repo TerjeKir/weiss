@@ -517,9 +517,9 @@ skip_search:
 
     // Checkmate or stalemate
     if (!moveCount)
-        return ss->excluded ? alpha
-             : inCheck      ? -MATE + ss->ply
-                            : 0;
+        bestScore =  ss->excluded ? alpha
+                   : inCheck      ? -MATE + ss->ply
+                                  : 0;
 
     // Make sure score isn't above the max score given by TBs
     bestScore = MIN(bestScore, maxScore);
