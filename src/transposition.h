@@ -30,6 +30,8 @@
 #define MAXHASH 65536
 #define DEFAULTHASH 32
 
+#define BUCKETSIZE 2
+
 #define ValidBound(bound) (bound >= BOUND_UPPER && bound <= BOUND_EXACT)
 #define ValidScore(score) (score >= -MATE && score <= MATE)
 
@@ -45,8 +47,12 @@ typedef struct {
 } TTEntry;
 
 typedef struct {
+    TTEntry entries[2];
+} TTBucket;
+
+typedef struct {
     void *mem;
-    TTEntry *table;
+    TTBucket *table;
     uint64_t count;
     uint64_t currentMB;
     uint64_t requestedMB;
@@ -71,7 +77,7 @@ INLINE int ScoreFromTT (const int score, const uint8_t ply) {
                                   : score;
 }
 
-INLINE TTEntry *GetEntry(Key key) {
+INLINE TTBucket *GetTTBucket(Key key) {
     // https://lemire.me/blog/2016/06/27/a-fast-alternative-to-the-modulo-reduction/
     return &TT.table[((uint32_t)key * (uint64_t)TT.count) >> 32];
 }

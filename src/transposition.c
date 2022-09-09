@@ -35,11 +35,18 @@ TranspositionTable TT = { .requestedMB = DEFAULTHASH };
 // Probe the transposition table
 TTEntry* ProbeTT(const Key key, bool *ttHit) {
 
-    TTEntry* tte = GetEntry(key);
+    TTEntry* tte = GetTTBucket(key)->entries;
 
-    *ttHit = tte->key == key;
+    for (int i = 0; i < BUCKETSIZE; ++i)
+        if (tte[i].key == key)
+            return *ttHit = true, &tte[i];
 
-    return tte;
+    TTEntry *replace = tte;
+    for (int i = 1; i < BUCKETSIZE; ++i)
+        if (replace->depth > tte[i].depth)
+            replace = &tte[i];
+
+    return *ttHit = false, replace;
 }
 
 // Store an entry in the transposition table
@@ -71,7 +78,7 @@ int HashFull() {
     const int samples = 1000;
 
     for (int i = 0; i < samples; ++i)
-        if (TT.table[i].move != NOMOVE)
+        if (TT.table[i].entries[1].move != NOMOVE)
             used++;
 
     return used / (samples / 1000);
@@ -85,13 +92,13 @@ static void *ThreadClearTT(void *voidThread) {
 
     // Logic for dividing the work taken from CFish
     uint64_t twoMB  = 2 * 1024 * 1024;
-    uint64_t size   = TT.count * sizeof(TTEntry);
+    uint64_t size   = TT.count * sizeof(TTBucket);
     uint64_t slice  = (size + count - 1) / count;
     uint64_t blocks = (slice + twoMB - 1) / twoMB;
     uint64_t begin  = MIN(size, index * blocks * twoMB);
     uint64_t end    = MIN(size, begin + blocks * twoMB);
 
-    memset(TT.table + begin / sizeof(TTEntry), 0, end - begin);
+    memset(TT.table + begin / sizeof(TTBucket), 0, end - begin);
 
     return NULL;
 }
@@ -119,12 +126,12 @@ void InitTT() {
 #if defined(__linux__)
     // Align on 2MB boundaries and request Huge Pages
     TT.mem = aligned_alloc(2 * 1024 * 1024, size);
-    TT.table = (TTEntry *)TT.mem;
+    TT.table = (TTBucket *)TT.mem;
     madvise(TT.table, size, MADV_HUGEPAGE);
 #else
     // Align on cache line
     TT.mem = malloc(size + 64 - 1);
-    TT.table = (TTEntry *)(((uintptr_t)TT.mem + 64 - 1) & ~(64 - 1));
+    TT.table = (TTBucket *)(((uintptr_t)TT.mem + 64 - 1) & ~(64 - 1));
 #endif
 
     // Allocation failed
@@ -134,7 +141,7 @@ void InitTT() {
     }
 
     TT.currentMB = TT.requestedMB;
-    TT.count = size / sizeof(TTEntry);
+    TT.count = size / sizeof(TTBucket);
 
     // Zero out the memory
     TT.dirty = true;

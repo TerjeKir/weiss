@@ -381,7 +381,7 @@ move_loop:
                 continue;
         }
 
-        __builtin_prefetch(GetEntry(KeyAfter(pos, move)));
+        __builtin_prefetch(GetTTBucket(KeyAfter(pos, move)));
 
         // Make the move, skipping to the next if illegal
         if (!MakeMove(pos, move)) continue;
