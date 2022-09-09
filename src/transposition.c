@@ -38,12 +38,15 @@ TTEntry* ProbeTT(const Key key, bool *ttHit) {
     TTEntry* tte = GetTTBucket(key)->entries;
 
     for (int i = 0; i < BUCKETSIZE; ++i)
-        if (tte[i].key == key)
+        if (tte[i].key == key) {
+            tte[i].bound = TT.age | (tte[i].bound & 0x3);
             return *ttHit = true, &tte[i];
+        }
 
     TTEntry *replace = tte;
     for (int i = 1; i < BUCKETSIZE; ++i)
-        if (replace->depth > tte[i].depth)
+        if (  replace->depth - ((GENERATION_CYCLE + TT.age - replace->bound) & GENERATION_MASK)
+            >   tte[i].depth - ((GENERATION_CYCLE + TT.age -   tte[i].bound) & GENERATION_MASK))
             replace = &tte[i];
 
     return *ttHit = false, replace;
@@ -68,7 +71,7 @@ void StoreTTEntry(TTEntry *tte, const Key key,
         tte->key   = key,
         tte->score = score,
         tte->depth = depth,
-        tte->bound = bound;
+        tte->bound = bound | TT.age;
 }
 
 // Estimates the load factor of the transposition table (1 = 0.1%)

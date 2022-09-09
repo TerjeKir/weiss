@@ -32,6 +32,11 @@
 
 #define BUCKETSIZE 2
 
+static const unsigned GENERATION_BITS  = 3;                                // nb of bits reserved for other things
+static const int      GENERATION_DELTA = (1 << GENERATION_BITS);           // increment for generation field
+static const int      GENERATION_CYCLE = 255 + (1 << GENERATION_BITS);     // cycle length
+static const int      GENERATION_MASK  = (0xFF << GENERATION_BITS) & 0xFF; // mask to pull out generation number
+
 #define ValidBound(bound) (bound >= BOUND_UPPER && bound <= BOUND_EXACT)
 #define ValidScore(score) (score >= -MATE && score <= MATE)
 
@@ -56,6 +61,7 @@ typedef struct {
     uint64_t count;
     uint64_t currentMB;
     uint64_t requestedMB;
+    uint8_t age;
     bool dirty;
 } TranspositionTable;
 

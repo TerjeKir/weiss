@@ -198,7 +198,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
     Move ttMove = ttHit ? tte->move : NOMOVE;
     int ttScore = ttHit ? ScoreFromTT(tte->score, ss->ply) : NOSCORE;
     Depth ttDepth = tte->depth;
-    int ttBound = tte->bound;
+    int ttBound = tte->bound & 0x3;
 
     if (ttMove && !MoveIsPseudoLegal(pos, ttMove))
         ttHit = false, ttMove = NOMOVE, ttScore = NOSCORE;
