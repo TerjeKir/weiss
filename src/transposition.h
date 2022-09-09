@@ -93,6 +93,10 @@ INLINE void RequestTTSize(int megabytes) {
     puts("info string Hash will resize after next 'isready'.");
 }
 
+INLINE void AgeTT() {
+    TT.age += GENERATION_DELTA;
+}
+
 TTEntry* ProbeTT(Key key, bool *ttHit);
 void StoreTTEntry(TTEntry *tte, Key key, Move move, int score, Depth depth, int bound);
 int HashFull();
