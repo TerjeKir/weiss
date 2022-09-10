@@ -32,23 +32,28 @@
 
 #define BUCKETSIZE 2
 
-static const unsigned GENERATION_BITS  = 3;                                // nb of bits reserved for other things
-static const int      GENERATION_DELTA = (1 << GENERATION_BITS);           // increment for generation field
-static const int      GENERATION_CYCLE = 255 + (1 << GENERATION_BITS);     // cycle length
-static const int      GENERATION_MASK  = (0xFF << GENERATION_BITS) & 0xFF; // mask to pull out generation number
-
 #define ValidBound(bound) (bound >= BOUND_UPPER && bound <= BOUND_EXACT)
 #define ValidScore(score) (score >= -MATE && score <= MATE)
 
 
 enum { BOUND_NONE, BOUND_UPPER, BOUND_LOWER, BOUND_EXACT };
 
+// Constants used for operating on the combined bound + age field
+enum {
+    TT_BOUND_BITS = 2,                              // Number of bits representing bound
+    TT_BOUND_MASK = (1 << TT_BOUND_BITS) - 1,       // Mask to pull out bound
+    TT_AGE_OFFSET = TT_BOUND_BITS,                  // Number of bits reserved for other things
+    TT_AGE_DELTA  = 1 << TT_AGE_OFFSET,             // Increment for age each turn
+    TT_AGE_CYCLE  = 255 + (1 << TT_AGE_OFFSET),     // Cycle length
+    TT_AGE_MASK   = (0xFF << TT_AGE_OFFSET) & 0xFF, // Mask to pull out generation number
+};
+
 typedef struct {
     Key key;
     Move move;
     int16_t score;
     uint8_t depth;
-    uint8_t bound;
+    uint8_t ageBound;
 } TTEntry;
 
 typedef struct {
@@ -94,7 +99,7 @@ INLINE void RequestTTSize(int megabytes) {
 }
 
 INLINE void AgeTT() {
-    TT.age += GENERATION_DELTA;
+    TT.age += TT_AGE_DELTA;
 }
 
 TTEntry* ProbeTT(Key key, bool *ttHit);
