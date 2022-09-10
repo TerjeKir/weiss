@@ -66,7 +66,6 @@ static void ParseTimeControl(const char *str, const Position *pos) {
 INLINE void Go(Position *pos, char *str) {
     ABORT_SIGNAL = false;
     InitTT();
-    TT.dirty = true;
     ParseTimeControl(str, pos);
     StartMainThread(SearchPosition, pos);
 }

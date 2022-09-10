@@ -661,7 +661,7 @@ void *SearchPosition(void *pos) {
     SEARCH_STOPPED = false;
 
     InitTimeManagement();
-    AgeTT();
+    TTNewSearch();
     PrepareSearch(pos, Limits.searchmoves);
     bool threadsSpawned = false;
 

@@ -108,8 +108,9 @@ INLINE void RequestTTSize(int megabytes) {
     puts("info string Hash will resize after next 'isready'.");
 }
 
-INLINE void AgeTT() {
+INLINE void TTNewSearch() {
     TT.generation += TT_GEN_DELTA;
+    TT.dirty = true;
 }
 
 TTEntry* ProbeTT(Key key, bool *ttHit);
