@@ -38,14 +38,14 @@
 
 enum { BOUND_NONE, BOUND_UPPER, BOUND_LOWER, BOUND_EXACT };
 
-// Constants used for operating on the combined bound + age field
+// Constants used for operating on the combined bound + generation field
 enum {
     TT_BOUND_BITS = 2,                              // Number of bits representing bound
     TT_BOUND_MASK = (1 << TT_BOUND_BITS) - 1,       // Mask to pull out bound
-    TT_AGE_OFFSET = TT_BOUND_BITS,                  // Number of bits reserved for other things
-    TT_AGE_DELTA  = 1 << TT_AGE_OFFSET,             // Increment for age each turn
-    TT_AGE_CYCLE  = 255 + (1 << TT_AGE_OFFSET),     // Cycle length
-    TT_AGE_MASK   = (0xFF << TT_AGE_OFFSET) & 0xFF, // Mask to pull out generation number
+    TT_GEN_OFFSET = TT_BOUND_BITS + 1,                  // Number of bits reserved for other things
+    TT_GEN_DELTA  = 1 << TT_GEN_OFFSET,             // Increment for generation each turn
+    TT_GEN_CYCLE  = 255 + (1 << TT_GEN_OFFSET),     // Cycle length
+    TT_GEN_MASK   = (0xFF << TT_GEN_OFFSET) & 0xFF, // Mask to pull out generation number
 };
 
 typedef struct {
@@ -53,7 +53,7 @@ typedef struct {
     Move move;
     int16_t score;
     uint8_t depth;
-    uint8_t ageBound;
+    uint8_t genBound;
 } TTEntry;
 
 typedef struct {
@@ -66,13 +66,19 @@ typedef struct {
     uint64_t count;
     uint64_t currentMB;
     uint64_t requestedMB;
-    uint8_t age;
+    uint8_t generation;
     bool dirty;
 } TranspositionTable;
 
 
 extern TranspositionTable TT;
 
+
+INLINE uint8_t      Bound(TTEntry *entry) { return entry->genBound & TT_BOUND_MASK; }
+INLINE uint8_t Generation(TTEntry *entry) { return entry->genBound & TT_GEN_MASK; }
+INLINE uint8_t        Age(TTEntry *entry) { return (TT_GEN_CYCLE + TT.generation - entry->genBound) & TT_GEN_MASK; }
+
+INLINE uint8_t EntryValue(TTEntry *entry) { return entry->depth - Age(entry); }
 
 // Mate scores are stored as mate in 0 as they depend on the current ply
 INLINE int ScoreToTT (const int score, const uint8_t ply) {
@@ -99,7 +105,7 @@ INLINE void RequestTTSize(int megabytes) {
 }
 
 INLINE void AgeTT() {
-    TT.age += TT_AGE_DELTA;
+    TT.generation += TT_GEN_DELTA;
 }
 
 TTEntry* ProbeTT(Key key, bool *ttHit);

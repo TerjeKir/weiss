@@ -39,14 +39,13 @@ TTEntry* ProbeTT(const Key key, bool *ttHit) {
 
     for (int i = 0; i < BUCKETSIZE; ++i)
         if (tte[i].key == key) {
-            tte[i].ageBound = TT.age | (tte[i].ageBound & TT_BOUND_MASK);
+            tte[i].genBound = TT.generation | Bound(&tte[i]);
             return *ttHit = true, &tte[i];
         }
 
     TTEntry *replace = tte;
     for (int i = 1; i < BUCKETSIZE; ++i)
-        if (  replace->depth - ((TT_AGE_CYCLE + TT.age - replace->ageBound) & TT_AGE_MASK)
-            >   tte[i].depth - ((TT_AGE_CYCLE + TT.age -   tte[i].ageBound) & TT_AGE_MASK))
+        if (EntryValue(replace) > EntryValue(&tte[i]))
             replace = &tte[i];
 
     return *ttHit = false, replace;
@@ -71,7 +70,7 @@ void StoreTTEntry(TTEntry *tte, const Key key,
         tte->key   = key,
         tte->score = score,
         tte->depth = depth,
-        tte->ageBound = TT.age | bound;
+        tte->genBound = TT.generation | bound;
 }
 
 // Estimates the load factor of the transposition table (1 = 0.1%)
@@ -81,8 +80,8 @@ int HashFull() {
 
     for (TTBucket *bucket = TT.table; bucket < TT.table + 1000; ++bucket)
         for (TTEntry *entry = bucket->entries; entry < bucket->entries + BUCKETSIZE; ++entry)
-            used += (   (entry->ageBound & TT_BOUND_MASK) != 0
-                     && (entry->ageBound & TT_AGE_MASK) == TT.age);
+            used += (        Bound(entry) != 0
+                     && Generation(entry) == TT.generation);
 
     return used / BUCKETSIZE;
 }
