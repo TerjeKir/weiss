@@ -42,7 +42,7 @@ enum { BOUND_NONE, BOUND_UPPER, BOUND_LOWER, BOUND_EXACT };
 enum {
     TT_BOUND_BITS = 2,                              // Number of bits representing bound
     TT_BOUND_MASK = (1 << TT_BOUND_BITS) - 1,       // Mask to pull out bound
-    TT_GEN_OFFSET = TT_BOUND_BITS + 1,                  // Number of bits reserved for other things
+    TT_GEN_OFFSET = TT_BOUND_BITS + 1,              // Number of bits reserved for other things
     TT_GEN_DELTA  = 1 << TT_GEN_OFFSET,             // Increment for generation each turn
     TT_GEN_CYCLE  = 255 + (1 << TT_GEN_OFFSET),     // Cycle length
     TT_GEN_MASK   = (0xFF << TT_GEN_OFFSET) & 0xFF, // Mask to pull out generation number
