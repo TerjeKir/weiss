@@ -78,14 +78,14 @@ INLINE uint8_t        Age(TTEntry *entry) { return (TT_GEN_CYCLE + TT.generation
 
 INLINE int EntryValue(TTEntry *entry) { return entry->depth - Age(entry); }
 
-// Store as distance from the current position to mate/TB
+// Store terminal scores as distance from the current position to mate/TB
 INLINE int ScoreToTT (const int score, const uint8_t ply) {
     return score >=  TBWIN_IN_MAX ? score + ply
          : score <= -TBWIN_IN_MAX ? score - ply
                                   : score;
 }
 
-// Add the distance from root to get the total distance to mate/TB
+// Add the distance from root to terminal scores get the total distance to mate/TB
 INLINE int ScoreFromTT (const int score, const uint8_t ply) {
     return score >=  TBWIN_IN_MAX ? score - ply
          : score <= -TBWIN_IN_MAX ? score + ply
