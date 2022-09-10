@@ -18,19 +18,17 @@
 
 #pragma once
 
+#include <math.h>
+
 #include "threads.h"
 #include "types.h"
 
 
-// 2MB hash is a reasonable expectation.
-#define MINHASH 2
-// 65536MB = 2^32 * 16B / (1024 * 1024)
-// is the limit current indexing is able
-// to use given the 16B size of entries
-#define MAXHASH 65536
-#define DEFAULTHASH 32
+#define HASH_MIN 2
+#define HASH_MAX ((int)(pow(2, 32) * sizeof(TTBucket) / (1024 * 1024)))
+#define HASH_DEFAULT 32
 
-#define BUCKETSIZE 2
+#define BUCKET_SIZE 2
 
 #define ValidBound(bound) (bound >= BOUND_UPPER && bound <= BOUND_EXACT)
 #define ValidScore(score) (score >= -MATE && score <= MATE)
@@ -80,14 +78,14 @@ INLINE uint8_t        Age(TTEntry *entry) { return (TT_GEN_CYCLE + TT.generation
 
 INLINE int EntryValue(TTEntry *entry) { return entry->depth - Age(entry); }
 
-// Mate scores are stored as mate in 0 as they depend on the current ply
+// Store as distance from the current position to mate/TB
 INLINE int ScoreToTT (const int score, const uint8_t ply) {
     return score >=  TBWIN_IN_MAX ? score + ply
          : score <= -TBWIN_IN_MAX ? score - ply
                                   : score;
 }
 
-// Translates from mate in 0 to the proper mate score at current ply
+// Add the distance from root to get the total distance to mate/TB
 INLINE int ScoreFromTT (const int score, const uint8_t ply) {
     return score >=  TBWIN_IN_MAX ? score - ply
          : score <= -TBWIN_IN_MAX ? score + ply
