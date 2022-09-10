@@ -78,7 +78,7 @@ INLINE uint8_t      Bound(TTEntry *entry) { return entry->genBound & TT_BOUND_MA
 INLINE uint8_t Generation(TTEntry *entry) { return entry->genBound & TT_GEN_MASK; }
 INLINE uint8_t        Age(TTEntry *entry) { return (TT_GEN_CYCLE + TT.generation - entry->genBound) & TT_GEN_MASK; }
 
-INLINE uint8_t EntryValue(TTEntry *entry) { return entry->depth - Age(entry); }
+INLINE int EntryValue(TTEntry *entry) { return entry->depth - Age(entry); }
 
 // Mate scores are stored as mate in 0 as they depend on the current ply
 INLINE int ScoreToTT (const int score, const uint8_t ply) {
