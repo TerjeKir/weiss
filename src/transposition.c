@@ -29,7 +29,7 @@
 #include "transposition.h"
 
 
-TranspositionTable TT = { .requestedMB = DEFAULTHASH };
+TranspositionTable TT = { .requestedMB = HASH_DEFAULT };
 
 
 // Probe the transposition table
@@ -37,14 +37,14 @@ TTEntry* ProbeTT(const Key key, bool *ttHit) {
 
     TTEntry* first = GetTTBucket(key)->entries;
 
-    for (TTEntry *entry = first; entry < first + BUCKETSIZE; ++entry)
+    for (TTEntry *entry = first; entry < first + BUCKET_SIZE; ++entry)
         if (entry->key == key || !Bound(entry)) {
             entry->genBound = TT.generation | Bound(entry);
             return *ttHit = Bound(entry), entry;
         }
 
     TTEntry *replace = first;
-    for (TTEntry *entry = first + 1; entry < first + BUCKETSIZE; ++entry)
+    for (TTEntry *entry = first + 1; entry < first + BUCKET_SIZE; ++entry)
         if (EntryValue(replace) > EntryValue(entry))
             replace = entry;
 
@@ -79,11 +79,11 @@ int HashFull() {
     int used = 0;
 
     for (TTBucket *bucket = TT.table; bucket < TT.table + 1000; ++bucket)
-        for (TTEntry *entry = bucket->entries; entry < bucket->entries + BUCKETSIZE; ++entry)
+        for (TTEntry *entry = bucket->entries; entry < bucket->entries + BUCKET_SIZE; ++entry)
             used += (        Bound(entry) != 0
                      && Generation(entry) == TT.generation);
 
-    return used / BUCKETSIZE;
+    return used / BUCKET_SIZE;
 }
 
 static void *ThreadClearTT(void *voidThread) {
@@ -123,16 +123,16 @@ void InitTT() {
     if (TT.mem)
         free(TT.mem);
 
-    uint64_t size = TT.requestedMB * 1024 * 1024;
+    uint64_t bytes = TT.requestedMB * 1024 * 1024;
 
 #if defined(__linux__)
     // Align on 2MB boundaries and request Huge Pages
-    TT.mem = aligned_alloc(2 * 1024 * 1024, size);
+    TT.mem = aligned_alloc(2 * 1024 * 1024, bytes);
     TT.table = (TTBucket *)TT.mem;
-    madvise(TT.table, size, MADV_HUGEPAGE);
+    madvise(TT.table, bytes, MADV_HUGEPAGE);
 #else
     // Align on cache line
-    TT.mem = malloc(size + 64 - 1);
+    TT.mem = malloc(bytes + 64 - 1);
     TT.table = (TTBucket *)(((uintptr_t)TT.mem + 64 - 1) & ~(64 - 1));
 #endif
 
@@ -143,7 +143,7 @@ void InitTT() {
     }
 
     TT.currentMB = TT.requestedMB;
-    TT.count = size / sizeof(TTBucket);
+    TT.count = bytes / sizeof(TTBucket);
 
     // Zero out the memory
     TT.dirty = true;

@@ -127,7 +127,7 @@ static void SetOption(char *str) {
 static void Info() {
     printf("id name %s\n", NAME);
     printf("id author Terje Kirstihagen\n");
-    printf("option name Hash type spin default %d min %d max %d\n", DEFAULTHASH, MINHASH, MAXHASH);
+    printf("option name Hash type spin default %d min %d max %d\n", HASH_DEFAULT, HASH_MIN, HASH_MAX);
     printf("option name Threads type spin default %d min %d max %d\n", 1, 1, 2048);
     printf("option name SyzygyPath type string default <empty>\n");
     printf("option name MultiPV type spin default 1 min 1 max %d\n", MULTI_PV_MAX);

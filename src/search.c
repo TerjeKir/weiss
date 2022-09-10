@@ -105,12 +105,13 @@ moveloop:
     Move move;
     while ((move = NextMove(&mp))) {
 
+        if (bestScore <= -TBWIN_IN_MAX) goto search;
+
         // Skip moves SEE deem bad
-        if (bestScore > -TBWIN_IN_MAX && mp.stage > NOISY_GOOD) break;
+        if (mp.stage > NOISY_GOOD) break;
 
         // Futility pruning
-        if (    bestScore > -TBWIN_IN_MAX
-            &&  futility + PieceValue[EG][capturing(move)] <= alpha
+        if (    futility + PieceValue[EG][capturing(move)] <= alpha
             && !(   PieceTypeOf(piece(move)) == PAWN
                  && RelativeRank(sideToMove, RankOf(toSq(move))) > 5)) {
             bestScore = MAX(bestScore, futility + PieceValue[EG][capturing(move)]);
@@ -118,12 +119,13 @@ moveloop:
         }
 
         // SEE pruning
-        if (    bestScore > -TBWIN_IN_MAX
-            &&  futility <= alpha
+        if (    futility <= alpha
             && !SEE(pos, move, 1)) {
             bestScore = MAX(bestScore, futility);
             continue;
         }
+
+search:
 
         ss->continuation = &thread->continuation[piece(move)][toSq(move)];
 
@@ -298,13 +300,13 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
             return score >= TBWIN_IN_MAX ? beta : score;
     }
 
-    int pbThreshold = beta + 200;
+    int probCutBeta = beta + 200;
 
     // ProbCut
     if (   depth >= 5
         && !(   ttHit
              && ttBound & BOUND_UPPER
-             && ttScore < pbThreshold)) {
+             && ttScore < probCutBeta)) {
 
         InitNoisyMP(&mp, thread, ss);
 
@@ -318,17 +320,17 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
             ss->continuation = &thread->continuation[piece(move)][toSq(move)];
 
             // See if a quiescence search beats the threshold
-            int pbScore = -Quiescence(thread, ss+1, -pbThreshold, -pbThreshold+1);
+            int score = -Quiescence(thread, ss+1, -probCutBeta, -probCutBeta+1);
 
             // If it did, do a proper search with reduced depth
-            if (pbScore >= pbThreshold)
-                pbScore = -AlphaBeta(thread, ss+1, -pbThreshold, -pbThreshold+1, depth-4);
+            if (score >= probCutBeta)
+                score = -AlphaBeta(thread, ss+1, -probCutBeta, -probCutBeta+1, depth-4);
 
             TakeMove(pos);
 
             // Cut if the reduced depth search beats the threshold
-            if (pbScore >= pbThreshold)
-                return pbScore;
+            if (score >= probCutBeta)
+                return score;
         }
     }
 
@@ -339,7 +341,6 @@ move_loop:
     Move quiets[32] = { 0 };
     Move noisys[32] = { 0 };
     Move bestMove = NOMOVE;
-    const int oldAlpha = alpha;
     int moveCount = 0, quietCount = 0, noisyCount = 0;
     int score = -INFINITE;
 
@@ -403,16 +404,16 @@ move_loop:
             TakeMove(pos);
 
             // Search to reduced depth with a zero window a bit lower than ttScore
-            int threshold = ttScore - depth * 2;
+            int singularBeta = ttScore - depth * 2;
             ss->excluded = move;
-            score = AlphaBeta(thread, ss, threshold-1, threshold, depth/2);
+            score = AlphaBeta(thread, ss, singularBeta-1, singularBeta, depth/2);
             ss->excluded = NOMOVE;
 
             // Extend as this move seems forced
-            if (score < threshold)
+            if (score < singularBeta)
                 extension = 1;
-            else if (threshold >= beta)
-                return threshold;
+            else if (singularBeta >= beta)
+                return singularBeta;
 
             // Replay ttMove
             MakeMove(pos, move);
@@ -525,11 +526,11 @@ skip_search:
     bestScore = MIN(bestScore, maxScore);
 
     // Store in TT
-    const int flag = bestScore >= beta ? BOUND_LOWER
-                   : alpha != oldAlpha ? BOUND_EXACT
-                                       : BOUND_UPPER;
     if (!ss->excluded && (!root || !thread->multiPV))
-        StoreTTEntry(tte, key, bestMove, ScoreToTT(bestScore, ss->ply), depth, flag);
+        StoreTTEntry(tte, key, bestMove, ScoreToTT(bestScore, ss->ply), depth,
+                       bestScore >= beta  ? BOUND_LOWER
+                     : pvNode && bestMove ? BOUND_EXACT
+                                          : BOUND_UPPER);
 
     return bestScore;
 }
