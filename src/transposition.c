@@ -38,9 +38,9 @@ TTEntry* ProbeTT(const Key key, bool *ttHit) {
     TTEntry* first = GetTTBucket(key)->entries;
 
     for (TTEntry *entry = first; entry < first + BUCKETSIZE; ++entry)
-        if (entry->key == key) {
+        if (entry->key == key || !Bound(entry)) {
             entry->genBound = TT.generation | Bound(entry);
-            return *ttHit = true, entry;
+            return *ttHit = Bound(entry), entry;
         }
 
     TTEntry *replace = first;
