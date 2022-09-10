@@ -35,18 +35,18 @@ TranspositionTable TT = { .requestedMB = DEFAULTHASH };
 // Probe the transposition table
 TTEntry* ProbeTT(const Key key, bool *ttHit) {
 
-    TTEntry* tte = GetTTBucket(key)->entries;
+    TTEntry* first = GetTTBucket(key)->entries;
 
-    for (int i = 0; i < BUCKETSIZE; ++i)
-        if (tte[i].key == key) {
-            tte[i].genBound = TT.generation | Bound(&tte[i]);
-            return *ttHit = true, &tte[i];
+    for (TTEntry *entry = first; entry < first + BUCKETSIZE; ++entry)
+        if (entry->key == key) {
+            entry->genBound = TT.generation | Bound(entry);
+            return *ttHit = true, entry;
         }
 
-    TTEntry *replace = tte;
-    for (int i = 1; i < BUCKETSIZE; ++i)
-        if (EntryValue(replace) > EntryValue(&tte[i]))
-            replace = &tte[i];
+    TTEntry *replace = first;
+    for (TTEntry *entry = first + 1; entry < first + BUCKETSIZE; ++entry)
+        if (EntryValue(replace) > EntryValue(entry))
+            replace = entry;
 
     return *ttHit = false, replace;
 }
