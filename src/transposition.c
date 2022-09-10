@@ -35,11 +35,20 @@ TranspositionTable TT = { .requestedMB = DEFAULTHASH };
 // Probe the transposition table
 TTEntry* ProbeTT(const Key key, bool *ttHit) {
 
-    TTEntry* tte = GetEntry(key);
+    TTEntry* first = GetTTBucket(key)->entries;
 
-    *ttHit = tte->key == key;
+    for (TTEntry *entry = first; entry < first + BUCKETSIZE; ++entry)
+        if (entry->key == key || !Bound(entry)) {
+            entry->genBound = TT.generation | Bound(entry);
+            return *ttHit = Bound(entry), entry;
+        }
 
-    return tte;
+    TTEntry *replace = first;
+    for (TTEntry *entry = first + 1; entry < first + BUCKETSIZE; ++entry)
+        if (EntryValue(replace) > EntryValue(entry))
+            replace = entry;
+
+    return *ttHit = false, replace;
 }
 
 // Store an entry in the transposition table
@@ -61,20 +70,20 @@ void StoreTTEntry(TTEntry *tte, const Key key,
         tte->key   = key,
         tte->score = score,
         tte->depth = depth,
-        tte->bound = bound;
+        tte->genBound = TT.generation | bound;
 }
 
 // Estimates the load factor of the transposition table (1 = 0.1%)
 int HashFull() {
 
     int used = 0;
-    const int samples = 1000;
 
-    for (int i = 0; i < samples; ++i)
-        if (TT.table[i].move != NOMOVE)
-            used++;
+    for (TTBucket *bucket = TT.table; bucket < TT.table + 1000; ++bucket)
+        for (TTEntry *entry = bucket->entries; entry < bucket->entries + BUCKETSIZE; ++entry)
+            used += (        Bound(entry) != 0
+                     && Generation(entry) == TT.generation);
 
-    return used / (samples / 1000);
+    return used / BUCKETSIZE;
 }
 
 static void *ThreadClearTT(void *voidThread) {
@@ -85,13 +94,13 @@ static void *ThreadClearTT(void *voidThread) {
 
     // Logic for dividing the work taken from CFish
     uint64_t twoMB  = 2 * 1024 * 1024;
-    uint64_t size   = TT.count * sizeof(TTEntry);
+    uint64_t size   = TT.count * sizeof(TTBucket);
     uint64_t slice  = (size + count - 1) / count;
     uint64_t blocks = (slice + twoMB - 1) / twoMB;
     uint64_t begin  = MIN(size, index * blocks * twoMB);
     uint64_t end    = MIN(size, begin + blocks * twoMB);
 
-    memset(TT.table + begin / sizeof(TTEntry), 0, end - begin);
+    memset(TT.table + begin / sizeof(TTBucket), 0, end - begin);
 
     return NULL;
 }
@@ -119,12 +128,12 @@ void InitTT() {
 #if defined(__linux__)
     // Align on 2MB boundaries and request Huge Pages
     TT.mem = aligned_alloc(2 * 1024 * 1024, size);
-    TT.table = (TTEntry *)TT.mem;
+    TT.table = (TTBucket *)TT.mem;
     madvise(TT.table, size, MADV_HUGEPAGE);
 #else
     // Align on cache line
     TT.mem = malloc(size + 64 - 1);
-    TT.table = (TTEntry *)(((uintptr_t)TT.mem + 64 - 1) & ~(64 - 1));
+    TT.table = (TTBucket *)(((uintptr_t)TT.mem + 64 - 1) & ~(64 - 1));
 #endif
 
     // Allocation failed
@@ -134,7 +143,7 @@ void InitTT() {
     }
 
     TT.currentMB = TT.requestedMB;
-    TT.count = size / sizeof(TTEntry);
+    TT.count = size / sizeof(TTBucket);
 
     // Zero out the memory
     TT.dirty = true;

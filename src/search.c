@@ -198,7 +198,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
     Move ttMove = ttHit ? tte->move : NOMOVE;
     int ttScore = ttHit ? ScoreFromTT(tte->score, ss->ply) : NOSCORE;
     Depth ttDepth = tte->depth;
-    int ttBound = tte->bound;
+    int ttBound = Bound(tte);
 
     if (ttMove && !MoveIsPseudoLegal(pos, ttMove))
         ttHit = false, ttMove = NOMOVE, ttScore = NOSCORE;
@@ -381,7 +381,7 @@ move_loop:
                 continue;
         }
 
-        __builtin_prefetch(GetEntry(KeyAfter(pos, move)));
+        TTPrefetch(KeyAfter(pos, move));
 
         // Make the move, skipping to the next if illegal
         if (!MakeMove(pos, move)) continue;
@@ -661,6 +661,7 @@ void *SearchPosition(void *pos) {
     SEARCH_STOPPED = false;
 
     InitTimeManagement();
+    TTNewSearch();
     PrepareSearch(pos, Limits.searchmoves);
     bool threadsSpawned = false;
 
