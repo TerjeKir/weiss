@@ -99,6 +99,10 @@ INLINE TTBucket *GetTTBucket(Key key) {
     return &TT.table[((uint32_t)key * (uint64_t)TT.count) >> 32];
 }
 
+INLINE void TTPrefetch(Key key) {
+    __builtin_prefetch(GetTTBucket(key));
+}
+
 INLINE void RequestTTSize(int megabytes) {
     TT.requestedMB = megabytes;
     puts("info string Hash will resize after next 'isready'.");
