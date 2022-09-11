@@ -194,7 +194,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
 
     // Probe transposition table
     bool ttHit;
-    Key key = pos->key ^ (((Key)ss->excluded) << 32);
+    Key key = pos->key;
     TTEntry *tte = ProbeTT(key, &ttHit);
 
     Move ttMove = ttHit ? tte->move : NOMOVE;
@@ -202,7 +202,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
     Depth ttDepth = tte->depth;
     int ttBound = Bound(tte);
 
-    if (ttMove && !MoveIsPseudoLegal(pos, ttMove))
+    if (ttMove && (!MoveIsPseudoLegal(pos, ttMove) || ttMove == ss->excluded))
         ttHit = false, ttMove = NOMOVE, ttScore = NOSCORE;
 
     // Trust TT if not a pvnode and the entry depth is sufficiently high
