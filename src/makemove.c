@@ -62,6 +62,8 @@ static void ClearPiece(Position *pos, const Square sq, const bool hash) {
     pieceBB(ALL)   ^= BB(sq);
     pieceBB(pt)    ^= BB(sq);
     colorBB(color) ^= BB(sq);
+
+    pos->materialKey ^= PieceKeys[piece][PieceCount(pos, piece)];
 }
 
 // Add a piece piece to a square
@@ -73,6 +75,8 @@ static void AddPiece(Position *pos, const Square sq, const Piece piece, const bo
     // Hash in piece at square
     if (hash)
         HASH_PCE(piece, sq);
+
+    pos->materialKey ^= PieceKeys[piece][PieceCount(pos, piece)];
 
     if (PieceTypeOf(piece) == PAWN)
         pos->pawnKey ^= PieceKeys[piece][sq];
@@ -178,6 +182,7 @@ done:
 
     // Get various info from history
     pos->key            = history(0).key;
+    pos->materialKey    = history(0).materialKey;
     pos->checkers       = history(0).checkers;
     pos->epSquare       = history(0).epSquare;
     pos->rule50         = history(0).rule50;
@@ -191,6 +196,7 @@ bool MakeMove(Position *pos, const Move move) {
 
     // Save position
     history(0).key            = pos->key;
+    history(0).materialKey    = pos->materialKey;
     history(0).checkers       = pos->checkers;
     history(0).move           = move;
     history(0).epSquare       = pos->epSquare;

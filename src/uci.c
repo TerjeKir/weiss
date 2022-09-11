@@ -25,6 +25,7 @@
 #include "tuner/tuner.h"
 #include "board.h"
 #include "makemove.h"
+#include "material.h"
 #include "move.h"
 #include "search.h"
 #include "tests.h"
@@ -180,6 +181,8 @@ int main(int argc, char **argv) {
     if (argc > 1 && strstr(argv[1], "tune"))
         return Tune(), 0;
 #endif
+
+    InitEndgames();
 
     // Init engine
     InitThreads(1);
