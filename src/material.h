@@ -22,7 +22,7 @@
 #include "types.h"
 
 
-#define ENDGAME_TABLE_SIZE 8192
+#define ENDGAME_TABLE_SIZE 64
 
 
 typedef int (*SpecializedEval) (const Position *pos, Color color);
@@ -35,5 +35,9 @@ typedef struct Endgame {
 
 extern Endgame endgameTable[ENDGAME_TABLE_SIZE];
 
+
+INLINE int EndgameIndex(Key materialKey) {
+    return materialKey & (ENDGAME_TABLE_SIZE - 1);
+}
 
 void InitEndgames();

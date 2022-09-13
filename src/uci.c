@@ -172,6 +172,8 @@ static int HashInput(char *str) {
 // Sets up the engine and follows UCI protocol commands
 int main(int argc, char **argv) {
 
+    InitEndgames();
+
     // Benchmark
     if (argc > 1 && strstr(argv[1], "bench"))
         return Benchmark(argc, argv), 0;
@@ -181,8 +183,6 @@ int main(int argc, char **argv) {
     if (argc > 1 && strstr(argv[1], "tune"))
         return Tune(), 0;
 #endif
-
-    InitEndgames();
 
     // Init engine
     InitThreads(1);

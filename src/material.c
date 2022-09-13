@@ -48,14 +48,15 @@ int TrivialDraw(__attribute__((unused)) const Position *pos, __attribute__((unus
 static void AddEndgame(const char *pieces, SpecializedEval ef) {
 
     Key key = GenMaterialKey(pieces);
-    Key index = key & (ENDGAME_TABLE_SIZE - 1);
 
-    if (endgameTable[index].evalFunc != NULL) {
+    Endgame *eg = &endgameTable[EndgameIndex(key)];
+
+    if (eg->evalFunc != NULL) {
         printf("Collision in endgame table.\n");
         exit(0);
     }
 
-    endgameTable[index] = (Endgame) { key, ef };
+    *eg = (Endgame) { key, ef };
 }
 
 void InitEndgames() {
@@ -71,12 +72,8 @@ void InitEndgames() {
     // Single minor or rook vs single minor or rook
     AddEndgame("KNkn", &TrivialDraw);
     AddEndgame("KNkb", &TrivialDraw);
-    AddEndgame("KNkr", &TrivialDraw);
     AddEndgame("KBkn", &TrivialDraw);
     AddEndgame("KBkb", &TrivialDraw);
-    AddEndgame("KBkr", &TrivialDraw);
-    AddEndgame("KRkn", &TrivialDraw);
-    AddEndgame("KRkb", &TrivialDraw);
     AddEndgame("KRkr", &TrivialDraw);
 
     // 2 knights vs lone king

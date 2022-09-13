@@ -502,9 +502,10 @@ int ScaleFactor(const Position *pos, const int eval) {
 // Calculate a static evaluation of a position
 int EvalPosition(const Position *pos, PawnCache pc) {
 
-    SpecializedEval se = endgameTable[pos->materialKey & (ENDGAME_TABLE_SIZE - 1)].evalFunc;
+    Endgame *eg = &endgameTable[EndgameIndex(pos->materialKey)];
 
-    if (se != NULL) return se(pos, sideToMove);
+    if (eg->key == pos->materialKey && eg->evalFunc != NULL)
+        return eg->evalFunc(pos, sideToMove);
 
     EvalInfo ei;
     InitEvalInfo(pos, &ei, WHITE);
