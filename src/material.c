@@ -59,7 +59,7 @@ static void AddEndgame(const char *pieces, SpecializedEval ef) {
     *eg = (Endgame) { key, ef };
 }
 
-void InitEndgames() {
+CONSTR(3) InitEndgames() {
     // King vs king
     AddEndgame("Kk",  &TrivialDraw);
 

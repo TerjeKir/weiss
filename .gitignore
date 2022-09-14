@@ -3,6 +3,7 @@
 *.pgn
 
 # VS code settings
+.vscode/*
 *.json
 
 # Files used for profile guided optimization

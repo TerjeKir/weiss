@@ -85,7 +85,7 @@ const int PieceSqValue[6][64] = {
 };
 
 // Initialize the piece square tables with piece values included
-CONSTR InitPSQT() {
+CONSTR(1) InitPSQT() {
     for (PieceType pt = PAWN; pt <= KING; ++pt)
         for (Square sq = A1; sq <= H8; ++sq) {
             int value = PieceTypeValue[pt] + PieceSqValue[pt-1][sq];
