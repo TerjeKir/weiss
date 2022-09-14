@@ -80,7 +80,6 @@ extern Bitboard CastlePath[16];
 extern Square RookSquare[16];
 
 
-void InitDistance();
 void ParseFen(const char *fen, Position *pos);
 Key KeyAfter(const Position *pos, Move move);
 bool SEE(const Position *pos, const Move move, const int threshold);

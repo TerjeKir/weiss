@@ -118,27 +118,9 @@ static void InitSliderAttacks(Magic m[], Bitboard table[], const int steps[]) {
     }
 }
 
-// Initializes evaluation bit masks
-static void InitEvalMasks() {
-
-    // For each square a pawn can be on
-    for (Square sq = A2; sq <= H7; ++sq) {
-
-        IsolatedMask[sq] = AdjacentFilesBB(sq);
-
-        PassedMask[WHITE][sq] = ShiftBB(~rank1BB, NORTH * RelativeRank(WHITE, RankOf(sq)))
-                              & (FileBB[FileOf(sq)] | AdjacentFilesBB(sq));
-
-        PassedMask[BLACK][sq] = ShiftBB(~rank8BB, SOUTH * RelativeRank(BLACK, RankOf(sq)))
-                              & (FileBB[FileOf(sq)] | AdjacentFilesBB(sq));
-    }
-}
-
 // Initializes all bitboard lookups
-CONSTR InitBitMasks() {
+CONSTR(2) InitBitboards() {
 
-    InitDistance();
-    InitEvalMasks();
     InitNonSliderAttacks();
 
     const int BSteps[4] = { 7, 9, -7, -9 };
@@ -152,6 +134,17 @@ CONSTR InitBitMasks() {
             for (PieceType pt = BISHOP; pt <= ROOK; pt++)
                 if (AttackBB(pt, sq1, BB(sq2)) & BB(sq2))
                     BetweenBB[sq1][sq2] = AttackBB(pt, sq1, BB(sq2)) & AttackBB(pt, sq2, BB(sq1));
+
+    for (Square sq = A1; sq <= H8; ++sq) {
+
+        IsolatedMask[sq] = AdjacentFilesBB(sq);
+
+        PassedMask[WHITE][sq] = ShiftBB(~rank1BB, NORTH * RelativeRank(WHITE, RankOf(sq)))
+                              & (FileBB[FileOf(sq)] | AdjacentFilesBB(sq));
+
+        PassedMask[BLACK][sq] = ShiftBB(~rank8BB, SOUTH * RelativeRank(BLACK, RankOf(sq)))
+                              & (FileBB[FileOf(sq)] | AdjacentFilesBB(sq));
+    }
 }
 
 // Returns a bitboard with all attackers of a square

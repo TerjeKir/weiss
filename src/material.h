@@ -39,5 +39,3 @@ extern Endgame endgameTable[ENDGAME_TABLE_SIZE];
 INLINE int EndgameIndex(Key materialKey) {
     return materialKey & (ENDGAME_TABLE_SIZE - 1);
 }
-
-void InitEndgames();

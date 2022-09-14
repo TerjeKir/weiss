@@ -30,7 +30,7 @@
 #define CLAMP(x, low, high)  (((x) > (high)) ? (high) : (((x) < (low)) ? (low) : (x)))
 
 #define INLINE static inline __attribute__((always_inline))
-#define CONSTR static __attribute__((constructor)) void
+#define CONSTR(prio) static __attribute__((constructor (1000 + prio))) void
 
 #define lastMoveNullMove (!root && history(-1).move == NOMOVE)
 #define history(offset) (pos->gameHistory[pos->histPly + offset])
