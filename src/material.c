@@ -27,7 +27,7 @@
 Endgame endgameTable[ENDGAME_TABLE_SIZE] = { 0 };
 
 
-// Generates a material key from a string like "KRPKR"
+// Generates a material key from a string like "KRPkr"
 static Key GenMaterialKey(const char *str) {
 
     assert(strlen(str) < 8);
