@@ -21,6 +21,7 @@
 #include "tuner/tuner.h"
 #include "bitboard.h"
 #include "evaluate.h"
+#include "material.h"
 
 
 typedef struct EvalInfo {
@@ -500,6 +501,11 @@ int ScaleFactor(const Position *pos, const int eval) {
 
 // Calculate a static evaluation of a position
 int EvalPosition(const Position *pos, PawnCache pc) {
+
+    Endgame *eg = &endgameTable[EndgameIndex(pos->materialKey)];
+
+    if (eg->key == pos->materialKey && eg->evalFunc != NULL)
+        return eg->evalFunc(pos, sideToMove);
 
     EvalInfo ei;
     InitEvalInfo(pos, &ei, WHITE);

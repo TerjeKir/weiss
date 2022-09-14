@@ -23,6 +23,7 @@
 
 typedef struct {
     Key key;
+    Key materialKey;
     Bitboard checkers;
     Move move;
     Square epSquare;
@@ -52,6 +53,7 @@ typedef struct Position {
     uint16_t gameMoves;
 
     Key key;
+    Key materialKey;
     Key pawnKey;
 
     uint64_t nodes;

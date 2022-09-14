@@ -177,6 +177,10 @@ INLINE bool Single(Bitboard bb) {
     return bb && !Multiple(bb);
 }
 
+INLINE int PieceCount(const Position *pos, Piece piece) {
+    return PopCount(colorPieceBB(ColorOf(piece), PieceTypeOf(piece)));
+}
+
 // Returns the attack bitboard for the piecetype on the given square
 INLINE Bitboard AttackBB(PieceType pt, Square sq, Bitboard occupied) {
 

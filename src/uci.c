@@ -25,6 +25,7 @@
 #include "tuner/tuner.h"
 #include "board.h"
 #include "makemove.h"
+#include "material.h"
 #include "move.h"
 #include "search.h"
 #include "tests.h"
@@ -170,6 +171,8 @@ static int HashInput(char *str) {
 
 // Sets up the engine and follows UCI protocol commands
 int main(int argc, char **argv) {
+
+    InitEndgames();
 
     // Benchmark
     if (argc > 1 && strstr(argv[1], "bench"))
