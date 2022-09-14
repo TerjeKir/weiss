@@ -74,7 +74,6 @@ void InitEndgames() {
     AddEndgame("KNkb", &TrivialDraw);
     AddEndgame("KBkn", &TrivialDraw);
     AddEndgame("KBkb", &TrivialDraw);
-    AddEndgame("KRkr", &TrivialDraw);
 
     // 2 knights vs lone king
     AddEndgame("KNNk", &TrivialDraw);
