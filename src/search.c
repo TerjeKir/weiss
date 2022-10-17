@@ -76,7 +76,9 @@ static int Quiescence(Thread *thread, Stack *ss, int alpha, const int beta) {
     int futility = -INFINITE;
     int bestScore = -INFINITE;
 
-    if (inCheck) goto moveloop;
+    // Position is drawn
+    if (IsRepetition(pos) || pos->rule50 >= 100)
+        return 8 - (pos->nodes & 0x7);
 
     // Do a static evaluation for pruning considerations
     eval = history(-1).move == NOMOVE ? -(ss-1)->eval + 2 * Tempo
@@ -85,6 +87,8 @@ static int Quiescence(Thread *thread, Stack *ss, int alpha, const int beta) {
     // If we are at max depth, return static eval
     if (ss->ply >= MAX_PLY)
         return eval;
+
+    if (inCheck) goto moveloop;
 
     // If eval beats beta we assume some move will also beat it
     if (eval >= beta)
