@@ -45,6 +45,7 @@ using namespace std;
 #define TB_MAX_PIECE (TB_PIECES < 7 ? 254 : 650)
 #define TB_MAX_PAWN  (TB_PIECES < 7 ? 256 : 861)
 #define TB_MAX_SYMS  (4096)
+#define TB_MAX_DTZ   (0x40000)
 
 #define TB_BEST_NONE            (0xFFFF)
 #define TB_SCORE_ILLEGAL        (0x7FFF)
@@ -1884,9 +1885,9 @@ int root_probe_dtz(const PyrrhicPosition *pos, bool hasRepeated, bool useRule50,
   // Obtain 50-move counter for the root position.
   int cnt50 = pos->rule50;
 
-  // The border between draw and win lies at rank 1 or rank 900, depending
+  // The border between draw and win lies at rank 1 or rank MAX_DTZ - 100, depending
   // on whether the 50-move rule is used.
-  int bound = useRule50 ? 900 : 1;
+  int bound = useRule50 ? (TB_MAX_DTZ - 100) : 1;
 
   // Probe, rank and score each move.
   PyrrhicMove rootMoves[TB_MAX_MOVES];
@@ -1919,11 +1920,11 @@ int root_probe_dtz(const PyrrhicPosition *pos, bool hasRepeated, bool useRule50,
 
     // Better moves are ranked higher. Guaranteed wins are ranked equally.
     // Losing moves are ranked equally unless a 50-move draw is in sight.
-    // Note that moves ranked 900 have dtz + cnt50 == 100, which in rare
+    // Note that moves ranked MAX_DTZ - 100 have dtz + cnt50 == 100, which in rare
     // cases may be insufficient to win as dtz may be one off (see the
     // comments before TB_probe_dtz()).
-    int r =  v > 0 ? (v + cnt50 <= 99 && !hasRepeated ? 1000 : 1000 - (v + cnt50))
-           : v < 0 ? (-v * 2 + cnt50 < 100 ? -1000 : -1000 + (-v + cnt50))
+    int r =  v > 0 ? (v + cnt50 <= 99 && !hasRepeated ? TB_MAX_DTZ : TB_MAX_DTZ - (v + cnt50))
+           : v < 0 ? (-v * 2 + cnt50 < 100 ? -TB_MAX_DTZ : -TB_MAX_DTZ + (-v + cnt50))
            : 0;
     m->tbRank = r;
 
@@ -1931,9 +1932,9 @@ int root_probe_dtz(const PyrrhicPosition *pos, bool hasRepeated, bool useRule50,
     // 1 cp to cursed wins and let it grow to 49 cp as the position gets
     // closer to a real win.
     m->tbScore =  r >= bound ? PYRRHIC_VALUE_MATE - PYRRHIC_MAX_MATE_PLY - 1
-                : r >  0     ? TB_MAX( 3, r - 800) * PYRRHIC_VALUE_PAWN / 200
+                : r >  0     ? TB_MAX( 3, r - (TB_MAX_DTZ - 200)) * PYRRHIC_VALUE_PAWN / 200
                 : r == 0     ? PYRRHIC_VALUE_DRAW
-                : r > -bound ? TB_MIN(-3, r + 800) * PYRRHIC_VALUE_PAWN / 200
+                : r > -bound ? TB_MIN(-3, r + (TB_MAX_DTZ - 200)) * PYRRHIC_VALUE_PAWN / 200
                 :             -PYRRHIC_VALUE_MATE + PYRRHIC_MAX_MATE_PLY + 1;
   }
   return 1;
@@ -1944,7 +1945,7 @@ int root_probe_dtz(const PyrrhicPosition *pos, bool hasRepeated, bool useRule50,
 // A return value of 0 means that not all probes were successful.
 int root_probe_wdl(const PyrrhicPosition *pos, bool useRule50, struct TbRootMoves *rm)
 {
-  static int WdlToRank[] = { -1000, -899, 0, 899, 1000 };
+  static int WdlToRank[] = { -TB_MAX_DTZ, -TB_MAX_DTZ + 101, 0, TB_MAX_DTZ - 101, TB_MAX_DTZ };
   static int WdlToValue[] = {
     -PYRRHIC_VALUE_MATE + PYRRHIC_MAX_MATE_PLY + 1,
     PYRRHIC_VALUE_DRAW - 2,
@@ -2090,4 +2091,3 @@ static uint16_t probe_root(PyrrhicPosition *pos, int *score)
         return 0;
     }
 }
-
