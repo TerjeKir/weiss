@@ -467,6 +467,8 @@ move_loop:
             // Reduce quiets more if ttMove is a capture
             r += quiet && moveIsCapture(ttMove);
 
+            r += pos->nonPawnCount[sideToMove] < 2;
+
             // Depth after reductions, avoiding going straight to quiescence as well as extending
             Depth lmrDepth = CLAMP(newDepth - r, 1, newDepth);
 
