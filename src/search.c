@@ -161,7 +161,7 @@ search:
 }
 
 // Alpha Beta
-static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth) {
+static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth, bool cutnode) {
 
     Position *pos = &thread->pos;
     MovePicker mp;
@@ -293,7 +293,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
         ss->continuation = &thread->continuation[EMPTY][0];
 
         MakeNullMove(pos);
-        int score = -AlphaBeta(thread, ss+1, -beta, -alpha, nullDepth);
+        int score = -AlphaBeta(thread, ss+1, -beta, -alpha, nullDepth, !cutnode);
         TakeNullMove(pos);
 
         thread->nullMover = nullMoverTemp;
@@ -328,7 +328,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
 
             // If it did, do a proper search with reduced depth
             if (score >= probCutBeta)
-                score = -AlphaBeta(thread, ss+1, -probCutBeta, -probCutBeta+1, depth-4);
+                score = -AlphaBeta(thread, ss+1, -probCutBeta, -probCutBeta+1, depth-4, !cutnode);
 
             TakeMove(pos);
 
@@ -410,7 +410,7 @@ move_loop:
             // Search to reduced depth with a zero window a bit lower than ttScore
             int singularBeta = ttScore - depth * 2;
             ss->excluded = move;
-            score = AlphaBeta(thread, ss, singularBeta-1, singularBeta, depth/2);
+            score = AlphaBeta(thread, ss, singularBeta-1, singularBeta, depth/2, cutnode);
             ss->excluded = NOMOVE;
 
             // Extend as this move seems forced
@@ -469,10 +469,12 @@ move_loop:
 
             r += pos->nonPawnCount[sideToMove] < 2;
 
+            r += cutnode;
+
             // Depth after reductions, avoiding going straight to quiescence as well as extending
             Depth lmrDepth = CLAMP(newDepth - r, 1, newDepth);
 
-            score = -AlphaBeta(thread, ss+1, -alpha-1, -alpha, lmrDepth);
+            score = -AlphaBeta(thread, ss+1, -alpha-1, -alpha, lmrDepth, true);
 
             doFullDepthSearch = score > alpha && lmrDepth < newDepth;
         } else
@@ -480,11 +482,11 @@ move_loop:
 
         // Full depth zero-window search
         if (doFullDepthSearch)
-            score = -AlphaBeta(thread, ss+1, -alpha-1, -alpha, newDepth);
+            score = -AlphaBeta(thread, ss+1, -alpha-1, -alpha, newDepth, !cutnode);
 
         // Full depth alpha-beta window search
         if (pvNode && ((score > alpha && score < beta) || moveCount == 1))
-            score = -AlphaBeta(thread, ss+1, -beta, -alpha, newDepth);
+            score = -AlphaBeta(thread, ss+1, -beta, -alpha, newDepth, false);
 
 skip_search:
 
@@ -578,7 +580,7 @@ static void AspirationWindow(Thread *thread, Stack *ss) {
                             :   TimeSince(Limits.start) >= Limits.optimalUsage / 64
                              || depth > 2 + Limits.optimalUsage / 256;
 
-        int score = AlphaBeta(thread, ss, alpha, beta, depth);
+        int score = AlphaBeta(thread, ss, alpha, beta, depth, false);
 
         thread->rootMoves[multiPV].score = score;
         memcpy(&thread->rootMoves[multiPV].pv, &ss->pv, sizeof(PV));
