@@ -75,23 +75,26 @@ BASIC   = $(CC) $(CFLAGS) $(SRC) $(LIBS) -o $(EXE)
 RELEASE = $(CC) $(RFLAGS) $(SRC) $(LIBS) -o $(EXE)
 
 # Targets
-pgo:
+pgo: clean
 	$(BASIC) $(PGOGEN)
 	$(BENCH)
 	$(PGOMERGE)
 	$(BASIC) $(PGOUSE)
 	$(CLEAN)
 
-basic:
+basic: clean
 	$(BASIC)
 
-dev:
+dev: clean
 	$(BASIC) -DDEV
 
-tune:
+tune: clean
 	$(BASIC) -DTUNE -fopenmp
 
-release:
+release: clean
 	$(RELEASE)-nopopcnt.exe
 	$(RELEASE)-popcnt.exe   $(POPCNT)
 	$(RELEASE)-pext.exe     $(PEXT)
+
+clean:
+	rm $(EXE)
