@@ -97,4 +97,4 @@ release: clean
 	$(RELEASE)-pext.exe     $(PEXT)
 
 clean:
-	rm $(EXE)
+	rm -f $(EXE)
