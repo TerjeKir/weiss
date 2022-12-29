@@ -34,17 +34,6 @@ FLAGS  = $(STD) $(WARN) -O3 -flto
 CFLAGS = $(FLAGS) -march=native
 RFLAGS = $(FLAGS) -static
 
-# PGO
-ifneq ($(findstring gcc, $(CC)),)
-	PGODIR = "pgo"
-	PGOGEN = -fprofile-generate=$(PGODIR)
-	PGOUSE = -fprofile-use=$(PGODIR)
-else ifneq ($(findstring clang, $(CC)),)
-	PGOMERGE = llvm-profdata merge -output=weiss.profdata *.profraw
-	PGOGEN = -fprofile-instr-generate
-	PGOUSE = -fprofile-instr-use=weiss.profdata
-endif
-
 # Use pext if supported and not a ryzen 1/2 cpu
 PROPS = $(shell echo | $(CC) -march=native -E -dM -)
 ifneq ($(findstring __BMI2__, $(PROPS)),)
@@ -55,14 +44,25 @@ ifneq ($(findstring __BMI2__, $(PROPS)),)
 	endif
 endif
 
+# PGO
+ifneq ($(findstring gcc, $(CC)),)
+	PGO_DIR = "pgo"
+	PGO_GEN = -fprofile-generate=$(PGO_DIR)
+	PGO_USE = -fprofile-use=$(PGO_DIR)
+else ifneq ($(findstring clang, $(CC)),)
+	PGO_MERGE = llvm-profdata merge -output=weiss.profdata *.profraw
+	PGO_GEN = -fprofile-instr-generate
+	PGO_USE = -fprofile-instr-use=weiss.profdata
+endif
+
 # Try to detect windows environment by seeing
 # whether the shell filters out " or not.
 ifeq ($(shell echo "test"), "test")
-	BENCH = $(EXE) bench 12 > nul 2>&1
-	CLEAN = rmdir /s /q $(PGODIR)
+	PGO_BENCH = $(EXE) bench 12 > nul 2>&1
+	PGO_CLEAN = rmdir /s /q $(PGO_DIR)
 else
-	BENCH = ./$(EXE) bench 12 > /dev/null 2>&1
-	CLEAN = $(RM) -rf $(PGODIR)
+	PGO_BENCH = ./$(EXE) bench 12 > /dev/null 2>&1
+	PGO_CLEAN = $(RM) -rf $(PGO_DIR)
 endif
 
 # Link winsock32 on windows for NoobBook
@@ -76,11 +76,11 @@ RELEASE = $(CC) $(RFLAGS) $(SRC) $(LIBS) -o $(EXE)
 
 # Targets
 pgo: clean
-	$(BASIC) $(PGOGEN)
-	$(BENCH)
-	$(PGOMERGE)
-	$(BASIC) $(PGOUSE)
-	$(CLEAN)
+	$(BASIC) $(PGO_GEN)
+	$(PGO_BENCH)
+	$(PGO_MERGE)
+	$(BASIC) $(PGO_USE)
+	@$(PGO_CLEAN)
 
 basic: clean
 	$(BASIC)
@@ -97,4 +97,5 @@ release: clean
 	$(RELEASE)-pext.exe     $(PEXT)
 
 clean:
-	rm -f $(EXE)
+	@$(RM) -f $(EXE)
+	@$(PGO_CLEAN)
