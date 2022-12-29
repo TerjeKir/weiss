@@ -348,6 +348,8 @@ move_loop:
     int moveCount = 0, quietCount = 0, noisyCount = 0;
     int score = -INFINITE;
 
+    Color opponent = !sideToMove;
+
     // Move loop
     Move move;
     while ((move = NextMove(&mp))) {
@@ -454,21 +456,21 @@ move_loop:
 
             // Base reduction
             int r = Reductions[quiet][MIN(31, depth)][MIN(31, moveCount)];
+            // Adjust reduction by move history
+            r -= ss->histScore / 8192;
             // Reduce less in pv nodes
             r -= pvNode;
             // Reduce less when improving
             r -= improving;
             // Reduce less for killers
             r -= move == mp.kill1 || move == mp.kill2;
-            // Reduce more for the side that last null moved
-            r += sideToMove == thread->nullMover;
-            // Adjust reduction by move history
-            r -= ss->histScore / 8192;
+            // Reduce more for the side that was last null moved against
+            r += opponent == thread->nullMover;
             // Reduce quiets more if ttMove is a capture
             r += quiet && moveIsCapture(ttMove);
-
-            r += pos->nonPawnCount[sideToMove] < 2;
-
+            // Reduce more when opponent has few pieces
+            r += pos->nonPawnCount[opponent] < 2;
+            // Reduce more in cut nodes
             r += cutnode;
 
             // Depth after reductions, avoiding going straight to quiescence as well as extending
