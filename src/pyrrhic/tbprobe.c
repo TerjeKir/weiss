@@ -576,12 +576,12 @@ static void init_tb(char *str)
 #define PIECEENTRY(x) ((struct PieceEntry *)(x))
 #define PAWNENTRY(x) ((struct PawnEntry *)(x))
 
-int num_tables(struct BaseEntry *be, const int type)
+static int num_tables(struct BaseEntry *be, const int type)
 {
   return be->hasPawns ? type == DTM ? 6 : 4 : 1;
 }
 
-struct EncInfo *first_ei(struct BaseEntry *be, const int type)
+static struct EncInfo *first_ei(struct BaseEntry *be, const int type)
 {
   return  be->hasPawns
         ? &PAWNENTRY(be)->ei[type == WDL ? 0 : type == DTM ? 8 : 20]
@@ -1011,7 +1011,7 @@ static void init_indices(void)
   }
 }
 
-int leading_pawn(int *p, struct BaseEntry *be, const int enc)
+static int leading_pawn(int *p, struct BaseEntry *be, const int enc)
 {
   for (int i = 1; i < be->pawns[0]; i++)
     if (Flap[enc-1][p[0]] > Flap[enc-1][p[i]])
@@ -1020,7 +1020,7 @@ int leading_pawn(int *p, struct BaseEntry *be, const int enc)
   return enc == FILE_ENC ? FileToFile[p[0] & 7] : (p[0] - 8) >> 3;
 }
 
-size_t encode(int *p, struct EncInfo *ei, struct BaseEntry *be,
+static size_t encode(int *p, struct EncInfo *ei, struct BaseEntry *be,
     const int enc)
 {
   int n = be->num;
@@ -1502,7 +1502,7 @@ inline static int fill_squares(const PyrrhicPosition *pos, uint8_t *pc, bool fli
   return i;
 }
 
-int probe_table(const PyrrhicPosition *pos, int s, int *success, const int type)
+static int probe_table(const PyrrhicPosition *pos, int s, int *success, const int type)
 {
   // Obtain the position's material-signature key
   uint64_t key = pyrrhic_calc_key(pos,false);

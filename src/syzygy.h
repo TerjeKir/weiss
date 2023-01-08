@@ -34,7 +34,7 @@ static int TBScore(const unsigned result, const int distance) {
 }
 
 // Probe local Syzygy files using Pyrrhic to get score
-bool ProbeWDL(const Position *pos, int *score, int *bound, int ply) {
+static bool ProbeWDL(const Position *pos, int *score, int *bound, int ply) {
 
     // Don't probe at root, when castling is possible, or when 50 move rule
     // was not reset by the last move. Finally, there is obviously no point
@@ -67,7 +67,7 @@ bool ProbeWDL(const Position *pos, int *score, int *bound, int ply) {
 }
 
 // Probe local Syzygy files using Pyrrhic to get an optimal move
-bool ProbeRoot(Position *pos, Move *move, unsigned *wdl, unsigned *dtz) {
+static bool ProbeRoot(Position *pos, Move *move, unsigned *wdl, unsigned *dtz) {
 
     // Call Pyrrhic
     unsigned result = tb_probe_root(
@@ -96,7 +96,7 @@ bool ProbeRoot(Position *pos, Move *move, unsigned *wdl, unsigned *dtz) {
 }
 
 // Get optimal move from Syzygy tablebases
-bool SyzygyMove(Position *pos) {
+static bool SyzygyMove(Position *pos) {
 
     Move move;
     unsigned wdl, dtz;

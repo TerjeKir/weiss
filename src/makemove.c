@@ -19,6 +19,7 @@
 #include "bitboard.h"
 #include "board.h"
 #include "evaluate.h"
+#include "makemove.h"
 #include "move.h"
 #include "psqt.h"
 

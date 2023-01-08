@@ -165,7 +165,7 @@ static void AddPiece(Position *pos, const Square sq, const Piece piece) {
     colorBB(color) |= BB(sq);
 }
 
-void InitCastlingRight(Position *pos, Color color, int file) {
+static void InitCastlingRight(Position *pos, Color color, int file) {
 
     if (   FileOf(kingSq(color)) != FILE_E
         || (file != FILE_A && file != FILE_H)) chess960 = true;

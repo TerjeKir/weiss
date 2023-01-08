@@ -41,7 +41,7 @@ static Key GenMaterialKey(const char *str) {
     return pos.materialKey;
 }
 
-int TrivialDraw(__attribute__((unused)) const Position *pos, __attribute__((unused)) Color color) {
+static int TrivialDraw(__attribute__((unused)) const Position *pos, __attribute__((unused)) Color color) {
     return 0;
 }
 

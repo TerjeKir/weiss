@@ -26,6 +26,7 @@
 #include "movepicker.h"
 #include "search.h"
 #include "threads.h"
+#include "tests.h"
 #include "time.h"
 #include "transposition.h"
 
@@ -157,7 +158,7 @@ static uint64_t RecursivePerft(Thread *thread, const Depth depth) {
     uint64_t leafnodes = 0;
 
     MovePicker mp;
-    InitNormalMP(&mp, thread, 0, NOMOVE, NOMOVE, NOMOVE);
+    InitNormalMP(&mp, thread, NULL, 0, NOMOVE, NOMOVE, NOMOVE);
 
     Move move;
     while ((move = NextMove(&mp))) {

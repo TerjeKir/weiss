@@ -214,7 +214,7 @@ INLINE int EvalPawns(const Position *pos, EvalInfo *ei, const Color color) {
 }
 
 // Tries to get pawn eval from cache, otherwise evaluates and saves
-int ProbePawnCache(const Position *pos, EvalInfo *ei, PawnCache pc) {
+static int ProbePawnCache(const Position *pos, EvalInfo *ei, PawnCache pc) {
 
     // Can't cache when tuning as full trace is needed
     if (TRACE) return EvalPawns(pos, ei, WHITE) - EvalPawns(pos, ei, BLACK);
@@ -474,7 +474,7 @@ INLINE void InitEvalInfo(const Position *pos, EvalInfo *ei, const Color color) {
 }
 
 // Calculate scale factor to lower overall eval based on various features
-int ScaleFactor(const Position *pos, const int eval) {
+static int ScaleFactor(const Position *pos, const int eval) {
 
     // Scale down eval the fewer pawns the stronger side has
     Color strong = eval > 0 ? WHITE : BLACK;

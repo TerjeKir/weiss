@@ -23,6 +23,7 @@
 #include "../move.h"
 #include "../query/query.h"
 #include "../pyrrhic/tbprobe.h"
+#include "onlinesyzygy.h"
 
 
 bool onlineSyzygy = false;
