@@ -25,7 +25,7 @@
 
 
 #define HASH_MIN 2
-#define HASH_MAX ((int)(pow(2, 32) * sizeof(TTBucket) / (1024 * 1024)))
+#define HASH_MAX ((int)(pow(2, 40) * sizeof(TTBucket) / (1024 * 1024))) // 40 could be set as high as 64
 #define HASH_DEFAULT 32
 
 #define BUCKET_SIZE 2
@@ -92,9 +92,13 @@ INLINE int ScoreFromTT (const int score, const uint8_t ply) {
                                   : score;
 }
 
+INLINE uint64_t TTIndex(Key key) {
+    return ((unsigned __int128)key * (unsigned __int128)TT.count) >> 64;
+}
+
 INLINE TTBucket *GetTTBucket(Key key) {
     // https://lemire.me/blog/2016/06/27/a-fast-alternative-to-the-modulo-reduction/
-    return &TT.table[((uint32_t)key * (uint64_t)TT.count) >> 32];
+    return &TT.table[TTIndex(key)];
 }
 
 INLINE void TTPrefetch(Key key) {
