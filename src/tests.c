@@ -26,6 +26,7 @@
 #include "movepicker.h"
 #include "search.h"
 #include "threads.h"
+#include "tests.h"
 #include "time.h"
 #include "transposition.h"
 

@@ -40,6 +40,7 @@
 #endif
 
 #include "../board.h"
+#include "query.h"
 
 
 static void error(const char *msg) { perror(msg); exit(0); }
