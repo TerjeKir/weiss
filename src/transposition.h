@@ -92,9 +92,13 @@ INLINE int ScoreFromTT (const int score, const uint8_t ply) {
                                   : score;
 }
 
+INLINE uint64_t TTIndex(Key key) {
+    return ((unsigned __int128)key * (unsigned __int128)TT.count) >> 64;
+}
+
 INLINE TTBucket *GetTTBucket(Key key) {
     // https://lemire.me/blog/2016/06/27/a-fast-alternative-to-the-modulo-reduction/
-    return &TT.table[((uint32_t)key * (uint64_t)TT.count) >> 32];
+    return &TT.table[TTIndex(key)];
 }
 
 INLINE void TTPrefetch(Key key) {
