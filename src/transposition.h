@@ -25,7 +25,7 @@
 
 
 #define HASH_MIN 2
-#define HASH_MAX ((int)(pow(2, 32) * sizeof(TTBucket) / (1024 * 1024)))
+#define HASH_MAX ((int)(pow(2, 40) * sizeof(TTBucket) / (1024 * 1024))) // 40 could be set as high as 64
 #define HASH_DEFAULT 32
 
 #define BUCKET_SIZE 2
