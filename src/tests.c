@@ -23,7 +23,7 @@
 #include "evaluate.h"
 #include "makemove.h"
 #include "move.h"
-#include "movepicker.h"
+#include "movegen.h"
 #include "search.h"
 #include "threads.h"
 #include "tests.h"
@@ -149,21 +149,25 @@ void Benchmark(int argc, char **argv) {
 
 #ifdef DEV
 
+static void GenAllMoves(Position *pos, MoveList *list) {
+    list->count = list->next = 0;
+    GenNoisyMoves(pos, list);
+    GenQuietMoves(pos, list);
+}
+
 // Helper for Perft()
-static uint64_t RecursivePerft(Thread *thread, const Depth depth) {
+static uint64_t RecursivePerft(Position *pos, const Depth depth) {
 
     if (depth == 0) return 1;
 
-    Position *pos = &thread->pos;
     uint64_t leafnodes = 0;
 
-    MovePicker mp;
-    InitNormalMP(&mp, thread, 0, NOMOVE, NOMOVE, NOMOVE);
+    MoveList list;
+    GenAllMoves(pos, &list);
 
-    Move move;
-    while ((move = NextMove(&mp))) {
-        if (!MakeMove(pos, move)) continue;
-        leafnodes += RecursivePerft(thread, depth - 1);
+    for (int i = 0; i < list.count; i++) {
+        if (!MakeMove(pos, list.moves[i].move)) continue;
+        leafnodes += RecursivePerft(pos, depth - 1);
         TakeMove(pos);
     }
 
@@ -186,7 +190,7 @@ void Perft(char *str) {
     fflush(stdout);
 
     const TimePoint start = Now();
-    uint64_t leafNodes = RecursivePerft(threads, depth);
+    uint64_t leafNodes = RecursivePerft(&threads->pos, depth);
     const TimePoint elapsed = TimeSince(start) + 1;
 
     printf("\nPerft complete:"
