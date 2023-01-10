@@ -249,9 +249,10 @@ void ParseFen(const char *fen, Position *pos) {
 // Translates a move to a string
 char *BoardToFen(const Position *pos) {
 
+    static char fen[100];
+    char *ptr = fen;
+
     // Board
-    char board[64];
-    char *ptr = board;
     for (int rank = RANK_8; rank >= RANK_1; --rank) {
 
         int count = 0;
@@ -269,21 +270,25 @@ char *BoardToFen(const Position *pos) {
                 count++;
         }
 
-        if (count) *ptr++ = '0' + count;
-        if (rank > RANK_1) *ptr++ = '/';
+        if (count)
+            *ptr++ = '0' + count;
+
+        *ptr++ = rank == RANK_1 ? ' ' : '/';
     }
 
     // Side to move
-    char stm = sideToMove == WHITE ? 'w' : 'b';
+    *ptr++ = sideToMove == WHITE ? 'w' : 'b';
+    *ptr++ = ' ';
 
     // Castling rights
-    char cr[5] = "-";
-    if (pos->castlingRights) {
-        ptr = cr;
-        if (pos->castlingRights & WHITE_OO)  *ptr++ = 'K';
-        if (pos->castlingRights & WHITE_OOO) *ptr++ = 'Q';
-        if (pos->castlingRights & BLACK_OO)  *ptr++ = 'k';
-        if (pos->castlingRights & BLACK_OOO) *ptr++ = 'q';
+    int cr = pos->castlingRights;
+    if (!cr)
+        *ptr++ = '-';
+    else {
+        if (cr & WHITE_OO)  *ptr++ = 'K';
+        if (cr & WHITE_OOO) *ptr++ = 'Q';
+        if (cr & BLACK_OO)  *ptr++ = 'k';
+        if (cr & BLACK_OOO) *ptr++ = 'q';
     }
 
     // En passant square in a separate string
@@ -291,9 +296,8 @@ char *BoardToFen(const Position *pos) {
     if (pos->epSquare)
         SqToStr(pos->epSquare, ep);
 
-    // Combine all the parts
-    static char fen[100];
-    sprintf(fen, "%s %c %s %s %d %d", board, stm, cr, ep, pos->rule50, pos->gameMoves);
+    // Add en passant, 50mr and game ply to the base
+    sprintf(ptr, " %s %d %d", ep, pos->rule50, pos->gameMoves);
 
     return fen;
 }
