@@ -277,11 +277,9 @@ char *BoardToFen(const Position *pos) {
     char stm = sideToMove == WHITE ? 'w' : 'b';
 
     // Castling rights
-    char cr[5];
-    ptr = cr;
-    if (!pos->castlingRights)
-        *cr = '-';
-    else {
+    char cr[5] = '-';
+    if (pos->castlingRights) {
+        ptr = cr;
         if (pos->castlingRights & WHITE_OO)  *ptr++ = 'K';
         if (pos->castlingRights & WHITE_OOO) *ptr++ = 'Q';
         if (pos->castlingRights & BLACK_OO)  *ptr++ = 'k';
