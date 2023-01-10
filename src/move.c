@@ -59,25 +59,19 @@ bool MoveIsPseudoLegal(const Position *pos, const Move move) {
 // Translates a move to a string
 char *MoveToStr(const Move move) {
 
-    static char moveStr[6];
+    static char moveStr[6] = "";
 
-    int ff = FileOf(fromSq(move));
-    int rf = RankOf(fromSq(move));
-    int ft = FileOf(toSq(move));
-    int rt = RankOf(toSq(move));
+    SqToStr(fromSq(move), moveStr);
+    SqToStr(  toSq(move), moveStr + 2);
 
     if (chess960 && moveIsCastle(move)) {
         Color color = RankOf(fromSq(move)) == RANK_1 ? WHITE : BLACK;
-        int side = ft == FILE_G ? OO : OOO;
+        int side = FileOf(toSq(move)) == FILE_G ? OO : OOO;
         int cr = side & (color == WHITE ? WHITE_CASTLE : BLACK_CASTLE);
-        ft = FileOf(RookSquare[cr]);
-        rt = RankOf(RookSquare[cr]);
+        moveStr[2] = 'a' + FileOf(RookSquare[cr]);
     }
 
-    PieceType promo = PieceTypeOf(promotion(move));
-    char pchar = "\0.nbrq"[promo];
-
-    sprintf(moveStr, "%c%c%c%c%c", ('a' + ff), ('1' + rf), ('a' + ft), ('1' + rt), pchar);
+    moveStr[4] = "\0.nbrq"[PieceTypeOf(promotion(move))];
 
     return moveStr;
 }

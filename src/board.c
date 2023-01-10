@@ -294,8 +294,7 @@ char *BoardToFen(const Position *pos) {
     // En passant square in a separate string
     char ep[3] = "-";
     if (pos->epSquare)
-        ep[0] = 'a' + FileOf(pos->epSquare),
-        ep[1] = '1' + RankOf(pos->epSquare);
+        SqToStr(pos->epSquare, ep);
 
     // Add en passant, 50mr and game ply to the base
     sprintf(ptr, " %s %d %d", ep, pos->rule50, pos->gameMoves);
