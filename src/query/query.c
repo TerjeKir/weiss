@@ -53,7 +53,7 @@ char *Query(char *hostname, char *msg_fmt, const Position *pos) {
         error("WSAStartup failed.");
 
     // Make the message
-    char message[256];
+    char message[256] = "";
     static char response[16384];
 
     snprintf(message, 256, msg_fmt, BoardToFen(pos));
