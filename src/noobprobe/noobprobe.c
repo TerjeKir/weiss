@@ -41,7 +41,7 @@ bool ProbeNoob(Position *pos) {
     puts("info string NoobBook: Querying chessdb.cn for a move...");
 
     // Query dbcn
-    char *msg_fmt = "GET http://www.chessdb.cn/cdb.php?action=querybest&board=%s\r\n";
+    char *msg_fmt = "GET http://www.chessdb.cn/cdb.php?action=querybest&board=%s\n";
     char *hostname = "www.chessdb.cn";
     char *response = Query(hostname, msg_fmt, pos);
 

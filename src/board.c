@@ -247,7 +247,7 @@ void ParseFen(const char *fen, Position *pos) {
 }
 
 // Translates a move to a string
-char *BoardToFen(const Position *pos, bool url) {
+char *BoardToFen(const Position *pos) {
 
     // Board
     char board[64];
@@ -295,7 +295,7 @@ char *BoardToFen(const Position *pos, bool url) {
 
     // Combine all the parts
     static char fen[100];
-    sprintf(fen, url ? "%s%%20%c%%20%s%%20%s%%20%d%%20%d" : "%s %c %s %s %d %d", board, stm, cr, ep, pos->rule50, pos->gameMoves);
+    sprintf(fen, "%s %c %s %s %d %d", board, stm, cr, ep, pos->rule50, pos->gameMoves);
 
     return fen;
 }
@@ -387,7 +387,7 @@ void PrintBoard(const Position *pos) {
     printf("\n");
 
     // Print FEN and zobrist key
-    puts(BoardToFen(pos, false));
+    puts(BoardToFen(pos));
     printf("Zobrist Key: %" PRIu64 "\n\n", pos->key);
     fflush(stdout);
 }

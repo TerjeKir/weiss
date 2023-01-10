@@ -56,7 +56,16 @@ char *Query(char *hostname, char *msg_fmt, const Position *pos) {
     char message[256];
     static char response[16384];
 
-    snprintf(message, 256, msg_fmt, BoardToFen(pos, true));
+    snprintf(message, 256, msg_fmt, BoardToFen(pos));
+
+    // Replace spaces with %20
+    char *ptr;
+    while ((ptr = strchr(message + 4, ' ')) != NULL) {
+        memmove(ptr + 2, ptr, strlen(ptr));
+        *ptr++ = '%';
+        *ptr++ = '2';
+        *ptr   = '0';
+    }
 
     printf("info string Query: %s", message);
 
