@@ -160,6 +160,11 @@ INLINE Square StrToSq(const char *str) {
     return MakeSquare(str[1] - '1', str[0] - 'a');
 }
 
+INLINE void SqToStr(Square sq, char *str) {
+    str[0] = 'a' + FileOf(sq),
+    str[1] = '1' + RankOf(sq);
+}
+
 INLINE bool IsRepetition(const Position *pos) {
     for (int i = 4; i <= pos->rule50 && i <= pos->histPly; i += 2)
         if (pos->key == history(-i).key)
