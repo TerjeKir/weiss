@@ -247,12 +247,11 @@ void ParseFen(const char *fen, Position *pos) {
 }
 
 // Translates a move to a string
-char *BoardToFen(const Position *pos) {
-
-    static char fen[100];
-    char *ptr = fen;
+char *BoardToFen(const Position *pos, bool url) {
 
     // Board
+    char board[64];
+    char *ptr = board;
     for (int rank = RANK_8; rank >= RANK_1; --rank) {
 
         int count = 0;
@@ -270,25 +269,23 @@ char *BoardToFen(const Position *pos) {
                 count++;
         }
 
-        if (count)
-            *ptr++ = '0' + count;
-
-        *ptr++ = rank == RANK_1 ? ' ' : '/';
+        if (count) *ptr++ = '0' + count;
+        if (rank > RANK_1) *ptr++ = '/';
     }
 
     // Side to move
-    *ptr++ = sideToMove == WHITE ? 'w' : 'b';
-    *ptr++ = ' ';
+    char stm = sideToMove == WHITE ? 'w' : 'b';
 
     // Castling rights
-    int cr = pos->castlingRights;
-    if (!cr)
-        *ptr++ = '-';
+    char cr[5];
+    ptr = cr;
+    if (!pos->castlingRights)
+        *cr = '-';
     else {
-        if (cr & WHITE_OO)  *ptr++ = 'K';
-        if (cr & WHITE_OOO) *ptr++ = 'Q';
-        if (cr & BLACK_OO)  *ptr++ = 'k';
-        if (cr & BLACK_OOO) *ptr++ = 'q';
+        if (pos->castlingRights & WHITE_OO)  *ptr++ = 'K';
+        if (pos->castlingRights & WHITE_OOO) *ptr++ = 'Q';
+        if (pos->castlingRights & BLACK_OO)  *ptr++ = 'k';
+        if (pos->castlingRights & BLACK_OOO) *ptr++ = 'q';
     }
 
     // En passant square in a separate string
@@ -296,8 +293,9 @@ char *BoardToFen(const Position *pos) {
     if (pos->epSquare)
         SqToStr(pos->epSquare, ep);
 
-    // Add en passant, 50mr and game ply to the base
-    sprintf(ptr, " %s %d %d", ep, pos->rule50, pos->gameMoves);
+    // Combine all the parts
+    static char fen[100];
+    sprintf(fen, url ? "%s%%20%c%%20%s%%20%s%%20%d%%20%d" : "%s %c %s %s %d %d", board, stm, cr, ep, pos->rule50, pos->gameMoves);
 
     return fen;
 }
@@ -389,7 +387,7 @@ void PrintBoard(const Position *pos) {
     printf("\n");
 
     // Print FEN and zobrist key
-    puts(BoardToFen(pos));
+    puts(BoardToFen(pos, false));
     printf("Zobrist Key: %" PRIu64 "\n\n", pos->key);
     fflush(stdout);
 }

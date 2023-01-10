@@ -38,8 +38,10 @@ bool ProbeNoob(Position *pos) {
         || (noobLimit && pos->gameMoves > noobLimit))
         return false;
 
+    puts("info string NoobBook: Querying chessdb.cn for a move...");
+
     // Query dbcn
-    char *msg_fmt = "GET http://www.chessdb.cn/cdb.php?action=querybest&board=%s\r\n\r\n";
+    char *msg_fmt = "GET http://www.chessdb.cn/cdb.php?action=querybest&board=%s\r\n";
     char *hostname = "www.chessdb.cn";
     char *response = Query(hostname, msg_fmt, pos);
 
@@ -48,6 +50,8 @@ bool ProbeNoob(Position *pos) {
         return failedQueries++, false;
 
     threads->rootMoves[0].move = ParseMove(&response[5], pos);
+
+    puts("info string NoobBook: Move received");
 
     return failedQueries = 0, true;
 }

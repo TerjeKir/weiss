@@ -32,6 +32,8 @@ bool onlineSyzygy = false;
 // Probes lichess syzygy
 bool QueryRoot(Position *pos, Move *move, unsigned *wdl, unsigned *dtz) {
 
+    puts("info string OnlineSyzygy: Querying lichess for a tablebase move...");
+
     // Query lichess syzygy api
     char *msg_fmt = "GET http://tablebase.lichess.ovh/standard?fen=%s\n";
     char *hostname = "tablebase.lichess.ovh";
@@ -48,6 +50,8 @@ bool QueryRoot(Position *pos, Move *move, unsigned *wdl, unsigned *dtz) {
     *wdl = strstr(response, "category")[11] == 'w' ? TB_WIN
          : strstr(response, "category")[11] == 'l' ? TB_LOSS
                                                    : TB_DRAW;
+
+    puts("info string OnlineSyzygy: Move received");
 
     return true;
 }
