@@ -63,15 +63,15 @@ char *MoveToStr(const Move move) {
 
     SqToStr(fromSq(move), moveStr);
     SqToStr(  toSq(move), moveStr + 2);
+    moveStr[4] = "\0.nbrq"[PieceTypeOf(promotion(move))];
 
+    // Encode castling as KxR for chess 960
     if (chess960 && moveIsCastle(move)) {
         Color color = RankOf(fromSq(move)) == RANK_1 ? WHITE : BLACK;
         int side = FileOf(toSq(move)) == FILE_G ? OO : OOO;
         int cr = side & (color == WHITE ? WHITE_CASTLE : BLACK_CASTLE);
-        moveStr[2] = 'a' + FileOf(RookSquare[cr]);
+        SqToStr(RookSquare[cr], moveStr + 2);
     }
-
-    moveStr[4] = "\0.nbrq"[PieceTypeOf(promotion(move))];
 
     return moveStr;
 }
