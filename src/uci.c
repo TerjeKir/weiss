@@ -148,7 +148,7 @@ static void Stop() {
 // Signals the engine is ready
 static void IsReady() {
     InitTT();
-    printf("readyok\n");
+    puts("readyok");
     fflush(stdout);
 }
 

@@ -52,7 +52,7 @@ static void AddEndgame(const char *pieces, SpecializedEval ef) {
     Endgame *eg = &endgameTable[EndgameIndex(key)];
 
     if (eg->evalFunc != NULL) {
-        printf("Collision in endgame table.\n");
+        puts("Collision in endgame table.");
         exit(0);
     }
 
