@@ -60,12 +60,8 @@ char *Query(char *hostname, char *msg_fmt, const Position *pos) {
 
     // Replace spaces with %20
     char *ptr;
-    while ((ptr = strchr(message + 4, ' ')) != NULL) {
-        memmove(ptr + 2, ptr, strlen(ptr));
-        *ptr++ = '%';
-        *ptr++ = '2';
-        *ptr   = '0';
-    }
+    while ((ptr = strchr(message + 4, ' ')) != NULL)
+        *ptr = '+';
 
     printf("info string Query: %s", message);
 
