@@ -67,10 +67,9 @@ char *MoveToStr(const Move move) {
 
     // Encode castling as KxR for chess 960
     if (chess960 && moveIsCastle(move)) {
-        Color color = RankOf(fromSq(move)) == RANK_1 ? WHITE : BLACK;
+        int color = ColorOf(piece(move)) == WHITE ? WHITE_CASTLE : BLACK_CASTLE;
         int side = FileOf(toSq(move)) == FILE_G ? OO : OOO;
-        int cr = side & (color == WHITE ? WHITE_CASTLE : BLACK_CASTLE);
-        SqToStr(RookSquare[cr], moveStr + 2);
+        SqToStr(RookSquare[color & side], moveStr + 2);
     }
 
     return moveStr;
