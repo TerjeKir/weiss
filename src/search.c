@@ -127,6 +127,7 @@ moveloop:
     if (!inCheck) InitNoisyMP(&mp, thread, ss); else InitNormalMP(&mp, thread, ss, 0, NOMOVE, NOMOVE, NOMOVE);
 
     // Move loop
+    Move bestMove = NOMOVE;
     Move move;
     while ((move = NextMove(&mp))) {
 
@@ -166,6 +167,7 @@ search:
             // If score beats alpha we update alpha
             if (score > alpha) {
                 alpha = score;
+                bestMove = move;
 
                 // If score beats beta we have a cutoff
                 if (score >= beta)
@@ -177,6 +179,9 @@ search:
     // Checkmate
     if (inCheck && bestScore == -INFINITE)
         return -MATE + ss->ply;
+
+    StoreTTEntry(tte, key, bestMove, ScoreToTT(bestScore, ss->ply), 0,
+                 bestScore >= beta ? BOUND_LOWER : BOUND_UPPER);
 
     return bestScore;
 }
