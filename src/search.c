@@ -66,6 +66,8 @@ static int Quiescence(Thread *thread, Stack *ss, int alpha, const int beta) {
     Position *pos = &thread->pos;
     MovePicker mp;
 
+    const bool pvNode = alpha != beta - 1;
+
     // Check time situation
     if (OutOfTime(thread) || ABORT_SIGNAL)
         longjmp(thread->jumpBuffer, true);
@@ -79,6 +81,25 @@ static int Quiescence(Thread *thread, Stack *ss, int alpha, const int beta) {
     // Position is drawn
     if (IsRepetition(pos) || pos->rule50 >= 100)
         return 8 - (pos->nodes & 0x7);
+
+    // Probe transposition table
+    bool ttHit;
+    Key key = pos->key;
+    TTEntry *tte = ProbeTT(key, &ttHit);
+
+    Move ttMove = ttHit ? tte->move : NOMOVE;
+    int ttScore = ttHit ? ScoreFromTT(tte->score, ss->ply) : NOSCORE;
+    // Depth ttDepth = tte->depth;
+    int ttBound = Bound(tte);
+
+    if (ttMove && !MoveIsPseudoLegal(pos, ttMove))
+        ttHit = false, ttMove = NOMOVE, ttScore = NOSCORE;
+
+    // Trust TT if not a pvnode and the entry depth is sufficiently high
+    if (   !pvNode
+        && ttHit
+        && (ttBound & (ttScore >= beta ? BOUND_LOWER : BOUND_UPPER)))
+        return ttScore;
 
     // Do a static evaluation for pruning considerations
     eval = history(-1).move == NOMOVE ? -(ss-1)->eval + 2 * Tempo
