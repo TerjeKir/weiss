@@ -161,7 +161,7 @@ void InitNormalMP(MovePicker *mp, Thread *thread, Stack *ss, Depth depth, Move t
 }
 
 // Init noisy movepicker
-void InitNoisyMP(MovePicker *mp, Thread *thread, Stack *ss) {
-    InitNormalMP(mp, thread, ss, 0, NOMOVE, NOMOVE, NOMOVE);
+void InitNoisyMP(MovePicker *mp, Thread *thread, Stack *ss, Move ttMove) {
+    InitNormalMP(mp, thread, ss, 0, ttMove, NOMOVE, NOMOVE);
     mp->onlyNoisy = true;
 }

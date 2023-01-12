@@ -39,4 +39,4 @@ typedef struct MovePicker {
 
 Move NextMove(MovePicker *mp);
 void InitNormalMP(MovePicker *mp, Thread *thread, Stack *ss, Depth depth, Move ttMove, Move kill1, Move kill2);
-void InitNoisyMP(MovePicker *mp, Thread *thread, Stack *ss);
+void InitNoisyMP(MovePicker *mp, Thread *thread, Stack *ss, Move ttMove);
