@@ -292,6 +292,9 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
     if (pvNode && depth >= 4 && !ttMove)
         depth--;
 
+    if (cutnode && depth >= 7 && !ttMove)
+        depth--;
+
     // Skip pruning in check, in pv nodes, during early iterations, when proving singularity, or when looking for terminal scores
     if (inCheck || pvNode || !thread->doPruning || ss->excluded || abs(beta) >= TBWIN_IN_MAX)
         goto move_loop;
