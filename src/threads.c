@@ -122,7 +122,7 @@ void PrepareSearch(Position *pos, Move searchmoves[]) {
         for (Depth d = 0; d <= MAX_PLY; ++d)
             (t->ss+SS_OFFSET+d)->ply = d;
         for (Depth d = -4; d < 0; ++d)
-            (t->ss+SS_OFFSET+d)->continuation = &t->continuation[0][EMPTY][0];
+            (t->ss+SS_OFFSET+d)->continuation = &t->continuation[0][0][EMPTY][0];
     }
 }
 

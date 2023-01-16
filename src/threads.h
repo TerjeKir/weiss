@@ -69,7 +69,7 @@ typedef struct Thread {
     PawnCache pawnCache;
     ButterflyHistory history;
     CaptureToHistory captureHistory;
-    ContinuationHistory continuation[2];
+    ContinuationHistory continuation[2][2];
 
     int index;
     int count;

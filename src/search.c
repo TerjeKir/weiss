@@ -153,7 +153,7 @@ moveloop:
 
 search:
 
-        ss->continuation = &thread->continuation[moveIsCapture(move)][piece(move)][toSq(move)];
+        ss->continuation = &thread->continuation[inCheck][moveIsCapture(move)][piece(move)][toSq(move)];
 
         // Recursively search the positions after making the moves, skipping illegal ones
         if (!MakeMove(pos, move)) continue;
@@ -319,7 +319,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
         Color nullMoverTemp = thread->nullMover;
         thread->nullMover = sideToMove;
 
-        ss->continuation = &thread->continuation[0][EMPTY][0];
+        ss->continuation = &thread->continuation[0][0][EMPTY][0];
 
         MakeNullMove(pos);
         int score = -AlphaBeta(thread, ss+1, -beta, -alpha, nullDepth, !cutnode);
@@ -350,7 +350,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
 
             if (!MakeMove(pos, move)) continue;
 
-            ss->continuation = &thread->continuation[moveIsCapture(move)][piece(move)][toSq(move)];
+            ss->continuation = &thread->continuation[inCheck][moveIsCapture(move)][piece(move)][toSq(move)];
 
             // See if a quiescence search beats the threshold
             int score = -Quiescence(thread, ss+1, -probCutBeta, -probCutBeta+1);
@@ -472,7 +472,7 @@ move_loop:
             goto skip_search;
         }
 
-        ss->continuation = &thread->continuation[moveIsCapture(move)][piece(move)][toSq(move)];
+        ss->continuation = &thread->continuation[inCheck][moveIsCapture(move)][piece(move)][toSq(move)];
 
         const Depth newDepth = depth - 1 + extension;
 
