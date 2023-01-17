@@ -398,10 +398,6 @@ move_loop:
 
             Depth lmrDepth = depth - Reductions[quiet][MIN(31, depth)][MIN(31, moveCount)];
 
-            // Late move pruning
-            if (moveCount > (3 + 2 * depth * depth) / (2 - improving))
-                break;
-
             // Quiet late move pruning
             if (quiet && moveCount > (1 + depth * depth) / (2 - improving)) {
                 mp.onlyNoisy = true;
