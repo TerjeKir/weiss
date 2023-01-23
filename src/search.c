@@ -186,7 +186,7 @@ search:
     if (inCheck && bestScore == -INFINITE)
         return -MATE + ss->ply;
 
-    StoreTTEntry(tte, key, bestMove, ScoreToTT(bestScore, ss->ply), 0,
+    StoreTTEntry(tte, key, bestMove, ScoreToTT(bestScore, ss->ply), eval, 0,
                  bestScore >= beta ? BOUND_LOWER : BOUND_UPPER);
 
     return bestScore;
@@ -241,11 +241,12 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
 
     Move ttMove = ttHit ? tte->move : NOMOVE;
     int ttScore = ttHit ? ScoreFromTT(tte->score, ss->ply) : NOSCORE;
+    int ttEval = ttHit ? tte->eval : NOSCORE;
     Depth ttDepth = tte->depth;
     int ttBound = Bound(tte);
 
     if (ttMove && (!MoveIsPseudoLegal(pos, ttMove) || ttMove == ss->excluded))
-        ttHit = false, ttMove = NOMOVE, ttScore = NOSCORE;
+        ttHit = false, ttMove = NOMOVE, ttScore = NOSCORE, ttEval = NOSCORE;
 
     // Trust TT if not a pvnode and the entry depth is sufficiently high
     if (   !pvNode
@@ -271,7 +272,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
 
         // Draw scores are exact, while wins are lower bounds and losses upper bounds (mate scores are better/worse)
         if (bound == BOUND_EXACT || (bound == BOUND_LOWER ? tbScore >= beta : tbScore <= alpha)) {
-            StoreTTEntry(tte, pos->key, NOMOVE, ScoreToTT(tbScore, ss->ply), MAX_PLY, bound);
+            StoreTTEntry(tte, pos->key, NOMOVE, ScoreToTT(tbScore, ss->ply), NOSCORE, MAX_PLY, bound);
             return tbScore;
         }
 
@@ -288,9 +289,10 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
     const bool inCheck = pos->checkers;
 
     // Do a static evaluation for pruning considerations
-    int eval = ss->eval = inCheck          ? NOSCORE
-                        : lastMoveNullMove ? -(ss-1)->eval + 2 * Tempo
-                                           : EvalPosition(pos, thread->pawnCache);
+    int eval = ss->eval = inCheck           ? NOSCORE
+                        : lastMoveNullMove  ? -(ss-1)->eval + 2 * Tempo
+                        : ttEval != NOSCORE ? ttEval
+                                            : EvalPosition(pos, thread->pawnCache);
 
     // Use ttScore as eval if it is more informative
     if (   ttScore != NOSCORE
@@ -557,7 +559,7 @@ skip_extensions:
 
     // Store in TT
     if (!ss->excluded && (!root || !thread->multiPV))
-        StoreTTEntry(tte, pos->key, bestMove, ScoreToTT(bestScore, ss->ply), depth,
+        StoreTTEntry(tte, pos->key, bestMove, ScoreToTT(bestScore, ss->ply), ss->eval, depth,
                        bestScore >= beta  ? BOUND_LOWER
                      : pvNode && bestMove ? BOUND_EXACT
                                           : BOUND_UPPER);

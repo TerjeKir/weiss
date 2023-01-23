@@ -47,9 +47,10 @@ enum {
 };
 
 typedef struct {
-    Key key;
+    int32_t key;
     Move move;
     int16_t score;
+    int16_t eval;
     uint8_t depth;
     uint8_t genBound;
 } TTEntry;
@@ -116,7 +117,7 @@ INLINE void TTNewSearch() {
 }
 
 TTEntry* ProbeTT(Key key, bool *ttHit);
-void StoreTTEntry(TTEntry *tte, Key key, Move move, int score, Depth depth, int bound);
+void StoreTTEntry(TTEntry *tte, Key key, Move move, int score, int eval, Depth depth, int bound);
 int HashFull();
 void ClearTT();
 void InitTT();
