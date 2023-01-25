@@ -371,8 +371,8 @@ move_loop:
 
     InitNormalMP(&mp, thread, ss, depth, ttMove, ss->killers[0], ss->killers[1]);
 
-    Move quiets[32] = { 0 };
-    Move noisys[32] = { 0 };
+    Move quiets[32];
+    Move noisys[32];
     Move bestMove = NOMOVE;
     int moveCount = 0, quietCount = 0, noisyCount = 0;
     int score = -INFINITE;
