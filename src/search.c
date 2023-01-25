@@ -79,7 +79,7 @@ static int Quiescence(Thread *thread, Stack *ss, int alpha, const int beta) {
     int bestScore = -INFINITE;
 
     // Position is drawn
-    if (IsRepetition(pos) || pos->rule50 >= 100)
+    if (IsRepetition(pos, 1 + pvNode) || pos->rule50 >= 100)
         return 8 - (pos->nodes & 0x7);
 
     // Probe transposition table
@@ -204,7 +204,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
     if (!root) {
 
         // Position is drawn
-        if (IsRepetition(pos) || pos->rule50 >= 100)
+        if (IsRepetition(pos, 1 + pvNode) || pos->rule50 >= 100)
             return 8 - (pos->nodes & 0x7);
 
         // Max depth reached
