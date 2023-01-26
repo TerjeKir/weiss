@@ -308,6 +308,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
 
     // Null Move Pruning
     if (   eval >= beta
+        && eval >= ss->eval
         && ss->eval >= beta + 120 - 15 * depth
         && (ss-1)->histScore < 35000
         && history(-1).move != NOMOVE
