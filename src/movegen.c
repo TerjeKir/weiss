@@ -128,7 +128,8 @@ INLINE void GenPieceType(const Position *pos, MoveList *list, const Color color,
 
     const Bitboard occupied = pieceBB(ALL);
     const Bitboard enemies  = pos->checkers && pt != KING ? pos->checkers : colorBB(!color);
-    const Bitboard targets  = type == QUIET ? ~occupied : enemies;
+    const Bitboard open     = pos->checkers && pt != KING ? BetweenBB[kingSq(color)][Lsb(pos->checkers)] : ~occupied;
+    const Bitboard targets  = type == QUIET ? open : enemies;
 
     Bitboard pieces = colorPieceBB(color, pt);
 
