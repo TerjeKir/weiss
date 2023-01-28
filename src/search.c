@@ -152,6 +152,7 @@ moveloop:
         }
 
 search:
+        TTPrefetch(KeyAfter(pos, move));
 
         ss->continuation = &thread->continuation[inCheck][moveIsCapture(move)][piece(move)][toSq(move)];
 
