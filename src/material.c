@@ -28,12 +28,15 @@ Endgame endgameTable[ENDGAME_TABLE_SIZE] = { 0 };
 
 
 // Generates a material key from a string like "KRPkr"
-static Key GenMaterialKey(const char *str) {
+static Key GenMaterialKey(const char *white, const char *black) {
 
-    assert(strlen(str) < 8);
+    assert(strlen(white) < 8);
+    assert(strlen(black) < 8);
 
     char fen[64];
-    sprintf(fen, "%s%c/8/8/8/8/8/8/8 w - - 0 1", str, (char)(8 - strlen(str) + '0'));
+    sprintf(fen, "%s%c/8/8/8/8/8/8/%s%c w - - 0 1", black, (char)(8 - strlen(black) + '0'), white, (char)(8 - strlen(white) + '0'));
+
+    printf("%s\n", fen);
 
     Position pos;
     ParseFen(fen, &pos);
@@ -45,9 +48,9 @@ static int TrivialDraw(__attribute__((unused)) const Position *pos, __attribute_
     return 0;
 }
 
-static void AddEndgame(const char *pieces, SpecializedEval ef) {
+static void AddEndgame(const char *white, const char *black, SpecializedEval ef) {
 
-    Key key = GenMaterialKey(pieces);
+    Key key = GenMaterialKey(white, black);
 
     Endgame *eg = &endgameTable[EndgameIndex(key)];
 
@@ -61,21 +64,21 @@ static void AddEndgame(const char *pieces, SpecializedEval ef) {
 
 CONSTR(3) InitEndgames() {
     // King vs king
-    AddEndgame("Kk",  &TrivialDraw);
+    AddEndgame("K", "k", &TrivialDraw);
 
     // Single minor vs lone king
-    AddEndgame("KNk", &TrivialDraw);
-    AddEndgame("KBk", &TrivialDraw);
-    AddEndgame("Kkn", &TrivialDraw);
-    AddEndgame("Kkb", &TrivialDraw);
+    AddEndgame("KN", "k", &TrivialDraw);
+    AddEndgame("KB", "k", &TrivialDraw);
+    AddEndgame("K", "kn", &TrivialDraw);
+    AddEndgame("K", "kb", &TrivialDraw);
 
     // Single minor or rook vs single minor or rook
-    AddEndgame("KNkn", &TrivialDraw);
-    AddEndgame("KNkb", &TrivialDraw);
-    AddEndgame("KBkn", &TrivialDraw);
-    AddEndgame("KBkb", &TrivialDraw);
+    AddEndgame("KN", "kn", &TrivialDraw);
+    AddEndgame("KN", "kb", &TrivialDraw);
+    AddEndgame("KB", "kn", &TrivialDraw);
+    AddEndgame("KB", "kb", &TrivialDraw);
 
     // 2 knights vs lone king
-    AddEndgame("KNNk", &TrivialDraw);
-    AddEndgame("Kknn", &TrivialDraw);
+    AddEndgame("KNN", "k", &TrivialDraw);
+    AddEndgame("K", "knn", &TrivialDraw);
 }
