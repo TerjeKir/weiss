@@ -36,8 +36,6 @@ static Key GenMaterialKey(const char *white, const char *black) {
     char fen[64];
     sprintf(fen, "%s%c/8/8/8/8/8/8/%s%c w - - 0 1", black, (char)(8 - strlen(black) + '0'), white, (char)(8 - strlen(white) + '0'));
 
-    printf("%s\n", fen);
-
     Position pos;
     ParseFen(fen, &pos);
 
