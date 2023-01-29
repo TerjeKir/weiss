@@ -85,7 +85,7 @@ TTuple *TupleStack;
 int TupleStackSize;
 
 
-void PrintSingle_(char *name, TIntVector params, int i, char *filler) {
+static void PrintSingle_(char *name, TIntVector params, int i, char *filler) {
     printf("const int %s%s = S(%3d,%3d);\n", name, filler, params[i][MG], params[i][EG]);
 }
 
@@ -96,7 +96,7 @@ void PrintSingle_(char *name, TIntVector params, int i, char *filler) {
         printf("%s", a == (elements - 1) ? "" : ", ");      \
     }
 
-void PrintArray_(char *name, TIntVector params, int i, int A, char *filler) {
+static void PrintArray_(char *name, TIntVector params, int i, int A, char *filler) {
 
     int perLine = A >= 8 ? 4 : 7;
 
@@ -105,7 +105,7 @@ void PrintArray_(char *name, TIntVector params, int i, int A, char *filler) {
     printf("\n};\n");
 }
 
-void PrintPieceValues(TIntVector params, int i) {
+static void PrintPieceValues(TIntVector params, int i) {
     puts("enum PieceValue {");
     printf("    P_MG = %4d, P_EG = %4d,\n", params[i+0][MG], params[i+0][EG]);
     printf("    N_MG = %4d, N_EG = %4d,\n", params[i+1][MG], params[i+1][EG]);
@@ -115,7 +115,7 @@ void PrintPieceValues(TIntVector params, int i) {
     puts("};");
 }
 
-void PrintPSQT(TIntVector params, int i) {
+static void PrintPSQT(TIntVector params, int i) {
 
     puts("\n// Black's point of view - easier to read as it's not upside down");
     puts("const int PieceSqValue[6][64] = {");
@@ -128,7 +128,7 @@ void PrintPSQT(TIntVector params, int i) {
     puts("};");
 }
 
-void PrintMobility(TIntVector params, int i) {
+static void PrintMobility(TIntVector params, int i) {
 
     #define PrintSingleMob(piece, max)              \
         printf("    // "#piece" (0-"#max")\n");     \
@@ -145,7 +145,7 @@ void PrintMobility(TIntVector params, int i) {
     printf("};\n");
 }
 
-void InitBaseParams(TVector tparams) {
+static void InitBaseParams(TVector tparams) {
 
     #define InitBaseSingle(term)        \
         tparams[i][MG] = MgScore(term), \
@@ -212,7 +212,7 @@ void InitBaseParams(TVector tparams) {
     }
 }
 
-void PrintParameters(TVector updates, TVector base) {
+static void PrintParameters(TVector updates, TVector base) {
 
     #define PrintSingle(term, spaces) \
         PrintSingle_(#term, updated, i++, spaces)
@@ -280,7 +280,7 @@ void PrintParameters(TVector updates, TVector base) {
     }
 }
 
-void InitCoefficients(TCoeffs coeffs) {
+static void InitCoefficients(TCoeffs coeffs) {
 
     #define InitCoeffSingle(term) \
         coeffs[i++] = T.term[WHITE] - T.term[BLACK]
@@ -347,7 +347,7 @@ void InitCoefficients(TCoeffs coeffs) {
     }
 }
 
-double LinearEvaluation(TEntry *entry, TVector params, int base) {
+static double LinearEvaluation(TEntry *entry, TVector params, int base) {
 
     double midgame = MgScore(base);
     double endgame = EgScore(base);
@@ -365,7 +365,7 @@ double LinearEvaluation(TEntry *entry, TVector params, int base) {
     return eval + (entry->turn == WHITE ? Tempo : -Tempo);
 }
 
-void InitTunerTuples(TEntry *entry, TCoeffs coeffs) {
+static void InitTunerTuples(TEntry *entry, TCoeffs coeffs) {
 
     static int allocs = 0;
     int length = 0, tidx = 0;
@@ -394,7 +394,7 @@ void InitTunerTuples(TEntry *entry, TCoeffs coeffs) {
             entry->tuples[tidx++] = (TTuple) { i, coeffs[i] };
 }
 
-void InitTunerEntry(TEntry *entry, Position *pos, int *danger) {
+static void InitTunerEntry(TEntry *entry, Position *pos, int *danger) {
 
     // Save time by computing phase scalars now
     entry->pfactors[MG] = 0 + pos->phaseValue / 24.0;
@@ -417,7 +417,7 @@ void InitTunerEntry(TEntry *entry, Position *pos, int *danger) {
     *danger = T.danger[WHITE] - T.danger[BLACK];
 }
 
-void InitTunerEntries(TEntry *entries, TVector baseParams) {
+static void InitTunerEntries(TEntry *entries, TVector baseParams) {
 
     Position pos;
     char line[128];
@@ -450,11 +450,11 @@ void InitTunerEntries(TEntry *entries, TVector baseParams) {
     }
 }
 
-double Sigmoid(double K, double E) {
+static double Sigmoid(double K, double E) {
     return 1.0 / (1.0 + exp(-K * E / 400.0));
 }
 
-double StaticEvaluationErrors(TEntry * entries, double K) {
+static double StaticEvaluationErrors(TEntry * entries, double K) {
 
     double total = 0.0;
     #pragma omp parallel shared(total)
@@ -467,7 +467,7 @@ double StaticEvaluationErrors(TEntry * entries, double K) {
     return total / (double) NPOSITIONS;
 }
 
-double ComputeOptimalK(TEntry *entries) {
+static double ComputeOptimalK(TEntry *entries) {
 
     const double rate = 100, delta = 1e-5, deviation_goal = 1e-6;
     double K = 2, deviation = 1;
@@ -482,7 +482,7 @@ double ComputeOptimalK(TEntry *entries) {
     return K;
 }
 
-void UpdateSingleGradient(TEntry *entry, TVector gradient, TVector params, double K) {
+static void UpdateSingleGradient(TEntry *entry, TVector gradient, TVector params, double K) {
 
     double E = LinearEvaluation(entry, params, entry->eval);
     double S = Sigmoid(K, E);
@@ -500,7 +500,7 @@ void UpdateSingleGradient(TEntry *entry, TVector gradient, TVector params, doubl
     }
 }
 
-void ComputeGradient(TEntry *entries, TVector gradient, TVector params, double K) {
+static void ComputeGradient(TEntry *entries, TVector gradient, TVector params, double K) {
 
     #pragma omp parallel shared(gradient)
     {
@@ -516,7 +516,7 @@ void ComputeGradient(TEntry *entries, TVector gradient, TVector params, double K
     }
 }
 
-double TunedEvaluationErrors(TEntry *entries, TVector params, double K) {
+static double TunedEvaluationErrors(TEntry *entries, TVector params, double K) {
 
     double total = 0.0;
 
