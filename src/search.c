@@ -423,7 +423,7 @@ move_loop:
         Depth extension = 0;
 
         // Singular extension
-        if (   depth > 8
+        if (   depth > 6
             && move == ttMove
             && !ss->excluded
             && ttDepth > depth - 3
