@@ -425,7 +425,7 @@ move_loop:
         // Avoid extending too far
         if (ss->ply < thread->depth * 2) {
             // Singular extension
-            if (   depth > 6
+            if (   depth > 4
                 && move == ttMove
                 && !ss->excluded
                 && ttDepth > depth - 3
