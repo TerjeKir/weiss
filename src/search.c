@@ -422,37 +422,40 @@ move_loop:
 
         Depth extension = 0;
 
-        // Singular extension
-        if (   depth > 6
-            && move == ttMove
-            && !ss->excluded
-            && ttDepth > depth - 3
-            && ttBound != BOUND_UPPER
-            && abs(ttScore) < TBWIN_IN_MAX / 4
-            && !root) {
+        // Avoid extending too far
+        if (ss->ply < thread->depth * 2) {
+            // Singular extension
+            if (   depth > 6
+                && move == ttMove
+                && !ss->excluded
+                && ttDepth > depth - 3
+                && ttBound != BOUND_UPPER
+                && abs(ttScore) < TBWIN_IN_MAX / 4
+                && !root) {
 
-            // ttMove has been made to check legality
-            TakeMove(pos);
+                // ttMove has been made to check legality
+                TakeMove(pos);
 
-            // Search to reduced depth with a zero window a bit lower than ttScore
-            int singularBeta = ttScore - depth * 2;
-            ss->excluded = move;
-            score = AlphaBeta(thread, ss, singularBeta-1, singularBeta, depth/2, cutnode);
-            ss->excluded = NOMOVE;
+                // Search to reduced depth with a zero window a bit lower than ttScore
+                int singularBeta = ttScore - depth * 2;
+                ss->excluded = move;
+                score = AlphaBeta(thread, ss, singularBeta-1, singularBeta, depth/2, cutnode);
+                ss->excluded = NOMOVE;
 
-            // Extend as this move seems forced
-            if (score < singularBeta)
+                // Extend as this move seems forced
+                if (score < singularBeta)
+                    extension = 1;
+                else if (singularBeta >= beta)
+                    return singularBeta;
+
+                // Replay ttMove
+                MakeMove(pos, move);
+            }
+
+            // Extend when in check
+            if (inCheck && !root)
                 extension = 1;
-            else if (singularBeta >= beta)
-                return singularBeta;
-
-            // Replay ttMove
-            MakeMove(pos, move);
         }
-
-        // Extend when in check
-        if (inCheck && !root)
-            extension = 1;
 
         // If alpha > 0 and we take back our last move, opponent can do the same
         // and get a fail high by repetition
