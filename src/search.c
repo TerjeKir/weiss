@@ -139,7 +139,7 @@ moveloop:
         // Futility pruning
         if (    futility + PieceValue[EG][capturing(move)] <= alpha
             && !(   PieceTypeOf(piece(move)) == PAWN
-                 && RelativeRank(sideToMove, RankOf(toSq(move))) > 5)) {
+                 && RelativeRank(sideToMove, RankOf(toSq(move))) > RANK_6)) {
             bestScore = MAX(bestScore, futility + PieceValue[EG][capturing(move)]);
             continue;
         }
@@ -315,7 +315,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
         && history(-1).move != NOMOVE
         && pos->nonPawnCount[sideToMove] > (depth > 8)) {
 
-        Depth nullDepth = depth - (3 + depth / 5 + MIN(3, (eval - beta) / 256));
+        Depth reduction = 3 + depth / 5 + MIN(3, (eval - beta) / 256);
 
         // Remember who last null-moved
         Color nullMoverTemp = thread->nullMover;
@@ -324,7 +324,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
         ss->continuation = &thread->continuation[0][0][EMPTY][0];
 
         MakeNullMove(pos);
-        int score = -AlphaBeta(thread, ss+1, -beta, -alpha, nullDepth, !cutnode);
+        int score = -AlphaBeta(thread, ss+1, -beta, -alpha, depth - reduction, !cutnode);
         TakeNullMove(pos);
 
         thread->nullMover = nullMoverTemp;
@@ -339,9 +339,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
 
     // ProbCut
     if (   depth >= 5
-        && !(   ttHit
-             && ttBound & BOUND_UPPER
-             && ttScore < probCutBeta)) {
+        && (!ttHit || ttBound == BOUND_LOWER || ttScore >= probCutBeta)) {
 
         InitNoisyMP(&mp, thread, ss, NOMOVE);
 
@@ -423,39 +421,41 @@ move_loop:
         Depth extension = 0;
 
         // Avoid extending too far
-        if (ss->ply < thread->depth * 2) {
-            // Singular extension
-            if (   depth > 4
-                && move == ttMove
-                && !ss->excluded
-                && ttDepth > depth - 3
-                && ttBound != BOUND_UPPER
-                && abs(ttScore) < TBWIN_IN_MAX / 4
-                && !root) {
+        if (root || ss->ply >= thread->depth * 2)
+            goto skip_extensions;
 
-                // ttMove has been made to check legality
-                TakeMove(pos);
+        // Singular extension
+        if (   depth > 4
+            && move == ttMove
+            && !ss->excluded
+            && ttDepth > depth - 3
+            && ttBound != BOUND_UPPER
+            && abs(ttScore) < TBWIN_IN_MAX / 4) {
 
-                // Search to reduced depth with a zero window a bit lower than ttScore
-                int singularBeta = ttScore - depth * 2;
-                ss->excluded = move;
-                score = AlphaBeta(thread, ss, singularBeta-1, singularBeta, depth/2, cutnode);
-                ss->excluded = NOMOVE;
+            // ttMove has been made to check legality
+            TakeMove(pos);
 
-                // Extend as this move seems forced
-                if (score < singularBeta)
-                    extension = 1;
-                else if (singularBeta >= beta)
-                    return singularBeta;
+            // Search to reduced depth with a zero window a bit lower than ttScore
+            int singularBeta = ttScore - depth * 2;
+            ss->excluded = move;
+            score = AlphaBeta(thread, ss, singularBeta-1, singularBeta, depth/2, cutnode);
+            ss->excluded = NOMOVE;
 
-                // Replay ttMove
-                MakeMove(pos, move);
-            }
-
-            // Extend when in check
-            if (inCheck && !root)
+            // Extend as this move seems forced
+            if (score < singularBeta)
                 extension = 1;
+            else if (singularBeta >= beta)
+                return singularBeta;
+
+            // Replay ttMove
+            MakeMove(pos, move);
         }
+
+        // Extend when in check
+        if (inCheck)
+            extension = 1;
+
+skip_extensions:
 
         // If alpha > 0 and we take back our last move, opponent can do the same
         // and get a fail high by repetition
@@ -474,8 +474,6 @@ move_loop:
         ss->continuation = &thread->continuation[inCheck][moveIsCapture(move)][piece(move)][toSq(move)];
 
         const Depth newDepth = depth - 1 + extension;
-
-        bool doFullDepthSearch;
 
         // Reduced depth zero-window search
         if (   depth > 2
@@ -506,12 +504,12 @@ move_loop:
 
             score = -AlphaBeta(thread, ss+1, -alpha-1, -alpha, lmrDepth, true);
 
-            doFullDepthSearch = score > alpha && lmrDepth < newDepth;
-        } else
-            doFullDepthSearch = !pvNode || moveCount > 1;
+            if (score > alpha && lmrDepth < newDepth)
+                score = -AlphaBeta(thread, ss+1, -alpha-1, -alpha, newDepth, !cutnode);
+        }
 
         // Full depth zero-window search
-        if (doFullDepthSearch)
+        else if (!pvNode || moveCount > 1)
             score = -AlphaBeta(thread, ss+1, -alpha-1, -alpha, newDepth, !cutnode);
 
         // Full depth alpha-beta window search
