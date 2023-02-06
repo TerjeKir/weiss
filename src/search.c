@@ -139,7 +139,7 @@ moveloop:
         // Futility pruning
         if (    futility + PieceValue[EG][capturing(move)] <= alpha
             && !(   PieceTypeOf(piece(move)) == PAWN
-                 && RelativeRank(sideToMove, RankOf(toSq(move))) > 5)) {
+                 && RelativeRank(sideToMove, RankOf(toSq(move))) > RANK_6)) {
             bestScore = MAX(bestScore, futility + PieceValue[EG][capturing(move)]);
             continue;
         }
@@ -421,38 +421,41 @@ move_loop:
         Depth extension = 0;
 
         // Avoid extending too far
-        if (!root && ss->ply < thread->depth * 2) {
-            // Singular extension
-            if (   depth > 4
-                && move == ttMove
-                && !ss->excluded
-                && ttDepth > depth - 3
-                && ttBound != BOUND_UPPER
-                && abs(ttScore) < TBWIN_IN_MAX / 4) {
+        if (root || ss->ply >= thread->depth * 2)
+            goto skip_extensions;
 
-                // ttMove has been made to check legality
-                TakeMove(pos);
+        // Singular extension
+        if (   depth > 4
+            && move == ttMove
+            && !ss->excluded
+            && ttDepth > depth - 3
+            && ttBound != BOUND_UPPER
+            && abs(ttScore) < TBWIN_IN_MAX / 4) {
 
-                // Search to reduced depth with a zero window a bit lower than ttScore
-                int singularBeta = ttScore - depth * 2;
-                ss->excluded = move;
-                score = AlphaBeta(thread, ss, singularBeta-1, singularBeta, depth/2, cutnode);
-                ss->excluded = NOMOVE;
+            // ttMove has been made to check legality
+            TakeMove(pos);
 
-                // Extend as this move seems forced
-                if (score < singularBeta)
-                    extension = 1;
-                else if (singularBeta >= beta)
-                    return singularBeta;
+            // Search to reduced depth with a zero window a bit lower than ttScore
+            int singularBeta = ttScore - depth * 2;
+            ss->excluded = move;
+            score = AlphaBeta(thread, ss, singularBeta-1, singularBeta, depth/2, cutnode);
+            ss->excluded = NOMOVE;
 
-                // Replay ttMove
-                MakeMove(pos, move);
-            }
-
-            // Extend when in check
-            if (inCheck)
+            // Extend as this move seems forced
+            if (score < singularBeta)
                 extension = 1;
+            else if (singularBeta >= beta)
+                return singularBeta;
+
+            // Replay ttMove
+            MakeMove(pos, move);
         }
+
+        // Extend when in check
+        if (inCheck)
+            extension = 1;
+
+skip_extensions:
 
         // If alpha > 0 and we take back our last move, opponent can do the same
         // and get a fail high by repetition
