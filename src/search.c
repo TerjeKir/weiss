@@ -60,6 +60,105 @@ static bool NotInSearchMoves(Move move) {
     return true;
 }
 
+
+
+uint64_t cuckoo[8192];
+Move cuckooMove[8192];
+
+inline uint64_t Hash1(uint64_t hash) {
+  return hash & 0x1fff;
+}
+
+inline uint64_t Hash2(uint64_t hash) {
+  return (hash >> 16) & 0x1fff;
+}
+
+CONSTR(3) InitCuckoo() {
+    int validate = 0;
+
+    for (Color c = BLACK; c <= WHITE; c++) {
+        for (PieceType pt = KNIGHT; pt <= KING; ++pt) {
+            for (Square sq1 = 0; sq1 < 64; sq1++) {
+                for (Square sq2 = sq1 + 1; sq2 < 64; sq2++) {
+                    if (!(AttackBB(pt, sq1, 0) & BB(sq2)))
+                        continue;
+
+                    Piece pc = MakePiece(c, pt);
+                    Move move = MOVE(sq1, sq2, pc, EMPTY, EMPTY, FLAG_NONE);
+                    Key hash  = PieceKeys[pc][sq1] ^ PieceKeys[pc][sq2] ^ SideKey;
+
+                    uint32_t i = Hash1(hash);
+                    while (true) {
+                        uint64_t temp = cuckoo[i];
+                        cuckoo[i]     = hash;
+                        hash          = temp;
+
+                        Move tempMove = cuckooMove[i];
+                        cuckooMove[i] = move;
+                        move          = tempMove;
+
+                        if (move == 0)
+                            break;
+
+                        i = (i == Hash1(hash)) ? Hash2(hash) : Hash1(hash);
+                    }
+
+                    validate++;
+                }
+            }
+        }
+    }
+
+    if (validate != 3668)
+        puts("Failed to set cuckoo tables."), exit(1);
+}
+
+// Upcoming repetition detection
+// http://www.open-chess.org/viewtopic.php?f=5&t=2300
+// Implemented originally in SF
+// Paper no longer seems accessible @ http://marcelk.net/2013-04-06/paper/upcoming-rep-v2.pdf
+static bool HasCycle(Position *pos, int ply) {
+
+    int distance = pos->rule50;
+    if (distance < 3)
+        return 0;
+
+    Key original = pos->key;
+    History *prev = &history(-1);
+
+    for (int i = 3; i <= distance; i += 2) {
+
+        prev -= 2;
+
+        uint32_t j;
+        Key moveKey = original ^ prev->key;
+        if (   (j = Hash1(moveKey), cuckoo[j] == moveKey)
+            || (j = Hash2(moveKey), cuckoo[j] == moveKey)) {
+
+            Move move = cuckooMove[j];
+
+            if (BetweenBB[fromSq(move)][toSq(move)] & pieceBB(ALL))
+                continue;
+
+            if (ply > i)
+                return true;
+
+            if (ColorOf(pieceOn(fromSq(move)) ?: pieceOn(toSq(move))) != sideToMove)
+                continue;
+
+            History *prev2 = prev;
+            for (int l = i + 2; l <= distance; l += 2) {
+                prev2 -= 2;
+                if (prev2->key == prev->key)
+                    return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+
 // Quiescence
 static int Quiescence(Thread *thread, Stack *ss, int alpha, const int beta) {
 
@@ -200,6 +299,12 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
     // Check time situation
     if (OutOfTime(thread) || ABORT_SIGNAL)
         longjmp(thread->jumpBuffer, true);
+
+    if (!root && pos->rule50 >= 3 && alpha < 0 && HasCycle(pos, ss->ply)) {
+        alpha = 8 - (pos->nodes & 0x7);
+        if (alpha >= beta)
+            return alpha;
+    }
 
     // Early exits
     if (!root) {
