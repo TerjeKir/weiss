@@ -296,8 +296,8 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
     if (cutnode && depth >= 7 && !ttMove)
         depth--;
 
-    // Skip pruning in check, in pv nodes, during early iterations, when proving singularity, or when looking for terminal scores
-    if (inCheck || pvNode || !thread->doPruning || ss->excluded || abs(beta) >= TBWIN_IN_MAX)
+    // Skip pruning in check, pv nodes, early iterations, when proving singularity, looking for terminal scores, or after a null move
+    if (inCheck || pvNode || !thread->doPruning || ss->excluded || abs(beta) >= TBWIN_IN_MAX || history(-1).move == NOMOVE)
         goto move_loop;
 
     // Reverse Futility Pruning
@@ -312,7 +312,6 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
         && eval >= ss->eval
         && ss->eval >= beta + 120 - 15 * depth
         && (ss-1)->histScore < 35000
-        && history(-1).move != NOMOVE
         && pos->nonPawnCount[sideToMove] > (depth > 8)) {
 
         Depth reduction = 3 + depth / 5 + MIN(3, (eval - beta) / 256);
