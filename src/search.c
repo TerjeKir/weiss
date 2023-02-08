@@ -78,8 +78,8 @@ CONSTR(3) InitCuckoo() {
 
     for (Color c = BLACK; c <= WHITE; c++) {
         for (PieceType pt = KNIGHT; pt <= KING; ++pt) {
-            for (Square sq1 = 0; sq1 < 64; sq1++) {
-                for (Square sq2 = sq1 + 1; sq2 < 64; sq2++) {
+            for (Square sq1 = A1; sq1 <= H8; sq1++) {
+                for (Square sq2 = sq1 + 1; sq2 <= H8; sq2++) {
                     if (!(AttackBB(pt, sq1, 0) & BB(sq2)))
                         continue;
 
@@ -561,20 +561,6 @@ move_loop:
 
 skip_extensions:
 
-        // If alpha > 0 and we take back our last move, opponent can do the same
-        // and get a fail high by repetition
-        if (   pos->rule50 >= 3
-            && pos->histPly >= 3
-            && alpha > 0
-            // The current move has been made and is -1, 2 back is then -3
-            && fromSq(move) == toSq(history(-3).move)
-            && toSq(move) == fromSq(history(-3).move)) {
-
-            score = 0;
-            (ss+1)->pv.length = 0;
-            goto skip_search;
-        }
-
         ss->continuation = &thread->continuation[inCheck][moveIsCapture(move)][piece(move)][toSq(move)];
 
         const Depth newDepth = depth - 1 + extension;
@@ -619,8 +605,6 @@ skip_extensions:
         // Full depth alpha-beta window search
         if (pvNode && ((score > alpha && score < beta) || moveCount == 1))
             score = -AlphaBeta(thread, ss+1, -beta, -alpha, newDepth, false);
-
-skip_search:
 
         // Undo the move
         TakeMove(pos);
