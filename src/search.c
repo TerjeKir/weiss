@@ -254,7 +254,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
 
     // Probe syzygy TBs
     int tbScore, bound;
-    if (ProbeWDL(pos, &tbScore, &bound, ss->ply)) {
+    if (!ss->excluded && ProbeWDL(pos, &tbScore, &bound, ss->ply)) {
 
         thread->tbhits++;
 
