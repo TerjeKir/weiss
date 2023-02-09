@@ -60,6 +60,10 @@ static bool NotInSearchMoves(Move move) {
     return true;
 }
 
+static int DrawScore(Position *pos) {
+    return 8 - (pos->nodes & 0x7);
+}
+
 // Quiescence
 static int Quiescence(Thread *thread, Stack *ss, int alpha, const int beta) {
 
@@ -80,7 +84,7 @@ static int Quiescence(Thread *thread, Stack *ss, int alpha, const int beta) {
 
     // Position is drawn
     if (IsRepetition(pos, 1 + pvNode) || pos->rule50 >= 100)
-        return 8 - (pos->nodes & 0x7);
+        return DrawScore(pos);
 
     // Probe transposition table
     bool ttHit;
@@ -202,7 +206,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
         longjmp(thread->jumpBuffer, true);
 
     if (!root && pos->rule50 >= 3 && alpha < 0 && HasCycle(pos, ss->ply)) {
-        alpha = 8 - (pos->nodes & 0x7);
+        alpha = DrawScore(pos);
         if (alpha >= beta)
             return alpha;
     }
@@ -212,7 +216,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
 
         // Position is drawn
         if (IsRepetition(pos, 1 + pvNode) || pos->rule50 >= 100)
-            return 8 - (pos->nodes & 0x7);
+            return DrawScore(pos);
 
         // Max depth reached
         if (ss->ply >= MAX_PLY)
