@@ -60,6 +60,10 @@ static bool NotInSearchMoves(Move move) {
     return true;
 }
 
+static int DrawScore(Position *pos) {
+    return 8 - (pos->nodes & 0x7);
+}
+
 // Quiescence
 static int Quiescence(Thread *thread, Stack *ss, int alpha, const int beta) {
 
@@ -80,7 +84,7 @@ static int Quiescence(Thread *thread, Stack *ss, int alpha, const int beta) {
 
     // Position is drawn
     if (IsRepetition(pos, 1 + pvNode) || pos->rule50 >= 100)
-        return 8 - (pos->nodes & 0x7);
+        return DrawScore(pos);
 
     // Probe transposition table
     bool ttHit;
@@ -201,12 +205,18 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
     if (OutOfTime(thread) || ABORT_SIGNAL)
         longjmp(thread->jumpBuffer, true);
 
+    if (!root && pos->rule50 >= 3 && alpha < 0 && HasCycle(pos, ss->ply)) {
+        alpha = DrawScore(pos);
+        if (alpha >= beta)
+            return alpha;
+    }
+
     // Early exits
     if (!root) {
 
         // Position is drawn
         if (IsRepetition(pos, 1 + pvNode) || pos->rule50 >= 100)
-            return 8 - (pos->nodes & 0x7);
+            return DrawScore(pos);
 
         // Max depth reached
         if (ss->ply >= MAX_PLY)
@@ -456,20 +466,6 @@ move_loop:
 
 skip_extensions:
 
-        // If alpha > 0 and we take back our last move, opponent can do the same
-        // and get a fail high by repetition
-        if (   pos->rule50 >= 3
-            && pos->histPly >= 3
-            && alpha > 0
-            // The current move has been made and is -1, 2 back is then -3
-            && fromSq(move) == toSq(history(-3).move)
-            && toSq(move) == fromSq(history(-3).move)) {
-
-            score = 0;
-            (ss+1)->pv.length = 0;
-            goto skip_search;
-        }
-
         ss->continuation = &thread->continuation[inCheck][moveIsCapture(move)][piece(move)][toSq(move)];
 
         const Depth newDepth = depth - 1 + extension;
@@ -514,8 +510,6 @@ skip_extensions:
         // Full depth alpha-beta window search
         if (pvNode && ((score > alpha && score < beta) || moveCount == 1))
             score = -AlphaBeta(thread, ss+1, -beta, -alpha, newDepth, false);
-
-skip_search:
 
         // Undo the move
         TakeMove(pos);

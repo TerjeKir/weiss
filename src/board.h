@@ -83,6 +83,7 @@ extern Square RookSquare[16];
 void ParseFen(const char *fen, Position *pos);
 Key KeyAfter(const Position *pos, Move move);
 bool SEE(const Position *pos, const Move move, const int threshold);
+bool HasCycle(const Position *pos, int ply);
 char *BoardToFen(const Position *pos);
 #ifndef NDEBUG
 void PrintBoard(const Position *pos);
@@ -167,8 +168,7 @@ INLINE void SqToStr(Square sq, char *str) {
 
 INLINE bool IsRepetition(const Position *pos, int count) {
     int c = 0;
-    for (int i = 4; i <= pos->rule50 && i <= pos->histPly; i += 2)
-    {
+    for (int i = 4; i <= pos->rule50 && i <= pos->histPly; i += 2) {
         if (pos->key == history(-i).key)
             c++;
         if (c == count)
