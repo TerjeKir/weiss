@@ -62,42 +62,39 @@ static bool NotInSearchMoves(Move move) {
 
 
 
-uint64_t cuckoo[8192];
+Key cuckoo[8192];
 Move cuckooMove[8192];
 
-inline uint64_t Hash1(uint64_t hash) {
-  return hash & 0x1fff;
-}
+INLINE uint32_t Hash1(Key hash) { return  hash        & 0x1fff; }
+INLINE uint32_t Hash2(Key hash) { return (hash >> 16) & 0x1fff; }
 
-inline uint64_t Hash2(uint64_t hash) {
-  return (hash >> 16) & 0x1fff;
+#define Swap(x, y) {    \
+    typeof(x) temp = x; \
+    x = y;              \
+    y = temp;           \
 }
 
 CONSTR(3) InitCuckoo() {
     int validate = 0;
 
-    for (Color c = BLACK; c <= WHITE; c++) {
-        for (PieceType pt = KNIGHT; pt <= KING; ++pt) {
-            for (Square sq1 = A1; sq1 <= H8; sq1++) {
+    for (Color c = BLACK; c <= WHITE; c++)
+        for (PieceType pt = KNIGHT; pt <= KING; ++pt)
+            for (Square sq1 = A1; sq1 <= H8; sq1++)
                 for (Square sq2 = sq1 + 1; sq2 <= H8; sq2++) {
+
                     if (!(AttackBB(pt, sq1, 0) & BB(sq2)))
                         continue;
 
-                    Piece pc = MakePiece(c, pt);
+                    Piece pc  = MakePiece(c, pt);
                     Move move = MOVE(sq1, sq2, pc, EMPTY, EMPTY, FLAG_NONE);
                     Key hash  = PieceKeys[pc][sq1] ^ PieceKeys[pc][sq2] ^ SideKey;
 
                     uint32_t i = Hash1(hash);
                     while (true) {
-                        uint64_t temp = cuckoo[i];
-                        cuckoo[i]     = hash;
-                        hash          = temp;
+                        Swap(cuckoo[i], hash);
+                        Swap(cuckooMove[i], move);
 
-                        Move tempMove = cuckooMove[i];
-                        cuckooMove[i] = move;
-                        move          = tempMove;
-
-                        if (move == 0)
+                        if (move == NOMOVE)
                             break;
 
                         i = (i == Hash1(hash)) ? Hash2(hash) : Hash1(hash);
@@ -105,50 +102,36 @@ CONSTR(3) InitCuckoo() {
 
                     validate++;
                 }
-            }
-        }
-    }
 
     if (validate != 3668)
         puts("Failed to set cuckoo tables."), exit(1);
 }
 
 // Upcoming repetition detection
-// http://www.open-chess.org/viewtopic.php?f=5&t=2300
-// Implemented originally in SF
-// Paper no longer seems accessible @ http://marcelk.net/2013-04-06/paper/upcoming-rep-v2.pdf
-static bool HasCycle(Position *pos, int ply) {
+static bool HasCycle(const Position *pos, int ply) {
 
-    int distance = pos->rule50;
-    if (distance < 3)
-        return 0;
+    for (int i = 3; i <= pos->rule50; i += 2) {
 
-    Key original = pos->key;
-    History *prev = &history(-1);
-
-    for (int i = 3; i <= distance; i += 2) {
-
-        prev -= 2;
-
+        const History *prev = &history(-i);
         uint32_t j;
-        Key moveKey = original ^ prev->key;
+        Key moveKey = pos->key ^ prev->key;
         if (   (j = Hash1(moveKey), cuckoo[j] == moveKey)
             || (j = Hash2(moveKey), cuckoo[j] == moveKey)) {
 
             Move move = cuckooMove[j];
+            Square from = fromSq(move), to = toSq(move);
 
-            if (BetweenBB[fromSq(move)][toSq(move)] & pieceBB(ALL))
+            if (BetweenBB[from][to] & pieceBB(ALL))
                 continue;
 
             if (ply > i)
                 return true;
 
-            if (ColorOf(pieceOn(fromSq(move)) ?: pieceOn(toSq(move))) != sideToMove)
+            if (ColorOf(pieceOn(from) ?: pieceOn(to)) != sideToMove)
                 continue;
 
-            History *prev2 = prev;
-            for (int l = i + 2; l <= distance; l += 2) {
-                prev2 -= 2;
+            for (int k = i + 4; k <= pos->rule50; k += 2) {
+                const History *prev2 = &history(-k);
                 if (prev2->key == prev->key)
                     return true;
             }
