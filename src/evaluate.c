@@ -66,6 +66,7 @@ const int KingAtkPawn  = S(-16, 45);
 const int OpenForward  = S( 28, 31);
 const int SemiForward  = S( 17, 15);
 const int NBBehindPawn = S(  9, 32);
+const int BishopBadP   = S( -1, -5);
 
 // Passed pawn
 const int PawnPassed[RANK_NB] = {
@@ -283,6 +284,16 @@ INLINE int EvalPiece(const Position *pos, EvalInfo *ei, const Color color, const
 
         ei->attackedBy[color][pt] |= attackBB;
         ei->attackedBy[color][ALL] |= attackBB;
+
+        if (pt == BISHOP) {
+            Bitboard bishopSquares   = (BB(sq) & BlackSquaresBB) ? BlackSquaresBB : ~BlackSquaresBB;
+            Bitboard badPawns        = colorPieceBB(color, PAWN) & bishopSquares;
+            Bitboard blockedBadPawns = ShiftBB(pieceBB(ALL), down) & colorPieceBB(color, PAWN) & ~(FILE_A | FILE_B | FILE_G | FILE_H);
+
+            int count = PopCount(badPawns) * PopCount(blockedBadPawns);
+            eval += count * BishopBadP;
+            TraceCount(BishopBadP);
+        }
 
         // Forward mobility for rooks
         if (pt == ROOK) {
