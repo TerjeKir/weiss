@@ -22,6 +22,7 @@
 
 #include "board.h"
 #include "evaluate.h"
+#include "material.h"
 #include "types.h"
 
 
@@ -67,6 +68,7 @@ typedef struct Thread {
     // Anything below here is not zeroed out between searches
     Position pos;
     PawnCache pawnCache;
+    MaterialCache materialCache;
     ButterflyHistory history;
     CaptureToHistory captureHistory;
     ContinuationHistory continuation[2][2];

@@ -39,8 +39,6 @@ typedef struct Position {
 
     int nonPawnCount[COLOR_NB];
     int material;
-    int phaseValue;
-    int phase;
 
     Color stm;
     Square epSquare;

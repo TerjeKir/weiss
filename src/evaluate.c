@@ -21,7 +21,6 @@
 #include "tuner/tuner.h"
 #include "bitboard.h"
 #include "evaluate.h"
-#include "material.h"
 
 
 typedef struct EvalInfo {
@@ -513,12 +512,12 @@ static int ScaleFactor(const Position *pos, const int eval) {
 }
 
 // Calculate a static evaluation of a position
-int EvalPosition(const Position *pos, PawnCache pc) {
+int EvalPosition(const Position *pos, PawnCache pc, MaterialCache mc) {
 
-    Endgame *eg = &endgameTable[EndgameIndex(pos->materialKey)];
+    MaterialEntry *me = ProbeMaterial(mc, pos);
 
-    if (eg->key == pos->materialKey && eg->evalFunc != NULL)
-        return eg->evalFunc(pos, sideToMove);
+    if (me->evalFunc != NULL)
+        return me->evalFunc(pos, sideToMove);
 
     EvalInfo ei;
     InitEvalInfo(pos, &ei, WHITE);
@@ -548,8 +547,8 @@ int EvalPosition(const Position *pos, PawnCache pc) {
     TraceScale(scale);
 
     // Adjust score by phase
-    eval = (  MgScore(eval) * pos->phase
-            + EgScore(eval) * (MidGame - pos->phase) * scale / 128)
+    eval = (  MgScore(eval) * me->phase
+            + EgScore(eval) * (MidGame - me->phase) * scale / 128)
           / MidGame;
 
     // Return the evaluation, negated if we are black + tempo bonus

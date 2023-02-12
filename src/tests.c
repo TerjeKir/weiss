@@ -202,8 +202,8 @@ void Perft(char *str) {
 }
 
 void PrintEval(Position *pos) {
-    printf("%d\n", sideToMove == WHITE ?  EvalPosition(pos, threads->pawnCache)
-                                       : -EvalPosition(pos, threads->pawnCache));
+    printf("%d\n", sideToMove == WHITE ?  EvalPosition(pos, threads->pawnCache, threads->materialCache)
+                                       : -EvalPosition(pos, threads->pawnCache, threads->materialCache));
     fflush(stdout);
 }
 #endif

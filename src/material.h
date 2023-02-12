@@ -19,23 +19,20 @@
 #pragma once
 
 #include "board.h"
+#include "endgame.h"
 #include "types.h"
 
 
-#define ENDGAME_TABLE_SIZE 64
+#define MATERIAL_CACHE_SIZE 8192
 
 
-typedef int (*SpecializedEval) (const Position *pos, Color color);
-
-typedef struct Endgame {
+typedef struct MaterialEntry {
     Key key;
+    int phase;
     SpecializedEval evalFunc;
-} Endgame;
+} MaterialEntry;
+
+typedef MaterialEntry MaterialCache[MATERIAL_CACHE_SIZE];
 
 
-extern Endgame endgameTable[ENDGAME_TABLE_SIZE];
-
-
-INLINE int EndgameIndex(Key materialKey) {
-    return materialKey & (ENDGAME_TABLE_SIZE - 1);
-}
+MaterialEntry* ProbeMaterial(MaterialCache materialCache, const Position *pos);

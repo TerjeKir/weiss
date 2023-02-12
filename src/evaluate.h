@@ -18,7 +18,9 @@
 
 #pragma once
 
+#include "bitboard.h"
 #include "board.h"
+#include "material.h"
 #include "types.h"
 
 
@@ -47,10 +49,15 @@ extern const int PhaseValue[TYPE_NB];
 #define MgScore(s) ((int16_t)((uint16_t)((unsigned)((s)))))
 #define EgScore(s) ((int16_t)((uint16_t)((unsigned)((s) + 0x8000) >> 16)))
 
-// Calculates the phase from the phase values of the pieces left
-static inline int UpdatePhase(int value) {
-    return (value * MidGame + 12) / 24;
+// Calculates the phase of the game based on how many pieces are left
+static inline int Phase(const Position *pos) {
+
+    int v =  1 * PopCount(pieceBB(KNIGHT) | pieceBB(BISHOP))
+           + 2 * PopCount(pieceBB(ROOK))
+           + 4 * PopCount(pieceBB(QUEEN));
+
+    return (v * MidGame + 12) / 24;
 }
 
 // Returns a static evaluation of the position
-int EvalPosition(const Position *pos, PawnCache pc);
+int EvalPosition(const Position *pos, PawnCache pc, MaterialCache mc);

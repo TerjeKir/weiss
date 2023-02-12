@@ -107,7 +107,7 @@ static int Quiescence(Thread *thread, Stack *ss, int alpha, const int beta) {
 
     // Do a static evaluation for pruning considerations
     eval = history(-1).move == NOMOVE ? -(ss-1)->eval + 2 * Tempo
-                                      : EvalPosition(pos, thread->pawnCache);
+                                      : EvalPosition(pos, thread->pawnCache, thread->materialCache);
 
     // If we are at max depth, return static eval
     if (ss->ply >= MAX_PLY)
@@ -222,7 +222,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
 
         // Max depth reached
         if (ss->ply >= MAX_PLY)
-            return EvalPosition(pos, thread->pawnCache);
+            return EvalPosition(pos, thread->pawnCache, thread->materialCache);
 
         // Mate distance pruning
         alpha = MAX(alpha, -MATE + ss->ply);
@@ -290,7 +290,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
     // Do a static evaluation for pruning considerations
     int eval = ss->eval = inCheck          ? NOSCORE
                         : lastMoveNullMove ? -(ss-1)->eval + 2 * Tempo
-                                           : EvalPosition(pos, thread->pawnCache);
+                                           : EvalPosition(pos, thread->pawnCache, thread->materialCache);
 
     // Use ttScore as eval if it is more informative
     if (   ttScore != NOSCORE

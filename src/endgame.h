@@ -16,29 +16,26 @@
   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include <string.h>
+#pragma once
 
-#include "bitboard.h"
-#include "evaluate.h"
-#include "material.h"
+#include "board.h"
+#include "types.h"
 
 
-MaterialEntry* ProbeMaterial(MaterialCache materialCache, const Position *pos) {
+#define ENDGAME_TABLE_SIZE 64
 
-    Key key = pos->materialKey;
-    MaterialEntry *entry = &materialCache[key % MATERIAL_CACHE_SIZE];
 
-    if (key == entry->key)
-        return entry;
+typedef int (*SpecializedEval) (const Position *pos, Color color);
 
-    memset(entry, 0, sizeof(MaterialEntry));
-    entry->key = key;
-    entry->phase = Phase(pos);
+typedef struct Endgame {
+    Key key;
+    SpecializedEval evalFunc;
+} Endgame;
 
-    Endgame *eg = ProbeEndgame(key);
 
-    if (eg->key == pos->materialKey && eg->evalFunc != NULL)
-        entry->evalFunc = eg->evalFunc;
+extern Endgame endgameTable[ENDGAME_TABLE_SIZE];
 
-    return entry;
+
+INLINE Endgame* ProbeEndgame(Key materialKey) {
+    return &endgameTable[materialKey & (ENDGAME_TABLE_SIZE - 1)];
 }

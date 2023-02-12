@@ -22,7 +22,6 @@
 
 #include "bitboard.h"
 #include "board.h"
-#include "evaluate.h"
 #include "move.h"
 #include "psqt.h"
 
@@ -153,7 +152,6 @@ static void AddPiece(Position *pos, const Square sq, const Piece piece) {
 
     // Update misc
     pos->material += PSQT[piece][sq];
-    pos->phaseValue += PhaseValue[pt];
     pos->nonPawnCount[color] += NonPawn[piece];
 
     if (PieceTypeOf(piece) == PAWN)
@@ -239,7 +237,6 @@ void ParseFen(const char *fen, Position *pos) {
     pos->checkers = Checkers(pos);
     pos->key = GenPosKey(pos);
     pos->materialKey = GenMaterialKey(pos);
-    pos->phase = UpdatePhase(pos->phaseValue);
 
     free(copy);
 
