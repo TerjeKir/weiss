@@ -282,7 +282,7 @@ INLINE int EvalPiece(const Position *pos, EvalInfo *ei, const Color color, const
                                      +  checks *  CheckPower[pt-2];
         }
 
-        ei->attackedBy[color][pt] |= attackBB;
+        ei->attackedBy[color][pt]  |= attackBB;
         ei->attackedBy[color][ALL] |= attackBB;
 
         if (pt == BISHOP) {
@@ -344,6 +344,7 @@ INLINE int EvalKings(const Position *pos, EvalInfo *ei, const Color color) {
     return eval;
 }
 
+// Evaluates all non-pawns
 INLINE int EvalPieces(const Position *pos, EvalInfo *ei) {
     return  EvalPiece(pos, ei, WHITE, KNIGHT)
           - EvalPiece(pos, ei, BLACK, KNIGHT)
@@ -357,6 +358,7 @@ INLINE int EvalPieces(const Position *pos, EvalInfo *ei) {
           - EvalKings(pos, ei, BLACK);
 }
 
+// Evaluates passed pawns
 INLINE int EvalPassedPawns(const Position *pos, const EvalInfo *ei, const Color color) {
 
     const Direction up   = color == WHITE ? NORTH : SOUTH;

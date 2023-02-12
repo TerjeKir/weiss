@@ -60,6 +60,7 @@ static bool NotInSearchMoves(Move move) {
     return true;
 }
 
+// Small positive score with some random variance
 static int DrawScore(Position *pos) {
     return 8 - (pos->nodes & 0x7);
 }
@@ -71,16 +72,15 @@ static int Quiescence(Thread *thread, Stack *ss, int alpha, const int beta) {
     MovePicker mp;
 
     const bool pvNode = alpha != beta - 1;
-
-    // Check time situation
-    if (OutOfTime(thread) || ABORT_SIGNAL)
-        longjmp(thread->jumpBuffer, true);
-
-    bool inCheck = pos->checkers;
+    const bool inCheck = pos->checkers;
 
     int eval = NOSCORE;
     int futility = -INFINITE;
     int bestScore = -INFINITE;
+
+    // Check time situation
+    if (OutOfTime(thread) || ABORT_SIGNAL)
+        longjmp(thread->jumpBuffer, true);
 
     // Position is drawn
     if (IsRepetition(pos, 1 + pvNode) || pos->rule50 >= 100)
@@ -99,7 +99,7 @@ static int Quiescence(Thread *thread, Stack *ss, int alpha, const int beta) {
     if (ttMove && !MoveIsPseudoLegal(pos, ttMove))
         ttHit = false, ttMove = NOMOVE, ttScore = NOSCORE;
 
-    // Trust TT if not a pvnode and the entry depth is sufficiently high
+    // Trust TT if not a pvnode
     if (   !pvNode
         && ttHit
         && (ttBound & (ttScore >= beta ? BOUND_LOWER : BOUND_UPPER)))
@@ -119,7 +119,7 @@ static int Quiescence(Thread *thread, Stack *ss, int alpha, const int beta) {
     if (eval >= beta)
         return eval;
 
-    // Use eval as a lowerbound if it's above alpha
+    // Use eval as a lower bound if it's above alpha
     if (eval > alpha)
         alpha = eval;
 
@@ -135,9 +135,10 @@ moveloop:
     Move move;
     while ((move = NextMove(&mp))) {
 
+        // Avoid pruning until at least one move avoids a terminal loss score
         if (bestScore <= -TBWIN_IN_MAX) goto search;
 
-        // Skip moves SEE deem bad
+        // Only try moves the movepicker deems good
         if (mp.stage > NOISY_GOOD) break;
 
         // Futility pruning
@@ -205,14 +206,15 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
     if (OutOfTime(thread) || ABORT_SIGNAL)
         longjmp(thread->jumpBuffer, true);
 
-    if (!root && pos->rule50 >= 3 && alpha < 0 && HasCycle(pos, ss->ply)) {
-        alpha = DrawScore(pos);
-        if (alpha >= beta)
-            return alpha;
-    }
-
     // Early exits
     if (!root) {
+
+        // Detect upcoming repetitions
+        if (pos->rule50 >= 3 && alpha < 0 && HasCycle(pos, ss->ply)) {
+            alpha = DrawScore(pos);
+            if (alpha >= beta)
+                return alpha;
+        }
 
         // Position is drawn
         if (IsRepetition(pos, 1 + pvNode) || pos->rule50 >= 100)
@@ -235,8 +237,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
 
     // Probe transposition table
     bool ttHit;
-    Key key = pos->key;
-    TTEntry *tte = ProbeTT(key, &ttHit);
+    TTEntry *tte = ProbeTT(pos->key, &ttHit);
 
     Move ttMove = ttHit ? tte->move : NOMOVE;
     int ttScore = ttHit ? ScoreFromTT(tte->score, ss->ply) : NOSCORE;
@@ -270,7 +271,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
 
         // Draw scores are exact, while wins are lower bounds and losses upper bounds (mate scores are better/worse)
         if (bound == BOUND_EXACT || (bound == BOUND_LOWER ? tbScore >= beta : tbScore <= alpha)) {
-            StoreTTEntry(tte, key, NOMOVE, ScoreToTT(tbScore, ss->ply), MAX_PLY, bound);
+            StoreTTEntry(tte, pos->key, NOMOVE, ScoreToTT(tbScore, ss->ply), MAX_PLY, bound);
             return tbScore;
         }
 
@@ -556,7 +557,7 @@ skip_extensions:
 
     // Store in TT
     if (!ss->excluded && (!root || !thread->multiPV))
-        StoreTTEntry(tte, key, bestMove, ScoreToTT(bestScore, ss->ply), depth,
+        StoreTTEntry(tte, pos->key, bestMove, ScoreToTT(bestScore, ss->ply), depth,
                        bestScore >= beta  ? BOUND_LOWER
                      : pvNode && bestMove ? BOUND_EXACT
                                           : BOUND_UPPER);

@@ -78,7 +78,6 @@ char *MoveToStr(const Move move) {
 // Translates a string to a move
 Move ParseMove(const char *str, const Position *pos) {
 
-    // Translate coordinates into square numbers
     Square from = StrToSq(str);
     Square to   = StrToSq(str+2);
 
@@ -95,7 +94,7 @@ Move ParseMove(const char *str, const Position *pos) {
              : pt == PAWN && str[0] != str[2] && !pieceOn(to) ? FLAG_ENPAS
                                                               : 0;
 
-    if (chess960 && pt == KING && pieceOn(to) && ColorOf(pieceOn(to)) == sideToMove) {
+    if (chess960 && pt == KING && pieceOn(to) == MakePiece(sideToMove, ROOK)) {
         to = RelativeSquare(sideToMove, to > from ? G1 : C1);
         flag = FLAG_CASTLE;
     }
