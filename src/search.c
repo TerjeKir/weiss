@@ -138,7 +138,7 @@ moveloop:
         // Avoid pruning until at least one move avoids a terminal loss score
         if (bestScore <= -TBWIN_IN_MAX) goto search;
 
-        // Only try moves the movepicker deem good
+        // Only try moves the movepicker deems good
         if (mp.stage > NOISY_GOOD) break;
 
         // Futility pruning

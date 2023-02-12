@@ -43,7 +43,7 @@ INLINE int Bonus(Depth depth) {
     return MIN(2100, 350 * depth - 350);
 }
 
-// Updates various history heuristics when a quiet move is the best move
+// Updates history heuristics when a quiet move is the best move
 INLINE void UpdateQuietHistory(Thread *thread, Stack *ss, Move bestMove, int bonus, Depth depth, Move quiets[], int qCount) {
 
     // Update killers
@@ -69,7 +69,7 @@ INLINE void UpdateQuietHistory(Thread *thread, Stack *ss, Move bestMove, int bon
     }
 }
 
-// Updates various history heuristics
+// Updates history heuristics
 INLINE void UpdateHistory(Thread *thread, Stack *ss, Move bestMove, Depth depth, Move quiets[], int qCount, Move noisys[], int nCount) {
 
     int bonus = Bonus(depth);
