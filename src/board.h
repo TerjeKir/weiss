@@ -32,14 +32,12 @@ typedef struct {
 } History;
 
 typedef struct Position {
-
     uint8_t board[64];
     Bitboard pieceBB[7];
     Bitboard colorBB[COLOR_NB];
     Bitboard checkers;
 
     int nonPawnCount[COLOR_NB];
-
     int material;
     int phaseValue;
     int phase;
@@ -60,7 +58,6 @@ typedef struct Position {
     int trend;
 
     History gameHistory[256];
-
 } Position;
 
 
@@ -93,76 +90,26 @@ bool PositionOk(const Position *pos);
 void PrintBoard(const Position *pos);
 #endif
 
-// Mirrors a square horizontally
-INLINE Square MirrorSquare(const Square sq) {
-    return sq ^ 56;
-}
+static bool ValidPiece(const Piece piece) { return (wP <= piece && piece <= wK) || (bP <= piece && piece <= bK); }
+static bool ValidCapture(const Piece capt) { return (wP <= capt && capt <= wQ) || (bP <= capt && capt <= bQ); }
+static bool ValidPromotion(const Piece promo) { return (wN <= promo && promo <= wQ) || (bN <= promo && promo <= bQ); }
 
-INLINE Square RelativeSquare(const Color color, const Square sq) {
-    return color == WHITE ? sq : MirrorSquare(sq);
-}
+INLINE Color ColorOf(Piece piece) { return piece >> 3;}
+INLINE PieceType PieceTypeOf(Piece piece) { return piece & 7; }
+INLINE Piece MakePiece(Color color, PieceType pt) { return (color << 3) + pt; }
 
-INLINE Square BlackRelativeSquare(const Color color, const Square sq) {
-    return color == BLACK ? sq : MirrorSquare(sq);
-}
-
-INLINE Piece MirrorPiece(Piece piece) {
-    return piece == EMPTY ? EMPTY : piece ^ 8;
-}
-
-INLINE int Distance(const Square sq1, const Square sq2) {
-    return SqDistance[sq1][sq2];
-}
-
-INLINE bool ValidPiece(const Piece piece) {
-    return (wP <= piece && piece <= wK)
-        || (bP <= piece && piece <= bK);
-}
-
-INLINE bool ValidCapture(const Piece capt) {
-    return (wP <= capt && capt <= wQ)
-        || (bP <= capt && capt <= bQ);
-}
-
-INLINE bool ValidPromotion(const Piece promo) {
-    return (wN <= promo && promo <= wQ)
-        || (bN <= promo && promo <= bQ);
-}
-
-INLINE int FileOf(const Square square) {
-    return square & 7;
-}
-
-INLINE int RankOf(const Square square) {
-    return square >> 3;
-}
-
-INLINE int RelativeRank(const Color color, const int rank) {
-    return color == WHITE ? rank : RANK_8 - rank;
-}
-
-INLINE Color ColorOf(const Piece piece) {
-    return piece >> 3;
-}
-
-INLINE PieceType PieceTypeOf(const Piece piece) {
-    return piece & 7;
-}
-
-INLINE Piece MakePiece(const Color color, const PieceType pt) {
-    return (color << 3) + pt;
-}
-
-INLINE Square MakeSquare(const int rank, const int file) {
-    return (rank * FILE_NB) + file;
-}
-
-INLINE Square StrToSq(const char *str) {
-    return MakeSquare(str[1] - '1', str[0] - 'a');
-}
+INLINE Square MirrorSquare(const Square sq) { return sq ^ 56; } // Mirrors a square horizontally
+INLINE Square RelativeSquare(const Color color, const Square sq) { return color == WHITE ? sq : MirrorSquare(sq); }
+INLINE Square BlackRelativeSquare(const Color color, const Square sq) { return color == BLACK ? sq : MirrorSquare(sq); }
+INLINE int Distance(const Square sq1, const Square sq2) { return SqDistance[sq1][sq2]; }
+INLINE int FileOf(Square square) { return square & 7; }
+INLINE int RankOf(Square square) { return square >> 3; }
+INLINE int RelativeRank(Color color, int rank) { return color == WHITE ? rank : RANK_8 - rank; }
+INLINE Square MakeSquare(int rank, int file) { return (rank * FILE_NB) + file; }
+INLINE Square StrToSq(const char *str) { return MakeSquare(str[1] - '1', str[0] - 'a'); }
 
 INLINE void SqToStr(Square sq, char *str) {
-    str[0] = 'a' + FileOf(sq),
+    str[0] = 'a' + FileOf(sq);
     str[1] = '1' + RankOf(sq);
 }
 

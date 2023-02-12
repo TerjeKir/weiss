@@ -119,7 +119,7 @@ static int Quiescence(Thread *thread, Stack *ss, int alpha, const int beta) {
     if (eval >= beta)
         return eval;
 
-    // Use eval as a lowerbound if it's above alpha
+    // Use eval as a lower bound if it's above alpha
     if (eval > alpha)
         alpha = eval;
 
@@ -135,9 +135,10 @@ moveloop:
     Move move;
     while ((move = NextMove(&mp))) {
 
+        // Avoid pruning until at least one move avoids a terminal loss score
         if (bestScore <= -TBWIN_IN_MAX) goto search;
 
-        // Skip moves SEE deem bad
+        // Only try moves the movepicker deem good
         if (mp.stage > NOISY_GOOD) break;
 
         // Futility pruning

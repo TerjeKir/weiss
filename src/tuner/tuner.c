@@ -471,7 +471,7 @@ static double StaticEvaluationErrors(TEntry * entries, double K) {
     return total / (double) NPOSITIONS;
 }
 
-static double ComputeOptimalK(TEntry *entries) {
+static double __attribute__((unused)) ComputeOptimalK(TEntry *entries) {
 
     const double rate = 100, delta = 1e-5, deviation_goal = 1e-6;
     double K = 2, deviation = 1;
@@ -546,7 +546,8 @@ void Tune() {
     InitTunerEntries(entries, baseParams);
     printf("Allocated:\n");
     printf("Optimal K...\r");
-    K = ComputeOptimalK(entries);
+    // K = ComputeOptimalK(entries);
+    K = 2.25;
     printf("Optimal K: %g\n\n", K);
 
     for (int epoch = 1; epoch <= MAXEPOCHS; epoch++) {
