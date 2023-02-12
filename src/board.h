@@ -90,9 +90,9 @@ bool PositionOk(const Position *pos);
 void PrintBoard(const Position *pos);
 #endif
 
-static bool ValidPiece(const Piece piece) { return (wP <= piece && piece <= wK) || (bP <= piece && piece <= bK); }
-static bool ValidCapture(const Piece capt) { return (wP <= capt && capt <= wQ) || (bP <= capt && capt <= bQ); }
-static bool ValidPromotion(const Piece promo) { return (wN <= promo && promo <= wQ) || (bN <= promo && promo <= bQ); }
+INLINE bool ValidPiece(const Piece piece) { return (wP <= piece && piece <= wK) || (bP <= piece && piece <= bK); }
+INLINE bool ValidCapture(const Piece capt) { return (wP <= capt && capt <= wQ) || (bP <= capt && capt <= bQ); }
+INLINE bool ValidPromotion(const Piece promo) { return (wN <= promo && promo <= wQ) || (bN <= promo && promo <= bQ); }
 
 INLINE Color ColorOf(Piece piece) { return piece >> 3;}
 INLINE PieceType PieceTypeOf(Piece piece) { return piece & 7; }
