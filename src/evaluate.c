@@ -67,6 +67,7 @@ const int OpenForward  = S( 28, 31);
 const int SemiForward  = S( 17, 15);
 const int NBBehindPawn = S(  9, 32);
 const int BishopBadP   = S( -1, -5);
+const int Shelter      = S( 31,-12);
 
 // Passed pawn
 const int PawnPassed[RANK_NB] = {
@@ -340,6 +341,20 @@ INLINE int EvalKings(const Position *pos, EvalInfo *ei, const Color color) {
 
     eval -= S(danger / 128, 0);
     TraceDanger(S(danger / 128, 0));
+
+    Bitboard pawnsInFront = pieceBB(PAWN) & PassedMask[color][kingSq];
+    Bitboard ourPawns = pawnsInFront & colorBB(color) & ~PawnBBAttackBB(colorPieceBB(!color, PAWN), !color);
+
+    count = PopCount(ourPawns);
+    eval += count * Shelter;
+    TraceCount(Shelter);
+
+    // Bitboard theirPawns = pawnsInFront & colorBB(!color);
+
+    // int kingFile = CLAMP(FileOf(kingSq), FILE_B, FILE_G);
+    // for (int file = kingFile - 1; file <= kingFile + 1; file++) {
+
+    // }
 
     return eval;
 }
