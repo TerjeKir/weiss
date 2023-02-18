@@ -3,13 +3,13 @@ name: Make CI
 on: [push]
 
 defaults:
+  runs-on: ubuntu-latest
   run:
     working-directory: src
 
 jobs:
   Compile:
 
-    runs-on: ubuntu-latest
     strategy:
       matrix:
         cc: [gcc, clang]
