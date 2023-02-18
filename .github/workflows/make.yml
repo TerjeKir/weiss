@@ -17,6 +17,8 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - uses: KyleMayes/install-llvm-action@v1
+      with:
+        version: "10.0"
     - name: Basic
       run: make basic CC=${{ matrix.cc }}
     - name: Releases
