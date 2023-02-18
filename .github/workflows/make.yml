@@ -86,6 +86,5 @@ jobs:
         done
         if [[ $(cat COUNTER.tmp) != ${{ matrix.suites.count }} ]]
           then echo "Expected ${{ matrix.suites.count }} positions was $(cat COUNTER.tmp)" && exit 1
-        else
-          then echo "${{ matrix.suites.count }}/$(cat COUNTER.tmp) positions done."
+          else echo "${{ matrix.suites.count }}/$(cat COUNTER.tmp) positions done."
         fi
