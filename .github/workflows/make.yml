@@ -2,8 +2,12 @@ name: Make CI
 
 on: [push]
 
+defaults:
+  run:
+    working-directory: src
+
 jobs:
-  compile:
+  Compile:
 
     runs-on: ubuntu-latest
     strategy:
@@ -12,9 +16,9 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
-    - name: basic
-      run: cd src && make basic CC=${{ matrix.cc }}
-    - name: releases
-      run: cd src && make release CC=${{ matrix.cc }}
-    - name: GCC PGO
-      run: cd src && make pgo CC=${{ matrix.cc }}
+    - name: Basic
+      run: make basic CC=${{ matrix.cc }}
+    - name: Releases
+      run: make release CC=${{ matrix.cc }}
+    - name: PGO
+      run: make pgo CC=${{ matrix.cc }}
