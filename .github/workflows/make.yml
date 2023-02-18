@@ -50,3 +50,23 @@ jobs:
         expected=$(git show --summary | grep -Po '(?<=Bench: )[0-9]+?(?=$)')
         actual=$(./weiss bench | tail -n 1 | grep -Po '(?<=[\s]{5})[0-9]+?(?= nodes)')
         if [[ $actual != $expected ]]; then echo "Expected $expected was $actual" && exit 1; fi
+
+  Perft:
+
+    needs: Compile
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: Compile
+      run: make dev
+
+    - name: Perft
+      run: |
+        wget -O- https://raw.githubusercontent.com/TerjeKir/EngineTests/master/testfiles/perftsuite.epd | while read p; do
+          expected=$(echo $p | grep -Po '(?<=;D5 )[0-9]+?(?= )')
+          actual=$(printf "perft 5 $p" | ./weiss | grep -Po '(?<=Nodes: )[0-9]+?(?=$)')
+          if [[ $actual != $expected ]]; then echo "Expected $expected was $actual" && exit 1; fi
+        done
