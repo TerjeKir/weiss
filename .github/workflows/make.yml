@@ -60,7 +60,10 @@ jobs:
     # -name: Compile
     #   run: make CC=${{ matrix.cc }} dev
 
-    -name: Perft
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: Perft
       run: |
         perft=$(wget -O- https://raw.githubusercontent.com/TerjeKir/EngineTests/master/testfiles/perftsuite.epd)
         echo $perft
