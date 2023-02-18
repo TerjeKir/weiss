@@ -68,16 +68,17 @@ jobs:
 
     - name: Perft
       run: |
-        wget -O- https://raw.githubusercontent.com/TerjeKir/EngineTests/master/testfiles/${{ matrix.perftsuite }} | while read p; do
-          expected=$(echo $p | grep -Po '(?<=;D5 )[0-9]+?(?= )')
-          actual=$(printf "perft 5 $p" | ./weiss | grep -Po '(?<=Nodes: )[0-9]+?(?=$)')
+        wget -q -O- https://raw.githubusercontent.com/TerjeKir/EngineTests/master/testfiles/${{ matrix.perftsuite }} | while read p; do
+          if [[ $(matrix.perftsuite) == "frc_perftsuite.epd" ]]; then depth=4; else depth=5; fi
+          expected=$(echo $p | grep -Po '(?<=;D$depth )[0-9]+?(?= )')
+          actual=$(printf "perft $depth $p" | ./weiss | grep -Po '(?<=Nodes: )[0-9]+?(?=$)')
           if [[ $actual != $expected ]]; then echo "Expected $expected was $actual" && exit 1; fi
         done
 
     # - name: FRC Perft
     #   run: |
-    #     wget -O- https://raw.githubusercontent.com/TerjeKir/EngineTests/master/testfiles/frc_perftsuite.epd | while read p; do
-    #       echo $(p)
+    #     wget -q -O- https://raw.githubusercontent.com/TerjeKir/EngineTests/master/testfiles/frc_perftsuite.epd | while read p; do
+    #       echo $p
     #       expected=$(echo $p | grep -Po '(?<=;D5 )[0-9]+?(?= )')
     #       actual=$(printf "perft 5 $p" | ./weiss | grep -Po '(?<=Nodes: )[0-9]+?(?=$)')
     #       if [[ $actual != $expected ]]; then echo "Expected $expected was $actual" && exit 1; fi
