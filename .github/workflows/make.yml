@@ -67,4 +67,5 @@ jobs:
       run: |
         wget -O- https://raw.githubusercontent.com/TerjeKir/EngineTests/master/testfiles/perftsuite.epd | while read p; do
           echo $p
+          ./weiss <<<'perft 6 $p'
         done
