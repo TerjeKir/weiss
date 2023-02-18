@@ -9,9 +9,11 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
-    - name: test
+    - name: GCC PGO
       run: cd src && make pgo
-    - name: release
+    - name: GCC releases
       run: cd src && make release
-    - name: sanitize
-      run: cd src && make pgo CC=clang
+    - name: Clang basic
+      run: cd src && make basic CC=clang
+    - name: Clang releases
+      run: cd src && make release CC=clang
