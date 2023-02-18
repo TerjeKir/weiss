@@ -43,6 +43,6 @@ jobs:
       run: make CC=${{ matrix.cc }} basic
 
     - name: Bench
-      run: expected = $(git show --summary | grep -Po '(?<=Bench: )[0-9]+?(?=$)')
-           actual   = $(./weiss bench | tail -n 1 | grep -Po '(?<=[\s]{5})[0-9]+?(?= nodes)')
+      run: expected=$(git show --summary | grep -Po '(?<=Bench: )[0-9]+?(?=$)')
+           actual=$(./weiss bench | tail -n 1 | grep -Po '(?<=[\s]{5})[0-9]+?(?= nodes)')
            if [[ actual != expected ]]; then echo "Expected $expected was $actual" && exit 1; fi
