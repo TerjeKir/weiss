@@ -50,3 +50,28 @@ jobs:
         expected=$(git show --summary | grep -Po '(?<=Bench: )[0-9]+?(?=$)')
         actual=$(./weiss bench | tail -n 1 | grep -Po '(?<=[\s]{5})[0-9]+?(?= nodes)')
         if [[ $actual != $expected ]]; then echo "Expected $expected was $actual" && exit 1; fi
+
+  Perft:
+
+    needs: Compile
+
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        perftsuite: [perftsuite.epd, frc_perftsuite.epd]
+
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: Compile
+      run: make dev
+
+    - name: Perft
+      run: |
+        wget -O- https://raw.githubusercontent.com/TerjeKir/EngineTests/master/testfiles/${{ matrix.perftsuite }} | while read p; do
+          echo $p
+          if [[ ${{ matrix.perftsuite }} == perftsuite.epd ]]; then depth=5; else depth=4; fi
+          expected=$(echo $p | grep -Po '(?<=;D'$depth' )[0-9]+?(?= )')
+          actual=$(printf "perft $depth $p" | ./weiss | grep -Po '(?<=Nodes: )[0-9]+?(?=$)')
+          if [[ $actual != $expected ]]; then echo "Expected $expected was $actual" && exit 1; fi
+        done
