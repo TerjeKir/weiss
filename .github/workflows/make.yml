@@ -65,7 +65,6 @@ jobs:
 
     - name: Perft
       run: |
-        perft=$(wget -O- https://raw.githubusercontent.com/TerjeKir/EngineTests/master/testfiles/perftsuite.epd)
-        perft | while read p; do
+        wget -O- https://raw.githubusercontent.com/TerjeKir/EngineTests/master/testfiles/perftsuite.epd | while read p; do
           echo $p
         done
