@@ -2,14 +2,51 @@ name: Make CI
 
 on: [push]
 
+defaults:
+  run:
+    working-directory: src
+
 jobs:
-  build:
+  Compile:
 
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        cc: [gcc, clang]
 
     steps:
-    - uses: actions/checkout@v1
-    - name: test
-      run: cd src && make pgo
-    - name: release
-      run: cd src && make release
+    - uses: actions/checkout@v3
+
+    - name: Basic
+      run: make CC=${{ matrix.cc }} basic
+
+    - name: Dev
+      run: make CC=${{ matrix.cc }} dev
+
+    - name: Releases
+      run: make CC=${{ matrix.cc }} release
+
+    - name: PGO
+      if: matrix.cc == 'gcc'
+      run: make CC=${{ matrix.cc }} pgo
+
+  Bench:
+
+    needs: Compile
+
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        cc: [gcc, clang]
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Compile
+      run: make CC=${{ matrix.cc }} basic
+
+    - name: Bench
+      run: |
+        expected=$(git show --summary | grep -Po '(?<=Bench: )[0-9]+?(?=$)')
+        actual=$(./weiss bench | tail -n 1 | grep -Po '(?<=[\s]{5})[0-9]+?(?= nodes)')
+        if [[ $actual != $expected ]]; then echo "Expected $expected was $actual" && exit 1; fi
