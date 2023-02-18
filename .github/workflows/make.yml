@@ -84,4 +84,8 @@ jobs:
           actual=$(printf "perft ${{ matrix.suites.depth }} $p" | ./weiss | grep -Po '(?<=Nodes: )[0-9]+?(?=$)')
           if [[ $actual != $expected ]]; then echo "Expected $expected was $actual" && exit 1; fi
         done
-        if [[ $(cat COUNTER.tmp) != ${{ matrix.suites.count }} ]]; then echo "Expected ${{ matrix.suites.count }} positions was $(cat COUNTER.tmp)" && exit 1; fi
+        if [[ $(cat COUNTER.tmp) != ${{ matrix.suites.count }} ]]
+          then echo "Expected ${{ matrix.suites.count }} positions was $(cat COUNTER.tmp)" && exit 1
+        else
+          then echo "${{ matrix.suites.count }}/$(cat COUNTER.tmp) positions done."
+        fi
