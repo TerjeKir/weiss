@@ -26,3 +26,21 @@ jobs:
     - name: PGO
       if: matrix.cc == 'gcc'
       run: make CC=${{ matrix.cc }} pgo
+
+  Bench:
+
+    needs: Compile
+
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        cc: [gcc, clang]
+
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: Compile
+      run: make CC=${{ matrix.cc }} basic
+
+    - name: Bench
+      run: ./weiss bench
