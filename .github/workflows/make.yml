@@ -58,20 +58,33 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        perftsuite: [perftsuite.epd, frc_perftsuite.epd]
+        suites:
+        - name: Normal
+          epd: perftsuite.epd
+          count: 127
+          depth: 5
+        - name: FRC
+          epd: frc_perftsuite.epd
+          count: 1000
+          depth: 4
 
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v3
 
     - name: Compile
       run: make dev
 
     - name: Perft
       run: |
-        wget -O- https://raw.githubusercontent.com/TerjeKir/EngineTests/master/testfiles/${{ matrix.perftsuite }} | while read p; do
-          echo $p
-          if [[ ${{ matrix.perftsuite }} == perftsuite.epd ]]; then depth=5; else depth=4; fi
-          expected=$(echo $p | grep -Po '(?<=;D'$depth' )[0-9]+?(?= )')
-          actual=$(printf "perft $depth $p" | ./weiss | grep -Po '(?<=Nodes: )[0-9]+?(?=$)')
+        echo 0 > COUNTER.tmp
+        wget -O- https://raw.githubusercontent.com/TerjeKir/EngineTests/master/testfiles/${{ matrix.suites.epd }} | while read p; do
+          echo $(($(cat COUNTER.tmp) + 1)) > COUNTER.tmp
+          echo $(cat COUNTER.tmp): $p
+          expected=$(echo $p | grep -Po '(?<=;D'${{ matrix.suites.depth }}' )[0-9]+?(?= )')
+          actual=$(printf "perft ${{ matrix.suites.depth }} $p" | ./weiss | grep -Po '(?<=Nodes: )[0-9]+?(?=$)')
           if [[ $actual != $expected ]]; then echo "Expected $expected was $actual" && exit 1; fi
         done
+        if [[ $(cat COUNTER.tmp) != ${{ matrix.suites.count }} ]]
+          then echo "Expected ${{ matrix.suites.count }} positions was $(cat COUNTER.tmp)" && exit 1
+          else echo "${{ matrix.suites.count }}/$(cat COUNTER.tmp) positions done."
+        fi
