@@ -16,10 +16,13 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
+
     - name: Basic
-      run: make basic CC=${{ matrix.cc }}
+      run: make CC=${{ matrix.cc }} basic
+
     - name: Releases
-      run: make release CC=${{ matrix.cc }}
+      run: make CC=${{ matrix.cc }} release
+
     - name: PGO
-      if: ${{ matrix.cc == 'gcc' }}
-      run: make pgo CC=${{ matrix.cc }}
+      if: matrix.cc == 'gcc'
+      run: make CC=${{ matrix.cc }} pgo
