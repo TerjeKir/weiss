@@ -69,7 +69,7 @@ jobs:
     - name: Perft
       run: |
         wget -q -O- https://raw.githubusercontent.com/TerjeKir/EngineTests/master/testfiles/${{ matrix.perftsuite }} | while read p; do
-          if [[ ${{ matrix.perftsuite }} == "frc_perftsuite.epd" ]]; then depth=4; else depth=5; fi
+          if [[ ${{ matrix.perftsuite }} == frc_perftsuite.epd ]]; then depth=4; else depth=5; fi
           expected=$(echo $p | grep -Po '(?<=;D$depth )[0-9]+?(?= )')
           actual=$(printf "perft $depth $p" | ./weiss | grep -Po '(?<=Nodes: )[0-9]+?(?=$)')
           if [[ $actual != $expected ]]; then echo "Expected $expected was $actual" && exit 1; fi
