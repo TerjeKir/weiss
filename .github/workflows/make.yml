@@ -61,7 +61,7 @@ jobs:
     - uses: actions/checkout@v1
 
     - name: Compile
-      run: make CC=${{ matrix.cc }} dev
+      run: make dev
 
     - name: Perft
       run: |
