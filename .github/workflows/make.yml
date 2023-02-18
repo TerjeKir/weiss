@@ -78,8 +78,8 @@ jobs:
       run: |
         echo 0 > COUNTER.tmp
         wget -O- https://raw.githubusercontent.com/TerjeKir/EngineTests/master/testfiles/${{ matrix.suites.epd }} | while read p; do
-          echo $(cat COUNTER.tmp): $p
           echo $(($(cat COUNTER.tmp) + 1)) > COUNTER.tmp
+          echo $(cat COUNTER.tmp): $p
           expected=$(echo $p | grep -Po '(?<=;D'${{ matrix.suites.depth }}' )[0-9]+?(?= )')
           actual=$(printf "perft ${{ matrix.suites.depth }} $p" | ./weiss | grep -Po '(?<=Nodes: )[0-9]+?(?=$)')
           if [[ $actual != $expected ]]; then echo "Expected $expected was $actual" && exit 1; fi
