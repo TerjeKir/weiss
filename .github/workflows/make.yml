@@ -57,11 +57,11 @@ jobs:
 
     runs-on: ubuntu-latest
 
-    # -name: Compile
-    #   run: make CC=${{ matrix.cc }} dev
-
     steps:
     - uses: actions/checkout@v1
+
+    - name: Compile
+      run: make CC=${{ matrix.cc }} dev
 
     - name: Perft
       run: |
