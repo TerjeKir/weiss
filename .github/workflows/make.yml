@@ -43,4 +43,4 @@ jobs:
       run: make CC=${{ matrix.cc }} basic
 
     - name: Bench
-      run: ./weiss bench
+      run: ./weiss bench | tail -n 1 | grep -Po '(?<=[\s]{5})[0-9]+?(?= nodes)'
