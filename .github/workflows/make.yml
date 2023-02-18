@@ -3,17 +3,18 @@ name: Make CI
 on: [push]
 
 jobs:
-  Compile:
+  compile:
 
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        cc: [gcc, clang]
 
     steps:
     - uses: actions/checkout@v1
+    - name: basic
+      run: cd src && make basic CC=${{ matrix.cc }}
+    - name: releases
+      run: cd src && make release CC=${{ matrix.cc }}
     - name: GCC PGO
-      run: cd src && make pgo
-    - name: GCC releases
-      run: cd src && make release
-    - name: Clang basic
-      run: cd src && make basic CC=clang
-    - name: Clang releases
-      run: cd src && make release CC=clang
+      run: cd src && make pgo CC=${{ matrix.cc }}
