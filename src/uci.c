@@ -181,6 +181,9 @@ int main(int argc, char **argv) {
         return Tune(), 0;
 #endif
 
+    char arr[2];
+	strcpy(arr, "str");
+
     // Init engine
     InitThreads(1);
     Position pos;
