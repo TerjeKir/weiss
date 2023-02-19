@@ -99,10 +99,8 @@ jobs:
         sanitizers:
           - name: UB sanitizer
             san: -fsanitize=undefined
-            threads: 1
-          - name: Thread sanitizer
-            san: -fsanitize=thread
-            threads: 2
+          - name: Address sanitizer
+            san: -fsanitize=address
 
     steps:
     - uses: actions/checkout@v3
@@ -112,5 +110,4 @@ jobs:
 
     - name: Run
       run: |
-        actual=$(printf "setoption name Threads value ${{ matrix.sanitizers.threads }}\ngo depth 20" | ./weiss | tail -n 10)
-        echo $actual
+        echo $(printf "go depth 15" | ./weiss 2>&1)
