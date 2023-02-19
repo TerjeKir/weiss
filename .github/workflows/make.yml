@@ -110,4 +110,5 @@ jobs:
 
     - name: Run
       run: |
-        echo $(printf "go depth 20" | ./weiss)
+        actual=$(printf "go depth 20" | ./weiss | tail -n 10)
+        echo $actual
