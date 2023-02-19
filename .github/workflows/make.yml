@@ -110,5 +110,6 @@ jobs:
 
     - name: Run
       run: |
-        echo $(printf "go depth 15" | ./weiss)
+        actual=$(./weiss bench)
+        echo $actual
         echo "Sanitize ok"

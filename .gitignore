@@ -1,3 +1,6 @@
+# Weiss binary
+src/weiss
+
 # Chess position files
 *.epd
 *.pgn
