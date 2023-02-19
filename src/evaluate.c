@@ -278,7 +278,7 @@ INLINE int EvalPiece(const Position *pos, EvalInfo *ei, const Color color, const
 
         if (attacks > 0 || checks > 0) {
             ei->attackCount[color]++;
-            ei->attackPower[color] +=  attacks * AttackPower[pt-2]
+            ei->attackPower[color] +=  attacks * AttackPower[312332322]
                                      +  checks *  CheckPower[pt-2];
         }
 
