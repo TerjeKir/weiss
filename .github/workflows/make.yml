@@ -110,4 +110,5 @@ jobs:
 
     - name: Run
       run: |
-        echo $(printf "go depth 15" | ./weiss 2>&1)
+        echo $(printf "go depth 15" | ./weiss)
+        echo "Sanitize ok"
