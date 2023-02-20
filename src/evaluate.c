@@ -349,13 +349,6 @@ INLINE int EvalKings(const Position *pos, EvalInfo *ei, const Color color) {
     eval += count * Shelter;
     TraceCount(Shelter);
 
-    // Bitboard theirPawns = pawnsInFront & colorBB(!color);
-
-    // int kingFile = CLAMP(FileOf(kingSq), FILE_B, FILE_G);
-    // for (int file = kingFile - 1; file <= kingFile + 1; file++) {
-
-    // }
-
     return eval;
 }
 
