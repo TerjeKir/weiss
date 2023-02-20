@@ -93,11 +93,12 @@ static int Quiescence(Thread *thread, Stack *ss, int alpha, const int beta) {
 
     Move ttMove = ttHit ? tte->move : NOMOVE;
     int ttScore = ttHit ? ScoreFromTT(tte->score, ss->ply) : NOSCORE;
+    int ttEval  = ttHit ? tte->eval : NOSCORE;
     // Depth ttDepth = tte->depth;
     int ttBound = Bound(tte);
 
     if (ttMove && !MoveIsPseudoLegal(pos, ttMove))
-        ttHit = false, ttMove = NOMOVE, ttScore = NOSCORE;
+        ttHit = false, ttMove = NOMOVE, ttScore = NOSCORE, ttEval = NOSCORE;
 
     // Trust TT if not a pvnode
     if (   !pvNode
@@ -107,6 +108,7 @@ static int Quiescence(Thread *thread, Stack *ss, int alpha, const int beta) {
 
     // Do a static evaluation for pruning considerations
     eval = history(-1).move == NOMOVE ? -(ss-1)->eval + 2 * Tempo
+         : ttEval != NOSCORE          ? ttEval
                                       : EvalPosition(pos, thread->pawnCache);
 
     // If we are at max depth, return static eval
