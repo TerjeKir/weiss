@@ -286,6 +286,7 @@ INLINE int EvalPiece(const Position *pos, EvalInfo *ei, const Color color, const
         ei->attackedBy[color][pt]  |= attackBB;
         ei->attackedBy[color][ALL] |= attackBB;
 
+        // Penalty for having pawns on the same color squares as a bishop
         if (pt == BISHOP) {
             Bitboard bishopSquares   = (BB(sq) & BlackSquaresBB) ? BlackSquaresBB : ~BlackSquaresBB;
             Bitboard badPawns        = colorPieceBB(color, PAWN) & bishopSquares;
@@ -342,6 +343,7 @@ INLINE int EvalKings(const Position *pos, EvalInfo *ei, const Color color) {
     eval -= S(danger / 128, 0);
     TraceDanger(S(danger / 128, 0));
 
+    // Pawn shelter
     Bitboard pawnsInFront = pieceBB(PAWN) & PassedMask[color][kingSq];
     Bitboard ourPawns = pawnsInFront & colorBB(color) & ~PawnBBAttackBB(colorPieceBB(!color, PAWN), !color);
 

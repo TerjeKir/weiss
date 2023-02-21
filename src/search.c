@@ -709,7 +709,6 @@ void *SearchPosition(void *pos) {
     InitTimeManagement();
     TTNewSearch();
     PrepareSearch(pos, Limits.searchmoves);
-    bool threadsSpawned = false;
 
     // Probe TBs for a move if already in a TB position
     if (SyzygyMove(pos)) goto conclusion;
@@ -719,7 +718,6 @@ void *SearchPosition(void *pos) {
         && ProbeNoob(pos)) goto conclusion;
 
     // Start helper threads and begin searching
-    threadsSpawned = true;
     StartHelpers(IterativeDeepening);
     IterativeDeepening(&threads[0]);
 
@@ -730,8 +728,7 @@ conclusion:
 
     // Signal helper threads to stop and wait for them to finish
     ABORT_SIGNAL = true;
-    if (threadsSpawned)
-        WaitForHelpers();
+    WaitForHelpers();
 
     // Print conclusion
     PrintConclusion(threads);

@@ -132,14 +132,18 @@ void StartMainThread(void *(*func)(void *), Position *pos) {
     pthread_detach(pthreads[0]);
 }
 
+static bool helpersActive = false;
+
 // Start helper threads running the provided function
 void StartHelpers(void *(*func)(void *)) {
+    helpersActive = true;
     for (int i = 1; i < threads->count; ++i)
         pthread_create(&pthreads[i], NULL, func, &threads[i]);
 }
 
 // Wait for helper threads to finish
 void WaitForHelpers() {
+    if (!helpersActive) return;
     for (int i = 1; i < threads->count; ++i)
         pthread_join(pthreads[i], NULL);
 }
