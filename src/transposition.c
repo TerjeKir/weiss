@@ -38,7 +38,7 @@ TTEntry* ProbeTT(const Key key, bool *ttHit) {
     TTEntry* first = GetTTBucket(key)->entries;
 
     for (TTEntry *entry = first; entry < first + BUCKET_SIZE; ++entry)
-        if (entry->key == key || !Bound(entry)) {
+        if (entry->key == (int32_t)key || !Bound(entry)) {
             entry->genBound = TT.generation | Bound(entry);
             return *ttHit = Bound(entry), entry;
         }
@@ -55,20 +55,22 @@ TTEntry* ProbeTT(const Key key, bool *ttHit) {
 void StoreTTEntry(TTEntry *tte, const Key key,
                                 const Move move,
                                 const int score,
+                                const int eval,
                                 const Depth depth,
                                 const int bound) {
 
     assert(ValidBound(bound));
     assert(ValidScore(score));
 
-    if (move || key != tte->key)
+    if (move || (int32_t)key != tte->key)
         tte->move = move;
 
     // Store new data unless it would overwrite data about the same
     // position searched to a higher depth.
-    if (key != tte->key || depth + 4 >= tte->depth || bound == BOUND_EXACT)
+    if ((int32_t)key != tte->key || depth + 4 >= tte->depth || bound == BOUND_EXACT)
         tte->key   = key,
         tte->score = score,
+        tte->eval  = eval,
         tte->depth = depth,
         tte->genBound = TT.generation | bound;
 }
