@@ -29,6 +29,7 @@ PEXT   = $(POPCNT) -DUSE_PEXT -mbmi2
 STD    = -std=gnu11
 LIBS   = -pthread -lm
 WARN   = -Wall -Wextra -Wshadow -Werror -Wmissing-declarations
+NDEBUG = -DNDEBUG
 
 FLAGS  = $(STD) $(WARN) -O3 -flto
 CFLAGS = $(FLAGS) -march=native
@@ -71,8 +72,8 @@ ifeq ($(OS), Windows_NT)
 endif
 
 # Compilations
-BASIC   = $(CC) $(CFLAGS) $(SRC) $(LIBS) -o $(EXE)
-RELEASE = $(CC) $(RFLAGS) $(SRC) $(LIBS) -o $(EXE)
+BASIC   = $(CC) $(CFLAGS) $(NDEBUG) $(SRC) $(LIBS) -o $(EXE)
+RELEASE = $(CC) $(RFLAGS) $(NDEBUG) $(SRC) $(LIBS) -o $(EXE)
 
 # Targets
 pgo: clean
