@@ -460,6 +460,8 @@ move_loop:
                 extension = 1;
             else if (singularBeta >= beta)
                 return singularBeta;
+            else if (ttScore >= beta)
+                extension = -1;
 
             // Replay ttMove
             MakeMove(pos, move);
