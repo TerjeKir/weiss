@@ -456,9 +456,16 @@ move_loop:
             ss->excluded = NOMOVE;
 
             // Extend as this move seems forced
-            if (score < singularBeta)
+            if (score < singularBeta) {
+
                 extension = 1;
-            else if (singularBeta >= beta)
+
+                if (!pvNode
+                    && score < singularBeta - 25
+                    && ss->doubleExtensions <= 5)
+                    extension = 2;
+
+            } else if (singularBeta >= beta)
                 return singularBeta;
             else if (ttScore >= beta)
                 extension = -1;
@@ -469,7 +476,9 @@ move_loop:
 
         // Extend when in check
         if (inCheck)
-            extension = 1;
+            extension = MIN(extension, 1);
+
+        ss->doubleExtensions = (ss-1)->doubleExtensions + (extension == 2);
 
 skip_extensions:
 
