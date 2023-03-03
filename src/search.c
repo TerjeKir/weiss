@@ -476,7 +476,7 @@ move_loop:
 
         // Extend when in check
         if (inCheck)
-            extension = MIN(extension, 1);
+            extension = MAX(extension, 1);
 
         ss->doubleExtensions = (ss-1)->doubleExtensions + (extension == 2);
 
