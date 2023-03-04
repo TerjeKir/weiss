@@ -39,6 +39,7 @@ typedef struct {
     PieceToHistory *continuation;
     int eval;
     int histScore;
+    int doubleExtensions;
     Depth ply;
     Move excluded;
     Move killers[2];
