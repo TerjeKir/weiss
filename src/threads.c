@@ -146,6 +146,7 @@ void WaitForHelpers() {
     if (!helpersActive) return;
     for (int i = 1; i < threads->count; ++i)
         pthread_join(pthreads[i], NULL);
+    helpersActive = false;
 }
 
 // Reset all data that isn't reset each turn

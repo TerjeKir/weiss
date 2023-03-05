@@ -507,6 +507,7 @@ static int ScaleFactor(const Position *pos, const int eval) {
     int x = 8 - strongPawnCount;
     int pawnScale = 128 - x * x;
 
+    // Scale down when there aren't pawns on both sides of the board
     if (!(strongPawns & QueenSideBB) || !(strongPawns & KingSideBB))
         pawnScale -= 20;
 
