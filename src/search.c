@@ -432,6 +432,7 @@ move_loop:
 
         moveCount++;
 
+        // Extension
         Depth extension = 0;
 
         // Avoid extending too far
@@ -455,18 +456,15 @@ move_loop:
             score = AlphaBeta(thread, ss, singularBeta-1, singularBeta, depth/2, cutnode);
             ss->excluded = NOMOVE;
 
-            // Extend as this move seems forced
+            // Singular - extend by 1 or 2 ply
             if (score < singularBeta) {
-
                 extension = 1;
-
-                if (!pvNode
-                    && score < singularBeta - 25
-                    && ss->doubleExtensions <= 5)
+                if (!pvNode && score < singularBeta - 25 && ss->doubleExtensions <= 5)
                     extension = 2;
-
+            // MultiCut - ttMove as well as at least one other move seem good enough to beat beta
             } else if (singularBeta >= beta)
                 return singularBeta;
+            // Negative extension - not singular but likely still good enough to beat beta
             else if (ttScore >= beta)
                 extension = -1;
 
@@ -478,10 +476,9 @@ move_loop:
         if (inCheck)
             extension = MAX(extension, 1);
 
-        ss->doubleExtensions = (ss-1)->doubleExtensions + (extension == 2);
-
 skip_extensions:
 
+        ss->doubleExtensions = (ss-1)->doubleExtensions + (extension == 2);
         ss->continuation = &thread->continuation[inCheck][moveIsCapture(move)][piece(move)][toSq(move)];
 
         const Depth newDepth = depth - 1 + extension;
@@ -515,6 +512,7 @@ skip_extensions:
 
             score = -AlphaBeta(thread, ss+1, -alpha-1, -alpha, lmrDepth, true);
 
+            // Research with the same window at full depth if the reduced search failed high
             if (score > alpha && lmrDepth < newDepth)
                 score = -AlphaBeta(thread, ss+1, -alpha-1, -alpha, newDepth, !cutnode);
         }
