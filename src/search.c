@@ -712,8 +712,7 @@ void *SearchPosition(void *pos) {
     if (SyzygyMove(pos)) goto conclusion;
 
     // Probe noobpwnftw's Chess Cloud Database
-    if (   (!Limits.timelimit || Limits.maxUsage > 2000)
-        && ProbeNoob(pos)) goto conclusion;
+    if (ProbeNoob(pos)) goto conclusion;
 
     // Start helper threads and begin searching
     StartHelpers(IterativeDeepening);

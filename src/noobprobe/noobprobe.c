@@ -20,6 +20,7 @@
 
 #include "noobprobe.h"
 #include "../move.h"
+#include "../search.h"
 #include "../threads.h"
 #include "../query/query.h"
 
@@ -35,6 +36,7 @@ bool ProbeNoob(Position *pos) {
     // Stop querying after 3 failures or at the specified depth
     if (  !noobbook
         || failedQueries >= 3
+        || (Limits.timelimit && Limits.maxUsage < 2000)
         || (noobLimit && pos->gameMoves > noobLimit))
         return false;
 
