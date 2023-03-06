@@ -200,6 +200,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
     Position *pos = &thread->pos;
     MovePicker mp;
     ss->pv.length = 0;
+    ss->doubleExtensions = (ss-1)->doubleExtensions;
 
     const bool pvNode = alpha != beta - 1;
     const bool root   = ss->ply == 0;
