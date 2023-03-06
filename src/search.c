@@ -355,7 +355,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
     if (   depth >= 5
         && (!ttHit || ttBound == BOUND_LOWER || ttScore >= probCutBeta)) {
 
-        InitNoisyMP(&mp, thread, ss, NOMOVE);
+        InitProbcutMP(&mp, thread, ss, probCutBeta - ss->eval);
 
         Move move;
         while ((move = NextMove(&mp))) {

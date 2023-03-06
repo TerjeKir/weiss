@@ -33,6 +33,7 @@ typedef struct MovePicker {
     Depth depth;
     Move ttMove, kill1, kill2;
     int bads;
+    int threshold;
     bool onlyNoisy;
 } MovePicker;
 
@@ -40,3 +41,4 @@ typedef struct MovePicker {
 Move NextMove(MovePicker *mp);
 void InitNormalMP(MovePicker *mp, Thread *thread, Stack *ss, Depth depth, Move ttMove, Move kill1, Move kill2);
 void InitNoisyMP(MovePicker *mp, Thread *thread, Stack *ss, Move ttMove);
+void InitProbcutMP(MovePicker *mp, Thread *thread, Stack *ss, int threshold);

@@ -97,7 +97,7 @@ Move NextMove(MovePicker *mp) {
             // Save seemingly bad noisy moves for later
             while ((move = PickNextMove(mp)))
                 if (    mp->list.moves[mp->list.next-1].score > 12000
-                    || (mp->list.moves[mp->list.next-1].score > -8000 && SEE(pos, move, 0)))
+                    || (mp->list.moves[mp->list.next-1].score > -8000 && SEE(pos, move, mp->threshold)))
                     return move;
                 else
                     mp->list.moves[mp->bads++].move = move;
@@ -157,6 +157,7 @@ void InitNormalMP(MovePicker *mp, Thread *thread, Stack *ss, Depth depth, Move t
     mp->kill1     = kill1;
     mp->kill2     = kill2;
     mp->bads      = 0;
+    mp->threshold = 0;
     mp->onlyNoisy = false;
 }
 
@@ -164,4 +165,9 @@ void InitNormalMP(MovePicker *mp, Thread *thread, Stack *ss, Depth depth, Move t
 void InitNoisyMP(MovePicker *mp, Thread *thread, Stack *ss, Move ttMove) {
     InitNormalMP(mp, thread, ss, 0, ttMove, NOMOVE, NOMOVE);
     mp->onlyNoisy = true;
+}
+
+void InitProbcutMP(MovePicker *mp, Thread *thread, Stack *ss, int threshold) {
+    InitNoisyMP(mp, thread, ss, NOMOVE);
+    mp->threshold = threshold;
 }
