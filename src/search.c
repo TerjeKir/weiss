@@ -411,7 +411,8 @@ move_loop:
             && thread->doPruning
             && bestScore > -TBWIN_IN_MAX) {
 
-            Depth lmrDepth = depth - Reductions[quiet][MIN(31, depth)][MIN(31, moveCount)];
+            int R = Reductions[quiet][MIN(31, depth)][MIN(31, moveCount)] - ss->histScore / 8192;
+            Depth lmrDepth = depth - 1 - R;
 
             // Quiet late move pruning
             if (moveCount > (improving ? depth * depth : depth * depth / 2))
