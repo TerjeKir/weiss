@@ -29,6 +29,7 @@
 #define QuietEntry(move)        (&thread->history[thread->pos.stm][fromSq(move)][toSq(move)])
 #define NoisyEntry(move)        (&thread->captureHistory[piece(move)][toSq(move)][PieceTypeOf(capturing(move))])
 #define ContEntry(offset, move) (&(*(ss-offset)->continuation)[piece(move)][toSq(move)])
+#define CounterEntry(prev)      (thread->counterMoves[piece(prev)][toSq(prev)])
 
 #define QuietHistoryUpdate(move, bonus)        (HistoryBonus(QuietEntry(move),        bonus,  8192))
 #define NoisyHistoryUpdate(move, bonus)        (HistoryBonus(NoisyEntry(move),        bonus, 16384))
@@ -45,6 +46,10 @@ INLINE int Bonus(Depth depth) {
 
 // Updates history heuristics when a quiet move is the best move
 INLINE void UpdateQuietHistory(Thread *thread, Stack *ss, Move bestMove, int bonus, Depth depth, Move quiets[], int qCount) {
+
+    // Update counter move
+    if ((ss-1)->move != NOMOVE)
+        CounterEntry((ss-1)->move) = bestMove;
 
     // Update killers
     if (ss->killers[0] != bestMove) {
@@ -100,4 +105,8 @@ INLINE int GetCaptureHistory(const Thread *thread, Move move) {
 
 INLINE int GetHistory(const Thread *thread, Stack *ss, Move move) {
     return moveIsQuiet(move) ? GetQuietHistory(thread, ss, move) : GetCaptureHistory(thread, move);
+}
+
+INLINE Move GetCounterMove(const Thread *thread, const Stack *ss) {
+    return CounterEntry((ss-1)->move);
 }

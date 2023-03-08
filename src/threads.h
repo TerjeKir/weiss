@@ -41,6 +41,7 @@ typedef struct {
     int histScore;
     int doubleExtensions;
     Depth ply;
+    Move move;
     Move excluded;
     Move killers[2];
     PV pv;
@@ -71,6 +72,7 @@ typedef struct Thread {
     ButterflyHistory history;
     CaptureToHistory captureHistory;
     ContinuationHistory continuation[2][2];
+    Move counterMoves[PIECE_NB][64];
 
     int index;
     int count;

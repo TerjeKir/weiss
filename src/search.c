@@ -130,7 +130,7 @@ static int Quiescence(Thread *thread, Stack *ss, int alpha, const int beta) {
 
 moveloop:
 
-    if (!inCheck) InitNoisyMP(&mp, thread, ss, ttMove); else InitNormalMP(&mp, thread, ss, 0, ttMove, NOMOVE, NOMOVE);
+    if (!inCheck) InitNoisyMP(&mp, thread, ss, ttMove); else InitNormalMP(&mp, thread, ss, 0, ttMove, NOMOVE, NOMOVE, NOMOVE);
 
     // Move loop
     Move bestMove = NOMOVE;
@@ -161,6 +161,7 @@ moveloop:
 search:
         TTPrefetch(KeyAfter(pos, move));
 
+        ss->move = move;
         ss->continuation = &thread->continuation[inCheck][moveIsCapture(move)][piece(move)][toSq(move)];
 
         // Recursively search the positions after making the moves, skipping illegal ones
@@ -336,6 +337,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
         Color nullMoverTemp = thread->nullMover;
         thread->nullMover = sideToMove;
 
+        ss->move = NOMOVE;
         ss->continuation = &thread->continuation[0][0][EMPTY][0];
 
         MakeNullMove(pos);
@@ -365,6 +367,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
 
             if (!MakeMove(pos, move)) continue;
 
+            ss->move = move;
             ss->continuation = &thread->continuation[inCheck][moveIsCapture(move)][piece(move)][toSq(move)];
 
             // See if a quiescence search beats the threshold
@@ -384,7 +387,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
 
 move_loop:
 
-    InitNormalMP(&mp, thread, ss, depth, ttMove, ss->killers[0], ss->killers[1]);
+    InitNormalMP(&mp, thread, ss, depth, ttMove, ss->killers[0], ss->killers[1], GetCounterMove(thread, ss));
 
     Move quiets[32];
     Move noisys[32];
@@ -480,6 +483,7 @@ move_loop:
 
 skip_extensions:
 
+        ss->move = move;
         ss->doubleExtensions = (ss-1)->doubleExtensions + (extension == 2);
         ss->continuation = &thread->continuation[inCheck][moveIsCapture(move)][piece(move)][toSq(move)];
 
