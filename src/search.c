@@ -164,7 +164,7 @@ search:
         ss->continuation = &thread->continuation[inCheck][moveIsCapture(move)][piece(move)][toSq(move)];
 
         if (!MoveIsLegal(pos, move)) continue;
-        MakeMove(pos, move);;
+        MakeMove(pos, move);
         int score = -Quiescence(thread, ss+1, -beta, -alpha);
         TakeMove(pos);
 
@@ -365,7 +365,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
 
             if (!MoveIsLegal(pos, move)) continue;
 
-            MakeMove(pos, move);;
+            MakeMove(pos, move);
 
             ss->continuation = &thread->continuation[inCheck][moveIsCapture(move)][piece(move)][toSq(move)];
 
