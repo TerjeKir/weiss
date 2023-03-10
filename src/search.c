@@ -137,6 +137,8 @@ moveloop:
     Move move;
     while ((move = NextMove(&mp))) {
 
+        if (!MoveIsLegal(pos, move)) continue;
+
         // Avoid pruning until at least one move avoids a terminal loss score
         if (bestScore <= -TBWIN_IN_MAX) goto search;
 
@@ -163,8 +165,6 @@ search:
 
         ss->continuation = &thread->continuation[inCheck][moveIsCapture(move)][piece(move)][toSq(move)];
 
-        // Recursively search the positions after making the moves, skipping illegal ones
-        if (!MoveIsLegal(pos, move)) continue;
         MakeMove(pos, move);;
         int score = -Quiescence(thread, ss+1, -beta, -alpha);
         TakeMove(pos);
@@ -365,6 +365,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
             if (mp.stage > NOISY_GOOD) break;
 
             if (!MoveIsLegal(pos, move)) continue;
+
             MakeMove(pos, move);;
 
             ss->continuation = &thread->continuation[inCheck][moveIsCapture(move)][piece(move)][toSq(move)];
@@ -403,6 +404,7 @@ move_loop:
         if (move == ss->excluded) continue;
         if (root && AlreadySearchedMultiPV(thread, move)) continue;
         if (root && NotInSearchMoves(move)) continue;
+        if (!MoveIsLegal(pos, move)) continue;
 
         bool quiet = moveIsQuiet(move);
 
@@ -431,10 +433,6 @@ move_loop:
 
         TTPrefetch(KeyAfter(pos, move));
 
-        // Make the move, skipping to the next if illegal
-        if (!MoveIsLegal(pos, move)) continue;
-        MakeMove(pos, move);;
-
         moveCount++;
 
         // Extension
@@ -451,9 +449,6 @@ move_loop:
             && ttDepth > depth - 3
             && ttBound != BOUND_UPPER
             && abs(ttScore) < TBWIN_IN_MAX / 4) {
-
-            // ttMove has been made to check legality
-            TakeMove(pos);
 
             // Search to reduced depth with a zero window a bit lower than ttScore
             int singularBeta = ttScore - depth * 2;
@@ -472,9 +467,6 @@ move_loop:
             // Negative extension - not singular but likely still good enough to beat beta
             else if (ttScore >= beta)
                 extension = -1;
-
-            // Replay ttMove
-            MakeMove(pos, move);
         }
 
         // Extend when in check
@@ -485,6 +477,8 @@ skip_extensions:
 
         ss->doubleExtensions = (ss-1)->doubleExtensions + (extension == 2);
         ss->continuation = &thread->continuation[inCheck][moveIsCapture(move)][piece(move)][toSq(move)];
+
+        MakeMove(pos, move);
 
         const Depth newDepth = depth - 1 + extension;
 
