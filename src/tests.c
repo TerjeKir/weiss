@@ -166,7 +166,14 @@ static uint64_t RecursivePerft(Position *pos, const Depth depth) {
     GenAllMoves(pos, &list);
 
     for (int i = 0; i < list.count; i++) {
-        if (!MakeMove(pos, list.moves[i].move)) continue;
+        Move move = list.moves[i].move;
+        bool legal = MoveIsLegal(pos, move);
+        if (!legal) continue;
+        if (!MakeMove(pos, move)) {
+            PrintBoard(pos);
+            printf("Move: %s\n", MoveToStr(move));
+            exit(EXIT_FAILURE);
+        }
         leafnodes += RecursivePerft(pos, depth - 1);
         TakeMove(pos);
     }
