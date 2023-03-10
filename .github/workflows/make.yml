@@ -23,12 +23,12 @@ jobs:
     - name: Dev
       run: make CC=${{ matrix.cc }} dev
 
-    # - name: Releases
-    #   run: make CC=${{ matrix.cc }} release
+    - name: Releases
+      run: make CC=${{ matrix.cc }} release
 
-    # - name: PGO
-    #   if: matrix.cc == 'gcc'
-    #   run: make CC=${{ matrix.cc }} pgo
+    - name: PGO
+      if: matrix.cc == 'gcc'
+      run: make CC=${{ matrix.cc }} pgo
 
   Bench:
 
