@@ -522,9 +522,7 @@ skip_extensions:
                           : score >= beta  ?  Bonus(depth)
                                            :  0;
 
-                ContHistoryUpdate(1, bestMove, bonus);
-                ContHistoryUpdate(2, bestMove, bonus);
-                ContHistoryUpdate(4, bestMove, bonus);
+                UpdateContHistories(ss, move, bonus);
             }
         }
 
