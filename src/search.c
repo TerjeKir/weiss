@@ -515,8 +515,17 @@ skip_extensions:
             score = -AlphaBeta(thread, ss+1, -alpha-1, -alpha, lmrDepth, true);
 
             // Research with the same window at full depth if the reduced search failed high
-            if (score > alpha && lmrDepth < newDepth)
+            if (score > alpha && lmrDepth < newDepth) {
                 score = -AlphaBeta(thread, ss+1, -alpha-1, -alpha, newDepth, !cutnode);
+
+                int bonus = score <= alpha ? -Bonus(depth)
+                          : score >= beta  ?  Bonus(depth)
+                                           :  0;
+
+                ContHistoryUpdate(1, bestMove, bonus);
+                ContHistoryUpdate(2, bestMove, bonus);
+                ContHistoryUpdate(4, bestMove, bonus);
+            }
         }
 
         // Full depth zero-window search
