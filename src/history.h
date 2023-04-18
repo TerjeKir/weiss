@@ -43,6 +43,12 @@ INLINE int Bonus(Depth depth) {
     return MIN(2100, 350 * depth - 350);
 }
 
+INLINE void UpdateContHistories(Stack *ss, Move move, int bonus) {
+    ContHistoryUpdate(1, move, bonus);
+    ContHistoryUpdate(2, move, bonus);
+    ContHistoryUpdate(4, move, bonus);
+}
+
 // Updates history heuristics when a quiet move is the best move
 INLINE void UpdateQuietHistory(Thread *thread, Stack *ss, Move bestMove, int bonus, Depth depth, Move quiets[], int qCount) {
 
@@ -55,17 +61,13 @@ INLINE void UpdateQuietHistory(Thread *thread, Stack *ss, Move bestMove, int bon
     // Bonus to the move that caused the beta cutoff
     if (depth > 2) {
         QuietHistoryUpdate(bestMove, bonus);
-        ContHistoryUpdate(1, bestMove, bonus);
-        ContHistoryUpdate(2, bestMove, bonus);
-        ContHistoryUpdate(4, bestMove, bonus);
+        UpdateContHistories(ss, bestMove, bonus);
     }
 
     // Penalize quiet moves that failed to produce a cut
     for (Move *move = quiets; move < quiets + qCount; ++move) {
         QuietHistoryUpdate(*move, -bonus);
-        ContHistoryUpdate(1, *move, -bonus);
-        ContHistoryUpdate(2, *move, -bonus);
-        ContHistoryUpdate(4, *move, -bonus);
+        UpdateContHistories(ss, *move, -bonus);
     }
 }
 
