@@ -599,19 +599,13 @@ static void AspirationWindow(Thread *thread, Stack *ss) {
     const int initialWindow = 12;
     int delta = 16;
 
-    int alpha = -INFINITE;
-    int beta  =  INFINITE;
+    int prevScore = thread->rootMoves[multiPV].score;
 
-    // Shrink the window after the first few iterations
-    if (depth > 6) {
-        int prevScore = thread->rootMoves[multiPV].score;
+    int alpha = MAX(prevScore - initialWindow, -INFINITE);
+    int beta  = MIN(prevScore + initialWindow,  INFINITE);
 
-        alpha = MAX(prevScore - initialWindow, -INFINITE);
-        beta  = MIN(prevScore + initialWindow,  INFINITE);
-
-        int x = CLAMP(prevScore / 2, -35, 35);
-        pos->trend = sideToMove == WHITE ? S(x, x/2) : -S(x, x/2);
-    }
+    int x = CLAMP(prevScore / 2, -35, 35);
+    pos->trend = sideToMove == WHITE ? S(x, x/2) : -S(x, x/2);
 
     // Repeatedly search and adjust the window until the score is inside the window
     while (true) {
