@@ -518,11 +518,12 @@ skip_extensions:
             if (score > alpha && lmrDepth < newDepth) {
                 score = -AlphaBeta(thread, ss+1, -alpha-1, -alpha, newDepth, !cutnode);
 
-                int bonus = score <= alpha ? -Bonus(depth)
-                          : score >= beta  ?  Bonus(depth)
-                                           :  0;
+                if (quiet && (score <= alpha || score >= beta)) {
+                    int bonus = score >= beta ?  Bonus(depth)
+                                              : -Bonus(depth);
 
-                UpdateContHistories(ss, move, bonus);
+                    UpdateContHistories(ss, move, bonus);
+                }
             }
         }
 
