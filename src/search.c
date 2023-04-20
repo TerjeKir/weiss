@@ -498,8 +498,6 @@ skip_extensions:
             r -= pvNode;
             // Reduce less when improving
             r -= improving;
-            // Reduce less for killers
-            r -= move == mp.kill1 || move == mp.kill2;
             // Reduce more for the side that was last null moved against
             r += opponent == thread->nullMover;
             // Reduce quiets more if ttMove is a capture
