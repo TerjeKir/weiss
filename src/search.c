@@ -501,7 +501,7 @@ skip_extensions:
             // Reduce more for the side that was last null moved against
             r += opponent == thread->nullMover;
             // Reduce quiets more if ttMove is a capture
-            r += quiet && moveIsCapture(ttMove);
+            r += moveIsCapture(ttMove);
             // Reduce more when opponent has few pieces
             r += pos->nonPawnCount[opponent] < 2;
             // Reduce more in cut nodes
