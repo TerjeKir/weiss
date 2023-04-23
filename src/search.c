@@ -595,13 +595,12 @@ static void AspirationWindow(Thread *thread, Stack *ss) {
     const int multiPV = thread->multiPV;
     int depth = thread->depth;
 
-    const int initialWindow = 12;
-    int delta = 16;
-
     int prevScore = thread->rootMoves[multiPV].score;
 
-    int alpha = MAX(prevScore - initialWindow, -INFINITE);
-    int beta  = MIN(prevScore + initialWindow,  INFINITE);
+    int delta = 12 + prevScore * prevScore / 16384;
+
+    int alpha = MAX(prevScore - delta, -INFINITE);
+    int beta  = MIN(prevScore + delta,  INFINITE);
 
     int x = CLAMP(prevScore / 2, -35, 35);
     pos->trend = sideToMove == WHITE ? S(x, x/2) : -S(x, x/2);
