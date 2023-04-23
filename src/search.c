@@ -644,7 +644,7 @@ static void AspirationWindow(Thread *thread, Stack *ss) {
             return;
         }
 
-        delta += delta / 2;
+        delta += delta / 3;
     }
 }
 
