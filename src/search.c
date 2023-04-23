@@ -608,9 +608,6 @@ static void AspirationWindow(Thread *thread, Stack *ss) {
     // Repeatedly search and adjust the window until the score is inside the window
     while (true) {
 
-        if (alpha < -3500) alpha = -INFINITE;
-        if (beta  >  3500) beta  =  INFINITE;
-
         thread->doPruning =
             Limits.infinite ? TimeSince(Limits.start) > 1000
                             :   TimeSince(Limits.start) >= Limits.optimalUsage / 64
