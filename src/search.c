@@ -159,8 +159,6 @@ moveloop:
         }
 
 search:
-        TTPrefetch(KeyAfter(pos, move));
-
         ss->continuation = &thread->continuation[inCheck][moveIsCapture(move)][piece(move)][toSq(move)];
 
         // Recursively search the positions after making the moves, skipping illegal ones
@@ -426,8 +424,6 @@ move_loop:
             if (lmrDepth < 7 && !SEE(pos, move, quiet ? -50 * depth : -90 * depth))
                 continue;
         }
-
-        TTPrefetch(KeyAfter(pos, move));
 
         // Make the move, skipping to the next if illegal
         if (!MakeMove(pos, move)) continue;

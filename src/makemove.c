@@ -22,6 +22,7 @@
 #include "makemove.h"
 #include "move.h"
 #include "psqt.h"
+#include "transposition.h"
 
 
 #define HASH_PCE(piece, sq) (pos->key ^= PieceKeys[(piece)][(sq)])
@@ -195,6 +196,8 @@ done:
 // Make a move - take it back and return false if move was illegal
 bool MakeMove(Position *pos, const Move move) {
 
+    TTPrefetch(KeyAfter(pos, move));
+
     // Save position
     history(0).key            = pos->key;
     history(0).materialKey    = pos->materialKey;
@@ -307,6 +310,8 @@ void MakeNullMove(Position *pos) {
     // Hash out en passant if there was one, and unset it
     HASH_EP;
     pos->epSquare = 0;
+
+    TTPrefetch(pos->key);
 
     assert(PositionOk(pos));
 }
