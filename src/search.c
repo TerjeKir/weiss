@@ -162,7 +162,9 @@ search:
         ss->continuation = &thread->continuation[inCheck][moveIsCapture(move)][piece(move)][toSq(move)];
 
         // Recursively search the positions after making the moves, skipping illegal ones
-        if (!MakeMove(pos, move)) continue;
+        if (!MoveIsLegal(pos, move)) continue;
+
+        MakeMove(pos, move);
         int score = -Quiescence(thread, ss+1, -beta, -alpha);
         TakeMove(pos);
 
@@ -361,7 +363,9 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
 
             if (mp.stage > NOISY_GOOD) break;
 
-            if (!MakeMove(pos, move)) continue;
+            if (!MoveIsLegal(pos, move)) continue;
+
+            MakeMove(pos, move);
 
             ss->continuation = &thread->continuation[inCheck][moveIsCapture(move)][piece(move)][toSq(move)];
 
@@ -425,8 +429,8 @@ move_loop:
                 continue;
         }
 
-        // Make the move, skipping to the next if illegal
-        if (!MakeMove(pos, move)) continue;
+        // Skip if move is illegal
+        if (!MoveIsLegal(pos, move)) continue;
 
         moveCount++;
 
@@ -445,9 +449,6 @@ move_loop:
             && ttBound != BOUND_UPPER
             && abs(ttScore) < TBWIN_IN_MAX / 4) {
 
-            // ttMove has been made to check legality
-            TakeMove(pos);
-
             // Search to reduced depth with a zero window a bit lower than ttScore
             int singularBeta = ttScore - depth * 2;
             ss->excluded = move;
@@ -465,9 +466,6 @@ move_loop:
             // Negative extension - not singular but likely still good enough to beat beta
             else if (ttScore >= beta)
                 extension = -1;
-
-            // Replay ttMove
-            MakeMove(pos, move);
         }
 
         // Extend when in check
@@ -478,6 +476,8 @@ skip_extensions:
 
         ss->doubleExtensions = (ss-1)->doubleExtensions + (extension == 2);
         ss->continuation = &thread->continuation[inCheck][moveIsCapture(move)][piece(move)][toSq(move)];
+
+        MakeMove(pos, move);
 
         const Depth newDepth = depth - 1 + extension;
 

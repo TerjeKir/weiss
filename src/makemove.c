@@ -279,10 +279,6 @@ done:
     sideToMove ^= 1;
     HASH_SIDE;
 
-    // If own king is attacked after the move, take it back immediately
-    if (KingAttacked(pos, sideToMove^1))
-        return TakeMove(pos), false;
-
     pos->checkers = Checkers(pos);
     pos->nodes++;
 

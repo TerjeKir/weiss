@@ -71,6 +71,53 @@ bool MoveIsPseudoLegal(const Position *pos, const Move move) {
     return BB(to) & AttackBB(pieceTypeOn(from), from, pieceBB(ALL));
 }
 
+// Checks whether a square is attacked by the given color
+static bool SqAttacked2(const Position *pos, const Square sq, const Color color, const Bitboard occ, const Bitboard excluded) {
+
+    const Bitboard bishops = colorBB(color) & (pieceBB(BISHOP) | pieceBB(QUEEN));
+    const Bitboard rooks   = colorBB(color) & (pieceBB(ROOK)   | pieceBB(QUEEN));
+
+    return (   PawnAttackBB(!color, sq)  & (colorPieceBB(color, PAWN) & ~excluded)
+            || AttackBB(KNIGHT, sq, occ) & (colorPieceBB(color, KNIGHT) & ~excluded)
+            || AttackBB(KING,   sq, occ) & (colorPieceBB(color, KING) & ~excluded)
+            || AttackBB(BISHOP, sq, occ) & (bishops & ~excluded)
+            || AttackBB(ROOK,   sq, occ) & (rooks & ~excluded));
+}
+
+// Checks whether a move is legal (assuming it is pseudo-legal in this position)
+bool MoveIsLegal(const Position *pos, const Move move) {
+
+    const Color color = sideToMove;
+    const Square from = fromSq(move);
+    const Square to = toSq(move);
+
+    if (moveIsEnPas(move)) {
+        Bitboard occupied = pieceBB(ALL) ^ BB(from) ^ BB(to) ^ BB(to ^ 8);
+        Bitboard rooks   = colorPieceBB(!color,   ROOK) | colorPieceBB(!color, QUEEN);
+        Bitboard bishops = colorPieceBB(!color, BISHOP) | colorPieceBB(!color, QUEEN);
+        return   !(AttackBB(  ROOK, kingSq(color), occupied) & rooks)
+              && !(AttackBB(BISHOP, kingSq(color), occupied) & bishops);
+    }
+
+    if (moveIsCastle(move)) {
+        Square rookSq;
+        switch (to) {
+            case C1: rookSq = RookSquare[WHITE_OOO]; break;
+            case C8: rookSq = RookSquare[BLACK_OOO]; break;
+            case G1: rookSq = RookSquare[WHITE_OO ]; break;
+            default: rookSq = RookSquare[BLACK_OO ]; break;
+        }
+        return   !SqAttacked2(pos, to, !color, pieceBB(ALL), 0)
+              && (!chess960 || !SqAttacked2(pos, from, !color, pieceBB(ALL) ^ BB(rookSq), 0));
+    }
+
+    if (PieceTypeOf(piece(move)) == KING) {
+        return !SqAttacked2(pos, to, !color, pieceBB(ALL) ^ BB(from), 0);
+    }
+
+    return !SqAttacked2(pos, kingSq(color), !color, (pieceBB(ALL) ^ BB(from)) | BB(to), BB(to));
+}
+
 // Translates a move to a string
 char *MoveToStr(const Move move) {
 
