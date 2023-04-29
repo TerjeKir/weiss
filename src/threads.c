@@ -21,7 +21,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "makemove.h"
+#include "move.h"
 #include "movegen.h"
 #include "threads.h"
 
@@ -107,10 +107,8 @@ void PrepareSearch(Position *pos, Move searchmoves[]) {
     GenQuietMoves(pos, &list);
     for (int i = 0; i < list.count; ++i) {
         Move move = list.moves[list.next++].move;
-        if (NotInSearchMoves(searchmoves, move)) continue;
-        if (!MakeMove(pos, move)) continue;
+        if (!MoveIsLegal(pos, move) || NotInSearchMoves(searchmoves, move)) continue;
         ++rootMoveCount;
-        TakeMove(pos);
     }
     pos->nodes = 0;
 
