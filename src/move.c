@@ -92,8 +92,7 @@ bool MoveIsLegal(const Position *pos, const Move move) {
             case G1: rookSq = RookSquare[WHITE_OO ]; break;
             default: rookSq = RookSquare[BLACK_OO ]; break;
         }
-        return   !SqAttacked2(pos, to, !color, pieceBB(ALL), 0)
-              && (!chess960 || !SqAttacked2(pos, from, !color, pieceBB(ALL) ^ BB(rookSq), 0));
+        return !chess960 || !SqAttacked2(pos, from, !color, pieceBB(ALL) ^ BB(rookSq), 0);
     }
 
     if (PieceTypeOf(piece(move)) == KING) {
