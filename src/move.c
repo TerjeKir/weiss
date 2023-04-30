@@ -82,9 +82,8 @@ bool MoveIsLegal(const Position *pos, const Move move) {
         return !chess960 || !(Attackers(pos, from, pieceBB(ALL) ^ BB(rookSq)) & colorBB(!color));
     }
 
-    if (PieceTypeOf(piece(move)) == KING) {
+    if (PieceTypeOf(piece(move)) == KING)
         return !(Attackers(pos, to, pieceBB(ALL) ^ BB(from)) & colorBB(!color));
-    }
 
     return !(Attackers(pos, kingSq(color), (pieceBB(ALL) ^ BB(from)) | BB(to)) & (colorBB(!color) & ~BB(to)));
 }
