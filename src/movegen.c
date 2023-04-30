@@ -63,12 +63,12 @@ INLINE void GenCastling(const Position *pos, MoveList *list, const Color color, 
 
     // King side castle
     Square toShort = RelativeSquare(color, G1);
-    if (CastlePseudoLegal(pos, toShort))
+    if (CastleLegal(pos, toShort))
         AddMove(pos, list, from, toShort, EMPTY, FLAG_CASTLE);
 
     // Queen side castle
     Square toLong = RelativeSquare(color, C1);
-    if (CastlePseudoLegal(pos, toLong))
+    if (CastleLegal(pos, toLong))
         AddMove(pos, list, from, toLong, EMPTY, FLAG_CASTLE);
 }
 

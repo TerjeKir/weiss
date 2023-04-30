@@ -69,7 +69,7 @@
 
 
 // Checks legality of a specific castle move given the current position
-INLINE bool CastlePseudoLegal(const Position *pos, Square to) {
+INLINE bool CastleLegal(const Position *pos, Square to) {
 
     assert(to == C1 || to == G1 || to == C8 || to == G8);
 
@@ -88,7 +88,7 @@ INLINE bool CastlePseudoLegal(const Position *pos, Square to) {
         if (SqAttacked(pos, PopLsb(&kingPath), !color))
             return false;
 
-    return true;
+    return !chess960 || !(Attackers(pos, to, pieceBB(ALL) ^ BB(RookSquare[castle])) & colorBB(!color));
 }
 
 bool MoveIsPseudoLegal(const Position *pos, Move move);
