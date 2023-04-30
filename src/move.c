@@ -71,16 +71,8 @@ bool MoveIsLegal(const Position *pos, const Move move) {
               && !(AttackBB(BISHOP, kingSq(color), occupied) & bishops);
     }
 
-    if (moveIsCastle(move)) {
-        Square rookSq;
-        switch (to) {
-            case C1: rookSq = RookSquare[WHITE_OOO]; break;
-            case C8: rookSq = RookSquare[BLACK_OOO]; break;
-            case G1: rookSq = RookSquare[WHITE_OO ]; break;
-            default: rookSq = RookSquare[BLACK_OO ]; break;
-        }
-        return !chess960 || !(Attackers(pos, from, pieceBB(ALL) ^ BB(rookSq)) & colorBB(!color));
-    }
+    if (moveIsCastle(move))
+        return true;
 
     if (PieceTypeOf(piece(move)) == KING)
         return !(Attackers(pos, to, pieceBB(ALL) ^ BB(from)) & colorBB(!color));
