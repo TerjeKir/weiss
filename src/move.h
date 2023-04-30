@@ -82,10 +82,10 @@ INLINE bool CastlePseudoLegal(const Position *pos, Square to) {
         || pieceBB(ALL) & CastlePath[castle])
         return false;
 
-    Bitboard intercept = BetweenBB[kingSq(color)][to];
+    Bitboard kingPath = BetweenBB[kingSq(color)][to] | BB(to);
 
-    while (intercept)
-        if (SqAttacked(pos, PopLsb(&intercept), !color))
+    while (kingPath)
+        if (SqAttacked(pos, PopLsb(&kingPath), !color))
             return false;
 
     return true;
