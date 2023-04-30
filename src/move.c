@@ -56,19 +56,6 @@ bool MoveIsPseudoLegal(const Position *pos, const Move move) {
     return BB(to) & AttackBB(pieceTypeOn(from), from, pieceBB(ALL));
 }
 
-// Checks whether a square is attacked by the given color
-static bool SqAttacked2(const Position *pos, const Square sq, const Color color, const Bitboard occ, const Bitboard excluded) {
-
-    const Bitboard bishops = colorBB(color) & (pieceBB(BISHOP) | pieceBB(QUEEN));
-    const Bitboard rooks   = colorBB(color) & (pieceBB(ROOK)   | pieceBB(QUEEN));
-
-    return (   PawnAttackBB(!color, sq)  & (colorPieceBB(color, PAWN) & ~excluded)
-            || AttackBB(KNIGHT, sq, occ) & (colorPieceBB(color, KNIGHT) & ~excluded)
-            || AttackBB(KING,   sq, occ) & (colorPieceBB(color, KING) & ~excluded)
-            || AttackBB(BISHOP, sq, occ) & (bishops & ~excluded)
-            || AttackBB(ROOK,   sq, occ) & (rooks & ~excluded));
-}
-
 // Checks whether a move is legal (assuming it is pseudo-legal in this position)
 bool MoveIsLegal(const Position *pos, const Move move) {
 
@@ -92,14 +79,14 @@ bool MoveIsLegal(const Position *pos, const Move move) {
             case G1: rookSq = RookSquare[WHITE_OO ]; break;
             default: rookSq = RookSquare[BLACK_OO ]; break;
         }
-        return !chess960 || !SqAttacked2(pos, from, !color, pieceBB(ALL) ^ BB(rookSq), 0);
+        return !chess960 || !(Attackers(pos, from, pieceBB(ALL) ^ BB(rookSq)) & colorBB(!color));
     }
 
     if (PieceTypeOf(piece(move)) == KING) {
-        return !SqAttacked2(pos, to, !color, pieceBB(ALL) ^ BB(from), 0);
+        return !(Attackers(pos, to, pieceBB(ALL) ^ BB(from)) & colorBB(!color));
     }
 
-    return !SqAttacked2(pos, kingSq(color), !color, (pieceBB(ALL) ^ BB(from)) | BB(to), BB(to));
+    return !(Attackers(pos, kingSq(color), (pieceBB(ALL) ^ BB(from)) | BB(to)) & (colorBB(!color) & ~BB(to)));
 }
 
 // Translates a move to a string
