@@ -106,7 +106,9 @@ INLINE void GenPawn(const Position *pos, MoveList *list, const Color color, cons
     // Promotions
     AddPromotions(pos, list, color, type, lCap & promo, up+left);
     AddPromotions(pos, list, color, type, rCap & promo, up+right);
-    AddPromotions(pos, list, color, type, push & promo, up);
+    Bitboard pushPromos = push & promo;
+    if (pos->checkers) pushPromos &= BetweenBB[kingSq(color)][Lsb(pos->checkers)];
+    AddPromotions(pos, list, color, type, pushPromos, up);
 
     // Captures
     if (type == NOISY) {
@@ -116,6 +118,8 @@ INLINE void GenPawn(const Position *pos, MoveList *list, const Color color, cons
 
         // En passant
         if (pos->epSquare) {
+            if (pos->checkers && !(pos->checkers & BB(pos->epSquare ^ 8)))
+                return;
             Bitboard enPassers = pawns & PawnAttackBB(!color, pos->epSquare);
             while (enPassers)
                 AddMove(pos, list, PopLsb(&enPassers), pos->epSquare, EMPTY, FLAG_ENPAS);

@@ -46,6 +46,21 @@ bool MoveIsPseudoLegal(const Position *pos, const Move move) {
     if (piece(move) != pieceOn(from) || capturing(move) != pieceOn(to))
         return false;
 
+    // Filter some illegal moves due to check
+    if (pos->checkers && pieceTypeOn(from) != KING) {
+        // Only moving the king can get out of double-check
+        if (Multiple(pos->checkers))
+            return false;
+        // Non-king moves must block or capture the attacker
+        if (!(BB(to) & (BetweenBB[kingSq(color)][Lsb(pos->checkers)] | pos->checkers))) {
+            if (!moveIsEnPas(move))
+                return false;
+
+            if (!(pos->checkers & BB(pos->epSquare ^ 8)))
+                return false;
+        }
+    }
+
     // Pawn moves
     if (pieceTypeOn(from) == PAWN)
         return  moveIsEnPas(move)  ? to == pos->epSquare
