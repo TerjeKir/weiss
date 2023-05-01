@@ -185,6 +185,8 @@ done:
     // Get various info from history
     pos->key            = history(0).key;
     pos->materialKey    = history(0).materialKey;
+    pos->blockers[WHITE] = history(0).blockers[WHITE];
+    pos->blockers[BLACK] = history(0).blockers[BLACK];
     pos->checkers       = history(0).checkers;
     pos->epSquare       = history(0).epSquare;
     pos->rule50         = history(0).rule50;
@@ -201,6 +203,8 @@ bool MakeMove(Position *pos, const Move move) {
     // Save position
     history(0).key            = pos->key;
     history(0).materialKey    = pos->materialKey;
+    history(0).blockers[WHITE] = pos->blockers[WHITE];
+    history(0).blockers[BLACK] = pos->blockers[BLACK];
     history(0).checkers       = pos->checkers;
     history(0).move           = move;
     history(0).epSquare       = pos->epSquare;
@@ -279,6 +283,8 @@ done:
     sideToMove ^= 1;
     HASH_SIDE;
 
+    pos->blockers[WHITE] = Blockers(pos, colorBB(BLACK), kingSq(WHITE));
+    pos->blockers[BLACK] = Blockers(pos, colorBB(WHITE), kingSq(BLACK));
     pos->checkers = Checkers(pos);
     pos->nodes++;
 
