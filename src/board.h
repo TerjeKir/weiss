@@ -24,6 +24,7 @@
 typedef struct {
     Key key;
     Key materialKey;
+    Bitboard blockers[COLOR_NB];
     Bitboard checkers;
     Move move;
     Square epSquare;
@@ -35,6 +36,7 @@ typedef struct Position {
     uint8_t board[64];
     Bitboard pieceBB[7];
     Bitboard colorBB[COLOR_NB];
+    Bitboard blockers[COLOR_NB];
     Bitboard checkers;
 
     int nonPawnCount[COLOR_NB];
@@ -77,6 +79,7 @@ extern Bitboard CastlePath[16];
 extern Square RookSquare[16];
 
 
+Bitboard Blockers(const Position *pos, Bitboard sliders, Square sq);
 void ParseFen(const char *fen, Position *pos);
 Key KeyAfter(const Position *pos, Move move);
 bool SEE(const Position *pos, const Move move, const int threshold);
