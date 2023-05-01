@@ -52,8 +52,13 @@ bool MoveIsPseudoLegal(const Position *pos, const Move move) {
         if (Multiple(pos->checkers))
             return false;
         // Non-king moves must block or capture the attacker
-        if (!(BB(to) & (BetweenBB[kingSq(color)][Lsb(pos->checkers)] | pos->checkers)))
-            return false;
+        if (!(BB(to) & (BetweenBB[kingSq(color)][Lsb(pos->checkers)] | pos->checkers))) {
+            if (!moveIsEnPas(move))
+                return false;
+
+            if (!(pos->checkers & BB(pos->epSquare ^ 8)))
+                return false;
+        }
     }
 
     // Pawn moves
