@@ -92,7 +92,7 @@ bool MoveIsLegal(const Position *pos, const Move move) {
     if (PieceTypeOf(piece(move)) == KING)
         return !(Attackers(pos, to, pieceBB(ALL) ^ BB(from)) & colorBB(!color));
 
-    return !(Attackers(pos, kingSq(color), (pieceBB(ALL) ^ BB(from)) | BB(to)) & (colorBB(!color) & ~BB(to)));
+    return !(pos->blockers[color] & BB(from)) || Aligned(from, to, kingSq(color));
 }
 
 // Translates a move to a string

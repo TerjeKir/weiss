@@ -107,6 +107,7 @@ enum {
 extern const Bitboard FileBB[FILE_NB];
 extern const Bitboard RankBB[RANK_NB];
 
+extern Bitboard LineBB[64][64];
 extern Bitboard BetweenBB[64][64];
 
 extern Magic BishopTable[64];
@@ -175,6 +176,10 @@ INLINE bool Multiple(Bitboard bb) {
 // Checks whether or not a bitboard has a single set bit
 INLINE bool Single(Bitboard bb) {
     return bb && !Multiple(bb);
+}
+
+INLINE bool Aligned(Square sq1, Square sq2, Square sq3) {
+    return LineBB[sq1][sq2] & BB(sq3);
 }
 
 INLINE int PieceCount(const Position *pos, Piece piece) {
