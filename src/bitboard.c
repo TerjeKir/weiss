@@ -28,6 +28,7 @@ const Bitboard RankBB[RANK_NB] = {
     rank1BB, rank2BB, rank3BB, rank4BB, rank5BB, rank6BB, rank7BB, rank8BB
 };
 
+Bitboard LineBB[64][64];
 Bitboard BetweenBB[64][64];
 
 static Bitboard BishopAttacks[5248];
@@ -132,8 +133,10 @@ CONSTR(2) InitBitboards() {
     for (Square sq1 = A1; sq1 <= H8; sq1++)
         for (Square sq2 = A1; sq2 <= H8; sq2++)
             for (PieceType pt = BISHOP; pt <= ROOK; pt++)
-                if (AttackBB(pt, sq1, BB(sq2)) & BB(sq2))
+                if (AttackBB(pt, sq1, BB(sq2)) & BB(sq2)) {
+                    LineBB[sq1][sq2] = (AttackBB(pt, sq1, 0) & AttackBB(pt, sq2, 0)) | BB(sq1) | BB(sq2);
                     BetweenBB[sq1][sq2] = AttackBB(pt, sq1, BB(sq2)) & AttackBB(pt, sq2, BB(sq1));
+                }
 
     for (Square sq = A1; sq <= H8; ++sq) {
 

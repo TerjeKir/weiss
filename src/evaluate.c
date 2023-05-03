@@ -269,6 +269,10 @@ INLINE int EvalPiece(const Position *pos, EvalInfo *ei, const Color color, const
         // Mobility
         Bitboard attackBB = XRayAttackBB(pos, color, pt, sq);
         Bitboard mobilityBB = attackBB & ei->mobilityArea[color];
+
+        if (pos->blockers[color] & BB(sq))
+            mobilityBB &= LineBB[kingSq(color)][sq];
+
         int mob = PopCount(mobilityBB);
         eval += Mobility[pt-2][mob];
         TraceIncr(Mobility[pt-2][mob]);
