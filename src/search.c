@@ -479,7 +479,7 @@ skip_extensions:
         ss->doubleExtensions = (ss-1)->doubleExtensions + (extension == 2);
         ss->continuation = &thread->continuation[inCheck][moveIsCapture(move)][piece(move)][toSq(move)];
 
-        const Depth newDepth = depth - 1 + extension;
+        Depth newDepth = depth - 1 + extension;
 
         // Reduced depth zero-window search
         if (   depth > 2
@@ -510,6 +510,10 @@ skip_extensions:
 
             // Research with the same window at full depth if the reduced search failed high
             if (score > alpha && lmrDepth < newDepth) {
+                bool deeper = score > bestScore + 70 + 12 * (newDepth - lmrDepth);
+
+                newDepth += deeper;
+
                 score = -AlphaBeta(thread, ss+1, -alpha-1, -alpha, newDepth, !cutnode);
 
                 if (quiet && (score <= alpha || score >= beta)) {
