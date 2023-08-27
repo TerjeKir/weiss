@@ -530,7 +530,7 @@ skip_extensions:
             score = -AlphaBeta(thread, ss+1, -alpha-1, -alpha, newDepth, !cutnode);
 
         // Full depth alpha-beta window search
-        if (pvNode && ((score > alpha && score < beta) || moveCount == 1))
+        if (pvNode && (score > alpha || moveCount == 1))
             score = -AlphaBeta(thread, ss+1, -beta, -alpha, newDepth, false);
 
         // Undo the move
