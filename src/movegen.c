@@ -130,9 +130,10 @@ INLINE void GenPawn(const Position *pos, MoveList *list, const Color color, cons
 // Knight, bishop, rook, queen and king except castling
 INLINE void GenPieceType(const Position *pos, MoveList *list, const Color color, const int type, const PieceType pt) {
 
+    const bool mustDefendCheck = pos->checkers && pt != KING;
     const Bitboard occupied = pieceBB(ALL);
-    const Bitboard enemies  = pos->checkers && pt != KING ? pos->checkers : colorBB(!color);
-    const Bitboard empty    = pos->checkers && pt != KING ? BetweenBB[kingSq(color)][Lsb(pos->checkers)] : ~occupied;
+    const Bitboard enemies  = mustDefendCheck ? pos->checkers : colorBB(!color);
+    const Bitboard empty    = mustDefendCheck ? BetweenBB[kingSq(color)][Lsb(pos->checkers)] : ~occupied;
     const Bitboard targets  = type == QUIET ? empty : enemies;
 
     Bitboard pieces = colorPieceBB(color, pt);
