@@ -445,13 +445,13 @@ static void prt_str(const PyrrhicPosition *pos, char *str, int flip) {
 
     int color = flip ? PYRRHIC_BLACK : PYRRHIC_WHITE;
 
-    for (int pt = PYRRHIC_KING; pt >= PYRRHIC_PAWN; pt--)
+    for (int pt = PYRRHIC_KING; pt >= (int)PYRRHIC_PAWN; pt--)
         for (int i = PYRRHIC_POPCOUNT(pyrrhic_pieces_by_type(pos, color, pt)); i > 0; i--)
             *str++ = pyrrhic_piece_to_char[pt];
 
     *str++ = 'v';
 
-    for (int pt = PYRRHIC_KING; pt >= PYRRHIC_PAWN; pt--)
+    for (int pt = PYRRHIC_KING; pt >= (int)PYRRHIC_PAWN; pt--)
         for (int i = PYRRHIC_POPCOUNT(pyrrhic_pieces_by_type(pos, color^1, pt)); i > 0; i--)
             *str++ = pyrrhic_piece_to_char[pt];
     *str++ = 0;

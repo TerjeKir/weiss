@@ -106,7 +106,7 @@ static uint64_t pyrrhic_pieces_by_type(const PyrrhicPosition *pos, int colour, i
 
 static int pyrrhic_char_to_piece_type(char c) {
 
-    for (int i = PYRRHIC_PAWN; i <= PYRRHIC_KING; i++)
+    for (int i = PYRRHIC_PAWN; i <= (int)PYRRHIC_KING; i++)
         if (c == pyrrhic_piece_to_char[i])
             return i;
     return 0;
