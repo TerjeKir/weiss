@@ -83,7 +83,7 @@ static int Quiescence(Thread *thread, Stack *ss, int alpha, const int beta) {
         longjmp(thread->jumpBuffer, true);
 
     // Position is drawn
-    if (IsRepetition(pos, 1 + pvNode) || pos->rule50 >= 100)
+    if (IsRepetition(pos) || pos->rule50 >= 100)
         return DrawScore(pos);
 
     // Probe transposition table
@@ -218,7 +218,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
         }
 
         // Position is drawn
-        if (IsRepetition(pos, 1 + pvNode) || pos->rule50 >= 100)
+        if (IsRepetition(pos) || pos->rule50 >= 100)
             return DrawScore(pos);
 
         // Max depth reached

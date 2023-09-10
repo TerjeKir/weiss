@@ -113,13 +113,9 @@ INLINE void SqToStr(Square sq, char *str) {
     str[1] = '1' + RankOf(sq);
 }
 
-INLINE bool IsRepetition(const Position *pos, int count) {
-    int c = 0;
-    for (int i = 4; i <= pos->rule50 && i <= pos->histPly; i += 2) {
+INLINE bool IsRepetition(const Position *pos) {
+    for (int i = 4; i <= pos->rule50 && i <= pos->histPly; i += 2)
         if (pos->key == history(-i).key)
-            c++;
-        if (c == count)
             return true;
-    }
     return false;
 }
