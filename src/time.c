@@ -45,7 +45,7 @@ void InitTimeManagement() {
 
     // Basetime for the whole game
     if (!Limits.movestogo) {
-        double scale = 0.02;
+        double scale = 0.021;
         Limits.optimalUsage = MIN(timeLeft * scale, 0.2 * Limits.time);
 
     // X moves in Y time
