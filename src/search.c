@@ -483,7 +483,7 @@ skip_extensions:
 
         // Reduced depth zero-window search
         if (   depth > 2
-            && moveCount > 1 + pvNode + !ttMove + root
+            && moveCount > MAX(1, pvNode + !ttMove + root + !quiet)
             && thread->doPruning) {
 
             // Base reduction
