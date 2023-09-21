@@ -158,7 +158,7 @@ moveloop:
             continue;
         }
 
-        if (futility > alpha && !SEE(pos, move, -250)) {
+        if (futility > alpha && !SEE(pos, move, -500)) {
             bestScore = alpha;
             continue;
         }
