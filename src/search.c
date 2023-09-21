@@ -158,6 +158,11 @@ moveloop:
             continue;
         }
 
+        if (futility > alpha && !SEE(pos, move, -250)) {
+            bestScore = alpha;
+            continue;
+        }
+
 search:
         ss->continuation = &thread->continuation[inCheck][moveIsCapture(move)][piece(move)][toSq(move)];
 
