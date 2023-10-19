@@ -72,7 +72,7 @@ static int Quiescence(Thread *thread, Stack *ss, int alpha, const int beta) {
     MovePicker mp;
 
     const bool pvNode = alpha != beta - 1;
-    const bool inCheck = pos->checkers;
+    ss->inCheck = pos->checkers;
 
     int eval = NOSCORE;
     int futility = -INFINITE;
@@ -115,7 +115,7 @@ static int Quiescence(Thread *thread, Stack *ss, int alpha, const int beta) {
     if (ss->ply >= MAX_PLY)
         return eval;
 
-    if (inCheck) goto moveloop;
+    if (ss->inCheck) goto moveloop;
 
     // If eval beats beta we assume some move will also beat it
     if (eval >= beta)
@@ -130,7 +130,7 @@ static int Quiescence(Thread *thread, Stack *ss, int alpha, const int beta) {
 
 moveloop:
 
-    if (!inCheck) InitNoisyMP(&mp, thread, ss, ttMove); else InitNormalMP(&mp, thread, ss, 0, ttMove, NOMOVE, NOMOVE);
+    if (!ss->inCheck) InitNoisyMP(&mp, thread, ss, ttMove); else InitNormalMP(&mp, thread, ss, 0, ttMove, NOMOVE, NOMOVE);
 
     // Move loop
     Move bestMove = NOMOVE;
@@ -159,7 +159,7 @@ moveloop:
         }
 
 search:
-        ss->continuation = &thread->continuation[inCheck][moveIsCapture(move)][piece(move)][toSq(move)];
+        ss->continuation = &thread->continuation[ss->inCheck][moveIsCapture(move)][piece(move)][toSq(move)];
 
         // Recursively search the positions after making the moves, skipping illegal ones
         if (!MakeMove(pos, move)) continue;
@@ -183,7 +183,7 @@ search:
     }
 
     // Checkmate
-    if (inCheck && bestScore == -INFINITE)
+    if (ss->inCheck && bestScore == -INFINITE)
         return -MATE + ss->ply;
 
     StoreTTEntry(tte, key, bestMove, ScoreToTT(bestScore, ss->ply), eval, 0,
@@ -287,10 +287,10 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
         }
     }
 
-    const bool inCheck = pos->checkers;
+    ss->inCheck = pos->checkers;
 
     // Do a static evaluation for pruning considerations
-    int eval = ss->eval = inCheck           ? NOSCORE
+    int eval = ss->eval = ss->inCheck       ? NOSCORE
                         : lastMoveNullMove  ? -(ss-1)->eval + 2 * Tempo
                         : ttEval != NOSCORE ? ttEval
                                             : EvalPosition(pos, thread->pawnCache);
@@ -301,7 +301,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
         eval = ttScore;
 
     // Improving if not in check, and current eval is higher than 2 plies ago
-    bool improving = !inCheck && eval > (ss-2)->eval;
+    bool improving = !ss->inCheck && eval > (ss-2)->eval;
 
     // Internal iterative reduction based on Rebel's idea
     if (pvNode && depth >= 4 && !ttMove)
@@ -311,7 +311,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
         depth--;
 
     // Skip pruning in check, pv nodes, early iterations, when proving singularity, looking for terminal scores, or after a null move
-    if (inCheck || pvNode || !thread->doPruning || ss->excluded || abs(beta) >= TBWIN_IN_MAX || history(-1).move == NOMOVE)
+    if (ss->inCheck || pvNode || !thread->doPruning || ss->excluded || abs(beta) >= TBWIN_IN_MAX || history(-1).move == NOMOVE)
         goto move_loop;
 
     // Reverse Futility Pruning
@@ -363,7 +363,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
 
             if (!MakeMove(pos, move)) continue;
 
-            ss->continuation = &thread->continuation[inCheck][moveIsCapture(move)][piece(move)][toSq(move)];
+            ss->continuation = &thread->continuation[ss->inCheck][moveIsCapture(move)][piece(move)][toSq(move)];
 
             // See if a quiescence search beats the threshold
             int score = -Quiescence(thread, ss+1, -probCutBeta, -probCutBeta+1);
@@ -471,13 +471,13 @@ move_loop:
         }
 
         // Extend when in check
-        if (inCheck)
+        if (ss->inCheck)
             extension = MAX(extension, 1);
 
 skip_extensions:
 
         ss->doubleExtensions = (ss-1)->doubleExtensions + (extension == 2);
-        ss->continuation = &thread->continuation[inCheck][moveIsCapture(move)][piece(move)][toSq(move)];
+        ss->continuation = &thread->continuation[ss->inCheck][moveIsCapture(move)][piece(move)][toSq(move)];
 
         Depth newDepth = depth - 1 + extension;
 
@@ -570,7 +570,7 @@ skip_extensions:
     // Checkmate or stalemate
     if (!moveCount)
         bestScore =  ss->excluded ? alpha
-                   : inCheck      ? -MATE + ss->ply
+                   : ss->inCheck  ? -MATE + ss->ply
                                   : 0;
 
     // Make sure score isn't above the max score given by TBs

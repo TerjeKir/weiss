@@ -43,6 +43,7 @@ typedef struct {
     Depth ply;
     Move excluded;
     Move killers[2];
+    bool inCheck;
     PV pv;
 } Stack;
 

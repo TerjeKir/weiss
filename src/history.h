@@ -53,7 +53,7 @@ INLINE void UpdateContHistories(Stack *ss, Move move, int bonus) {
 INLINE void UpdateQuietHistory(Thread *thread, Stack *ss, Move bestMove, int bonus, Depth depth, Move quiets[], int qCount) {
 
     // Update killers
-    if (ss->killers[0] != bestMove) {
+    if (!ss->inCheck && ss->killers[0] != bestMove) {
         ss->killers[1] = ss->killers[0];
         ss->killers[0] = bestMove;
     }

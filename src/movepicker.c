@@ -154,8 +154,8 @@ void InitNormalMP(MovePicker *mp, Thread *thread, Stack *ss, Depth depth, Move t
     mp->ttMove    = ttMove;
     mp->stage     = ttMove ? TTMOVE : GEN_NOISY;
     mp->depth     = depth;
-    mp->kill1     = kill1;
-    mp->kill2     = kill2;
+    mp->kill1     = !ss->inCheck ? kill1 : NOMOVE;
+    mp->kill2     = !ss->inCheck ? kill2 : NOMOVE;
     mp->bads      = 0;
     mp->threshold = 0;
     mp->onlyNoisy = false;
