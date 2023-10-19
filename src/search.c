@@ -376,7 +376,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
 
             // Cut if the reduced depth search beats the threshold
             if (score >= probCutBeta)
-                return score - 200;
+                return score - 100;
         }
     }
 
