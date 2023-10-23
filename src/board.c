@@ -186,6 +186,24 @@ static void InitCastlingRight(Position *pos, Color color, int file) {
     RookSquare[cr] = rFrom;
 }
 
+Bitboard Blockers(const Position *pos, Bitboard sliders, Square sq) {
+
+    Bitboard blockers = 0;
+
+    Bitboard snipers = (  (AttackBB(  ROOK, sq, 0) & (pieceBB(QUEEN) | pieceBB(  ROOK)))
+                        | (AttackBB(BISHOP, sq, 0) & (pieceBB(QUEEN) | pieceBB(BISHOP)))) & sliders;
+
+    while (snipers) {
+        Square sniperSq = PopLsb(&snipers);
+        Bitboard piecesBetween = BetweenBB[sq][sniperSq] & pieceBB(ALL);
+
+        if (Single(piecesBetween))
+            blockers |= piecesBetween;
+    }
+
+    return blockers;
+}
+
 // Parse FEN and set up the position as described
 void ParseFen(const char *fen, Position *pos) {
 
@@ -236,6 +254,8 @@ void ParseFen(const char *fen, Position *pos) {
     pos->gameMoves = atoi(strtok(NULL, " "));
 
     // Final initializations
+    pos->blockers[WHITE] = Blockers(pos, colorBB(BLACK), kingSq(WHITE));
+    pos->blockers[BLACK] = Blockers(pos, colorBB(WHITE), kingSq(BLACK));
     pos->checkers = Checkers(pos);
     pos->key = GenPosKey(pos);
     pos->materialKey = GenMaterialKey(pos);
@@ -522,6 +542,10 @@ bool PositionOk(const Position *pos) {
     assert(!pos->epSquare || RelativeRank(sideToMove, RankOf(pos->epSquare)) == RANK_6);
 
     assert(pos->castlingRights >= 0 && pos->castlingRights <= 15);
+
+    assert(pos->blockers[WHITE] == Blockers(pos, colorBB(BLACK), kingSq(WHITE)));
+    assert(pos->blockers[BLACK] == Blockers(pos, colorBB(WHITE), kingSq(BLACK)));
+    assert(pos->checkers == Checkers(pos));
 
     assert(GenPosKey(pos)      == pos->key);
     assert(GenMaterialKey(pos) == pos->materialKey);

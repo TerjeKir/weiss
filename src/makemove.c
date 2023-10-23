@@ -185,6 +185,8 @@ done:
     // Get various info from history
     pos->key            = history(0).key;
     pos->materialKey    = history(0).materialKey;
+    pos->blockers[WHITE] = history(0).blockers[WHITE];
+    pos->blockers[BLACK] = history(0).blockers[BLACK];
     pos->checkers       = history(0).checkers;
     pos->epSquare       = history(0).epSquare;
     pos->rule50         = history(0).rule50;
@@ -194,13 +196,15 @@ done:
 }
 
 // Make a move - take it back and return false if move was illegal
-bool MakeMove(Position *pos, const Move move) {
+void MakeMove(Position *pos, const Move move) {
 
     TTPrefetch(KeyAfter(pos, move));
 
     // Save position
     history(0).key            = pos->key;
     history(0).materialKey    = pos->materialKey;
+    history(0).blockers[WHITE] = pos->blockers[WHITE];
+    history(0).blockers[BLACK] = pos->blockers[BLACK];
     history(0).checkers       = pos->checkers;
     history(0).move           = move;
     history(0).epSquare       = pos->epSquare;
@@ -279,16 +283,13 @@ done:
     sideToMove ^= 1;
     HASH_SIDE;
 
-    // If own king is attacked after the move, take it back immediately
-    if (KingAttacked(pos, sideToMove^1))
-        return TakeMove(pos), false;
+    pos->blockers[WHITE] = Blockers(pos, colorBB(BLACK), kingSq(WHITE));
+    pos->blockers[BLACK] = Blockers(pos, colorBB(WHITE), kingSq(BLACK));
 
     pos->checkers = Checkers(pos);
     pos->nodes++;
 
     assert(PositionOk(pos));
-
-    return true;
 }
 
 // Pass the turn without moving

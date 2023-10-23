@@ -71,6 +71,30 @@ bool MoveIsPseudoLegal(const Position *pos, const Move move) {
     return BB(to) & AttackBB(pieceTypeOn(from), from, pieceBB(ALL));
 }
 
+// Checks whether a move is legal (assuming it is pseudo-legal in this position)
+bool MoveIsLegal(const Position *pos, const Move move) {
+
+    const Color color = sideToMove;
+    const Square from = fromSq(move);
+    const Square to = toSq(move);
+
+    if (moveIsEnPas(move)) {
+        Bitboard occupied = pieceBB(ALL) ^ BB(from) ^ BB(to) ^ BB(to ^ 8);
+        Bitboard rooks   = colorPieceBB(!color,   ROOK) | colorPieceBB(!color, QUEEN);
+        Bitboard bishops = colorPieceBB(!color, BISHOP) | colorPieceBB(!color, QUEEN);
+        return   !(AttackBB(  ROOK, kingSq(color), occupied) & rooks)
+              && !(AttackBB(BISHOP, kingSq(color), occupied) & bishops);
+    }
+
+    if (moveIsCastle(move))
+        return true;
+
+    if (PieceTypeOf(piece(move)) == KING)
+        return !(Attackers(pos, to, pieceBB(ALL) ^ BB(from)) & colorBB(!color));
+
+    return !(pos->blockers[color] & BB(from)) || Aligned(from, to, kingSq(color));
+}
+
 // Translates a move to a string
 char *MoveToStr(const Move move) {
 
