@@ -137,6 +137,9 @@ moveloop:
     Move move;
     while ((move = NextMove(&mp))) {
 
+        // Recursively search the positions after making the moves, skipping illegal ones
+        if (!MoveIsLegal(pos, move)) continue;
+
         // Avoid pruning until at least one move avoids a terminal loss score
         if (bestScore <= -TBWIN_IN_MAX) goto search;
 
@@ -161,8 +164,6 @@ moveloop:
 search:
         ss->continuation = &thread->continuation[inCheck][moveIsCapture(move)][piece(move)][toSq(move)];
 
-        // Recursively search the positions after making the moves, skipping illegal ones
-        if (!MoveIsLegal(pos, move)) continue;
         MakeMove(pos, move);
         int score = -Quiescence(thread, ss+1, -beta, -alpha);
         TakeMove(pos);
@@ -402,6 +403,9 @@ move_loop:
         if (root && AlreadySearchedMultiPV(thread, move)) continue;
         if (root && NotInSearchMoves(move)) continue;
 
+        // Skip to the next move if this one is illegal
+        if (!MoveIsLegal(pos, move)) continue;
+
         bool quiet = moveIsQuiet(move);
 
         ss->histScore = GetHistory(thread, ss, move);
@@ -426,9 +430,6 @@ move_loop:
             if (lmrDepth < 7 && !SEE(pos, move, quiet ? -50 * depth : -90 * depth))
                 continue;
         }
-
-        // Skip to the next move if this one is illegal
-        if (!MoveIsLegal(pos, move)) continue;
 
         moveCount++;
 
