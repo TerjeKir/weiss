@@ -427,9 +427,8 @@ move_loop:
                 continue;
         }
 
-        // Make the move, skipping to the next if illegal
+        // Skip to the next move if this one is illegal
         if (!MoveIsLegal(pos, move)) continue;
-        MakeMove(pos, move);
 
         moveCount++;
 
@@ -448,9 +447,6 @@ move_loop:
             && ttBound != BOUND_UPPER
             && abs(ttScore) < TBWIN_IN_MAX / 4) {
 
-            // ttMove has been made to check legality
-            TakeMove(pos);
-
             // Search to reduced depth with a zero window a bit lower than ttScore
             int singularBeta = ttScore - depth * 2;
             ss->excluded = move;
@@ -468,9 +464,6 @@ move_loop:
             // Negative extension - not singular but likely still good enough to beat beta
             else if (ttScore >= beta)
                 extension = -1;
-
-            // Replay ttMove
-            MakeMove(pos, move);
         }
 
         // Extend when in check
@@ -478,6 +471,8 @@ move_loop:
             extension = MAX(extension, 1);
 
 skip_extensions:
+
+        MakeMove(pos, move);
 
         ss->doubleExtensions = (ss-1)->doubleExtensions + (extension == 2);
         ss->continuation = &thread->continuation[inCheck][moveIsCapture(move)][piece(move)][toSq(move)];
