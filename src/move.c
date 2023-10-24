@@ -74,6 +74,8 @@ bool MoveIsPseudoLegal(const Position *pos, const Move move) {
 // Checks whether a move is legal (assuming it is pseudo-legal in this position)
 bool MoveIsLegal(const Position *pos, const Move move) {
 
+    TTPrefetch(KeyAfter(pos, move));
+
     const Color color = sideToMove;
     const Square from = fromSq(move);
     const Square to = toSq(move);
