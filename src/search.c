@@ -501,7 +501,7 @@ skip_extensions:
             // Reduce more when opponent has few pieces
             r += pos->nonPawnCount[opponent] < 2;
             // Reduce more in cut nodes
-            r += cutnode;
+            r += 2 * cutnode;
 
             // Depth after reductions, avoiding going straight to quiescence as well as extending
             Depth lmrDepth = CLAMP(newDepth - r, 1, newDepth);
