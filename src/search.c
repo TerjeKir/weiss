@@ -47,8 +47,8 @@ static int Reductions[2][32][32];
 CONSTR(1) InitReductions() {
     for (int depth = 1; depth < 32; ++depth)
         for (int moves = 1; moves < 32; ++moves)
-            Reductions[0][depth][moves] = 0.00 + log(depth) * log(moves) / 3.00, // capture
-            Reductions[1][depth][moves] = 1.50 + log(depth) * log(moves) / 2.05; // quiet
+            Reductions[0][depth][moves] = 0.10 + log(depth) * log(moves) / 3.00, // capture
+            Reductions[1][depth][moves] = 1.50 + log(depth) * log(moves) / 2.10; // quiet
 }
 
 // Checks if the move is in the list of searchmoves if any were given
@@ -318,17 +318,17 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
     if (   depth < 7
         && eval >= beta
         && eval - 100 * depth - (ss-1)->histScore / 300 >= beta
-        && (!ttMove || GetHistory(thread, ss, ttMove) > 7500))
+        && (!ttMove || GetHistory(thread, ss, ttMove) > 7700))
         return eval;
 
     // Null Move Pruning
     if (   eval >= beta
         && eval >= ss->eval
         && ss->eval >= beta + 140 - 15 * depth
-        && (ss-1)->histScore < 27500
+        && (ss-1)->histScore < 26000
         && pos->nonPawnCount[sideToMove] > (depth > 8)) {
 
-        Depth reduction = 3 + depth / 4 + MIN(3, (eval - beta) / 270);
+        Depth reduction = 3 + depth / 4 + MIN(3, (eval - beta) / 256);
 
         // Remember who last null-moved
         Color nullMoverTemp = thread->nullMover;
@@ -510,7 +510,7 @@ skip_extensions:
 
             // Research with the same window at full depth if the reduced search failed high
             if (score > alpha && lmrDepth < newDepth) {
-                bool deeper = score > bestScore + 60 + 12 * (newDepth - lmrDepth);
+                bool deeper = score > bestScore + 55 + 13 * (newDepth - lmrDepth);
 
                 newDepth += deeper;
 

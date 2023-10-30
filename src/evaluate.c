@@ -137,9 +137,9 @@ const int Mobility[4][28] = {
 };
 
 // KingSafety [pt-2]
-const int AttackPower[4] = { 34, 19, 30, 74 };
-const int CheckPower[4]  = { 89, 41, 71, 64 };
-const int CountModifier[8] = { 0, 0, 68, 118, 100, 127, 123, 128 };
+const int AttackPower[4] = { 35, 18, 31, 81 };
+const int CheckPower[4]  = { 85, 39, 72, 68 };
+const int CountModifier[8] = { 0, 0, 65, 124, 96, 124, 123, 128 };
 
 
 // Evaluates pawns
