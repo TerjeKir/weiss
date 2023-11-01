@@ -330,17 +330,11 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
 
         Depth reduction = 3 + depth / 4 + MIN(3, (eval - beta) / 256);
 
-        // Remember who last null-moved
-        Color nullMoverTemp = thread->nullMover;
-        thread->nullMover = sideToMove;
-
         ss->continuation = &thread->continuation[0][0][EMPTY][0];
 
         MakeNullMove(pos);
         int score = -AlphaBeta(thread, ss+1, -beta, -alpha, depth - reduction, !cutnode);
         TakeNullMove(pos);
-
-        thread->nullMover = nullMoverTemp;
 
         // Cutoff
         if (score >= beta)
@@ -494,8 +488,6 @@ skip_extensions:
             r -= pvNode;
             // Reduce less when improving
             r -= improving;
-            // Reduce more for the side that was last null moved against
-            r += opponent == thread->nullMover;
             // Reduce quiets more if ttMove is a capture
             r += moveIsCapture(ttMove);
             // Reduce more when opponent has few pieces

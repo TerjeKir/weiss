@@ -117,7 +117,6 @@ void PrepareSearch(Position *pos, Move searchmoves[]) {
     for (Thread *t = threads; t < threads + threads->count; ++t) {
         memset(t, 0, offsetof(Thread, pos));
         memcpy(&t->pos, pos, sizeof(Position));
-        t->nullMover = -1;
         t->rootMoveCount = rootMoveCount;
         for (Depth d = 0; d <= MAX_PLY; ++d)
             (t->ss+SS_OFFSET+d)->ply = d;

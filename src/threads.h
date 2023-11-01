@@ -59,7 +59,6 @@ typedef struct Thread {
     uint64_t tbhits;
     RootMove rootMoves[MULTI_PV_MAX];
     Depth depth;
-    Color nullMover;
     int rootMoveCount;
     bool doPruning;
     bool uncertain;
