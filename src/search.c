@@ -101,9 +101,7 @@ static int Quiescence(Thread *thread, Stack *ss, int alpha, const int beta) {
         ttHit = false, ttMove = NOMOVE, ttScore = NOSCORE, ttEval = NOSCORE;
 
     // Trust TT if not a pvnode
-    if (   !pvNode
-        && ttHit
-        && (ttBound & (ttScore >= beta ? BOUND_LOWER : BOUND_UPPER)))
+    if (!pvNode && ttHit && TTScoreIsMoreInformative(ttBound, ttScore, beta))
         return ttScore;
 
     // Do a static evaluation for pruning considerations
@@ -244,16 +242,13 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
     int ttScore = ttHit ? ScoreFromTT(tte->score, ss->ply) : NOSCORE;
     int ttEval = ttHit ? tte->eval : NOSCORE;
     Depth ttDepth = tte->depth;
-    int ttBound = Bound(tte);
+    int ttBound = ttHit ? Bound(tte) : BOUND_NONE;
 
     if (ttMove && (!MoveIsPseudoLegal(pos, ttMove) || ttMove == ss->excluded))
-        ttHit = false, ttMove = NOMOVE, ttScore = NOSCORE, ttEval = NOSCORE;
+        ttHit = false, ttMove = NOMOVE, ttScore = NOSCORE, ttEval = NOSCORE, ttBound = BOUND_NONE;
 
     // Trust TT if not a pvnode and the entry depth is sufficiently high
-    if (   !pvNode
-        && ttHit
-        && ttDepth >= depth
-        && (ttBound & (ttScore >= beta ? BOUND_LOWER : BOUND_UPPER))) {
+    if (!pvNode && ttHit && ttDepth >= depth && TTScoreIsMoreInformative(ttBound, ttScore, beta)) {
 
         // Give a history bonus to quiet tt moves that causes a cutoff
         if (ttScore >= beta && moveIsQuiet(ttMove))
@@ -296,8 +291,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
                                             : EvalPosition(pos, thread->pawnCache);
 
     // Use ttScore as eval if it is more informative
-    if (   ttScore != NOSCORE
-        && ttBound & (ttScore > eval ? BOUND_LOWER : BOUND_UPPER))
+    if (TTScoreIsMoreInformative(ttBound, ttScore, eval))
         eval = ttScore;
 
     // Improving if not in check, and current eval is higher than 2 plies ago

@@ -93,6 +93,12 @@ INLINE int ScoreFromTT (const int score, const uint8_t ply) {
                                   : score;
 }
 
+// Checks whether the TT score is more informative than score
+// (TT score is exact, is a lower bound above score, or is an upper bound below score)
+INLINE bool TTScoreIsMoreInformative(uint8_t bound, int ttScore, int score) {
+    return bound & (ttScore >= score ? BOUND_LOWER : BOUND_UPPER);
+}
+
 INLINE uint64_t TTIndex(Key key) {
     return ((unsigned __int128)key * (unsigned __int128)TT.count) >> 64;
 }
