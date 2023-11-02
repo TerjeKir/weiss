@@ -88,8 +88,7 @@ static int Quiescence(Thread *thread, Stack *ss, int alpha, const int beta) {
 
     // Probe transposition table
     bool ttHit;
-    Key key = pos->key;
-    TTEntry *tte = ProbeTT(key, &ttHit);
+    TTEntry *tte = ProbeTT(pos->key, &ttHit);
 
     Move ttMove = ttHit ? tte->move : NOMOVE;
     int ttScore = ttHit ? ScoreFromTT(tte->score, ss->ply) : NOSCORE;
@@ -128,7 +127,8 @@ static int Quiescence(Thread *thread, Stack *ss, int alpha, const int beta) {
 
 moveloop:
 
-    if (!inCheck) InitNoisyMP(&mp, thread, ss, ttMove); else InitNormalMP(&mp, thread, ss, 0, ttMove, NOMOVE, NOMOVE);
+    if (!inCheck) InitNoisyMP(&mp, thread, ss, ttMove);
+    else          InitNormalMP(&mp, thread, ss, 0, ttMove, NOMOVE, NOMOVE);
 
     // Move loop
     Move bestMove = NOMOVE;
@@ -184,7 +184,7 @@ search:
     if (inCheck && bestScore == -INFINITE)
         return -MATE + ss->ply;
 
-    StoreTTEntry(tte, key, bestMove, ScoreToTT(bestScore, ss->ply), eval, 0,
+    StoreTTEntry(tte, pos->key, bestMove, ScoreToTT(bestScore, ss->ply), eval, 0,
                  bestScore >= beta ? BOUND_LOWER : BOUND_UPPER);
 
     return bestScore;
