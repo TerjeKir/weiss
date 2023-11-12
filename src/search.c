@@ -47,8 +47,8 @@ static int Reductions[2][32][32];
 CONSTR(1) InitReductions() {
     for (int depth = 1; depth < 32; ++depth)
         for (int moves = 1; moves < 32; ++moves)
-            Reductions[0][depth][moves] = 0.10 + log(depth) * log(moves) / 3.00, // capture
-            Reductions[1][depth][moves] = 1.50 + log(depth) * log(moves) / 2.10; // quiet
+            Reductions[0][depth][moves] = 0.20 + log(depth) * log(moves) / 3.35, // capture
+            Reductions[1][depth][moves] = 1.35 + log(depth) * log(moves) / 2.75; // quiet
 }
 
 // Checks if the move is in the list of searchmoves if any were given
@@ -122,7 +122,7 @@ static int Quiescence(Thread *thread, Stack *ss, int alpha, const int beta) {
     if (eval > alpha)
         alpha = eval;
 
-    futility = eval + 60;
+    futility = eval + 68;
     bestScore = eval;
 
 moveloop:
@@ -298,7 +298,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
     bool improving = !inCheck && eval > (ss-2)->eval;
 
     // Internal iterative reduction based on Rebel's idea
-    if (pvNode && depth >= 4 && !ttMove)
+    if (pvNode && depth >= 3 && !ttMove)
         depth--;
 
     if (cutnode && depth >= 8 && !ttMove)
@@ -311,15 +311,15 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
     // Reverse Futility Pruning
     if (   depth < 7
         && eval >= beta
-        && eval - 100 * depth - (ss-1)->histScore / 300 >= beta
-        && (!ttMove || GetHistory(thread, ss, ttMove) > 7700))
+        && eval - 80 * depth - (ss-1)->histScore / 230 >= beta
+        && (!ttMove || GetHistory(thread, ss, ttMove) > 7300))
         return eval;
 
     // Null Move Pruning
     if (   eval >= beta
         && eval >= ss->eval
-        && ss->eval >= beta + 140 - 15 * depth
-        && (ss-1)->histScore < 26000
+        && ss->eval >= beta + 135 - 19 * depth
+        && (ss-1)->histScore < 25500
         && pos->nonPawnCount[sideToMove] > (depth > 8)) {
 
         Depth reduction = 3 + depth / 4 + MIN(3, (eval - beta) / 256);
@@ -364,7 +364,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
 
             // Cut if the reduced depth search beats the threshold
             if (score >= probCutBeta)
-                return score - 115;
+                return score - 138;
         }
     }
 
@@ -397,11 +397,11 @@ move_loop:
             && thread->doPruning
             && bestScore > -TBWIN_IN_MAX) {
 
-            int R = Reductions[quiet][MIN(31, depth)][MIN(31, moveCount)] - ss->histScore / 8192;
+            int R = Reductions[quiet][MIN(31, depth)][MIN(31, moveCount)] - ss->histScore / 8550;
             Depth lmrDepth = depth - 1 - R;
 
             // Quiet late move pruning
-            if (moveCount > (improving ? depth * depth : depth * depth / 2))
+            if (moveCount > (improving ? 1 + depth * depth : -2 +  depth * depth / 2))
                 mp.onlyNoisy = true;
 
             // History pruning
@@ -409,7 +409,7 @@ move_loop:
                 continue;
 
             // SEE pruning
-            if (lmrDepth < 8 && !SEE(pos, move, quiet ? -50 * depth : -95 * depth))
+            if (lmrDepth < 7 && !SEE(pos, move, quiet ? -50 * depth : -85 * depth))
                 continue;
         }
 
@@ -445,7 +445,7 @@ move_loop:
             // Singular - extend by 1 or 2 ply
             if (score < singularBeta) {
                 extension = 1;
-                if (!pvNode && score < singularBeta - 25 && ss->doubleExtensions <= 5)
+                if (!pvNode && score < singularBeta - 19 && ss->doubleExtensions <= 5)
                     extension = 2;
             // MultiCut - ttMove as well as at least one other move seem good enough to beat beta
             } else if (singularBeta >= beta)
@@ -477,7 +477,7 @@ skip_extensions:
             // Base reduction
             int r = Reductions[quiet][MIN(31, depth)][MIN(31, moveCount)];
             // Adjust reduction by move history
-            r -= ss->histScore / 8192;
+            r -= ss->histScore / 8550;
             // Reduce less in pv nodes
             r -= pvNode;
             // Reduce less when improving
@@ -496,7 +496,7 @@ skip_extensions:
 
             // Research with the same window at full depth if the reduced search failed high
             if (score > alpha && lmrDepth < newDepth) {
-                bool deeper = score > bestScore + 55 + 13 * (newDepth - lmrDepth);
+                bool deeper = score > bestScore + 55 + 16 * (newDepth - lmrDepth);
 
                 newDepth += deeper;
 
@@ -583,12 +583,12 @@ static void AspirationWindow(Thread *thread, Stack *ss) {
 
     int prevScore = thread->rootMoves[multiPV].score;
 
-    int delta = 10 + prevScore * prevScore / 16384;
+    int delta = 9 + prevScore * prevScore / 15500;
 
     int alpha = MAX(prevScore - delta, -INFINITE);
     int beta  = MIN(prevScore + delta,  INFINITE);
 
-    int x = CLAMP(prevScore / 2, -33, 33);
+    int x = CLAMP(prevScore / 2, -34, 34);
     pos->trend = sideToMove == WHITE ? S(x, x/2) : -S(x, x/2);
 
     // Repeatedly search and adjust the window until the score is inside the window
@@ -596,8 +596,8 @@ static void AspirationWindow(Thread *thread, Stack *ss) {
 
         thread->doPruning =
             Limits.infinite ? TimeSince(Limits.start) > 1000
-                            :   TimeSince(Limits.start) >= Limits.optimalUsage / 64
-                             || depth > 2 + Limits.optimalUsage / 256;
+                            :   TimeSince(Limits.start) >= Limits.optimalUsage / 58
+                             || depth > 2 + Limits.optimalUsage / 281;
 
         int score = AlphaBeta(thread, ss, alpha, beta, depth, false);
 
