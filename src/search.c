@@ -311,7 +311,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
     // Reverse Futility Pruning
     if (   depth < 7
         && eval >= beta
-        && eval - 80 * depth - (ss-1)->histScore / 230 >= beta
+        && eval - 80 * (depth - improving) - (ss-1)->histScore / 230 >= beta
         && (!ttMove || GetHistory(thread, ss, ttMove) > 7300))
         return eval;
 
