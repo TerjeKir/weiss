@@ -51,15 +51,6 @@ CONSTR(1) InitReductions() {
             Reductions[1][depth][moves] = 1.35 + log(depth) * log(moves) / 2.75; // quiet
 }
 
-// Checks if the move is in the list of searchmoves if any were given
-static bool NotInSearchMoves(Move move) {
-    if (Limits.searchmoves[0] == NOMOVE) return false;
-    for (Move *m = Limits.searchmoves; *m != NOMOVE; ++m)
-        if (*m == move)
-            return false;
-    return true;
-}
-
 // Small positive score with some random variance
 static int DrawScore(Position *pos) {
     return 8 - (pos->nodes & 0x7);
@@ -386,7 +377,7 @@ move_loop:
 
         if (move == ss->excluded) continue;
         if (root && AlreadySearchedMultiPV(thread, move)) continue;
-        if (root && NotInSearchMoves(move)) continue;
+        if (root && NotInSearchMoves(Limits.searchmoves, move)) continue;
 
         bool quiet = moveIsQuiet(move);
 

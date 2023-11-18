@@ -149,12 +149,6 @@ void Benchmark(int argc, char **argv) {
 
 #ifdef DEV
 
-static void GenAllMoves(Position *pos, MoveList *list) {
-    list->count = list->next = 0;
-    GenNoisyMoves(pos, list);
-    GenQuietMoves(pos, list);
-}
-
 // Helper for Perft()
 static uint64_t RecursivePerft(Position *pos, const Depth depth) {
 
@@ -163,6 +157,7 @@ static uint64_t RecursivePerft(Position *pos, const Depth depth) {
     uint64_t leafnodes = 0;
 
     MoveList list;
+    list.count = list.next = 0;
     GenAllMoves(pos, &list);
 
     for (int i = 0; i < list.count; i++) {

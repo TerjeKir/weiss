@@ -26,7 +26,7 @@
 
 #define MIN(A, B) ((A) < (B) ? (A) : (B))
 #define MAX(A, B) ((A) > (B) ? (A) : (B))
-#define CLAMP(x, low, high)  (((x) > (high)) ? (high) : (((x) < (low)) ? (low) : (x)))
+#define CLAMP(x, low, high)  (MIN((high), MAX((x), (low))))
 
 #define INLINE static inline __attribute__((always_inline))
 #define CONSTR(prio) static __attribute__((constructor (1000 + prio))) void
