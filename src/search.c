@@ -242,10 +242,10 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
     int ttScore = ttHit ? ScoreFromTT(tte->score, ss->ply) : NOSCORE;
     int ttEval = ttHit ? tte->eval : NOSCORE;
     Depth ttDepth = tte->depth;
-    int ttBound = ttHit ? Bound(tte) : BOUND_NONE;
+    int ttBound = Bound(tte);
 
     if (ttMove && (!MoveIsPseudoLegal(pos, ttMove) || ttMove == ss->excluded))
-        ttHit = false, ttMove = NOMOVE, ttScore = NOSCORE, ttEval = NOSCORE, ttBound = BOUND_NONE;
+        ttHit = false, ttMove = NOMOVE, ttScore = NOSCORE, ttEval = NOSCORE;
 
     // Trust TT if not a pvnode and the entry depth is sufficiently high
     if (!pvNode && ttHit && ttDepth >= depth && TTScoreIsMoreInformative(ttBound, ttScore, beta)) {
