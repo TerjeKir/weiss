@@ -46,7 +46,7 @@ INLINE void AddPromotions(const Position *pos, MoveList *list, const Color color
     }
 }
 
-// Used to add pawn moves aside from promos and en passant
+// Adds pawn moves aside from promos and en passant
 INLINE void AddPawnMoves(const Position *pos, MoveList *list, Bitboard moves, const Direction dir, const int flag) {
     while (moves) {
         Square to = PopLsb(&moves);
