@@ -34,8 +34,8 @@ typedef struct {
 
 
 extern SearchLimits Limits;
-extern volatile bool ABORT_SIGNAL;
-extern volatile bool SEARCH_STOPPED;
+extern atomic_bool ABORT_SIGNAL;
+extern atomic_bool SEARCH_STOPPED;
 
 
 void *SearchPosition(void *pos);

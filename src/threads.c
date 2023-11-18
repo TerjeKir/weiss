@@ -147,9 +147,9 @@ void RunWithAllThreads(void *(*func)(void *)) {
 }
 
 // Thread sleeps until it is woken up
-void Wait(volatile bool *condition) {
+void Wait(atomic_bool *condition) {
     pthread_mutex_lock(&mutex);
-    while (!*condition)
+    while (!atomic_load(condition))
         pthread_cond_wait(&sleepCondition, &mutex);
     pthread_mutex_unlock(&mutex);
 }

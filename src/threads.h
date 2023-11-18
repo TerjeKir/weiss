@@ -91,5 +91,5 @@ void StartHelpers(void *(*func)(void *));
 void WaitForHelpers();
 void ResetThreads();
 void RunWithAllThreads(void *(*func)(void *));
-void Wait(volatile bool *condition);
+void Wait(atomic_bool *condition);
 void Wake();
