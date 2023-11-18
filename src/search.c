@@ -37,8 +37,8 @@
 
 
 SearchLimits Limits = { .multiPV = 1 };
-volatile bool ABORT_SIGNAL;
-volatile bool SEARCH_STOPPED = true;
+atomic_bool ABORT_SIGNAL;
+atomic_bool SEARCH_STOPPED = true;
 
 static int Reductions[2][32][32];
 
@@ -70,7 +70,7 @@ static int Quiescence(Thread *thread, Stack *ss, int alpha, const int beta) {
     int bestScore = -INFINITE;
 
     // Check time situation
-    if (OutOfTime(thread) || ABORT_SIGNAL)
+    if (OutOfTime(thread) || LoadRelaxed(ABORT_SIGNAL))
         longjmp(thread->jumpBuffer, true);
 
     // Position is drawn
@@ -193,7 +193,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
     const bool root   = ss->ply == 0;
 
     // Check time situation
-    if (OutOfTime(thread) || ABORT_SIGNAL)
+    if (OutOfTime(thread) || LoadRelaxed(ABORT_SIGNAL))
         longjmp(thread->jumpBuffer, true);
 
     // Early exits
