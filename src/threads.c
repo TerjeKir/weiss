@@ -22,6 +22,7 @@
 #include <string.h>
 
 #include "makemove.h"
+#include "move.h"
 #include "movegen.h"
 #include "threads.h"
 
@@ -90,29 +91,9 @@ uint64_t TotalTBHits() {
     return total;
 }
 
-// Checks if the move is in the list of searchmoves if any were given
-static bool NotInSearchMoves(Move searchmoves[], Move move) {
-    if (searchmoves[0] == 0) return false;
-    for (Move *m = searchmoves; *m != 0; ++m)
-        if (*m == move)
-            return false;
-    return true;
-}
-
 // Setup threads for a new search
 void PrepareSearch(Position *pos, Move searchmoves[]) {
-    int rootMoveCount = 0;
-    MoveList list = { 0 };
-    GenNoisyMoves(pos, &list);
-    GenQuietMoves(pos, &list);
-    for (int i = 0; i < list.count; ++i) {
-        Move move = list.moves[list.next++].move;
-        if (NotInSearchMoves(searchmoves, move)) continue;
-        if (!MakeMove(pos, move)) continue;
-        ++rootMoveCount;
-        TakeMove(pos);
-    }
-    pos->nodes = 0;
+    int rootMoveCount = LegalMoveCount(pos, searchmoves);
 
     for (Thread *t = threads; t < threads + threads->count; ++t) {
         memset(t, 0, offsetof(Thread, pos));

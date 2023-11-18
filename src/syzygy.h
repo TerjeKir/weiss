@@ -84,9 +84,9 @@ static bool ProbeRoot(Position *pos, Move *move, unsigned *wdl, unsigned *dtz) {
         return false;
 
     // Extract information
-    unsigned from  = TB_GET_FROM(result),
-             to    = TB_GET_TO(result),
-             promo = TB_GET_PROMOTES(result);
+    unsigned from  = TB_GET_FROM(result);
+    unsigned to    = TB_GET_TO(result);
+    unsigned promo = TB_GET_PROMOTES(result);
 
     *move = MOVE(from, to, 0, 0, promo ? 6 - promo : 0, 0);
     *wdl = TB_GET_WDL(result);
@@ -112,8 +112,7 @@ static bool SyzygyMove(Position *pos) {
     if (!success) return false;
 
     // Print thinking info
-    printf("info depth %d seldepth %d score cp %d "
-           "time 0 nodes 0 nps 0 tbhits 1 pv %s\n",
+    printf("info depth %d seldepth %d score cp %d time 0 nodes 0 nps 0 tbhits 1 pv %s\n",
            MAX_PLY, MAX_PLY, TBScore(wdl, dtz), MoveToStr(move));
     fflush(stdout);
 

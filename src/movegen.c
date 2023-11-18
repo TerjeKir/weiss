@@ -146,7 +146,7 @@ INLINE void GenPieceType(const Position *pos, MoveList *list, const Color color,
     }
 }
 
-// Generate moves
+// Generate all quiet or noisy moves for the given color
 static void GenMoves(const Position *pos, MoveList *list, const Color color, const int type) {
 
     if (Multiple(pos->checkers))
@@ -161,12 +161,35 @@ static void GenMoves(const Position *pos, MoveList *list, const Color color, con
     GenPieceType(pos, list, color, type, KING);
 }
 
-// Generate quiet moves
 void GenQuietMoves(const Position *pos, MoveList *list) {
     GenMoves(pos, list, sideToMove, QUIET);
 }
 
-// Generate noisy moves
 void GenNoisyMoves(const Position *pos, MoveList *list) {
     GenMoves(pos, list, sideToMove, NOISY);
+}
+
+void GenAllMoves(const Position *pos, MoveList *list) {
+    GenNoisyMoves(pos, list);
+    GenQuietMoves(pos, list);
+}
+
+// Counts the number of legal moves in the position filtered by searchmoves
+int LegalMoveCount(Position *pos, Move searchmoves[]) {
+    int rootMoveCount = 0;
+
+    MoveList list;
+    list.count = list.next = 0;
+    GenAllMoves(pos, &list);
+
+    for (int i = 0; i < list.count; ++i) {
+        Move move = list.moves[list.next++].move;
+        if (NotInSearchMoves(searchmoves, move)) continue;
+        if (!MakeMove(pos, move)) continue;
+        ++rootMoveCount;
+        TakeMove(pos);
+    }
+    pos->nodes = 0;
+
+    return rootMoveCount;
 }
