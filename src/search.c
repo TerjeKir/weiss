@@ -78,7 +78,7 @@ static int Quiescence(Thread *thread, Stack *ss, int alpha, const int beta) {
     int bestScore = -INFINITE;
 
     // Check time situation
-    if (OutOfTime(thread) || LoadRelaxed(ABORT_SIGNAL))
+    if (OutOfTime(thread) || loadRelaxed(ABORT_SIGNAL))
         longjmp(thread->jumpBuffer, true);
 
     // Position is drawn
@@ -201,7 +201,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
     const bool root   = ss->ply == 0;
 
     // Check time situation
-    if (OutOfTime(thread) || LoadRelaxed(ABORT_SIGNAL))
+    if (OutOfTime(thread) || loadRelaxed(ABORT_SIGNAL))
         longjmp(thread->jumpBuffer, true);
 
     // Early exits
