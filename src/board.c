@@ -58,6 +58,8 @@ CONSTR(1) InitDistance() {
         }
 }
 
+int Distance(Square sq1, Square sq2) { return SqDistance[sq1][sq2]; }
+
 // Pseudo-random number generator
 static uint64_t Rand64() {
 

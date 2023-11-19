@@ -53,9 +53,8 @@ static void ParseTimeControl(const char *str, const Position *pos) {
     char *searchmoves = strstr(str, "searchmoves ");
     if (searchmoves) {
         char *move = strtok(searchmoves, " ");
-        int i = 0;
-        while ((move = strtok(NULL, " ")))
-            Limits.searchmoves[i++] = ParseMove(move, pos);
+        for (int i = 0; (move = strtok(NULL, " ")); ++i)
+            Limits.searchmoves[i] = ParseMove(move, pos);
     }
 
     Limits.timelimit = Limits.time || Limits.movetime;
@@ -73,11 +72,11 @@ INLINE void Go(Position *pos, char *str) {
 // Parses a 'position' and sets up the board
 static void Pos(Position *pos, char *str) {
 
-    #define IsFen (!strncmp(str, "position fen", 12))
+    bool isFen = !strncmp(str, "position fen", 12);
 
     // Set up original position. This will either be a
     // position given as FEN, or the normal start position
-    ParseFen(IsFen ? str + 13 : START_FEN, pos);
+    ParseFen(isFen ? str + 13 : START_FEN, pos);
 
     // Check if there are moves to be made from the initial position
     if ((str = strstr(str, "moves")) == NULL) return;
