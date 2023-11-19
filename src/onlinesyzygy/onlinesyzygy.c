@@ -30,7 +30,7 @@ bool onlineSyzygy = false;
 
 
 // Probes lichess syzygy
-bool QueryRoot(Position *pos, Move *move, unsigned *wdl, unsigned *dtz) {
+bool QueryRoot(const Position *pos, Move *move, unsigned *wdl, unsigned *dtz) {
 
     puts("info string OnlineSyzygy: Querying lichess for a tablebase move...");
 
