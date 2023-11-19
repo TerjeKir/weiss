@@ -63,8 +63,6 @@ typedef struct Position {
 
 extern bool chess960;
 
-extern uint8_t SqDistance[64][64];
-
 extern const int NonPawn[PIECE_NB];
 
 // Zobrist keys
@@ -98,10 +96,10 @@ INLINE Color ColorOf(Piece piece) { return piece >> 3;}
 INLINE PieceType PieceTypeOf(Piece piece) { return piece & 7; }
 INLINE Piece MakePiece(Color color, PieceType pt) { return (color << 3) + pt; }
 
+int Distance(const Square sq1, const Square sq2);
 INLINE Square MirrorSquare(const Square sq) { return sq ^ 56; } // Mirrors a square horizontally
 INLINE Square RelativeSquare(const Color color, const Square sq) { return color == WHITE ? sq : MirrorSquare(sq); }
 INLINE Square BlackRelativeSquare(const Color color, const Square sq) { return color == BLACK ? sq : MirrorSquare(sq); }
-INLINE int Distance(const Square sq1, const Square sq2) { return SqDistance[sq1][sq2]; }
 INLINE int FileOf(Square square) { return square & 7; }
 INLINE int RankOf(Square square) { return square >> 3; }
 INLINE int RelativeRank(Color color, int rank) { return color == WHITE ? rank : RANK_8 - rank; }

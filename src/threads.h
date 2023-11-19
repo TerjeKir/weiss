@@ -81,7 +81,6 @@ extern Thread *threads;
 
 
 void InitThreads(int threadCount);
-bool AlreadySearchedMultiPV(Thread *thread, Move move);
 void SortRootMoves(Thread *thread, int multiPV);
 uint64_t TotalNodes();
 uint64_t TotalTBHits();

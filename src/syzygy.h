@@ -67,7 +67,7 @@ static bool ProbeWDL(const Position *pos, int *score, int *bound, int ply) {
 }
 
 // Probe local Syzygy files using Pyrrhic to get an optimal move
-static bool ProbeRoot(Position *pos, Move *move, unsigned *wdl, unsigned *dtz) {
+static bool ProbeRoot(const Position *pos, Move *move, unsigned *wdl, unsigned *dtz) {
 
     // Call Pyrrhic
     unsigned result = tb_probe_root(
@@ -96,7 +96,7 @@ static bool ProbeRoot(Position *pos, Move *move, unsigned *wdl, unsigned *dtz) {
 }
 
 // Get optimal move from Syzygy tablebases
-static bool SyzygyMove(Position *pos) {
+static bool SyzygyMove(const Position *pos) {
 
     Move move;
     unsigned wdl, dtz;

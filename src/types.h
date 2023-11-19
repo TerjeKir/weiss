@@ -32,7 +32,7 @@
 #define INLINE static inline __attribute__((always_inline))
 #define CONSTR(prio) static __attribute__((constructor (1000 + prio))) void
 
-#define LoadRelaxed(x) atomic_load_explicit(&(x), memory_order_relaxed)
+#define loadRelaxed(x) atomic_load_explicit(&(x), memory_order_relaxed)
 
 #define lastMoveNullMove (!root && history(-1).move == NOMOVE)
 #define history(offset) (pos->gameHistory[pos->histPly + offset])
