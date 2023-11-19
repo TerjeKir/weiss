@@ -51,6 +51,14 @@ CONSTR(1) InitReductions() {
             Reductions[1][depth][moves] = 1.35 + log(depth) * log(moves) / 2.75; // quiet
 }
 
+// Checks whether a move was already searched in multi-pv mode
+static bool AlreadySearchedMultiPV(Thread *thread, Move move) {
+    for (int i = 0; i < thread->multiPV; ++i)
+        if (thread->rootMoves[i].move == move)
+            return true;
+    return false;
+}
+
 // Small positive score with some random variance
 static int DrawScore(Position *pos) {
     return 8 - (pos->nodes & 0x7);
@@ -640,7 +648,7 @@ static void *IterativeDeepening(void *voidThread) {
         // Jump here and return if we run out of allocated time mid-search
         if (setjmp(thread->jumpBuffer)) break;
 
-        // Search position, using aspiration windows for higher depths
+        // Search the position, once for each multi-pv
         for (thread->multiPV = 0; thread->multiPV < multiPV; ++thread->multiPV)
             AspirationWindow(thread, ss);
 
