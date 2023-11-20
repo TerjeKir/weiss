@@ -51,7 +51,7 @@ const int PieceValue[2][PIECE_NB] = {
 };
 
 // Bonus for being the side to move
-const int Tempo = 19;
+const int Tempo = 18;
 
 // Misc bonuses and maluses
 const int PawnDoubled  = S(-11,-48);
@@ -137,9 +137,9 @@ const int Mobility[4][28] = {
 };
 
 // KingSafety [pt-2]
-const int AttackPower[4] = { 36, 19, 22, 72 };
-const int CheckPower[4]  = { 71, 39, 80, 74 };
-const int CountModifier[8] = { 0, 0, 63, 126, 96, 124, 124, 128 };
+const int AttackPower[4] = { 32, 20, 22, 69 };
+const int CheckPower[4]  = { 70, 42, 91, 68 };
+const int CountModifier[8] = { 0, 0, 63, 120, 95, 124, 124, 128 };
 
 
 // Evaluates pawns
@@ -335,7 +335,7 @@ INLINE int EvalKings(const Position *pos, EvalInfo *ei, const Color color) {
     }
 
     // King safety
-    ei->attackPower[!color] += (count - 3) * 8;
+    ei->attackPower[!color] += (count - 3) * 9;
 
     int danger =  ei->attackPower[!color]
                 * CountModifier[MIN(7, ei->attackCount[!color])];
@@ -505,7 +505,7 @@ static int ScaleFactor(const Position *pos, const int eval) {
 
     int strongPawnCount = PopCount(strongPawns);
     int x = 8 - strongPawnCount;
-    int pawnScale = 128 - x * x;
+    int pawnScale = 133 + 2 * x - x * x;
 
     // Scale down when there aren't pawns on both sides of the board
     if (!(strongPawns & QueenSideBB) || !(strongPawns & KingSideBB))

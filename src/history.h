@@ -30,9 +30,9 @@
 #define NoisyEntry(move)        (&thread->captureHistory[piece(move)][toSq(move)][PieceTypeOf(capturing(move))])
 #define ContEntry(offset, move) (&(*(ss-offset)->continuation)[piece(move)][toSq(move)])
 
-#define QuietHistoryUpdate(move, bonus)        (HistoryBonus(QuietEntry(move),        bonus,  5885))
-#define NoisyHistoryUpdate(move, bonus)        (HistoryBonus(NoisyEntry(move),        bonus, 14500))
-#define ContHistoryUpdate(offset, move, bonus) (HistoryBonus(ContEntry(offset, move), bonus, 23930))
+#define QuietHistoryUpdate(move, bonus)        (HistoryBonus(QuietEntry(move),        bonus,  6500))
+#define NoisyHistoryUpdate(move, bonus)        (HistoryBonus(NoisyEntry(move),        bonus, 15200))
+#define ContHistoryUpdate(offset, move, bonus) (HistoryBonus(ContEntry(offset, move), bonus, 26850))
 
 
 INLINE void HistoryBonus(int16_t *cur, int bonus, int div) {
@@ -40,7 +40,11 @@ INLINE void HistoryBonus(int16_t *cur, int bonus, int div) {
 }
 
 INLINE int Bonus(Depth depth) {
-    return MIN(2300, 315 * depth - 255);
+    return MIN(2560, 333 * depth - 285);
+}
+
+INLINE int Malus(Depth depth) {
+    return -MIN(1900, 367 * depth - 252);
 }
 
 INLINE void UpdateContHistories(Stack *ss, Move move, int bonus) {
@@ -50,7 +54,10 @@ INLINE void UpdateContHistories(Stack *ss, Move move, int bonus) {
 }
 
 // Updates history heuristics when a quiet move is the best move
-INLINE void UpdateQuietHistory(Thread *thread, Stack *ss, Move bestMove, int bonus, Depth depth, Move quiets[], int qCount) {
+INLINE void UpdateQuietHistory(Thread *thread, Stack *ss, Move bestMove, Depth depth, Move quiets[], int qCount) {
+
+    int bonus = Bonus(depth);
+    int malus = Malus(depth);
 
     // Update killers
     if (ss->killers[0] != bestMove) {
@@ -66,8 +73,8 @@ INLINE void UpdateQuietHistory(Thread *thread, Stack *ss, Move bestMove, int bon
 
     // Penalize quiet moves that failed to produce a cut
     for (Move *move = quiets; move < quiets + qCount; ++move) {
-        QuietHistoryUpdate(*move, -bonus);
-        UpdateContHistories(ss, *move, -bonus);
+        QuietHistoryUpdate(*move, malus);
+        UpdateContHistories(ss, *move, malus);
     }
 }
 
@@ -75,10 +82,11 @@ INLINE void UpdateQuietHistory(Thread *thread, Stack *ss, Move bestMove, int bon
 INLINE void UpdateHistory(Thread *thread, Stack *ss, Move bestMove, Depth depth, Move quiets[], int qCount, Move noisys[], int nCount) {
 
     int bonus = Bonus(depth);
+    int malus = Malus(depth);
 
     // Update quiet history if bestMove is quiet
     if (moveIsQuiet(bestMove))
-        UpdateQuietHistory(thread, ss, bestMove, bonus, depth, quiets, qCount);
+        UpdateQuietHistory(thread, ss, bestMove, depth, quiets, qCount);
 
     // Bonus to the move that caused the beta cutoff
     if (depth > 2 && !moveIsQuiet(bestMove))
@@ -86,7 +94,7 @@ INLINE void UpdateHistory(Thread *thread, Stack *ss, Move bestMove, Depth depth,
 
     // Penalize noisy moves that failed to produce a cut
     for (Move *move = noisys; move < noisys + nCount; ++move)
-        NoisyHistoryUpdate(*move, -bonus);
+        NoisyHistoryUpdate(*move, malus);
 }
 
 INLINE int GetQuietHistory(const Thread *thread, Stack *ss, Move move) {
