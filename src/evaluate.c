@@ -335,8 +335,6 @@ INLINE int EvalKings(const Position *pos, EvalInfo *ei, const Color color) {
     }
 
     // King safety
-    ei->attackPower[!color] += (count - 3) * 8;
-
     int danger =  ei->attackPower[!color]
                 * CountModifier[MIN(7, ei->attackCount[!color])];
 
