@@ -70,6 +70,8 @@ static const uint64_t BishopMagics[64] = {
 };
 #endif
 
+#define MagicAttacks(sq, occ, table) (table[sq].attacks[AttackIndex(sq, occ, table)])
+
 typedef struct {
     Bitboard *attacks;
     Bitboard mask;
@@ -187,8 +189,8 @@ INLINE Bitboard AttackBB(PieceType pt, Square sq, Bitboard occupied) {
     assert(pt != PAWN);
 
     switch (pt) {
-        case BISHOP: return BishopTable[sq].attacks[AttackIndex(sq, occupied, BishopTable)];
-        case ROOK  : return   RookTable[sq].attacks[AttackIndex(sq, occupied, RookTable)];
+        case BISHOP: return MagicAttacks(sq, occupied, BishopTable);
+        case ROOK  : return MagicAttacks(sq, occupied, RookTable);
         case QUEEN : return AttackBB(ROOK, sq, occupied) | AttackBB(BISHOP, sq, occupied);
         default    : return PseudoAttacks[pt][sq];
     }
@@ -213,7 +215,7 @@ INLINE Bitboard PawnAttackBB(Color color, Square sq) {
 
 // Returns the combined attack bitboard of all pawns in the given bitboard
 INLINE Bitboard PawnBBAttackBB(Bitboard pawns, Color color) {
-    const Direction up = (color == WHITE ? NORTH : SOUTH);
+    const Direction up = color == WHITE ? NORTH : SOUTH;
     return ShiftBB(pawns, up+WEST) | ShiftBB(pawns, up+EAST);
 }
 
