@@ -102,8 +102,8 @@ static void Pos(Position *pos, char *str) {
 // Parses a 'setoption' and updates settings
 static void SetOption(char *str) {
 
-    char *optionName  = (strstr(str, "name") + 5);
-    char *optionValue = (strstr(str, "value") + 6);
+    char *optionName  = strstr(str, "name") + 5;
+    char *optionValue = strstr(str, "value") + 6;
 
     #define OptionNameIs(name) (!strncmp(optionName, name, strlen(name)))
     #define BooleanValue       (!strncmp(optionValue, "true", 4))

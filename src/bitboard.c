@@ -43,20 +43,22 @@ Bitboard PassedMask[COLOR_NB][64];
 Bitboard IsolatedMask[64];
 
 
-// Helper function that returns a bitboard with the landing square of
-// the step, or an empty bitboard if the step would go outside the board
+// Returns a bitboard with the landing square of the step,
+// or an empty bitboard if the step would go outside the board
 INLINE Bitboard LandingSquareBB(const Square sq, const int step) {
     const Square to = sq + step;
-    return (Bitboard)(to <= H8 && Distance(sq, to) <= 2) << (to & H8);
+    const bool inside = to <= H8 && Distance(sq, to) <= 2;
+    return inside ? BB(to) : 0;
 }
 
-// Helper function that makes a slider attack bitboard
+// Makes a slider attack bitboard
 static Bitboard MakeSliderAttackBB(const Square sq, const Bitboard occupied, const int steps[]) {
 
     Bitboard attacks = 0;
 
     for (int dir = 0; dir < 4; ++dir) {
         Square s = sq;
+        // Step in the direction until hitting a piece or the edge of the board
         while(!(occupied & BB(s)) && LandingSquareBB(s, steps[dir]))
             attacks |= BB(s += steps[dir]);
     }
@@ -69,7 +71,6 @@ static void InitNonSliderAttacks() {
 
     int KSteps[8] = {  -9, -8, -7, -1,  1,  7,  8,  9 };
     int NSteps[8] = { -17,-15,-10, -6,  6, 10, 15, 17 };
-    int PSteps[COLOR_NB][2] = { { -9, -7 }, { 7, 9 } };
 
     for (Square sq = A1; sq <= H8; ++sq) {
 
@@ -80,10 +81,10 @@ static void InitNonSliderAttacks() {
         }
 
         // Pawns
-        for (int i = 0; i < 2; ++i) {
-            PawnAttacks[WHITE][sq] |= LandingSquareBB(sq, PSteps[WHITE][i]);
-            PawnAttacks[BLACK][sq] |= LandingSquareBB(sq, PSteps[BLACK][i]);
-        }
+        PawnAttacks[WHITE][sq] =  LandingSquareBB(sq, NORTH + WEST)
+                                | LandingSquareBB(sq, NORTH + EAST);
+        PawnAttacks[BLACK][sq] =  LandingSquareBB(sq, SOUTH + WEST)
+                                | LandingSquareBB(sq, SOUTH + EAST);
     }
 }
 
@@ -109,9 +110,10 @@ static void InitSliderAttacks(Magic m[], Bitboard table[], const int steps[]) {
         m[sq].shift = 64 - PopCount(m[sq].mask);
 #endif
 
+        // Loop through all possible combinations of occupied squares, filling the table
         Bitboard occupied = 0;
         do {
-            m[sq].attacks[AttackIndex(sq, occupied, m)] = MakeSliderAttackBB(sq, occupied, steps);
+            MagicAttacks(sq, occupied, m) = MakeSliderAttackBB(sq, occupied, steps);
             occupied = (occupied - m[sq].mask) & m[sq].mask; // Carry rippler
             table++;
         } while (occupied);
