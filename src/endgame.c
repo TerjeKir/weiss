@@ -21,7 +21,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "material.h"
+#include "endgame.h"
 
 
 Endgame endgameTable[ENDGAME_TABLE_SIZE] = { 0 };

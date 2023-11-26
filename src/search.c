@@ -103,7 +103,7 @@ static int Quiescence(Thread *thread, Stack *ss, int alpha, const int beta) {
         return ttScore;
 
     // Do a static evaluation for pruning considerations
-    eval = history(-1).move == NOMOVE ? -(ss-1)->eval + 2 * Tempo
+    eval = history(-1).move == NOMOVE ? -(ss-1)->staticEval + 2 * Tempo
          : ttEval != NOSCORE          ? ttEval
                                       : EvalPosition(pos, thread->pawnCache);
 
@@ -284,17 +284,17 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
     const bool inCheck = pos->checkers;
 
     // Do a static evaluation for pruning considerations
-    int eval = ss->eval = inCheck           ? NOSCORE
-                        : lastMoveNullMove  ? -(ss-1)->eval + 2 * Tempo
-                        : ttEval != NOSCORE ? ttEval
-                                            : EvalPosition(pos, thread->pawnCache);
+    int eval = ss->staticEval =  inCheck           ? NOSCORE
+                               : lastMoveNullMove  ? -(ss-1)->staticEval + 2 * Tempo
+                               : ttEval != NOSCORE ? ttEval
+                                                   : EvalPosition(pos, thread->pawnCache);
 
     // Use ttScore as eval if it is more informative
     if (ttScore != NOSCORE && TTScoreIsMoreInformative(ttBound, ttScore, eval))
         eval = ttScore;
 
     // Improving if not in check, and current eval is higher than 2 plies ago
-    bool improving = !inCheck && eval > (ss-2)->eval;
+    bool improving = !inCheck && eval > (ss-2)->staticEval;
 
     // Internal iterative reduction based on Rebel's idea
     if (pvNode && depth >= 3 && !ttMove)
@@ -316,8 +316,8 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
 
     // Null Move Pruning
     if (   eval >= beta
-        && eval >= ss->eval
-        && ss->eval >= beta + 146 - 20 * depth
+        && eval >= ss->staticEval
+        && ss->staticEval >= beta + 146 - 20 * depth
         && (ss-1)->histScore < 27150
         && pos->nonPawnCount[sideToMove] > (depth > 8)) {
 
@@ -341,7 +341,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
     if (   depth >= 5
         && (!ttHit || ttBound == BOUND_LOWER || ttScore >= probCutBeta)) {
 
-        InitProbcutMP(&mp, thread, ss, probCutBeta - ss->eval);
+        InitProbcutMP(&mp, thread, ss, probCutBeta - ss->staticEval);
 
         Move move;
         while ((move = NextMove(&mp))) {
@@ -493,7 +493,7 @@ skip_extensions:
 
             score = -AlphaBeta(thread, ss+1, -alpha-1, -alpha, lmrDepth, true);
 
-            // Research with the same window at full depth if the reduced search failed high
+            // Re-search with the same window at full depth if the reduced search failed high
             if (score > alpha && lmrDepth < newDepth) {
                 bool deeper = score > bestScore + 49 + 16 * (newDepth - lmrDepth);
 
@@ -501,12 +501,9 @@ skip_extensions:
 
                 score = -AlphaBeta(thread, ss+1, -alpha-1, -alpha, newDepth, !cutnode);
 
-                if (quiet && (score <= alpha || score >= beta)) {
-                    int bonus = score >= beta ? Bonus(depth)
-                                              : Malus(depth);
-
-                    UpdateContHistories(ss, move, bonus);
-                }
+                // Update continuation history if the re-search failed high or low
+                if (quiet && (score <= alpha || score >= beta))
+                    UpdateContHistories(ss, move, score >= beta ? Bonus(depth) : Malus(depth));
             }
         }
 
@@ -563,7 +560,7 @@ skip_extensions:
 
     // Store in TT
     if (!ss->excluded && (!root || !thread->multiPV))
-        StoreTTEntry(tte, pos->key, bestMove, ScoreToTT(bestScore, ss->ply), ss->eval, depth,
+        StoreTTEntry(tte, pos->key, bestMove, ScoreToTT(bestScore, ss->ply), ss->staticEval, depth,
                        bestScore >= beta  ? BOUND_LOWER
                      : pvNode && bestMove ? BOUND_EXACT
                                           : BOUND_UPPER);

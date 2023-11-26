@@ -21,7 +21,7 @@
 #include "tuner/tuner.h"
 #include "bitboard.h"
 #include "evaluate.h"
-#include "material.h"
+#include "endgame.h"
 
 
 typedef struct EvalInfo {

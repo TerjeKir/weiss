@@ -37,7 +37,7 @@ typedef PieceToHistory ContinuationHistory[PIECE_NB][64];
 
 typedef struct {
     PieceToHistory *continuation;
-    int eval;
+    int staticEval;
     int histScore;
     int doubleExtensions;
     Depth ply;
