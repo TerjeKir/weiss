@@ -51,7 +51,7 @@ static bool ProbeWDL(const Position *pos, int *score, int *bound, int ply) {
         pieceBB(KING),   pieceBB(QUEEN),
         pieceBB(ROOK),   pieceBB(BISHOP),
         pieceBB(KNIGHT), pieceBB(PAWN),
-        pos->epSquare, sideToMove);
+        pos->epSquare, !sideToMove);
 
     // Probe failed
     if (result == TB_RESULT_FAILED)
@@ -75,7 +75,7 @@ static bool ProbeRoot(const Position *pos, Move *move, unsigned *wdl, unsigned *
         pieceBB(KING),   pieceBB(QUEEN),
         pieceBB(ROOK),   pieceBB(BISHOP),
         pieceBB(KNIGHT), pieceBB(PAWN),
-        pos->rule50, pos->epSquare, sideToMove);
+        pos->rule50, pos->epSquare, !sideToMove);
 
     // Probe failed
     if (   result == TB_RESULT_FAILED
