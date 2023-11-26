@@ -41,7 +41,7 @@ uint64_t PieceKeys[PIECE_NB][64];
 uint64_t CastleKeys[16];
 uint64_t SideKey;
 
-static const char PieceChars[] = ".pnbrqk..PNBRQK";
+static const char PieceChars[] = ".PNBRQK..pnbrqk";
 
 uint8_t CastlePerm[64];
 Bitboard CastlePath[16];
@@ -120,7 +120,7 @@ static Key GenMaterialKey(const Position *pos) {
 
     Key key = 0;
 
-    for (Color c = BLACK; c <= WHITE; ++c)
+    for (Color c = WHITE; c <= BLACK; ++c)
         for (PieceType pt = PAWN; pt <= KING; ++pt)
             for (int count = 0; count < PopCount(colorPieceBB(c, pt)); ++count)
                 key ^= PieceKeys[MakePiece(c, pt)][count];
@@ -390,7 +390,7 @@ INLINE uint32_t Hash2(Key hash) { return (hash >> 16) & 0x1fff; }
 CONSTR(3) InitCuckoo() {
     int validate = 0;
 
-    for (Color c = BLACK; c <= WHITE; c++)
+    for (Color c = WHITE; c <= BLACK; c++)
         for (PieceType pt = KNIGHT; pt <= KING; ++pt)
             for (Square sq1 = A1; sq1 <= H8; sq1++)
                 for (Square sq2 = sq1 + 1; sq2 <= H8; sq2++) {
@@ -482,7 +482,7 @@ static Key GenPawnKey(const Position *pos) {
 
     Key key = 0;
 
-    for (Color c = BLACK; c <= WHITE; c++) {
+    for (Color c = WHITE; c <= BLACK; c++) {
         Bitboard pawns = colorPieceBB(c, PAWN);
         while (pawns)
             key ^= PieceKeys[MakePiece(c, PAWN)][PopLsb(&pawns)];
@@ -506,7 +506,7 @@ bool PositionOk(const Position *pos) {
         nonPawnCount[color] += NonPawn[piece];
     }
 
-    for (Color c = BLACK; c <= WHITE; ++c) {
+    for (Color c = WHITE; c <= BLACK; ++c) {
         assert(PopCount(colorPieceBB(c, PAWN))   == counts[MakePiece(c, PAWN)]);
         assert(PopCount(colorPieceBB(c, KNIGHT)) == counts[MakePiece(c, KNIGHT)]);
         assert(PopCount(colorPieceBB(c, BISHOP)) == counts[MakePiece(c, BISHOP)]);

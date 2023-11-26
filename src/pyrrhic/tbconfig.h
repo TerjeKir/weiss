@@ -44,7 +44,7 @@
 #define PYRRHIC_LSB(x)                   (Lsb(x))
 #define PYRRHIC_POPLSB(x)                (PopLsb(x))
 
-#define PYRRHIC_PAWN_ATTACKS(sq, c)      (PawnAttackBB(c, sq))
+#define PYRRHIC_PAWN_ATTACKS(sq, c)      (PawnAttackBB(!c, sq))
 #define PYRRHIC_KNIGHT_ATTACKS(sq)       (AttackBB(KNIGHT, sq, 0ull))
 #define PYRRHIC_BISHOP_ATTACKS(sq, occ)  (AttackBB(BISHOP, sq, occ))
 #define PYRRHIC_ROOK_ATTACKS(sq, occ)    (AttackBB(ROOK, sq, occ))
@@ -61,6 +61,5 @@
  */
 #define PYRRHIC_VALUE_PAWN     (  100)
 #define PYRRHIC_VALUE_MATE     (32000)
-#define PYRRHIC_VALUE_INFINITE (32767)
 #define PYRRHIC_VALUE_DRAW     (    0)
 #define PYRRHIC_MAX_MATE_PLY   (  255)

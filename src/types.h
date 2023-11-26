@@ -77,7 +77,7 @@ enum Score {
 };
 
 enum Color {
-    BLACK, WHITE, COLOR_NB
+    WHITE, BLACK, COLOR_NB
 };
 
 enum PieceType {
@@ -86,8 +86,8 @@ enum PieceType {
 
 enum Piece {
     EMPTY,
-    bP = 1, bN, bB, bR, bQ, bK,
-    wP = 9, wN, wB, wR, wQ, wK,
+    wP = 1, wN, wB, wR, wQ, wK,
+    bP = 9, bN, bB, bR, bQ, bK,
     PIECE_NB = 16
 };
 
