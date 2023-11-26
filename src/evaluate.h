@@ -52,5 +52,11 @@ INLINE int UpdatePhase(int value) {
     return (value * MidGame + 12) / 24;
 }
 
-// Returns a static evaluation of the position
+// Returns a static evaluation of the position from the side to move's point of view
 int EvalPosition(const Position *pos, PawnCache pc);
+
+// Returns a static evaluation of the position from whites point of view
+INLINE int EvalPositionWhitePov(const Position *pos, PawnCache pc) {
+    int score = EvalPosition(pos, pc);
+    return sideToMove == WHITE ? score : -score;
+}
