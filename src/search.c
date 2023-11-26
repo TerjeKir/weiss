@@ -502,8 +502,8 @@ skip_extensions:
                 score = -AlphaBeta(thread, ss+1, -alpha-1, -alpha, newDepth, !cutnode);
 
                 if (quiet && (score <= alpha || score >= beta)) {
-                    int bonus = score >= beta ?  Bonus(depth)
-                                              : -Bonus(depth);
+                    int bonus = score >= beta ? Bonus(depth)
+                                              : Malus(depth);
 
                     UpdateContHistories(ss, move, bonus);
                 }
