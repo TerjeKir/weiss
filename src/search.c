@@ -47,7 +47,7 @@ static int Reductions[2][32][32];
 CONSTR(1) InitReductions() {
     for (int depth = 1; depth < 32; ++depth)
         for (int moves = 1; moves < 32; ++moves)
-            Reductions[0][depth][moves] = 0.19 + log(depth) * log(moves) / 3.37, // capture
+            Reductions[0][depth][moves] = 0.25 + log(depth) * log(moves) / 3.33, // capture
             Reductions[1][depth][moves] = 1.45 + log(depth) * log(moves) / 2.80; // quiet
 }
 
@@ -310,15 +310,15 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
     // Reverse Futility Pruning
     if (   depth < 7
         && eval >= beta
-        && eval - 88 * (depth - improving) - (ss-1)->histScore / 173 >= beta
-        && (!ttMove || GetHistory(thread, ss, ttMove) > 7350))
+        && eval - 88 * (depth - improving) - (ss-1)->histScore / 165 >= beta
+        && (!ttMove || GetHistory(thread, ss, ttMove) > 7600))
         return eval;
 
     // Null Move Pruning
     if (   eval >= beta
         && eval >= ss->staticEval
-        && ss->staticEval >= beta + 157 - 20 * depth
-        && (ss-1)->histScore < 26500
+        && ss->staticEval >= beta + 163 - 21 * depth
+        && (ss-1)->histScore < 27000
         && pos->nonPawnCount[sideToMove] > (depth > 8)) {
 
         Depth reduction = 3 + depth / 4 + MIN(3, (eval - beta) / 256);
@@ -363,7 +363,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
 
             // Cut if the reduced depth search beats the threshold
             if (score >= probCutBeta)
-                return score - 167;
+                return score - 160;
         }
     }
 
@@ -396,7 +396,7 @@ move_loop:
             && thread->doPruning
             && bestScore > -TBWIN_IN_MAX) {
 
-            int R = Reductions[quiet][MIN(31, depth)][MIN(31, moveCount)] - ss->histScore / 9500;
+            int R = Reductions[quiet][MIN(31, depth)][MIN(31, moveCount)] - ss->histScore / 9333;
             Depth lmrDepth = depth - 1 - R;
 
             // Quiet late move pruning
@@ -408,7 +408,7 @@ move_loop:
                 continue;
 
             // SEE pruning
-            if (lmrDepth < 7 && !SEE(pos, move, quiet ? -44 * depth : -73 * depth))
+            if (lmrDepth < 7 && !SEE(pos, move, quiet ? -45 * depth : -73 * depth))
                 continue;
         }
 
@@ -495,7 +495,7 @@ skip_extensions:
 
             // Re-search with the same window at full depth if the reduced search failed high
             if (score > alpha && lmrDepth < newDepth) {
-                bool deeper = score > bestScore + 40 + 16 * (newDepth - lmrDepth);
+                bool deeper = score > bestScore + 36 + 15 * (newDepth - lmrDepth);
 
                 newDepth += deeper;
 
