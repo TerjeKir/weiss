@@ -30,9 +30,9 @@
 #define NoisyEntry(move)        (&thread->captureHistory[piece(move)][toSq(move)][PieceTypeOf(capturing(move))])
 #define ContEntry(offset, move) (&(*(ss-offset)->continuation)[piece(move)][toSq(move)])
 
-#define QuietHistoryUpdate(move, bonus)        (HistoryBonus(QuietEntry(move),        bonus,  7200))
-#define NoisyHistoryUpdate(move, bonus)        (HistoryBonus(NoisyEntry(move),        bonus, 16900))
-#define ContHistoryUpdate(offset, move, bonus) (HistoryBonus(ContEntry(offset, move), bonus, 29000))
+#define QuietHistoryUpdate(move, bonus)        (HistoryBonus(QuietEntry(move),        bonus,  7180))
+#define NoisyHistoryUpdate(move, bonus)        (HistoryBonus(NoisyEntry(move),        bonus, 16384))
+#define ContHistoryUpdate(offset, move, bonus) (HistoryBonus(ContEntry(offset, move), bonus, 28650))
 
 
 INLINE void HistoryBonus(int16_t *cur, int bonus, int div) {
@@ -40,11 +40,11 @@ INLINE void HistoryBonus(int16_t *cur, int bonus, int div) {
 }
 
 INLINE int Bonus(Depth depth) {
-    return MIN(2545, 321 * depth - 295);
+    return MIN(2545, 315 * depth - 300);
 }
 
 INLINE int Malus(Depth depth) {
-    return -MIN(1760, 460 * depth - 200);
+    return -MIN(1700, 480 * depth - 205);
 }
 
 INLINE void UpdateContHistories(Stack *ss, Move move, int bonus) {
