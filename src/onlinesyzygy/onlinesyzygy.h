@@ -22,7 +22,7 @@
 #include "../types.h"
 
 
-extern bool onlineSyzygy;
+extern bool OnlineSyzygy;
 
 
 bool QueryRoot(const Position *pos, unsigned *wdl, unsigned *dtz, Move *move);

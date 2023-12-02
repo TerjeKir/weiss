@@ -22,9 +22,9 @@
 #include "../types.h"
 
 
-extern bool noobbook;
+extern bool NoobBook;
+extern int NoobLimit;
 extern int failedQueries;
-extern int noobLimit;
 
 
 bool ProbeNoob(Position *pos);

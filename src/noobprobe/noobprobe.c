@@ -25,19 +25,19 @@
 #include "../query/query.h"
 
 
-bool noobbook;
+bool NoobBook;
 int failedQueries;
-int noobLimit;
+int NoobLimit;
 
 
 // Probes noobpwnftw's Chess Cloud Database
 bool ProbeNoob(Position *pos) {
 
     // Stop querying after 3 failures or at the specified depth
-    if (  !noobbook
+    if (  !NoobBook
         || failedQueries >= 3
         || (Limits.timelimit && Limits.maxUsage < 2000)
-        || (noobLimit && pos->gameMoves > noobLimit))
+        || (NoobLimit && pos->gameMoves > NoobLimit))
         return false;
 
     puts("info string NoobBook: Querying chessdb.cn for a move...");
@@ -51,7 +51,7 @@ bool ProbeNoob(Position *pos) {
     if (strstr(response, "move") != response)
         return failedQueries++, false;
 
-    threads->rootMoves[0].move = ParseMove(&response[5], pos);
+    Threads->rootMoves[0].move = ParseMove(&response[5], pos);
 
     puts("info string NoobBook: Move received");
 

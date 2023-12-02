@@ -698,7 +698,7 @@ void *SearchPosition(void *pos) {
 
     // Start helper threads and begin searching
     StartHelpers(IterativeDeepening);
-    IterativeDeepening(&threads[0]);
+    IterativeDeepening(&Threads[0]);
 
 conclusion:
 
@@ -710,7 +710,7 @@ conclusion:
     WaitForHelpers();
 
     // Print conclusion
-    PrintConclusion(threads);
+    PrintConclusion(Threads);
 
     SEARCH_STOPPED = true;
     Wake();

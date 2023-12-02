@@ -24,7 +24,7 @@
 #include "endgame.h"
 
 
-Endgame endgameTable[ENDGAME_TABLE_SIZE] = { 0 };
+Endgame EndgameTable[ENDGAME_TABLE_SIZE] = { 0 };
 
 
 // Generates a material key from a string like "KRPkr"
@@ -50,7 +50,7 @@ static void AddEndgame(const char *white, const char *black, SpecializedEval ef)
 
     Key key = GenMaterialKey(white, black);
 
-    Endgame *eg = &endgameTable[EndgameIndex(key)];
+    Endgame *eg = &EndgameTable[EndgameIndex(key)];
 
     if (eg->evalFunc != NULL) {
         puts("Collision in endgame table.");

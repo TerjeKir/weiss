@@ -83,7 +83,7 @@ typedef struct Thread {
 } Thread;
 
 
-extern Thread *threads;
+extern Thread *Threads;
 
 
 void InitThreads(int threadCount);

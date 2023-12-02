@@ -27,7 +27,7 @@
 #include "psqt.h"
 
 
-bool chess960 = false;
+bool Chess960 = false;
 
 uint8_t SqDistance[64][64];
 
@@ -170,7 +170,7 @@ static void AddPiece(Position *pos, const Square sq, const Piece piece) {
 static void InitCastlingRight(Position *pos, Color color, int file) {
 
     if (   FileOf(kingSq(color)) != FILE_E
-        || (file != FILE_A && file != FILE_H)) chess960 = true;
+        || (file != FILE_A && file != FILE_H)) Chess960 = true;
 
     Square kFrom = kingSq(color);
     Square rFrom = MakeSquare(RelativeRank(color, RANK_1), file);

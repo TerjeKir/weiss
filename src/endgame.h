@@ -33,7 +33,7 @@ typedef struct Endgame {
 } Endgame;
 
 
-extern Endgame endgameTable[ENDGAME_TABLE_SIZE];
+extern Endgame EndgameTable[ENDGAME_TABLE_SIZE];
 
 
 INLINE int EndgameIndex(Key materialKey) {

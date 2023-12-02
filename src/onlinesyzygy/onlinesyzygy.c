@@ -26,7 +26,7 @@
 #include "onlinesyzygy.h"
 
 
-bool onlineSyzygy = false;
+bool OnlineSyzygy = false;
 
 
 // Probes lichess syzygy

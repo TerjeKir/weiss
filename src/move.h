@@ -88,7 +88,7 @@ INLINE bool CastleLegal(const Position *pos, Square to) {
         if (SqAttacked(pos, PopLsb(&kingPath), !color))
             return false;
 
-    return !chess960 || !(Attackers(pos, to, pieceBB(ALL) ^ BB(RookSquare[castle])) & colorBB(!color));
+    return !Chess960 || !(Attackers(pos, to, pieceBB(ALL) ^ BB(RookSquare[castle])) & colorBB(!color));
 }
 
 bool MoveIsPseudoLegal(const Position *pos, Move move);
