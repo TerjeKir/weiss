@@ -69,7 +69,7 @@ static void ScoreMoves(MovePicker *mp, const int stage) {
                                : GetCaptureHistory(thread, move) + PieceValue[MG][capturing(move)];
     }
 
-    SortMoves(list, -1380 * mp->depth);
+    SortMoves(list, -1500 * mp->depth);
 }
 
 // Returns the next move to try in a position
@@ -96,8 +96,8 @@ Move NextMove(MovePicker *mp) {
         case NOISY_GOOD:
             // Save seemingly bad noisy moves for later
             while ((move = PickNextMove(mp)))
-                if (    mp->list.moves[mp->list.next-1].score > 14540 - 200 * mp->depth
-                    || (mp->list.moves[mp->list.next-1].score > -9935 + 200 * mp->depth && SEE(pos, move, mp->threshold)))
+                if (    mp->list.moves[mp->list.next-1].score >  14350 - 197 * mp->depth
+                    || (mp->list.moves[mp->list.next-1].score > -10085 + 155 * mp->depth && SEE(pos, move, mp->threshold)))
                     return move;
                 else
                     mp->list.moves[mp->bads++].move = move;

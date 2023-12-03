@@ -51,7 +51,7 @@ const int PieceValue[2][PIECE_NB] = {
 };
 
 // Bonus for being the side to move
-const int Tempo = 19;
+const int Tempo = 18;
 
 // Misc bonuses and maluses
 const int PawnDoubled  = S(-11,-48);
@@ -137,8 +137,8 @@ const int Mobility[4][28] = {
 };
 
 // KingSafety [pt-2]
-const int AttackPower[4] = { 36, 19, 22, 72 };
-const int CheckPower[4]  = { 71, 39, 80, 74 };
+const int AttackPower[4] = { 36, 22, 23, 78 };
+const int CheckPower[4]  = { 68, 44, 88, 92 };
 const int CountModifier[8] = { 0, 0, 63, 126, 96, 124, 124, 128 };
 
 
