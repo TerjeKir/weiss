@@ -1,5 +1,6 @@
 /*
- * (c) 2015 basil, all rights reserved,
+ * Copyright (c) 2013-2020 Ronald de Man
+ * Copyright (c) 2015 Basil, all rights reserved,
  * Modifications Copyright (c) 2016-2019 by Jon Dart
  * Modifications Copyright (c) 2020-2020 by Andrew Grant
  *
@@ -25,6 +26,7 @@
 #include <assert.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -36,16 +38,12 @@
 
 #include "tbprobe.h"
 
-#ifdef __cplusplus
-using namespace std;
-#endif
-
 #define TB_PIECES    (7)
 #define TB_HASHBITS  (TB_PIECES < 7 ?  11 : 12)
+#define TB_MAX_DTZ   (0x40000)
 #define TB_MAX_PIECE (TB_PIECES < 7 ? 254 : 650)
 #define TB_MAX_PAWN  (TB_PIECES < 7 ? 256 : 861)
 #define TB_MAX_SYMS  (4096)
-#define TB_MAX_DTZ   (0x40000)
 
 #define TB_BEST_NONE            (0xFFFF)
 #define TB_SCORE_ILLEGAL        (0x7FFF)
@@ -71,6 +69,10 @@ typedef size_t map_t;
 #define FD HANDLE
 #define FD_ERR INVALID_HANDLE_VALUE
 typedef HANDLE map_t;
+#endif
+
+#ifdef __cplusplus
+    using namespace std;
 #endif
 
 #define DECOMP64
@@ -445,13 +447,13 @@ static void prt_str(const PyrrhicPosition *pos, char *str, int flip) {
 
     int color = flip ? PYRRHIC_BLACK : PYRRHIC_WHITE;
 
-    for (int pt = PYRRHIC_KING; pt >= (int)PYRRHIC_PAWN; pt--)
+    for (int pt = PYRRHIC_KING; pt >= PYRRHIC_PAWN; pt--)
         for (int i = PYRRHIC_POPCOUNT(pyrrhic_pieces_by_type(pos, color, pt)); i > 0; i--)
             *str++ = pyrrhic_piece_to_char[pt];
 
     *str++ = 'v';
 
-    for (int pt = PYRRHIC_KING; pt >= (int)PYRRHIC_PAWN; pt--)
+    for (int pt = PYRRHIC_KING; pt >= PYRRHIC_PAWN; pt--)
         for (int i = PYRRHIC_POPCOUNT(pyrrhic_pieces_by_type(pos, color^1, pt)); i > 0; i--)
             *str++ = pyrrhic_piece_to_char[pt];
     *str++ = 0;
@@ -675,33 +677,33 @@ bool tb_init(const char *path)
   int i, j, k, l, m;
 
   for (i = 0; i < 5; i++) {
-    sprintf(str, "K%cvK", tb_pchr(i));
+    snprintf(str, 16, "K%cvK", tb_pchr(i));
     init_tb(str);
   }
 
   for (i = 0; i < 5; i++)
     for (j = i; j < 5; j++) {
-      sprintf(str, "K%cvK%c", tb_pchr(i), tb_pchr(j));
+      snprintf(str, 16, "K%cvK%c", tb_pchr(i), tb_pchr(j));
       init_tb(str);
     }
 
   for (i = 0; i < 5; i++)
     for (j = i; j < 5; j++) {
-      sprintf(str, "K%c%cvK", tb_pchr(i), tb_pchr(j));
+      snprintf(str, 16, "K%c%cvK", tb_pchr(i), tb_pchr(j));
       init_tb(str);
     }
 
   for (i = 0; i < 5; i++)
     for (j = i; j < 5; j++)
       for (k = 0; k < 5; k++) {
-        sprintf(str, "K%c%cvK%c", tb_pchr(i), tb_pchr(j), tb_pchr(k));
+        snprintf(str, 16, "K%c%cvK%c", tb_pchr(i), tb_pchr(j), tb_pchr(k));
         init_tb(str);
       }
 
   for (i = 0; i < 5; i++)
     for (j = i; j < 5; j++)
       for (k = j; k < 5; k++) {
-        sprintf(str, "K%c%c%cvK", tb_pchr(i), tb_pchr(j), tb_pchr(k));
+        snprintf(str, 16, "K%c%c%cvK", tb_pchr(i), tb_pchr(j), tb_pchr(k));
         init_tb(str);
       }
 
@@ -713,7 +715,7 @@ bool tb_init(const char *path)
     for (j = i; j < 5; j++)
       for (k = i; k < 5; k++)
         for (l = (i == k) ? j : k; l < 5; l++) {
-          sprintf(str, "K%c%cvK%c%c", tb_pchr(i), tb_pchr(j), tb_pchr(k), tb_pchr(l));
+          snprintf(str, 16, "K%c%cvK%c%c", tb_pchr(i), tb_pchr(j), tb_pchr(k), tb_pchr(l));
           init_tb(str);
         }
 
@@ -721,7 +723,7 @@ bool tb_init(const char *path)
     for (j = i; j < 5; j++)
       for (k = j; k < 5; k++)
         for (l = 0; l < 5; l++) {
-          sprintf(str, "K%c%c%cvK%c", tb_pchr(i), tb_pchr(j), tb_pchr(k), tb_pchr(l));
+          snprintf(str, 16, "K%c%c%cvK%c", tb_pchr(i), tb_pchr(j), tb_pchr(k), tb_pchr(l));
           init_tb(str);
         }
 
@@ -729,7 +731,7 @@ bool tb_init(const char *path)
     for (j = i; j < 5; j++)
       for (k = j; k < 5; k++)
         for (l = k; l < 5; l++) {
-          sprintf(str, "K%c%c%c%cvK", tb_pchr(i), tb_pchr(j), tb_pchr(k), tb_pchr(l));
+          snprintf(str, 16, "K%c%c%c%cvK", tb_pchr(i), tb_pchr(j), tb_pchr(k), tb_pchr(l));
           init_tb(str);
         }
 
@@ -741,7 +743,7 @@ bool tb_init(const char *path)
       for (k = j; k < 5; k++)
         for (l = k; l < 5; l++)
           for (m = l; m < 5; m++) {
-            sprintf(str, "K%c%c%c%c%cvK", tb_pchr(i), tb_pchr(j), tb_pchr(k), tb_pchr(l), tb_pchr(m));
+            snprintf(str, 16, "K%c%c%c%c%cvK", tb_pchr(i), tb_pchr(j), tb_pchr(k), tb_pchr(l), tb_pchr(m));
             init_tb(str);
           }
 
@@ -750,7 +752,7 @@ bool tb_init(const char *path)
       for (k = j; k < 5; k++)
         for (l = k; l < 5; l++)
           for (m = 0; m < 5; m++) {
-            sprintf(str, "K%c%c%c%cvK%c", tb_pchr(i), tb_pchr(j), tb_pchr(k), tb_pchr(l), tb_pchr(m));
+            snprintf(str, 16, "K%c%c%c%cvK%c", tb_pchr(i), tb_pchr(j), tb_pchr(k), tb_pchr(l), tb_pchr(m));
             init_tb(str);
           }
 
@@ -759,7 +761,7 @@ bool tb_init(const char *path)
       for (k = j; k < 5; k++)
         for (l = 0; l < 5; l++)
           for (m = l; m < 5; m++) {
-            sprintf(str, "K%c%c%cvK%c%c", tb_pchr(i), tb_pchr(j), tb_pchr(k), tb_pchr(l), tb_pchr(m));
+            snprintf(str, 16, "K%c%c%cvK%c%c", tb_pchr(i), tb_pchr(j), tb_pchr(k), tb_pchr(l), tb_pchr(m));
             init_tb(str);
           }
 
@@ -1887,7 +1889,7 @@ int root_probe_dtz(const PyrrhicPosition *pos, bool hasRepeated, bool useRule50,
   // Obtain 50-move counter for the root position.
   int cnt50 = pos->rule50;
 
-  // The border between draw and win lies at rank 1 or rank MAX_DTZ - 100, depending
+  // The border between draw and win lies at rank 1 or rank 900, depending
   // on whether the 50-move rule is used.
   int bound = useRule50 ? (TB_MAX_DTZ - 100) : 1;
 
@@ -1922,7 +1924,7 @@ int root_probe_dtz(const PyrrhicPosition *pos, bool hasRepeated, bool useRule50,
 
     // Better moves are ranked higher. Guaranteed wins are ranked equally.
     // Losing moves are ranked equally unless a 50-move draw is in sight.
-    // Note that moves ranked MAX_DTZ - 100 have dtz + cnt50 == 100, which in rare
+    // Note that moves ranked 900 have dtz + cnt50 == 100, which in rare
     // cases may be insufficient to win as dtz may be one off (see the
     // comments before TB_probe_dtz()).
     int r =  v > 0 ? (v + cnt50 <= 99 && !hasRepeated ? TB_MAX_DTZ : TB_MAX_DTZ - (v + cnt50))
