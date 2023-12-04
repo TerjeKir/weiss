@@ -24,7 +24,7 @@ Weiss appears in most rating lists, and can be seen competing at [TCEC](https://
   The number of threads to use for searching.
 
 * #### SyzygyPath
-  Path to syzygy tablebase files.
+  Path to syzygy tablebase files. Uses [Pyrrhic](https://github.com/AndyGrant/Pyrrhic) library.
 
 * #### MultiPV
   Output the N best lines when searching. Leave at 1 for best performance.

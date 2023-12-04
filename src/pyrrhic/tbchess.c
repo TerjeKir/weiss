@@ -36,7 +36,16 @@ enum {
     PYRRHIC_WQUEEN  = 5, PYRRHIC_BQUEEN  = 13,
     PYRRHIC_WKING   = 6, PYRRHIC_BKING   = 14,
 
-    PYRRHIC_PROMOSQS = 0XFF000000000000FFULL,
+    PYRRHIC_PROMOTES_NONE   = 0,
+    PYRRHIC_PROMOTES_QUEEN  = 1,
+    PYRRHIC_PROMOTES_ROOK   = 2,
+    PYRRHIC_PROMOTES_BISHOP = 3,
+    PYRRHIC_PROMOTES_KNIGHT = 4,
+};
+
+enum {
+
+    PYRRHIC_PROMOSQS      = 0XFF000000000000FFULL,
 
     PYRRHIC_PRIME_WKING   = 00000000000000000000ULL,
     PYRRHIC_PRIME_WQUEEN  = 11811845319353239651ULL,
@@ -51,12 +60,6 @@ enum {
     PYRRHIC_PRIME_BKNIGHT = 13469005675588064321ULL,
     PYRRHIC_PRIME_BPAWN   = 11695583624105689831ULL,
     PYRRHIC_PRIME_NONE    = 00000000000000000000ULL,
-
-    PYRRHIC_PROMOTES_NONE   = 0,
-    PYRRHIC_PROMOTES_QUEEN  = 1,
-    PYRRHIC_PROMOTES_ROOK   = 2,
-    PYRRHIC_PROMOTES_BISHOP = 3,
-    PYRRHIC_PROMOTES_KNIGHT = 4,
 };
 
 typedef struct PyrrhicPosition {
@@ -106,7 +109,7 @@ static uint64_t pyrrhic_pieces_by_type(const PyrrhicPosition *pos, int colour, i
 
 static int pyrrhic_char_to_piece_type(char c) {
 
-    for (int i = PYRRHIC_PAWN; i <= (int)PYRRHIC_KING; i++)
+    for (int i = PYRRHIC_PAWN; i <= PYRRHIC_KING; i++)
         if (c == pyrrhic_piece_to_char[i])
             return i;
     return 0;
