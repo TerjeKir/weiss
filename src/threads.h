@@ -27,9 +27,14 @@
 
 #define SS_OFFSET 10
 #define MULTI_PV_MAX 64
+#define PAWN_HISTORY_SIZE 512
 
+INLINE int PawnStructure(const Position *pos) {
+    return pos->pawnKey & (PAWN_HISTORY_SIZE - 1);
+}
 
 typedef int16_t ButterflyHistory[COLOR_NB][64][64];
+typedef int16_t PawnHistory[PAWN_HISTORY_SIZE][PIECE_NB][64];
 typedef int16_t CaptureToHistory[PIECE_NB][64][TYPE_NB];
 typedef int16_t PieceToHistory[PIECE_NB][64];
 typedef PieceToHistory ContinuationHistory[PIECE_NB][64];
@@ -68,6 +73,7 @@ typedef struct Thread {
     Position pos;
     PawnCache pawnCache;
     ButterflyHistory history;
+    PawnHistory pawnHistory;
     CaptureToHistory captureHistory;
     ContinuationHistory continuation[2][2];
 
