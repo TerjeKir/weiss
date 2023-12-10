@@ -27,10 +27,12 @@
 
 
 #define QuietEntry(move)        (&thread->history[thread->pos.stm][fromSq(move)][toSq(move)])
+#define PawnEntry(move)         (&thread->pawnHistory[PawnStructure(&thread->pos)][piece(move)][toSq(move)])
 #define NoisyEntry(move)        (&thread->captureHistory[piece(move)][toSq(move)][PieceTypeOf(capturing(move))])
 #define ContEntry(offset, move) (&(*(ss-offset)->continuation)[piece(move)][toSq(move)])
 
 #define QuietHistoryUpdate(move, bonus)        (HistoryBonus(QuietEntry(move),        bonus,  7180))
+#define PawnHistoryUpdate(move, bonus)         (HistoryBonus(PawnEntry(move),         bonus,  8192))
 #define NoisyHistoryUpdate(move, bonus)        (HistoryBonus(NoisyEntry(move),        bonus, 16384))
 #define ContHistoryUpdate(offset, move, bonus) (HistoryBonus(ContEntry(offset, move), bonus, 28650))
 
@@ -68,12 +70,14 @@ INLINE void UpdateQuietHistory(Thread *thread, Stack *ss, Move bestMove, Depth d
     // Bonus to the move that caused the beta cutoff
     if (depth > 2) {
         QuietHistoryUpdate(bestMove, bonus);
+        PawnHistoryUpdate(bestMove, bonus);
         UpdateContHistories(ss, bestMove, bonus);
     }
 
     // Penalize quiet moves that failed to produce a cut
     for (Move *move = quiets; move < quiets + qCount; ++move) {
         QuietHistoryUpdate(*move, malus);
+        PawnHistoryUpdate(*move, malus);
         UpdateContHistories(ss, *move, malus);
     }
 }
@@ -99,6 +103,7 @@ INLINE void UpdateHistory(Thread *thread, Stack *ss, Move bestMove, Depth depth,
 
 INLINE int GetQuietHistory(const Thread *thread, Stack *ss, Move move) {
     return  *QuietEntry(move)
+          + *PawnEntry(move)
           + *ContEntry(1, move)
           + *ContEntry(2, move)
           + *ContEntry(4, move);
