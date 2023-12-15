@@ -250,8 +250,10 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
     if (!pvNode && ttHit && ttDepth >= depth && TTScoreIsMoreInformative(ttBound, ttScore, beta)) {
 
         // Give a history bonus to quiet tt moves that causes a cutoff
-        if (ttScore >= beta && moveIsQuiet(ttMove))
+        if (ttScore >= beta && moveIsQuiet(ttMove)) {
             QuietHistoryUpdate(ttMove, Bonus(depth));
+            PawnHistoryUpdate(ttMove, Bonus(depth));
+        }
 
         return ttScore;
     }
