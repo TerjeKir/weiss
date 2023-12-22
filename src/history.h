@@ -31,10 +31,22 @@
 #define NoisyEntry(move)        (&thread->captureHistory[piece(move)][toSq(move)][PieceTypeOf(capturing(move))])
 #define ContEntry(offset, move) (&(*(ss-offset)->continuation)[piece(move)][toSq(move)])
 
-#define QuietHistoryUpdate(move, bonus)        (HistoryBonus(QuietEntry(move),        bonus,  7180))
-#define PawnHistoryUpdate(move, bonus)         (HistoryBonus(PawnEntry(move),         bonus,  8192))
-#define NoisyHistoryUpdate(move, bonus)        (HistoryBonus(NoisyEntry(move),        bonus, 16384))
-#define ContHistoryUpdate(offset, move, bonus) (HistoryBonus(ContEntry(offset, move), bonus, 28650))
+#define QuietHistoryUpdate(move, bonus)        (HistoryBonus(QuietEntry(move),        bonus, HistQDiv))
+#define PawnHistoryUpdate(move, bonus)         (HistoryBonus(PawnEntry(move),         bonus, HistPDiv))
+#define NoisyHistoryUpdate(move, bonus)        (HistoryBonus(NoisyEntry(move),        bonus, HistNDiv))
+#define ContHistoryUpdate(offset, move, bonus) (HistoryBonus(ContEntry(offset, move), bonus, HistCDiv))
+
+
+extern int HistQDiv;
+extern int HistPDiv;
+extern int HistCDiv;
+extern int HistNDiv;
+extern int HistBonusMax;
+extern int HistBonusBase;
+extern int HistBonusDepth;
+extern int HistMalusMax;
+extern int HistMalusBase;
+extern int HistMalusDepth;
 
 
 INLINE void HistoryBonus(int16_t *cur, int bonus, int div) {
@@ -42,11 +54,11 @@ INLINE void HistoryBonus(int16_t *cur, int bonus, int div) {
 }
 
 INLINE int Bonus(Depth depth) {
-    return MIN(2545, 315 * depth - 300);
+    return MIN(HistBonusMax, HistBonusDepth * depth - HistBonusBase);
 }
 
 INLINE int Malus(Depth depth) {
-    return -MIN(1700, 480 * depth - 205);
+    return -MIN(HistMalusMax, HistMalusDepth * depth - HistMalusBase);
 }
 
 INLINE void UpdateContHistories(Stack *ss, Move move, int bonus) {

@@ -39,3 +39,5 @@ extern atomic_bool SEARCH_STOPPED;
 
 
 void *SearchPosition(void *pos);
+
+void Reinit();
