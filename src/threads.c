@@ -27,7 +27,7 @@
 #include "threads.h"
 
 
-Thread *threads;
+Thread *Threads;
 static pthread_t *pthreads;
 
 // Used for letting the main thread sleep without using cpu
@@ -38,16 +38,16 @@ static pthread_cond_t sleepCondition = PTHREAD_COND_INITIALIZER;
 // Allocates memory for thread structs
 void InitThreads(int count) {
 
-    if (threads)  free(threads);
+    if (Threads)  free(Threads);
     if (pthreads) free(pthreads);
 
-    threads  = calloc(count, sizeof(Thread));
+    Threads  = calloc(count, sizeof(Thread));
     pthreads = calloc(count, sizeof(pthread_t));
 
     // Each thread knows its own index and total thread count
     for (int i = 0; i < count; ++i)
-        threads[i].index = i,
-        threads[i].count = count;
+        Threads[i].index = i,
+        Threads[i].count = count;
 }
 
 // Sorts all rootmoves searched by multiPV
@@ -70,16 +70,16 @@ void SortRootMoves(Thread *thread, int multiPV) {
 // Tallies the nodes searched by all threads
 uint64_t TotalNodes() {
     uint64_t total = 0;
-    for (int i = 0; i < threads->count; ++i)
-        total += threads[i].pos.nodes;
+    for (int i = 0; i < Threads->count; ++i)
+        total += Threads[i].pos.nodes;
     return total;
 }
 
 // Tallies the tbhits of all threads
 uint64_t TotalTBHits() {
     uint64_t total = 0;
-    for (int i = 0; i < threads->count; ++i)
-        total += threads[i].tbhits;
+    for (int i = 0; i < Threads->count; ++i)
+        total += Threads[i].tbhits;
     return total;
 }
 
@@ -87,7 +87,7 @@ uint64_t TotalTBHits() {
 void PrepareSearch(Position *pos, Move searchmoves[]) {
     int rootMoveCount = LegalMoveCount(pos, searchmoves);
 
-    for (Thread *t = threads; t < threads + threads->count; ++t) {
+    for (Thread *t = Threads; t < Threads + Threads->count; ++t) {
         memset(t, 0, offsetof(Thread, pos));
         memcpy(&t->pos, pos, sizeof(Position));
         t->rootMoveCount = rootMoveCount;
@@ -109,33 +109,33 @@ static bool helpersActive = false;
 // Start helper threads running the provided function
 void StartHelpers(void *(*func)(void *)) {
     helpersActive = true;
-    for (int i = 1; i < threads->count; ++i)
-        pthread_create(&pthreads[i], NULL, func, &threads[i]);
+    for (int i = 1; i < Threads->count; ++i)
+        pthread_create(&pthreads[i], NULL, func, &Threads[i]);
 }
 
 // Wait for helper threads to finish
 void WaitForHelpers() {
     if (!helpersActive) return;
-    for (int i = 1; i < threads->count; ++i)
+    for (int i = 1; i < Threads->count; ++i)
         pthread_join(pthreads[i], NULL);
     helpersActive = false;
 }
 
 // Reset all data that isn't reset each turn
 void ResetThreads() {
-    for (int i = 0; i < threads->count; ++i)
-        memset(threads[i].pawnCache,      0, sizeof(PawnCache)),
-        memset(threads[i].history,        0, sizeof(threads[i].history)),
-        memset(threads[i].pawnHistory,    0, sizeof(threads[i].pawnHistory)),
-        memset(threads[i].captureHistory, 0, sizeof(threads[i].captureHistory)),
-        memset(threads[i].continuation,   0, sizeof(threads[i].continuation));
+    for (int i = 0; i < Threads->count; ++i)
+        memset(Threads[i].pawnCache,      0, sizeof(PawnCache)),
+        memset(Threads[i].history,        0, sizeof(Threads[i].history)),
+        memset(Threads[i].pawnHistory,    0, sizeof(Threads[i].pawnHistory)),
+        memset(Threads[i].captureHistory, 0, sizeof(Threads[i].captureHistory)),
+        memset(Threads[i].continuation,   0, sizeof(Threads[i].continuation));
 }
 
 // Run the given function once in each thread
 void RunWithAllThreads(void *(*func)(void *)) {
-    for (int i = 0; i < threads->count; ++i)
-        pthread_create(&pthreads[i], NULL, func, &threads[i]);
-    for (int i = 0; i < threads->count; ++i)
+    for (int i = 0; i < Threads->count; ++i)
+        pthread_create(&pthreads[i], NULL, func, &Threads[i]);
+    for (int i = 0; i < Threads->count; ++i)
         pthread_join(pthreads[i], NULL);
 }
 

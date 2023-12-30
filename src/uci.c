@@ -113,10 +113,10 @@ static void SetOption(char *str) {
     else if (OptionNameIs("Threads"      )) InitThreads(IntValue);
     else if (OptionNameIs("SyzygyPath"   )) tb_init(optionValue);
     else if (OptionNameIs("MultiPV"      )) Limits.multiPV = IntValue;
-    else if (OptionNameIs("NoobBookLimit")) noobLimit      = IntValue;
-    else if (OptionNameIs("NoobBook"     )) noobbook       = BooleanValue;
-    else if (OptionNameIs("UCI_Chess960" )) chess960       = BooleanValue;
-    else if (OptionNameIs("OnlineSyzygy" )) onlineSyzygy   = BooleanValue;
+    else if (OptionNameIs("NoobBookLimit")) NoobLimit      = IntValue;
+    else if (OptionNameIs("NoobBook"     )) NoobBook       = BooleanValue;
+    else if (OptionNameIs("UCI_Chess960" )) Chess960       = BooleanValue;
+    else if (OptionNameIs("OnlineSyzygy" )) OnlineSyzygy   = BooleanValue;
     else puts("info string No such option.");
 
     fflush(stdout);
@@ -219,8 +219,8 @@ void PrintThinking(const Thread *thread, int alpha, int beta) {
     const Position *pos = &thread->pos;
 
     TimePoint elapsed = TimeSince(Limits.start);
-    uint64_t nodes    = TotalNodes(thread);
-    uint64_t tbhits   = TotalTBHits(thread);
+    uint64_t nodes    = TotalNodes();
+    uint64_t tbhits   = TotalTBHits();
     int hashFull      = HashFull();
     int nps           = (int)(1000 * nodes / (elapsed + 1));
 

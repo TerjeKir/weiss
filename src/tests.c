@@ -122,14 +122,14 @@ void Benchmark(int argc, char **argv) {
         // Collect results
         BenchResult *r = &results[i];
         r->elapsed = TimeSince(Limits.start);
-        r->nodes   = TotalNodes(threads);
-        r->score   = threads->rootMoves[0].score;
-        r->best    = threads->rootMoves[0].move;
+        r->nodes   = TotalNodes();
+        r->score   = Threads->rootMoves[0].score;
+        r->best    = Threads->rootMoves[0].move;
 
         totalElapsed += r->elapsed;
         totalNodes   += r->nodes;
 
-        ClearTT(threads);
+        ClearTT();
     }
 
     puts("======================================================");
@@ -179,13 +179,13 @@ void Perft(char *str) {
     char *fen = strtok(NULL, "\0") ?: default_fen;
 
     Depth depth = d ? atoi(d) : 5;
-    ParseFen(fen, &threads->pos);
+    ParseFen(fen, &Threads->pos);
 
     printf("\nPerft starting:\nDepth : %d\nFEN   : %s\n", depth, fen);
     fflush(stdout);
 
     const TimePoint start = Now();
-    uint64_t leafNodes = RecursivePerft(&threads->pos, depth);
+    uint64_t leafNodes = RecursivePerft(&Threads->pos, depth);
     const TimePoint elapsed = TimeSince(start) + 1;
 
     printf("\nPerft complete:"
@@ -197,7 +197,7 @@ void Perft(char *str) {
 }
 
 void PrintEval(Position *pos) {
-    printf("%d\n", EvalPositionWhitePov(pos, threads->pawnCache));
+    printf("%d\n", EvalPositionWhitePov(pos, Threads->pawnCache));
     fflush(stdout);
 }
 #endif

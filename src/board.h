@@ -61,7 +61,7 @@ typedef struct Position {
 } Position;
 
 
-extern bool chess960;
+extern bool Chess960;
 
 extern const int NonPawn[PIECE_NB];
 

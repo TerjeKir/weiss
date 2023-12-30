@@ -81,7 +81,7 @@ char *MoveToStr(const Move move) {
     moveStr[4] = "\0.nbrq"[PieceTypeOf(promotion(move))];
 
     // Encode castling as KxR for chess 960
-    if (chess960 && moveIsCastle(move)) {
+    if (Chess960 && moveIsCastle(move)) {
         int color = ColorOf(piece(move)) == WHITE ? WHITE_CASTLE : BLACK_CASTLE;
         int side = FileOf(toSq(move)) == FILE_G ? OO : OOO;
         SqToStr(RookSquare[color & side], moveStr + 2);
@@ -109,7 +109,7 @@ Move ParseMove(const char *str, const Position *pos) {
              : pt == PAWN && str[0] != str[2] && !pieceOn(to) ? FLAG_ENPAS
                                                               : 0;
 
-    if (chess960 && pt == KING && pieceOn(to) == MakePiece(sideToMove, ROOK)) {
+    if (Chess960 && pt == KING && pieceOn(to) == MakePiece(sideToMove, ROOK)) {
         to = RelativeSquare(sideToMove, to > from ? G1 : C1);
         flag = FLAG_CASTLE;
     }

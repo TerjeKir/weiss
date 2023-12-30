@@ -106,7 +106,7 @@ static bool SyzygyMove(const Position *pos) {
     bool success =
           pos->castlingRights         ? false
         : pieces <= TB_LARGEST        ? ProbeRoot(pos, &move, &wdl, &dtz)
-        : onlineSyzygy && pieces <= 7 ? QueryRoot(pos, &move, &wdl, &dtz)
+        : OnlineSyzygy && pieces <= 7 ? QueryRoot(pos, &move, &wdl, &dtz)
                                       : false;
 
     if (!success) return false;
@@ -117,7 +117,7 @@ static bool SyzygyMove(const Position *pos) {
     fflush(stdout);
 
     // Set move to be printed as conclusion
-    threads->rootMoves[0].move = move;
+    Threads->rootMoves[0].move = move;
 
     return true;
 }
