@@ -107,7 +107,8 @@ static int Quiescence(Thread *thread, Stack *ss, int alpha, const int beta) {
          : ttEval != NOSCORE          ? ttEval
                                       : EvalPosition(pos, thread->pawnCache);
 
-    eval += *CorrEntry();
+    if (eval <= 10000)
+        eval += *CorrEntry();
 
     // If we are at max depth, return static eval
     if (ss->ply >= MAX_PLY)
@@ -297,7 +298,8 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
     if (ttScore != NOSCORE && TTScoreIsMoreInformative(ttBound, ttScore, eval))
         eval = ttScore;
 
-    eval += *CorrEntry();
+    if (eval <= 10000)
+        eval += *CorrEntry();
 
     // Improving if not in check, and current eval is higher than 2 plies ago
     bool improving = !inCheck && eval > (ss-2)->staticEval;
