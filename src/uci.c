@@ -219,8 +219,8 @@ void PrintThinking(const Thread *thread, int alpha, int beta) {
     const Position *pos = &thread->pos;
 
     TimePoint elapsed = TimeSince(Limits.start);
-    uint64_t nodes    = TotalNodes(thread);
-    uint64_t tbhits   = TotalTBHits(thread);
+    uint64_t nodes    = TotalNodes();
+    uint64_t tbhits   = TotalTBHits();
     int hashFull      = HashFull();
     int nps           = (int)(1000 * nodes / (elapsed + 1));
 

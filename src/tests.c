@@ -122,14 +122,14 @@ void Benchmark(int argc, char **argv) {
         // Collect results
         BenchResult *r = &results[i];
         r->elapsed = TimeSince(Limits.start);
-        r->nodes   = TotalNodes(Threads);
+        r->nodes   = TotalNodes();
         r->score   = Threads->rootMoves[0].score;
         r->best    = Threads->rootMoves[0].move;
 
         totalElapsed += r->elapsed;
         totalNodes   += r->nodes;
 
-        ClearTT(Threads);
+        ClearTT();
     }
 
     puts("======================================================");
