@@ -28,11 +28,13 @@
 
 #define QuietEntry(move)        (&thread->history[thread->pos.stm][fromSq(move)][toSq(move)])
 #define PawnEntry(move)         (&thread->pawnHistory[PawnStructure(&thread->pos)][piece(move)][toSq(move)])
+#define CorrEntry()             (&thread->corrHistory[thread->pos.stm][CorrectionStructure(&thread->pos)])
 #define NoisyEntry(move)        (&thread->captureHistory[piece(move)][toSq(move)][PieceTypeOf(capturing(move))])
 #define ContEntry(offset, move) (&(*(ss-offset)->continuation)[piece(move)][toSq(move)])
 
 #define QuietHistoryUpdate(move, bonus)        (HistoryBonus(QuietEntry(move),        bonus,  6880))
 #define PawnHistoryUpdate(move, bonus)         (HistoryBonus(PawnEntry(move),         bonus,  8192))
+#define CorrHistoryUpdate(bonus)               (HistoryBonus(CorrEntry(),             bonus,   512))
 #define NoisyHistoryUpdate(move, bonus)        (HistoryBonus(NoisyEntry(move),        bonus, 16384))
 #define ContHistoryUpdate(offset, move, bonus) (HistoryBonus(ContEntry(offset, move), bonus, 30000))
 
@@ -53,6 +55,11 @@ INLINE void UpdateContHistories(Stack *ss, Move move, int bonus) {
     ContHistoryUpdate(1, move, bonus);
     ContHistoryUpdate(2, move, bonus);
     ContHistoryUpdate(4, move, bonus);
+}
+
+INLINE void UpdateCorrHistory(Thread *thread, int score, int staticEval) {
+    int correction = score - staticEval;
+    CorrHistoryUpdate(CLAMP(correction, -512, 512));
 }
 
 // Updates history heuristics when a quiet move is the best move

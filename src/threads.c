@@ -127,6 +127,7 @@ void ResetThreads() {
         memset(Threads[i].pawnCache,      0, sizeof(PawnCache)),
         memset(Threads[i].history,        0, sizeof(Threads[i].history)),
         memset(Threads[i].pawnHistory,    0, sizeof(Threads[i].pawnHistory)),
+        memset(Threads[i].corrHistory,    0, sizeof(Threads[i].corrHistory)),
         memset(Threads[i].captureHistory, 0, sizeof(Threads[i].captureHistory)),
         memset(Threads[i].continuation,   0, sizeof(Threads[i].continuation));
 }
