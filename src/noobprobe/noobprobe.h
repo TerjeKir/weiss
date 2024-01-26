@@ -28,3 +28,4 @@ extern int failedQueries;
 
 
 bool ProbeNoob(Position *pos);
+void NoobBookSetMode(const char *str);

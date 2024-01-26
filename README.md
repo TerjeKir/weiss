@@ -35,6 +35,11 @@ Weiss appears in most rating lists, and can be seen competing at [TCEC](https://
 * #### NoobBook
   Allow Weiss to query and play moves suggested by [noobpwnftw's online opening database](https://www.chessdb.cn/queryc_en/).
 
+* #### NoobBookMode
+  Sets the query mode to use (see [dbcn docs](https://www.chessdb.cn/cloudbookc_api_en.html)):
+    - best - chooses randomly from the moves with scores close to the best. Stops if all moves' scores are below a threshold.
+    - all - chooses the move with the highest score (first in the returned list). Only stops if there are no moves with scores.
+
 * #### NoobBookLimit
   Limit the use of NoobBook to the first x moves of the game. Only relevant with NoobBook set to true.
 

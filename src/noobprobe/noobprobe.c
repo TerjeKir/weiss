@@ -26,6 +26,7 @@
 
 
 bool NoobBook;
+bool NoobModeBest = true;
 int NoobLimit;
 int failedQueries;
 
@@ -43,7 +44,8 @@ bool ProbeNoob(Position *pos) {
     puts("info string NoobBook: Querying chessdb.cn for a move...");
 
     // Query dbcn
-    char *msg_fmt = "GET https://www.chessdb.cn/cdb.php?action=querybest&board=%s\n";
+    char *msg_fmt = NoobModeBest ? "GET https://www.chessdb.cn/cdb.php?action=querybest&board=%s\n"
+                                 : "GET https://www.chessdb.cn/cdb.php?action=queryall&board=%s\n";
     char *hostname = "www.chessdb.cn";
     char *response = Query(hostname, msg_fmt, pos);
 
@@ -56,4 +58,13 @@ bool ProbeNoob(Position *pos) {
     puts("info string NoobBook: Move received");
 
     return failedQueries = 0, true;
+}
+
+void NoobBookSetMode(const char *str) {
+    if (!strncmp(str, "best", strlen("best")))
+        NoobModeBest = true;
+    else if (!strncmp(str, "all", strlen("all")))
+        NoobModeBest = false;
+    else
+        puts("info string NoobBook: Valid modes are 'best' and 'all'");
 }
