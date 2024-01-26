@@ -26,8 +26,8 @@
 
 
 bool NoobBook;
-int failedQueries;
 int NoobLimit;
+int failedQueries;
 
 
 // Probes noobpwnftw's Chess Cloud Database
@@ -49,7 +49,7 @@ bool ProbeNoob(Position *pos) {
 
     // On success the response will be "move:[MOVE]"
     if (strstr(response, "move") != response)
-        return failedQueries++, false;
+        return printf("info string NoobBook: %s\n", response), failedQueries++, false;
 
     Threads->rootMoves[0].move = ParseMove(&response[5], pos);
 
