@@ -32,7 +32,7 @@ int failedQueries;
 
 
 // Probes noobpwnftw's Chess Cloud Database
-bool ProbeNoob(Position *pos) {
+bool ProbeNoob(const Position *pos) {
 
     // Stop querying after 3 failures or at the specified depth
     if (  !NoobBook
