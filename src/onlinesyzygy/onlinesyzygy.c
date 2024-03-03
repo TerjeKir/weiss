@@ -35,9 +35,11 @@ bool QueryRoot(const Position *pos, Move *move, unsigned *wdl, unsigned *dtz) {
     puts("info string OnlineSyzygy: Querying lichess for a tablebase move...");
 
     // Query lichess syzygy api
-    char *msg_fmt = "GET http://tablebase.lichess.ovh/standard?fen=%s\n";
     char *hostname = "tablebase.lichess.ovh";
-    char *response = Query(hostname, msg_fmt, pos);
+    char *msg_fmt = "GET http://tablebase.lichess.ovh/standard?fen=%s\n";
+    char message[256];
+    snprintf(message, 256, msg_fmt, BoardToFen(pos));
+    char *response = Query(hostname, message);
 
     // On success the response includes "uci": "[MOVE]"
     if (strstr(response, "uci") == NULL)

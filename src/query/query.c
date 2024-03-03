@@ -45,20 +45,14 @@
 
 static void error(const char *msg) { perror(msg); exit(0); }
 
-char *Query(char *hostname, char *msg_fmt, const Position *pos) {
+char *Query(char *hostname, char *message) {
 
     // Setup sockets on windows, does nothing on linux
     WSADATA wsaData;
     if (WSAStartup(MAKEWORD(2,2), &wsaData) != 0)
         error("WSAStartup failed.");
 
-    // Make the message
-    char message[256] = "";
-    static char response[16384];
-
-    snprintf(message, 256, msg_fmt, BoardToFen(pos));
-
-    // Replace spaces with %20
+    // Replace spaces with +
     char *ptr;
     while ((ptr = strchr(message + 4, ' ')) != NULL)
         *ptr = '+';
@@ -90,6 +84,7 @@ char *Query(char *hostname, char *msg_fmt, const Position *pos) {
         error("ERROR sending");
 
     // Receive response
+    static char response[16384];
     memset(response, 0, sizeof(response));
     if (recv(sockfd, response, sizeof(response), 0) == SOCKET_ERROR)
         error("ERROR receiving");

@@ -44,10 +44,11 @@ bool ProbeNoob(Position *pos) {
     puts("info string NoobBook: Querying chessdb.cn for a move...");
 
     // Query dbcn
-    char *msg_fmt = NoobModeBest ? "GET https://www.chessdb.cn/cdb.php?action=querybest&board=%s\n"
-                                 : "GET https://www.chessdb.cn/cdb.php?action=queryall&board=%s\n";
     char *hostname = "www.chessdb.cn";
-    char *response = Query(hostname, msg_fmt, pos);
+    char *msg_fmt = "GET https://www.chessdb.cn/cdb.php?action=query%s&board=%s\n";
+    char message[256];
+    snprintf(message, 256, msg_fmt, NoobModeBest ? "best" : "all", BoardToFen(pos));
+    char *response = Query(hostname, message);
 
     // On success the response will be "move:[MOVE]"
     if (strstr(response, "move") != response)
