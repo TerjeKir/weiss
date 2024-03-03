@@ -438,7 +438,7 @@ move_loop:
             TakeMove(pos);
 
             // Search to reduced depth with a zero window a bit lower than ttScore
-            int singularBeta = ttScore - depth * 2;
+            int singularBeta = ttScore - depth * (2 - pvNode);
             ss->excluded = move;
             score = AlphaBeta(thread, ss, singularBeta-1, singularBeta, depth/2, cutnode);
             ss->excluded = NOMOVE;
@@ -452,7 +452,7 @@ move_loop:
             } else if (singularBeta >= beta)
                 return singularBeta;
             // Negative extension - not singular but likely still good enough to beat beta
-            else if (ttScore >= beta)
+            else if (depth limit? ttScore >= beta)
                 extension = -1;
 
             // Replay ttMove
