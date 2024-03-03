@@ -114,6 +114,7 @@ static void SetOption(char *str) {
     else if (OptionNameIs("SyzygyPath"   )) tb_init(optionValue);
     else if (OptionNameIs("MultiPV"      )) Limits.multiPV = IntValue;
     else if (OptionNameIs("NoobBookLimit")) NoobLimit      = IntValue;
+    else if (OptionNameIs("NoobBookMode" )) NoobBookSetMode(optionValue);
     else if (OptionNameIs("NoobBook"     )) NoobBook       = BooleanValue;
     else if (OptionNameIs("UCI_Chess960" )) Chess960       = BooleanValue;
     else if (OptionNameIs("OnlineSyzygy" )) OnlineSyzygy   = BooleanValue;
@@ -132,6 +133,7 @@ static void Info() {
     printf("option name MultiPV type spin default 1 min 1 max %d\n", MULTI_PV_MAX);
     printf("option name UCI_Chess960 type check default false\n");
     printf("option name NoobBook type check default false\n");
+    printf("option name NoobBookMode string default <best>\n");
     printf("option name NoobBookLimit type spin default 0 min 0 max 1000\n");
     printf("option name OnlineSyzygy type check default false\n");
     printf("uciok\n"); fflush(stdout);

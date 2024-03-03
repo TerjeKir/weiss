@@ -26,12 +26,13 @@
 
 
 bool NoobBook;
+bool NoobModeBest = true;
 int NoobLimit;
 int failedQueries;
 
 
 // Probes noobpwnftw's Chess Cloud Database
-bool ProbeNoob(Position *pos) {
+bool ProbeNoob(const Position *pos) {
 
     // Stop querying after 3 failures or at the specified depth
     if (  !NoobBook
@@ -43,9 +44,11 @@ bool ProbeNoob(Position *pos) {
     puts("info string NoobBook: Querying chessdb.cn for a move...");
 
     // Query dbcn
-    char *msg_fmt = "GET https://www.chessdb.cn/cdb.php?action=querybest&board=%s\n";
     char *hostname = "www.chessdb.cn";
-    char *response = Query(hostname, msg_fmt, pos);
+    char *msg_fmt = "GET https://www.chessdb.cn/cdb.php?action=query%s&board=%s\n";
+    char message[256];
+    snprintf(message, 256, msg_fmt, NoobModeBest ? "best" : "all", BoardToFen(pos));
+    char *response = Query(hostname, message);
 
     // On success the response will be "move:[MOVE]"
     if (strstr(response, "move") != response)
@@ -56,4 +59,13 @@ bool ProbeNoob(Position *pos) {
     puts("info string NoobBook: Move received");
 
     return failedQueries = 0, true;
+}
+
+void NoobBookSetMode(const char *str) {
+    if (!strncmp(str, "best", strlen("best")))
+        NoobModeBest = true;
+    else if (!strncmp(str, "all", strlen("all")))
+        NoobModeBest = false;
+    else
+        puts("info string NoobBook: Valid modes are 'best' and 'all'");
 }
