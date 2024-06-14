@@ -31,7 +31,7 @@ LIBS   = -pthread -lm
 WARN   = -Wall -Wextra -Wshadow -Werror -Wmissing-declarations
 NDEBUG = -DNDEBUG
 
-FLAGS  = $(STD) $(WARN) -O3 -flto
+FLAGS  = $(STD) $(WARN) -O3 -flto=auto
 CFLAGS = $(FLAGS) -march=native
 RFLAGS = $(FLAGS) -static
 
