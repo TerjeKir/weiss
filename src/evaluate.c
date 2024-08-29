@@ -290,7 +290,7 @@ INLINE int EvalPiece(const Position *pos, EvalInfo *ei, const Color color, const
         if (pt == BISHOP) {
             Bitboard bishopSquares   = (BB(sq) & BlackSquaresBB) ? BlackSquaresBB : ~BlackSquaresBB;
             Bitboard badPawns        = colorPieceBB(color, PAWN) & bishopSquares;
-            Bitboard blockedBadPawns = ShiftBB(pieceBB(ALL), down) & colorPieceBB(color, PAWN) & ~(FILE_A | FILE_B | FILE_G | FILE_H);
+            Bitboard blockedBadPawns = ShiftBB(pieceBB(ALL), down) & colorPieceBB(color, PAWN);
 
             int count = PopCount(badPawns) * PopCount(blockedBadPawns);
             eval += count * BishopBadP;
