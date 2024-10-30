@@ -577,8 +577,9 @@ skip_extensions:
                      : pvNode && bestMove ? BOUND_EXACT
                                           : BOUND_UPPER);
 
+    // Update correction history
     if (   !inCheck
-        && (!bestMove || !capturing(bestMove))
+        && !capturing(bestMove)
         && !(bestScore >= beta && bestScore <= ss->staticEval)
         && !(!bestMove && bestScore >= ss->staticEval))
         UpdateCorrectionHistory(thread, bestScore, ss->staticEval, depth);

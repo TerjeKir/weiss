@@ -36,7 +36,7 @@
 #define PawnHistoryUpdate(move, bonus)         (HistoryBonus(PawnEntry(move),         bonus,  8192))
 #define NoisyHistoryUpdate(move, bonus)        (HistoryBonus(NoisyEntry(move),        bonus, 16384))
 #define ContHistoryUpdate(offset, move, bonus) (HistoryBonus(ContEntry(offset, move), bonus, 30000))
-#define CorrectionHistoryUpdate(bonus) (HistoryBonus(CorrectionEntry(), bonus, 1024))
+#define CorrectionHistoryUpdate(bonus)         (HistoryBonus(CorrectionEntry(),       bonus,  1024))
 
 
 INLINE void HistoryBonus(int16_t *cur, int bonus, int div) {
