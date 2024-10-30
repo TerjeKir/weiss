@@ -126,3 +126,7 @@ INLINE int GetCaptureHistory(const Thread *thread, Move move) {
 INLINE int GetHistory(const Thread *thread, Stack *ss, Move move) {
     return moveIsQuiet(move) ? GetQuietHistory(thread, ss, move) : GetCaptureHistory(thread, move);
 }
+
+INLINE int GetCorrectionHistory(const Thread *thread) {
+    return *CorrectionEntry() / 32;
+}

@@ -59,8 +59,9 @@ static bool AlreadySearchedMultiPV(Thread *thread, Move move) {
     return false;
 }
 
-static int ScoreToEval(int score) {
-    return CLAMP(score, -TBWIN_IN_MAX + 1, TBWIN_IN_MAX - 1);
+// Correct the evaluation based on historic differences between eval and final score
+static int CorrectEval(Thread *thread, int eval) {
+    return CLAMP(eval + GetCorrectionHistory(thread), -TBWIN_IN_MAX + 1, TBWIN_IN_MAX - 1);
 }
 
 // Small positive score with some random variance
@@ -112,7 +113,7 @@ static int Quiescence(Thread *thread, Stack *ss, int alpha, const int beta) {
                                       : EvalPosition(pos, thread->pawnCache);
 
     int unadjustedEval = eval;
-    eval = ScoreToEval(eval + *CorrectionEntry() / 32);
+    eval = CorrectEval(thread, eval);
 
     // If we are at max depth, return static eval
     if (ss->ply >= MAX_PLY)
@@ -299,7 +300,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
                                                    : EvalPosition(pos, thread->pawnCache);
 
     int unadjustedEval = eval;
-    ss->staticEval = eval = ScoreToEval(eval + *CorrectionEntry() / 32);
+    ss->staticEval = eval = CorrectEval(thread, eval);
 
     // Use ttScore as eval if it is more informative
     if (ttScore != NOSCORE && TTScoreIsMoreInformative(ttBound, ttScore, eval))
