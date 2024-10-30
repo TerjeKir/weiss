@@ -30,11 +30,13 @@
 #define PawnEntry(move)         (&thread->pawnHistory[PawnStructure(&thread->pos)][piece(move)][toSq(move)])
 #define NoisyEntry(move)        (&thread->captureHistory[piece(move)][toSq(move)][PieceTypeOf(capturing(move))])
 #define ContEntry(offset, move) (&(*(ss-offset)->continuation)[piece(move)][toSq(move)])
+#define CorrectionEntry()       (&thread->correctionHistory[thread->pos.stm][CorrectionIndex(&thread->pos)])
 
 #define QuietHistoryUpdate(move, bonus)        (HistoryBonus(QuietEntry(move),        bonus,  6880))
 #define PawnHistoryUpdate(move, bonus)         (HistoryBonus(PawnEntry(move),         bonus,  8192))
 #define NoisyHistoryUpdate(move, bonus)        (HistoryBonus(NoisyEntry(move),        bonus, 16384))
 #define ContHistoryUpdate(offset, move, bonus) (HistoryBonus(ContEntry(offset, move), bonus, 30000))
+#define CorrectionHistoryUpdate(bonus)         (HistoryBonus(CorrectionEntry(),       bonus,  1024))
 
 
 INLINE void HistoryBonus(int16_t *cur, int bonus, int div) {
@@ -47,6 +49,10 @@ INLINE int Bonus(Depth depth) {
 
 INLINE int Malus(Depth depth) {
     return -MIN(1435, 455 * depth - 213);
+}
+
+INLINE int CorrectionBonus(int score, int eval, Depth depth) {
+    return CLAMP((score - eval) * depth / 8, -1024 / 4, 1024 / 4);
 }
 
 INLINE void UpdateContHistories(Stack *ss, Move move, int bonus) {
@@ -99,6 +105,10 @@ INLINE void UpdateHistory(Thread *thread, Stack *ss, Move bestMove, Depth depth,
     // Penalize noisy moves that failed to produce a cut
     for (Move *move = noisys; move < noisys + nCount; ++move)
         NoisyHistoryUpdate(*move, malus);
+}
+
+INLINE void UpdateCorrectionHistory(Thread *thread, int bestScore, int eval, Depth depth) {
+    CorrectionHistoryUpdate(CorrectionBonus(bestScore, eval, depth));
 }
 
 INLINE int GetQuietHistory(const Thread *thread, Stack *ss, Move move) {

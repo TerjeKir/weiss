@@ -59,6 +59,10 @@ static bool AlreadySearchedMultiPV(Thread *thread, Move move) {
     return false;
 }
 
+static int ScoreToEval(int score) {
+    return CLAMP(score, -TBWIN_IN_MAX + 1, TBWIN_IN_MAX - 1);
+}
+
 // Small positive score with some random variance
 static int DrawScore(Position *pos) {
     return 8 - (pos->nodes & 0x7);
@@ -106,6 +110,9 @@ static int Quiescence(Thread *thread, Stack *ss, int alpha, const int beta) {
     eval = history(-1).move == NOMOVE ? -(ss-1)->staticEval + 2 * Tempo
          : ttEval != NOSCORE          ? ttEval
                                       : EvalPosition(pos, thread->pawnCache);
+
+    int unadjustedEval = eval;
+    eval = ScoreToEval(eval + *CorrectionEntry() / 32);
 
     // If we are at max depth, return static eval
     if (ss->ply >= MAX_PLY)
@@ -183,7 +190,7 @@ search:
     if (inCheck && bestScore == -INFINITE)
         return -MATE + ss->ply;
 
-    StoreTTEntry(tte, pos->key, bestMove, ScoreToTT(bestScore, ss->ply), eval, 0,
+    StoreTTEntry(tte, pos->key, bestMove, ScoreToTT(bestScore, ss->ply), unadjustedEval, 0,
                  bestScore >= beta ? BOUND_LOWER : BOUND_UPPER);
 
     return bestScore;
@@ -290,6 +297,9 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
                                : lastMoveNullMove  ? -(ss-1)->staticEval + 2 * Tempo
                                : ttEval != NOSCORE ? ttEval
                                                    : EvalPosition(pos, thread->pawnCache);
+
+    int unadjustedEval = eval;
+    ss->staticEval = eval = ScoreToEval(eval + *CorrectionEntry() / 32);
 
     // Use ttScore as eval if it is more informative
     if (ttScore != NOSCORE && TTScoreIsMoreInformative(ttBound, ttScore, eval))
@@ -562,10 +572,17 @@ skip_extensions:
 
     // Store in TT
     if (!ss->excluded && (!root || !thread->multiPV))
-        StoreTTEntry(tte, pos->key, bestMove, ScoreToTT(bestScore, ss->ply), ss->staticEval, depth,
+        StoreTTEntry(tte, pos->key, bestMove, ScoreToTT(bestScore, ss->ply), unadjustedEval, depth,
                        bestScore >= beta  ? BOUND_LOWER
                      : pvNode && bestMove ? BOUND_EXACT
                                           : BOUND_UPPER);
+
+    // Update correction history
+    if (   !inCheck
+        && !capturing(bestMove)
+        && !(bestScore >= beta && bestScore <= ss->staticEval)
+        && !(!bestMove && bestScore >= ss->staticEval))
+        UpdateCorrectionHistory(thread, bestScore, ss->staticEval, depth);
 
     return bestScore;
 }
