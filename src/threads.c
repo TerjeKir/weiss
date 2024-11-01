@@ -129,7 +129,8 @@ void ResetThreads() {
         memset(Threads[i].pawnHistory,    0, sizeof(Threads[i].pawnHistory)),
         memset(Threads[i].captureHistory, 0, sizeof(Threads[i].captureHistory)),
         memset(Threads[i].continuation,   0, sizeof(Threads[i].continuation)),
-        memset(Threads[i].correctionHistory, 0, sizeof(Threads[i].correctionHistory));
+        memset(Threads[i].pawnCorrectionHistory, 0, sizeof(Threads[i].pawnCorrectionHistory)),
+        memset(Threads[i].materialCorrectionHistory, 0, sizeof(Threads[i].materialCorrectionHistory));
 }
 
 // Run the given function once in each thread

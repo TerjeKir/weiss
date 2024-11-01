@@ -34,8 +34,12 @@ INLINE int PawnStructure(const Position *pos) {
     return pos->pawnKey & (PAWN_HISTORY_SIZE - 1);
 }
 
-INLINE int CorrectionIndex(const Position *pos) {
+INLINE int PawnCorrectionIndex(const Position *pos) {
     return pos->pawnKey & (CORRECTION_HISTORY_SIZE - 1);
+}
+
+INLINE int MaterialCorrectionIndex(const Position *pos) {
+    return pos->materialKey & (CORRECTION_HISTORY_SIZE - 1);
 }
 
 typedef int16_t ButterflyHistory[COLOR_NB][64][64];
@@ -82,7 +86,8 @@ typedef struct Thread {
     PawnHistory pawnHistory;
     CaptureToHistory captureHistory;
     ContinuationHistory continuation[2][2];
-    CorrectionHistory correctionHistory;
+    CorrectionHistory pawnCorrectionHistory;
+    CorrectionHistory materialCorrectionHistory;
 
     int index;
     int count;

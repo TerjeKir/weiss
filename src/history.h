@@ -30,13 +30,15 @@
 #define PawnEntry(move)         (&thread->pawnHistory[PawnStructure(&thread->pos)][piece(move)][toSq(move)])
 #define NoisyEntry(move)        (&thread->captureHistory[piece(move)][toSq(move)][PieceTypeOf(capturing(move))])
 #define ContEntry(offset, move) (&(*(ss-offset)->continuation)[piece(move)][toSq(move)])
-#define CorrectionEntry()       (&thread->correctionHistory[thread->pos.stm][CorrectionIndex(&thread->pos)])
+#define PawnCorrectionEntry()   (&thread->pawnCorrectionHistory[thread->pos.stm][PawnCorrectionIndex(&thread->pos)])
+#define MaterialCorrectionEntry() (&thread->materialCorrectionHistory[thread->pos.stm][MaterialCorrectionIndex(&thread->pos)])
 
 #define QuietHistoryUpdate(move, bonus)        (HistoryBonus(QuietEntry(move),        bonus,  6880))
 #define PawnHistoryUpdate(move, bonus)         (HistoryBonus(PawnEntry(move),         bonus,  8192))
 #define NoisyHistoryUpdate(move, bonus)        (HistoryBonus(NoisyEntry(move),        bonus, 16384))
 #define ContHistoryUpdate(offset, move, bonus) (HistoryBonus(ContEntry(offset, move), bonus, 30000))
-#define CorrectionHistoryUpdate(bonus)         (HistoryBonus(CorrectionEntry(),       bonus,  1024))
+#define PawnCorrectionHistoryUpdate(bonus)     (HistoryBonus(PawnCorrectionEntry(),   bonus,  1024))
+#define MaterialCorrectionHistoryUpdate(bonus) (HistoryBonus(MaterialCorrectionEntry(), bonus,  1024))
 
 
 INLINE void HistoryBonus(int16_t *cur, int bonus, int div) {
@@ -108,7 +110,9 @@ INLINE void UpdateHistory(Thread *thread, Stack *ss, Move bestMove, Depth depth,
 }
 
 INLINE void UpdateCorrectionHistory(Thread *thread, int bestScore, int eval, Depth depth) {
-    CorrectionHistoryUpdate(CorrectionBonus(bestScore, eval, depth));
+    int bonus = CorrectionBonus(bestScore, eval, depth);
+    PawnCorrectionHistoryUpdate(bonus);
+    MaterialCorrectionHistoryUpdate(bonus);
 }
 
 INLINE int GetQuietHistory(const Thread *thread, Stack *ss, Move move) {
@@ -128,5 +132,6 @@ INLINE int GetHistory(const Thread *thread, Stack *ss, Move move) {
 }
 
 INLINE int GetCorrectionHistory(const Thread *thread) {
-    return *CorrectionEntry() / 32;
+    return  *PawnCorrectionEntry() / 32
+          + *MaterialCorrectionEntry() / 32;
 }
