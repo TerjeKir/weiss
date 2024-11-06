@@ -30,18 +30,6 @@
 #define PAWN_HISTORY_SIZE 512
 #define CORRECTION_HISTORY_SIZE 16384
 
-INLINE int PawnStructure(const Position *pos) {
-    return pos->pawnKey & (PAWN_HISTORY_SIZE - 1);
-}
-
-INLINE int PawnCorrectionIndex(const Position *pos) {
-    return pos->pawnKey & (CORRECTION_HISTORY_SIZE - 1);
-}
-
-INLINE int MaterialCorrectionIndex(const Position *pos) {
-    return pos->materialKey & (CORRECTION_HISTORY_SIZE - 1);
-}
-
 typedef int16_t ButterflyHistory[COLOR_NB][64][64];
 typedef int16_t PawnHistory[PAWN_HISTORY_SIZE][PIECE_NB][64];
 typedef int16_t CaptureToHistory[PIECE_NB][64][TYPE_NB];
@@ -86,8 +74,8 @@ typedef struct Thread {
     PawnHistory pawnHistory;
     CaptureToHistory captureHistory;
     ContinuationHistory continuation[2][2];
-    CorrectionHistory pawnCorrectionHistory;
-    CorrectionHistory materialCorrectionHistory;
+    CorrectionHistory pawnCorrHistory;
+    CorrectionHistory matCorrHistory;
 
     int index;
     int count;
