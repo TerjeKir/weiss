@@ -100,24 +100,25 @@ static void InitSliderAttacks(PieceType pt, Bitboard table[]) {
 
     for (Square sq = A1; sq <= H8; ++sq) {
 
-        MagicAttacks(sq, pt) = table;
+        Magic *m = &Magics[sq][pt - BISHOP];
+        (*m).attacks = table;
 
         // Construct the mask
         Bitboard edges = ((rank1BB | rank8BB) & ~RankBB[RankOf(sq)])
                        | ((fileABB | fileHBB) & ~FileBB[FileOf(sq)]);
 
-        MagicMask(sq, pt) = MakeSliderAttackBB(sq, pt, 0) & ~edges;
+        (*m).mask = MakeSliderAttackBB(sq, pt, 0) & ~edges;
 
 #ifndef USE_PEXT
-        MagicMagic(sq, pt) = magics[sq];
-        MagicShift(sq, pt) = 64 - PopCount(MagicMask(sq, pt));
+        m.magic = magics[sq];
+        m.shift = 64 - PopCount(m.mask);
 #endif
 
         // Loop through all possible combinations of occupied squares, filling the table
         Bitboard occupied = 0;
         do {
             MagicAttack(sq, pt, occupied) = MakeSliderAttackBB(sq, pt, occupied);
-            occupied = (occupied - MagicMask(sq, pt)) & MagicMask(sq, pt); // Carry rippler
+            occupied = (occupied - (*m).mask) & (*m).mask; // Carry rippler
             table++;
         } while (occupied);
     }

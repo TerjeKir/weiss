@@ -25,16 +25,10 @@
 #ifdef USE_PEXT
 // Uses the bmi2 pext instruction in place of magic bitboards
 #include "x86intrin.h"
-#define MagicMask(sq, pt)        (Magics[sq][pt - BISHOP].mask)
-#define MagicAttacks(sq, pt)     (Magics[sq][pt - BISHOP].attacks)
-#define AttackIndex(sq, pt, occ) (_pext_u64(occ, MagicMask(sq, pt)))
+#define AttackIndex(sq, pt, occ) (_pext_u64(occ, Magics[sq][pt - BISHOP].mask))
 
 #else
 // Uses magic bitboards as explained on https://www.chessprogramming.org/Magic_Bitboards
-#define MagicMask(sq, pt)        (Magics[sq][pt - BISHOP].mask)
-#define MagicAttacks(sq, pt)     (Magics[sq][pt - BISHOP].attacks)
-#define MagicShift(sq, pt)       (Magics[sq][pt - BISHOP].shift)
-#define MagicMagic(sq, pt)       (Magics[sq][pt - BISHOP].magic)
 #define AttackIndex(sq, pt, occ) (((occ & MagicMask(sq, pt)) * MagicMagic(sq, pt)) >> MagicShift(sq, pt)
 
 static const uint64_t RookMagics[64] = {
@@ -76,7 +70,7 @@ static const uint64_t BishopMagics[64] = {
 };
 #endif
 
-#define MagicAttack(sq, pt, occ) (MagicAttacks(sq, pt)[AttackIndex(sq, pt, occ)])
+#define MagicAttack(sq, pt, occ) (Magics[sq][pt - BISHOP].attacks[AttackIndex(sq, pt, occ)])
 
 typedef struct {
     Bitboard mask;
