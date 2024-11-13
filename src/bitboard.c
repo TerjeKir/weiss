@@ -110,8 +110,8 @@ static void InitSliderAttacks(PieceType pt, Bitboard table[]) {
         (*m).mask = MakeSliderAttackBB(sq, pt, 0) & ~edges;
 
 #ifndef USE_PEXT
-        m.magic = magics[sq];
-        m.shift = 64 - PopCount(m.mask);
+        (*m).magic = magics[sq];
+        (*m).shift = 64 - PopCount((*m).mask);
 #endif
 
         // Loop through all possible combinations of occupied squares, filling the table

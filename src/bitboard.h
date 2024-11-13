@@ -29,7 +29,7 @@
 
 #else
 // Uses magic bitboards as explained on https://www.chessprogramming.org/Magic_Bitboards
-#define AttackIndex(sq, pt, occ) (((occ & MagicMask(sq, pt)) * MagicMagic(sq, pt)) >> MagicShift(sq, pt)
+#define AttackIndex(sq, pt, occ) (((occ & Magics[sq][pt - BISHOP].mask) * Magics[sq][pt - BISHOP].magic) >> Magics[sq][pt - BISHOP].shift)
 
 static const uint64_t RookMagics[64] = {
     0xA180022080400230ull, 0x0040100040022000ull, 0x0080088020001002ull, 0x0080080280841000ull,
