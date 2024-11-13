@@ -99,7 +99,6 @@ static void InitSliderAttacks(PieceType pt, Bitboard table[]) {
         Magic *m = &Magics[sq][pt - BISHOP];
         (*m).attacks = table;
 
-        // Construct the mask
         Bitboard edges = ((rank1BB | rank8BB) & ~RankBB[RankOf(sq)])
                        | ((fileABB | fileHBB) & ~FileBB[FileOf(sq)]);
 
