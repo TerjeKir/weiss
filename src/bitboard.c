@@ -94,10 +94,6 @@ static void InitNonSliderAttacks() {
 // Initializes slider attack lookups
 static void InitSliderAttacks(PieceType pt, Bitboard table[]) {
 
-#ifndef USE_PEXT
-    const uint64_t *magics = pt == ROOK ? RookMagics : BishopMagics;
-#endif
-
     for (Square sq = A1; sq <= H8; ++sq) {
 
         Magic *m = &Magics[sq][pt - BISHOP];
@@ -110,7 +106,7 @@ static void InitSliderAttacks(PieceType pt, Bitboard table[]) {
         (*m).mask = MakeSliderAttackBB(sq, pt, 0) & ~edges;
 
 #ifndef USE_PEXT
-        (*m).magic = magics[sq];
+        (*m).magic = MagicNumber(pt, sq);
         (*m).shift = 64 - PopCount((*m).mask);
 #endif
 
