@@ -25,11 +25,17 @@
 #ifdef USE_PEXT
 // Uses the bmi2 pext instruction in place of magic bitboards
 #include "x86intrin.h"
-#define AttackIndex(sq, occ, table) (_pext_u64(occ, table[sq].mask))
+#define MagicMask(sq, pt)        (Magics[sq][pt - BISHOP].mask)
+#define MagicAttacks(sq, pt)     (Magics[sq][pt - BISHOP].attacks)
+#define AttackIndex(sq, pt, occ) (_pext_u64(occ, MagicMask(sq, pt)))
 
 #else
 // Uses magic bitboards as explained on https://www.chessprogramming.org/Magic_Bitboards
-#define AttackIndex(sq, occ, table) (((occ & table[sq].mask) * table[sq].magic) >> table[sq].shift)
+#define MagicMask(sq, pt)        (Magics[sq][pt - BISHOP].mask)
+#define MagicAttacks(sq, pt)     (Magics[sq][pt - BISHOP].attacks)
+#define MagicShift(sq, pt)       (Magics[sq][pt - BISHOP].shift)
+#define MagicMagic(sq, pt)       (Magics[sq][pt - BISHOP].magic)
+#define AttackIndex(sq, pt, occ) (((occ & MagicMask(sq, pt)) * MagicMagic(sq, pt)) >> MagicShift(sq, pt)
 
 static const uint64_t RookMagics[64] = {
     0xA180022080400230ull, 0x0040100040022000ull, 0x0080088020001002ull, 0x0080080280841000ull,
@@ -70,11 +76,11 @@ static const uint64_t BishopMagics[64] = {
 };
 #endif
 
-#define MagicAttacks(sq, occ, table) (table[sq].attacks[AttackIndex(sq, occ, table)])
+#define MagicAttack(sq, pt, occ) (MagicAttacks(sq, pt)[AttackIndex(sq, pt, occ)])
 
 typedef struct {
-    Bitboard *attacks;
     Bitboard mask;
+    Bitboard *attacks;
 #ifndef USE_PEXT
     uint64_t magic;
     int shift;
@@ -111,8 +117,7 @@ extern const Bitboard RankBB[RANK_NB];
 
 extern Bitboard BetweenBB[64][64];
 
-extern Magic BishopTable[64];
-extern Magic RookTable[64];
+extern Magic Magics[64][2];
 
 extern Bitboard PseudoAttacks[TYPE_NB][64];
 extern Bitboard PawnAttacks[COLOR_NB][64];
@@ -189,8 +194,8 @@ INLINE Bitboard AttackBB(PieceType pt, Square sq, Bitboard occupied) {
     assert(pt != PAWN);
 
     switch (pt) {
-        case BISHOP: return MagicAttacks(sq, occupied, BishopTable);
-        case ROOK  : return MagicAttacks(sq, occupied, RookTable);
+        case BISHOP:
+        case ROOK  : return MagicAttack(sq, pt, occupied);
         case QUEEN : return AttackBB(ROOK, sq, occupied) | AttackBB(BISHOP, sq, occupied);
         default    : return PseudoAttacks[pt][sq];
     }
