@@ -47,8 +47,8 @@ static int Reductions[2][32][32];
 CONSTR(1) InitReductions() {
     for (int depth = 1; depth < 32; ++depth)
         for (int moves = 1; moves < 32; ++moves)
-            Reductions[0][depth][moves] = 0.33 + log(depth) * log(moves) / 3.20, // capture
-            Reductions[1][depth][moves] = 1.65 + log(depth) * log(moves) / 2.80; // quiet
+            Reductions[0][depth][moves] = 0.38 + log(depth) * log(moves) / 2.93, // capture
+            Reductions[1][depth][moves] = 1.82 + log(depth) * log(moves) / 2.68; // quiet
 }
 
 // Checks whether a move was already searched in multi-pv mode
@@ -323,15 +323,15 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
     // Reverse Futility Pruning
     if (   depth < 7
         && eval >= beta
-        && eval - 92 * (depth - improving) - (ss-1)->histScore / 128 >= beta
-        && (!ttMove || GetHistory(thread, ss, ttMove) > 8650))
+        && eval - 74 * (depth - improving) - (ss-1)->histScore / 120 >= beta
+        && (!ttMove || GetHistory(thread, ss, ttMove) > 7600))
         return eval;
 
     // Null Move Pruning
     if (   eval >= beta
         && eval >= ss->staticEval
-        && ss->staticEval >= beta + 174 - 24 * depth
-        && (ss-1)->histScore < 25000
+        && ss->staticEval >= beta + 168 - 23 * depth
+        && (ss-1)->histScore < 26500
         && pos->nonPawnCount[sideToMove] > (depth > 8)) {
 
         Depth reduction = 3 + depth / 4 + MIN(3, (eval - beta) / 256);
@@ -409,7 +409,7 @@ move_loop:
             && thread->doPruning
             && bestScore > -TBWIN_IN_MAX) {
 
-            int R = Reductions[quiet][MIN(31, depth)][MIN(31, moveCount)] - ss->histScore / 9000;
+            int R = Reductions[quiet][MIN(31, depth)][MIN(31, moveCount)] - ss->histScore / 10000;
             Depth lmrDepth = depth - 1 - R;
 
             // Quiet late move pruning
@@ -421,7 +421,7 @@ move_loop:
                 continue;
 
             // SEE pruning
-            if (lmrDepth < 7 && !SEE(pos, move, quiet ? -53 * depth : -73 * depth))
+            if (lmrDepth < 7 && !SEE(pos, move, quiet ? -48 * depth : -66 * depth))
                 continue;
         }
 
@@ -457,7 +457,7 @@ move_loop:
             // Singular - extend by 1 or 2 ply
             if (score < singularBeta) {
                 extension = 1;
-                if (!pvNode && score < singularBeta - 6 && ss->doubleExtensions <= 5)
+                if (!pvNode && score < singularBeta - 5 && ss->doubleExtensions <= 5)
                     extension = 2;
             // MultiCut - ttMove as well as at least one other move seem good enough to beat beta
             } else if (singularBeta >= beta)
@@ -489,7 +489,7 @@ skip_extensions:
             // Base reduction
             int r = Reductions[quiet][MIN(31, depth)][MIN(31, moveCount)];
             // Adjust reduction by move history
-            r -= ss->histScore / 10275;
+            r -= ss->histScore / 9500;
             // Reduce less in pv nodes
             r -= pvNode;
             // Reduce less when improving
@@ -508,7 +508,7 @@ skip_extensions:
 
             // Re-search with the same window at full depth if the reduced search failed high
             if (score > alpha && lmrDepth < newDepth) {
-                bool deeper = score > bestScore + 23 + 13 * (newDepth - lmrDepth);
+                bool deeper = score > bestScore + 22 + 7 * (newDepth - lmrDepth);
 
                 newDepth += deeper;
 
