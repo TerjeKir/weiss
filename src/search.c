@@ -489,7 +489,7 @@ skip_extensions:
             // Base reduction
             int r = Reductions[quiet][MIN(31, depth)][MIN(31, moveCount)];
             // Adjust reduction by move history
-            r -= 1024 * ss->histScore / 9500;
+            r -= 1600 * ss->histScore / 16384;
             // Reduce less in pv nodes
             r -= 1024 * pvNode;
             // Reduce less when improving
