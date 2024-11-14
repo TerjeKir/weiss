@@ -47,8 +47,8 @@ static int Reductions[2][32][32];
 CONSTR(1) InitReductions() {
     for (int depth = 1; depth < 32; ++depth)
         for (int moves = 1; moves < 32; ++moves)
-            Reductions[0][depth][moves] = 0.38 + log(depth) * log(moves) / 2.93, // capture
-            Reductions[1][depth][moves] = 1.82 + log(depth) * log(moves) / 2.68; // quiet
+            Reductions[0][depth][moves] = 1024 * (0.38 + log(depth) * log(moves) / 2.93), // capture
+            Reductions[1][depth][moves] = 1024 * (1.82 + log(depth) * log(moves) / 2.68); // quiet
 }
 
 // Checks whether a move was already searched in multi-pv mode
@@ -409,7 +409,7 @@ move_loop:
             && thread->doPruning
             && bestScore > -TBWIN_IN_MAX) {
 
-            int R = Reductions[quiet][MIN(31, depth)][MIN(31, moveCount)] - ss->histScore / 10000;
+            int R = Reductions[quiet][MIN(31, depth)][MIN(31, moveCount)] / 1024 - ss->histScore / 10000;
             Depth lmrDepth = depth - 1 - R;
 
             // Quiet late move pruning
@@ -489,17 +489,19 @@ skip_extensions:
             // Base reduction
             int r = Reductions[quiet][MIN(31, depth)][MIN(31, moveCount)];
             // Adjust reduction by move history
-            r -= ss->histScore / 9500;
+            r -= 1024 * (ss->histScore / 9500);
             // Reduce less in pv nodes
-            r -= pvNode;
+            r -= 1024 * pvNode;
             // Reduce less when improving
-            r -= improving;
+            r -= 1024 * improving;
             // Reduce quiets more if ttMove is a capture
-            r += moveIsCapture(ttMove);
+            r += 1024 * moveIsCapture(ttMove);
             // Reduce more when opponent has few pieces
-            r += pos->nonPawnCount[opponent] < 2;
+            r += 1024 * (pos->nonPawnCount[opponent] < 2);
             // Reduce more in cut nodes
-            r += 2 * cutnode;
+            r += 2048 * cutnode;
+
+            r /= 1024;
 
             // Depth after reductions, avoiding going straight to quiescence as well as extending
             Depth lmrDepth = CLAMP(newDepth - r, 1, newDepth);
