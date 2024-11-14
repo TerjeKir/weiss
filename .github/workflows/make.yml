@@ -15,7 +15,7 @@ jobs:
         cc: [gcc, clang]
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Basic
       run: make CC=${{ matrix.cc }} basic
@@ -40,7 +40,7 @@ jobs:
         cc: [gcc, clang]
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Compile
       run: make CC=${{ matrix.cc }} basic NDEBUG=''
@@ -69,7 +69,7 @@ jobs:
           depth: 4
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Compile
       run: make dev
