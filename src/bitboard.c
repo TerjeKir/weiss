@@ -33,8 +33,7 @@ Bitboard BetweenBB[64][64];
 static Bitboard BishopAttacks[5248];
 static Bitboard RookAttacks[102400];
 
-Magic BishopTable[64];
-Magic RookTable[64];
+Magic Magics[64][2];
 
 Bitboard PseudoAttacks[TYPE_NB][64];
 Bitboard PawnAttacks[COLOR_NB][64];
@@ -52,9 +51,13 @@ INLINE Bitboard LandingSquareBB(const Square sq, const int step) {
 }
 
 // Makes a slider attack bitboard
-static Bitboard MakeSliderAttackBB(const Square sq, const Bitboard occupied, const int steps[]) {
+static Bitboard MakeSliderAttackBB(const Square sq, const PieceType pt, const Bitboard occupied) {
 
     Bitboard attacks = 0;
+
+    const int BSteps[] = { 7, 9, -7, -9 };
+    const int RSteps[] = { 8, 1, -8, -1 };
+    const int *steps = pt == BISHOP ? BSteps : RSteps;
 
     for (int dir = 0; dir < 4; ++dir) {
         Square s = sq;
@@ -89,32 +92,28 @@ static void InitNonSliderAttacks() {
 }
 
 // Initializes slider attack lookups
-static void InitSliderAttacks(Magic m[], Bitboard table[], const int steps[]) {
-
-#ifndef USE_PEXT
-    const uint64_t *magics = steps[0] == 8 ? RookMagics : BishopMagics;
-#endif
+static void InitSliderAttacks(PieceType pt, Bitboard table[]) {
 
     for (Square sq = A1; sq <= H8; ++sq) {
 
-        m[sq].attacks = table;
+        Magic *m = &Magics[sq][pt - BISHOP];
+        (*m).attacks = table;
 
-        // Construct the mask
         Bitboard edges = ((rank1BB | rank8BB) & ~RankBB[RankOf(sq)])
                        | ((fileABB | fileHBB) & ~FileBB[FileOf(sq)]);
 
-        m[sq].mask = MakeSliderAttackBB(sq, 0, steps) & ~edges;
+        (*m).mask = MakeSliderAttackBB(sq, pt, 0) & ~edges;
 
 #ifndef USE_PEXT
-        m[sq].magic = magics[sq];
-        m[sq].shift = 64 - PopCount(m[sq].mask);
+        (*m).magic = MagicNumber(pt, sq);
+        (*m).shift = 64 - PopCount((*m).mask);
 #endif
 
         // Loop through all possible combinations of occupied squares, filling the table
         Bitboard occupied = 0;
         do {
-            MagicAttacks(sq, occupied, m) = MakeSliderAttackBB(sq, occupied, steps);
-            occupied = (occupied - m[sq].mask) & m[sq].mask; // Carry rippler
+            MagicAttack(sq, pt, occupied) = MakeSliderAttackBB(sq, pt, occupied);
+            occupied = (occupied - (*m).mask) & (*m).mask; // Carry rippler
             table++;
         } while (occupied);
     }
@@ -125,11 +124,8 @@ CONSTR(2) InitBitboards() {
 
     InitNonSliderAttacks();
 
-    const int BSteps[4] = { 7, 9, -7, -9 };
-    const int RSteps[4] = { 8, 1, -8, -1 };
-
-    InitSliderAttacks(BishopTable, BishopAttacks, BSteps);
-    InitSliderAttacks(  RookTable,   RookAttacks, RSteps);
+    InitSliderAttacks(BISHOP, BishopAttacks);
+    InitSliderAttacks(ROOK, RookAttacks);
 
     for (Square sq1 = A1; sq1 <= H8; sq1++)
         for (Square sq2 = A1; sq2 <= H8; sq2++)
