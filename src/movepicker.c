@@ -33,7 +33,7 @@ static Move PickNextMove(MovePicker *mp) {
     Move bestMove = list->moves[list->next++].move;
 
     // Avoid returning the TT or killer moves again
-    if (bestMove == mp->ttMove || bestMove == mp->kill1 || bestMove == mp->kill2)
+    if (bestMove == mp->ttMove || bestMove == mp->killer)
         return PickNextMove(mp);
 
     return bestMove;
@@ -105,18 +105,11 @@ Move NextMove(MovePicker *mp) {
             mp->stage++;
 
             // fall through
-        case KILLER1:
+        case KILLER:
             mp->stage++;
-            if (   mp->kill1 != mp->ttMove
-                && MoveIsPseudoLegal(pos, mp->kill1))
-                return mp->kill1;
-
-            // fall through
-        case KILLER2:
-            mp->stage++;
-            if (   mp->kill2 != mp->ttMove
-                && MoveIsPseudoLegal(pos, mp->kill2))
-                return mp->kill2;
+            if (   mp->killer != mp->ttMove
+                && MoveIsPseudoLegal(pos, mp->killer))
+                return mp->killer;
 
             // fall through
         case GEN_QUIET:
@@ -147,15 +140,14 @@ Move NextMove(MovePicker *mp) {
 }
 
 // Init normal movepicker
-void InitNormalMP(MovePicker *mp, Thread *thread, Stack *ss, Depth depth, Move ttMove, Move kill1, Move kill2) {
+void InitNormalMP(MovePicker *mp, Thread *thread, Stack *ss, Depth depth, Move ttMove, Move killer) {
     mp->list.count = mp->list.next = 0;
     mp->thread    = thread;
     mp->ss        = ss;
     mp->ttMove    = ttMove;
     mp->stage     = ttMove ? TTMOVE : GEN_NOISY;
     mp->depth     = depth;
-    mp->kill1     = kill1;
-    mp->kill2     = kill2;
+    mp->killer    = killer;
     mp->bads      = 0;
     mp->threshold = 0;
     mp->onlyNoisy = false;
@@ -163,7 +155,7 @@ void InitNormalMP(MovePicker *mp, Thread *thread, Stack *ss, Depth depth, Move t
 
 // Init noisy movepicker
 void InitNoisyMP(MovePicker *mp, Thread *thread, Stack *ss, Move ttMove) {
-    InitNormalMP(mp, thread, ss, 0, ttMove, NOMOVE, NOMOVE);
+    InitNormalMP(mp, thread, ss, 0, ttMove, NOMOVE);
     mp->onlyNoisy = true;
 }
 

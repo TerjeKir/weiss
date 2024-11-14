@@ -45,7 +45,7 @@ typedef struct {
     int doubleExtensions;
     Depth ply;
     Move excluded;
-    Move killers[2];
+    Move killer;
     PV pv;
 } Stack;
 

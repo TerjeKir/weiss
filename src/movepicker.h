@@ -22,7 +22,7 @@
 
 
 typedef enum MPStage {
-    TTMOVE, GEN_NOISY, NOISY_GOOD, KILLER1, KILLER2, GEN_QUIET, QUIET, NOISY_BAD
+    TTMOVE, GEN_NOISY, NOISY_GOOD, KILLER, GEN_QUIET, QUIET, NOISY_BAD
 } MPStage;
 
 typedef struct MovePicker {
@@ -31,7 +31,7 @@ typedef struct MovePicker {
     MoveList list;
     MPStage stage;
     Depth depth;
-    Move ttMove, kill1, kill2;
+    Move ttMove, killer;
     int bads;
     int threshold;
     bool onlyNoisy;
@@ -39,6 +39,6 @@ typedef struct MovePicker {
 
 
 Move NextMove(MovePicker *mp);
-void InitNormalMP(MovePicker *mp, Thread *thread, Stack *ss, Depth depth, Move ttMove, Move kill1, Move kill2);
+void InitNormalMP(MovePicker *mp, Thread *thread, Stack *ss, Depth depth, Move ttMove, Move killer);
 void InitNoisyMP(MovePicker *mp, Thread *thread, Stack *ss, Move ttMove);
 void InitProbcutMP(MovePicker *mp, Thread *thread, Stack *ss, int threshold);
