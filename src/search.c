@@ -136,7 +136,7 @@ static int Quiescence(Thread *thread, Stack *ss, int alpha, const int beta) {
 moveloop:
 
     if (!inCheck) InitNoisyMP(&mp, thread, ss, ttMove);
-    else          InitNormalMP(&mp, thread, ss, 0, ttMove, NOMOVE, NOMOVE);
+    else          InitNormalMP(&mp, thread, ss, 0, ttMove, NOMOVE);
 
     // Move loop
     Move bestMove = NOMOVE;
@@ -390,7 +390,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
 
 move_loop:
 
-    InitNormalMP(&mp, thread, ss, depth, ttMove, ss->killers[0], ss->killers[1]);
+    InitNormalMP(&mp, thread, ss, depth, ttMove, ss->killer);
 
     Move quiets[32];
     Move noisys[32];
