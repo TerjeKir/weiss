@@ -311,7 +311,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
     ss->staticEval = eval = CorrectEval(thread, eval);
 
     // Use ttScore as eval if it is more informative
-    if (ttScore != NOSCORE && TTScoreIsMoreInformative(ttBound, ttScore, eval))
+    if (abs(ttScore) < TBWIN_IN_MAX && TTScoreIsMoreInformative(ttBound, ttScore, eval))
         eval = ttScore;
 
     // Improving if not in check, and current eval is higher than 2 plies ago
