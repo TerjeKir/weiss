@@ -47,6 +47,7 @@ static void ParseTimeControl(const char *str, const Position *pos) {
     SetLimit(str, "movestogo", &Limits.movestogo);
     SetLimit(str, "movetime",  &Limits.movetime);
     SetLimit(str, "depth",     &Limits.depth);
+    SetLimit(str, "nodes",     (int *)&Limits.nodes);
     SetLimit(str, "mate",      &Limits.mate);
 
     // Parse searchmoves, assumes they are at the end of the string
@@ -58,6 +59,7 @@ static void ParseTimeControl(const char *str, const Position *pos) {
     }
 
     Limits.timelimit = Limits.time || Limits.movetime;
+    Limits.nodeTime = Limits.nodes;
     Limits.depth = Limits.depth ?: 100;
 }
 

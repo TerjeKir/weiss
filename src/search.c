@@ -613,7 +613,8 @@ static void AspirationWindow(Thread *thread, Stack *ss) {
         thread->doPruning =
             Limits.infinite ? TimeSince(Limits.start) > 1000
                             :   TimeSince(Limits.start) >= Limits.optimalUsage / 64
-                             || depth > 2 + Limits.optimalUsage / 270;
+                             || depth > 2 + Limits.optimalUsage / 270
+                             || Limits.nodeTime;
 
         int score = AlphaBeta(thread, ss, alpha, beta, depth, false);
 
