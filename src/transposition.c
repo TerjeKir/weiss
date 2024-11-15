@@ -38,9 +38,9 @@ TTEntry* ProbeTT(const Key key, bool *ttHit) {
     TTEntry* first = GetTTBucket(key)->entries;
 
     for (TTEntry *entry = first; entry < first + BUCKET_SIZE; ++entry)
-        if (entry->key == (int32_t)key || !Bound(entry)) {
+        if (entry->key == (int32_t)key || EntryEmpty(entry)) {
             entry->genBound = TT.generation | Bound(entry);
-            return *ttHit = Bound(entry), entry;
+            return *ttHit = !EntryEmpty(entry), entry;
         }
 
     TTEntry *replace = first;
@@ -77,8 +77,8 @@ int HashFull() {
 
     for (TTBucket *bucket = TT.table; bucket < TT.table + 1000; ++bucket)
         for (TTEntry *entry = bucket->entries; entry < bucket->entries + BUCKET_SIZE; ++entry)
-            used += (        Bound(entry) != 0
-                     && Generation(entry) == TT.generation);
+            if (!EntryEmpty(entry) && Generation(entry) == TT.generation)
+                used += 1;
 
     return used / BUCKET_SIZE;
 }
@@ -106,6 +106,7 @@ static void *ThreadClearTT(void *voidThread) {
 void ClearTT() {
     if (!TT.dirty) return;
     RunWithAllThreads(ThreadClearTT);
+    TT.generation = 0;
     TT.dirty = false;
 }
 
