@@ -25,9 +25,10 @@
 typedef struct {
     TimePoint start;
     int time, inc, movestogo, movetime, depth;
+    uint64_t nodes;
     int optimalUsage, maxUsage;
     int mate;
-    bool timelimit, infinite;
+    bool timelimit, nodeTime, infinite;
     Move searchmoves[64];
     int multiPV;
 } SearchLimits;

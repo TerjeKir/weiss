@@ -60,15 +60,21 @@ void InitTimeManagement() {
 // Check time situation
 bool OutOfTime(Thread *thread) {
     if (    thread->index != 0
-        ||  thread->depth == 1
-        || (thread->pos.nodes & 2047) != 2047)
+        ||  thread->depth == 1)
         return false;
 
+    if (Limits.nodeTime && thread->pos.nodes >= Limits.nodes)
+        return true;
+
+    if ((thread->pos.nodes & 2047) != 2047)
+        return false;
+
+    int elapsed = TimeSince(Limits.start);
+
     if (  !thread->doPruning
-        && Limits.infinite ? TimeSince(Limits.start) > 5000
-                           : TimeSince(Limits.start) >= Limits.optimalUsage / 32)
+        && Limits.infinite ? elapsed > 5000
+                           : elapsed >= Limits.optimalUsage / 32)
         thread->doPruning = true;
 
-    return Limits.timelimit
-        && TimeSince(Limits.start) >= Limits.maxUsage;
+    return Limits.timelimit && elapsed >= Limits.maxUsage;
 }
