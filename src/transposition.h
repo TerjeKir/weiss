@@ -77,7 +77,8 @@ INLINE uint8_t      Bound(TTEntry *entry) { return entry->genBound & TT_BOUND_MA
 INLINE uint8_t Generation(TTEntry *entry) { return entry->genBound & TT_GEN_MASK; }
 INLINE uint8_t        Age(TTEntry *entry) { return (TT_GEN_CYCLE + TT.generation - entry->genBound) & TT_GEN_MASK; }
 
-INLINE int EntryValue(TTEntry *entry) { return entry->depth - Age(entry); }
+INLINE int  EntryValue(TTEntry *entry) { return entry->depth - Age(entry); }
+INLINE bool EntryEmpty(TTEntry *entry) { return Bound(entry) == BOUND_NONE; }
 
 // Store terminal scores as distance from the current position to mate/TB
 INLINE int ScoreToTT (const int score, const uint8_t ply) {
