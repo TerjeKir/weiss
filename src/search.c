@@ -382,9 +382,9 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
 
             TakeMove(pos);
 
-            // Cut if the reduced depth search beats the threshold
+            // Cut if the reduced depth search beats the threshold, terminal scores are exact
             if (score >= probCutBeta)
-                return score - 160;
+                return score < TBWIN_IN_MAX ? score - 160 : score;
         }
     }
 
