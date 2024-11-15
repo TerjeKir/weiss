@@ -74,6 +74,7 @@ static int Quiescence(Thread *thread, Stack *ss, int alpha, const int beta) {
 
     Position *pos = &thread->pos;
     MovePicker mp;
+    ss->pv.length = 0;
 
     const bool pvNode = alpha != beta - 1;
     const bool inCheck = pos->checkers;
@@ -179,6 +180,13 @@ search:
             if (score > alpha) {
                 alpha = score;
                 bestMove = move;
+
+                // Update PV
+                if (pvNode) {
+                    ss->pv.length = 1 + (ss+1)->pv.length;
+                    ss->pv.line[0] = move;
+                    memcpy(ss->pv.line+1, (ss+1)->pv.line, sizeof(int) * (ss+1)->pv.length);
+                }
 
                 // If score beats beta we have a cutoff
                 if (score >= beta)
