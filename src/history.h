@@ -33,12 +33,12 @@
 #define PawnCorrEntry()         (&thread->pawnCorrHistory[thread->pos.stm][PawnCorrIndex(&thread->pos)])
 #define MatCorrEntry()          (&thread->matCorrHistory[thread->pos.stm][MatCorrIndex(&thread->pos)])
 
-#define QuietHistoryUpdate(move, bonus)        (HistoryBonus(QuietEntry(move),        bonus,  6666))
-#define PawnHistoryUpdate(move, bonus)         (HistoryBonus(PawnEntry(move),         bonus,  7250))
-#define NoisyHistoryUpdate(move, bonus)        (HistoryBonus(NoisyEntry(move),        bonus, 15400))
-#define ContHistoryUpdate(offset, move, bonus) (HistoryBonus(ContEntry(offset, move), bonus, 27000))
-#define PawnCorrHistoryUpdate(bonus)           (HistoryBonus(PawnCorrEntry(),         bonus,  1270))
-#define MatCorrHistoryUpdate(bonus)            (HistoryBonus(MatCorrEntry(),          bonus,  1200))
+#define QuietHistoryUpdate(move, bonus)        (HistoryBonus(QuietEntry(move),        bonus,  5650))
+#define PawnHistoryUpdate(move, bonus)         (HistoryBonus(PawnEntry(move),         bonus,  8250))
+#define NoisyHistoryUpdate(move, bonus)        (HistoryBonus(NoisyEntry(move),        bonus, 16384))
+#define ContHistoryUpdate(offset, move, bonus) (HistoryBonus(ContEntry(offset, move), bonus, 25500))
+#define PawnCorrHistoryUpdate(bonus)           (HistoryBonus(PawnCorrEntry(),         bonus,  1430))
+#define MatCorrHistoryUpdate(bonus)            (HistoryBonus(MatCorrEntry(),          bonus,  1100))
 
 
 INLINE int PawnStructure(const Position *pos) { return pos->pawnKey & (PAWN_HISTORY_SIZE - 1); }
@@ -51,15 +51,15 @@ INLINE void HistoryBonus(int16_t *cur, int bonus, int div) {
 }
 
 INLINE int Bonus(Depth depth) {
-    return MIN(2620, 269 * depth - 292);
+    return MIN(2620, 280 * depth - 306);
 }
 
 INLINE int Malus(Depth depth) {
-    return -MIN(1075, 489 * depth - 220);
+    return -MIN(975, 537 * depth - 161);
 }
 
 INLINE int CorrectionBonus(int score, int eval, Depth depth) {
-    return CLAMP((score - eval) * depth / 5, -230, 220);
+    return CLAMP((score - eval) * depth / 4, -215, 237);
 }
 
 INLINE void UpdateContHistories(Stack *ss, Move move, int bonus) {
@@ -134,6 +134,6 @@ INLINE int GetHistory(const Thread *thread, Stack *ss, Move move) {
 }
 
 INLINE int GetCorrectionHistory(const Thread *thread) {
-    return  *PawnCorrEntry() / 32
-          + *MatCorrEntry() / 32;
+    return  *PawnCorrEntry() / 23
+          + *MatCorrEntry() / 22;
 }
