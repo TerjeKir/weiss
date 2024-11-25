@@ -72,6 +72,13 @@ static int DrawScore(Position *pos) {
     return 8 - (pos->nodes & 0x7);
 }
 
+// Update the principal variation with the new move and the continuation
+static void UpdatePv(Stack *ss, Move move) {
+    ss->pv.length = 1 + (ss+1)->pv.length;
+    ss->pv.line[0] = move;
+    memcpy(ss->pv.line+1, (ss+1)->pv.line, sizeof(int) * (ss+1)->pv.length);
+}
+
 // Quiescence
 static int Quiescence(Thread *thread, Stack *ss, int alpha, const int beta) {
 
@@ -185,11 +192,8 @@ search:
                 bestMove = move;
 
                 // Update PV
-                if (pvNode) {
-                    ss->pv.length = 1 + (ss+1)->pv.length;
-                    ss->pv.line[0] = move;
-                    memcpy(ss->pv.line+1, (ss+1)->pv.line, sizeof(int) * (ss+1)->pv.length);
-                }
+                if (pvNode)
+                    UpdatePv(ss, move);
 
                 // If score beats beta we have a cutoff
                 if (score >= beta)
@@ -547,11 +551,8 @@ skip_extensions:
             bestScore = score;
 
             // Update PV
-            if ((score > alpha && pvNode) || (root && moveCount == 1)) {
-                ss->pv.length = 1 + (ss+1)->pv.length;
-                ss->pv.line[0] = move;
-                memcpy(ss->pv.line+1, (ss+1)->pv.line, sizeof(int) * (ss+1)->pv.length);
-            }
+            if ((score > alpha && pvNode) || (root && moveCount == 1))
+                UpdatePv(ss, move);
 
             // If score beats alpha we update alpha
             if (score > alpha) {
