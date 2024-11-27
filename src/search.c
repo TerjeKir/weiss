@@ -60,8 +60,8 @@ static bool AlreadySearchedMultiPV(Thread *thread, Move move) {
 }
 
 // Correct the evaluation based on historic differences between eval and final score
-static int CorrectEval(Thread *thread, int eval, int rule50) {
-    int correctedEval = eval + GetCorrectionHistory(thread);
+static int CorrectEval(Thread *thread, Stack *ss, int eval, int rule50) {
+    int correctedEval = eval + GetCorrectionHistory(thread, ss);
     if (rule50 > 7)
         correctedEval *= (256 - rule50) / 256.0;
     return CLAMP(correctedEval, -TBWIN_IN_MAX + 1, TBWIN_IN_MAX - 1);
@@ -124,7 +124,7 @@ static int Quiescence(Thread *thread, Stack *ss, int alpha, const int beta) {
                                       : EvalPosition(pos, thread->pawnCache);
 
     int unadjustedEval = eval;
-    eval = CorrectEval(thread, eval, pos->rule50);
+    eval = CorrectEval(thread, ss, eval, pos->rule50);
 
     // If we are at max depth, return static eval
     if (ss->ply >= MAX_PLY)
@@ -175,7 +175,9 @@ moveloop:
         }
 
 search:
+        ss->move = move;
         ss->continuation = &thread->continuation[inCheck][moveIsCapture(move)][piece(move)][toSq(move)];
+        ss->contCorr = &thread->contCorrHistory[piece(move)][toSq(move)];
 
         // Recursively search the positions after making the moves, skipping illegal ones
         if (!MakeMove(pos, move)) continue;
@@ -315,7 +317,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
                                                    : EvalPosition(pos, thread->pawnCache);
 
     int unadjustedEval = eval;
-    ss->staticEval = eval = CorrectEval(thread, eval, pos->rule50);
+    ss->staticEval = eval = CorrectEval(thread, ss, eval, pos->rule50);
 
     // Use ttScore as eval if it is more informative
     if (abs(ttScore) < TBWIN_IN_MAX && TTScoreIsMoreInformative(ttBound, ttScore, eval))
@@ -351,7 +353,9 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
 
         Depth reduction = 3 + depth / 4 + MIN(3, (eval - beta) / 246);
 
+        ss->move = NOMOVE;
         ss->continuation = &thread->continuation[0][0][EMPTY][0];
+        ss->contCorr = &thread->contCorrHistory[EMPTY][0];
 
         MakeNullMove(pos);
         int score = -AlphaBeta(thread, ss+1, -beta, -alpha, depth - reduction, !cutnode);
@@ -378,7 +382,9 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
 
             if (!MakeMove(pos, move)) continue;
 
+            ss->move = move;
             ss->continuation = &thread->continuation[inCheck][moveIsCapture(move)][piece(move)][toSq(move)];
+            ss->contCorr = &thread->contCorrHistory[piece(move)][toSq(move)];
 
             // See if a quiescence search beats the threshold
             int score = -Quiescence(thread, ss+1, -probCutBeta, -probCutBeta+1);
@@ -491,8 +497,10 @@ move_loop:
 
 skip_extensions:
 
+        ss->move = move;
         ss->doubleExtensions = (ss-1)->doubleExtensions + (extension == 2);
         ss->continuation = &thread->continuation[inCheck][moveIsCapture(move)][piece(move)][toSq(move)];
+        ss->contCorr = &thread->contCorrHistory[piece(move)][toSq(move)];
 
         Depth newDepth = depth - 1 + extension;
 
@@ -595,7 +603,7 @@ skip_extensions:
         && !capturing(bestMove)
         && !(bestScore >= beta && bestScore <= ss->staticEval)
         && !(!bestMove && bestScore >= ss->staticEval))
-        UpdateCorrectionHistory(thread, bestScore, ss->staticEval, depth);
+        UpdateCorrectionHistory(thread, ss, bestScore, ss->staticEval, depth);
 
     return bestScore;
 }

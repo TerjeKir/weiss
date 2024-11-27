@@ -36,14 +36,17 @@ typedef int16_t CaptureToHistory[PIECE_NB][64][TYPE_NB];
 typedef int16_t PieceToHistory[PIECE_NB][64];
 typedef PieceToHistory ContinuationHistory[PIECE_NB][64];
 typedef int16_t CorrectionHistory[2][CORRECTION_HISTORY_SIZE];
+typedef PieceToHistory ContiuationCorrectionHistory[PIECE_NB][64];
 
 
 typedef struct {
     PieceToHistory *continuation;
+    PieceToHistory *contCorr;
     int staticEval;
     int histScore;
     int doubleExtensions;
     Depth ply;
+    Move move;
     Move excluded;
     Move killer;
     PV pv;
@@ -76,6 +79,7 @@ typedef struct Thread {
     ContinuationHistory continuation[2][2];
     CorrectionHistory pawnCorrHistory;
     CorrectionHistory matCorrHistory;
+    ContiuationCorrectionHistory contCorrHistory;
 
     int index;
     int count;
