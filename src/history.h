@@ -32,6 +32,7 @@
 #define ContEntry(offset, move) (&(*(ss-offset)->continuation)[piece(move)][toSq(move)])
 #define PawnCorrEntry()         (&thread->pawnCorrHistory[thread->pos.stm][PawnCorrIndex(&thread->pos)])
 #define MatCorrEntry()          (&thread->matCorrHistory[thread->pos.stm][MatCorrIndex(&thread->pos)])
+#define ContCorrEntry()         (&(*(ss-2)->contCorr)[piece((ss-1)->move)][toSq((ss-1)->move)])
 
 #define QuietHistoryUpdate(move, bonus)        (HistoryBonus(QuietEntry(move),        bonus,  5650))
 #define PawnHistoryUpdate(move, bonus)         (HistoryBonus(PawnEntry(move),         bonus,  8250))
@@ -39,6 +40,7 @@
 #define ContHistoryUpdate(offset, move, bonus) (HistoryBonus(ContEntry(offset, move), bonus, 25500))
 #define PawnCorrHistoryUpdate(bonus)           (HistoryBonus(PawnCorrEntry(),         bonus,  1430))
 #define MatCorrHistoryUpdate(bonus)            (HistoryBonus(MatCorrEntry(),          bonus,  1100))
+#define ContCorrHistoryUpdate(bonus)           (HistoryBonus(ContCorrEntry(),         bonus,  1024))
 
 
 INLINE int PawnStructure(const Position *pos) { return pos->pawnKey & (PAWN_HISTORY_SIZE - 1); }
@@ -111,10 +113,11 @@ INLINE void UpdateHistory(Thread *thread, Stack *ss, Move bestMove, Depth depth,
         NoisyHistoryUpdate(*move, malus);
 }
 
-INLINE void UpdateCorrectionHistory(Thread *thread, int bestScore, int eval, Depth depth) {
+INLINE void UpdateCorrectionHistory(Thread *thread, Stack *ss, int bestScore, int eval, Depth depth) {
     int bonus = CorrectionBonus(bestScore, eval, depth);
     PawnCorrHistoryUpdate(bonus);
     MatCorrHistoryUpdate(bonus);
+    ContCorrHistoryUpdate(bonus);
 }
 
 INLINE int GetQuietHistory(const Thread *thread, Stack *ss, Move move) {
@@ -133,7 +136,8 @@ INLINE int GetHistory(const Thread *thread, Stack *ss, Move move) {
     return moveIsQuiet(move) ? GetQuietHistory(thread, ss, move) : GetCaptureHistory(thread, move);
 }
 
-INLINE int GetCorrectionHistory(const Thread *thread) {
-    return  *PawnCorrEntry() / 23
-          + *MatCorrEntry() / 22;
+INLINE int GetCorrectionHistory(const Thread *thread, const Stack *ss) {
+    return  *PawnCorrEntry() / 27
+          + *MatCorrEntry() / 26
+          + *ContCorrEntry() / 40;
 }

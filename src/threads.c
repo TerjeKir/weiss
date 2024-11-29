@@ -94,7 +94,8 @@ void PrepareSearch(Position *pos, Move searchmoves[]) {
         for (Depth d = 0; d <= MAX_PLY; ++d)
             (t->ss+SS_OFFSET+d)->ply = d;
         for (Depth d = -4; d < 0; ++d)
-            (t->ss+SS_OFFSET+d)->continuation = &t->continuation[0][0][EMPTY][0];
+            (t->ss+SS_OFFSET+d)->continuation = &t->continuation[0][0][EMPTY][0],
+            (t->ss+SS_OFFSET+d)->contCorr = &t->contCorrHistory[EMPTY][0];
     }
 }
 
@@ -130,7 +131,8 @@ void ResetThreads() {
         memset(Threads[i].captureHistory,  0, sizeof(Threads[i].captureHistory)),
         memset(Threads[i].continuation,    0, sizeof(Threads[i].continuation)),
         memset(Threads[i].pawnCorrHistory, 0, sizeof(Threads[i].pawnCorrHistory)),
-        memset(Threads[i].matCorrHistory,  0, sizeof(Threads[i].matCorrHistory));
+        memset(Threads[i].matCorrHistory,  0, sizeof(Threads[i].matCorrHistory)),
+        memset(Threads[i].contCorrHistory, 0, sizeof(Threads[i].contCorrHistory));
 }
 
 // Run the given function once in each thread
