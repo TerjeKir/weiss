@@ -421,27 +421,33 @@ CONSTR(3) InitCuckoo() {
 }
 
 // Upcoming repetition detection
-bool HasCycle(const Position *pos, int ply) {
+bool UpcomingRepetition(const Position *pos, int ply) {
+
+    Key other = pos->key ^ history(-1).key ^ SideKey;
 
     for (int i = 3; i <= pos->rule50; i += 2) {
 
         const History *prev = &history(-i);
-        uint32_t j;
+        other ^= prev->key ^ history(-i+1).key ^ SideKey;
+
+        if (other != 0)
+            continue;
+
         Key moveKey = pos->key ^ prev->key;
+        uint32_t j;
+
         if (   (j = Hash1(moveKey), cuckoo[j] == moveKey)
             || (j = Hash2(moveKey), cuckoo[j] == moveKey)) {
 
             Move move = cuckooMove[j];
-            Square from = fromSq(move), to = toSq(move);
+            Square from = fromSq(move);
+            Square to = toSq(move);
 
             if (BetweenBB[from][to] & pieceBB(ALL))
                 continue;
 
             if (ply > i)
                 return true;
-
-            if (ColorOf(pieceOn(from) ?: pieceOn(to)) != sideToMove)
-                continue;
 
             for (int k = i + 4; k <= pos->rule50; k += 2) {
                 const History *prev2 = &history(-k);

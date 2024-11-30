@@ -233,7 +233,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
     if (!root) {
 
         // Detect upcoming repetitions
-        if (pos->rule50 >= 3 && alpha < 0 && HasCycle(pos, ss->ply)) {
+        if (pos->rule50 >= 3 && alpha < 0 && UpcomingRepetition(pos, ss->ply)) {
             alpha = DrawScore(pos);
             if (alpha >= beta)
                 return alpha;

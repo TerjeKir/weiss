@@ -78,7 +78,7 @@ extern Square RookSquare[16];
 void ParseFen(const char *fen, Position *pos);
 Key KeyAfter(const Position *pos, Move move);
 bool SEE(const Position *pos, const Move move, const int threshold);
-bool HasCycle(const Position *pos, int ply);
+bool UpcomingRepetition(const Position *pos, int ply);
 char *BoardToFen(const Position *pos);
 #ifndef NDEBUG
 void PrintBoard(const Position *pos);
