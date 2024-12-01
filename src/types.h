@@ -34,7 +34,7 @@
 
 #define loadRelaxed(x) atomic_load_explicit(&(x), memory_order_relaxed)
 
-#define lastMoveNullMove (!root && history(-1).move == NOMOVE)
+#define lastMoveNullMove (!root && (ss-1)->move == NOMOVE)
 #define history(offset) (pos->gameHistory[pos->histPly + offset])
 
 #define BB(sq) (1ull << (sq))
