@@ -119,9 +119,9 @@ static int Quiescence(Thread *thread, Stack *ss, int alpha, const int beta) {
         return ttScore;
 
     // Do a static evaluation for pruning considerations
-    eval = history(-1).move == NOMOVE ? -(ss-1)->staticEval + 2 * Tempo
-         : ttEval != NOSCORE          ? ttEval
-                                      : EvalPosition(pos, thread->pawnCache);
+    eval = (ss-1)->move == NOMOVE ? -(ss-1)->staticEval + 2 * Tempo
+         : ttEval != NOSCORE      ? ttEval
+                                  : EvalPosition(pos, thread->pawnCache);
 
     int unadjustedEval = eval;
     eval = CorrectEval(thread, ss, eval, pos->rule50);
@@ -334,7 +334,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
         depth--;
 
     // Skip pruning in check, pv nodes, early iterations, when proving singularity, looking for terminal scores, or after a null move
-    if (inCheck || pvNode || !thread->doPruning || ss->excluded || abs(beta) >= TBWIN_IN_MAX || history(-1).move == NOMOVE)
+    if (inCheck || pvNode || !thread->doPruning || ss->excluded || abs(beta) >= TBWIN_IN_MAX || (ss-1)->move == NOMOVE)
         goto move_loop;
 
     // Reverse Futility Pruning
