@@ -194,7 +194,7 @@ done:
 }
 
 // Make a move - take it back and return false if move was illegal
-bool MakeMove(Position *pos, const Move move) {
+void MakeMove(Position *pos, const Move move) {
 
     TTPrefetch(KeyAfter(pos, move));
 
@@ -279,16 +279,10 @@ done:
     sideToMove ^= 1;
     HASH_SIDE;
 
-    // If own king is attacked after the move, take it back immediately
-    if (KingAttacked(pos, sideToMove^1))
-        return TakeMove(pos), false;
-
     pos->checkers = Checkers(pos);
     pos->nodes++;
 
     assert(PositionOk(pos));
-
-    return true;
 }
 
 // Pass the turn without moving

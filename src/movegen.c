@@ -185,9 +185,7 @@ int LegalMoveCount(Position *pos, Move searchmoves[]) {
     for (int i = 0; i < list.count; ++i) {
         Move move = list.moves[list.next++].move;
         if (NotInSearchMoves(searchmoves, move)) continue;
-        if (!MakeMove(pos, move)) continue;
-        ++rootMoveCount;
-        TakeMove(pos);
+        if (MoveIsLegal(pos, move)) ++rootMoveCount;
     }
     pos->nodes = 0;
 
