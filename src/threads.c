@@ -21,8 +21,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "makemove.h"
-#include "move.h"
 #include "movegen.h"
 #include "threads.h"
 

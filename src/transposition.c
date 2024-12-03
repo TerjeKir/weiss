@@ -23,9 +23,6 @@
     #include <sys/mman.h>
 #endif
 
-#include "makemove.h"
-#include "move.h"
-#include "movegen.h"
 #include "transposition.h"
 
 
