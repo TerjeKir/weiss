@@ -97,6 +97,13 @@ static int Quiescence(Thread *thread, Stack *ss, int alpha, const int beta) {
     if (OutOfTime(thread) || loadRelaxed(ABORT_SIGNAL))
         longjmp(thread->jumpBuffer, true);
 
+    // Detect upcoming repetitions
+    if (alpha < 0 && HasCycle(pos, ss->ply)) {
+        alpha = DrawScore(pos);
+        if (alpha >= beta)
+            return alpha;
+    }
+
     // Position is drawn
     if (IsRepetition(pos) || pos->rule50 >= 100)
         return DrawScore(pos);
