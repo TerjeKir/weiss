@@ -101,6 +101,10 @@ static int Quiescence(Thread *thread, Stack *ss, int alpha, const int beta) {
     if (IsRepetition(pos) || pos->rule50 >= 100)
         return DrawScore(pos);
 
+    // Max depth reached
+    if (ss->ply >= MAX_PLY)
+        return EvalPosition(pos, thread->pawnCache);
+
     // Probe transposition table
     bool ttHit;
     TTEntry *tte = ProbeTT(pos->key, &ttHit);
@@ -125,10 +129,6 @@ static int Quiescence(Thread *thread, Stack *ss, int alpha, const int beta) {
 
     int unadjustedEval = eval;
     eval = CorrectEval(thread, ss, eval, pos->rule50);
-
-    // If we are at max depth, return static eval
-    if (ss->ply >= MAX_PLY)
-        return eval;
 
     if (inCheck) goto moveloop;
 
@@ -217,13 +217,17 @@ search:
 // Alpha Beta
 static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth, bool cutnode) {
 
+    const bool pvNode = alpha != beta - 1;
+    const bool root   = ss->ply == 0;
+
+    // Quiescence at the end of search
+    if (depth <= 0)
+        return Quiescence(thread, ss, alpha, beta);
+
     Position *pos = &thread->pos;
     MovePicker mp;
     ss->pv.length = 0;
     ss->doubleExtensions = (ss-1)->doubleExtensions;
-
-    const bool pvNode = alpha != beta - 1;
-    const bool root   = ss->ply == 0;
 
     // Check time situation
     if (OutOfTime(thread) || loadRelaxed(ABORT_SIGNAL))
@@ -233,7 +237,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
     if (!root) {
 
         // Detect upcoming repetitions
-        if (pos->rule50 >= 3 && alpha < 0 && HasCycle(pos, ss->ply)) {
+        if (alpha < 0 && HasCycle(pos, ss->ply)) {
             alpha = DrawScore(pos);
             if (alpha >= beta)
                 return alpha;
@@ -253,10 +257,6 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
         if (alpha >= beta)
             return alpha;
     }
-
-    // Quiescence at the end of search
-    if (depth <= 0)
-        return Quiescence(thread, ss, alpha, beta);
 
     // Probe transposition table
     bool ttHit;
