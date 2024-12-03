@@ -34,6 +34,7 @@
 #define MatCorrEntry()          (&thread->matCorrHistory[thread->pos.stm][MatCorrIndex(&thread->pos)])
 #define ContCorrEntry()         (&(*(ss-2)->contCorr)[piece((ss-1)->move)][toSq((ss-1)->move)])
 #define ContCorrEntry2()        (&(*(ss-3)->contCorr)[piece((ss-1)->move)][toSq((ss-1)->move)])
+#define ContCorrEntry3()        (&(*(ss-4)->contCorr)[piece((ss-1)->move)][toSq((ss-1)->move)])
 
 #define QuietHistoryUpdate(move, bonus)        (HistoryBonus(QuietEntry(move),        bonus,  5650))
 #define PawnHistoryUpdate(move, bonus)         (HistoryBonus(PawnEntry(move),         bonus,  8250))
@@ -43,6 +44,7 @@
 #define MatCorrHistoryUpdate(bonus)            (HistoryBonus(MatCorrEntry(),          bonus,  1100))
 #define ContCorrHistoryUpdate(bonus)           (HistoryBonus(ContCorrEntry(),         bonus,  1024))
 #define ContCorrHistoryUpdate2(bonus)          (HistoryBonus(ContCorrEntry2(),        bonus,  1024))
+#define ContCorrHistoryUpdate3(bonus)          (HistoryBonus(ContCorrEntry3(),        bonus,  1024))
 
 
 INLINE int PawnStructure(const Position *pos) { return pos->pawnKey & (PAWN_HISTORY_SIZE - 1); }
@@ -121,6 +123,7 @@ INLINE void UpdateCorrectionHistory(Thread *thread, Stack *ss, int bestScore, in
     MatCorrHistoryUpdate(bonus);
     ContCorrHistoryUpdate(bonus);
     ContCorrHistoryUpdate2(bonus);
+    ContCorrHistoryUpdate3(bonus);
 }
 
 INLINE int GetQuietHistory(const Thread *thread, Stack *ss, Move move) {
@@ -143,5 +146,6 @@ INLINE int GetCorrectionHistory(const Thread *thread, const Stack *ss) {
     return  *PawnCorrEntry() / 32
           + *MatCorrEntry() / 32
           + *ContCorrEntry() / 48
-          + *ContCorrEntry2() / 48;
+          + *ContCorrEntry2() / 48
+          + *ContCorrEntry3() / 48;
 }
