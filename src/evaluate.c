@@ -51,7 +51,7 @@ const int PieceValue[2][PIECE_NB] = {
 };
 
 // Bonus for being the side to move
-const int Tempo = 17;
+const int Tempo = 18;
 
 // Misc bonuses and maluses
 const int PawnDoubled  = S(-11,-48);
