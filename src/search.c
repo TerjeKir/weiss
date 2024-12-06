@@ -532,10 +532,12 @@ skip_extensions:
             // Re-search with the same window at full depth if the reduced search failed high
             if (score > alpha && lmrDepth < newDepth) {
                 bool deeper = score > bestScore + 5 + 7 * (newDepth - lmrDepth);
+                bool shallower = score < bestScore + 10;
 
-                newDepth += deeper;
+                newDepth += deeper - shallower;
 
-                score = -AlphaBeta(thread, ss+1, -alpha-1, -alpha, newDepth, !cutnode);
+                if (newDepth > lmrDepth)
+                    score = -AlphaBeta(thread, ss+1, -alpha-1, -alpha, newDepth, !cutnode);
 
                 // Update continuation history if the re-search failed high or low
                 if (quiet && (score <= alpha || score >= beta))
