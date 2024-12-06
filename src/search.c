@@ -160,9 +160,7 @@ moveloop:
         if (mp.stage > NOISY_GOOD) break;
 
         // Futility pruning
-        if (    futility + PieceValue[EG][capturing(move)] <= alpha
-            && !(   PieceTypeOf(piece(move)) == PAWN
-                 && RelativeRank(sideToMove, RankOf(toSq(move))) > RANK_6)) {
+        if (futility + PieceValue[EG][capturing(move)] <= alpha) {
             bestScore = MAX(bestScore, futility + PieceValue[EG][capturing(move)]);
             continue;
         }
