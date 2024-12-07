@@ -68,7 +68,7 @@ INLINE void UpdateContHistories(Stack *ss, Move move, int bonus) {
     ContHistoryUpdate(1, move, bonus);
     ContHistoryUpdate(2, move, bonus);
     ContHistoryUpdate(4, move, bonus);
-    ContHistoryUpdate(6, move, bonus);
+    ContHistoryUpdate(6, move, bonus / 4);
 }
 
 // Updates history heuristics when a quiet move is the best move
