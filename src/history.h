@@ -123,6 +123,8 @@ INLINE void UpdateCorrectionHistory(Thread *thread, Stack *ss, int bestScore, in
     ContCorrHistoryUpdate(5, bonus);
     ContCorrHistoryUpdate(6, bonus);
     ContCorrHistoryUpdate(7, bonus);
+    ContCorrHistoryUpdate(8, bonus);
+    ContCorrHistoryUpdate(9, bonus);
 }
 
 INLINE int GetQuietHistory(const Thread *thread, Stack *ss, Move move) {
@@ -149,5 +151,7 @@ INLINE int GetCorrectionHistory(const Thread *thread, const Stack *ss) {
           + *ContCorrEntry(4) / 47
           + *ContCorrEntry(5) / 48
           + *ContCorrEntry(6) / 48
-          + *ContCorrEntry(7) / 48;
+          + *ContCorrEntry(7) / 48
+          + *ContCorrEntry(8) / 48
+          + *ContCorrEntry(9) / 48;
 }
