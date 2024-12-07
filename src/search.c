@@ -569,7 +569,6 @@ skip_extensions:
 
                 // If score beats beta we have a cutoff
                 if (score >= beta) {
-                    UpdateHistory(thread, ss, bestMove, depth, quiets, quietCount, noisys, noisyCount);
                     break;
                 }
             }
@@ -587,6 +586,9 @@ skip_extensions:
         bestScore =  ss->excluded ? alpha
                    : inCheck      ? -MATE + ss->ply
                                   : 0;
+
+    else if (bestMove)
+        UpdateHistory(thread, ss, bestMove, depth, quiets, quietCount, noisys, noisyCount);
 
     // Make sure score isn't above the max score given by TBs
     bestScore = MIN(bestScore, maxScore);
