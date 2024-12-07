@@ -68,6 +68,7 @@ INLINE void UpdateContHistories(Stack *ss, Move move, int bonus) {
     ContHistoryUpdate(1, move, bonus);
     ContHistoryUpdate(2, move, bonus);
     ContHistoryUpdate(4, move, bonus);
+    ContHistoryUpdate(6, move, bonus);
 }
 
 // Updates history heuristics when a quiet move is the best move
@@ -130,7 +131,8 @@ INLINE int GetQuietHistory(const Thread *thread, Stack *ss, Move move) {
           + *PawnEntry(move)
           + *ContEntry(1, move)
           + *ContEntry(2, move)
-          + *ContEntry(4, move);
+          + *ContEntry(4, move)
+          + *ContEntry(6, move);
 }
 
 INLINE int GetCaptureHistory(const Thread *thread, Move move) {
