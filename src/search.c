@@ -126,6 +126,10 @@ static int Quiescence(Thread *thread, Stack *ss, int alpha, const int beta) {
     int unadjustedEval = eval;
     eval = CorrectEval(thread, ss, eval, pos->rule50);
 
+    // Use ttScore as eval if it is more informative
+    if (abs(ttScore) < TBWIN_IN_MAX && TTScoreIsMoreInformative(ttBound, ttScore, eval))
+        eval = ttScore;
+
     // If we are at max depth, return static eval
     if (ss->ply >= MAX_PLY)
         return eval;
