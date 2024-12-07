@@ -153,7 +153,6 @@ moveloop:
     else          InitNormalMP(&mp, thread, ss, 0, ttMove, NOMOVE);
 
     // Move loop
-    Move bestMove = NOMOVE;
     Move move;
     while ((move = NextMove(&mp))) {
 
@@ -195,7 +194,6 @@ search:
             // If score beats alpha we update alpha
             if (score > alpha) {
                 alpha = score;
-                bestMove = move;
 
                 // Update PV
                 if (pvNode)
@@ -212,7 +210,7 @@ search:
     if (inCheck && bestScore == -INFINITE)
         return -MATE + ss->ply;
 
-    StoreTTEntry(tte, pos->key, bestMove, ScoreToTT(bestScore, ss->ply), unadjustedEval, 0,
+    StoreTTEntry(tte, pos->key, NOMOVE, ScoreToTT(bestScore, ss->ply), unadjustedEval, 0,
                  bestScore >= beta ? BOUND_LOWER : BOUND_UPPER);
 
     return bestScore;
