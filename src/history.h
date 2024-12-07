@@ -131,8 +131,7 @@ INLINE int GetQuietHistory(const Thread *thread, Stack *ss, Move move) {
           + *PawnEntry(move)
           + *ContEntry(1, move)
           + *ContEntry(2, move)
-          + *ContEntry(4, move)
-          + *ContEntry(6, move);
+          + *ContEntry(4, move);
 }
 
 INLINE int GetCaptureHistory(const Thread *thread, Move move) {
