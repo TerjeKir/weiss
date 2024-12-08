@@ -431,6 +431,7 @@ move_loop:
 
         // Misc pruning
         if (  !root
+            && ss->histScore < 25000
             && thread->doPruning
             && bestScore > -TBWIN_IN_MAX) {
 
