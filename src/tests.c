@@ -94,7 +94,7 @@ typedef struct BenchResult {
 } BenchResult;
 
 void Benchmark(int argc, char **argv) {
-
+    Reinit();
     // Default depth 16, 1 thread, and 32MB hash
     Limits.depth     = argc > 2 ? atoi(argv[2]) : 16;
     int threadCount  = argc > 3 ? atoi(argv[3]) : 1;

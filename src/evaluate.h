@@ -33,7 +33,7 @@ typedef struct PawnEntry {
 typedef PawnEntry PawnCache[PAWN_CACHE_SIZE];
 
 
-extern const int Tempo;
+extern int Tempo;
 extern const int PieceValue[COLOR_NB][PIECE_NB];
 
 
@@ -60,3 +60,4 @@ INLINE int EvalPositionWhitePov(const Position *pos, PawnCache pc) {
     int score = EvalPosition(pos, pc);
     return sideToMove == WHITE ? score : -score;
 }
+void InitSafety();
