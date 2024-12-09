@@ -47,8 +47,8 @@ static int Reductions[2][32][32];
 CONSTR(1) InitReductions() {
     for (int depth = 1; depth < 32; ++depth)
         for (int moves = 1; moves < 32; ++moves)
-            Reductions[0][depth][moves] = 0.40 + log(depth) * log(moves) / 3.42, // capture
-            Reductions[1][depth][moves] = 1.83 + log(depth) * log(moves) / 2.54; // quiet
+            Reductions[0][depth][moves] = 0.41 + log(depth) * log(moves) / 3.25, // capture
+            Reductions[1][depth][moves] = 1.76 + log(depth) * log(moves) / 2.53; // quiet
 }
 
 // Checks whether a move was already searched in multi-pv mode
@@ -62,7 +62,7 @@ static bool AlreadySearchedMultiPV(Thread *thread, Move move) {
 // Correct the evaluation based on historic differences between eval and final score
 static int CorrectEval(Thread *thread, Stack *ss, int eval, int rule50) {
     int correctedEval = eval + GetCorrectionHistory(thread, ss);
-    if (rule50 > 7)
+    if (rule50 > 8)
         correctedEval *= (256 - rule50) / 256.0;
     return CLAMP(correctedEval, -TBWIN_IN_MAX + 1, TBWIN_IN_MAX - 1);
 }
@@ -144,7 +144,7 @@ static int Quiescence(Thread *thread, Stack *ss, int alpha, const int beta) {
     if (eval > alpha)
         alpha = eval;
 
-    futility = eval + 113;
+    futility = eval + 116;
     bestScore = eval;
 
 moveloop:
@@ -344,18 +344,18 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
     // Reverse Futility Pruning
     if (   depth < 7
         && eval >= beta
-        && eval - 76 * (depth - improving) - (ss-1)->histScore / 107 >= beta
-        && (!ttMove || GetHistory(thread, ss, ttMove) > 7600))
+        && eval - 70 * (depth - improving) - (ss-1)->histScore / 106 >= beta
+        && (!ttMove || GetHistory(thread, ss, ttMove) > 6700))
         return eval;
 
     // Null Move Pruning
     if (   eval >= beta
         && eval >= ss->staticEval
-        && ss->staticEval >= beta + 145 - 17 * depth
-        && (ss-1)->histScore < 24400
+        && ss->staticEval >= beta + 150 - 18 * depth
+        && (ss-1)->histScore < 24800
         && pos->nonPawnCount[sideToMove] > (depth > 8)) {
 
-        Depth reduction = 3 + depth / 4 + MIN(3, (eval - beta) / 231);
+        Depth reduction = 3 + depth / 4 + MIN(3, (eval - beta) / 256);
 
         ss->move = NOMOVE;
         ss->continuation = &thread->continuation[0][0][EMPTY][0];
@@ -434,7 +434,7 @@ move_loop:
             && thread->doPruning
             && bestScore > -TBWIN_IN_MAX) {
 
-            int R = Reductions[quiet][MIN(31, depth)][MIN(31, moveCount)] - ss->histScore / 8950;
+            int R = Reductions[quiet][MIN(31, depth)][MIN(31, moveCount)] - ss->histScore / 8200;
             Depth lmrDepth = depth - 1 - R;
 
             // Quiet late move pruning
@@ -446,7 +446,7 @@ move_loop:
                 continue;
 
             // SEE pruning
-            if (lmrDepth < 7 && !SEE(pos, move, -60 * depth))
+            if (lmrDepth < 7 && !SEE(pos, move, -62 * depth))
                 continue;
         }
 
@@ -482,7 +482,7 @@ move_loop:
             // Singular - extend by 1 or 2 ply
             if (score < singularBeta) {
                 extension = 1;
-                if (!pvNode && score < singularBeta - 3 && ss->doubleExtensions <= 5)
+                if (!pvNode && score < singularBeta - 1 && ss->doubleExtensions <= 5)
                     extension = 2;
             // MultiCut - ttMove as well as at least one other move seem good enough to beat beta
             } else if (singularBeta >= beta)
@@ -516,7 +516,7 @@ skip_extensions:
             // Base reduction
             int r = Reductions[quiet][MIN(31, depth)][MIN(31, moveCount)];
             // Adjust reduction by move history
-            r -= ss->histScore / 9285;
+            r -= ss->histScore / 8888;
             // Reduce less in pv nodes
             r -= pvNode;
             // Reduce less when improving
@@ -535,7 +535,7 @@ skip_extensions:
 
             // Re-search with the same window at full depth if the reduced search failed high
             if (score > alpha && lmrDepth < newDepth) {
-                bool deeper = score > bestScore + 5 + 7 * (newDepth - lmrDepth);
+                bool deeper = score > bestScore + 4 + 8 * (newDepth - lmrDepth);
 
                 newDepth += deeper;
 
