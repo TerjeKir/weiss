@@ -434,7 +434,7 @@ move_loop:
             && thread->doPruning
             && bestScore > -TBWIN_IN_MAX) {
 
-            int R = Reductions[quiet][MIN(31, depth)][MIN(31, moveCount)] - ss->histScore / 8950;
+            int R = Reductions[quiet][MIN(31, depth)][MIN(31, moveCount)] - pvNode - ss->histScore / 8950;
             Depth lmrDepth = depth - 1 - R;
 
             // Quiet late move pruning
