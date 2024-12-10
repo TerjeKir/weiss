@@ -355,7 +355,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
         && (ss-1)->histScore < 24400
         && pos->nonPawnCount[sideToMove] > (depth > 8)) {
 
-        Depth reduction = 3 + depth / 4 + MIN(3, (eval - beta) / 231);
+        Depth reduction = 4 + depth / 5 + MIN(3, (eval - beta) / 231);
 
         ss->move = NOMOVE;
         ss->continuation = &thread->continuation[0][0][EMPTY][0];
