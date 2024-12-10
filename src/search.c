@@ -482,7 +482,7 @@ move_loop:
             // Singular - extend by 1 or 2 ply
             if (score < singularBeta) {
                 extension = 1;
-                if (!pvNode && score < singularBeta - 3 && ss->doubleExtensions <= 5)
+                if (!pvNode && score < singularBeta - 3 && ss->doubleExtensions <= 10)
                     extension = 2;
             // MultiCut - ttMove as well as at least one other move seem good enough to beat beta
             } else if (singularBeta >= beta)
