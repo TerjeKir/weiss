@@ -402,9 +402,11 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
             // Cut if the reduced depth search beats the threshold, terminal scores are exact
             if (score >= probCutBeta) {
 
-                StoreTTEntry(tte, pos->key, move, ScoreToTT(score, ss->ply), unadjustedEval, depth-3, BOUND_LOWER);
+                int returnScore = score < TBWIN_IN_MAX ? score - 160 : score;
 
-                return score < TBWIN_IN_MAX ? score - 160 : score;
+                StoreTTEntry(tte, pos->key, move, ScoreToTT(returnScore, ss->ply), unadjustedEval, depth-3, BOUND_LOWER);
+
+                return returnScore;
             }
         }
     }
