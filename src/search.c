@@ -80,7 +80,7 @@ static void UpdatePv(Stack *ss, Move move) {
 }
 
 // Quiescence
-static int Quiescence(Thread *thread, Stack *ss, int alpha, const int beta) {
+static int Quiescence(Thread *thread, Stack *ss, int alpha, int beta) {
 
     Position *pos = &thread->pos;
     MovePicker mp;
@@ -92,14 +92,32 @@ static int Quiescence(Thread *thread, Stack *ss, int alpha, const int beta) {
     int eval = NOSCORE;
     int futility = -INFINITE;
     int bestScore = -INFINITE;
+    int unadjustedEval = NOSCORE;
 
     // Check time situation
     if (OutOfTime(thread) || loadRelaxed(ABORT_SIGNAL))
         longjmp(thread->jumpBuffer, true);
 
+    // Detect upcoming repetitions
+    if (alpha < 0 && HasCycle(pos, ss->ply)) {
+        alpha = DrawScore(pos);
+        if (alpha >= beta)
+            return alpha;
+    }
+
     // Position is drawn
     if (IsRepetition(pos) || pos->rule50 >= 100)
         return DrawScore(pos);
+
+    // If we are at max depth, return static eval
+    if (ss->ply >= MAX_PLY)
+        return EvalPosition(pos, thread->pawnCache);
+
+    // Mate distance pruning
+    alpha = MAX(alpha, -MATE + ss->ply);
+    beta  = MIN(beta,   MATE - ss->ply - 1);
+    if (alpha >= beta)
+        return alpha;
 
     // Probe transposition table
     bool ttHit;
@@ -118,23 +136,19 @@ static int Quiescence(Thread *thread, Stack *ss, int alpha, const int beta) {
     if (!pvNode && ttHit && TTScoreIsMoreInformative(ttBound, ttScore, beta))
         return ttScore;
 
+    if (inCheck) goto moveloop;
+
     // Do a static evaluation for pruning considerations
     eval = (ss-1)->move == NOMOVE ? -(ss-1)->staticEval + 2 * Tempo
          : ttEval != NOSCORE      ? ttEval
                                   : EvalPosition(pos, thread->pawnCache);
 
-    int unadjustedEval = eval;
+    unadjustedEval = eval;
     eval = CorrectEval(thread, ss, eval, pos->rule50);
 
     // Use ttScore as eval if it is more informative
     if (abs(ttScore) < TBWIN_IN_MAX && TTScoreIsMoreInformative(ttBound, ttScore, eval))
         eval = ttScore;
-
-    // If we are at max depth, return static eval
-    if (ss->ply >= MAX_PLY)
-        return eval;
-
-    if (inCheck) goto moveloop;
 
     // If eval beats beta we assume some move will also beat it
     if (eval >= beta)
@@ -221,6 +235,10 @@ search:
 // Alpha Beta
 static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth, bool cutnode) {
 
+    // Quiescence at the end of search
+    if (depth <= 0)
+        return Quiescence(thread, ss, alpha, beta);
+
     Position *pos = &thread->pos;
     MovePicker mp;
     ss->pv.length = 0;
@@ -237,7 +255,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
     if (!root) {
 
         // Detect upcoming repetitions
-        if (pos->rule50 >= 3 && alpha < 0 && HasCycle(pos, ss->ply)) {
+        if (alpha < 0 && HasCycle(pos, ss->ply)) {
             alpha = DrawScore(pos);
             if (alpha >= beta)
                 return alpha;
@@ -257,10 +275,6 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
         if (alpha >= beta)
             return alpha;
     }
-
-    // Quiescence at the end of search
-    if (depth <= 0)
-        return Quiescence(thread, ss, alpha, beta);
 
     // Probe transposition table
     bool ttHit;
