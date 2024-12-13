@@ -128,6 +128,18 @@ static Key GenMaterialKey(const Position *pos) {
     return key;
 }
 
+// Generates a hash key from scratch
+static Key GenNonPawnKey(const Position *pos, const Color color) {
+
+    Key key = 0;
+
+    for (Square sq = A1; sq <= H8; ++sq)
+        if (pieceOn(sq) != EMPTY && ColorOf(pieceOn(sq)) == color && PieceTypeOf(pieceOn(sq)) != PAWN)
+            key ^= PieceKeys[pieceOn(sq)][sq];
+
+    return key;
+}
+
 // Calculates the position key after a move. Fails
 // for special moves.
 Key KeyAfter(const Position *pos, const Move move) {
@@ -241,6 +253,8 @@ void ParseFen(const char *fen, Position *pos) {
     pos->checkers = Checkers(pos);
     pos->key = GenPosKey(pos);
     pos->materialKey = GenMaterialKey(pos);
+    pos->nonPawnKey[WHITE] = GenNonPawnKey(pos, WHITE);
+    pos->nonPawnKey[BLACK] = GenNonPawnKey(pos, BLACK);
     pos->phase = UpdatePhase(pos->phaseValue);
 
     free(copy);
@@ -528,6 +542,8 @@ bool PositionOk(const Position *pos) {
     assert(GenPosKey(pos)      == pos->key);
     assert(GenMaterialKey(pos) == pos->materialKey);
     assert(GenPawnKey(pos)     == pos->pawnKey);
+    assert(GenNonPawnKey(pos, WHITE) == pos->nonPawnKey[WHITE]);
+    assert(GenNonPawnKey(pos, BLACK) == pos->nonPawnKey[BLACK]);
 
     assert(!KingAttacked(pos, !sideToMove));
 
