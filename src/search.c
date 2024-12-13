@@ -179,8 +179,7 @@ moveloop:
 
         // Futility pruning
         if (    futility + PieceValue[EG][capturing(move)] <= alpha
-            && !(   PieceTypeOf(piece(move)) == PAWN
-                 && RelativeRank(sideToMove, RankOf(toSq(move))) > RANK_6)) {
+            && !promotion(move)) {
             bestScore = MAX(bestScore, futility + PieceValue[EG][capturing(move)]);
             continue;
         }
