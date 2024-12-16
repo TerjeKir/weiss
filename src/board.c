@@ -428,6 +428,7 @@ bool HasCycle(const Position *pos, int ply) {
         const History *prev = &history(-i);
         uint32_t j;
         Key moveKey = pos->key ^ prev->key;
+
         if (   (j = Hash1(moveKey), cuckoo[j] == moveKey)
             || (j = Hash2(moveKey), cuckoo[j] == moveKey)) {
 
@@ -437,11 +438,11 @@ bool HasCycle(const Position *pos, int ply) {
             if (BetweenBB[from][to] & pieceBB(ALL))
                 continue;
 
-            if (ply > i)
-                return true;
-
             if (ColorOf(pieceOn(from) ?: pieceOn(to)) != sideToMove)
                 continue;
+
+            if (ply > i)
+                return true;
 
             for (int k = i + 4; k <= pos->rule50; k += 2) {
                 const History *prev2 = &history(-k);
