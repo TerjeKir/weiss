@@ -67,4 +67,4 @@ INLINE void SetLimit(const char *str, const char *token, int *limit) {
 }
 
 void PrintThinking(const Thread *thread, int alpha, int beta);
-void PrintConclusion(const Thread *thread);
+void PrintBestMove(Move move);

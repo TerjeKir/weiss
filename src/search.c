@@ -76,7 +76,7 @@ static int DrawScore(Position *pos) {
 static void UpdatePv(Stack *ss, Move move) {
     ss->pv.length = 1 + (ss+1)->pv.length;
     ss->pv.line[0] = move;
-    memcpy(ss->pv.line+1, (ss+1)->pv.line, sizeof(int) * (ss+1)->pv.length);
+    memcpy(ss->pv.line+1, (ss+1)->pv.line, sizeof(Move) * (ss+1)->pv.length);
 }
 
 // Quiescence
@@ -765,10 +765,12 @@ conclusion:
     ABORT_SIGNAL = true;
     WaitForHelpers();
 
-    // Print conclusion
-    PrintConclusion(Threads);
+    // Print the best move found
+    PrintBestMove(Threads->rootMoves[0].move);
 
     SEARCH_STOPPED = true;
+
+    // Wake up waiting UCI thread
     Wake();
 
     return NULL;

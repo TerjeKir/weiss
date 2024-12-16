@@ -270,7 +270,7 @@ void PrintThinking(const Thread *thread, int alpha, int beta) {
 }
 
 // Print conclusion of search
-void PrintConclusion(const Thread *thread) {
-    printf("bestmove %s\n", MoveToStr(thread->rootMoves[0].move));
+void PrintBestMove(Move move) {
+    printf("bestmove %s\n", MoveToStr(move));
     fflush(stdout);
 }
