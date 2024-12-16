@@ -85,10 +85,30 @@ uint64_t TotalTBHits() {
 void PrepareSearch(Position *pos, Move searchmoves[]) {
     int rootMoveCount = LegalMoveCount(pos, searchmoves);
 
+    MoveList legalMoves;
+    legalMoves.count = legalMoves.next = 0;
+    GenLegalMoves(pos, &legalMoves);
+
+    RootMove rootMoves[256] = {};
+    int rootMoveCount2 = 0;
+
+    // Add legal searchmoves to the root moves by checking if it is in the legalMoves list
+    for (Move *move = searchmoves; *move; ++move)
+        for (int i = 0; i < legalMoves.count; ++i)
+            if (legalMoves.moves[i].move == *move)
+                rootMoves[rootMoveCount2++].move = *move;
+
+    // If no searchmoves are provided, add all legal moves to the root moves
+    if (!rootMoveCount)
+        for (int i = 0; i < legalMoves.count; ++i)
+            rootMoves[rootMoveCount2++].move = legalMoves.moves[i].move;
+
     for (Thread *t = Threads; t < Threads + Threads->count; ++t) {
         memset(t, 0, offsetof(Thread, pos));
         memcpy(&t->pos, pos, sizeof(Position));
+        memcpy(t->rootMoves2, rootMoves, sizeof(rootMoves));
         t->rootMoveCount = rootMoveCount;
+        t->rootMoveCount2 = rootMoveCount2;
         for (Depth d = 0; d <= MAX_PLY; ++d)
             (t->ss+SS_OFFSET+d)->ply = d;
         for (Depth d = -7; d < 0; ++d)

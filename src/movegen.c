@@ -193,3 +193,17 @@ int LegalMoveCount(Position *pos, Move searchmoves[]) {
 
     return rootMoveCount;
 }
+
+void GenLegalMoves(Position *pos, MoveList *list) {
+    MoveList allMoves;
+    allMoves.count = allMoves.next = 0;
+    GenAllMoves(pos, &allMoves);
+
+    for (int i = 0; i < allMoves.count; ++i) {
+        Move move = allMoves.moves[i].move;
+        if (!MakeMove(pos, move)) continue;
+        list->moves[list->count++].move = move;
+        TakeMove(pos);
+    }
+    pos->nodes = 0;
+}

@@ -69,6 +69,9 @@ typedef struct Thread {
     bool doPruning;
     bool uncertain;
     int multiPV;
+    RootMove rootMoves2[256];
+    int rootMoveCount2;
+    Move bestMove;
 
     // Anything below here is not zeroed out between searches
     Position pos;
