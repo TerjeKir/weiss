@@ -96,7 +96,7 @@ Move NextMove(MovePicker *mp) {
         case NOISY_GOOD:
             // Save seemingly bad noisy moves for later
             while ((move = PickNextMove(mp)))
-                if (    mp->list.moves[mp->list.next-1].score >  14270 - 296 * mp->depth
+                if (    mp->list.moves[mp->list.next-1].score >  12000
                     || (mp->list.moves[mp->list.next-1].score > -11000 && SEE(pos, move, mp->threshold)))
                     return move;
                 else
