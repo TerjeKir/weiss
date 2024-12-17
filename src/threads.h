@@ -71,7 +71,6 @@ typedef struct Thread {
     int multiPV;
     RootMove rootMoves2[256];
     int rootMoveCount2;
-    Move bestMove;
 
     // Anything below here is not zeroed out between searches
     Position pos;
@@ -95,6 +94,7 @@ extern Thread *Threads;
 
 void InitThreads(int threadCount);
 void SortRootMoves(Thread *thread, int multiPV);
+void SortRootMoves2(Thread *thread, int multiPV);
 uint64_t TotalNodes();
 uint64_t TotalTBHits();
 void PrepareSearch(Position *pos, Move searchmoves[]);

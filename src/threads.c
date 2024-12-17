@@ -65,6 +65,23 @@ void SortRootMoves(Thread *thread, int multiPV) {
     }
 }
 
+// Sorts all rootmoves searched by multiPV
+void SortRootMoves2(Thread *thread, int multiPV) {
+    for (int i = 0; i < multiPV; ++i) {
+
+        int bestIdx = i;
+        int bestScore = thread->rootMoves2[i].score;
+
+        for (int k = i + 1; k < thread->rootMoveCount; ++k)
+            if (thread->rootMoves2[k].score > bestScore)
+                bestScore = thread->rootMoves2[bestIdx = k].score;
+
+        RootMove best = thread->rootMoves2[bestIdx];
+        thread->rootMoves2[bestIdx] = thread->rootMoves2[i];
+        thread->rootMoves2[i] = best;
+    }
+}
+
 // Tallies the nodes searched by all threads
 uint64_t TotalNodes() {
     uint64_t total = 0;
@@ -89,7 +106,7 @@ void PrepareSearch(Position *pos, Move searchmoves[]) {
     legalMoves.count = legalMoves.next = 0;
     GenLegalMoves(pos, &legalMoves);
 
-    RootMove rootMoves[256] = {};
+    RootMove rootMoves[256] = { 0 };
     int rootMoveCount2 = 0;
 
     // Add legal searchmoves to the root moves by checking if it is in the legalMoves list
@@ -99,7 +116,7 @@ void PrepareSearch(Position *pos, Move searchmoves[]) {
                 rootMoves[rootMoveCount2++].move = *move;
 
     // If no searchmoves are provided, add all legal moves to the root moves
-    if (!rootMoveCount)
+    if (!rootMoveCount2)
         for (int i = 0; i < legalMoves.count; ++i)
             rootMoves[rootMoveCount2++].move = legalMoves.moves[i].move;
 

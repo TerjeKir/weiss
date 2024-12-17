@@ -571,6 +571,22 @@ skip_extensions:
         // Undo the move
         TakeMove(pos);
 
+        if (root) {
+            RootMove *rm;
+            for (rm = thread->rootMoves2; rm->move; ++rm)
+                if (rm->move == move)
+                    break;
+
+            if (moveCount == 1 || score > alpha) {
+                rm->score = score;
+                rm->pv.length = 1 + (ss+1)->pv.length;
+                rm->pv.line[0] = move;
+                memcpy(rm->pv.line+1, (ss+1)->pv.line, sizeof(Move) * (ss+1)->pv.length);
+            } else {
+                rm->score = -INFINITE;
+            }
+        }
+
         // New best move
         if (score > bestScore) {
             bestScore = score;
@@ -709,6 +725,7 @@ static void *IterativeDeepening(void *voidThread) {
 
         // Sort root moves so they are printed in the right order in multi-pv mode
         SortRootMoves(thread, multiPV);
+        SortRootMoves2(thread, multiPV);
 
         // Only the main thread concerns itself with the rest
         if (!mainThread) continue;
@@ -765,8 +782,15 @@ conclusion:
     ABORT_SIGNAL = true;
     WaitForHelpers();
 
+    if (Threads->rootMoves[0].move != Threads->rootMoves2[0].move) {
+        printf("Different best move: ");
+        printf("%s ", MoveToStr(Threads->rootMoves[0].move));
+        printf("%s\n", MoveToStr(Threads->rootMoves2[0].move));
+        exit(1);
+    }
+
     // Print the best move found
-    PrintBestMove(Threads->rootMoves[0].move);
+    PrintBestMove(Threads->rootMoves2[0].move);
 
     SEARCH_STOPPED = true;
 
