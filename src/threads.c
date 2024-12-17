@@ -55,30 +55,13 @@ void SortRootMoves(Thread *thread, int multiPV) {
         int bestIdx = i;
         int bestScore = thread->rootMoves[i].score;
 
-        for (int k = i + 1; k < multiPV; ++k)
+        for (int k = i + 1; k < thread->rootMoveCount; ++k)
             if (thread->rootMoves[k].score > bestScore)
                 bestScore = thread->rootMoves[bestIdx = k].score;
 
         RootMove best = thread->rootMoves[bestIdx];
         thread->rootMoves[bestIdx] = thread->rootMoves[i];
         thread->rootMoves[i] = best;
-    }
-}
-
-// Sorts all rootmoves searched by multiPV
-void SortRootMoves2(Thread *thread, int multiPV) {
-    for (int i = 0; i < multiPV; ++i) {
-
-        int bestIdx = i;
-        int bestScore = thread->rootMoves2[i].score;
-
-        for (int k = i + 1; k < thread->rootMoveCount; ++k)
-            if (thread->rootMoves2[k].score > bestScore)
-                bestScore = thread->rootMoves2[bestIdx = k].score;
-
-        RootMove best = thread->rootMoves2[bestIdx];
-        thread->rootMoves2[bestIdx] = thread->rootMoves2[i];
-        thread->rootMoves2[i] = best;
     }
 }
 
@@ -100,32 +83,30 @@ uint64_t TotalTBHits() {
 
 // Setup threads for a new search
 void PrepareSearch(Position *pos, Move searchmoves[]) {
-    int rootMoveCount = LegalMoveCount(pos, searchmoves);
 
     MoveList legalMoves;
     legalMoves.count = legalMoves.next = 0;
     GenLegalMoves(pos, &legalMoves);
 
     RootMove rootMoves[256] = { 0 };
-    int rootMoveCount2 = 0;
+    int rootMoveCount = 0;
 
     // Add legal searchmoves to the root moves by checking if it is in the legalMoves list
     for (Move *move = searchmoves; *move; ++move)
         for (int i = 0; i < legalMoves.count; ++i)
             if (legalMoves.moves[i].move == *move)
-                rootMoves[rootMoveCount2++].move = *move;
+                rootMoves[rootMoveCount++].move = *move;
 
     // If no searchmoves are provided, add all legal moves to the root moves
-    if (!rootMoveCount2)
+    if (!rootMoveCount)
         for (int i = 0; i < legalMoves.count; ++i)
-            rootMoves[rootMoveCount2++].move = legalMoves.moves[i].move;
+            rootMoves[rootMoveCount++].move = legalMoves.moves[i].move;
 
     for (Thread *t = Threads; t < Threads + Threads->count; ++t) {
         memset(t, 0, offsetof(Thread, pos));
         memcpy(&t->pos, pos, sizeof(Position));
-        memcpy(t->rootMoves2, rootMoves, sizeof(rootMoves));
+        memcpy(t->rootMoves, rootMoves, sizeof(rootMoves));
         t->rootMoveCount = rootMoveCount;
-        t->rootMoveCount2 = rootMoveCount2;
         for (Depth d = 0; d <= MAX_PLY; ++d)
             (t->ss+SS_OFFSET+d)->ply = d;
         for (Depth d = -7; d < 0; ++d)

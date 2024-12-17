@@ -573,7 +573,7 @@ skip_extensions:
 
         if (root) {
             RootMove *rm;
-            for (rm = thread->rootMoves2; rm->move; ++rm)
+            for (rm = thread->rootMoves; rm->move; ++rm)
                 if (rm->move == move)
                     break;
 
@@ -650,7 +650,7 @@ static void AspirationWindow(Thread *thread, Stack *ss) {
     const int multiPV = thread->multiPV;
     int depth = thread->depth;
 
-    int prevScore = thread->rootMoves2[multiPV].score;
+    int prevScore = thread->rootMoves[multiPV].score;
 
     int delta = 9 + prevScore * prevScore / 16384;
 
@@ -670,9 +670,6 @@ static void AspirationWindow(Thread *thread, Stack *ss) {
                              || Limits.nodeTime;
 
         int score = AlphaBeta(thread, ss, alpha, beta, depth, false);
-
-        thread->rootMoves[multiPV].score = score;
-        memcpy(&thread->rootMoves[multiPV].pv, &ss->pv, sizeof(PV));
 
         // Give an update when failing high/low in longer searches
         if (   mainThread
@@ -696,20 +693,7 @@ static void AspirationWindow(Thread *thread, Stack *ss) {
         } else {
             if (multiPV == 0)
                 thread->uncertain = ss->pv.line[0] != thread->rootMoves[0].move;
-            if (multiPV == 0)
-                thread->uncertain2 = ss->pv.line[0] != thread->rootMoves2[0].move;
 
-            printf("Uncertainty: %d %d\n", thread->uncertain, thread->uncertain2);
-            // if (thread->uncertain != thread->uncertain2) {
-            //     printf("Uncertainty mismatch: ");
-            //     printf("%d %d\n", thread->uncertain, thread->uncertain2);
-            //     printf("ss->pv: %s\n", MoveToStr(ss->pv.line[0]));
-            //     printf("thread->rootMoves[0]:  %s\n", MoveToStr(thread->rootMoves[0].move));
-            //     printf("thread->rootMoves2[0]: %s\n", MoveToStr(thread->rootMoves2[0].move));
-            //     exit(1);
-            // }
-
-            thread->rootMoves[multiPV].move = ss->pv.line[0];
             return;
         }
 
@@ -738,7 +722,6 @@ static void *IterativeDeepening(void *voidThread) {
 
         // Sort root moves so they are printed in the right order in multi-pv mode
         SortRootMoves(thread, multiPV);
-        SortRootMoves2(thread, multiPV);
 
         // Only the main thread concerns itself with the rest
         if (!mainThread) continue;
@@ -747,7 +730,7 @@ static void *IterativeDeepening(void *voidThread) {
         PrintThinking(thread, -INFINITE, INFINITE);
 
         // Stop searching after finding a short enough mate
-        if (MATE - abs(thread->rootMoves2[0].score) <= 2 * abs(Limits.mate)) break;
+        if (MATE - abs(thread->rootMoves[0].score) <= 2 * abs(Limits.mate)) break;
 
         // Limit time spent on forced moves
         if (thread->rootMoveCount == 1 && Limits.timelimit && !Limits.movetime)
@@ -755,7 +738,7 @@ static void *IterativeDeepening(void *voidThread) {
 
         // If an iteration finishes after optimal time usage, stop the search
         if (   Limits.timelimit
-            && !thread->uncertain2
+            && !thread->uncertain
             && TimeSince(Limits.start) > Limits.optimalUsage)
             break;
 
@@ -795,15 +778,8 @@ conclusion:
     ABORT_SIGNAL = true;
     WaitForHelpers();
 
-    if (Threads->rootMoves[0].move != Threads->rootMoves2[0].move) {
-        printf("Different best move: ");
-        printf("%s ", MoveToStr(Threads->rootMoves[0].move));
-        printf("%s\n", MoveToStr(Threads->rootMoves2[0].move));
-        exit(1);
-    }
-
     // Print the best move found
-    PrintBestMove(Threads->rootMoves2[0].move);
+    PrintBestMove(Threads->rootMoves[0].move);
 
     SEARCH_STOPPED = true;
 

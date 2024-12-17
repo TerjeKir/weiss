@@ -63,15 +63,12 @@ typedef struct Thread {
     Stack ss[128];
     jmp_buf jumpBuffer;
     uint64_t tbhits;
-    RootMove rootMoves[MULTI_PV_MAX];
     Depth depth;
-    int rootMoveCount;
     bool doPruning;
     bool uncertain;
     int multiPV;
-    RootMove rootMoves2[256];
-    int rootMoveCount2;
-    bool uncertain2;
+    int rootMoveCount;
+    RootMove rootMoves[256];
 
     // Anything below here is not zeroed out between searches
     Position pos;
@@ -95,7 +92,6 @@ extern Thread *Threads;
 
 void InitThreads(int threadCount);
 void SortRootMoves(Thread *thread, int multiPV);
-void SortRootMoves2(Thread *thread, int multiPV);
 uint64_t TotalNodes();
 uint64_t TotalTBHits();
 void PrepareSearch(Position *pos, Move searchmoves[]);
