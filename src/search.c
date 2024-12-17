@@ -650,7 +650,7 @@ static void AspirationWindow(Thread *thread, Stack *ss) {
     const int multiPV = thread->multiPV;
     int depth = thread->depth;
 
-    int prevScore = thread->rootMoves[multiPV].score;
+    int prevScore = thread->rootMoves2[multiPV].score;
 
     int delta = 9 + prevScore * prevScore / 16384;
 
@@ -734,7 +734,7 @@ static void *IterativeDeepening(void *voidThread) {
         PrintThinking(thread, -INFINITE, INFINITE);
 
         // Stop searching after finding a short enough mate
-        if (MATE - abs(thread->rootMoves[0].score) <= 2 * abs(Limits.mate)) break;
+        if (MATE - abs(thread->rootMoves2[0].score) <= 2 * abs(Limits.mate)) break;
 
         // Limit time spent on forced moves
         if (thread->rootMoveCount == 1 && Limits.timelimit && !Limits.movetime)
