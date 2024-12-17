@@ -696,6 +696,19 @@ static void AspirationWindow(Thread *thread, Stack *ss) {
         } else {
             if (multiPV == 0)
                 thread->uncertain = ss->pv.line[0] != thread->rootMoves[0].move;
+            if (multiPV == 0)
+                thread->uncertain2 = ss->pv.line[0] != thread->rootMoves2[0].move;
+
+            printf("Uncertainty: %d %d\n", thread->uncertain, thread->uncertain2);
+            // if (thread->uncertain != thread->uncertain2) {
+            //     printf("Uncertainty mismatch: ");
+            //     printf("%d %d\n", thread->uncertain, thread->uncertain2);
+            //     printf("ss->pv: %s\n", MoveToStr(ss->pv.line[0]));
+            //     printf("thread->rootMoves[0]:  %s\n", MoveToStr(thread->rootMoves[0].move));
+            //     printf("thread->rootMoves2[0]: %s\n", MoveToStr(thread->rootMoves2[0].move));
+            //     exit(1);
+            // }
+
             thread->rootMoves[multiPV].move = ss->pv.line[0];
             return;
         }
@@ -742,7 +755,7 @@ static void *IterativeDeepening(void *voidThread) {
 
         // If an iteration finishes after optimal time usage, stop the search
         if (   Limits.timelimit
-            && !thread->uncertain
+            && !thread->uncertain2
             && TimeSince(Limits.start) > Limits.optimalUsage)
             break;
 
