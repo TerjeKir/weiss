@@ -440,6 +440,8 @@ move_loop:
 
         bool quiet = moveIsQuiet(move);
 
+        uint64_t startingNodes = pos->nodes;
+
         ss->histScore = GetHistory(thread, ss, move);
 
         // Misc pruning
@@ -579,6 +581,7 @@ skip_extensions:
 
             if (moveCount == 1 || score > alpha) {
                 rm->score = score;
+                rm->nodes += pos->nodes - startingNodes;
                 rm->pv.length = 1 + (ss+1)->pv.length;
                 rm->pv.line[0] = move;
                 memcpy(rm->pv.line+1, (ss+1)->pv.line, sizeof(Move) * (ss+1)->pv.length);
@@ -736,10 +739,13 @@ static void *IterativeDeepening(void *voidThread) {
         if (thread->rootMoveCount == 1 && Limits.timelimit && !Limits.movetime)
             Limits.optimalUsage = MIN(500, Limits.optimalUsage);
 
+        double nodeRatio = 1.0 - (double)thread->rootMoves[0].nodes / (MAX(1, pos->nodes));
+        double timeRatio = 0.5 + 2.5 * nodeRatio;
+
         // If an iteration finishes after optimal time usage, stop the search
         if (   Limits.timelimit
             && !thread->uncertain
-            && TimeSince(Limits.start) > Limits.optimalUsage)
+            && TimeSince(Limits.start) > Limits.optimalUsage * timeRatio)
             break;
 
         // Clear key history for seldepth calculation

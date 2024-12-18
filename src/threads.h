@@ -55,6 +55,7 @@ typedef struct {
 typedef struct RootMove {
     Move move;
     int score;
+    uint64_t nodes;
     PV pv;
 } RootMove;
 
