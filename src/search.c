@@ -740,7 +740,7 @@ static void *IterativeDeepening(void *voidThread) {
             Limits.optimalUsage = MIN(500, Limits.optimalUsage);
 
         double nodeRatio = (double)thread->rootMoves[0].nodes / (MAX(1, pos->nodes));
-        double timeRatio = CLAMP(1.5 - nodeRatio, 0.75, 1.00);
+        double timeRatio = CLAMP(1.25 - nodeRatio, 0.75, 1.00);
 
         // If an iteration finishes after optimal time usage, stop the search
         if (   Limits.timelimit
