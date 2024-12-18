@@ -37,4 +37,4 @@ typedef struct {
 void GenNoisyMoves(const Position *pos, MoveList *list);
 void GenQuietMoves(const Position *pos, MoveList *list);
 void GenAllMoves(const Position *pos, MoveList *list);
-int LegalMoveCount(Position *pos, Move searchmoves[]);
+void GenLegalMoves(Position *pos, MoveList *list);

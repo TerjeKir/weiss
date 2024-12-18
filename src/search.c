@@ -571,6 +571,22 @@ skip_extensions:
         // Undo the move
         TakeMove(pos);
 
+        if (root) {
+            RootMove *rm;
+            for (rm = thread->rootMoves; rm->move; ++rm)
+                if (rm->move == move)
+                    break;
+
+            if (moveCount == 1 || score > alpha) {
+                rm->score = score;
+                rm->pv.length = 1 + (ss+1)->pv.length;
+                rm->pv.line[0] = move;
+                memcpy(rm->pv.line+1, (ss+1)->pv.line, sizeof(Move) * (ss+1)->pv.length);
+            } else {
+                rm->score = -INFINITE;
+            }
+        }
+
         // New best move
         if (score > bestScore) {
             bestScore = score;
@@ -655,9 +671,6 @@ static void AspirationWindow(Thread *thread, Stack *ss) {
 
         int score = AlphaBeta(thread, ss, alpha, beta, depth, false);
 
-        thread->rootMoves[multiPV].score = score;
-        memcpy(&thread->rootMoves[multiPV].pv, &ss->pv, sizeof(PV));
-
         // Give an update when failing high/low in longer searches
         if (   mainThread
             && Limits.multiPV == 1
@@ -680,7 +693,7 @@ static void AspirationWindow(Thread *thread, Stack *ss) {
         } else {
             if (multiPV == 0)
                 thread->uncertain = ss->pv.line[0] != thread->rootMoves[0].move;
-            thread->rootMoves[multiPV].move = ss->pv.line[0];
+
             return;
         }
 

@@ -174,22 +174,16 @@ void GenAllMoves(const Position *pos, MoveList *list) {
     GenQuietMoves(pos, list);
 }
 
-// Counts the number of legal moves in the position filtered by searchmoves
-int LegalMoveCount(Position *pos, Move searchmoves[]) {
-    int rootMoveCount = 0;
+void GenLegalMoves(Position *pos, MoveList *list) {
+    MoveList allMoves;
+    allMoves.count = allMoves.next = 0;
+    GenAllMoves(pos, &allMoves);
 
-    MoveList list;
-    list.count = list.next = 0;
-    GenAllMoves(pos, &list);
-
-    for (int i = 0; i < list.count; ++i) {
-        Move move = list.moves[list.next++].move;
-        if (NotInSearchMoves(searchmoves, move)) continue;
+    for (int i = 0; i < allMoves.count; ++i) {
+        Move move = allMoves.moves[i].move;
         if (!MakeMove(pos, move)) continue;
-        ++rootMoveCount;
+        list->moves[list->count++].move = move;
         TakeMove(pos);
     }
     pos->nodes = 0;
-
-    return rootMoveCount;
 }
