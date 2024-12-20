@@ -34,13 +34,13 @@
 #define MatCorrEntry()          (&thread->matCorrHistory[thread->pos.stm][MatCorrIndex(&thread->pos)])
 #define ContCorrEntry(offset)   (&(*(ss-offset)->contCorr)[piece((ss-1)->move)][toSq((ss-1)->move)])
 
-#define QuietHistoryUpdate(move, bonus)        (HistoryBonus(QuietEntry(move),        bonus,  5150))
-#define PawnHistoryUpdate(move, bonus)         (HistoryBonus(PawnEntry(move),         bonus,  8825))
-#define NoisyHistoryUpdate(move, bonus)        (HistoryBonus(NoisyEntry(move),        bonus, 16650))
-#define ContHistoryUpdate(offset, move, bonus) (HistoryBonus(ContEntry(offset, move), bonus, 21345))
-#define PawnCorrHistoryUpdate(bonus)           (HistoryBonus(PawnCorrEntry(),         bonus,  1590))
-#define MatCorrHistoryUpdate(bonus)            (HistoryBonus(MatCorrEntry(),          bonus,   965))
-#define ContCorrHistoryUpdate(offset, bonus)   (HistoryBonus(ContCorrEntry(offset),   bonus,  1145))
+#define QuietHistoryUpdate(move, bonus)        (HistoryBonus(QuietEntry(move),        bonus,  5280))
+#define PawnHistoryUpdate(move, bonus)         (HistoryBonus(PawnEntry(move),         bonus,  9275))
+#define NoisyHistoryUpdate(move, bonus)        (HistoryBonus(NoisyEntry(move),        bonus, 16000))
+#define ContHistoryUpdate(offset, move, bonus) (HistoryBonus(ContEntry(offset, move), bonus, 21250))
+#define PawnCorrHistoryUpdate(bonus)           (HistoryBonus(PawnCorrEntry(),         bonus,  1662))
+#define MatCorrHistoryUpdate(bonus)            (HistoryBonus(MatCorrEntry(),          bonus,  1077))
+#define ContCorrHistoryUpdate(offset, bonus)   (HistoryBonus(ContCorrEntry(offset),   bonus,  1220))
 
 
 INLINE int PawnStructure(const Position *pos) { return pos->pawnKey & (PAWN_HISTORY_SIZE - 1); }
@@ -53,15 +53,15 @@ INLINE void HistoryBonus(int16_t *cur, int bonus, int div) {
 }
 
 INLINE int Bonus(Depth depth) {
-    return MIN(2490, 273 * depth - 325);
+    return MIN(2410, 268 * depth - 310);
 }
 
 INLINE int Malus(Depth depth) {
-    return -MIN(836, 523 * depth - 159);
+    return -MIN(834, 531 * depth - 148);
 }
 
 INLINE int CorrectionBonus(int score, int eval, Depth depth) {
-    return CLAMP((score - eval) * depth / 4, -193, 253);
+    return CLAMP((score - eval) * depth / 4, -212, 254);
 }
 
 INLINE void UpdateContHistories(Stack *ss, Move move, int bonus) {
@@ -143,11 +143,11 @@ INLINE int GetHistory(const Thread *thread, Stack *ss, Move move) {
 
 INLINE int GetCorrectionHistory(const Thread *thread, const Stack *ss) {
     return  *PawnCorrEntry() / 20
-          + *MatCorrEntry() / 26
-          + *ContCorrEntry(2) / 46
-          + *ContCorrEntry(3) / 45
+          + *MatCorrEntry() / 29
+          + *ContCorrEntry(2) / 42
+          + *ContCorrEntry(3) / 44
           + *ContCorrEntry(4) / 46
-          + *ContCorrEntry(5) / 43
-          + *ContCorrEntry(6) / 45
-          + *ContCorrEntry(7) / 43;
+          + *ContCorrEntry(5) / 42
+          + *ContCorrEntry(6) / 47
+          + *ContCorrEntry(7) / 44;
 }
