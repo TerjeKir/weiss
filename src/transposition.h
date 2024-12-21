@@ -82,16 +82,16 @@ INLINE bool EntryEmpty(TTEntry *entry) { return Bound(entry) == BOUND_NONE; }
 
 // Store terminal scores as distance from the current position to mate/TB
 INLINE int ScoreToTT (const int score, const uint8_t ply) {
-    return score >=  TBWIN_IN_MAX ? score + ply
-         : score <= -TBWIN_IN_MAX ? score - ply
-                                  : score;
+    return  isWin(score)  ? score + ply
+          : isLoss(score) ? score - ply
+                          : score;
 }
 
 // Add the distance from root to terminal scores get the total distance to mate/TB
 INLINE int ScoreFromTT (const int score, const uint8_t ply) {
-    return score >=  TBWIN_IN_MAX ? score - ply
-         : score <= -TBWIN_IN_MAX ? score + ply
-                                  : score;
+    return  isWin(score)  ? score - ply
+          : isLoss(score) ? score + ply
+                          : score;
 }
 
 // Checks whether the TT score is more informative than score

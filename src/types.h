@@ -46,6 +46,13 @@
 #define pieceTypeOn(sq) (PieceTypeOf(pieceOn(sq)))
 #define kingSq(color) (Lsb(colorPieceBB(color, KING)))
 
+#define isLoss(score) (score <= -TBWIN_IN_MAX)
+#define isWin(score)  (score >=  TBWIN_IN_MAX)
+#define isMate(score) (abs(score) >= MATE_IN_MAX)
+#define isTerminal(score) (isWin(score) || isLoss(score))
+
+#define matedIn(ply) (-MATE + (ply))
+#define mateIn(ply)  (MATE + (ply))
 
 typedef uint64_t Bitboard;
 typedef uint64_t Key;

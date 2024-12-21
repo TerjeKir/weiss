@@ -118,8 +118,8 @@ static int Quiescence(Thread *thread, Stack *ss, int alpha, int beta) {
         return EvalPosition(pos, thread->pawnCache);
 
     // Mate distance pruning
-    alpha = MAX(alpha, -MATE + ss->ply);
-    beta  = MIN(beta,   MATE - ss->ply - 1);
+    alpha = MAX(alpha, matedIn(ss->ply));
+    beta  = MIN(beta, mateIn(ss->ply + 1));
     if (alpha >= beta)
         return alpha;
 
@@ -151,7 +151,7 @@ static int Quiescence(Thread *thread, Stack *ss, int alpha, int beta) {
     eval = CorrectEval(thread, ss, eval, pos->rule50);
 
     // Use ttScore as eval if it is more informative
-    if (abs(ttScore) < TBWIN_IN_MAX && TTScoreIsMoreInformative(ttBound, ttScore, eval))
+    if (!isTerminal(ttScore) && TTScoreIsMoreInformative(ttBound, ttScore, eval))
         eval = ttScore;
 
     // If eval beats beta we assume some move will also beat it
@@ -176,7 +176,7 @@ moveloop:
     while ((move = NextMove(&mp))) {
 
         // Avoid pruning until at least one move avoids a terminal loss score
-        if (bestScore <= -TBWIN_IN_MAX) goto search;
+        if (isLoss(bestScore)) goto search;
 
         // Only try moves the movepicker deems good
         if (mp.stage > NOISY_GOOD) break;
@@ -227,7 +227,7 @@ search:
 
     // Checkmate
     if (inCheck && bestScore == -INFINITE)
-        return -MATE + ss->ply;
+        return matedIn(ss->ply);
 
     StoreTTEntry(tte, pos->key, bestMove, ScoreToTT(bestScore, ss->ply), unadjustedEval, 0,
                  bestScore >= beta ? BOUND_LOWER : BOUND_UPPER);
@@ -278,8 +278,8 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
             return EvalPosition(pos, thread->pawnCache);
 
         // Mate distance pruning
-        alpha = MAX(alpha, -MATE + ss->ply);
-        beta  = MIN(beta,   MATE - ss->ply - 1);
+        alpha = MAX(alpha, matedIn(ss->ply));
+        beta  = MIN(beta, mateIn(ss->ply + 1));
         if (alpha >= beta)
             return alpha;
     }
@@ -344,7 +344,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
     ss->staticEval = eval = CorrectEval(thread, ss, eval, pos->rule50);
 
     // Use ttScore as eval if it is more informative
-    if (abs(ttScore) < TBWIN_IN_MAX && TTScoreIsMoreInformative(ttBound, ttScore, eval))
+    if (!isTerminal(ttScore) && TTScoreIsMoreInformative(ttBound, ttScore, eval))
         eval = ttScore;
 
     // Improving if not in check, and current eval is higher than 2 plies ago
@@ -358,7 +358,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
         depth--;
 
     // Skip pruning in check, pv nodes, early iterations, when proving singularity, looking for terminal scores, or after a null move
-    if (inCheck || pvNode || !thread->doPruning || ss->excluded || abs(beta) >= TBWIN_IN_MAX || (ss-1)->move == NOMOVE)
+    if (inCheck || pvNode || !thread->doPruning || ss->excluded || isTerminal(beta) || (ss-1)->move == NOMOVE)
         goto move_loop;
 
     // Reverse Futility Pruning
@@ -388,7 +388,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
         // Cutoff
         if (score >= beta)
             // Don't return unproven terminal win scores
-            return score >= TBWIN_IN_MAX ? beta : score;
+            return isWin(score) ? beta : score;
     }
 
     int probCutBeta = beta + 200;
@@ -421,7 +421,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
 
             // Cut if the reduced depth search beats the threshold, terminal scores are exact
             if (score >= probCutBeta)
-                return score < TBWIN_IN_MAX ? score - 160 : score;
+                return isWin(score) ? score : score - 160;
         }
     }
 
@@ -454,7 +454,7 @@ move_loop:
         // Misc pruning
         if (  !root
             && thread->doPruning
-            && bestScore > -TBWIN_IN_MAX) {
+            && !isLoss(bestScore)) {
 
             int R = Reductions[quiet][MIN(31, depth)][MIN(31, moveCount)] - ss->histScore / 9050;
             Depth lmrDepth = depth - 1 - R;
@@ -490,7 +490,7 @@ move_loop:
             && !ss->excluded
             && ttDepth > depth - 3
             && ttBound != BOUND_UPPER
-            && abs(ttScore) < TBWIN_IN_MAX / 4) {
+            && !isTerminal(ttScore)) {
 
             // ttMove has been made to check legality
             TakeMove(pos);
@@ -629,7 +629,7 @@ skip_extensions:
     // Checkmate or stalemate
     if (!moveCount)
         bestScore =  ss->excluded ? alpha
-                   : inCheck      ? -MATE + ss->ply
+                   : inCheck      ? matedIn(ss->ply)
                                   : 0;
 
     // Make sure score isn't above the max score given by TBs
@@ -698,7 +698,7 @@ static void AspirationWindow(Thread *thread, Stack *ss) {
         // Failed high, relax upper bound and search again
         } else if (score >= beta) {
             beta = MIN(beta + delta, INFINITE);
-            depth = MAX(1, depth - (abs(score) < TBWIN_IN_MAX));
+            depth = MAX(1, depth - !isTerminal(score));
 
         // Score inside the window
         } else {
