@@ -105,8 +105,12 @@ static int Quiescence(Thread *thread, Stack *ss, int alpha, int beta) {
             return alpha;
     }
 
-    // Position is drawn
-    if (IsRepetition(pos) || pos->rule50 >= 100)
+    // Position is drawn by repetition
+    if (IsRepetition(pos))
+        return DrawScore(pos);
+
+    // Position is drawn by 50 move rule
+    if (pos->rule50 >= 100 && (!inCheck || LegalMoveCount(pos) > 0))
         return DrawScore(pos);
 
     // If we are at max depth, return static eval
@@ -244,7 +248,8 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
     ss->doubleExtensions = (ss-1)->doubleExtensions;
 
     const bool pvNode = alpha != beta - 1;
-    const bool root   = ss->ply == 0;
+    const bool root = ss->ply == 0;
+    const bool inCheck = pos->checkers;
 
     // Check time situation
     if (OutOfTime(thread) || loadRelaxed(ABORT_SIGNAL))
@@ -260,8 +265,12 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
                 return alpha;
         }
 
-        // Position is drawn
-        if (IsRepetition(pos) || pos->rule50 >= 100)
+        // Position is drawn by repetition
+        if (IsRepetition(pos))
+            return DrawScore(pos);
+
+        // Position is drawn by 50 move rule
+        if (pos->rule50 >= 100 && (!inCheck || LegalMoveCount(pos) > 0))
             return DrawScore(pos);
 
         // Max depth reached
@@ -324,8 +333,6 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
                 maxScore = tbScore;
         }
     }
-
-    const bool inCheck = pos->checkers;
 
     // Do a static evaluation for pruning considerations
     int eval = ss->staticEval =  inCheck           ? NOSCORE

@@ -187,3 +187,10 @@ void GenLegalMoves(Position *pos, MoveList *list) {
     }
     pos->nodes = 0;
 }
+
+int LegalMoveCount(Position *pos) {
+    MoveList list;
+    list.count = list.next = 0;
+    GenLegalMoves(pos, &list);
+    return list.count;
+}
