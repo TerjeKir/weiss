@@ -579,9 +579,10 @@ skip_extensions:
                 if (rm->move == move)
                     break;
 
+            rm->nodes += pos->nodes - startingNodes;
+
             if (moveCount == 1 || score > alpha) {
                 rm->score = score;
-                rm->nodes += pos->nodes - startingNodes;
                 rm->pv.length = 1 + (ss+1)->pv.length;
                 rm->pv.line[0] = move;
                 memcpy(rm->pv.line+1, (ss+1)->pv.line, sizeof(Move) * (ss+1)->pv.length);
