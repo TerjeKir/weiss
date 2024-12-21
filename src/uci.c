@@ -241,7 +241,7 @@ void PrintThinking(const Thread *thread, int alpha, int beta) {
         if (pv->length == 0) break;
 
         // Determine whether we have a centipawn or mate score
-        char *type = abs(score) >= MATE_IN_MAX ? "mate" : "cp";
+        char *type = isMate(score) ? "mate" : "cp";
 
         // Determine if score is a lower bound, upper bound or exact
         char *bound = score >= beta  ? " lowerbound"
@@ -249,10 +249,10 @@ void PrintThinking(const Thread *thread, int alpha, int beta) {
                                      : "";
 
         // Translate internal score into printed score
-        score = abs(score) >= MATE_IN_MAX ? MateScore(score)
-              :    abs(score) <= 8
-                && pv->length <= 2        ? 0
-                                          : score;
+        score =  isMate(score)      ? MateScore(score)
+               :    abs(score) <= 8
+                 && pv->length <= 2 ? 0
+                                    : score;
 
         // Basic info
         printf("info depth %d seldepth %d multipv %d score %s %d%s time %" PRId64
