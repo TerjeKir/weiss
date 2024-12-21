@@ -118,8 +118,8 @@ static int Quiescence(Thread *thread, Stack *ss, int alpha, int beta) {
         return EvalPosition(pos, thread->pawnCache);
 
     // Mate distance pruning
-    alpha = MAX(alpha, -MATE + ss->ply);
-    beta  = MIN(beta,   MATE - ss->ply - 1);
+    alpha = MAX(alpha, matedIn(ss->ply));
+    beta  = MIN(beta, mateIn(ss->ply + 1));
     if (alpha >= beta)
         return alpha;
 
@@ -227,7 +227,7 @@ search:
 
     // Checkmate
     if (inCheck && bestScore == -INFINITE)
-        return -MATE + ss->ply;
+        return matedIn(ss->ply);
 
     StoreTTEntry(tte, pos->key, bestMove, ScoreToTT(bestScore, ss->ply), unadjustedEval, 0,
                  bestScore >= beta ? BOUND_LOWER : BOUND_UPPER);
@@ -278,8 +278,8 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
             return EvalPosition(pos, thread->pawnCache);
 
         // Mate distance pruning
-        alpha = MAX(alpha, -MATE + ss->ply);
-        beta  = MIN(beta,   MATE - ss->ply - 1);
+        alpha = MAX(alpha, matedIn(ss->ply));
+        beta  = MIN(beta, mateIn(ss->ply + 1));
         if (alpha >= beta)
             return alpha;
     }
@@ -629,7 +629,7 @@ skip_extensions:
     // Checkmate or stalemate
     if (!moveCount)
         bestScore =  ss->excluded ? alpha
-                   : inCheck      ? -MATE + ss->ply
+                   : inCheck      ? matedIn(ss->ply)
                                   : 0;
 
     // Make sure score isn't above the max score given by TBs

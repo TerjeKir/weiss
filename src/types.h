@@ -51,6 +51,9 @@
 #define isMate(score) (abs(score) >= MATE_IN_MAX)
 #define isTerminal(score) (isWin(score) || isLoss(score))
 
+#define matedIn(ply) (-MATE + (ply))
+#define mateIn(ply)  (MATE + (ply))
+
 typedef uint64_t Bitboard;
 typedef uint64_t Key;
 
