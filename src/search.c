@@ -551,7 +551,7 @@ skip_extensions:
             r += 2 * cutnode;
 
             // Depth after reductions, avoiding going straight to quiescence as well as extending
-            Depth lmrDepth = CLAMP(newDepth - r, 1, newDepth);
+            Depth lmrDepth = CLAMP(newDepth - r, 1, newDepth + pvNode);
 
             score = -AlphaBeta(thread, ss+1, -alpha-1, -alpha, lmrDepth, true);
 
