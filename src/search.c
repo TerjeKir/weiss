@@ -682,6 +682,8 @@ static void AspirationWindow(Thread *thread, Stack *ss) {
 
         int score = AlphaBeta(thread, ss, alpha, beta, depth, false);
 
+        SortRootMoves(thread, multiPV);
+
         // Give an update when failing high/low in longer searches
         if (   mainThread
             && Limits.multiPV == 1
@@ -732,7 +734,7 @@ static void *IterativeDeepening(void *voidThread) {
             AspirationWindow(thread, ss);
 
         // Sort root moves so they are printed in the right order in multi-pv mode
-        SortRootMoves(thread, multiPV);
+        SortRootMoves(thread, 0);
 
         // Only the main thread concerns itself with the rest
         if (!mainThread) continue;

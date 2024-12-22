@@ -48,20 +48,14 @@ void InitThreads(int count) {
         Threads[i].count = count;
 }
 
-// Sorts all rootmoves searched by multiPV
-void SortRootMoves(Thread *thread, int multiPV) {
-    for (int i = 0; i < multiPV; ++i) {
-
-        int bestIdx = i;
-        int bestScore = thread->rootMoves[i].score;
-
-        for (int k = i + 1; k < thread->rootMoveCount; ++k)
-            if (thread->rootMoves[k].score > bestScore)
-                bestScore = thread->rootMoves[bestIdx = k].score;
-
-        RootMove best = thread->rootMoves[bestIdx];
-        thread->rootMoves[bestIdx] = thread->rootMoves[i];
-        thread->rootMoves[i] = best;
+// Sorts all rootmoves beginning from the given index
+void SortRootMoves(Thread *thread, int begin) {
+    for (int i = begin + 1; i < thread->rootMoveCount; ++i) {
+        RootMove temp = thread->rootMoves[i];
+        int j = i - 1;
+        while (j >= 0 && thread->rootMoves[j].score < temp.score)
+            thread->rootMoves[j+1] = thread->rootMoves[j], --j;
+        thread->rootMoves[j+1] = temp;
     }
 }
 
