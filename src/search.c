@@ -248,6 +248,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
     ss->doubleExtensions = (ss-1)->doubleExtensions;
 
     const bool pvNode = alpha != beta - 1;
+    const bool allNode = !(pvNode || cutnode);
     const bool root = ss->ply == 0;
     const bool inCheck = pos->checkers;
 
@@ -551,7 +552,7 @@ skip_extensions:
             r += 2 * cutnode;
 
             // Depth after reductions, avoiding going straight to quiescence as well as extending
-            Depth lmrDepth = CLAMP(newDepth - r, 1, newDepth);
+            Depth lmrDepth = CLAMP(newDepth - r, 1, newDepth + allNode);
 
             score = -AlphaBeta(thread, ss+1, -alpha-1, -alpha, lmrDepth, true);
 
