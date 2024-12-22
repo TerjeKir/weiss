@@ -92,7 +92,7 @@ extern Thread *Threads;
 
 
 void InitThreads(int threadCount);
-void SortRootMoves(Thread *thread, int multiPV);
+void SortRootMoves(Thread *thread, int begin);
 uint64_t TotalNodes();
 uint64_t TotalTBHits();
 void PrepareSearch(Position *pos, Move searchmoves[]);
