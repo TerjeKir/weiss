@@ -549,6 +549,8 @@ skip_extensions:
             r += pos->nonPawnCount[opponent] < 2;
             // Reduce more in cut nodes
             r += 2 * cutnode;
+            // Reduce less if the difference between static eval and eval is large
+            r -= abs(ss->staticEval - eval) > 128;
 
             // Depth after reductions, avoiding going straight to quiescence as well as extending
             Depth lmrDepth = CLAMP(newDepth - r, 1, newDepth);
