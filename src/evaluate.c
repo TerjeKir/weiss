@@ -443,8 +443,9 @@ INLINE int EvalThreats(const Position *pos, const EvalInfo *ei, const Color colo
 
     // Our pawns that can step forward to threaten their non-pawns
     Bitboard pawnPushes = ShiftBB(ourPawns, up) & ~pieceBB(ALL);
+    Bitboard pawnDoubles = ShiftBB(pawnPushes, up) & ~pieceBB(ALL) & RankBB[RelativeRank(color, RANK_4)];
 
-    count = PopCount(PawnBBAttackBB(pawnPushes, color) & theirNonPawns);
+    count = PopCount(PawnBBAttackBB(pawnPushes | pawnDoubles, color) & theirNonPawns);
     eval += PushThreat * count;
     TraceCount(PushThreat);
 
