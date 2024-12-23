@@ -62,7 +62,8 @@ const int PawnThreat   = S( 80, 34);
 const int PushThreat   = S( 25,  6);
 const int PawnOpen     = S(-14,-19);
 const int BishopPair   = S( 33,110);
-const int KingAtkPawn  = S(-16, 45);
+const int KingAtkPawn  = S( -1, 73);
+const int KingAtkPawn2 = S(-13, 23);
 const int OpenForward  = S( 28, 31);
 const int SemiForward  = S( 17, 15);
 const int NBBehindPawn = S(  9, 32);
@@ -330,9 +331,14 @@ INLINE int EvalKings(const Position *pos, EvalInfo *ei, const Color color) {
     TraceIncr(KingLineDanger[count]);
 
     // King threatening a pawn
-    if (AttackBB(KING, kingSq, 0) & colorPieceBB(!color, PAWN)) {
+    Bitboard undefendedPawns = colorPieceBB(!color, PAWN) & ~ei->attackedBy[!color][ALL];
+    Bitboard defendedPawns   = colorPieceBB(!color, PAWN) &  ei->attackedBy[!color][ALL];
+    if (AttackBB(KING, kingSq, 0) & undefendedPawns) {
         eval += KingAtkPawn;
         TraceIncr(KingAtkPawn);
+    } else if (AttackBB(KING, kingSq, 0) & defendedPawns) {
+        eval += KingAtkPawn2;
+        TraceIncr(KingAtkPawn2);
     }
 
     // King safety
