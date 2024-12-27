@@ -142,12 +142,14 @@ INLINE int GetHistory(const Thread *thread, Stack *ss, Move move) {
 }
 
 INLINE int GetCorrectionHistory(const Thread *thread, const Stack *ss) {
-    return  *PawnCorrEntry() / 20
-          + *MatCorrEntry() / 29
-          + *ContCorrEntry(2) / 42
-          + *ContCorrEntry(3) / 44
-          + *ContCorrEntry(4) / 46
-          + *ContCorrEntry(5) / 42
-          + *ContCorrEntry(6) / 47
-          + *ContCorrEntry(7) / 44;
+    int c =  6554 * *PawnCorrEntry()
+           + 4520 * *MatCorrEntry()
+           + 3121 * *ContCorrEntry(2)
+           + 2979 * *ContCorrEntry(3)
+           + 2849 * *ContCorrEntry(4)
+           + 3121 * *ContCorrEntry(5)
+           + 2789 * *ContCorrEntry(6)
+           + 2979 * *ContCorrEntry(7);
+
+    return c / 131072;
 }
