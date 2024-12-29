@@ -115,6 +115,7 @@ static void SetOption(char *str) {
     else if (OptionNameIs("Threads"      )) InitThreads(IntValue);
     else if (OptionNameIs("SyzygyPath"   )) tb_init(optionValue);
     else if (OptionNameIs("MultiPV"      )) Limits.multiPV = IntValue;
+    else if (OptionNameIs("Minimal"      )) Minimal        = BooleanValue;
     else if (OptionNameIs("NoobBookLimit")) NoobLimit      = IntValue;
     else if (OptionNameIs("NoobBookMode" )) NoobBookSetMode(optionValue);
     else if (OptionNameIs("NoobBook"     )) NoobBook       = BooleanValue;
@@ -133,6 +134,7 @@ static void Info() {
     printf("option name Threads type spin default %d min %d max %d\n", 1, 1, 2048);
     printf("option name SyzygyPath type string default <empty>\n");
     printf("option name MultiPV type spin default 1 min 1 max %d\n", MULTI_PV_MAX);
+    printf("option name Minimal type check default false\n");
     printf("option name UCI_Chess960 type check default false\n");
     printf("option name NoobBook type check default false\n");
     printf("option name NoobBookMode type string default <best>\n");

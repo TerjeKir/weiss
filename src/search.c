@@ -39,6 +39,7 @@
 SearchLimits Limits = { .multiPV = 1 };
 atomic_bool ABORT_SIGNAL;
 atomic_bool SEARCH_STOPPED = true;
+atomic_bool Minimal = false;
 
 static int Reductions[2][32][32];
 
@@ -687,6 +688,7 @@ static void AspirationWindow(Thread *thread, Stack *ss) {
         // Give an update when failing high/low in longer searches
         if (   mainThread
             && Limits.multiPV == 1
+            && !Minimal
             && (score <= alpha || score >= beta)
             && TimeSince(Limits.start) > 3000)
             PrintThinking(thread, alpha, beta);
@@ -739,8 +741,9 @@ static void *IterativeDeepening(void *voidThread) {
         // Only the main thread concerns itself with the rest
         if (!mainThread) continue;
 
-        // Print thinking info
-        PrintThinking(thread, -INFINITE, INFINITE);
+        // Print search info
+        if (!Minimal)
+            PrintThinking(thread, -INFINITE, INFINITE);
 
         // Stop searching after finding a short enough mate
         if (MATE - abs(thread->rootMoves[0].score) <= 2 * abs(Limits.mate)) break;
@@ -761,6 +764,14 @@ static void *IterativeDeepening(void *voidThread) {
         // Clear key history for seldepth calculation
         for (int i = 1; i < MAX_PLY; ++i)
             history(i).key = 0;
+    }
+
+    // Print final search info in minimal mode
+    if (mainThread && Minimal) {
+        // Fix the depth when the search is stopped due to reaching the depth limit
+        if (thread->depth > Limits.depth)
+            thread->depth--;
+        PrintThinking(thread, -INFINITE, INFINITE);
     }
 
     return NULL;
