@@ -50,12 +50,16 @@ void InitThreads(int count) {
 
 // Sorts all rootmoves beginning from the given index
 void SortRootMoves(Thread *thread, int begin) {
+    RootMove *rootMoves = thread->rootMoves;
+
     for (int i = begin + 1; i < thread->rootMoveCount; ++i) {
-        RootMove temp = thread->rootMoves[i];
+        RootMove temp = rootMoves[i];
         int j = i - 1;
-        while (j >= 0 && thread->rootMoves[j].score < temp.score)
-            thread->rootMoves[j+1] = thread->rootMoves[j], --j;
-        thread->rootMoves[j+1] = temp;
+        while (j >= 0 && rootMoves[j].score < temp.score) {
+            rootMoves[j+1] = rootMoves[j];
+            --j;
+        }
+        rootMoves[j+1] = temp;
     }
 }
 
