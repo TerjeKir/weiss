@@ -92,6 +92,7 @@ INLINE bool CastleLegal(const Position *pos, Square to) {
 }
 
 bool MoveIsPseudoLegal(const Position *pos, Move move);
+bool MoveIsLegal(const Position *pos, const Move move);
 char *MoveToStr(Move move);
 Move ParseMove(const char *ptrChar, const Position *pos);
 bool NotInSearchMoves(Move searchmoves[], Move move);

@@ -174,21 +174,19 @@ void GenAllMoves(const Position *pos, MoveList *list) {
     GenQuietMoves(pos, list);
 }
 
-void GenLegalMoves(Position *pos, MoveList *list) {
+void GenLegalMoves(const Position *pos, MoveList *list) {
     MoveList allMoves;
     allMoves.count = allMoves.next = 0;
     GenAllMoves(pos, &allMoves);
 
     for (int i = 0; i < allMoves.count; ++i) {
         Move move = allMoves.moves[i].move;
-        if (!MakeMove(pos, move)) continue;
+        if (!MoveIsLegal(pos, move)) continue;
         list->moves[list->count++].move = move;
-        TakeMove(pos);
     }
-    pos->nodes = 0;
 }
 
-int LegalMoveCount(Position *pos) {
+int LegalMoveCount(const Position *pos) {
     MoveList list;
     list.count = list.next = 0;
     GenLegalMoves(pos, &list);

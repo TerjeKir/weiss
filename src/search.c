@@ -202,7 +202,8 @@ search:
         ss->contCorr = &thread->contCorrHistory[piece(move)][toSq(move)];
 
         // Recursively search the positions after making the moves, skipping illegal ones
-        if (!MakeMove(pos, move)) continue;
+        if (!MoveIsLegal(pos, move)) continue;
+        MakeMove(pos, move);
         int score = -Quiescence(thread, ss+1, -beta, -alpha);
         TakeMove(pos);
 
@@ -407,7 +408,8 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
 
             if (mp.stage > NOISY_GOOD) break;
 
-            if (!MakeMove(pos, move)) continue;
+            if (!MoveIsLegal(pos, move)) continue;
+            MakeMove(pos, move);
 
             ss->move = move;
             ss->continuation = &thread->continuation[inCheck][moveIsCapture(move)][piece(move)][toSq(move)];
@@ -476,7 +478,8 @@ move_loop:
         }
 
         // Make the move, skipping to the next if illegal
-        if (!MakeMove(pos, move)) continue;
+        if (!MoveIsLegal(pos, move)) continue;
+        MakeMove(pos, move);
 
         moveCount++;
 
