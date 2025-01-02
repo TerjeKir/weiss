@@ -335,6 +335,8 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
         }
     }
 
+    (ss+1)->killer = NOMOVE;
+
     // Do a static evaluation for pruning considerations
     int eval = ss->staticEval =  inCheck           ? NOSCORE
                                : lastMoveNullMove  ? -(ss-1)->staticEval + 2 * Tempo
