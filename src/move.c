@@ -79,7 +79,7 @@ bool MoveIsLegal(const Position *pos, const Move move) {
     Square from = fromSq(move);
     Square to = toSq(move);
 
-    Square kingSq = PieceTypeOf(pieceOn(from)) == KING ? to : (Square)Lsb(colorPieceBB(color, KING));
+    Square kingSq = PieceTypeOf(pieceOn(from)) == KING ? to : (Square)kingSq(color);
 
     Bitboard occ = (pieceBB(ALL) ^ BB(from)) | BB(to);
     Bitboard exclude = BB(to);

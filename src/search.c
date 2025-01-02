@@ -477,8 +477,6 @@ move_loop:
                 continue;
         }
 
-        MakeMove(pos, move);
-
         moveCount++;
 
         // Extension
@@ -495,9 +493,6 @@ move_loop:
             && ttDepth > depth - 3
             && ttBound != BOUND_UPPER
             && !isTerminal(ttScore)) {
-
-            // ttMove has been made to check legality
-            TakeMove(pos);
 
             // Search to reduced depth with a zero window a bit lower than ttScore
             int singularBeta = ttScore - depth * (2 - pvNode);
@@ -516,9 +511,6 @@ move_loop:
             // Negative extension - not singular but likely still good enough to beat beta
             else if (ttScore >= beta)
                 extension = -1;
-
-            // Replay ttMove
-            MakeMove(pos, move);
         }
 
         // Extend when in check
@@ -526,6 +518,8 @@ move_loop:
             extension = MAX(extension, 1);
 
 skip_extensions:
+
+        MakeMove(pos, move);
 
         ss->move = move;
         ss->doubleExtensions = (ss-1)->doubleExtensions + (extension == 2);
