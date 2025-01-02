@@ -48,8 +48,10 @@ INLINE int PawnCorrIndex(const Position *pos) { return pos->pawnKey & (CORRECTIO
 INLINE int MatCorrIndex(const Position *pos) { return pos->materialKey & (CORRECTION_HISTORY_SIZE - 1); }
 
 
-INLINE void HistoryBonus(int16_t *cur, int bonus, int div) {
-    *cur += bonus - *cur * abs(bonus) / div;
+INLINE void HistoryBonus(int16_t *entry, int bonus, int div) {
+    assert(abs(bonus) <= div);
+    *entry += bonus - *entry * abs(bonus) / div;
+    assert(abs(*entry) <= div);
 }
 
 INLINE int Bonus(Depth depth) {
