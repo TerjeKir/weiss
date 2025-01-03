@@ -46,8 +46,17 @@ static void ClearPiece(Position *pos, const Square sq, const bool hash) {
 
     if (PieceTypeOf(piece) == PAWN)
         pos->pawnKey ^= PieceKeys[piece][sq];
-    else
+    else {
         pos->nonPawnKey[color] ^= PieceKeys[piece][sq];
+
+        if (pt == KING) {
+            pos->minorKey ^= PieceKeys[piece][sq];
+            pos->majorKey ^= PieceKeys[piece][sq];
+        } else if (pt >= ROOK)
+            pos->majorKey ^= PieceKeys[piece][sq];
+        else
+            pos->minorKey ^= PieceKeys[piece][sq];
+    }
 
     // Set square to empty
     pieceOn(sq) = EMPTY;
@@ -84,8 +93,17 @@ static void AddPiece(Position *pos, const Square sq, const Piece piece, const bo
 
     if (PieceTypeOf(piece) == PAWN)
         pos->pawnKey ^= PieceKeys[piece][sq];
-    else
+    else {
         pos->nonPawnKey[color] ^= PieceKeys[piece][sq];
+
+        if (pt == KING) {
+            pos->minorKey ^= PieceKeys[piece][sq];
+            pos->majorKey ^= PieceKeys[piece][sq];
+        } else if (pt >= ROOK)
+            pos->majorKey ^= PieceKeys[piece][sq];
+        else
+            pos->minorKey ^= PieceKeys[piece][sq];
+    }
 
     // Update square
     pieceOn(sq) = piece;
@@ -123,8 +141,17 @@ static void MovePiece(Position *pos, const Square from, const Square to, const b
 
     if (PieceTypeOf(piece) == PAWN)
         pos->pawnKey ^= PieceKeys[piece][from] ^ PieceKeys[piece][to];
-    else
+    else {
         pos->nonPawnKey[color] ^= PieceKeys[piece][from] ^ PieceKeys[piece][to];
+
+        if (pt == KING) {
+            pos->minorKey ^= PieceKeys[piece][from] ^ PieceKeys[piece][to];
+            pos->majorKey ^= PieceKeys[piece][from] ^ PieceKeys[piece][to];
+        } else if (pt >= ROOK)
+            pos->majorKey ^= PieceKeys[piece][from] ^ PieceKeys[piece][to];
+        else
+            pos->minorKey ^= PieceKeys[piece][from] ^ PieceKeys[piece][to];
+    }
 
     // Set old square to empty, new to piece
     pieceOn(from) = EMPTY;

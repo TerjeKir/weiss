@@ -53,6 +53,8 @@ typedef struct Position {
     Key key;
     Key materialKey;
     Key pawnKey;
+    Key minorKey;
+    Key majorKey;
     Key nonPawnKey[COLOR_NB];
 
     uint64_t nodes;
