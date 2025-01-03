@@ -28,7 +28,7 @@
 #define SS_OFFSET 10
 #define MULTI_PV_MAX 64
 #define PAWN_HISTORY_SIZE 512
-#define CORRECTION_HISTORY_SIZE 16384
+#define CORRECTION_HISTORY_SIZE 32768
 
 typedef int16_t ButterflyHistory[COLOR_NB][64][64];
 typedef int16_t PawnHistory[PAWN_HISTORY_SIZE][PIECE_NB][64];
