@@ -80,6 +80,8 @@ typedef struct Thread {
     ContinuationHistory continuation[2][2];
     CorrectionHistory pawnCorrHistory;
     CorrectionHistory matCorrHistory;
+    CorrectionHistory minorCorrHistory;
+    CorrectionHistory majorCorrHistory;
     CorrectionHistory nonPawnCorrHistory[COLOR_NB];
     ContiuationCorrectionHistory contCorrHistory;
 

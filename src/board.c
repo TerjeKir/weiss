@@ -128,6 +128,28 @@ static Key GenMaterialKey(const Position *pos) {
     return key;
 }
 
+static Key GenMinorKey(const Position *pos) {
+
+    Key key = 0;
+
+    for (Square sq = A1; sq <= H8; ++sq)
+        if (PieceTypeOf(pieceOn(sq)) == KNIGHT || PieceTypeOf(pieceOn(sq)) == BISHOP || PieceTypeOf(pieceOn(sq)) == KING)
+            key ^= PieceKeys[pieceOn(sq)][sq];
+
+    return key;
+}
+
+static Key GenMajorKey(const Position *pos) {
+
+    Key key = 0;
+
+    for (Square sq = A1; sq <= H8; ++sq)
+        if (PieceTypeOf(pieceOn(sq)) == ROOK || PieceTypeOf(pieceOn(sq)) == QUEEN || PieceTypeOf(pieceOn(sq)) == KING)
+            key ^= PieceKeys[pieceOn(sq)][sq];
+
+    return key;
+}
+
 // Generates a hash key from scratch
 static Key GenNonPawnKey(const Position *pos, const Color color) {
 
@@ -253,6 +275,8 @@ void ParseFen(const char *fen, Position *pos) {
     pos->checkers = Checkers(pos);
     pos->key = GenPosKey(pos);
     pos->materialKey = GenMaterialKey(pos);
+    pos->minorKey = GenMinorKey(pos);
+    pos->majorKey = GenMajorKey(pos);
     pos->nonPawnKey[WHITE] = GenNonPawnKey(pos, WHITE);
     pos->nonPawnKey[BLACK] = GenNonPawnKey(pos, BLACK);
     pos->phase = UpdatePhase(pos->phaseValue);
@@ -540,8 +564,10 @@ bool PositionOk(const Position *pos) {
     assert(pos->castlingRights >= 0 && pos->castlingRights <= 15);
 
     assert(GenPosKey(pos)      == pos->key);
-    assert(GenMaterialKey(pos) == pos->materialKey);
     assert(GenPawnKey(pos)     == pos->pawnKey);
+    assert(GenMaterialKey(pos) == pos->materialKey);
+    assert(GenMinorKey(pos)    == pos->minorKey);
+    assert(GenMajorKey(pos)    == pos->majorKey);
     assert(GenNonPawnKey(pos, WHITE) == pos->nonPawnKey[WHITE]);
     assert(GenNonPawnKey(pos, BLACK) == pos->nonPawnKey[BLACK]);
 
