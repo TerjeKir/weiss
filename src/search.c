@@ -175,6 +175,7 @@ moveloop:
     Move bestMove = NOMOVE;
     Move move;
     while ((move = NextMove(&mp))) {
+        if (!MoveIsLegal(pos, move)) continue;
 
         // Avoid pruning until at least one move avoids a terminal loss score
         if (isLoss(bestScore)) goto search;
@@ -201,8 +202,7 @@ search:
         ss->continuation = &thread->continuation[inCheck][moveIsCapture(move)][piece(move)][toSq(move)];
         ss->contCorr = &thread->contCorrHistory[piece(move)][toSq(move)];
 
-        // Recursively search the positions after making the moves, skipping illegal ones
-        if (!MakeMove(pos, move)) continue;
+        MakeMove(pos, move);
         int score = -Quiescence(thread, ss+1, -beta, -alpha);
         TakeMove(pos);
 
@@ -407,7 +407,8 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
 
             if (mp.stage > NOISY_GOOD) break;
 
-            if (!MakeMove(pos, move)) continue;
+            if (!MoveIsLegal(pos, move)) continue;
+            MakeMove(pos, move);
 
             ss->move = move;
             ss->continuation = &thread->continuation[inCheck][moveIsCapture(move)][piece(move)][toSq(move)];
@@ -447,6 +448,7 @@ move_loop:
         if (move == ss->excluded) continue;
         if (root && AlreadySearchedMultiPV(thread, move)) continue;
         if (root && NotInSearchMoves(Limits.searchmoves, move)) continue;
+        if (!MoveIsLegal(pos, move)) continue;
 
         bool quiet = moveIsQuiet(move);
 
@@ -475,9 +477,6 @@ move_loop:
                 continue;
         }
 
-        // Make the move, skipping to the next if illegal
-        if (!MakeMove(pos, move)) continue;
-
         moveCount++;
 
         // Extension
@@ -494,9 +493,6 @@ move_loop:
             && ttDepth > depth - 3
             && ttBound != BOUND_UPPER
             && !isTerminal(ttScore)) {
-
-            // ttMove has been made to check legality
-            TakeMove(pos);
 
             // Search to reduced depth with a zero window a bit lower than ttScore
             int singularBeta = ttScore - depth * (2 - pvNode);
@@ -515,9 +511,6 @@ move_loop:
             // Negative extension - not singular but likely still good enough to beat beta
             else if (ttScore >= beta)
                 extension = -1;
-
-            // Replay ttMove
-            MakeMove(pos, move);
         }
 
         // Extend when in check
@@ -525,6 +518,8 @@ move_loop:
             extension = MAX(extension, 1);
 
 skip_extensions:
+
+        MakeMove(pos, move);
 
         ss->move = move;
         ss->doubleExtensions = (ss-1)->doubleExtensions + (extension == 2);

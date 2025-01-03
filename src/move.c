@@ -71,6 +71,37 @@ bool MoveIsPseudoLegal(const Position *pos, const Move move) {
     return BB(to) & AttackBB(pieceTypeOn(from), from, pieceBB(ALL));
 }
 
+// Checks whether a move is legal
+// (assumes the move is pseudo-legal in the current position)
+bool MoveIsLegal(const Position *pos, const Move move) {
+
+    Color color = sideToMove;
+    Square from = fromSq(move);
+    Square to = toSq(move);
+
+    Square kingSq = PieceTypeOf(pieceOn(from)) == KING ? to : (Square)kingSq(color);
+
+    Bitboard occ = (pieceBB(ALL) ^ BB(from)) | BB(to);
+    Bitboard exclude = BB(to);
+
+    if (moveIsEnPas(move))
+        occ ^= BB(to ^ 8),
+        exclude ^= BB(to ^ 8);
+
+    Bitboard bishops = colorBB(!color) & (pieceBB(BISHOP) | pieceBB(QUEEN));
+    Bitboard rooks   = colorBB(!color) & (pieceBB(ROOK)   | pieceBB(QUEEN));
+
+    Bitboard kingAttackers =
+        (  (PawnAttackBB(color, kingSq)   & colorPieceBB(!color, PAWN))
+         | (AttackBB(KING,   kingSq, occ) & colorPieceBB(!color, KING))
+         | (AttackBB(KNIGHT, kingSq, occ) & colorPieceBB(!color, KNIGHT))
+         | (AttackBB(BISHOP, kingSq, occ) & bishops)
+         | (AttackBB(ROOK,   kingSq, occ) & rooks));
+
+    // If any non-excluded piece is attacking the king, the move is illegal
+    return !(kingAttackers & ~exclude);
+}
+
 // Translates a move to a string
 char *MoveToStr(const Move move) {
 
