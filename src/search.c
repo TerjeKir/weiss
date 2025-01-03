@@ -450,6 +450,8 @@ move_loop:
         if (root && NotInSearchMoves(Limits.searchmoves, move)) continue;
         if (!MoveIsLegal(pos, move)) continue;
 
+        moveCount++;
+
         bool quiet = moveIsQuiet(move);
 
         uint64_t startingNodes = pos->nodes;
@@ -476,8 +478,6 @@ move_loop:
             if (lmrDepth < 7 && !SEE(pos, move, -63 * depth))
                 continue;
         }
-
-        moveCount++;
 
         // Extension
         Depth extension = 0;
