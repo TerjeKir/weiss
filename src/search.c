@@ -350,6 +350,11 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
     if (!isTerminal(ttScore) && TTScoreIsMoreInformative(ttBound, ttScore, eval))
         eval = ttScore;
 
+    if (ss->ply > 1 && (ss-1)->move && !moveIsCapture((ss-1)->move)) {
+        int bonus = CLAMP(-10 * ((ss-1)->staticEval + ss->staticEval), -1024, 1024) + 512;
+        QuietHistoryUpdate((ss-1)->move, bonus);
+    }
+
     // Improving if not in check, and current eval is higher than 2 plies ago
     bool improving = !inCheck && eval > (ss-2)->staticEval;
 

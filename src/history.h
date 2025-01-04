@@ -26,7 +26,7 @@
 #include "types.h"
 
 
-#define QuietEntry(move)        (&thread->history[thread->pos.stm][fromSq(move)][toSq(move)])
+#define QuietEntry(move)        (&thread->history[ColorOf(piece(move))][fromSq(move)][toSq(move)])
 #define PawnEntry(move)         (&thread->pawnHistory[PawnStructure(&thread->pos)][piece(move)][toSq(move)])
 #define NoisyEntry(move)        (&thread->captureHistory[piece(move)][toSq(move)][PieceTypeOf(capturing(move))])
 #define ContEntry(offset, move) (&(*(ss-offset)->continuation)[piece(move)][toSq(move)])
