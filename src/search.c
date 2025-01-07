@@ -450,6 +450,8 @@ move_loop:
         if (root && NotInSearchMoves(Limits.searchmoves, move)) continue;
         if (!MoveIsLegal(pos, move)) continue;
 
+        moveCount++;
+
         bool quiet = moveIsQuiet(move);
 
         uint64_t startingNodes = pos->nodes;
@@ -465,7 +467,7 @@ move_loop:
             Depth lmrDepth = depth - 1 - R;
 
             // Quiet late move pruning
-            if (moveCount > (improving ? depth * depth : -2 +  depth * depth / 2))
+            if (moveCount > (improving ? 1 + depth * depth : depth * depth / 2))
                 mp.onlyNoisy = true;
 
             // History pruning
@@ -476,8 +478,6 @@ move_loop:
             if (lmrDepth < 7 && !SEE(pos, move, -63 * depth))
                 continue;
         }
-
-        moveCount++;
 
         // Extension
         Depth extension = 0;
