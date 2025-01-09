@@ -175,7 +175,9 @@ Key KeyAfter(const Position *pos, const Move move) {
     if (capt)
         key ^= PieceKeys[capt][to];
 
-    return key ^ PieceKeys[piece][from] ^ PieceKeys[piece][to];
+    key ^= PieceKeys[piece][from] ^ PieceKeys[piece][to];
+
+    return (capt || PieceTypeOf(piece) == PAWN) ? key : Mr50KeyAfterMove(key, pos->rule50);
 }
 
 // Add a piece piece to a square

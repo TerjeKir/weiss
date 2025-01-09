@@ -95,6 +95,10 @@ INLINE bool ValidPiece(const Piece piece) { return (wP <= piece && piece <= wK) 
 INLINE bool ValidCapture(const Piece capt) { return (wP <= capt && capt <= wQ) || (bP <= capt && capt <= bQ); }
 INLINE bool ValidPromotion(const Piece promo) { return (wN <= promo && promo <= wQ) || (bN <= promo && promo <= bQ); }
 
+INLINE Key MakeKey(uint64_t seed) { return seed * 6364136223846793005ULL + 1442695040888963407ULL; }
+INLINE Key Mr50Key(const Position *pos) { return pos->rule50 < 14 ? pos->key : pos->key ^ MakeKey((pos->rule50 - 14) / 8); }
+INLINE Key Mr50KeyAfterMove(Key key, int rule50) { return rule50 < 13 ? key : key ^ MakeKey((rule50 - 13) / 8); }
+
 INLINE Color ColorOf(Piece piece) { return piece >> 3;}
 INLINE PieceType PieceTypeOf(Piece piece) { return piece & 7; }
 INLINE Piece MakePiece(Color color, PieceType pt) { return (color << 3) + pt; }

@@ -126,7 +126,8 @@ static int Quiescence(Thread *thread, Stack *ss, int alpha, int beta) {
 
     // Probe transposition table
     bool ttHit;
-    TTEntry *tte = ProbeTT(pos->key, &ttHit);
+    Key key = Mr50Key(pos);
+    TTEntry *tte = ProbeTT(key, &ttHit);
 
     Move ttMove = ttHit ? tte->move : NOMOVE;
     int ttScore = ttHit ? ScoreFromTT(tte->score, ss->ply) : NOSCORE;
@@ -230,7 +231,7 @@ search:
     if (inCheck && bestScore == -INFINITE)
         return matedIn(ss->ply);
 
-    StoreTTEntry(tte, pos->key, bestMove, ScoreToTT(bestScore, ss->ply), unadjustedEval, 0,
+    StoreTTEntry(tte, key, bestMove, ScoreToTT(bestScore, ss->ply), unadjustedEval, 0,
                  bestScore >= beta ? BOUND_LOWER : BOUND_UPPER);
 
     return bestScore;
@@ -287,7 +288,8 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
 
     // Probe transposition table
     bool ttHit;
-    TTEntry *tte = ProbeTT(pos->key, &ttHit);
+    Key key = Mr50Key(pos);
+    TTEntry *tte = ProbeTT(key, &ttHit);
 
     Move ttMove = ttHit ? tte->move : NOMOVE;
     int ttScore = ttHit ? ScoreFromTT(tte->score, ss->ply) : NOSCORE;
@@ -321,7 +323,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
 
         // Draw scores are exact, while wins are lower bounds and losses upper bounds (mate scores are better/worse)
         if (bound == BOUND_EXACT || (bound == BOUND_LOWER ? tbScore >= beta : tbScore <= alpha)) {
-            StoreTTEntry(tte, pos->key, NOMOVE, ScoreToTT(tbScore, ss->ply), NOSCORE, MAX_PLY, bound);
+            StoreTTEntry(tte, key, NOMOVE, ScoreToTT(tbScore, ss->ply), NOSCORE, MAX_PLY, bound);
             return tbScore;
         }
 
@@ -635,7 +637,7 @@ skip_extensions:
 
     // Store in TT
     if (!ss->excluded && (!root || !thread->multiPV))
-        StoreTTEntry(tte, pos->key, bestMove, ScoreToTT(bestScore, ss->ply), unadjustedEval, depth,
+        StoreTTEntry(tte, key, bestMove, ScoreToTT(bestScore, ss->ply), unadjustedEval, depth,
                        bestScore >= beta  ? BOUND_LOWER
                      : pvNode && bestMove ? BOUND_EXACT
                                           : BOUND_UPPER);
