@@ -22,6 +22,13 @@
 #include "movepicker.h"
 
 
+extern int ScoreMovesLimit;
+extern int MPGood;
+extern int MPGoodDepth;
+extern int MPBad;
+extern int MPBadDepth;
+
+
 // Return the next best move
 static Move PickNextMove(MovePicker *mp) {
 
@@ -69,7 +76,7 @@ static void ScoreMoves(MovePicker *mp, const int stage) {
                                : GetCaptureHistory(thread, move) + PieceValue[MG][capturing(move)];
     }
 
-    SortMoves(list, -1000 * mp->depth);
+    SortMoves(list, -ScoreMovesLimit * mp->depth);
 }
 
 // Returns the next move to try in a position
@@ -96,8 +103,8 @@ Move NextMove(MovePicker *mp) {
         case NOISY_GOOD:
             // Save seemingly bad noisy moves for later
             while ((move = PickNextMove(mp)))
-                if (    mp->list.moves[mp->list.next-1].score >  11300
-                    || (mp->list.moves[mp->list.next-1].score > -11100 && SEE(pos, move, mp->threshold)))
+                if (    mp->list.moves[mp->list.next-1].score > MPGood
+                    || (mp->list.moves[mp->list.next-1].score > -MPBad && SEE(pos, move, mp->threshold)))
                     return move;
                 else
                     mp->list.moves[mp->bads++].move = move;

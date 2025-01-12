@@ -41,3 +41,5 @@ extern atomic_bool Minimal;
 
 
 void *SearchPosition(void *pos);
+
+void Reinit();

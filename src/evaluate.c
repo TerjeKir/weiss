@@ -51,7 +51,7 @@ const int PieceValue[2][PIECE_NB] = {
 };
 
 // Bonus for being the side to move
-const int Tempo = 18;
+extern int Tempo;
 
 // Misc bonuses and maluses
 const int PawnDoubled  = S(-11,-48);
@@ -136,11 +136,49 @@ const int Mobility[4][28] = {
       S(122,221), S(135,193), S(146,166), S(125,162) }
 };
 
-// KingSafety [pt-2]
-const int AttackPower[4] = { 36, 22, 23, 78 };
-const int CheckPower[4]  = { 68, 44, 88, 92 };
-const int CountModifier[8] = { 0, 0, 63, 126, 96, 124, 124, 128 };
+extern int BasePower;
+extern int NPower;
+extern int BPower;
+extern int RPower;
+extern int QPower;
+extern int NCPower;
+extern int BCPower;
+extern int RCPower;
+extern int QCPower;
+extern int Modifier1;
+extern int Modifier2;
+extern int Modifier3;
+extern int Modifier4;
+extern int Modifier5;
+extern int Modifier6;
+extern int Modifier7;
+extern int Modifier8;
 
+// KingSafety [pt-2]
+int AttackPower[4] = { 0 };
+int CheckPower[4]  = { 0 };
+int CountModifier[8] = { 0 };
+
+void InitSafety() {
+    AttackPower[KNIGHT-2] = NPower;
+    AttackPower[BISHOP-2] = BPower;
+    AttackPower[ROOK  -2] = RPower;
+    AttackPower[QUEEN -2] = QPower;
+
+    CheckPower[KNIGHT-2] = NCPower;
+    CheckPower[BISHOP-2] = BCPower;
+    CheckPower[ROOK  -2] = RCPower;
+    CheckPower[QUEEN -2] = QCPower;
+
+    CountModifier[0] = Modifier1;
+    CountModifier[1] = Modifier2;
+    CountModifier[2] = Modifier3;
+    CountModifier[3] = Modifier4;
+    CountModifier[4] = Modifier5;
+    CountModifier[5] = Modifier6;
+    CountModifier[6] = Modifier7;
+    CountModifier[7] = Modifier8;
+}
 
 // Evaluates pawns
 INLINE int EvalPawns(const Position *pos, EvalInfo *ei, const Color color) {
@@ -484,7 +522,7 @@ INLINE void InitEvalInfo(const Position *pos, EvalInfo *ei, const Color color) {
     // King Safety
     ei->kingZone[color] = AttackBB(KING, kingSq(color), 0);
 
-    ei->attackPower[color] = -30;
+    ei->attackPower[color] = BasePower;
     ei->attackCount[color] = 0;
 
     // Clear passed pawns, filled in during pawn eval
@@ -509,6 +547,8 @@ static int ScaleFactor(const Position *pos, const int eval) {
     // Scale down when there aren't pawns on both sides of the board
     if (!(strongPawns & QueenSideBB) || !(strongPawns & KingSideBB))
         pawnScale -= 20;
+
+    pawnScale = MIN(pawnScale, 128);
 
     // Opposite-colored bishop
     if (   pos->nonPawnCount[WHITE] <= 2

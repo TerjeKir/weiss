@@ -36,15 +36,45 @@
 #define ContCorrEntry(offset)   (&(*(ss-offset)->contCorr)[piece((ss-1)->move)][toSq((ss-1)->move)])
 #define NonPawnCorrEntry(color) (&thread->nonPawnCorrHistory[color][thread->pos.stm][NonPawnCorrIndex(&thread->pos, color)])
 
-#define QuietHistoryUpdate(move, bonus)        (HistoryBonus(QuietEntry(move),        bonus,  5280))
-#define PawnHistoryUpdate(move, bonus)         (HistoryBonus(PawnEntry(move),         bonus,  9275))
-#define NoisyHistoryUpdate(move, bonus)        (HistoryBonus(NoisyEntry(move),        bonus, 16000))
-#define ContHistoryUpdate(offset, move, bonus) (HistoryBonus(ContEntry(offset, move), bonus, 21250))
-#define PawnCorrHistoryUpdate(bonus)           (HistoryBonus(PawnCorrEntry(),         bonus,  1662))
-#define MinorCorrHistoryUpdate(bonus)          (HistoryBonus(MinorCorrEntry(),        bonus,  1024))
-#define MajorCorrHistoryUpdate(bonus)          (HistoryBonus(MajorCorrEntry(),        bonus,  1024))
-#define ContCorrHistoryUpdate(offset, bonus)   (HistoryBonus(ContCorrEntry(offset),   bonus,  1220))
-#define NonPawnCorrHistoryUpdate(bonus, color) (HistoryBonus(NonPawnCorrEntry(color), bonus,  1024))
+#define QuietHistoryUpdate(move, bonus)        (HistoryBonus(QuietEntry(move),        bonus, HistQDiv))
+#define PawnHistoryUpdate(move, bonus)         (HistoryBonus(PawnEntry(move),         bonus, HistPDiv))
+#define NoisyHistoryUpdate(move, bonus)        (HistoryBonus(NoisyEntry(move),        bonus, HistNDiv))
+#define ContHistoryUpdate(offset, move, bonus) (HistoryBonus(ContEntry(offset, move), bonus, HistCDiv))
+#define PawnCorrHistoryUpdate(bonus)           (HistoryBonus(PawnCorrEntry(),         bonus, HistPCDiv))
+#define MinorCorrHistoryUpdate(bonus)          (HistoryBonus(MinorCorrEntry(),        bonus, HistMiCDiv))
+#define MajorCorrHistoryUpdate(bonus)          (HistoryBonus(MajorCorrEntry(),        bonus, HistMaCDiv))
+#define ContCorrHistoryUpdate(offset, bonus)   (HistoryBonus(ContCorrEntry(offset),   bonus, HistCCDiv))
+#define NonPawnCorrHistoryUpdate(bonus, color) (HistoryBonus(NonPawnCorrEntry(color), bonus, HistNPCHDiv))
+
+
+extern int HistQDiv;
+extern int HistPDiv;
+extern int HistCDiv;
+extern int HistNDiv;
+extern int HistPCDiv;
+extern int HistMiCDiv;
+extern int HistMaCDiv;
+extern int HistCCDiv;
+extern int HistNPCHDiv;
+extern int HistBonusMax;
+extern int HistBonusBase;
+extern int HistBonusDepth;
+extern int HistMalusMax;
+extern int HistMalusBase;
+extern int HistMalusDepth;
+extern int HistCBonusDepthDiv;
+extern int HistCBonusMin;
+extern int HistCBonusMax;
+extern int HistGetPC;
+extern int HistGetMiC;
+extern int HistGetMaC;
+extern int HistGetCC2;
+extern int HistGetCC3;
+extern int HistGetCC4;
+extern int HistGetCC5;
+extern int HistGetCC6;
+extern int HistGetCC7;
+extern int HistGetNPC;
 
 
 INLINE int PawnStructure(const Position *pos) { return pos->pawnKey & (PAWN_HISTORY_SIZE - 1); }
@@ -61,15 +91,15 @@ INLINE void HistoryBonus(int16_t *entry, int bonus, int div) {
 }
 
 INLINE int Bonus(Depth depth) {
-    return MIN(2410, 268 * depth - 310);
+    return MIN(HistBonusMax, HistBonusDepth * depth - HistBonusBase);
 }
 
 INLINE int Malus(Depth depth) {
-    return -MIN(834, 531 * depth - 148);
+    return -MIN(HistMalusMax, HistMalusDepth * depth - HistMalusBase);
 }
 
 INLINE int CorrectionBonus(int score, int eval, Depth depth) {
-    return CLAMP((score - eval) * depth / 4, -212, 254);
+    return CLAMP((score - eval) * depth / HistCBonusDepthDiv, -HistCBonusMin, HistCBonusMax);
 }
 
 INLINE void UpdateContHistories(Stack *ss, Move move, int bonus) {
@@ -153,16 +183,16 @@ INLINE int GetHistory(const Thread *thread, Stack *ss, Move move) {
 }
 
 INLINE int GetCorrectionHistory(const Thread *thread, const Stack *ss) {
-    int c =  6554 * *PawnCorrEntry()
-           + 6800 * *MinorCorrEntry()
-           + 3700 * *MajorCorrEntry()
-           + 7000 * (*NonPawnCorrEntry(WHITE) + *NonPawnCorrEntry(BLACK))
-           + 3121 * *ContCorrEntry(2)
-           + 2979 * *ContCorrEntry(3)
-           + 2849 * *ContCorrEntry(4)
-           + 3121 * *ContCorrEntry(5)
-           + 2789 * *ContCorrEntry(6)
-           + 2979 * *ContCorrEntry(7);
+    int c =  HistGetPC  * *PawnCorrEntry()
+           + HistGetMiC * *MinorCorrEntry()
+           + HistGetMaC * *MajorCorrEntry()
+           + HistGetNPC * (*NonPawnCorrEntry(WHITE) + *NonPawnCorrEntry(BLACK))
+           + HistGetCC2 * *ContCorrEntry(2)
+           + HistGetCC3 * *ContCorrEntry(3)
+           + HistGetCC4 * *ContCorrEntry(4)
+           + HistGetCC5 * *ContCorrEntry(5)
+           + HistGetCC6 * *ContCorrEntry(6)
+           + HistGetCC7 * *ContCorrEntry(7);
 
     return c / 131072;
 }
