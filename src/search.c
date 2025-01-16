@@ -48,8 +48,8 @@ static int Reductions[2][32][32];
 CONSTR(1) InitReductions() {
     for (int depth = 1; depth < 32; ++depth)
         for (int moves = 1; moves < 32; ++moves)
-            Reductions[0][depth][moves] = 0.48 + log(depth) * log(moves) / 3.43, // capture
-            Reductions[1][depth][moves] = 1.92 + log(depth) * log(moves) / 2.46; // quiet
+            Reductions[0][depth][moves] = 0.42 + log(depth) * log(moves) / 3.53, // capture
+            Reductions[1][depth][moves] = 1.96 + log(depth) * log(moves) / 2.27; // quiet
 }
 
 // Checks whether a move was already searched in multi-pv mode
@@ -163,7 +163,7 @@ static int Quiescence(Thread *thread, Stack *ss, int alpha, int beta) {
     if (eval > alpha)
         alpha = eval;
 
-    futility = eval + 132;
+    futility = eval + 164;
     bestScore = eval;
 
 moveloop:
@@ -367,18 +367,18 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
     // Reverse Futility Pruning
     if (   depth < 7
         && eval >= beta
-        && eval - 76 * (depth - improving) - (ss-1)->histScore / 119 >= beta
-        && (!ttMove || GetHistory(thread, ss, ttMove) > 7600))
+        && eval - 75 * (depth - improving) - (ss-1)->histScore / 127 >= beta
+        && (!ttMove || GetHistory(thread, ss, ttMove) > 6650))
         return eval;
 
     // Null Move Pruning
     if (   eval >= beta
         && eval >= ss->staticEval
-        && ss->staticEval >= beta + 158 - 19 * depth
-        && (ss-1)->histScore < 26300
+        && ss->staticEval >= beta + 147 - 15 * depth
+        && (ss-1)->histScore < 28250
         && pos->nonPawnCount[sideToMove] > (depth > 8)) {
 
-        Depth reduction = 4 + depth / 4 + MIN(3, (eval - beta) / 224);
+        Depth reduction = 4 + depth / 4 + MIN(3, (eval - beta) / 222);
 
         ss->move = NOMOVE;
         ss->continuation = &thread->continuation[0][0][EMPTY][0];
@@ -463,19 +463,19 @@ move_loop:
             && thread->doPruning
             && !isLoss(bestScore)) {
 
-            int R = Reductions[quiet][MIN(31, depth)][MIN(31, moveCount)] - ss->histScore / 9050;
+            int R = Reductions[quiet][MIN(31, depth)][MIN(31, moveCount)] - ss->histScore / 9322;
             Depth lmrDepth = depth - 1 - R;
 
             // Quiet late move pruning
-            if (moveCount > (improving ? 1 + depth * depth : depth * depth / 2))
+            if (moveCount > (improving ? 2 + depth * depth : depth * depth / 2))
                 mp.onlyNoisy = true;
 
             // History pruning
-            if (lmrDepth < 3 && ss->histScore < -1024 * depth)
+            if (lmrDepth < 3 && ss->histScore < -1204 * depth)
                 continue;
 
             // SEE pruning
-            if (lmrDepth < 7 && !SEE(pos, move, -63 * depth))
+            if (lmrDepth < 7 && !SEE(pos, move, -69 * depth))
                 continue;
         }
 
@@ -536,7 +536,7 @@ skip_extensions:
             // Base reduction
             int r = Reductions[quiet][MIN(31, depth)][MIN(31, moveCount)];
             // Adjust reduction by move history
-            r -= ss->histScore / 10135;
+            r -= ss->histScore / 9612;
             // Reduce less in pv nodes
             r -= pvNode;
             // Reduce less when improving
@@ -555,7 +555,7 @@ skip_extensions:
 
             // Re-search with the same window at full depth if the reduced search failed high
             if (score > alpha && lmrDepth < newDepth) {
-                bool deeper = score > bestScore + 1 + 7 * (newDepth - lmrDepth);
+                bool deeper = score > bestScore + 1 + 8 * (newDepth - lmrDepth);
 
                 newDepth += deeper;
 
@@ -750,7 +750,7 @@ static void *IterativeDeepening(void *voidThread) {
             Limits.optimalUsage = MIN(500, Limits.optimalUsage);
 
         double nodeRatio = 1.0 - (double)thread->rootMoves[0].nodes / (MAX(1, pos->nodes));
-        double timeRatio = 0.55 + 3.01 * nodeRatio;
+        double timeRatio = 0.57 + 3.56 * nodeRatio;
 
         // If an iteration finishes after optimal time usage, stop the search
         if (   Limits.timelimit
