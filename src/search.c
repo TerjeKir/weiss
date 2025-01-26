@@ -397,7 +397,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
     int probCutBeta = beta + 200;
 
     // ProbCut
-    if (   depth >= 5
+    if (   depth >= 3
         && (!ttHit || ttBound == BOUND_LOWER || ttScore >= probCutBeta)) {
 
         InitProbcutMP(&mp, thread, ss, probCutBeta - ss->staticEval);
@@ -418,7 +418,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
             int score = -Quiescence(thread, ss+1, -probCutBeta, -probCutBeta+1);
 
             // If it did, do a proper search with reduced depth
-            if (score >= probCutBeta)
+            if (score >= probCutBeta && depth - 4 > 0)
                 score = -AlphaBeta(thread, ss+1, -probCutBeta, -probCutBeta+1, depth-4, !cutnode);
 
             TakeMove(pos);
