@@ -36,15 +36,15 @@
 #define ContCorrEntry(offset)   (&(*(ss-offset)->contCorr)[piece((ss-1)->move)][toSq((ss-1)->move)])
 #define NonPawnCorrEntry(color) (&thread->nonPawnCorrHistory[color][thread->pos.stm][NonPawnCorrIndex(&thread->pos, color)])
 
-#define QuietHistoryUpdate(move, bonus)        (HistoryBonus(QuietEntry(move),        bonus,  5280))
-#define PawnHistoryUpdate(move, bonus)         (HistoryBonus(PawnEntry(move),         bonus,  9275))
-#define NoisyHistoryUpdate(move, bonus)        (HistoryBonus(NoisyEntry(move),        bonus, 16000))
-#define ContHistoryUpdate(offset, move, bonus) (HistoryBonus(ContEntry(offset, move), bonus, 21250))
-#define PawnCorrHistoryUpdate(bonus)           (HistoryBonus(PawnCorrEntry(),         bonus,  1662))
-#define MinorCorrHistoryUpdate(bonus)          (HistoryBonus(MinorCorrEntry(),        bonus,  1024))
-#define MajorCorrHistoryUpdate(bonus)          (HistoryBonus(MajorCorrEntry(),        bonus,  1024))
-#define ContCorrHistoryUpdate(offset, bonus)   (HistoryBonus(ContCorrEntry(offset),   bonus,  1220))
-#define NonPawnCorrHistoryUpdate(bonus, color) (HistoryBonus(NonPawnCorrEntry(color), bonus,  1024))
+#define QuietHistoryUpdate(move, bonus)        (HistoryBonus(QuietEntry(move),        bonus,  4373))
+#define PawnHistoryUpdate(move, bonus)         (HistoryBonus(PawnEntry(move),         bonus,  8663))
+#define NoisyHistoryUpdate(move, bonus)        (HistoryBonus(NoisyEntry(move),        bonus, 14387))
+#define ContHistoryUpdate(offset, move, bonus) (HistoryBonus(ContEntry(offset, move), bonus, 16384))
+#define PawnCorrHistoryUpdate(bonus)           (HistoryBonus(PawnCorrEntry(),         bonus,  1651))
+#define MinorCorrHistoryUpdate(bonus)          (HistoryBonus(MinorCorrEntry(),        bonus,  1142))
+#define MajorCorrHistoryUpdate(bonus)          (HistoryBonus(MajorCorrEntry(),        bonus,  1222))
+#define ContCorrHistoryUpdate(offset, bonus)   (HistoryBonus(ContCorrEntry(offset),   bonus,  1514))
+#define NonPawnCorrHistoryUpdate(bonus, color) (HistoryBonus(NonPawnCorrEntry(color), bonus,  1063))
 
 
 INLINE int PawnStructure(const Position *pos) { return pos->pawnKey & (PAWN_HISTORY_SIZE - 1); }
@@ -61,15 +61,15 @@ INLINE void HistoryBonus(int16_t *entry, int bonus, int div) {
 }
 
 INLINE int Bonus(Depth depth) {
-    return MIN(2410, 268 * depth - 310);
+    return MIN(2418, 251 * depth - 267);
 }
 
 INLINE int Malus(Depth depth) {
-    return -MIN(834, 531 * depth - 148);
+    return -MIN(693, 532 * depth - 163);
 }
 
 INLINE int CorrectionBonus(int score, int eval, Depth depth) {
-    return CLAMP((score - eval) * depth / 4, -212, 254);
+    return CLAMP((score - eval) * depth / 4, -172, 289);
 }
 
 INLINE void UpdateContHistories(Stack *ss, Move move, int bonus) {
@@ -153,16 +153,16 @@ INLINE int GetHistory(const Thread *thread, Stack *ss, Move move) {
 }
 
 INLINE int GetCorrectionHistory(const Thread *thread, const Stack *ss) {
-    int c =  6554 * *PawnCorrEntry()
-           + 6800 * *MinorCorrEntry()
-           + 3700 * *MajorCorrEntry()
-           + 7000 * (*NonPawnCorrEntry(WHITE) + *NonPawnCorrEntry(BLACK))
-           + 3121 * *ContCorrEntry(2)
-           + 2979 * *ContCorrEntry(3)
-           + 2849 * *ContCorrEntry(4)
-           + 3121 * *ContCorrEntry(5)
-           + 2789 * *ContCorrEntry(6)
-           + 2979 * *ContCorrEntry(7);
+    int c =  5868 * *PawnCorrEntry()
+           + 7217 * *MinorCorrEntry()
+           + 4416 * *MajorCorrEntry()
+           + 7025 * (*NonPawnCorrEntry(WHITE) + *NonPawnCorrEntry(BLACK))
+           + 4060 * *ContCorrEntry(2)
+           + 3235 * *ContCorrEntry(3)
+           + 2626 * *ContCorrEntry(4)
+           + 3841 * *ContCorrEntry(5)
+           + 3379 * *ContCorrEntry(6)
+           + 2901 * *ContCorrEntry(7);
 
     return c / 131072;
 }
