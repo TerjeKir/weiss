@@ -157,12 +157,7 @@ INLINE int GetCorrectionHistory(const Thread *thread, const Stack *ss) {
            + 7217 * *MinorCorrEntry()
            + 4416 * *MajorCorrEntry()
            + 7025 * (*NonPawnCorrEntry(WHITE) + *NonPawnCorrEntry(BLACK))
-           + 4060 * *ContCorrEntry(2)
-           + 3235 * *ContCorrEntry(3)
-           + 2626 * *ContCorrEntry(4)
-           + 3841 * *ContCorrEntry(5)
-           + 3379 * *ContCorrEntry(6)
-           + 2901 * *ContCorrEntry(7);
+           + 4060 * *ContCorrEntry(2);
 
     return c / 131072;
 }
