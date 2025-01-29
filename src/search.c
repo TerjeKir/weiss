@@ -374,7 +374,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
     // Null Move Pruning
     if (   eval >= beta
         && eval >= ss->staticEval
-        && ss->staticEval >= beta + 138 - 13 * depth
+        && ss->staticEval >= beta + 153 - 13 * depth - 30 * improving
         && (ss-1)->histScore < 28500
         && pos->nonPawnCount[sideToMove] > (depth > 8)) {
 
