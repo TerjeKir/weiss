@@ -475,8 +475,15 @@ move_loop:
                 continue;
 
             // SEE pruning
-            if (lmrDepth < 7 && !SEE(pos, move, -73 * depth))
-                continue;
+            if (quiet) {
+                if (lmrDepth < 7 && !SEE(pos, move, -73 * depth))
+                    continue;
+            } else {
+                int baseMargin = -73 * depth;
+                int seeMargin = MAX(MIN(baseMargin - ss->histScore / 32, -1), 2 * baseMargin);
+                if (lmrDepth < 7 && !SEE(pos, move, seeMargin))
+                    continue;
+            }
         }
 
         // Extension
