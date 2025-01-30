@@ -84,9 +84,6 @@ INLINE void UpdateQuietHistory(Thread *thread, Stack *ss, Move bestMove, Depth d
     int bonus = Bonus(depth);
     int malus = Malus(depth);
 
-    // Update killer
-    ss->killer = bestMove;
-
     // Bonus to the move that caused the beta cutoff
     if (depth > 2) {
         QuietHistoryUpdate(bestMove, bonus);
