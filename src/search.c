@@ -572,8 +572,13 @@ skip_extensions:
             score = -AlphaBeta(thread, ss+1, -alpha-1, -alpha, newDepth, !cutnode);
 
         // Full depth alpha-beta window search
-        if (pvNode && (score > alpha || moveCount == 1))
+        if (pvNode && (score > alpha || moveCount == 1)) {
+
+            if (move == ttMove && thread->depth > 10)
+                newDepth = MAX(newDepth, 1);
+
             score = -AlphaBeta(thread, ss+1, -beta, -alpha, newDepth, false);
+        }
 
         // Undo the move
         TakeMove(pos);
