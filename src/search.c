@@ -471,7 +471,7 @@ move_loop:
                 mp.onlyNoisy = true;
 
             // History pruning
-            if (lmrDepth < 3 && ss->histScore < -1024 * depth)
+            if (quiet && lmrDepth < 3 && ss->histScore < -1024 * depth)
                 continue;
 
             // SEE pruning
