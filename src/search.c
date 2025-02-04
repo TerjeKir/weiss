@@ -398,7 +398,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
 
     // ProbCut
     if (   depth >= 5
-        && (!ttHit || ttBound == BOUND_LOWER || ttScore >= probCutBeta)) {
+        && (!ttHit || ttScore >= probCutBeta)) {
 
         InitProbcutMP(&mp, thread, ss, probCutBeta - ss->staticEval);
 
