@@ -60,13 +60,22 @@ static void SortMoves(MoveList *list, int threshold) {
 static void ScoreMoves(MovePicker *mp, const int stage) {
 
     const Thread *thread = mp->thread;
+    const Position *pos = &thread->pos;
+
     MoveList *list = &mp->list;
 
     for (int i = list->next; i < list->count; ++i) {
         Move move = list->moves[i].move;
-        list->moves[i].score =
-            stage == GEN_QUIET ? GetQuietHistory(thread, mp->ss, move)
-                               : GetCaptureHistory(thread, move) + PieceValue[MG][capturing(move)];
+        if (stage == GEN_NOISY) {
+            list->moves[i].score = GetCaptureHistory(thread, move) + PieceValue[MG][capturing(move)];
+        } else {
+            list->moves[i].score = GetQuietHistory(thread, mp->ss, move);
+
+            Bitboard threatenedByPawn = PawnBBAttackBB(colorPieceBB(!sideToMove, PAWN), !sideToMove);
+
+            if (BB(toSq(move)) & threatenedByPawn)
+                list->moves[i].score -= 10000;
+        }
     }
 
     SortMoves(list, -750 * mp->depth);
