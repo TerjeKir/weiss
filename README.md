@@ -13,7 +13,7 @@
 ## Weiss
 The name is an homage to [VICE](https://www.youtube.com/watch?v=bGAfaepBco4&list=PLZ1QII7yudbc-Ky058TEaOstZHVbT-2hg) which I used as a base for this project.
 
-Weiss appears in most rating lists, and can be seen competing at [TCEC](https://tcec-chess.com) and [Chess.com](https://www.chess.com/computer-chess-championship).
+Weiss can be seen competing at [TCEC](https://tcec-chess.com) and [Chess.com](https://www.chess.com/computer-chess-championship).
 
 ### UCI settings
 
