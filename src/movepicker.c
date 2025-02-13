@@ -73,8 +73,8 @@ static void ScoreMoves(MovePicker *mp, const int stage) {
 
             Bitboard threatenedByPawn = PawnBBAttackBB(colorPieceBB(!sideToMove, PAWN), !sideToMove);
 
-            if (PieceTypeOf(piece(move)) != PAWN && BB(toSq(move)) & threatenedByPawn)
-                list->moves[i].score -= 10000;
+            if (BB(fromSq(move)) & threatenedByPawn)
+                list->moves[i].score += 10000;
         }
     }
 
