@@ -291,7 +291,8 @@ INLINE int EvalPiece(const Position *pos, EvalInfo *ei, const Color color, const
             Bitboard bishopSquares   = (BB(sq) & BlackSquaresBB) ? BlackSquaresBB : ~BlackSquaresBB;
             Bitboard badPawns        = colorPieceBB(color, PAWN) & bishopSquares;
             Bitboard centralFiles    = fileCBB | fileDBB | fileEBB | fileFBB;
-            Bitboard blockedBadPawns = ShiftBB(pieceBB(ALL), down) & colorPieceBB(color, PAWN) & centralFiles;
+            Bitboard centralRanks    = rank3BB | rank4BB | rank5BB | rank6BB;
+            Bitboard blockedBadPawns = ShiftBB(pieceBB(ALL), down) & colorPieceBB(color, PAWN) & centralFiles & centralRanks;
 
             int count = PopCount(badPawns) * PopCount(blockedBadPawns);
             eval += count * BishopBadP;
