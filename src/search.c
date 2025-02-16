@@ -528,25 +528,25 @@ skip_extensions:
 
         Depth newDepth = depth - 1 + extension;
 
+        // Base reduction
+        int r = Reductions[quiet][MIN(31, depth)][MIN(31, moveCount)];
+        // Adjust reduction by move history
+        r -= ss->histScore / 8870;
+        // Reduce less in pv nodes
+        r -= pvNode;
+        // Reduce less when improving
+        r -= improving;
+        // Reduce quiets more if ttMove is a capture
+        r += moveIsCapture(ttMove);
+        // Reduce more when opponent has few pieces
+        r += pos->nonPawnCount[opponent] < 2;
+        // Reduce more in cut nodes
+        r += 2 * cutnode;
+
         // Reduced depth zero-window search
         if (   depth > 2
             && moveCount > MAX(1, pvNode + !ttMove + root + !quiet)
             && thread->doPruning) {
-
-            // Base reduction
-            int r = Reductions[quiet][MIN(31, depth)][MIN(31, moveCount)];
-            // Adjust reduction by move history
-            r -= ss->histScore / 8870;
-            // Reduce less in pv nodes
-            r -= pvNode;
-            // Reduce less when improving
-            r -= improving;
-            // Reduce quiets more if ttMove is a capture
-            r += moveIsCapture(ttMove);
-            // Reduce more when opponent has few pieces
-            r += pos->nonPawnCount[opponent] < 2;
-            // Reduce more in cut nodes
-            r += 2 * cutnode;
 
             // Depth after reductions, avoiding going straight to quiescence as well as extending
             Depth lmrDepth = CLAMP(newDepth - r, 1, newDepth);
@@ -569,7 +569,7 @@ skip_extensions:
 
         // Full depth zero-window search
         else if (!pvNode || moveCount > 1)
-            score = -AlphaBeta(thread, ss+1, -alpha-1, -alpha, newDepth, !cutnode);
+            score = -AlphaBeta(thread, ss+1, -alpha-1, -alpha, newDepth - (r > 3), !cutnode);
 
         // Full depth alpha-beta window search
         if (pvNode && (score > alpha || moveCount == 1))
