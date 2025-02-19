@@ -548,6 +548,8 @@ skip_extensions:
             // Reduce more in cut nodes
             r += 2 * cutnode;
 
+            r += cutnode && !ttMove;
+
             // Depth after reductions, avoiding going straight to quiescence as well as extending
             Depth lmrDepth = CLAMP(newDepth - r, 1, newDepth);
 
