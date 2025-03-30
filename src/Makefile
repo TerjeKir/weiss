@@ -25,6 +25,14 @@ CC     = gcc
 POPCNT = -msse3 -mpopcnt
 PEXT   = $(POPCNT) -DUSE_PEXT -mbmi2
 
+# Short commit id of HEAD
+GIT_HEAD_COMMIT_ID_RAW := $(shell git rev-parse --short HEAD)
+ifneq ($(GIT_HEAD_COMMIT_ID_RAW),)
+GIT_HEAD_COMMIT_ID_DEF := -DGIT_HEAD_COMMIT_ID=\""$(GIT_HEAD_COMMIT_ID_RAW)"\"
+else
+GIT_HEAD_COMMIT_ID_DEF :=
+endif
+
 # Flags
 STD    = -std=gnu11
 LIBS   = -pthread -lm
@@ -32,7 +40,7 @@ WARN   = -Wall -Wextra -Wshadow -Werror -Wmissing-declarations
 NDEBUG = -DNDEBUG
 
 FLAGS  = $(STD) $(WARN) -O3 -flto=auto
-CFLAGS = $(FLAGS) -march=native
+CFLAGS = $(FLAGS) -march=native $(GIT_HEAD_COMMIT_ID_DEF)
 RFLAGS = $(FLAGS) -static
 
 # Use pext if supported and not a ryzen 1/2 cpu

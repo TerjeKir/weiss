@@ -128,7 +128,16 @@ static void SetOption(char *str) {
 
 // Prints UCI info
 static void Info() {
-    printf("id name %s\n", NAME);
+
+    printf("id name %s%s\n",
+           NAME,
+#if defined(GIT_HEAD_COMMIT_ID)
+           " (" GIT_HEAD_COMMIT_ID ")"
+#else
+           ""
+#endif
+        );
+
     printf("id author Terje Kirstihagen\n");
     printf("option name Hash type spin default %d min %d max %d\n", HASH_DEFAULT, HASH_MIN, HASH_MAX);
     printf("option name Threads type spin default %d min %d max %d\n", 1, 1, 2048);
