@@ -22,7 +22,7 @@
 #include "endgame.h"
 
 
-Endgame EndgameTable[ENDGAME_TABLE_SIZE] = { 0 };
+Endgame EndgameTable[ENDGAME_TABLE_SIZE] = {};
 
 
 // Generates a material key from a string like "KRPkr"
@@ -40,7 +40,7 @@ static Key GenMaterialKey(const char *white, const char *black) {
     return pos.materialKey;
 }
 
-static int TrivialDraw(__attribute__((unused)) const Position *pos, __attribute__((unused)) Color color) {
+static int TrivialDraw(const Position *, Color) {
     return 0;
 }
 

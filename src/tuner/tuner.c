@@ -474,7 +474,7 @@ static double StaticEvaluationErrors(TEntry * entries, double K) {
     return total / (double) NPOSITIONS;
 }
 
-static double __attribute__((unused)) ComputeOptimalK(TEntry *entries) {
+[[maybe_unused]] static double ComputeOptimalK(TEntry *entries) {
 
     const double rate = 100, delta = 1e-5, deviation_goal = 1e-6;
     double K = 2, deviation = 1;
@@ -511,7 +511,7 @@ static void ComputeGradient(TEntry *entries, TVector gradient, TVector params, d
 
     #pragma omp parallel shared(gradient)
     {
-        TVector local = {0};
+        TVector local = {};
         #pragma omp for schedule(static, NPOSITIONS / NPARTITIONS)
         for (int i = 0; i < NPOSITIONS; i++)
             UpdateSingleGradient(&entries[i], local, params, K);
@@ -539,7 +539,7 @@ static double TunedEvaluationErrors(TEntry *entries, TVector params, double K) {
 
 void Tune() {
 
-    TVector baseParams = {0}, params = {0}, momentum = {0}, velocity = {0};
+    TVector baseParams = {}, params = {}, momentum = {}, velocity = {};
     double K, error, rate = LRRATE;
     TEntry *entries = calloc(NPOSITIONS, sizeof(TEntry));
     TupleStack      = calloc(STACKSIZE,  sizeof(TTuple));
@@ -555,7 +555,7 @@ void Tune() {
 
     for (int epoch = 1; epoch <= MAXEPOCHS; epoch++) {
 
-        TVector gradient = {0};
+        TVector gradient = {};
         ComputeGradient(entries, gradient, params, K);
 
         for (int i = 0; i < NTERMS; i++) {

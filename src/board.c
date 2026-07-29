@@ -534,8 +534,8 @@ bool PositionOk(const Position *pos) {
 
     assert(0 <= pos->histPly && pos->histPly < 256);
 
-    int counts[PIECE_NB] = { 0 };
-    int nonPawnCount[COLOR_NB] = { 0, 0 };
+    int counts[PIECE_NB] = {};
+    int nonPawnCount[COLOR_NB] = {};
 
     for (Square sq = A1; sq <= H8; ++sq) {
         Piece piece = pieceOn(sq);

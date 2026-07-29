@@ -372,7 +372,8 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
         return eval;
 
     // Null Move Pruning
-    if (   eval >= beta
+    if (   cutnode
+        && eval >= beta
         && eval >= ss->staticEval
         && ss->staticEval >= beta + 138 - 13 * depth
         && (ss-1)->histScore < 28500

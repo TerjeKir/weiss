@@ -23,6 +23,9 @@
 #include "threads.h"
 
 
+typedef int64_t TimePoint;
+
+
 INLINE TimePoint Now() {
     struct timespec t;
     clock_gettime(CLOCK_MONOTONIC, &t);

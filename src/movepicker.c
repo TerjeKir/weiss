@@ -86,13 +86,13 @@ Move NextMove(MovePicker *mp) {
             mp->stage++;
             return mp->ttMove;
 
-            // fall through
+            [[fallthrough]];
         case GEN_NOISY:
             GenNoisyMoves(pos, &mp->list);
             ScoreMoves(mp, GEN_NOISY);
             mp->stage++;
 
-            // fall through
+            [[fallthrough]];
         case NOISY_GOOD:
             // Save seemingly bad noisy moves for later
             while ((move = PickNextMove(mp)))
@@ -104,14 +104,14 @@ Move NextMove(MovePicker *mp) {
 
             mp->stage++;
 
-            // fall through
+            [[fallthrough]];
         case KILLER:
             mp->stage++;
             if (   mp->killer != mp->ttMove
                 && MoveIsPseudoLegal(pos, mp->killer))
                 return mp->killer;
 
-            // fall through
+            [[fallthrough]];
         case GEN_QUIET:
             if (!mp->onlyNoisy)
                 GenQuietMoves(pos, &mp->list),
@@ -119,7 +119,7 @@ Move NextMove(MovePicker *mp) {
 
             mp->stage++;
 
-            // fall through
+            [[fallthrough]];
         case QUIET:
             if (!mp->onlyNoisy)
                 if ((move = PickNextMove(mp)))
@@ -129,7 +129,7 @@ Move NextMove(MovePicker *mp) {
             mp->list.next = 0;
             mp->list.moves[mp->bads].move = NOMOVE;
 
-            // fall through
+            [[fallthrough]];
         case NOISY_BAD:
             return mp->list.moves[mp->list.next++].move;
 

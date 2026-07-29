@@ -19,6 +19,7 @@
 #pragma once
 
 #include "board.h"
+#include "time.h"
 #include "types.h"
 
 

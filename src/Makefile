@@ -34,7 +34,7 @@ GIT_HEAD_COMMIT_ID_DEF :=
 endif
 
 # Flags
-STD    = -std=gnu11
+STD    = -std=gnu23
 LIBS   = -pthread -lm
 WARN   = -Wall -Wextra -Wshadow -Werror -Wmissing-declarations -Wno-invalid-feature-combination
 NDEBUG = -DNDEBUG

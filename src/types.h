@@ -21,7 +21,6 @@
 #include <assert.h>
 #include <inttypes.h>
 #include <stdatomic.h>
-#include <stdbool.h>
 #include <stdio.h>
 
 
@@ -29,8 +28,8 @@
 #define MAX(A, B) ((A) > (B) ? (A) : (B))
 #define CLAMP(x, low, high)  (MIN((high), MAX((x), (low))))
 
-#define INLINE static inline __attribute__((always_inline))
-#define CONSTR(prio) static __attribute__((constructor (1000 + prio))) void
+#define INLINE [[gnu::always_inline]] static inline 
+#define CONSTR(prio) [[gnu::constructor(1000 + prio)]] static void
 
 #define loadRelaxed(x) atomic_load_explicit(&(x), memory_order_relaxed)
 
@@ -56,21 +55,12 @@
 
 typedef uint64_t Bitboard;
 typedef uint64_t Key;
-
 typedef uint32_t Move;
-typedef uint32_t Square;
-
-typedef int64_t TimePoint;
-
-typedef int32_t Depth;
-typedef int32_t Color;
-typedef int32_t Piece;
-typedef int32_t PieceType;
 
 
-enum {
+typedef enum Depth : int32_t {
     MAX_PLY = 100
-};
+} Depth;
 
 enum Score {
     TBWIN        = 30000,
@@ -83,20 +73,20 @@ enum Score {
     NOSCORE  = MATE + 2,
 };
 
-enum Color {
+typedef enum Color : int32_t {
     WHITE, BLACK, COLOR_NB
-};
+} Color;
 
-enum PieceType {
+typedef enum PieceType : int32_t {
     ALL, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING, TYPE_NB = 8
-};
+} PieceType;
 
-enum Piece {
+typedef enum Piece : int32_t {
     EMPTY,
     wP = 1, wN, wB, wR, wQ, wK,
     bP = 9, bN, bB, bR, bQ, bK,
     PIECE_NB = 16
-};
+} Piece;
 
 enum PieceValue {
     P_MG =  104, P_EG =  204,
@@ -114,7 +104,7 @@ enum Rank {
     RANK_1, RANK_2, RANK_3, RANK_4, RANK_5, RANK_6, RANK_7, RANK_8, RANK_NB
 };
 
-enum Square {
+typedef enum Square : uint32_t {
     A1, B1, C1, D1, E1, F1, G1, H1,
     A2, B2, C2, D2, E2, F2, G2, H2,
     A3, B3, C3, D3, E3, F3, G3, H3,
@@ -123,7 +113,7 @@ enum Square {
     A6, B6, C6, D6, E6, F6, G6, H6,
     A7, B7, C7, D7, E7, F7, G7, H7,
     A8, B8, C8, D8, E8, F8, G8, H8
-};
+} Square;
 
 typedef enum Direction {
     NORTH = 8,

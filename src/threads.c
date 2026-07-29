@@ -86,7 +86,7 @@ void PrepareSearch(Position *pos, Move searchmoves[]) {
     legalMoves.count = legalMoves.next = 0;
     GenLegalMoves(pos, &legalMoves);
 
-    RootMove rootMoves[256] = { 0 };
+    RootMove rootMoves[256] = {};
     int rootMoveCount = 0;
 
     // Add legal searchmoves to the root moves by checking if it is in the legalMoves list
