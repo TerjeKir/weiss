@@ -200,11 +200,11 @@ INLINE Bitboard AttackBB(PieceType pt, Square sq, Bitboard occupied) {
 // allied sliders moving the same directions and enemy queens
 INLINE Bitboard XRayAttackBB(const Position *pos, const Color color, const PieceType pt, const Square sq) {
     Bitboard occ = pieceBB(ALL) ^ pieceBB(QUEEN);
-    assert(pt == BISHOP || pt == ROOK || pt == QUEEN);
     switch (pt) {
         case BISHOP: occ ^= colorPieceBB(color, BISHOP); break;
         case ROOK  : occ ^= colorPieceBB(color, ROOK); break;
-        default    : occ ^= colorPieceBB(color, ROOK) ^ colorPieceBB(color, BISHOP); break;
+        case QUEEN : occ ^= colorPieceBB(color, ROOK) ^ colorPieceBB(color, BISHOP); break;
+        default    : break;
     }
     return AttackBB(pt, sq, occ);
 }
