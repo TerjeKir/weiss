@@ -1,6 +1,6 @@
 /*
   Weiss is a UCI compliant chess engine.
-  Copyright (C) 2023 Terje Kirstihagen
+  Copyright (C) 2019-2026 Terje Kirstihagen
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -39,9 +39,7 @@ void InitTimeManagement() {
     // Plan as if there are at most 50 moves left to play with current time
     int mtg = Limits.movestogo ? MIN(Limits.movestogo, 50) : 50;
 
-    int timeLeft = MAX(0,  Limits.time
-                         + mtg * Limits.inc
-                         - mtg * overhead);
+    int timeLeft = MAX(0, Limits.time + mtg * (Limits.inc - overhead));
 
     // Basetime for the whole game
     if (!Limits.movestogo) {

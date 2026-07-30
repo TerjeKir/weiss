@@ -1,6 +1,6 @@
 /*
   Weiss is a UCI compliant chess engine.
-  Copyright (C) 2023 Terje Kirstihagen
+  Copyright (C) 2019-2026 Terje Kirstihagen
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -43,7 +43,7 @@
 #include "query.h"
 
 
-static void error(const char *msg) { perror(msg); exit(0); }
+static void error(const char *msg) { perror(msg); exit(EXIT_FAILURE); }
 
 char *Query(char *hostname, char *message) {
 

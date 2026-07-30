@@ -1,6 +1,6 @@
 /*
   Weiss is a UCI compliant chess engine.
-  Copyright (C) 2023 Terje Kirstihagen
+  Copyright (C) 2019-2026 Terje Kirstihagen
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -139,15 +139,15 @@ void WaitForHelpers() {
 // Reset all data that isn't reset each turn
 void ResetThreads() {
     for (int i = 0; i < Threads->count; ++i)
-        memset(Threads[i].pawnCache,       0, sizeof(PawnCache)),
-        memset(Threads[i].history,         0, sizeof(Threads[i].history)),
-        memset(Threads[i].pawnHistory,     0, sizeof(Threads[i].pawnHistory)),
-        memset(Threads[i].captureHistory,  0, sizeof(Threads[i].captureHistory)),
-        memset(Threads[i].continuation,    0, sizeof(Threads[i].continuation)),
-        memset(Threads[i].pawnCorrHistory, 0, sizeof(Threads[i].pawnCorrHistory)),
-        memset(Threads[i].minorCorrHistory,0, sizeof(Threads[i].minorCorrHistory)),
-        memset(Threads[i].majorCorrHistory,0, sizeof(Threads[i].majorCorrHistory)),
-        memset(Threads[i].contCorrHistory, 0, sizeof(Threads[i].contCorrHistory));
+        memset(Threads[i].pawnCache,        0, sizeof(PawnCache)),
+        memset(Threads[i].history,          0, sizeof(Threads[i].history)),
+        memset(Threads[i].pawnHistory,      0, sizeof(Threads[i].pawnHistory)),
+        memset(Threads[i].captureHistory,   0, sizeof(Threads[i].captureHistory)),
+        memset(Threads[i].continuation,     0, sizeof(Threads[i].continuation)),
+        memset(Threads[i].pawnCorrHistory,  0, sizeof(Threads[i].pawnCorrHistory)),
+        memset(Threads[i].minorCorrHistory, 0, sizeof(Threads[i].minorCorrHistory)),
+        memset(Threads[i].majorCorrHistory, 0, sizeof(Threads[i].majorCorrHistory)),
+        memset(Threads[i].contCorrHistory,  0, sizeof(Threads[i].contCorrHistory));
 }
 
 // Run the given function once in each thread

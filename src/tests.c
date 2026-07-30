@@ -1,6 +1,6 @@
 /*
   Weiss is a UCI compliant chess engine.
-  Copyright (C) 2023 Terje Kirstihagen
+  Copyright (C) 2019-2026 Terje Kirstihagen
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -96,7 +96,7 @@ typedef struct BenchResult {
 void Benchmark(int argc, char **argv) {
 
     // Default depth 16, 1 thread, and 32MB hash
-    Limits.depth     = argc > 2 ? atoi(argv[2]) : 16;
+    Limits.depth     = argc > 2 ? atoi(argv[2]) : 14;
     int threadCount  = argc > 3 ? atoi(argv[3]) : 1;
     TT.requestedMB   = argc > 4 ? atoi(argv[4]) : HASH_DEFAULT;
 

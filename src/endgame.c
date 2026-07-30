@@ -1,6 +1,6 @@
 /*
   Weiss is a UCI compliant chess engine.
-  Copyright (C) 2023 Terje Kirstihagen
+  Copyright (C) 2019-2026 Terje Kirstihagen
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -15,8 +15,6 @@
   You should have received a copy of the GNU General Public License
   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-
-// #pragma once
 
 #include <stdlib.h>
 #include <string.h>
@@ -54,7 +52,7 @@ static void AddEndgame(const char *white, const char *black, SpecializedEval ef)
 
     if (eg->evalFunc != NULL) {
         puts("Collision in endgame table.");
-        exit(0);
+        exit(EXIT_FAILURE);
     }
 
     *eg = (Endgame) { key, ef };

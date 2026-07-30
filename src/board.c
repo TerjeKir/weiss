@@ -1,6 +1,6 @@
 /*
   Weiss is a UCI compliant chess engine.
-  Copyright (C) 2023 Terje Kirstihagen
+  Copyright (C) 2019-2026 Terje Kirstihagen
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -455,7 +455,7 @@ CONSTR(3) InitCuckoo() {
                 }
 
     if (validate != 3668)
-        puts("Failed to set cuckoo tables."), exit(1);
+        puts("Failed to set cuckoo tables."), exit(EXIT_FAILURE);
 }
 
 // Upcoming repetition detection
