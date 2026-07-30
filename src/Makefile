@@ -36,7 +36,7 @@ endif
 # Flags
 STD    = -std=gnu11
 LIBS   = -pthread -lm
-WARN   = -Wall -Wextra -Wshadow -Werror -Wmissing-declarations
+WARN   = -Wall -Wextra -Wshadow -Werror -Wmissing-declarations -Wno-invalid-feature-combination
 NDEBUG = -DNDEBUG
 
 FLAGS  = $(STD) $(WARN) -O3 -flto=auto
