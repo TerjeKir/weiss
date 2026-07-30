@@ -30,19 +30,15 @@ INLINE void AddMove(const Position *pos, MoveList *list, const Square from, cons
 }
 
 // Adds promotions
-INLINE void AddPromotions(const Position *pos, MoveList *list, const Color color, const int type, Bitboard moves, const Direction dir) {
+INLINE void AddPromotions(const Position *pos, MoveList *list, const Color color, Bitboard moves, const Direction dir) {
     while (moves) {
         Square to = PopLsb(&moves);
         Square from = to - dir;
 
-        if (type == NOISY)
-            AddMove(pos, list, from, to, MakePiece(color, QUEEN), FLAG_NONE);
-
-        if (type == QUIET) {
-            AddMove(pos, list, from, to, MakePiece(color, KNIGHT), FLAG_NONE);
-            AddMove(pos, list, from, to, MakePiece(color, ROOK  ), FLAG_NONE);
-            AddMove(pos, list, from, to, MakePiece(color, BISHOP), FLAG_NONE);
-        }
+        AddMove(pos, list, from, to, MakePiece(color, QUEEN ), FLAG_NONE);
+        AddMove(pos, list, from, to, MakePiece(color, KNIGHT), FLAG_NONE);
+        AddMove(pos, list, from, to, MakePiece(color, ROOK  ), FLAG_NONE);
+        AddMove(pos, list, from, to, MakePiece(color, BISHOP), FLAG_NONE);
     }
 }
 
@@ -103,15 +99,13 @@ INLINE void GenPawn(const Position *pos, MoveList *list, const Color color, cons
         AddPawnMoves(pos, list, doubles, up * 2, FLAG_PAWNSTART);
     }
 
-    // Promotions
-    AddPromotions(pos, list, color, type, lCap & promo, up+left);
-    AddPromotions(pos, list, color, type, rCap & promo, up+right);
-    Bitboard pushPromos = push & promo;
-    if (pos->checkers) pushPromos &= BetweenBB[kingSq(color)][Lsb(pos->checkers)];
-    AddPromotions(pos, list, color, type, pushPromos, up);
-
-    // Captures
+    // Promotions & Captures
     if (type == NOISY) {
+        AddPromotions(pos, list, color, lCap & promo, up+left);
+        AddPromotions(pos, list, color, rCap & promo, up+right);
+        Bitboard pushPromos = push & promo;
+        if (pos->checkers) pushPromos &= BetweenBB[kingSq(color)][Lsb(pos->checkers)];
+        AddPromotions(pos, list, color, pushPromos, up);
 
         AddPawnMoves(pos, list, lCap & normal, up+left,  FLAG_NONE);
         AddPawnMoves(pos, list, rCap & normal, up+right, FLAG_NONE);
