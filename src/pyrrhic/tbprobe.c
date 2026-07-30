@@ -2,7 +2,7 @@
  * Copyright (c) 2013-2020 Ronald de Man
  * Copyright (c) 2015 Basil, all rights reserved,
  * Modifications Copyright (c) 2016-2019 by Jon Dart
- * Modifications Copyright (c) 2020-2020 by Andrew Grant
+ * Modifications Copyright (c) 2020-2026 by Andrew Grant
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -139,9 +139,16 @@ static size_t file_size(FD fd) {
 
 static LOCK_T tbMutex;
 static int initialized = 0;
+static int tb_loaded = 0;
 static int numPaths = 0;
 static char *pathString = NULL;
 static char **paths = NULL;
+
+static tb_loader_fn g_loader = NULL;
+
+void tb_set_loader(tb_loader_fn loader) {
+    g_loader = loader;
+}
 
 static FD open_tb(const char *str, const char *suffix)
 {
@@ -168,10 +175,10 @@ static FD open_tb(const char *str, const char *suffix)
     size_t len;
     mbstowcs_s(&len, ucode_name, 4096, file, _TRUNCATE);
     fd = CreateFile(ucode_name, GENERIC_READ, FILE_SHARE_READ, NULL,
-			  OPEN_EXISTING, FILE_FLAG_RANDOM_ACCESS, NULL);
+			  OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 #else
     fd = CreateFile(file, GENERIC_READ, FILE_SHARE_READ, NULL,
-			  OPEN_EXISTING, FILE_FLAG_RANDOM_ACCESS, NULL);
+			  OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 #endif
 #endif
     free(file);
@@ -201,10 +208,13 @@ static void *map_file(FD fd, map_t *mapping)
     return NULL;
   }
   *mapping = statbuf.st_size;
-  void *data = mmap(NULL, statbuf.st_size, PROT_READ, MAP_SHARED, fd, 0);
-#if defined(MADV_RANDOM)
+  void *data = mmap(NULL, statbuf.st_size, PROT_READ,
+			      MAP_SHARED, fd, 0);
+
+  #if defined(MADV_RANDOM)
   madvise(data, statbuf.st_size, MADV_RANDOM);
-#endif
+  #endif
+
   if (data == MAP_FAILED) {
     perror("mmap");
     return NULL;
@@ -230,15 +240,17 @@ static void *map_file(FD fd, map_t *mapping)
 #ifndef _WIN32
 static void unmap_file(void *data, map_t size)
 {
-  if (!data) return;
-  if (!munmap(data, size)) {
+  // size == 0 is a sentinel for loader-supplied bytes; owned by the caller.
+  if (!data || size == 0) return;
+  if (munmap(data, size) < 0) {
 	  perror("munmap");
   }
 }
 #else
 static void unmap_file(void *data, map_t mapping)
 {
-  if (!data) return;
+  // mapping == NULL is a sentinel for loader-supplied bytes; owned by the caller.
+  if (!data || mapping == NULL) return;
   if (!UnmapViewOfFile(data)) {
 	  fprintf(stderr, "unmap failed, error code %lu\n", GetLastError());
   }
@@ -250,6 +262,9 @@ static void unmap_file(void *data, map_t mapping)
 
 int TB_MaxCardinality = 0, TB_MaxCardinalityDTM = 0;
 int TB_LARGEST = 0;
+int TB_NUM_WDL = 0;
+int TB_NUM_DTM = 0;
+int TB_NUM_DTZ = 0;
 
 static const char *tbSuffix[] = { ".rtbw", ".rtbm", ".rtbz" };
 static uint32_t tbMagic[] = { 0x5d23e871, 0x88ac504b, 0xa50c66d7 };
@@ -339,8 +354,8 @@ static void init_indices(void);
 static int probe_wdl(PyrrhicPosition *pos, int *success);
 static int probe_dtz(PyrrhicPosition *pos, int *success);
 int root_probe_wdl(const PyrrhicPosition *pos, bool useRule50, struct TbRootMoves *rm);
-int root_probe_dtz(const PyrrhicPosition *pos, bool hasRepeated, bool useRule50, struct TbRootMoves *rm);
-static uint16_t probe_root(PyrrhicPosition *pos, int *score);
+int root_probe_dtz(const PyrrhicPosition *pos, bool hasRepeated, struct TbRootMoves *rm);
+static uint16_t probe_root(PyrrhicPosition *pos, int *score, unsigned *results);
 
 static unsigned dtz_to_wdl(int cnt50, int dtz) {
 
@@ -376,7 +391,8 @@ unsigned tb_probe_root(
     uint64_t kings,     uint64_t queens,
     uint64_t rooks,     uint64_t bishops,
     uint64_t knights,   uint64_t pawns,
-    unsigned rule50, unsigned ep, bool turn) {
+    unsigned rule50,    unsigned ep,
+    bool turn,          unsigned *results) {
 
     PyrrhicPosition pos = {
         white, black, kings,
@@ -387,7 +403,7 @@ unsigned tb_probe_root(
 
     int dtz;
 
-    PyrrhicMove move = probe_root(&pos, &dtz);
+    PyrrhicMove move = probe_root(&pos, &dtz, results);
     if (move == 0)                 return TB_RESULT_FAILED;
     if (move == TB_MOVE_CHECKMATE) return TB_RESULT_CHECKMATE;
     if (move == TB_MOVE_STALEMATE) return TB_RESULT_STALEMATE;
@@ -409,7 +425,7 @@ int tb_probe_root_dtz(
     uint64_t knights,   uint64_t pawns,
     unsigned rule50,    unsigned ep,
     bool turn,          bool hasRepeated,
-    bool useRule50,     struct TbRootMoves *results) {
+    struct TbRootMoves *results) {
 
     PyrrhicPosition pos = {
         white, black, kings,
@@ -418,7 +434,7 @@ int tb_probe_root_dtz(
         (uint8_t)ep, turn
     };
 
-    return root_probe_dtz(&pos, hasRepeated, useRule50, results);
+    return root_probe_dtz(&pos, hasRepeated, results);
 }
 
 int tb_probe_root_wdl(
@@ -475,14 +491,33 @@ static int test_tb(const char *str, const char *suffix) {
         }
     }
 
+    // On-disk miss: ask the loader, if registered.
+    if (fd == FD_ERR && g_loader) {
+        pyrrhic_tb_blob blob;
+        if (g_loader(str, suffix, &blob))
+            return (blob.size & 63) == 16;
+    }
+
     return fd != FD_ERR;
 }
 
 static void *map_tb(const char *name, const char *suffix, map_t *mapping) {
 
     FD fd = open_tb(name, suffix);
-    if (fd == FD_ERR)
+
+    if (fd == FD_ERR) {
+
+        // On-disk miss: ask the loader, if registered.
+        if (g_loader) {
+            pyrrhic_tb_blob blob;
+            if (g_loader(name, suffix, &blob)) {
+                *mapping = (map_t)0; // sentinel: loader-owned, do not unmap
+                return (void *)blob.data;
+            }
+        }
+
         return NULL;
+    }
 
     void *data = map_file(fd, mapping);
     if (data == NULL) {
@@ -607,6 +642,27 @@ static void free_tb_entry(struct BaseEntry *be)
   }
 }
 
+static void tb_unload(void)
+{
+  if (!tb_loaded) return;
+
+  free(pathString);
+  free(paths);
+  pathString = NULL;
+  paths      = NULL;
+  numPaths   = 0;
+
+  for (int i = 0; i < tbNumPiece; i++)
+    free_tb_entry((struct BaseEntry *)&pieceEntry[i]);
+  for (int i = 0; i < tbNumPawn; i++)
+    free_tb_entry((struct BaseEntry *)&pawnEntry[i]);
+
+  LOCK_DESTROY(tbMutex);
+
+  numWdl = numDtm = numDtz = 0;
+  tb_loaded = 0;
+}
+
 bool tb_init(const char *path)
 {
   if (!initialized) {
@@ -614,47 +670,41 @@ bool tb_init(const char *path)
     initialized = 1;
   }
 
+  tb_unload();
+
   TB_LARGEST = 0;
+  TB_NUM_WDL = 0;
+  TB_NUM_DTZ = 0;
+  TB_NUM_DTM = 0;
 
-  // if pathString is set, we need to clean up first.
-  if (pathString) {
-    free(pathString);
-    free(paths);
-
-    for (int i = 0; i < tbNumPiece; i++)
-      free_tb_entry((struct BaseEntry *)&pieceEntry[i]);
-    for (int i = 0; i < tbNumPawn; i++)
-      free_tb_entry((struct BaseEntry *)&pawnEntry[i]);
-
-    LOCK_DESTROY(tbMutex);
-
-    pathString = NULL;
-    numWdl = numDtm = numDtz = 0;
-  }
-
-  // if path is an empty string or equals "<empty>", we are done.
+  // "<embedded>" is a path-less sentinel for "use the loader only".
+  // If neither a real path nor a loader is configured, there is nothing to load.
   const char *p = path;
-  if (strlen(p) == 0 || !strcmp(p, "<empty>")) return true;
+  bool have_path = !(strlen(p) == 0 || !strcmp(p, "<empty>") || !strcmp(p, "<embedded>"));
+  if (!have_path && !g_loader) return true;
 
-  pathString = (char*)malloc(strlen(p) + 1);
-  strcpy(pathString, p);
-  numPaths = 0;
-  for (int i = 0;; i++) {
-    if (pathString[i] != SEP_CHAR)
-      numPaths++;
-    while (pathString[i] && pathString[i] != SEP_CHAR)
-      i++;
-    if (!pathString[i]) break;
-    pathString[i] = 0;
-  }
-  paths = (char**)malloc(numPaths * sizeof(*paths));
-  for (int i = 0, j = 0; i < numPaths; i++) {
-    while (!pathString[j]) j++;
-    paths[i] = &pathString[j];
-    while (pathString[j]) j++;
+  if (have_path) {
+    pathString = (char*)malloc(strlen(p) + 1);
+    strcpy(pathString, p);
+    numPaths = 0;
+    for (int i = 0;; i++) {
+      if (pathString[i] != SEP_CHAR)
+        numPaths++;
+      while (pathString[i] && pathString[i] != SEP_CHAR)
+        i++;
+      if (!pathString[i]) break;
+      pathString[i] = 0;
+    }
+    paths = (char**)malloc(numPaths * sizeof(*paths));
+    for (int i = 0, j = 0; i < numPaths; i++) {
+      while (!pathString[j]) j++;
+      paths[i] = &pathString[j];
+      while (pathString[j]) j++;
+    }
   }
 
   LOCK_INIT(tbMutex);
+  tb_loaded = 1;
 
   tbNumPiece = tbNumPawn = 0;
   TB_MaxCardinality = TB_MaxCardinalityDTM = 0;
@@ -777,14 +827,20 @@ finished:
       numWdl, numDtm, numDtz, TB_LARGEST);
   fflush(stdout);
 
+  TB_NUM_WDL = numWdl;
+  TB_NUM_DTZ = numDtz;
+  TB_NUM_DTM = numDtm;
+
   return true;
 }
 
 void tb_free(void)
 {
-  tb_init("");
+  tb_unload();
   free(pieceEntry);
   free(pawnEntry);
+  pieceEntry = NULL;
+  pawnEntry = NULL;
 }
 
 static const int8_t OffDiag[] = {
@@ -1882,16 +1938,12 @@ int probe_dtz(PyrrhicPosition *pos, int *success)
 
 // Use the DTZ tables to rank and score all root moves in the list.
 // A return value of 0 means that not all probes were successful.
-int root_probe_dtz(const PyrrhicPosition *pos, bool hasRepeated, bool useRule50, struct TbRootMoves *rm)
+int root_probe_dtz(const PyrrhicPosition *pos, bool hasRepeated, struct TbRootMoves *rm)
 {
   int v, success;
 
   // Obtain 50-move counter for the root position.
   int cnt50 = pos->rule50;
-
-  // The border between draw and win lies at rank 1 or rank 900, depending
-  // on whether the 50-move rule is used.
-  int bound = useRule50 ? (TB_MAX_DTZ - 100) : 1;
 
   // Probe, rank and score each move.
   PyrrhicMove rootMoves[TB_MAX_MOVES];
@@ -1931,15 +1983,6 @@ int root_probe_dtz(const PyrrhicPosition *pos, bool hasRepeated, bool useRule50,
            : v < 0 ? (-v * 2 + cnt50 < 100 ? -TB_MAX_DTZ : -TB_MAX_DTZ + (-v + cnt50))
            : 0;
     m->tbRank = r;
-
-    // Determine the score to be displayed for this move. Assign at least
-    // 1 cp to cursed wins and let it grow to 49 cp as the position gets
-    // closer to a real win.
-    m->tbScore =  r >= bound ? PYRRHIC_VALUE_MATE - PYRRHIC_MAX_MATE_PLY - 1
-                : r >  0     ? TB_MAX( 3, r - (TB_MAX_DTZ - 200)) * PYRRHIC_VALUE_PAWN / 200
-                : r == 0     ? PYRRHIC_VALUE_DRAW
-                : r > -bound ? TB_MIN(-3, r + (TB_MAX_DTZ - 200)) * PYRRHIC_VALUE_PAWN / 200
-                :             -PYRRHIC_VALUE_MATE + PYRRHIC_MAX_MATE_PLY + 1;
   }
   return 1;
 }
@@ -1950,13 +1993,6 @@ int root_probe_dtz(const PyrrhicPosition *pos, bool hasRepeated, bool useRule50,
 int root_probe_wdl(const PyrrhicPosition *pos, bool useRule50, struct TbRootMoves *rm)
 {
   static int WdlToRank[] = { -TB_MAX_DTZ, -TB_MAX_DTZ + 101, 0, TB_MAX_DTZ - 101, TB_MAX_DTZ };
-  static int WdlToValue[] = {
-    -PYRRHIC_VALUE_MATE + PYRRHIC_MAX_MATE_PLY + 1,
-    PYRRHIC_VALUE_DRAW - 2,
-    PYRRHIC_VALUE_DRAW,
-    PYRRHIC_VALUE_DRAW + 2,
-    PYRRHIC_VALUE_MATE - PYRRHIC_MAX_MATE_PLY - 1
-  };
 
   int v, success;
 
@@ -1974,7 +2010,6 @@ int root_probe_wdl(const PyrrhicPosition *pos, bool useRule50, struct TbRootMove
     if (!useRule50)
       v = v > 0 ? 2 : v < 0 ? -2 : 0;
     m->tbRank = WdlToRank[v + 2];
-    m->tbScore = WdlToValue[v + 2];
   }
 
   return 1;
@@ -1987,7 +2022,7 @@ static const int wdl_to_dtz[] =
 };
 
 // This supports the original Fathom root probe API
-static uint16_t probe_root(PyrrhicPosition *pos, int *score)
+static uint16_t probe_root(PyrrhicPosition *pos, int *score, unsigned *results)
 {
     int success;
     int dtz = probe_dtz(pos, &success);
@@ -2000,7 +2035,7 @@ static uint16_t probe_root(PyrrhicPosition *pos, int *score)
     uint16_t *end = pyrrhic_gen_moves(pos, moves);
     size_t len = end - moves;
     size_t num_draw = 0;
-
+    unsigned j = 0;
     for (unsigned i = 0; i < len; i++)
     {
         PyrrhicPosition pos1;
@@ -2032,7 +2067,20 @@ static uint16_t probe_root(PyrrhicPosition *pos, int *score)
         if (!success)
             return 0;
         scores[i] = v;
+        if (results != NULL)
+        {
+            unsigned res = 0;
+            res = TB_SET_WDL(res, dtz_to_wdl(pos->rule50, v));
+            res = TB_SET_FROM(res, pyrrhic_move_from(moves[i]));
+            res = TB_SET_TO(res, pyrrhic_move_to(moves[i]));
+            res = TB_SET_PROMOTES(res, pyrrhic_move_promotes(moves[i]));
+            res = TB_SET_EP(res, pyrrhic_is_en_passant(pos, moves[i]));
+            res = TB_SET_DTZ(res, (v < 0? -v: v));
+            results[j++] = res;
+        }
     }
+    if (results != NULL)
+        results[j++] = TB_RESULT_FAILED;
     if (score != NULL)
         *score = dtz;
 
