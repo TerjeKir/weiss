@@ -1,6 +1,6 @@
 #																		 \
   Weiss is a UCI compliant chess engine. 								 \
-  Copyright (C) 2020-2026 Terje Kirstihagen 							 \
+  Copyright (C) 2019-2026 Terje Kirstihagen 							 \
 																		 \
   This program is free software: you can redistribute it and/or modify	 \
   it under the terms of the GNU General Public License as published by	 \
