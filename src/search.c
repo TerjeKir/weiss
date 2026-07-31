@@ -100,7 +100,7 @@ static int Quiescence(Thread *thread, Stack *ss, int alpha, int beta) {
         longjmp(thread->jumpBuffer, true);
 
     // Detect upcoming repetitions
-    if (alpha < 0 && HasCycle(pos, ss->ply)) {
+    if (alpha < 0 && UpcomingRepetition(pos, ss->ply)) {
         alpha = DrawScore(pos);
         if (alpha >= beta)
             return alpha;
@@ -260,7 +260,7 @@ static int AlphaBeta(Thread *thread, Stack *ss, int alpha, int beta, Depth depth
     if (!root) {
 
         // Detect upcoming repetitions
-        if (alpha < 0 && HasCycle(pos, ss->ply)) {
+        if (alpha < 0 && UpcomingRepetition(pos, ss->ply)) {
             alpha = DrawScore(pos);
             if (alpha >= beta)
                 return alpha;

@@ -459,28 +459,42 @@ CONSTR(3) InitCuckoo() {
 }
 
 // Upcoming repetition detection
-bool HasCycle(const Position *pos, int ply) {
+bool UpcomingRepetition(const Position *pos, int ply) {
 
+    // Key
+    Key other = pos->key ^ history(-1).key ^ SideKey;
+
+    // At least 2 moves each are needed for a repetition to occur, but we are looking for a coming move, so we start 3 back
     for (int i = 3; i <= pos->rule50; i += 2) {
 
         const History *prev = &history(-i);
-        uint32_t j;
+
+        other ^= history(-i+1).key ^ prev->key ^ SideKey;
+
+        if (other != 0)
+            continue;
+
+        // The move key represents the difference between the current position and the previous position
         Key moveKey = pos->key ^ prev->key;
+
+        // Check if the there is a move that can be made to reach the previous position
+        uint32_t j;
         if (   (j = Hash1(moveKey), cuckoo[j] == moveKey)
             || (j = Hash2(moveKey), cuckoo[j] == moveKey)) {
 
             Move move = cuckooMove[j];
-            Square from = fromSq(move), to = toSq(move);
+            Square from = fromSq(move);
+            Square to = toSq(move);
 
+            // Ensure that the move is not blocked
             if (BetweenBB[from][to] & pieceBB(ALL))
                 continue;
 
+            // Only require a single repetition if both occurrences are in the search tree
             if (ply > i)
                 return true;
 
-            if (ColorOf(pieceOn(from) ?: pieceOn(to)) != sideToMove)
-                continue;
-
+            // Otherwise, we follow the 3-fold repetition rule and check for a second occurrence
             for (int k = i + 4; k <= pos->rule50; k += 2) {
                 const History *prev2 = &history(-k);
                 if (prev2->key == prev->key)
