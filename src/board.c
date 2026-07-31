@@ -461,7 +461,7 @@ CONSTR(3) InitCuckoo() {
 // Upcoming repetition detection
 bool UpcomingRepetition(const Position *pos, int ply) {
 
-    // Key
+    // Key to track whether the opponents pieces have reverted back to a previous state
     Key other = pos->key ^ history(-1).key ^ SideKey;
 
     // At least 2 moves each are needed for a repetition to occur, but we are looking for a coming move, so we start 3 back
