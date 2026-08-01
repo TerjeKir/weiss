@@ -63,6 +63,7 @@ INLINE void HistoryBonus(int16_t *entry, int bonus, int div) {
 INLINE void HistoryBonusSharedBase(int16_t *entry, int base, int bonus, int div) {
     assert(abs(bonus) <= div);
     *entry += bonus - base * abs(bonus) / div;
+    *entry = CLAMP(*entry, -div, div);
     assert(abs(*entry) <= div);
 }
 
