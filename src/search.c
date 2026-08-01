@@ -508,8 +508,8 @@ move_loop:
             // MultiCut - ttMove as well as at least one other move seem good enough to beat beta
             } else if (singularBeta >= beta)
                 return singularBeta;
-            // Negative extension - not singular but likely still good enough to beat beta
-            else if (ttScore >= beta)
+            // Negative extension - not singular but likely still good enough to beat beta or cutnode
+            else if (ttScore >= beta || cutnode)
                 extension = -1;
         }
 
