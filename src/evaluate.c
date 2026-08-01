@@ -152,6 +152,13 @@ INLINE int EvalPawns(const Position *pos, EvalInfo *ei, const Color color) {
     Bitboard pawns = colorPieceBB(color, PAWN);
     Bitboard pawnAttacks = PawnBBAttackBB(pawns, color);
 
+    // Isolated pawns (no friendly pawns on adjacent files)
+    Bitboard pawnFiles = FillFiles(pawns);
+    Bitboard isolated = pawns & ~ShiftBB(pawnFiles, WEST) & ~ShiftBB(pawnFiles, EAST);
+    count = PopCount(isolated);
+    eval += PawnIsolated * count;
+    TraceCount(PawnIsolated);
+
     // Doubled pawns (one directly in front of the other)
     count = PopCount(pawns & ShiftBB(pawns, NORTH));
     eval += PawnDoubled * count;
@@ -188,12 +195,6 @@ INLINE int EvalPawns(const Position *pos, EvalInfo *ei, const Color color) {
 
         TraceIncr(PieceValue[PAWN-1]);
         TraceIncr(PSQT[PAWN-1][BlackRelativeSquare(color, sq)]);
-
-        // Isolated pawns
-        if (!(IsolatedMask[sq] & colorPieceBB(color, PAWN))) {
-            eval += PawnIsolated;
-            TraceIncr(PawnIsolated);
-        }
 
         // Passed pawns
         if (!((PassedMask[color][sq]) & colorPieceBB(!color, PAWN))) {

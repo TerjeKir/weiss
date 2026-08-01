@@ -39,7 +39,6 @@ Bitboard PseudoAttacks[TYPE_NB][64];
 Bitboard PawnAttacks[COLOR_NB][64];
 
 Bitboard PassedMask[COLOR_NB][64];
-Bitboard IsolatedMask[64];
 
 
 // Returns a bitboard with the landing square of the step,
@@ -134,8 +133,6 @@ CONSTR(2) InitBitboards() {
                     BetweenBB[sq1][sq2] = AttackBB(pt, sq1, BB(sq2)) & AttackBB(pt, sq2, BB(sq1));
 
     for (Square sq = A1; sq <= H8; ++sq) {
-
-        IsolatedMask[sq] = AdjacentFilesBB(sq);
 
         PassedMask[WHITE][sq] = ShiftBB(~rank1BB, NORTH * RelativeRank(WHITE, RankOf(sq)))
                               & (FileBB[FileOf(sq)] | AdjacentFilesBB(sq));
