@@ -61,6 +61,7 @@ const int PawnSupport  = S( 22, 17);
 const int PawnThreat   = S( 80, 34);
 const int PushThreat   = S( 25,  6);
 const int PawnOpen     = S(-14,-19);
+const int PawnBackward = S( -9,-19);
 const int BishopPair   = S( 33,110);
 const int KingAtkPawn  = S(-16, 45);
 const int OpenForward  = S( 28, 31);
@@ -146,15 +147,19 @@ const int CountModifier[8] = { 0, 0, 63, 126, 96, 124, 124, 128 };
 INLINE int EvalPawns(const Position *pos, EvalInfo *ei, const Color color) {
 
     const Direction down = color == WHITE ? SOUTH : NORTH;
+    const Direction   up = color == WHITE ? NORTH : SOUTH;
 
     int count, eval = 0;
 
     Bitboard pawns = colorPieceBB(color, PAWN);
+    Bitboard theirPawns = colorPieceBB(!color, PAWN);
     Bitboard pawnAttacks = PawnBBAttackBB(pawns, color);
+    Bitboard theirPawnAttacks = PawnBBAttackBB(theirPawns, !color);
+    Bitboard pawnFiles = FillFiles(pawns);
+    Bitboard pawnAdjacentFiles = ShiftBB(pawnFiles, WEST) | ShiftBB(pawnFiles, EAST);
 
     // Isolated pawns (no friendly pawns on adjacent files)
-    Bitboard pawnFiles = FillFiles(pawns);
-    Bitboard isolated = pawns & ~ShiftBB(pawnFiles, WEST) & ~ShiftBB(pawnFiles, EAST);
+    Bitboard isolated = pawns & ~pawnAdjacentFiles;
     count = PopCount(isolated);
     eval += PawnIsolated * count;
     TraceCount(PawnIsolated);
@@ -179,6 +184,16 @@ INLINE int EvalPawns(const Position *pos, EvalInfo *ei, const Color color) {
     count = PopCount(pawns & open & ~pawnAttacks);
     eval += PawnOpen * count;
     TraceCount(PawnOpen);
+
+    // Backward
+    Bitboard blocked = pawns & ShiftBB(theirPawns, down);
+    Bitboard advanceThreatened = pawns & ShiftBB(theirPawnAttacks, down);
+    Bitboard stuck = blocked | advanceThreatened;
+    Bitboard defendable = Fill(ShiftBB(pawnAttacks, down), up);
+    Bitboard backward = stuck & pawnAdjacentFiles & ~defendable;
+    count = PopCount(backward);
+    eval += PawnBackward * count;
+    TraceCount(PawnBackward);
 
     // Phalanx
     Bitboard phalanx = pawns & ShiftBB(pawns, WEST);
