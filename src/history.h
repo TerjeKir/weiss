@@ -39,7 +39,7 @@
 #define QuietHistoryUpdate(move, bonus)        (HistoryBonus(QuietEntry(move),        bonus,  4373))
 #define PawnHistoryUpdate(move, bonus)         (HistoryBonus(PawnEntry(move),         bonus,  8663))
 #define NoisyHistoryUpdate(move, bonus)        (HistoryBonus(NoisyEntry(move),        bonus, 14387))
-#define ContHistoryUpdate(offset, move, bonus) (HistoryBonus(ContEntry(offset, move), bonus, 16384))
+#define ContHistoryUpdate(offset, move, base, bonus) (HistoryBonusSharedBase(ContEntry(offset, move), base, bonus,  16384))
 #define PawnCorrHistoryUpdate(bonus)           (HistoryBonus(PawnCorrEntry(),         bonus,  1651))
 #define MinorCorrHistoryUpdate(bonus)          (HistoryBonus(MinorCorrEntry(),        bonus,  1142))
 #define MajorCorrHistoryUpdate(bonus)          (HistoryBonus(MajorCorrEntry(),        bonus,  1222))
@@ -60,6 +60,12 @@ INLINE void HistoryBonus(int16_t *entry, int bonus, int div) {
     assert(abs(*entry) <= div);
 }
 
+INLINE void HistoryBonusSharedBase(int16_t *entry, int base, int bonus, int div) {
+    assert(abs(bonus) <= div);
+    *entry += bonus - base * abs(bonus) / div;
+    assert(abs(*entry) <= div);
+}
+
 INLINE int Bonus(Depth depth) {
     return MIN(2418, 251 * depth - 267);
 }
@@ -73,9 +79,15 @@ INLINE int CorrectionBonus(int score, int eval, Depth depth) {
 }
 
 INLINE void UpdateContHistories(Stack *ss, Move move, int bonus) {
-    ContHistoryUpdate(1, move, bonus);
-    ContHistoryUpdate(2, move, bonus);
-    ContHistoryUpdate(4, move, bonus);
+    int base =  *ContEntry(1, move)
+              + *ContEntry(2, move)
+              + *ContEntry(4, move);
+
+    base /= 3;
+
+    ContHistoryUpdate(1, move, base, bonus);
+    ContHistoryUpdate(2, move, base, bonus);
+    ContHistoryUpdate(4, move, base, bonus);
 }
 
 // Updates history heuristics when a quiet move is the best move
