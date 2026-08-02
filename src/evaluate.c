@@ -60,8 +60,9 @@ const int PawnIsolated = S( -8,-16);
 const int PawnSupport  = S( 22, 17);
 const int PawnThreat   = S( 80, 34);
 const int PushThreat   = S( 25,  6);
-const int PawnOpen     = S(-14,-19);
-const int PawnBackward = S( -9,-19);
+const int PawnOpen     = S(-10,-15);
+const int PawnBackward = S( -1,-12);
+const int PawnBackOpen = S(-28,-12);
 const int BishopPair   = S( 33,110);
 const int KingAtkPawn  = S(-16, 45);
 const int OpenForward  = S( 28, 31);
@@ -190,10 +191,15 @@ INLINE int EvalPawns(const Position *pos, EvalInfo *ei, const Color color) {
     Bitboard advanceThreatened = pawns & ShiftBB(theirPawnAttacks, down);
     Bitboard stuck = blocked | advanceThreatened;
     Bitboard defendable = Fill(ShiftBB(pawnAttacks, down), up);
-    Bitboard backward = stuck & pawnAdjacentFiles & ~defendable & open;
+    Bitboard backward = stuck & pawnAdjacentFiles & ~defendable;
     count = PopCount(backward);
     eval += PawnBackward * count;
     TraceCount(PawnBackward);
+
+    Bitboard backwardOpenPawns = backward & open;
+    count = PopCount(backwardOpenPawns);
+    eval += PawnBackOpen * count;
+    TraceCount(PawnBackOpen);
 
     // Phalanx
     Bitboard phalanx = pawns & ShiftBB(pawns, WEST);
