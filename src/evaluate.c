@@ -190,7 +190,7 @@ INLINE int EvalPawns(const Position *pos, EvalInfo *ei, const Color color) {
     Bitboard advanceThreatened = pawns & ShiftBB(theirPawnAttacks, down);
     Bitboard stuck = blocked | advanceThreatened;
     Bitboard defendable = Fill(ShiftBB(pawnAttacks, down), up);
-    Bitboard backward = stuck & pawnAdjacentFiles & ~defendable;
+    Bitboard backward = stuck & pawnAdjacentFiles & ~defendable & open;
     count = PopCount(backward);
     eval += PawnBackward * count;
     TraceCount(PawnBackward);
