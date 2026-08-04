@@ -68,7 +68,7 @@ const int SemiForward  = S( 17, 15);
 const int NBBehindPawn = S(  9, 32);
 const int BishopBadP   = S( -1, -5);
 const int Shelter      = S( 31,-12);
-const int Connectivity = S(  2,  5);
+const int Connectivity = S(  3,  1);
 
 // Passed pawn
 const int PawnPassed[RANK_NB] = {
