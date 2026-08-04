@@ -68,6 +68,7 @@ const int SemiForward  = S( 17, 15);
 const int NBBehindPawn = S(  9, 32);
 const int BishopBadP   = S( -1, -5);
 const int Shelter      = S( 31,-12);
+const int Connectivity = S(  2,  5);
 
 // Passed pawn
 const int PawnPassed[RANK_NB] = {
@@ -465,6 +466,13 @@ INLINE int EvalThreats(const Position *pos, const EvalInfo *ei, const Color colo
         eval += ThreatByRook[pieceTypeOn(sq)];
         TraceIncr(ThreatByRook[pieceTypeOn(sq)]);
     }
+
+    // Connectivity
+    Bitboard ourNonPawns = colorBB(color) ^ ourPawns ^ colorPieceBB(color, KING);
+    Bitboard defended = ourNonPawns & ei->attackedBy[color][ALL];
+    count = PopCount(defended);
+    eval += count * Connectivity;
+    TraceCount(Connectivity);
 
     return eval;
 }
