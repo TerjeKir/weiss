@@ -173,6 +173,13 @@ INLINE int EvalPawns(const Position *pos, EvalInfo *ei, const Color color) {
     eval += PawnOpen * count;
     TraceCount(PawnOpen);
 
+    // Isolated pawns (no friendly pawns on adjacent files)
+    Bitboard pawnFiles = FillFiles(pawns);
+    Bitboard isolated = pawns & ~ShiftBB(pawnFiles, WEST) & ~ShiftBB(pawnFiles, EAST);
+    count = PopCount(isolated);
+    eval += PawnIsolated * count;
+    TraceCount(PawnIsolated);
+
     // Phalanx
     Bitboard phalanx = pawns & ShiftBB(pawns, WEST);
     while (phalanx) {
@@ -188,12 +195,6 @@ INLINE int EvalPawns(const Position *pos, EvalInfo *ei, const Color color) {
 
         TraceIncr(PieceValue[PAWN-1]);
         TraceIncr(PSQT[PAWN-1][BlackRelativeSquare(color, sq)]);
-
-        // Isolated pawns
-        if (!(IsolatedPawnMask(sq) & colorPieceBB(color, PAWN))) {
-            eval += PawnIsolated;
-            TraceIncr(PawnIsolated);
-        }
 
         // Passed pawns
         if (!((PassedPawnMask(color, sq)) & colorPieceBB(!color, PAWN))) {

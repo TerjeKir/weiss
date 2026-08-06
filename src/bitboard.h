@@ -180,13 +180,7 @@ INLINE Bitboard PawnAttackSpawnBB(const Color color, const Square sq) {
 }
 
 INLINE Bitboard PassedPawnMask(const Color color, const Square sq) {
-    assert(sq <= H8);
     return ForwardFileBB(color, sq) | PawnAttackSpawnBB(color, sq);
-}
-
-INLINE Bitboard IsolatedPawnMask(const Square sq) {
-    assert(sq <= H8);
-    return AdjacentFilesBB(sq);
 }
 
 // Fills a bitboard in either vertical direction
@@ -196,6 +190,14 @@ INLINE Bitboard Fill(Bitboard bb, const Direction dir) {
     bb |= ShiftBB(bb, dir * 2);
     bb |= ShiftBB(bb, dir * 4);
     return bb;
+}
+
+// Fills a bitboard in both vertical directions
+INLINE Bitboard FillFiles(Bitboard bb) {
+    bb |= bb >>  8;
+    bb |= bb >> 16;
+    bb |= bb >> 32;
+    return (bb & RankBB(RANK_1)) * FileBB(FILE_A);
 }
 
 // Population count/Hamming weight
