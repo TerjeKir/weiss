@@ -20,14 +20,6 @@
 #include "board.h"
 
 
-const Bitboard FileBB[FILE_NB] = {
-    fileABB, fileBBB, fileCBB, fileDBB, fileEBB, fileFBB, fileGBB, fileHBB
-};
-
-const Bitboard RankBB[RANK_NB] = {
-    rank1BB, rank2BB, rank3BB, rank4BB, rank5BB, rank6BB, rank7BB, rank8BB
-};
-
 Bitboard BetweenBB[64][64];
 
 static Bitboard BishopAttacks[5248];
@@ -99,8 +91,8 @@ static void InitSliderAttacks(PieceType pt, Bitboard table[]) {
         Magic *m = &Magics[sq][pt - BISHOP];
         (*m).attacks = table;
 
-        Bitboard edges = ((rank1BB | rank8BB) & ~RankBB[RankOf(sq)])
-                       | ((fileABB | fileHBB) & ~FileBB[FileOf(sq)]);
+        Bitboard edges = ((rank1BB | rank8BB) & ~RankBBOf(sq))
+                       | ((fileABB | fileHBB) & ~FileBBOf(sq));
 
         (*m).mask = MakeSliderAttackBB(sq, pt, 0) & ~edges;
 
@@ -138,10 +130,10 @@ CONSTR(2) InitBitboards() {
         IsolatedMask[sq] = AdjacentFilesBB(sq);
 
         PassedMask[WHITE][sq] = ShiftBB(~rank1BB, NORTH * RelativeRank(WHITE, RankOf(sq)))
-                              & (FileBB[FileOf(sq)] | AdjacentFilesBB(sq));
+                              & (FileBBOf(sq) | AdjacentFilesBB(sq));
 
         PassedMask[BLACK][sq] = ShiftBB(~rank8BB, SOUTH * RelativeRank(BLACK, RankOf(sq)))
-                              & (FileBB[FileOf(sq)] | AdjacentFilesBB(sq));
+                              & (FileBBOf(sq) | AdjacentFilesBB(sq));
     }
 }
 
