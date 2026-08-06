@@ -114,6 +114,9 @@ extern Magic Magics[64][2];
 extern Bitboard PseudoAttacks[TYPE_NB][64];
 extern Bitboard PawnAttacks[COLOR_NB][64];
 
+extern Bitboard PassedMask[COLOR_NB][64];
+extern Bitboard IsolatedMask[64];
+
 
 // Shifts a bitboard (protonspring version)
 // Doesn't work for shifting more than one step horizontally
@@ -175,12 +178,8 @@ INLINE Bitboard AdjacentFilesBB(const Square sq) {
          | ShiftBB(FileBBOf(sq), EAST);
 }
 
-INLINE Bitboard PawnAttackSpawnBB(const Color color, const Square sq) {
-    return ForwardRanksBB(color, sq) & AdjacentFilesBB(sq);
-}
-
 INLINE Bitboard PassedPawnMask(const Color color, const Square sq) {
-    return ForwardFileBB(color, sq) | PawnAttackSpawnBB(color, sq);
+    return PassedMask[color][sq];
 }
 
 // Fills a bitboard in either vertical direction

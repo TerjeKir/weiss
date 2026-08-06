@@ -197,7 +197,7 @@ INLINE int EvalPawns(const Position *pos, EvalInfo *ei, const Color color) {
         TraceIncr(PSQT[PAWN-1][BlackRelativeSquare(color, sq)]);
 
         // Passed pawns
-        if (!((PassedPawnMask(color, sq)) & colorPieceBB(!color, PAWN))) {
+        if (!(PassedPawnMask(color, sq) & colorPieceBB(!color, PAWN))) {
 
             int rank = RelativeRank(color, RankOf(sq));
 

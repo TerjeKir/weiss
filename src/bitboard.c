@@ -30,6 +30,9 @@ Magic Magics[64][2];
 Bitboard PseudoAttacks[TYPE_NB][64];
 Bitboard PawnAttacks[COLOR_NB][64];
 
+Bitboard PassedMask[COLOR_NB][64];
+Bitboard IsolatedMask[64];
+
 
 // Returns a bitboard with the landing square of the step,
 // or an empty bitboard if the step would go outside the board
@@ -121,6 +124,17 @@ CONSTR(2) InitBitboards() {
             for (PieceType pt = BISHOP; pt <= ROOK; pt++)
                 if (AttackBB(pt, sq1, BB(sq2)) & BB(sq2))
                     BetweenBB[sq1][sq2] = AttackBB(pt, sq1, BB(sq2)) & AttackBB(pt, sq2, BB(sq1));
+
+    for (Square sq = A1; sq <= H8; ++sq) {
+
+        IsolatedMask[sq] = AdjacentFilesBB(sq);
+
+        PassedMask[WHITE][sq] = ShiftBB(~rank1BB, NORTH * RelativeRank(WHITE, RankOf(sq)))
+                              & (FileBBOf(sq) | AdjacentFilesBB(sq));
+
+        PassedMask[BLACK][sq] = ShiftBB(~rank8BB, SOUTH * RelativeRank(BLACK, RankOf(sq)))
+                              & (FileBBOf(sq) | AdjacentFilesBB(sq));
+    }
 }
 
 // Returns a bitboard with all attackers of a square
