@@ -114,9 +114,6 @@ extern Magic Magics[64][2];
 extern Bitboard PseudoAttacks[TYPE_NB][64];
 extern Bitboard PawnAttacks[COLOR_NB][64];
 
-extern Bitboard PassedMask[COLOR_NB][64];
-extern Bitboard IsolatedMask[64];
-
 
 // Shifts a bitboard (protonspring version)
 // Doesn't work for shifting more than one step horizontally
@@ -163,14 +160,33 @@ INLINE Bitboard FileBBOf(const Square sq) {
     return FileBB(FileOf(sq));
 }
 
+INLINE Bitboard ForwardRanksBB(const Color color, const Square sq) {
+    return color == WHITE ? ~rank1BB << FILE_NB * RelativeRank(color, RankOf(sq))
+                          : ~rank8BB >> FILE_NB * RelativeRank(color, RankOf(sq));
+}
+
+INLINE Bitboard ForwardFileBB(const Color color, const Square sq) {
+    return ForwardRanksBB(color, sq) & FileBBOf(sq);
+}
+
+// Returns a bitboard of adjacent files
+INLINE Bitboard AdjacentFilesBB(const Square sq) {
+    return ShiftBB(FileBBOf(sq), WEST)
+         | ShiftBB(FileBBOf(sq), EAST);
+}
+
+INLINE Bitboard PawnAttackSpawnBB(const Color color, const Square sq) {
+    return ForwardRanksBB(color, sq) & AdjacentFilesBB(sq);
+}
+
 INLINE Bitboard PassedPawnMask(const Color color, const Square sq) {
     assert(sq <= H8);
-    return PassedMask[color][sq];
+    return ForwardFileBB(color, sq) | PawnAttackSpawnBB(color, sq);
 }
 
 INLINE Bitboard IsolatedPawnMask(const Square sq) {
     assert(sq <= H8);
-    return IsolatedMask[sq];
+    return AdjacentFilesBB(sq);
 }
 
 // Fills a bitboard in either vertical direction
@@ -180,12 +196,6 @@ INLINE Bitboard Fill(Bitboard bb, const Direction dir) {
     bb |= ShiftBB(bb, dir * 2);
     bb |= ShiftBB(bb, dir * 4);
     return bb;
-}
-
-// Returns a bitboard of adjacent files
-INLINE Bitboard AdjacentFilesBB(const Square sq) {
-    return ShiftBB(FileBBOf(sq), WEST)
-         | ShiftBB(FileBBOf(sq), EAST);
 }
 
 // Population count/Hamming weight
