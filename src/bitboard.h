@@ -172,12 +172,6 @@ INLINE Bitboard ForwardFileBB(const Color color, const Square sq) {
     return ForwardRanksBB(color, sq) & FileBBOf(sq);
 }
 
-// Returns a bitboard of adjacent files
-INLINE Bitboard AdjacentFilesBB(const Square sq) {
-    return ShiftBB(FileBBOf(sq), WEST)
-         | ShiftBB(FileBBOf(sq), EAST);
-}
-
 INLINE Bitboard PassedPawnMask(const Color color, const Square sq) {
     return PassedMask[color][sq];
 }
@@ -197,6 +191,12 @@ INLINE Bitboard FillFiles(Bitboard bb) {
     bb |= bb >> 16;
     bb |= bb >> 32;
     return (bb & RankBB(RANK_1)) * FileBB(FILE_A);
+}
+
+// Returns a bitboard of adjacent files
+INLINE Bitboard AdjacentFilesBB(const Square sq) {
+    return ShiftBB(FileBBOf(sq), WEST)
+         | ShiftBB(FileBBOf(sq), EAST);
 }
 
 // Population count/Hamming weight
