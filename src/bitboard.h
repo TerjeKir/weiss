@@ -108,9 +108,6 @@ enum {
     CentralFilesBB = fileCBB | fileDBB | fileEBB | fileFBB,
 };
 
-extern const Bitboard FileBB[FILE_NB];
-extern const Bitboard RankBB[RANK_NB];
-
 extern Bitboard BetweenBB[64][64];
 
 extern Magic Magics[64][2];
@@ -141,6 +138,44 @@ INLINE Bitboard BB(const Square sq) {
     return 1ull << sq;
 }
 
+INLINE Bitboard RankBB(const int r) {
+    assert(r >= RANK_1 && r <= RANK_8);
+    return rank1BB << (FILE_NB * r);
+}
+
+INLINE Bitboard RankBBOf(const Square sq) {
+    assert(sq <= H8);
+    return RankBB(RankOf(sq));
+}
+
+INLINE Bitboard RelativeRankBB(const Color color, const int r) {
+    assert(r >= RANK_1 && r <= RANK_8);
+    return RankBB(RelativeRank(color, r));
+}
+
+INLINE Bitboard FileBB(const int f) {
+    assert(f >= FILE_A && f <= FILE_H);
+    return fileABB << f;
+}
+
+INLINE Bitboard FileBBOf(const Square sq) {
+    assert(sq <= H8);
+    return FileBB(FileOf(sq));
+}
+
+INLINE Bitboard ForwardRanksBB(const Color color, const Square sq) {
+    return color == WHITE ? ~rank1BB << FILE_NB * RelativeRank(color, RankOf(sq))
+                          : ~rank8BB >> FILE_NB * RelativeRank(color, RankOf(sq));
+}
+
+INLINE Bitboard ForwardFileBB(const Color color, const Square sq) {
+    return ForwardRanksBB(color, sq) & FileBBOf(sq);
+}
+
+INLINE Bitboard PassedPawnMask(const Color color, const Square sq) {
+    return PassedMask[color][sq];
+}
+
 // Fills a bitboard in either vertical direction
 INLINE Bitboard Fill(Bitboard bb, const Direction dir) {
     assert((dir & 7) == 0);
@@ -159,8 +194,8 @@ INLINE Bitboard FillFiles(Bitboard bb) {
 
 // Returns a bitboard of adjacent files
 INLINE Bitboard AdjacentFilesBB(const Square sq) {
-    return ShiftBB(FileBB[FileOf(sq)], WEST)
-         | ShiftBB(FileBB[FileOf(sq)], EAST);
+    return ShiftBB(FileBBOf(sq), WEST)
+         | ShiftBB(FileBBOf(sq), EAST);
 }
 
 // Population count/Hamming weight
