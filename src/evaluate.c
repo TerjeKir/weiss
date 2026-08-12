@@ -345,7 +345,7 @@ INLINE int EvalKings(const Position *pos, EvalInfo *ei, const Color color) {
     TraceIncr(PSQT[KING-1][BlackRelativeSquare(color, kingSq)]);
 
     // Open lines from the king
-    Bitboard SafeLine = rankBB(RelativeRank(color, RANK_1));
+    Bitboard SafeLine = RankBB[RelativeRank(color, RANK_1)];
     int count = PopCount(~SafeLine & AttackBB(QUEEN, kingSq, colorBB(color) | pieceBB(PAWN)));
     eval += KingLineDanger[count];
     TraceIncr(KingLineDanger[count]);
