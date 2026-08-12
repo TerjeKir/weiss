@@ -103,8 +103,9 @@ enum {
 
     BlackSquaresBB = 0xAA55AA55AA55AA55,
 
-    QueenSideBB = fileABB | fileBBB | fileCBB | fileDBB,
-    KingSideBB  = fileEBB | fileFBB | fileGBB | fileHBB,
+    QueenSideBB    = fileABB | fileBBB | fileCBB | fileDBB,
+    KingSideBB     = fileEBB | fileFBB | fileGBB | fileHBB,
+    CentralFilesBB = fileCBB | fileDBB | fileEBB | fileFBB,
 };
 
 extern const Bitboard FileBB[FILE_NB];
@@ -135,6 +136,11 @@ INLINE Bitboard ShiftBB(Bitboard bb, const Direction dir) {
                    : bb >> -dir;
 }
 
+INLINE Bitboard BB(const Square sq) {
+    assert(sq <= H8);
+    return 1ull << sq;
+}
+
 // Fills a bitboard in either vertical direction
 INLINE Bitboard Fill(Bitboard bb, const Direction dir) {
     assert((dir & 7) == 0);
@@ -143,23 +149,12 @@ INLINE Bitboard Fill(Bitboard bb, const Direction dir) {
     bb |= ShiftBB(bb, dir * 4);
     return bb;
 }
-
-INLINE Bitboard FileMask(int file) {
-    assert(file >= 0 && file <= 7);
-    return (Bitboard)0x0101010101010101 << file;
-}
-
-INLINE Bitboard RankMask(int rank) {
-    assert(rank >= 0 && rank <= 7);
-    return ((Bitboard)0xFF) << (8 * rank);
-}
-
 // Fills a bitboard in both vertical directions
 INLINE Bitboard FillFiles(Bitboard bb) {
     bb |= bb >>  8;
     bb |= bb >> 16;
     bb |= bb >> 32;
-    return (bb & RankMask(RANK_1)) * FileMask(FILE_A);
+    return (bb & rank1BB) * fileABB;
 }
 
 // Returns a bitboard of adjacent files
