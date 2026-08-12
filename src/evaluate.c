@@ -499,7 +499,7 @@ INLINE void InitEvalInfo(const Position *pos, EvalInfo *ei, const Color color) {
 
     // Mobility area is defined as any square not attacked by an enemy pawn, nor
     // occupied by our own pawn either on its starting square or blocked from advancing.
-    b = pawns & (rankBB(RelativeRank(color, RANK_2)) | ShiftBB(pieceBB(ALL), down));
+    b = pawns & (RankBB[RelativeRank(color, RANK_2)] | ShiftBB(pieceBB(ALL), down));
     ei->mobilityArea[color] = ~(b | PawnBBAttackBB(colorPieceBB(!color, PAWN), !color));
 
     // King Safety
