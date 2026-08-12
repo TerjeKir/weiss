@@ -345,7 +345,7 @@ INLINE int EvalKings(const Position *pos, EvalInfo *ei, const Color color) {
     TraceIncr(PSQT[KING-1][BlackRelativeSquare(color, kingSq)]);
 
     // Open lines from the king
-    Bitboard SafeLine = RankBB[RelativeRank(color, RANK_1)];
+    Bitboard SafeLine = rankBB(RelativeRank(color, RANK_1));
     int count = PopCount(~SafeLine & AttackBB(QUEEN, kingSq, colorBB(color) | pieceBB(PAWN)));
     eval += KingLineDanger[count];
     TraceIncr(KingLineDanger[count]);
@@ -499,7 +499,7 @@ INLINE void InitEvalInfo(const Position *pos, EvalInfo *ei, const Color color) {
 
     // Mobility area is defined as any square not attacked by an enemy pawn, nor
     // occupied by our own pawn either on its starting square or blocked from advancing.
-    b = pawns & (RankBB[RelativeRank(color, RANK_2)] | ShiftBB(pieceBB(ALL), down));
+    b = pawns & (rankBB(RelativeRank(color, RANK_2)) | ShiftBB(pieceBB(ALL), down));
     ei->mobilityArea[color] = ~(b | PawnBBAttackBB(colorPieceBB(!color, PAWN), !color));
 
     // King Safety

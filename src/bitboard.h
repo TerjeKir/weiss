@@ -141,6 +141,16 @@ INLINE Bitboard BB(const Square sq) {
     return 1ull << sq;
 }
 
+INLINE Bitboard rankBB(const int r) {
+    assert(r >= RANK_1 && r <= RANK_8);
+    return rank1BB << (FILE_NB * r);
+}
+
+INLINE Bitboard fileBB(const int f) {
+    assert(f >= FILE_A && f <= FILE_H);
+    return fileABB << f;
+}
+
 // Fills a bitboard in either vertical direction
 INLINE Bitboard Fill(Bitboard bb, const Direction dir) {
     assert((dir & 7) == 0);
