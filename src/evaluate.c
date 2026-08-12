@@ -60,7 +60,9 @@ const int PawnIsolated = S( -8,-16);
 const int PawnSupport  = S( 22, 17);
 const int PawnThreat   = S( 80, 34);
 const int PushThreat   = S( 25,  6);
-const int PawnOpen     = S(-14,-19);
+const int PawnOpen     = S(-10,-15);
+const int PawnBackward = S( -1,-12);
+const int PawnBackOpen = S(-28,-12);
 const int BishopPair   = S( 33,110);
 const int KingAtkPawn  = S(-16, 45);
 const int OpenForward  = S( 28, 31);
@@ -146,11 +148,22 @@ const int CountModifier[8] = { 0, 0, 63, 126, 96, 124, 124, 128 };
 INLINE int EvalPawns(const Position *pos, EvalInfo *ei, const Color color) {
 
     const Direction down = color == WHITE ? SOUTH : NORTH;
+    const Direction   up = color == WHITE ? NORTH : SOUTH;
 
     int count, eval = 0;
 
     Bitboard pawns = colorPieceBB(color, PAWN);
+    Bitboard theirPawns = colorPieceBB(!color, PAWN);
     Bitboard pawnAttacks = PawnBBAttackBB(pawns, color);
+    Bitboard theirPawnAttacks = PawnBBAttackBB(theirPawns, !color);
+    Bitboard pawnFiles = FillFiles(pawns);
+    Bitboard pawnAdjacentFiles = ShiftBB(pawnFiles, WEST) | ShiftBB(pawnFiles, EAST);
+
+    // Isolated pawns (no friendly pawns on adjacent files)
+    Bitboard isolated = pawns & ~pawnAdjacentFiles;
+    count = PopCount(isolated);
+    eval += PawnIsolated * count;
+    TraceCount(PawnIsolated);
 
     // Doubled pawns (one directly in front of the other)
     count = PopCount(pawns & ShiftBB(pawns, NORTH));
@@ -173,6 +186,21 @@ INLINE int EvalPawns(const Position *pos, EvalInfo *ei, const Color color) {
     eval += PawnOpen * count;
     TraceCount(PawnOpen);
 
+    // Backward
+    Bitboard blocked = pawns & ShiftBB(theirPawns, down);
+    Bitboard advanceThreatened = pawns & ShiftBB(theirPawnAttacks, down);
+    Bitboard stuck = blocked | advanceThreatened;
+    Bitboard defendable = Fill(ShiftBB(pawnAttacks, down), up);
+    Bitboard backward = stuck & pawnAdjacentFiles & ~defendable;
+    count = PopCount(backward);
+    eval += PawnBackward * count;
+    TraceCount(PawnBackward);
+
+    Bitboard backwardOpenPawns = backward & open;
+    count = PopCount(backwardOpenPawns);
+    eval += PawnBackOpen * count;
+    TraceCount(PawnBackOpen);
+
     // Phalanx
     Bitboard phalanx = pawns & ShiftBB(pawns, WEST);
     while (phalanx) {
@@ -188,12 +216,6 @@ INLINE int EvalPawns(const Position *pos, EvalInfo *ei, const Color color) {
 
         TraceIncr(PieceValue[PAWN-1]);
         TraceIncr(PSQT[PAWN-1][BlackRelativeSquare(color, sq)]);
-
-        // Isolated pawns
-        if (!(IsolatedMask[sq] & colorPieceBB(color, PAWN))) {
-            eval += PawnIsolated;
-            TraceIncr(PawnIsolated);
-        }
 
         // Passed pawns
         if (!((PassedMask[color][sq]) & colorPieceBB(!color, PAWN))) {
