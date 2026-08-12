@@ -98,7 +98,7 @@ static void InitSliderAttacks(PieceType pt, Bitboard table[]) {
         Magic *m = &Magics[sq][pt - BISHOP];
         (*m).attacks = table;
 
-        Bitboard edges = ((rank1BB | rank8BB) & ~rankBB(RankOf(sq)))
+        Bitboard edges = ((rank1BB | rank8BB) & ~RankBB[RankOf(sq)])
                        | ((fileABB | fileHBB) & ~FileBB[FileOf(sq)]);
 
         (*m).mask = MakeSliderAttackBB(sq, pt, 0) & ~edges;
