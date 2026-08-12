@@ -50,6 +50,7 @@ jobs:
       run: |
         expected=$(git show --summary | grep -Po '(?<=Bench: )[0-9]+?(?=$)')
         echo "Expected: $expected"
+        ./weiss bench
         bench=$(./weiss bench | tail -n 1) || { echo "Benchmark failed"; exit 1; }
         echo "Bench: $bench"
         actual=$(echo $bench | grep -Po '(?<=\s)\d+(?=\s+nodes)')
