@@ -143,7 +143,7 @@ INLINE Bitboard BB(const Square sq) {
 
 INLINE Bitboard rankBB(const int r) {
     assert(r >= RANK_1 && r <= RANK_8);
-    return rank1BB << (FILE_NB * r);
+    return ((uint64_t)rank1BB) << (FILE_NB * r);
 }
 
 INLINE Bitboard fileBB(const int f) {
