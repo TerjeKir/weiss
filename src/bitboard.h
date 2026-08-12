@@ -103,8 +103,9 @@ enum {
 
     BlackSquaresBB = 0xAA55AA55AA55AA55,
 
-    QueenSideBB = fileABB | fileBBB | fileCBB | fileDBB,
-    KingSideBB  = fileEBB | fileFBB | fileGBB | fileHBB,
+    QueenSideBB    = fileABB | fileBBB | fileCBB | fileDBB,
+    KingSideBB     = fileEBB | fileFBB | fileGBB | fileHBB,
+    CentralFilesBB = fileCBB | fileDBB | fileEBB | fileFBB,
 };
 
 extern const Bitboard FileBB[FILE_NB];
@@ -133,6 +134,11 @@ INLINE Bitboard ShiftBB(Bitboard bb, const Direction dir) {
     // Can only shift by positive numbers
     return dir > 0 ? bb <<  dir
                    : bb >> -dir;
+}
+
+INLINE Bitboard BB(const Square sq) {
+    assert(sq <= H8);
+    return 1ull << sq;
 }
 
 // Fills a bitboard in either vertical direction
