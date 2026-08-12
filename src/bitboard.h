@@ -82,7 +82,7 @@ typedef struct {
 #endif
 } Magic;
 
-enum {
+enum : Bitboard {
     fileABB = 0x0101010101010101,
     fileBBB = 0x0202020202020202,
     fileCBB = 0x0404040404040404,
@@ -140,7 +140,7 @@ INLINE Bitboard BB(const Square sq) {
 
 INLINE Bitboard RankBB(const int r) {
     assert(r >= RANK_1 && r <= RANK_8);
-    return (Bitboard)rank1BB << (FILE_NB * r);
+    return rank1BB << (FILE_NB * r);
 }
 
 INLINE Bitboard RankBBOf(const Square sq) {
