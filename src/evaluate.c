@@ -218,7 +218,7 @@ INLINE int EvalPawns(const Position *pos, EvalInfo *ei, const Color color) {
         TraceIncr(PSQT[PAWN-1][BlackRelativeSquare(color, sq)]);
 
         // Passed pawns
-        if (!((PassedMask[color][sq]) & colorPieceBB(!color, PAWN))) {
+        if (!(PassedPawnMask(color, sq) & colorPieceBB(!color, PAWN))) {
 
             int rank = RelativeRank(color, RankOf(sq));
 
@@ -258,7 +258,6 @@ static int ProbePawnCache(const Position *pos, EvalInfo *ei, PawnCache pc) {
 // Evaluates knights, bishops, rooks, or queens
 INLINE int EvalPiece(const Position *pos, EvalInfo *ei, const Color color, const PieceType pt) {
 
-    const Direction up   = color == WHITE ? NORTH : SOUTH;
     const Direction down = color == WHITE ? SOUTH : NORTH;
 
     int eval = 0;
@@ -321,7 +320,7 @@ INLINE int EvalPiece(const Position *pos, EvalInfo *ei, const Color color, const
 
         // Forward mobility for rooks
         if (pt == ROOK) {
-            Bitboard forward = Fill(BB(sq), up);
+            Bitboard forward = ForwardFileBB(color, sq);
             if (!(forward & pieceBB(PAWN))) {
                 eval += OpenForward;
                 TraceIncr(OpenForward);
@@ -345,7 +344,7 @@ INLINE int EvalKings(const Position *pos, EvalInfo *ei, const Color color) {
     TraceIncr(PSQT[KING-1][BlackRelativeSquare(color, kingSq)]);
 
     // Open lines from the king
-    Bitboard SafeLine = RankBB[RelativeRank(color, RANK_1)];
+    Bitboard SafeLine = RelativeRankBB(color, RANK_1);
     int count = PopCount(~SafeLine & AttackBB(QUEEN, kingSq, colorBB(color) | pieceBB(PAWN)));
     eval += KingLineDanger[count];
     TraceIncr(KingLineDanger[count]);
@@ -364,7 +363,7 @@ INLINE int EvalKings(const Position *pos, EvalInfo *ei, const Color color) {
     TraceDanger(S(danger / 128, 0));
 
     // Pawn shelter
-    Bitboard pawnsInFront = pieceBB(PAWN) & PassedMask[color][kingSq];
+    Bitboard pawnsInFront = pieceBB(PAWN) & PassedPawnMask(color, kingSq);
     Bitboard ourPawns = pawnsInFront & colorBB(color) & ~PawnBBAttackBB(colorPieceBB(!color, PAWN), !color);
 
     count = PopCount(ourPawns);
@@ -499,7 +498,7 @@ INLINE void InitEvalInfo(const Position *pos, EvalInfo *ei, const Color color) {
 
     // Mobility area is defined as any square not attacked by an enemy pawn, nor
     // occupied by our own pawn either on its starting square or blocked from advancing.
-    b = pawns & (RankBB[RelativeRank(color, RANK_2)] | ShiftBB(pieceBB(ALL), down));
+    b = pawns & (RelativeRankBB(color, RANK_2) | ShiftBB(pieceBB(ALL), down));
     ei->mobilityArea[color] = ~(b | PawnBBAttackBB(colorPieceBB(!color, PAWN), !color));
 
     // King Safety

@@ -89,7 +89,7 @@ INLINE void GenPawn(const Position *pos, MoveList *list, const Color color, cons
     if (type == QUIET) {
 
         Bitboard moves = push & normal;
-        Bitboard doubles = ShiftBB(moves, up) & empty & RankBB[RelativeRank(color, RANK_4)];
+        Bitboard doubles = ShiftBB(moves, up) & empty & RelativeRankBB(color, RANK_4);
 
         if (pos->checkers)
             moves   &= BetweenBB[kingSq(color)][Lsb(pos->checkers)],
